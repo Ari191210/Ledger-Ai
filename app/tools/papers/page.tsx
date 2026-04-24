@@ -130,7 +130,7 @@ export default function PapersPage() {
       <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 07 · Past Papers · Practice Mode</div>
       </header>
-      <main style={{ padding: "0 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+      <main className="mob-p" style={{ padding: "0 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
         <PracticeMode state={practice} setState={(s) => setPractice(s)} />
       </main>
     </div>
@@ -144,7 +144,7 @@ export default function PapersPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>{PAPERS.length} papers · {PAPERS.reduce((s, p) => s + p.questions.length, 0)} questions</div>
         </header>
 
-        <main style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+        <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
           {/* Filters */}
           <div style={{ display: "flex", gap: 0, marginBottom: 32 }}>
             {[
@@ -167,7 +167,7 @@ export default function PapersPage() {
           </div>
 
           {/* Papers list */}
-          <div style={{ borderTop: "1px solid var(--ink)", borderLeft: "1px solid var(--ink)", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+          <div className="mob-col" style={{ borderTop: "1px solid var(--ink)", borderLeft: "1px solid var(--ink)", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
             {filtered.map((p) => (
               <div key={p.id} style={{ borderRight: "1px solid var(--ink)", borderBottom: "1px solid var(--ink)", padding: "22px 20px", display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>

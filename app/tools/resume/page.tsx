@@ -39,13 +39,13 @@ export default function ResumePage() {
   return (
     <TierGate requires="pro-plus">
       <div>
-        <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
+        <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 09 · Resume Builder</div>
           <button className="btn" onClick={() => window.print()}>Export PDF →</button>
         </header>
 
-        <main style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
+        <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
             {/* Form */}
             <div>
               <div className="mono cin" style={{ marginBottom: 14 }}>Personal info</div>

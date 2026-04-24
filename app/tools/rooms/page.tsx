@@ -141,10 +141,10 @@ export default function RoomsPage() {
   if (room) return (
     <TierGate requires="pro-plus">
       <div>
-        <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
+        <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 10 · Study Rooms</div>
         </header>
-        <main style={{ padding: "0 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+        <main className="mob-p" style={{ padding: "0 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
           <ActiveRoom room={room} onLeave={() => setRoom(null)} />
         </main>
       </div>
@@ -154,13 +154,13 @@ export default function RoomsPage() {
   return (
     <TierGate requires="pro-plus">
       <div>
-        <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
+        <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 10 · Study Rooms</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Silent accountability</div>
         </header>
 
-        <main style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, maxWidth: 800 }}>
+        <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, maxWidth: 800 }}>
             {/* Create room */}
             <div>
               <div className="mono cin" style={{ marginBottom: 14 }}>Create a room</div>

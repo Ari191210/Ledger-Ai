@@ -50,12 +50,12 @@ export default function CareerPage() {
   if (output) return (
     <TierGate requires="pro">
       <div>
-        <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
+        <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 06 · Career Pathfinder · Your Profile</div>
           <button className="btn ghost" onClick={() => { setOutput(null); setAnswers({}); setStep(0); }}>Retake quiz</button>
         </header>
-        <main style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+        <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
             {/* Streams */}
             <div>
               <div className="mono cin" style={{ marginBottom: 14 }}>Recommended streams</div>
@@ -134,12 +134,12 @@ export default function CareerPage() {
   return (
     <TierGate requires="pro">
       <div>
-        <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
+        <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 06 · Career Pathfinder</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Question {step + 1} of {QUESTIONS.length}</div>
         </header>
 
-        <main style={{ padding: "40px 44px 80px", maxWidth: 680, margin: "0 auto" }}>
+        <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 680, margin: "0 auto" }}>
           {/* Progress */}
           <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 40 }}>
             <div style={{ height: "100%", width: `${((step) / QUESTIONS.length) * 100}%`, background: "var(--cinnabar)", transition: "width 300ms" }} />

@@ -229,3 +229,27 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 /* ─── Misc ──────────────────────────────────────────────────────────────────── */
 .plain { list-style: none; padding: 0; margin: 0; }
 ::selection { background: var(--highlight); color: var(--ink); }
+
+/* ─── Mobile ─────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Grid collapse helpers — !important overrides inline styles */
+  .mob-col  { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .mob-2col { grid-template-columns: 1fr 1fr !important; }
+
+  /* Padding overrides */
+  .mob-p  { padding: 20px 16px 56px !important; }
+  .mob-hp { padding: 12px 16px !important; flex-wrap: wrap !important; gap: 6px !important; }
+
+  /* Hide secondary info to save space */
+  .mob-hide { display: none !important; }
+
+  /* Cols layout → single column */
+  .cols-2 { column-count: 1; }
+
+  /* Nav — already scrolls horizontally, just shrink text */
+  nav .mono { font-size: 9px !important; letter-spacing: 0.02em !important; }
+  nav a[style] { padding: 12px 10px !important; }
+
+  /* Large display numbers */
+  .mob-num { font-size: 56px !important; }
+}

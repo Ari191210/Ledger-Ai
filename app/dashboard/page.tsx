@@ -17,7 +17,7 @@ const TOOLS = [
 export default function Dashboard() {
 
   return (
-    <main style={{ padding: "48px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+    <main className="mob-p" style={{ padding: "48px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
       {/* Header */}
       <div style={{ borderBottom: "1px solid var(--ink)", paddingBottom: 28, marginBottom: 40 }}>
         <div className="mono cin">Dashboard</div>
@@ -38,6 +38,7 @@ export default function Dashboard() {
 
       {/* Tools grid */}
       <div
+        className="mob-2col"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",

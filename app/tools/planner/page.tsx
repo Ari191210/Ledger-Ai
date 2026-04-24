@@ -260,14 +260,14 @@ export default function PlannerPage() {
 
   return (
     <div>
-      <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 01 · Smart Study Planner</div>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Today · {todayStr}</div>
       </header>
 
-      <main style={{ padding: "32px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+      <main className="mob-p" style={{ padding: "32px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
         {/* Intro + Debt Meter */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 40, marginBottom: 48 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 40, marginBottom: 48 }}>
           <div>
             <div className="mono cin">Section 1</div>
             <h1 style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 400, lineHeight: 0.98, letterSpacing: "-0.03em", margin: "8px 0 0" }}>
@@ -282,7 +282,7 @@ export default function PlannerPage() {
         </div>
 
         {/* Input row */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 40, alignItems: "start" }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 40, alignItems: "start" }}>
           {/* Subjects table */}
           <div>
             <div className="mono cin">Input · Subjects &amp; exams</div>
@@ -413,7 +413,9 @@ export default function PlannerPage() {
               </button>
             </div>
           </div>
-          {plan.map((d, i) => <DayRow key={d.iso} day={d} idx={i} />)}
+          <div style={{ overflowX: "auto" }}>
+            {plan.map((d, i) => <DayRow key={d.iso} day={d} idx={i} />)}
+          </div>
         </section>
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
