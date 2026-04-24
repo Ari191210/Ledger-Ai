@@ -56,13 +56,13 @@ const footerGroups = [
 
 export default function Home() {
   return (
-    <div style={{ overflowX: "auto" }}>
+    <div>
       <article
         data-v="broadsheet"
         className="grain"
         style={{
-          minWidth: 1280,
-          width: 1280,
+          maxWidth: 1280,
+          width: "100%",
           margin: "0 auto",
           background: "var(--paper)",
           color: "var(--ink)",
@@ -70,56 +70,27 @@ export default function Home() {
         }}
       >
         {/* ── Top meta bar ──────────────────────────────────────────────── */}
-        <div
-          className="mono"
-          style={{
-            borderBottom: "1px solid var(--rule)",
-            padding: "10px 44px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div className="mono lp-metabar">
           <span>Vol. I · №&nbsp;01 · Wednesday, April 22, 2026</span>
           <span>A Periodical for the Studious · Since 2026</span>
           <span>Free to use · All tools included</span>
         </div>
 
         {/* ── Masthead ──────────────────────────────────────────────────── */}
-        <header style={{ padding: "40px 44px 28px", borderBottom: "3px double var(--ink)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <header className="lp-header">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 4 }}>
             <div className="mono" style={{ color: "var(--ink-3)" }}>Est. MMXXVI — New Delhi · Singapore · Mumbai</div>
             <div className="mono" style={{ color: "var(--ink-3)" }}>Issue Ten · Tools · One Ledger</div>
           </div>
-          <h1
-            style={{
-              fontFamily: "var(--serif)",
-              fontWeight: 900,
-              fontStyle: "italic",
-              fontSize: 168,
-              lineHeight: 0.9,
-              letterSpacing: "-0.035em",
-              margin: "12px 0 0",
-            }}
-          >
-            The Ledger
-          </h1>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }} className="mono">
+          <h1 className="lp-title">The Ledger</h1>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 4, marginTop: 10 }} className="mono">
             <span>The Student&apos;s Operating System</span>
-            <span>ledger.study</span>
+            <span>studyledger.in</span>
           </div>
         </header>
 
         {/* ── Lede ──────────────────────────────────────────────────────── */}
-        <section
-          style={{
-            padding: "36px 44px",
-            borderBottom: "1px solid var(--ink)",
-            display: "grid",
-            gridTemplateColumns: "220px 1fr 300px",
-            gap: 32,
-          }}
-        >
+        <section className="lp-lede">
           <div>
             <div className="mono" style={{ color: "var(--cinnabar-ink)" }}>Leader · №&nbsp;1</div>
             <div className="mono" style={{ marginTop: 6, color: "var(--ink-3)" }}>Filed 04:22 · Editorial</div>
@@ -129,17 +100,7 @@ export default function Home() {
           </div>
 
           <div>
-            <h2
-              style={{
-                fontFamily: "var(--serif)",
-                fontWeight: 400,
-                fontStyle: "italic",
-                fontSize: 56,
-                lineHeight: 1.02,
-                letterSpacing: "-0.02em",
-                margin: 0,
-              }}
-            >
+            <h2 className="lp-h2">
               Ten tools. One ledger. Built for the student who would rather be studying than picking software.
             </h2>
             <p
@@ -150,7 +111,7 @@ export default function Home() {
               <span className="mark">
                 Ledger is the single book where all of it is entered, measured, and scheduled
               </span>{" "}
-              — a study planner, marks predictor, notes tool, doubt solver, focus dashboard, career quiz, past-paper engine, assignment helper, resume builder, and study room, sharing one calendar and one streak. It is dense, because your syllabus is dense. It is direct, because you are out of time.
+              — a study planner, marks predictor, notes tool, doubt solver, focus dashboard, career quiz, past-paper engine, assignment helper, resume builder, and study room, sharing one calendar and one streak.
             </p>
           </div>
 
@@ -184,35 +145,16 @@ export default function Home() {
         </div>
 
         {/* ── Tools grid ────────────────────────────────────────────────── */}
-        <section id="tools" style={{ padding: "56px 44px 24px", borderBottom: "1px solid var(--ink)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "end", gap: 20, marginBottom: 28 }}>
+        <section id="tools" className="lp-pad-t" style={{ borderBottom: "1px solid var(--ink)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
             <div>
               <div className="mono cin">Section A — The Ten Tools</div>
-              <h3
-                style={{
-                  fontFamily: "var(--serif)",
-                  fontWeight: 500,
-                  fontStyle: "italic",
-                  fontSize: 68,
-                  lineHeight: 0.98,
-                  letterSpacing: "-0.025em",
-                  margin: "8px 0 0",
-                }}
-              >
-                Ten tools. One place to study.
-              </h3>
+              <h3 className="lp-h3">Ten tools. One place to study.</h3>
             </div>
             <div className="mono" style={{ color: "var(--ink-3)" }}>Fig. A · 2 × 5 grid</div>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(5, 1fr)",
-              borderTop: "1px solid var(--ink)",
-              borderLeft: "1px solid var(--ink)",
-            }}
-          >
+          <div className="lp-5col">
             {tools.map((t, i) => (
               <Link
                 key={t.n}
@@ -223,18 +165,18 @@ export default function Home() {
                   borderRight: "1px solid var(--ink)",
                   borderBottom: "1px solid var(--ink)",
                   padding: "20px 18px 22px",
-                  minHeight: 240,
+                  minHeight: 200,
                   background: i === 0 ? "var(--paper-2)" : "var(--paper)",
                   display: "flex",
                   flexDirection: "column",
                 }}
               >
                 <div className="mono cin">№ {t.n}</div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, lineHeight: 1.1, marginTop: 14 }}>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600, lineHeight: 1.1, marginTop: 10 }}>
                   {t.ttl}
                 </div>
-                <div className="mono" style={{ color: "var(--ink-3)", marginTop: 6 }}>{t.sub}</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5, color: "var(--ink-2)", marginTop: 12 }}>
+                <div className="mono" style={{ color: "var(--ink-3)", marginTop: 6, fontSize: 9 }}>{t.sub}</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.5, color: "var(--ink-2)", marginTop: 10 }}>
                   {t.desc}
                 </div>
                 <div style={{ flex: 1 }} />
@@ -257,40 +199,21 @@ export default function Home() {
         </section>
 
         {/* ── Niche features ────────────────────────────────────────────── */}
-        <section style={{ padding: "60px 44px", borderBottom: "1px solid var(--ink)", background: "var(--paper-2)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 40 }}>
+        <section className="lp-pad" style={{ borderBottom: "1px solid var(--ink)", background: "var(--paper-2)" }}>
+          <div className="lp-feats">
             <div>
               <div className="mono cin">Section B — Seven things nobody else ships</div>
-              <h3
-                style={{
-                  fontFamily: "var(--serif)",
-                  fontWeight: 500,
-                  fontStyle: "italic",
-                  fontSize: 56,
-                  lineHeight: 0.98,
-                  letterSpacing: "-0.025em",
-                  margin: "10px 0 0",
-                }}
-              >
-                The features we are quietly strange about.
-              </h3>
+              <h3 className="lp-h3">The features we are quietly strange about.</h3>
               <p style={{ fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.55, color: "var(--ink-2)", marginTop: 20 }}>
                 The tools above are the price of entry. These are the reason you stay. None of them are available in another student app we have been able to find — we looked, and then we built them.
               </p>
               <div className="fignum" style={{ marginTop: 40 }}>Fig. B · Seven signatures</div>
-              <div className="figbox" style={{ marginTop: 8, height: 180 }}>
+              <div className="figbox" style={{ marginTop: 8, height: 160 }}>
                 <div className="fiblab">Schematic · Debt Meter</div>
               </div>
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                borderTop: "1px solid var(--ink)",
-                borderLeft: "1px solid var(--ink)",
-              }}
-            >
+            <div className="lp-feats2">
               {nicheFeats.map((f) => (
                 <div
                   key={f.tag}
@@ -302,28 +225,19 @@ export default function Home() {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-                    <span
-                      style={{
-                        fontFamily: "var(--serif)",
-                        fontStyle: "italic",
-                        fontSize: 34,
-                        color: "var(--cinnabar-ink)",
-                        fontWeight: 400,
-                      }}
-                    >
+                    <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 34, color: "var(--cinnabar-ink)", fontWeight: 400 }}>
                       {f.tag}
                     </span>
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, lineHeight: 1.1 }}>
+                    <span style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600, lineHeight: 1.1 }}>
                       {f.ttl}
                     </span>
                   </div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.55, color: "var(--ink-2)", marginTop: 12 }}>
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.55, color: "var(--ink-2)", marginTop: 10 }}>
                     {f.body}
                   </p>
                 </div>
               ))}
 
-              {/* Coming Q3 — inverted tile */}
               <div
                 style={{
                   borderRight: "1px solid var(--ink)",
@@ -338,10 +252,10 @@ export default function Home() {
               >
                 <div>
                   <div className="mono" style={{ color: "var(--paper)", opacity: 0.7 }}>Coming Q3</div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, lineHeight: 1.1, marginTop: 14 }}>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600, lineHeight: 1.1, marginTop: 14 }}>
                     Exam-Day Mode
                   </div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.55, opacity: 0.85, marginTop: 10 }}>
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.55, opacity: 0.85, marginTop: 10 }}>
                     The morning of the paper, Ledger locks to a single-screen revision of only what you got wrong in the last 14 days.
                   </p>
                 </div>
@@ -352,76 +266,50 @@ export default function Home() {
         </section>
 
         {/* ── Field reports ─────────────────────────────────────────────── */}
-        <section style={{ padding: "60px 44px", borderBottom: "1px solid var(--ink)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 28 }}>
+        <section className="lp-pad" style={{ borderBottom: "1px solid var(--ink)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
             <div>
               <div className="mono cin">Section C — Field reports</div>
-              <h3
-                style={{
-                  fontFamily: "var(--serif)",
-                  fontWeight: 500,
-                  fontStyle: "italic",
-                  fontSize: 56,
-                  lineHeight: 0.98,
-                  letterSpacing: "-0.025em",
-                  margin: "10px 0 0",
-                }}
-              >
-                Dispatches from the desks of actual students.
-              </h3>
+              <h3 className="lp-h3">Dispatches from the desks of actual students.</h3>
             </div>
             <div className="mono" style={{ color: "var(--ink-3)" }}>n = 11,482 · Self-reported · Apr &apos;26</div>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-              borderTop: "1px solid var(--ink)",
-              borderLeft: "1px solid var(--ink)",
-            }}
-          >
+          <div className="lp-2col">
             {testimonials.map((t, i) => (
               <div
                 key={i}
                 style={{
                   borderRight: "1px solid var(--ink)",
                   borderBottom: "1px solid var(--ink)",
-                  padding: "28px 28px 24px",
+                  padding: "24px 20px",
                 }}
               >
                 <div className="mono cin">Dispatch № {String(i + 1).padStart(2, "0")}</div>
                 <blockquote
                   style={{
                     fontFamily: "var(--serif)",
-                    fontSize: 26,
+                    fontSize: 20,
                     fontStyle: "italic",
-                    lineHeight: 1.28,
-                    margin: "16px 0 24px",
+                    lineHeight: 1.35,
+                    margin: "14px 0 20px",
                     letterSpacing: "-0.008em",
                   }}
                 >
                   &ldquo;{t.q}&rdquo;
                 </blockquote>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr",
-                    borderTop: "1px solid var(--rule)",
-                    paddingTop: 12,
-                  }}
-                >
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderTop: "1px solid var(--rule)", paddingTop: 12 }}>
                   <div>
                     <div className="mono" style={{ color: "var(--ink-3)" }}>Filed by</div>
-                    <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13.5, marginTop: 4 }}>{t.by}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13, marginTop: 4 }}>{t.by}</div>
                   </div>
                   <div>
                     <div className="mono" style={{ color: "var(--ink-3)" }}>Desk</div>
-                    <div style={{ fontFamily: "var(--sans)", fontWeight: 500, fontSize: 13.5, marginTop: 4, color: "var(--ink-2)" }}>{t.ctx}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontWeight: 500, fontSize: 12, marginTop: 4, color: "var(--ink-2)" }}>{t.ctx}</div>
                   </div>
                   <div>
                     <div className="mono" style={{ color: "var(--ink-3)" }}>Result</div>
-                    <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13.5, marginTop: 4, color: "var(--cinnabar-ink)" }}>{t.score}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13, marginTop: 4, color: "var(--cinnabar-ink)" }}>{t.score}</div>
                   </div>
                 </div>
               </div>
@@ -429,77 +317,36 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              borderTop: "1px solid var(--ink)",
-              marginTop: -1,
-            }}
-          >
+          <div className="lp-4col" style={{ marginTop: -1 }}>
             {stats.map(([big, sm], i) => (
               <div
                 key={i}
                 style={{
                   borderRight: i < 3 ? "1px solid var(--ink)" : "none",
                   borderBottom: "1px solid var(--ink)",
-                  padding: "22px 24px",
+                  padding: "20px 20px",
                 }}
               >
-                <div
-                  style={{
-                    fontFamily: "var(--serif)",
-                    fontSize: 48,
-                    fontWeight: 700,
-                    fontStyle: "italic",
-                    lineHeight: 1,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
+                <div style={{ fontFamily: "var(--serif)", fontSize: 40, fontWeight: 700, fontStyle: "italic", lineHeight: 1, letterSpacing: "-0.02em" }}>
                   {big}
                 </div>
-                <div className="mono" style={{ marginTop: 10, color: "var(--ink-3)" }}>{sm}</div>
+                <div className="mono" style={{ marginTop: 8, color: "var(--ink-3)" }}>{sm}</div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── Colophon / Footer ─────────────────────────────────────────── */}
-        <footer
-          style={{
-            padding: "48px 44px 64px",
-            display: "grid",
-            gridTemplateColumns: "1.4fr 1fr 1fr 1fr",
-            gap: 28,
-          }}
-        >
+        {/* ── Footer ────────────────────────────────────────────────────── */}
+        <footer className="lp-footer">
           <div>
-            <div
-              style={{
-                fontFamily: "var(--serif)",
-                fontStyle: "italic",
-                fontWeight: 700,
-                fontSize: 48,
-                letterSpacing: "-0.02em",
-                lineHeight: 0.9,
-              }}
-            >
+            <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 40, letterSpacing: "-0.02em", lineHeight: 0.9 }}>
               Ledger
             </div>
             <div className="mono" style={{ marginTop: 10, color: "var(--ink-3)" }}>
               The Student&apos;s Operating System
             </div>
-            <p
-              style={{
-                fontFamily: "var(--sans)",
-                fontSize: 12.5,
-                color: "var(--ink-3)",
-                marginTop: 24,
-                maxWidth: 300,
-                lineHeight: 1.55,
-              }}
-            >
-              Ledger is independent, student-funded, and not accepting venture capital until version 2.0. We will never sell your study data. We will never show you an ad during an exam week.
+            <p style={{ fontFamily: "var(--sans)", fontSize: 12.5, color: "var(--ink-3)", marginTop: 20, maxWidth: 300, lineHeight: 1.55 }}>
+              Ledger is independent, student-funded, and not accepting venture capital until version 2.0. We will never sell your study data.
             </p>
           </div>
 
@@ -520,11 +367,13 @@ export default function Home() {
               paddingTop: 18,
               display: "flex",
               justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 8,
             }}
           >
             <span>© MMXXVI Ledger Study Co.</span>
-            <span>Printed on the web · Set in Source Serif, Inter Tight &amp; JetBrains Mono</span>
-            <span>ledger.study</span>
+            <span>Set in Source Serif, Inter Tight &amp; JetBrains Mono</span>
+            <span>studyledger.in</span>
           </div>
         </footer>
       </article>

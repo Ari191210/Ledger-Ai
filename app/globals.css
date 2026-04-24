@@ -230,6 +230,41 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 .plain { list-style: none; padding: 0; margin: 0; }
 ::selection { background: var(--highlight); color: var(--ink); }
 
+/* ─── Landing page ───────────────────────────────────────────────────────────── */
+.lp-title  { font-family: var(--serif); font-size: 168px; font-weight: 900; font-style: italic; line-height: 0.9; letter-spacing: -0.035em; margin: 12px 0 0; }
+.lp-h3     { font-family: var(--serif); font-size: 56px; font-weight: 500; font-style: italic; line-height: 0.98; letter-spacing: -0.025em; margin: 10px 0 0; }
+.lp-h2     { font-family: var(--serif); font-size: 56px; font-weight: 400; font-style: italic; line-height: 1.02; letter-spacing: -0.02em; margin: 0; }
+.lp-metabar  { border-bottom: 1px solid var(--rule); padding: 10px 44px; display: flex; justify-content: space-between; align-items: center; }
+.lp-header   { padding: 40px 44px 28px; border-bottom: 3px double var(--ink); }
+.lp-lede     { padding: 36px 44px; border-bottom: 1px solid var(--ink); display: grid; grid-template-columns: 220px 1fr 300px; gap: 32px; }
+.lp-pad      { padding: 60px 44px; }
+.lp-pad-t    { padding: 56px 44px 24px; }
+.lp-5col     { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.lp-2col     { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.lp-4col     { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); }
+.lp-feats    { display: grid; grid-template-columns: 320px 1fr; gap: 40px; }
+.lp-feats2   { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.lp-footer   { padding: 48px 44px 64px; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 28px; }
+
+@media (max-width: 768px) {
+  .lp-title  { font-size: 52px !important; }
+  .lp-h3     { font-size: 28px !important; }
+  .lp-h2     { font-size: 26px !important; }
+  .lp-metabar { padding: 8px 16px; }
+  .lp-metabar span:nth-child(2), .lp-metabar span:nth-child(3) { display: none; }
+  .lp-header  { padding: 20px 16px 20px; }
+  .lp-lede    { grid-template-columns: 1fr; padding: 24px 16px; gap: 20px; }
+  .lp-lede aside { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 18px; }
+  .lp-pad     { padding: 28px 16px; }
+  .lp-pad-t   { padding: 28px 16px 12px; }
+  .lp-5col    { grid-template-columns: 1fr 1fr; }
+  .lp-2col    { grid-template-columns: 1fr; }
+  .lp-4col    { grid-template-columns: 1fr 1fr; }
+  .lp-feats   { grid-template-columns: 1fr; }
+  .lp-feats2  { grid-template-columns: 1fr; }
+  .lp-footer  { grid-template-columns: 1fr 1fr; padding: 28px 16px 48px; gap: 20px; }
+}
+
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Grid collapse helpers — !important overrides inline styles */
