@@ -42,10 +42,38 @@ export default function FocusPage() {
     loadStreak();
   }, [user]);
 
+  const mountedRef = useRef(false);
+
   useEffect(() => {
+    if (!mountedRef.current) return;
     setSeconds(DURATIONS[mode]);
     setRunning(false);
   }, [mode]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    try {
+      const raw = localStorage.getItem("ledger-focus-timer");
+      if (raw) {
+        const { s, n } = JSON.parse(raw);
+        if (typeof s === "number" && s > 0) setSeconds(s);
+        if (typeof n === "number") setSessions(n);
+      }
+      const rawTasks = localStorage.getItem("ledger-focus-tasks");
+      if (rawTasks) {
+        const t = JSON.parse(rawTasks);
+        if (Array.isArray(t) && t.length) setTasks(t);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ledger-focus-timer", JSON.stringify({ s: seconds, n: sessions }));
+  }, [seconds, sessions]);
+
+  useEffect(() => {
+    localStorage.setItem("ledger-focus-tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const tick = useCallback(() => {
     setSeconds((s) => {
