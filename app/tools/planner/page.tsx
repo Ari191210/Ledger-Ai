@@ -1,7 +1,29 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { patchUserData, loadUserData } from "@/lib/user-data";
+
+const SUBJECT_SUGGESTIONS = [
+  // Science
+  "Physics", "Chemistry", "Mathematics", "Biology", "Computer Science", "Biotechnology",
+  "Applied Mathematics", "Physical Education", "Environmental Science",
+  // Commerce
+  "Accountancy", "Business Studies", "Economics", "Entrepreneurship", "Information Practices",
+  // Humanities & Arts
+  "History", "Geography", "Political Science", "Sociology", "Psychology", "Philosophy",
+  "Legal Studies", "Fine Arts", "Music", "Drama", "Home Science",
+  // Languages
+  "English", "Hindi", "French", "Spanish", "German", "Sanskrit", "Urdu",
+  "Tamil", "Telugu", "Kannada", "Malayalam", "Bengali", "Marathi", "Gujarati",
+  // IB / International
+  "Theory of Knowledge", "Global Politics", "Environmental Systems & Societies",
+  "Sports, Exercise & Health Science", "Media Studies", "Film Studies",
+  // Vocational / Others
+  "Agriculture", "Mass Communication", "Tourism", "Fashion Studies",
+  "Painting", "Informatics Practices",
+];
 
 type Subject = {
   id: string;
@@ -105,11 +127,9 @@ function makeDefaultSubjects(today: Date): Subject[] {
     return t.toISOString().slice(0, 10);
   };
   return [
-    { id: "phy", name: "Physics",     color: COLORS[0], exam: d(22), weak: ["Rotational", "EM Induction"], priority: 5 },
-    { id: "chm", name: "Chemistry",   color: COLORS[1], exam: d(26), weak: ["Organic"],                    priority: 4 },
-    { id: "mth", name: "Mathematics", color: COLORS[2], exam: d(29), weak: ["Conics", "Integrals"],        priority: 5 },
-    { id: "eng", name: "English",     color: COLORS[3], exam: d(17), weak: [],                             priority: 2 },
-    { id: "cs",  name: "Comp. Sci",   color: COLORS[4], exam: d(33), weak: ["Recursion"],                  priority: 3 },
+    { id: "s1", name: "Subject 1", color: COLORS[0], exam: d(21), weak: [], priority: 3 },
+    { id: "s2", name: "Subject 2", color: COLORS[1], exam: d(28), weak: [], priority: 3 },
+    { id: "s3", name: "Subject 3", color: COLORS[2], exam: d(35), weak: [], priority: 3 },
   ];
 }
 
@@ -196,6 +216,7 @@ function DayRow({ day, idx }: { day: PlanDay; idx: number }) {
 }
 
 export default function PlannerPage() {
+  const { user } = useAuth();
   const [today] = useState(() => new Date());
   const [subjects, setSubjects] = useState<Subject[]>(() => makeDefaultSubjects(new Date()));
   const [hoursPerDay, setHoursPerDay] = useState(4);
@@ -204,22 +225,50 @@ export default function PlannerPage() {
   const [newSubj, setNewSubj] = useState({ name: "", exam: "", weak: "", priority: 3 });
   const [saveLabel, setSaveLabel] = useState<"idle" | "saved">("idle");
   const [syncLabel, setSyncLabel] = useState<"idle" | "copied">("idle");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Load from Supabase (or localStorage fallback)
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("ledger-plan-v1");
-      if (raw) {
-        const { subjects: s, hoursPerDay: h, chronotype: c } = JSON.parse(raw);
-        if (Array.isArray(s) && s.length) setSubjects(s);
-        if (typeof h === "number") setHoursPerDay(h);
-        if (c) setChronotype(c);
+    async function load() {
+      if (user) {
+        const data = await loadUserData(user.id);
+        if (data?.plan) {
+          const { subjects: s, hoursPerDay: h, chronotype: c } = data.plan as { subjects: Subject[]; hoursPerDay: number; chronotype: string };
+          if (Array.isArray(s) && s.length) setSubjects(s);
+          if (typeof h === "number") setHoursPerDay(h);
+          if (c) setChronotype(c as "morning" | "midday" | "evening");
+          return;
+        }
       }
-    } catch {}
-  }, []);
+      try {
+        const raw = localStorage.getItem("ledger-plan-v1");
+        if (raw) {
+          const { subjects: s, hoursPerDay: h, chronotype: c } = JSON.parse(raw);
+          if (Array.isArray(s) && s.length) setSubjects(s);
+          if (typeof h === "number") setHoursPerDay(h);
+          if (c) setChronotype(c);
+        }
+      } catch {}
+    }
+    load();
+  }, [user]);
+
+  // Auto-save to Supabase 2s after any change
+  useEffect(() => {
+    if (!user) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      patchUserData(user.id, "plan", { subjects, hoursPerDay, chronotype });
+      localStorage.setItem("ledger-plan-v1", JSON.stringify({ subjects, hoursPerDay, chronotype }));
+    }, 2000);
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
+  }, [subjects, hoursPerDay, chronotype, user]);
 
   function savePlan() {
     try {
       localStorage.setItem("ledger-plan-v1", JSON.stringify({ subjects, hoursPerDay, chronotype }));
+      if (user) patchUserData(user.id, "plan", { subjects, hoursPerDay, chronotype });
     } catch {}
     setSaveLabel("saved");
     setTimeout(() => setSaveLabel("idle"), 2200);
@@ -339,8 +388,26 @@ export default function PlannerPage() {
 
             {showAdd ? (
               <div style={{ marginTop: 8, padding: "12px 0", display: "grid", gridTemplateColumns: "1fr 130px 1fr 80px auto", gap: 8, alignItems: "center", borderTop: "1px dashed var(--rule)" }}>
-                <input placeholder="Subject name" value={newSubj.name} onChange={(e) => setNewSubj({ ...newSubj, name: e.target.value })}
-                  style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "6px 8px", color: "var(--ink)" }} />
+                <div style={{ position: "relative" }}>
+                  <input placeholder="Subject name" value={newSubj.name}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setNewSubj({ ...newSubj, name: v });
+                      setSuggestions(v.length >= 1 ? SUBJECT_SUGGESTIONS.filter((s) => s.toLowerCase().includes(v.toLowerCase()) && s !== v).slice(0, 6) : []);
+                    }}
+                    onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+                    style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "6px 8px", color: "var(--ink)", width: "100%" }} />
+                  {suggestions.length > 0 && (
+                    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "var(--paper)", border: "1px solid var(--ink)", borderTop: "none", zIndex: 50 }}>
+                      {suggestions.map((s) => (
+                        <button key={s} onMouseDown={() => { setNewSubj((p) => ({ ...p, name: s })); setSuggestions([]); }}
+                          style={{ display: "block", width: "100%", padding: "8px 10px", background: "none", border: "none", borderBottom: "1px solid var(--rule)", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink)" }}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <input type="date" value={newSubj.exam} onChange={(e) => setNewSubj({ ...newSubj, exam: e.target.value })}
                   style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", background: "var(--paper)", padding: "6px 6px", color: "var(--ink)" }} />
                 <input placeholder="Weak chapters (comma sep)" value={newSubj.weak} onChange={(e) => setNewSubj({ ...newSubj, weak: e.target.value })}

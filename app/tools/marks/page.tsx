@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { patchUserData, loadUserData } from "@/lib/user-data";
 
 type Subject = { id: number; name: string; score: number; weight: number };
 
@@ -41,8 +43,30 @@ function pctToGrade(p: number): string {
 let nextId = 6;
 
 export default function MarksPage() {
+  const { user } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>(DEFAULT_SUBJECTS);
   const [target, setTarget] = useState(90);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then((data) => {
+      if (data?.marks) {
+        const { subjects: s, target: t } = data.marks as { subjects: Subject[]; target: number };
+        if (Array.isArray(s) && s.length) setSubjects(s);
+        if (typeof t === "number") setTarget(t);
+      }
+    });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      patchUserData(user.id, "marks", { subjects, target });
+    }, 2000);
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
+  }, [subjects, target, user]);
 
   const totalWeight = subjects.reduce((s, x) => s + x.weight, 0);
   const { currentPct, needed } = useMemo(() => {

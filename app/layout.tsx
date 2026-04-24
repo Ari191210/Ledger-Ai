@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 
 const sourceSerif4 = Source_Serif_4({
@@ -38,7 +39,7 @@ export default function RootLayout({
       lang="en"
       className={`${sourceSerif4.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body><AuthProvider>{children}</AuthProvider></body>
     </html>
   );
 }

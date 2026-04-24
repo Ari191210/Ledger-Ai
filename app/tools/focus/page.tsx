@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { patchUserData, loadUserData } from "@/lib/user-data";
 
 type Mode = "work" | "break" | "longbreak";
 type Task = { id: number; text: string; done: boolean };
@@ -12,12 +14,13 @@ const MODE_LABELS: Record<Mode, string> = { work: "Work", break: "Short break", 
 let taskId = 1;
 
 export default function FocusPage() {
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("work");
   const [seconds, setSeconds] = useState(DURATIONS.work);
   const [running, setRunning] = useState(false);
   const [sessions, setSessions] = useState(0);
   const [tasks, setTasks] = useState<Task[]>([
-    { id: taskId++, text: "Review Chapter 12 notes", done: false },
+    { id: taskId++, text: "Review chapter notes", done: false },
     { id: taskId++, text: "Solve 5 past-paper questions", done: false },
   ]);
   const [newTask, setNewTask] = useState("");
@@ -25,9 +28,19 @@ export default function FocusPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("ledger-focus-streak");
-    if (stored) setStreak(parseInt(stored, 10));
-  }, []);
+    async function loadStreak() {
+      if (user) {
+        const data = await loadUserData(user.id);
+        if (data?.focus) {
+          setStreak((data.focus as { streak: number }).streak ?? 0);
+          return;
+        }
+      }
+      const stored = localStorage.getItem("ledger-focus-streak");
+      if (stored) setStreak(parseInt(stored, 10));
+    }
+    loadStreak();
+  }, [user]);
 
   useEffect(() => {
     setSeconds(DURATIONS[mode]);
@@ -51,6 +64,7 @@ export default function FocusPage() {
               localStorage.setItem("ledger-focus-streak", String(newStreak));
               localStorage.setItem("ledger-focus-last", today);
               setStreak(newStreak);
+              if (user) patchUserData(user.id, "focus", { streak: newStreak, lastDate: today });
             }
             return next;
           });
