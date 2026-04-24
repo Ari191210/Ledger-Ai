@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 
@@ -29,6 +29,23 @@ export default function CareerPage() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
   const [step,    setStep]    = useState(0);
+
+  useEffect(() => {
+    try {
+      const a = localStorage.getItem("ledger-career-answers");
+      if (a) setAnswers(JSON.parse(a));
+      const o = localStorage.getItem("ledger-career-output");
+      if (o) setOutput(JSON.parse(o));
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ledger-career-answers", JSON.stringify(answers));
+  }, [answers]);
+
+  useEffect(() => {
+    if (output) localStorage.setItem("ledger-career-output", JSON.stringify(output));
+  }, [output]);
 
   const allAnswered = QUESTIONS.every((q) => answers[q.id]);
   const current = QUESTIONS[step];

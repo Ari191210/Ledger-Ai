@@ -1,122 +1,24 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/components/auth-provider";
-import { patchUserData, loadUserData } from "@/lib/user-data";
+import { useFocus, DURATIONS, MODE_LABELS } from "@/lib/focus-context";
 
 type Mode = "work" | "break" | "longbreak";
-type Task = { id: number; text: string; done: boolean };
-
-const DURATIONS: Record<Mode, number> = { work: 25 * 60, break: 5 * 60, longbreak: 20 * 60 };
-const MODE_LABELS: Record<Mode, string> = { work: "Work", break: "Short break", longbreak: "Long break" };
-
-let taskId = 1;
 
 export default function FocusPage() {
-  const { user } = useAuth();
-  const [mode, setMode] = useState<Mode>("work");
-  const [seconds, setSeconds] = useState(DURATIONS.work);
-  const [running, setRunning] = useState(false);
-  const [sessions, setSessions] = useState(0);
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: taskId++, text: "Review chapter notes", done: false },
-    { id: taskId++, text: "Solve 5 past-paper questions", done: false },
-  ]);
+  const { mode, seconds, running, sessions, tasks, streak, switchMode, toggleRunning, reset, setTasks } = useFocus();
   const [newTask, setNewTask] = useState("");
-  const [streak, setStreak] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    async function loadStreak() {
-      if (user) {
-        const data = await loadUserData(user.id);
-        if (data?.focus) {
-          setStreak((data.focus as { streak: number }).streak ?? 0);
-          return;
-        }
-      }
-      const stored = localStorage.getItem("ledger-focus-streak");
-      if (stored) setStreak(parseInt(stored, 10));
-    }
-    loadStreak();
-  }, [user]);
-
-  const mountedRef = useRef(false);
-
-  useEffect(() => {
-    if (!mountedRef.current) return;
-    setSeconds(DURATIONS[mode]);
-    setRunning(false);
-  }, [mode]);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    try {
-      const raw = localStorage.getItem("ledger-focus-timer");
-      if (raw) {
-        const { s, n } = JSON.parse(raw);
-        if (typeof s === "number" && s > 0) setSeconds(s);
-        if (typeof n === "number") setSessions(n);
-      }
-      const rawTasks = localStorage.getItem("ledger-focus-tasks");
-      if (rawTasks) {
-        const t = JSON.parse(rawTasks);
-        if (Array.isArray(t) && t.length) setTasks(t);
-      }
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("ledger-focus-timer", JSON.stringify({ s: seconds, n: sessions }));
-  }, [seconds, sessions]);
-
-  useEffect(() => {
-    localStorage.setItem("ledger-focus-tasks", JSON.stringify(tasks));
-  }, [tasks]);
-
-  const tick = useCallback(() => {
-    setSeconds((s) => {
-      if (s <= 1) {
-        setRunning(false);
-        if (mode === "work") {
-          setSessions((n) => {
-            const next = n + 1;
-            if (next % 4 === 0) setMode("longbreak");
-            else setMode("break");
-            const today = new Date().toDateString();
-            const last = localStorage.getItem("ledger-focus-last");
-            const strk = parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10);
-            if (last !== today) {
-              const newStreak = strk + 1;
-              localStorage.setItem("ledger-focus-streak", String(newStreak));
-              localStorage.setItem("ledger-focus-last", today);
-              setStreak(newStreak);
-              if (user) patchUserData(user.id, "focus", { streak: newStreak, lastDate: today });
-            }
-            return next;
-          });
-        } else {
-          setMode("work");
-        }
-        return 0;
-      }
-      return s - 1;
-    });
-  }, [mode]);
-
-  useEffect(() => {
-    if (running) {
-      intervalRef.current = setInterval(tick, 1000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, tick]);
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
   const progress = 1 - seconds / DURATIONS[mode];
+
+  function addTask() {
+    if (!newTask.trim()) return;
+    setTasks((p) => [...p, { id: Date.now(), text: newTask.trim(), done: false }]);
+    setNewTask("");
+  }
 
   return (
     <div>
@@ -134,15 +36,15 @@ export default function FocusPage() {
             {/* Mode selector */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "1px solid var(--ink)", marginTop: 14 }}>
               {(["work", "break", "longbreak"] as Mode[]).map((m, i) => (
-                <button key={m} onClick={() => setMode(m)}
+                <button key={m} onClick={() => switchMode(m)}
                   style={{ padding: "12px 10px", background: mode === m ? "var(--ink)" : "var(--paper)", color: mode === m ? "var(--paper)" : "var(--ink)", border: "none", borderRight: i < 2 ? "1px solid var(--ink)" : "none", cursor: "pointer", fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>
                   {MODE_LABELS[m]}
                 </button>
               ))}
             </div>
 
-            {/* Big timer display */}
-            <div style={{ textAlign: "center", padding: "48px 0 24px", borderBottom: "1px solid var(--rule)", marginTop: 0, border: "1px solid var(--ink)", borderTop: "none", background: "var(--paper-2)" }}>
+            {/* Big timer */}
+            <div style={{ textAlign: "center", padding: "48px 0 24px", border: "1px solid var(--ink)", borderTop: "none", background: "var(--paper-2)" }}>
               <div style={{ fontFamily: "var(--serif)", fontSize: 112, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 1, color: mode === "work" ? "var(--ink)" : "var(--cinnabar-ink)" }}>
                 {mm}:{ss}
               </div>
@@ -155,12 +57,10 @@ export default function FocusPage() {
 
               {/* Controls */}
               <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
-                <button className="btn" onClick={() => setRunning((r) => !r)} style={{ minWidth: 100 }}>
+                <button className="btn" onClick={toggleRunning} style={{ minWidth: 100 }}>
                   {running ? "Pause" : "Start"}
                 </button>
-                <button className="btn ghost" onClick={() => { setRunning(false); setSeconds(DURATIONS[mode]); }}>
-                  Reset
-                </button>
+                <button className="btn ghost" onClick={reset}>Reset</button>
               </div>
             </div>
 
@@ -185,7 +85,8 @@ export default function FocusPage() {
             <div style={{ border: "1px solid var(--ink)" }}>
               {tasks.map((t, i) => (
                 <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderBottom: i < tasks.length - 1 ? "1px solid var(--rule)" : "none", background: t.done ? "var(--paper-2)" : "var(--paper)" }}>
-                  <input type="checkbox" checked={t.done} onChange={() => setTasks((prev) => prev.map((x) => x.id === t.id ? { ...x, done: !x.done } : x))}
+                  <input type="checkbox" checked={t.done}
+                    onChange={() => setTasks((prev) => prev.map((x) => x.id === t.id ? { ...x, done: !x.done } : x))}
                     style={{ accentColor: "var(--cinnabar-ink)", width: 16, height: 16, cursor: "pointer", flexShrink: 0 }} />
                   <span style={{ fontFamily: "var(--sans)", fontSize: 14, flex: 1, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--ink-3)" : "var(--ink)" }}>
                     {t.text}
@@ -198,7 +99,7 @@ export default function FocusPage() {
               <div style={{ display: "flex", gap: 0, borderTop: tasks.length ? "1px solid var(--rule)" : "none" }}>
                 <input
                   value={newTask} onChange={(e) => setNewTask(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && newTask.trim()) { setTasks((p) => [...p, { id: taskId++, text: newTask.trim(), done: false }]); setNewTask(""); } }}
+                  onKeyDown={(e) => { if (e.key === "Enter") addTask(); }}
                   placeholder="Add a task and press Enter…"
                   style={{ flex: 1, padding: "12px 16px", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "transparent", color: "var(--ink)", outline: "none" }}
                 />
@@ -211,7 +112,7 @@ export default function FocusPage() {
                 <li>Work for 25 minutes without distraction</li>
                 <li>Take a 5-minute short break</li>
                 <li>After 4 sessions, take a 20-minute long break</li>
-                <li>Repeat. One session = one block in your planner</li>
+                <li>Timer continues even when you switch tools</li>
               </ol>
             </div>
           </div>

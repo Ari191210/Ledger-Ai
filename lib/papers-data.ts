@@ -7,7 +7,7 @@ export type Question = {
 
 export type Paper = {
   id: string;
-  board: "CBSE" | "ICSE" | "JEE" | "SAT" | "IB" | "NEET";
+  board: "CBSE" | "ICSE" | "JEE" | "SAT" | "IB" | "NEET" | "NCERT";
   subject: string;
   grade: string;
   year: number;
@@ -582,6 +582,264 @@ export const PAPERS: Paper[] = [
       { q: "The Doppler effect predicts that when a sound source approaches, observed frequency:", opts: ["Decreases", "Stays the same", "Increases", "Depends on temperature"], ans: 2, topic: "Waves" },
       { q: "Gravitational potential energy is:", opts: ["Always positive", "Always negative", "Zero at surface", "Depends on reference point"], ans: 1, topic: "Gravitation" },
       { q: "In a transformer, if voltage is stepped up, the current is:", opts: ["Also stepped up", "Stepped down", "Unchanged", "Reversed"], ans: 1, topic: "Electromagnetism" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // NCERT — Class 8
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "ncert-8-science",
+    board: "NCERT", subject: "Science", grade: "Class 8", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "Microorganisms used in making bread are:", opts: ["Bacteria", "Yeast", "Algae", "Virus"], ans: 1, topic: "Microorganisms" },
+      { q: "Coal is classified as a:", opts: ["Renewable resource", "Non-renewable resource", "Inexhaustible resource", "Biotic resource"], ans: 1, topic: "Coal & Petroleum" },
+      { q: "Rusting of iron requires:", opts: ["Water only", "Oxygen only", "Both water and oxygen", "Carbon dioxide only"], ans: 2, topic: "Combustion & Flame" },
+      { q: "Force of friction acts:", opts: ["In direction of motion", "Opposite to direction of motion", "Perpendicular to motion", "At 45° to motion"], ans: 1, topic: "Friction" },
+      { q: "The cell is the structural and functional unit of:", opts: ["Organs", "Tissues", "All living organisms", "Atoms"], ans: 2, topic: "Cell Structure" },
+      { q: "Sound travels fastest in:", opts: ["Air", "Water", "Vacuum", "Steel"], ans: 3, topic: "Sound" },
+      { q: "Lightning is caused by:", opts: ["Sound waves", "Electrical discharge between clouds", "Magnetic storms", "UV radiation"], ans: 1, topic: "Some Natural Phenomena" },
+      { q: "Which of these is NOT a natural fibre?", opts: ["Cotton", "Wool", "Nylon", "Silk"], ans: 2, topic: "Synthetic Fibres" },
+      { q: "The process by which plants prepare their own food is:", opts: ["Respiration", "Photosynthesis", "Fermentation", "Transpiration"], ans: 1, topic: "Crop Production" },
+      { q: "Stars produce their own light while planets:", opts: ["Also produce light", "Reflect light from the Sun", "Absorb all light", "Emit infrared only"], ans: 1, topic: "Stars & Solar System" },
+    ],
+  },
+
+  {
+    id: "ncert-8-maths",
+    board: "NCERT", subject: "Mathematics", grade: "Class 8", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "The additive inverse of −5/7 is:", opts: ["5/7", "−7/5", "7/5", "−5/7"], ans: 0, topic: "Rational Numbers" },
+      { q: "√225 equals:", opts: ["12", "13", "14", "15"], ans: 3, topic: "Squares & Square Roots" },
+      { q: "The cube of −3 is:", opts: ["−9", "27", "−27", "9"], ans: 2, topic: "Cubes & Cube Roots" },
+      { q: "Simple Interest on ₹1000 at 5% per annum for 2 years:", opts: ["₹50", "₹100", "₹150", "₹200"], ans: 1, topic: "Comparing Quantities" },
+      { q: "Which is a linear equation in one variable?", opts: ["x² + 2 = 0", "2x + 3 = 7", "x + y = 5", "x/y = 2"], ans: 1, topic: "Linear Equations" },
+      { q: "Factorisation of x² − 25:", opts: ["(x−5)²", "(x+5)(x−5)", "(x+5)²", "x(x−25)"], ans: 1, topic: "Factorisation" },
+      { q: "Area of a rhombus with diagonals 8 cm and 6 cm:", opts: ["24 cm²", "48 cm²", "14 cm²", "28 cm²"], ans: 0, topic: "Mensuration" },
+      { q: "If x varies directly as y, x = 5 when y = 25. Find y when x = 9:", opts: ["40", "45", "50", "35"], ans: 1, topic: "Direct & Inverse Proportion" },
+      { q: "Expansion of (a + b)²:", opts: ["a² + b²", "a² + ab + b²", "a² + 2ab + b²", "2a + 2b"], ans: 2, topic: "Algebraic Expressions" },
+      { q: "Value of 2⁻³:", opts: ["−8", "1/8", "8", "−1/8"], ans: 1, topic: "Exponents & Powers" },
+    ],
+  },
+
+  {
+    id: "ncert-8-sst",
+    board: "NCERT", subject: "Social Science", grade: "Class 8", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "The Permanent Settlement of 1793 was introduced by:", opts: ["Lord Dalhousie", "Lord Cornwallis", "Thomas Munro", "Lord Clive"], ans: 1, topic: "Land Revenue Systems" },
+      { q: "Who led the revolt of 1857 in Jhansi?", opts: ["Nana Sahib", "Tantia Tope", "Rani Lakshmibai", "Bahadur Shah Zafar"], ans: 2, topic: "Revolt of 1857" },
+      { q: "The Indian National Congress was founded in:", opts: ["1881", "1883", "1885", "1887"], ans: 2, topic: "Nationalist Movement" },
+      { q: "The practice of Sati was banned in:", opts: ["1819", "1829", "1835", "1847"], ans: 1, topic: "Social Reforms" },
+      { q: "The Constitution of India was adopted on:", opts: ["15 Aug 1947", "26 Jan 1950", "26 Nov 1949", "15 Aug 1950"], ans: 2, topic: "Indian Constitution" },
+      { q: "The Himalayas are an example of:", opts: ["Block mountains", "Volcanic mountains", "Fold mountains", "Residual mountains"], ans: 2, topic: "Resources & Development" },
+      { q: "Which type of soil is most suitable for cotton cultivation?", opts: ["Alluvial", "Red", "Black (Regur)", "Laterite"], ans: 2, topic: "Agriculture" },
+      { q: "Parliament of India consists of:", opts: ["Lok Sabha only", "Rajya Sabha only", "Lok Sabha and Rajya Sabha", "Lok Sabha, Rajya Sabha and President"], ans: 3, topic: "Parliament" },
+      { q: "Who introduced the Ryotwari system?", opts: ["Lord Dalhousie", "Thomas Munro", "Lord Cornwallis", "Charles Metcalfe"], ans: 1, topic: "Land Revenue Systems" },
+      { q: "The Right to Education Act guarantees free education up to age:", opts: ["10", "12", "14", "18"], ans: 2, topic: "Fundamental Rights" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // NCERT — Class 9
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "ncert-9-science",
+    board: "NCERT", subject: "Science", grade: "Class 9", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "Atoms of the same element with different mass numbers are called:", opts: ["Isobars", "Isotopes", "Ions", "Isomers"], ans: 1, topic: "Atoms & Molecules" },
+      { q: "The process of conversion of solid directly to gas (without liquid stage):", opts: ["Evaporation", "Condensation", "Sublimation", "Melting"], ans: 2, topic: "Matter in Our Surroundings" },
+      { q: "The 'powerhouse of the cell' is:", opts: ["Nucleus", "Ribosome", "Mitochondria", "Vacuole"], ans: 2, topic: "Fundamental Unit of Life" },
+      { q: "The tissue that provides mechanical support and rigidity to plants:", opts: ["Parenchyma", "Collenchyma", "Sclerenchyma", "Meristematic tissue"], ans: 2, topic: "Tissues" },
+      { q: "Newton's First Law of Motion is also called the law of:", opts: ["Acceleration", "Gravitation", "Inertia", "Momentum"], ans: 2, topic: "Force & Laws of Motion" },
+      { q: "Work done is maximum when force and displacement are:", opts: ["Perpendicular (90°)", "At 45°", "Opposite (180°)", "In the same direction (0°)"], ans: 3, topic: "Work & Energy" },
+      { q: "The human ear can detect frequencies in the range:", opts: ["2 Hz to 2,000 Hz", "20 Hz to 20,000 Hz", "200 Hz to 2,000 Hz", "2,000 Hz to 20,000 Hz"], ans: 1, topic: "Sound" },
+      { q: "Malaria is caused by:", opts: ["Bacteria", "Virus", "Protozoan (Plasmodium)", "Fungi"], ans: 2, topic: "Why Do We Fall Ill" },
+      { q: "The acceleration due to gravity at Earth's surface is approximately:", opts: ["8.9 m/s²", "9.8 m/s²", "10.8 m/s²", "11.2 m/s²"], ans: 1, topic: "Gravitation" },
+      { q: "Ozone layer is present in the:", opts: ["Troposphere", "Mesosphere", "Stratosphere", "Thermosphere"], ans: 2, topic: "Natural Resources" },
+    ],
+  },
+
+  {
+    id: "ncert-9-maths",
+    board: "NCERT", subject: "Mathematics", grade: "Class 9", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "Which of the following is irrational?", opts: ["√4", "√9", "√2", "√16"], ans: 2, topic: "Number Systems" },
+      { q: "Zero of the polynomial p(x) = 2x − 4:", opts: ["2", "−2", "4", "−4"], ans: 0, topic: "Polynomials" },
+      { q: "A point on the y-axis has coordinates of the form:", opts: ["(x, 0)", "(0, y)", "(x, x)", "(y, y)"], ans: 1, topic: "Coordinate Geometry" },
+      { q: "If two angles of a triangle are 60° and 70°, the third angle is:", opts: ["40°", "50°", "60°", "70°"], ans: 1, topic: "Lines & Angles" },
+      { q: "Area of an equilateral triangle with side 4 cm:", opts: ["4√3 cm²", "8√3 cm²", "16√3 cm²", "2√3 cm²"], ans: 0, topic: "Triangles" },
+      { q: "Two supplementary angles are in ratio 2:3. The larger angle is:", opts: ["72°", "90°", "108°", "120°"], ans: 2, topic: "Lines & Angles" },
+      { q: "Volume of a cone with radius 3 cm and height 7 cm (π ≈ 22/7):", opts: ["66 cm³", "132 cm³", "198 cm³", "44 cm³"], ans: 0, topic: "Surface Areas & Volumes" },
+      { q: "The median of a triangle divides it into:", opts: ["Two triangles of equal area", "Two triangles of unequal area", "Three equal parts", "Four equal triangles"], ans: 0, topic: "Triangles" },
+      { q: "Sample space when rolling a single die:", opts: ["{1,2,3,4,5}", "{1,2,3,4,5,6}", "{0,1,2,3,4,5,6}", "{2,4,6}"], ans: 1, topic: "Probability" },
+      { q: "The ordinate of all points on the x-axis is:", opts: ["1", "−1", "0", "Any real value"], ans: 2, topic: "Coordinate Geometry" },
+    ],
+  },
+
+  {
+    id: "ncert-9-sst",
+    board: "NCERT", subject: "Social Science", grade: "Class 9", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "The French Revolution began in:", opts: ["1787", "1789", "1791", "1793"], ans: 1, topic: "The French Revolution" },
+      { q: "Serfdom was abolished in Russia in:", opts: ["1856", "1861", "1871", "1881"], ans: 1, topic: "Socialism in Europe" },
+      { q: "The Nazi Party came to power in Germany in:", opts: ["1929", "1931", "1933", "1939"], ans: 2, topic: "Nazism & Hitler" },
+      { q: "India's highest peak located within Indian territory is:", opts: ["Mt. Everest", "K2", "Kangchenjunga", "Nanda Devi"], ans: 2, topic: "Physical Features of India" },
+      { q: "The Ganga-Brahmaputra delta region is known as:", opts: ["Rann of Kutch", "Sundarbans", "Coromandel Coast", "Konkan Coast"], ans: 1, topic: "Drainage" },
+      { q: "Which is NOT a feature of a democratic government?", opts: ["Free and fair elections", "Rule of law", "Military control over civilians", "Fundamental rights"], ans: 2, topic: "What is Democracy?" },
+      { q: "MNREGA guarantees rural employment for at least:", opts: ["50 days", "100 days", "150 days", "200 days"], ans: 1, topic: "Food Security" },
+      { q: "The poverty line in India is based primarily on:", opts: ["Income alone", "Caloric intake and minimum expenditure", "Landholding size", "Employment status"], ans: 1, topic: "Poverty as a Challenge" },
+      { q: "Which drainage pattern resembles tree branches?", opts: ["Radial", "Centripetal", "Dendritic", "Trellis"], ans: 2, topic: "Drainage" },
+      { q: "The Lok Sabha is also called:", opts: ["House of States", "Upper House", "House of the People", "Council of States"], ans: 2, topic: "Electoral Politics" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // NCERT — Class 10
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "ncert-10-sst",
+    board: "NCERT", subject: "Social Science", grade: "Class 10", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "The First World War began in:", opts: ["1912", "1913", "1914", "1915"], ans: 2, topic: "Nationalism in Europe" },
+      { q: "Satyagraha as a political technique was first used by Gandhi in:", opts: ["India", "England", "South Africa", "France"], ans: 2, topic: "Nationalism in India" },
+      { q: "The Salt March (Dandi March) was undertaken by Gandhi in:", opts: ["1929", "1930", "1931", "1932"], ans: 1, topic: "Nationalism in India" },
+      { q: "The tertiary sector includes:", opts: ["Agriculture", "Mining", "Banking and services", "Manufacturing"], ans: 2, topic: "Sectors of Indian Economy" },
+      { q: "Federal system means power is:", opts: ["All with centre", "All with states", "Divided between centre and states", "Held by judiciary"], ans: 2, topic: "Federalism" },
+      { q: "Panchayati Raj (three-tier) was strengthened by the:", opts: ["72nd Amendment", "73rd Amendment", "74th Amendment", "75th Amendment"], ans: 1, topic: "Federalism" },
+      { q: "Globalisation refers to:", opts: ["Only movement of goods between countries", "Integration of world economies", "Government control of trade", "Isolation of economies"], ans: 1, topic: "Globalisation" },
+      { q: "HDI (Human Development Index) considers:", opts: ["Income alone", "Life expectancy alone", "Life expectancy, education and income", "Education and income only"], ans: 2, topic: "Development" },
+      { q: "Majoritarianism as practised in Sri Lanka refers to:", opts: ["Equal rights for all", "Privileges for the Sinhalese majority", "Tamil dominance", "Federalism"], ans: 1, topic: "Power Sharing" },
+      { q: "Money deposited in a bank generates income through:", opts: ["Dividends", "Interest", "Profit sharing", "Subsidy"], ans: 1, topic: "Money & Credit" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // NCERT — Class 11
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "ncert-11-physics",
+    board: "NCERT", subject: "Physics", grade: "Class 11", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "Dimensions of force (F = ma):", opts: ["[MLT⁻²]", "[ML²T⁻²]", "[MLT⁻¹]", "[ML²T⁻¹]"], ans: 0, topic: "Units & Measurements" },
+      { q: "A body in uniform circular motion has:", opts: ["Constant velocity", "Zero acceleration", "Centripetal acceleration directed inward", "No net force acting"], ans: 2, topic: "Motion in a Plane" },
+      { q: "Work done in lifting a 5 kg mass through 3 m (g = 10 m/s²):", opts: ["100 J", "150 J", "200 J", "300 J"], ans: 1, topic: "Work, Energy & Power" },
+      { q: "Escape velocity from Earth depends on:", opts: ["Mass of the projectile", "Mass of Earth and its radius", "Angle of projection", "Atmospheric temperature"], ans: 1, topic: "Gravitation" },
+      { q: "In SHM, at the mean position:", opts: ["Velocity is zero", "Acceleration is zero and velocity is maximum", "PE is maximum", "KE is zero"], ans: 1, topic: "Oscillations" },
+      { q: "According to kinetic theory, temperature is a measure of:", opts: ["PE of molecules", "Average KE of molecules", "Speed of molecules", "Number of molecules"], ans: 1, topic: "Kinetic Theory" },
+      { q: "In a perfectly elastic collision:", opts: ["KE is conserved, momentum is not", "Momentum is conserved, KE is not", "Both KE and momentum are conserved", "Neither is conserved"], ans: 2, topic: "Work, Energy & Power" },
+      { q: "Modulus of elasticity has SI unit:", opts: ["N/m", "N·m", "N/m² (Pa)", "N·m²"], ans: 2, topic: "Mechanical Properties of Solids" },
+      { q: "The angle of contact for water in a glass tube is:", opts: ["Greater than 90° (obtuse)", "Exactly 90°", "Less than 90° (acute)", "0° always"], ans: 2, topic: "Mechanical Properties of Fluids" },
+      { q: "The speed of transverse waves on a string depends on:", opts: ["Frequency only", "Tension and linear mass density", "Amplitude only", "Temperature only"], ans: 1, topic: "Waves" },
+    ],
+  },
+
+  {
+    id: "ncert-11-chemistry",
+    board: "NCERT", subject: "Chemistry", grade: "Class 11", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "Molar mass of H₂O:", opts: ["16 g/mol", "18 g/mol", "20 g/mol", "17 g/mol"], ans: 1, topic: "Some Basic Concepts" },
+      { q: "Bohr's atomic model successfully explains:", opts: ["Zeeman effect", "Spectrum of hydrogen atom", "Spectrum of multi-electron atoms", "Fine structure of spectral lines"], ans: 1, topic: "Structure of Atom" },
+      { q: "The quantum number that determines the orientation of an orbital:", opts: ["Principal (n)", "Azimuthal (l)", "Magnetic (mₗ)", "Spin (mₛ)"], ans: 2, topic: "Structure of Atom" },
+      { q: "Which has the maximum number of molecules? (1 g each)", opts: ["H₂", "O₂", "N₂", "H₂O"], ans: 0, topic: "Some Basic Concepts" },
+      { q: "Electronegativity of elements generally increases:", opts: ["Down a group", "Across a period from right to left", "Across a period from left to right", "Down a group and left to right"], ans: 2, topic: "Classification of Elements" },
+      { q: "In an endothermic reaction at constant pressure, ΔH is:", opts: ["Negative", "Positive", "Zero", "Equal to ΔU"], ans: 1, topic: "Thermodynamics" },
+      { q: "Equilibrium constant Kc depends on:", opts: ["Pressure only", "Concentration only", "Temperature only", "Catalyst added"], ans: 2, topic: "Equilibrium" },
+      { q: "General formula for alkenes:", opts: ["CₙH₂ₙ₊₂", "CₙH₂ₙ", "CₙH₂ₙ₋₂", "CₙHₙ"], ans: 1, topic: "Hydrocarbons" },
+      { q: "The standard state of bromine at 25°C and 1 atm is:", opts: ["Gas", "Liquid", "Solid", "Plasma"], ans: 1, topic: "Some Basic Concepts" },
+      { q: "Freon (CFC) is used primarily as:", opts: ["Fuel", "Refrigerant and aerosol propellant", "Explosive", "Fertiliser"], ans: 1, topic: "Environmental Chemistry" },
+    ],
+  },
+
+  {
+    id: "ncert-11-maths",
+    board: "NCERT", subject: "Mathematics", grade: "Class 11", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "A set that contains exactly one element is called:", opts: ["Empty set", "Singleton set", "Infinite set", "Universal set"], ans: 1, topic: "Sets" },
+      { q: "sin(90° + θ) equals:", opts: ["sin θ", "−sin θ", "cos θ", "−cos θ"], ans: 2, topic: "Trigonometric Functions" },
+      { q: "Modulus of the complex number (3 + 4i):", opts: ["3", "4", "5", "7"], ans: 2, topic: "Complex Numbers" },
+      { q: "Number of terms in the expansion of (a + b)¹⁰:", opts: ["10", "11", "12", "9"], ans: 1, topic: "Binomial Theorem" },
+      { q: "Sum of first n odd natural numbers:", opts: ["n²", "n(n+1)", "n(n+1)/2", "2n"], ans: 0, topic: "Sequences & Series" },
+      { q: "Slope of line 3x + 4y + 8 = 0:", opts: ["3/4", "−3/4", "4/3", "−4/3"], ans: 1, topic: "Straight Lines" },
+      { q: "Vertex of parabola y² = 12x:", opts: ["(3, 0)", "(−3, 0)", "(0, 0)", "(0, 3)"], ans: 2, topic: "Conic Sections" },
+      { q: "lim(x→0) (eˣ − 1)/x:", opts: ["0", "∞", "1", "e"], ans: 2, topic: "Limits & Derivatives" },
+      { q: "Standard deviation of {2, 4, 6, 8, 10}:", opts: ["2", "√8", "2√2", "4"], ans: 2, topic: "Statistics" },
+      { q: "A coin is tossed 3 times. P(at least 2 heads):", opts: ["1/2", "3/8", "5/8", "1/8"], ans: 0, topic: "Probability" },
+    ],
+  },
+
+  {
+    id: "ncert-11-biology",
+    board: "NCERT", subject: "Biology", grade: "Class 11", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "The cell theory was proposed by:", opts: ["Robert Hooke", "Schleiden and Schwann", "Virchow", "Watson & Crick"], ans: 1, topic: "Cell: The Unit of Life" },
+      { q: "The fluid mosaic model of the cell membrane was proposed by:", opts: ["Watson & Crick", "Singer and Nicolson", "Schleiden & Schwann", "Flemming"], ans: 1, topic: "Cell: The Unit of Life" },
+      { q: "Which structure is absent in plant cells?", opts: ["Cell wall", "Chloroplast", "Centriole", "Large vacuole"], ans: 2, topic: "Cell: The Unit of Life" },
+      { q: "Ribosomes are the site of:", opts: ["DNA replication", "Transcription", "Protein synthesis (translation)", "Energy production"], ans: 2, topic: "Cell: The Unit of Life" },
+      { q: "Kingdom Monera includes:", opts: ["Fungi", "Bacteria and Cyanobacteria", "Algae", "Protozoa"], ans: 1, topic: "Biological Classification" },
+      { q: "In C₃ plants, CO₂ is first fixed into:", opts: ["Oxaloacetate", "Malate", "3-Phosphoglycerate (3-PGA)", "Sucrose"], ans: 2, topic: "Photosynthesis" },
+      { q: "Long-distance transport of food (assimilates) in plants is called:", opts: ["Transpiration pull", "Root pressure", "Translocation", "Osmosis"], ans: 2, topic: "Transport in Plants" },
+      { q: "Primary (apical) growth in plants occurs at:", opts: ["Lateral meristem", "Apical meristem", "Intercalary meristem only", "Cambium"], ans: 1, topic: "Plant Growth" },
+      { q: "Adrenaline (epinephrine) is secreted by:", opts: ["Thyroid gland", "Adrenal medulla", "Pancreas", "Anterior pituitary"], ans: 1, topic: "Chemical Coordination" },
+      { q: "The process of semi-conservative DNA replication was experimentally proved by:", opts: ["Watson & Crick", "Meselson & Stahl", "Hershey & Chase", "Griffith"], ans: 1, topic: "Cell Cycle & Division" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // NCERT — Class 12
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "ncert-12-economics",
+    board: "NCERT", subject: "Economics", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "When Marginal Utility (MU) = 0, Total Utility (TU) is at its:", opts: ["Minimum", "Maximum", "Zero", "Still increasing"], ans: 1, topic: "Consumer Equilibrium" },
+      { q: "A good whose demand falls when consumer's income rises is called:", opts: ["Normal good", "Inferior good", "Giffen good", "Luxury good"], ans: 1, topic: "Consumer Behaviour" },
+      { q: "In perfect competition, a firm is a:", opts: ["Price maker", "Price taker", "Quantity setter", "Monopolist"], ans: 1, topic: "Producer Behaviour" },
+      { q: "The multiplier (k) equals:", opts: ["MPS", "1/MPS", "MPC", "1 − MPC"], ans: 1, topic: "Determination of Income" },
+      { q: "Central bank of India is:", opts: ["SBI", "HDFC Bank", "RBI", "SEBI"], ans: 2, topic: "Money & Banking" },
+      { q: "The current account of Balance of Payments records:", opts: ["Long-term capital flows only", "Exports and imports of goods and services", "FDI only", "Government external borrowings"], ans: 1, topic: "Balance of Payments" },
+      { q: "Fiscal deficit = Total expenditure minus:", opts: ["Revenue receipts", "Tax revenue only", "Total receipts excluding borrowings", "Non-tax revenue"], ans: 2, topic: "Government Budget" },
+      { q: "GDP at factor cost = GDP at market price minus:", opts: ["Depreciation", "Net indirect taxes", "NNP", "Foreign income"], ans: 1, topic: "National Income" },
+      { q: "If MPS = 0.25, the value of the investment multiplier is:", opts: ["2", "3", "4", "5"], ans: 2, topic: "Determination of Income" },
+      { q: "Demand-pull inflation is caused by:", opts: ["Rising costs of production", "Excess demand in the economy", "Supply shortages only", "Falling wages"], ans: 1, topic: "Inflation" },
+    ],
+  },
+
+  {
+    id: "ncert-12-business",
+    board: "NCERT", subject: "Business Studies", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "'Unity of Command' principle states that:", opts: ["One subordinate, many supervisors", "One supervisor for all", "Each subordinate reports to only one superior", "All workers have equal authority"], ans: 2, topic: "Principles of Management" },
+      { q: "Maslow's hierarchy of needs from base to apex:", opts: ["Safety→Physiological→Social→Esteem→Self-actualisation", "Physiological→Safety→Social→Esteem→Self-actualisation", "Social→Safety→Physiological→Esteem→Self-actualisation", "Esteem→Physiological→Safety→Social→Self-actualisation"], ans: 1, topic: "Directing" },
+      { q: "Marketing mix consists of:", opts: ["3 Ps", "4 Ps (Product, Price, Place, Promotion)", "5 Ps", "6 Ps"], ans: 1, topic: "Marketing" },
+      { q: "A debenture is:", opts: ["Ownership capital", "Borrowed (debt) capital", "Retained earnings", "Reserve fund"], ans: 1, topic: "Financial Management" },
+      { q: "Controlling as a management function involves:", opts: ["Setting objectives only", "Recruiting staff", "Comparing actual performance with standards", "Motivating employees"], ans: 2, topic: "Controlling" },
+      { q: "Consumer Protection Act 2019 provides for consumer courts at:", opts: ["National level only", "National and state levels", "District, state and national levels", "District level only"], ans: 2, topic: "Consumer Protection" },
+      { q: "Directing includes:", opts: ["Planning and organising", "Leadership, motivation, communication, supervision", "Controlling and evaluating", "Staffing and planning"], ans: 1, topic: "Directing" },
+      { q: "Working capital = Current assets minus:", opts: ["Fixed assets", "Current liabilities", "Long-term liabilities", "Share capital"], ans: 1, topic: "Financial Management" },
+      { q: "The process of converting a public company into a private one is:", opts: ["Disinvestment", "Privatisation", "Nationalisation", "Corporatisation"], ans: 1, topic: "Business Environment" },
+      { q: "Taylor's Scientific Management focuses on:", opts: ["Employee welfare", "Maximum output with minimum effort through scientific methods", "Democratic leadership", "Decentralisation"], ans: 1, topic: "Principles of Management" },
+    ],
+  },
+
+  {
+    id: "ncert-12-accountancy",
+    board: "NCERT", subject: "Accountancy", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "The fundamental accounting equation is:", opts: ["Assets = Liabilities − Capital", "Assets = Liabilities + Capital", "Capital = Assets + Liabilities", "Liabilities = Assets + Capital"], ans: 1, topic: "Accounting Equation" },
+      { q: "Double-entry system requires every transaction to be recorded with:", opts: ["Only a debit entry", "Only a credit entry", "Equal debit and credit entries", "Random entries"], ans: 2, topic: "Double Entry System" },
+      { q: "Goodwill in partnership accounts is recognised when:", opts: ["A new partner joins", "A partner retires", "The firm is dissolved", "Any of the above"], ans: 3, topic: "Admission of Partner" },
+      { q: "The primary purpose of a Trial Balance is to verify:", opts: ["Profitability of business", "Liquidity of business", "Arithmetic accuracy of ledger postings", "Solvency of business"], ans: 2, topic: "Trial Balance" },
+      { q: "Depreciation is:", opts: ["A capital expenditure", "A cash expense paid annually", "A non-cash charge reducing asset value", "Revenue receipt"], ans: 2, topic: "Depreciation" },
+      { q: "Revenue expenditure is shown in the:", opts: ["Balance Sheet (Asset side)", "Profit & Loss Account", "Balance Sheet (Liability side)", "Capital Account"], ans: 1, topic: "Financial Statements" },
+      { q: "When goods are sold on credit, the account credited is:", opts: ["Cash account", "Sales account", "Debtor's account", "Creditor's account"], ans: 1, topic: "Journal Entries" },
+      { q: "Subscriptions received by a Not-for-Profit Organisation are treated as:", opts: ["Capital receipt", "Revenue receipt (income)", "Liability", "Asset"], ans: 1, topic: "Not-for-Profit Organisations" },
+      { q: "The financial statement that shows the position on a specific date:", opts: ["Income statement", "Cash flow statement", "Balance sheet", "Trading account"], ans: 2, topic: "Financial Statements" },
+      { q: "If capital is ₹5,00,000 and interest on capital is 10% p.a., interest amount:", opts: ["₹5,000", "₹50,000", "₹5,00,000", "₹500"], ans: 1, topic: "Partnership Accounts" },
     ],
   },
 
