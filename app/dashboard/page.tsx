@@ -260,6 +260,72 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
   );
 }
 
+function SharePanel({ userId, userName }: { userId: string; userName: string }) {
+  const [parentCode, setParentCode] = useState("");
+  const [copied, setCopied] = useState<"parent" | "ref" | null>(null);
+
+  useEffect(() => {
+    loadUserData(userId).then(async (ud) => {
+      if (ud?.parentCode) {
+        setParentCode(ud.parentCode);
+      } else {
+        const code = Math.random().toString(36).slice(2, 10);
+        setParentCode(code);
+        await patchUserData(userId, "parentCode", code);
+        await patchUserData(userId, "parentName", userName);
+      }
+    });
+  }, [userId, userName]);
+
+  const referralCode = userId.replace(/-/g, "").slice(0, 8).toUpperCase();
+  const siteBase = typeof window !== "undefined" ? window.location.origin : "https://studyledger.in";
+
+  function copy(text: string, type: "parent" | "ref") {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  }
+
+  return (
+    <div style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
+      {/* Share with parent */}
+      <div style={{ padding: "20px", borderRight: "1px solid var(--ink)" }}>
+        <div className="mono cin" style={{ marginBottom: 6 }}>Share with parent</div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
+          Your parent gets a live read-only view of your progress — streak, exams, marks, weak topics.
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {parentCode ? `${siteBase}/parent/${parentCode}` : "Generating…"}
+          </div>
+          <button className="btn ghost" onClick={() => copy(`${siteBase}/parent/${parentCode}`, "parent")} disabled={!parentCode}
+            style={{ padding: "6px 14px", fontSize: 11, flexShrink: 0 }}>
+            {copied === "parent" ? "Copied!" : "Copy →"}
+          </button>
+        </div>
+      </div>
+
+      {/* Refer a friend */}
+      <div style={{ padding: "20px" }}>
+        <div className="mono cin" style={{ marginBottom: 6 }}>Refer a friend</div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
+          Share your referral link. When they sign up, both of you get 1 month Pro free once billing is live.
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {siteBase}/?ref={referralCode}
+          </div>
+          <button className="btn ghost" onClick={() => copy(`${siteBase}/?ref=${referralCode}`, "ref")}
+            style={{ padding: "6px 14px", fontSize: 11, flexShrink: 0 }}>
+            {copied === "ref" ? "Copied!" : "Copy →"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const name = user?.email?.split("@")[0] ?? "student";
@@ -322,6 +388,11 @@ export default function Dashboard() {
           userEmail={user.email ?? ""}
           userName={name}
         />
+      )}
+
+      {/* Share with parent + referral */}
+      {user && (
+        <SharePanel userId={user.id} userName={name} />
       )}
 
       {/* Tools grid */}

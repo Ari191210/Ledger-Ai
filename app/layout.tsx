@@ -29,6 +29,15 @@ export const metadata: Metadata = {
   title: "Ledger — The Student's Operating System",
   description:
     "Ten tools. One ledger. Study planner, marks predictor, notes simplifier, doubt solver, focus dashboard, and more — built for the student who would rather be studying than picking software.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Ledger",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -39,6 +48,10 @@ export default function RootLayout({
       lang="en"
       className={`${sourceSerif4.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <meta name="theme-color" content="#222222" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
+      </head>
       <body><AuthProvider>{children}</AuthProvider></body>
     </html>
   );

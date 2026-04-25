@@ -25,6 +25,9 @@ export type UserData = {
   weakTopics?: Record<string, number>;
   papersCount?: number;
   emailEnabled?: boolean;
+  parentCode?: string;
+  parentName?: string;
+  referralCode?: string;
 };
 
 export async function loadUserData(userId: string): Promise<UserData | null> {
