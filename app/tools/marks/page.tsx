@@ -97,6 +97,7 @@ export default function MarksPage() {
           {/* Left: input */}
           <div>
             <div className="mono cin">Input · Current scores &amp; weights</div>
+            <div className="mob-scroll">
             <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 14, fontFamily: "var(--sans)", fontSize: 13 }}>
               <thead>
                 <tr className="mono" style={{ color: "var(--ink-3)", textAlign: "left" }}>
@@ -129,6 +130,7 @@ export default function MarksPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <button onClick={() => setSubjects((p) => [...p, { id: nextId++, name: "New Subject", score: 0, weight: 0 }])}
               style={{ marginTop: 10, background: "none", border: "1px dashed var(--rule)", padding: "10px 16px", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", color: "var(--ink-2)", width: "100%" }}>
               + Add subject
@@ -153,10 +155,10 @@ export default function MarksPage() {
             <div style={{ marginTop: 14, border: "1px solid var(--ink)", padding: 28 }}>
               <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 20, marginBottom: 20 }}>
                 <div className="mono" style={{ color: "var(--ink-3)" }}>Current weighted average</div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 96, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.9, marginTop: 6 }}>
+                <div className="mob-n96" style={{ fontFamily: "var(--serif)", fontSize: 96, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.9, marginTop: 6 }}>
                   {currentPct.toFixed(1)}<span style={{ fontSize: 32 }}>%</span>
                 </div>
-                <div style={{ display: "flex", gap: 24, marginTop: 14 }}>
+                <div className="mob-gpa-row" style={{ display: "flex", gap: 24, marginTop: 14 }}>
                   <div>
                     <div className="mono" style={{ color: "var(--ink-3)" }}>CBSE Grade</div>
                     <div style={{ fontFamily: "var(--serif)", fontSize: 32, fontWeight: 600, marginTop: 4 }}>{grade}</div>
@@ -175,7 +177,7 @@ export default function MarksPage() {
               {needed !== null && (
                 <div>
                   <div className="mono" style={{ color: "var(--ink-3)" }}>Score needed in remaining {100 - totalWeight}% weight to reach {target}%</div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, marginTop: 6, color: needed > 100 ? "var(--cinnabar-ink)" : "var(--ink)" }}>
+                  <div className="mob-n64" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1, marginTop: 6, color: needed > 100 ? "var(--cinnabar-ink)" : "var(--ink)" }}>
                     {needed < 0 ? "Already achieved" : needed > 100 ? `${needed.toFixed(0)}% ← not possible` : `${needed.toFixed(1)}%`}
                   </div>
                 </div>

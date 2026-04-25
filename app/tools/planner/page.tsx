@@ -148,7 +148,7 @@ function DebtMeter({ subjects, today }: { subjects: Subject[]; today: Date }) {
         <div className="mono cin">α · Cognitive Debt Meter</div>
         <div className="mono" style={{ color: "var(--ink-3)" }}>live</div>
       </div>
-      <div style={{ fontFamily: "var(--serif)", fontSize: 72, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 0.95, marginTop: 10 }}>
+      <div className="mob-n72" style={{ fontFamily: "var(--serif)", fontSize: 72, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 0.95, marginTop: 10 }}>
         {apr}<span style={{ fontSize: 28, marginLeft: 4 }}>% APR</span>
       </div>
       <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 10, lineHeight: 1.5 }}>
@@ -167,7 +167,7 @@ function DayRow({ day, idx }: { day: PlanDay; idx: number }) {
   const totalMins = Object.values(totals).reduce((a, b) => a + b, 0);
 
   return (
-    <div style={{ borderTop: "1px solid var(--rule)", padding: "20px 0", display: "grid", gridTemplateColumns: "80px 120px 1fr 260px", gap: 24, alignItems: "start" }}>
+    <div className="mob-day-row" style={{ borderTop: "1px solid var(--rule)", padding: "20px 0", display: "grid", gridTemplateColumns: "80px 120px 1fr 260px", gap: 24, alignItems: "start" }}>
       <div>
         <div className="mono cin">Day {String(idx + 1).padStart(2, "0")}</div>
         <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 32, lineHeight: 1, marginTop: 6, letterSpacing: "-0.02em" }}>{day.dayOfWeek}</div>
@@ -179,7 +179,7 @@ function DayRow({ day, idx }: { day: PlanDay; idx: number }) {
       </div>
       <div>
         {day.slots.map((sl, k) => (
-          <div key={k} style={{ display: "grid", gridTemplateColumns: "100px 10px 1fr auto", gap: 10, alignItems: "center", padding: "6px 0", borderBottom: k < day.slots.length - 1 ? "1px solid var(--rule-2)" : "none" }}>
+          <div key={k} className="mob-slot-row" style={{ display: "grid", gridTemplateColumns: "100px 10px 1fr auto", gap: 10, alignItems: "center", padding: "6px 0", borderBottom: k < day.slots.length - 1 ? "1px solid var(--rule-2)" : "none" }}>
             <div className="mono" style={{ color: "var(--ink-3)" }}>{fmtTime(sl.startMin)}–{fmtTime(sl.endMin)}</div>
             <div style={{ width: 10, height: 10, background: sl.subject.color, border: "1px solid var(--ink)", flexShrink: 0 }} />
             <div style={{ fontFamily: "var(--sans)", fontSize: 13 }}>
@@ -319,7 +319,7 @@ export default function PlannerPage() {
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 40, marginBottom: 48 }}>
           <div>
             <div className="mono cin">Section 1</div>
-            <h1 style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 400, lineHeight: 0.98, letterSpacing: "-0.03em", margin: "8px 0 0" }}>
+            <h1 className="mob-n64" style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 400, lineHeight: 0.98, letterSpacing: "-0.03em", margin: "8px 0 0" }}>
               What you&apos;re<br />
               <em style={{ fontWeight: 500 }}>studying, and when.</em>
             </h1>
@@ -335,6 +335,7 @@ export default function PlannerPage() {
           {/* Subjects table */}
           <div>
             <div className="mono cin">Input · Subjects &amp; exams</div>
+            <div className="mob-scroll">
             <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 12, fontFamily: "var(--sans)", fontSize: 13 }}>
               <thead>
                 <tr className="mono" style={{ color: "var(--ink-3)", textAlign: "left" }}>
@@ -386,8 +387,9 @@ export default function PlannerPage() {
               </tbody>
             </table>
 
+            </div>
             {showAdd ? (
-              <div style={{ marginTop: 8, padding: "12px 0", display: "grid", gridTemplateColumns: "1fr 130px 1fr 80px auto", gap: 8, alignItems: "center", borderTop: "1px dashed var(--rule)" }}>
+              <div className="mob-add-subj" style={{ marginTop: 8, padding: "12px 0", display: "grid", gridTemplateColumns: "1fr 130px 1fr 80px auto", gap: 8, alignItems: "center", borderTop: "1px dashed var(--rule)" }}>
                 <div style={{ position: "relative" }}>
                   <input placeholder="Subject name" value={newSubj.name}
                     onChange={(e) => {
@@ -427,6 +429,7 @@ export default function PlannerPage() {
                 + Add subject
               </button>
             )}
+
           </div>
 
           {/* Hours + Chronotype */}
@@ -434,7 +437,7 @@ export default function PlannerPage() {
             <div>
               <div className="mono cin">Input · Hours you actually have</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 12 }}>
-                <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 72, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1 }}>{hoursPerDay}h</span>
+                <span className="mob-n72" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 72, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1 }}>{hoursPerDay}h</span>
                 <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>per weekday</span>
               </div>
               <input type="range" min="1" max="8" step="0.5" value={hoursPerDay} onChange={(e) => setHoursPerDay(+e.target.value)}
@@ -460,14 +463,14 @@ export default function PlannerPage() {
 
         {/* Plan output */}
         <section style={{ marginTop: 72, borderTop: "3px double var(--ink)", paddingTop: 40 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+          <div className="mob-plan-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
             <div>
               <div className="mono cin">Output · Your next 14 days</div>
-              <h2 style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 400, lineHeight: 1, letterSpacing: "-0.025em", margin: "6px 0 0" }}>
+              <h2 className="mob-n48" style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 400, lineHeight: 1, letterSpacing: "-0.025em", margin: "6px 0 0" }}>
                 The <em style={{ fontWeight: 500 }}>plan.</em>
               </h2>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div className="mob-plan-btns" style={{ display: "flex", gap: 10 }}>
               <button className="btn ghost" onClick={() => window.print()}>Export PDF</button>
               <button className="btn ghost" onClick={copyPlan}>
                 {syncLabel === "copied" ? "Copied ✓" : "Copy plan"}
