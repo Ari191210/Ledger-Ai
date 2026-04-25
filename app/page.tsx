@@ -54,7 +54,12 @@ const footerGroups = [
   { h: "The Ledger",   l: ["Changelog", "Roadmap", "Colophon", "Masthead", "Press", "Contact"] },
 ];
 
+function formatDate(d: Date) {
+  return d.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+}
+
 export default function Home() {
+  const today = formatDate(new Date());
   return (
     <div>
       <article
@@ -71,7 +76,7 @@ export default function Home() {
       >
         {/* ── Top meta bar ──────────────────────────────────────────────── */}
         <div className="mono lp-metabar">
-          <span>Vol. I · №&nbsp;01 · Wednesday, April 22, 2026</span>
+          <span>Vol. I · №&nbsp;01 · {today}</span>
           <span>A Periodical for the Studious · Since 2026</span>
           <span>Free to use · All tools included</span>
         </div>

@@ -122,7 +122,8 @@ export default function PapersPage() {
   );
 
   function startPractice(paper: Paper) {
-    setPractice({ paper, current: 0, answers: Array(paper.questions.length).fill(null), done: false });
+    const shuffled = [...paper.questions].sort(() => Math.random() - 0.5).slice(0, 10);
+    setPractice({ paper: { ...paper, questions: shuffled }, current: 0, answers: Array(shuffled.length).fill(null), done: false });
   }
 
   if (practice) return (
@@ -141,7 +142,7 @@ export default function PapersPage() {
       <div>
         <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 07 · Past Papers</div>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>{PAPERS.length} papers · {PAPERS.reduce((s, p) => s + p.questions.length, 0)} questions</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>{PAPERS.length} papers · {PAPERS.reduce((s, p) => s + p.questions.length, 0)} questions in pool</div>
         </header>
 
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
@@ -176,7 +177,7 @@ export default function PapersPage() {
                 </div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, lineHeight: 1.1, marginTop: 10 }}>{p.subject}</div>
                 <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>{p.grade} · {p.year}</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 8 }}>{p.questions.length} questions · {p.questions.map((q) => q.topic).filter((v, i, a) => a.indexOf(v) === i).join(", ")}</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 8 }}>{p.questions.length} questions in pool · 10 random per session</div>
                 <div style={{ flex: 1 }} />
                 <button className="btn" style={{ marginTop: 16 }} onClick={() => startPractice(p)}>
                   Start practice →

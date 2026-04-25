@@ -44,8 +44,14 @@ export default function AppNav() {
         </span>
       </Link>
 
+      {/* Dashboard link */}
+      <Link href="/dashboard"
+        style={{ textDecoration: "none", display: "flex", alignItems: "center", padding: "14px 16px", borderRight: "1px solid var(--ink)", background: path === "/dashboard" ? "var(--ink)" : "transparent", color: path === "/dashboard" ? "var(--paper)" : "var(--ink-2)", flexShrink: 0, fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+        ← Home
+      </Link>
+
       {/* Tool links */}
-      <div style={{ display: "flex", flex: 1 }}>
+      <div style={{ display: "flex", flex: 1, overflowX: "auto" }}>
         {TOOLS.map((t) => {
           const active = path === `/tools/${t.slug}`;
           return (
