@@ -281,10 +281,64 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
   /* Cols layout → single column */
   .cols-2 { column-count: 1; }
 
-  /* Nav — already scrolls horizontally, just shrink text */
-  nav .mono { font-size: 9px !important; letter-spacing: 0.02em !important; }
-  nav a[style] { padding: 12px 10px !important; }
-
   /* Large display numbers */
   .mob-num { font-size: 56px !important; }
+
+  /* Dashboard stats: 5col → 3 top + 2 bottom */
+  .mob-stats {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .mob-stats > *:nth-child(4) {
+    border-top: 1px solid var(--ink) !important;
+    border-right: 1px solid var(--ink) !important;
+  }
+  .mob-stats > *:nth-child(5) {
+    border-top: 1px solid var(--ink) !important;
+    border-right: none !important;
+    grid-column: span 2;
+  }
+
+  /* Share panel: 2col → 1col */
+  .mob-share {
+    grid-template-columns: 1fr !important;
+  }
+  .mob-share > *:last-child {
+    border-left: none !important;
+    border-top: 1px solid var(--ink) !important;
+  }
+
+  /* Focus timer shrink */
+  .mob-timer { font-size: 68px !important; letter-spacing: -0.04em !important; }
+
+  /* Dashboard heading */
+  .mob-heading { font-size: 32px !important; }
+
+  /* Nav: hide tool links, show hamburger */
+  .mob-nav-tools  { display: none !important; }
+  .mob-nav-btn    { display: flex !important; }
+  .mob-nav-menu {
+    position: fixed;
+    top: 49px;
+    left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--ink);
+    z-index: 99;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .mob-nav-menu a, .mob-nav-menu button {
+    padding: 16px 20px !important;
+    border-bottom: 1px solid var(--rule) !important;
+    font-size: 13px !important;
+    letter-spacing: 0.04em !important;
+    text-align: left;
+    width: 100%;
+  }
+
+  /* Exam table: hide some columns */
+  .mob-exam-hide { display: none !important; }
+
+  /* Profile page avatar */
+  .mob-profile { flex-direction: column !important; align-items: flex-start !important; }
 }

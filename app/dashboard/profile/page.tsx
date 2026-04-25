@@ -78,7 +78,7 @@ export default function ProfilePage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 720, margin: "0 auto" }}>
 
         {/* Avatar + name */}
-        <div style={{ display: "flex", alignItems: "center", gap: 28, marginBottom: 40, paddingBottom: 32, borderBottom: "1px solid var(--ink)" }}>
+        <div className="mob-profile" style={{ display: "flex", alignItems: "center", gap: 28, marginBottom: 40, paddingBottom: 32, borderBottom: "1px solid var(--ink)" }}>
           <div style={{ width: 80, height: 80, background: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <span style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, color: "var(--paper)", lineHeight: 1 }}>{initial}</span>
           </div>

@@ -45,7 +45,7 @@ export default function FocusPage() {
 
             {/* Big timer */}
             <div style={{ textAlign: "center", padding: "48px 0 24px", border: "1px solid var(--ink)", borderTop: "none", background: "var(--paper-2)" }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 112, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 1, color: mode === "work" ? "var(--ink)" : "var(--cinnabar-ink)" }}>
+              <div className="mob-timer" style={{ fontFamily: "var(--serif)", fontSize: 112, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 1, color: mode === "work" ? "var(--ink)" : "var(--cinnabar-ink)" }}>
                 {mm}:{ss}
               </div>
               <div className="mono" style={{ color: "var(--ink-3)", marginTop: 8 }}>{MODE_LABELS[mode]}</div>

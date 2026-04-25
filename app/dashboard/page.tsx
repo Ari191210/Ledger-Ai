@@ -204,8 +204,15 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
           <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--paper-2)" }}>
-                {["Exam", "Subject", "Board", "Date", "Days", ""].map((h, i) => (
-                  <th key={i} style={{ padding: "8px 14px", textAlign: "left", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", fontWeight: "normal", letterSpacing: "0.06em", borderBottom: "1px solid var(--rule)" }}>{h}</th>
+                {[
+                  { label: "Exam", cls: "" },
+                  { label: "Subject", cls: "mob-exam-hide" },
+                  { label: "Board", cls: "mob-exam-hide" },
+                  { label: "Date", cls: "" },
+                  { label: "Days", cls: "" },
+                  { label: "", cls: "" },
+                ].map((h, i) => (
+                  <th key={i} className={h.cls} style={{ padding: "8px 14px", textAlign: "left", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", fontWeight: "normal", letterSpacing: "0.06em", borderBottom: "1px solid var(--rule)" }}>{h.label}</th>
                 ))}
               </tr>
             </thead>
@@ -215,8 +222,8 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
                 return (
                   <tr key={i}>
                     <td style={{ padding: "10px 14px", fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.name}</td>
-                    <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.subject}</td>
-                    <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.board}</td>
+                    <td className="mob-exam-hide" style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.subject}</td>
+                    <td className="mob-exam-hide" style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.board}</td>
                     <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
                     <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700, color: d <= 7 ? "var(--cinnabar-ink)" : "var(--ink)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{d}d</td>
                     <td style={{ padding: "10px 14px", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>
@@ -288,7 +295,7 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
   }
 
   return (
-    <div style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
+    <div className="mob-share" style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
       {/* Share with parent */}
       <div style={{ padding: "20px", borderRight: "1px solid var(--ink)" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Share with parent</div>
@@ -348,7 +355,7 @@ export default function Dashboard() {
       <div style={{ borderBottom: "1px solid var(--ink)", paddingBottom: 24, marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
         <div>
           <div className="mono cin">{today}</div>
-          <h1 style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 400, fontStyle: "italic", letterSpacing: "-0.025em", lineHeight: 1.05, margin: "8px 0 0" }}>
+          <h1 className="mob-heading" style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 400, fontStyle: "italic", letterSpacing: "-0.025em", lineHeight: 1.05, margin: "8px 0 0" }}>
             {greeting}, {name}.
           </h1>
         </div>
@@ -356,7 +363,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats bar */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid var(--ink)", marginBottom: 40 }}>
+      <div className="mob-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid var(--ink)", marginBottom: 40 }}>
         {[
           { label: "Study streak",    value: `${streak}d`,           sub: streak === 0 ? "Start today" : streak === 1 ? "Keep it up" : "On a roll" },
           { label: "Sessions today",  value: String(sessionsToday),  sub: sessionsToday === 0 ? "None yet" : `${sessionsToday * 25} min focused` },
