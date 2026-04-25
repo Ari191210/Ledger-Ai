@@ -48,7 +48,7 @@
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
-html, body { background: var(--paper); color: var(--ink); margin: 0; }
+html, body { background: var(--paper); color: var(--ink); margin: 0; overflow-x: hidden; }
 body {
   font-family: var(--serif);
   font-feature-settings: "kern", "liga";
@@ -248,21 +248,31 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 
 @media (max-width: 768px) {
   .lp-title  { font-size: 52px !important; }
-  .lp-h3     { font-size: 28px !important; }
-  .lp-h2     { font-size: 26px !important; }
+  .lp-h3     { font-size: 26px !important; }
+  .lp-h2     { font-size: 22px !important; line-height: 1.2 !important; }
   .lp-metabar { padding: 8px 16px; }
   .lp-metabar span:nth-child(2), .lp-metabar span:nth-child(3) { display: none; }
   .lp-header  { padding: 20px 16px 20px; }
-  .lp-lede    { grid-template-columns: 1fr; padding: 24px 16px; gap: 20px; }
+  .lp-lede    { grid-template-columns: 1fr; padding: 20px 16px; gap: 16px; }
+  .lp-lede > div:first-child { display: none; }
   .lp-lede aside { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; padding-top: 18px; }
-  .lp-pad     { padding: 28px 16px; }
-  .lp-pad-t   { padding: 28px 16px 12px; }
+  .lp-pad     { padding: 24px 16px; }
+  .lp-pad-t   { padding: 24px 16px 12px; }
   .lp-5col    { grid-template-columns: 1fr 1fr; }
   .lp-2col    { grid-template-columns: 1fr; }
   .lp-4col    { grid-template-columns: 1fr 1fr; }
   .lp-feats   { grid-template-columns: 1fr; }
   .lp-feats2  { grid-template-columns: 1fr; }
-  .lp-footer  { grid-template-columns: 1fr 1fr; padding: 28px 16px 48px; gap: 20px; }
+  .lp-footer  { grid-template-columns: 1fr 1fr; padding: 24px 16px 48px; gap: 20px; }
+
+  /* Testimonial inner grid: 3col → stack */
+  .lp-dispatch-meta { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+
+  /* dropcap — too large on mobile */
+  .dropcap::first-letter { font-size: 3.6em; }
+
+  /* Ticker — smaller */
+  .ticker-track { gap: 28px; }
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */

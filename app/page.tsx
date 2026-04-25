@@ -303,7 +303,7 @@ export default function Home() {
                 >
                   &ldquo;{t.q}&rdquo;
                 </blockquote>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderTop: "1px solid var(--rule)", paddingTop: 12 }}>
+                <div className="lp-dispatch-meta" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderTop: "1px solid var(--rule)", paddingTop: 12 }}>
                   <div>
                     <div className="mono" style={{ color: "var(--ink-3)" }}>Filed by</div>
                     <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13, marginTop: 4 }}>{t.by}</div>

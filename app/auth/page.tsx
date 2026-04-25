@@ -63,13 +63,13 @@ export default function AuthPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)", display: "flex", flexDirection: "column" }}>
       {/* Top bar */}
-      <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link href="/" style={{ textDecoration: "none" }}>
           <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 22, letterSpacing: "-0.02em", color: "var(--ink)" }}>
             Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
           </span>
         </Link>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>The Student&apos;s Operating System</div>
+        <div className="mono mob-hide" style={{ color: "var(--ink-3)" }}>The Student&apos;s Operating System</div>
       </div>
 
       {/* Form */}
