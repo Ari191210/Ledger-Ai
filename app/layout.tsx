@@ -30,14 +30,6 @@ export const metadata: Metadata = {
   description:
     "Ten tools. One ledger. Study planner, marks predictor, notes simplifier, doubt solver, focus dashboard, and more — built for the student who would rather be studying than picking software.",
   manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Ledger",
-  },
-  other: {
-    "mobile-web-app-capable": "yes",
-  },
 };
 
 export default function RootLayout({

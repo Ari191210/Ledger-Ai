@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { use } from "react";
 
 type Exam = { name: string; subject: string; date: string; board: string };
 type ParentData = {
@@ -17,8 +16,8 @@ function daysUntil(dateStr: string) {
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
 }
 
-export default function ParentPage({ params }: { params: Promise<{ code: string }> }) {
-  const { code } = use(params);
+export default function ParentPage({ params }: { params: { code: string } }) {
+  const { code } = params;
   const [data, setData] = useState<ParentData | null>(null);
   const [error, setError] = useState("");
 
