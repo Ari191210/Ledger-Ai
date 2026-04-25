@@ -79,17 +79,19 @@ export async function POST(req: Request) {
 
   const { system, userText } = buildPrompt(tool, params);
 
-  // Build message content — supports optional image for doubt solver
-  type ContentBlock =
-    | { type: "text"; text: string }
-    | { type: "image"; source: { type: "base64"; media_type: string; data: string } };
+  type SupportedMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+  const SUPPORTED: SupportedMediaType[] = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-  let content: ContentBlock[] | string = userText;
+  // Build message content — supports optional image for doubt solver
+  let messageContent: Anthropic.MessageParam["content"] = userText;
 
   if (tool === "doubt" && typeof params.image === "string" && params.image.startsWith("data:")) {
     const [header, data] = params.image.split(",");
-    const media_type = header.replace("data:", "").replace(";base64", "");
-    content = [
+    const rawType = header.replace("data:", "").replace(";base64", "");
+    const media_type: SupportedMediaType = SUPPORTED.includes(rawType as SupportedMediaType)
+      ? (rawType as SupportedMediaType)
+      : "image/jpeg";
+    messageContent = [
       { type: "image", source: { type: "base64", media_type, data } },
       { type: "text", text: userText },
     ];
@@ -99,7 +101,7 @@ export async function POST(req: Request) {
     model: "claude-sonnet-4-6",
     max_tokens: 2048,
     system,
-    messages: [{ role: "user", content }],
+    messages: [{ role: "user", content: messageContent }],
   });
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";

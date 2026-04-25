@@ -3,7 +3,6 @@ import { Resend } from "resend";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const anthropic = new Anthropic();
 
 const supabaseAdmin = createClient(
@@ -221,6 +220,7 @@ export async function POST(req: Request) {
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: "RESEND_API_KEY not set." }, { status: 500 });
   }
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   let userId: string, userEmail: string, userName: string;
   try {
