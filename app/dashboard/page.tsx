@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
+import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 
 const TOOLS = [
   { n: "01", slug: "planner",    ttl: "Smart Study Planner",  sub: "Subjects in. Timetable out.",     tier: "Free",  desc: "14-day reactive plan built around your exam dates and daily hours." },
@@ -72,6 +73,193 @@ function useStats() {
   return { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount };
 }
 
+const BOARDS = ["CBSE", "ICSE", "IB", "State Board", "JEE", "NEET", "Other"];
+
+function daysUntil(dateStr: string) {
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
+}
+
+function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEmail: string; userName: string }) {
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [emailEnabled, setEmailEnabled] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", subject: "", date: "", board: "CBSE" });
+  const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendMsg, setSendMsg] = useState("");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    loadUserData(userId).then((ud) => {
+      if (ud) {
+        setExams(ud.exams || []);
+        setEmailEnabled(ud.emailEnabled || false);
+      }
+      setLoaded(true);
+    });
+  }, [userId]);
+
+  async function addExam() {
+    if (!form.name || !form.date) return;
+    setSaving(true);
+    const updated = [...exams, { ...form }].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    setExams(updated);
+    await patchUserData(userId, "exams", updated);
+    setForm({ name: "", subject: "", date: "", board: "CBSE" });
+    setShowForm(false);
+    setSaving(false);
+  }
+
+  async function removeExam(i: number) {
+    const updated = exams.filter((_, idx) => idx !== i);
+    setExams(updated);
+    await patchUserData(userId, "exams", updated);
+  }
+
+  async function toggleEmail(val: boolean) {
+    setEmailEnabled(val);
+    await patchUserData(userId, "emailEnabled", val);
+  }
+
+  async function sendNow() {
+    setSending(true);
+    setSendMsg("");
+    try {
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, email: userEmail, name: userName }),
+      });
+      const json = await res.json();
+      setSendMsg(res.ok ? "Report sent. Check your inbox." : `Error: ${json.error}`);
+    } catch {
+      setSendMsg("Network error. Try again.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  if (!loaded) return (
+    <div style={{ padding: "20px 0" }}>
+      <div className="mono" style={{ color: "var(--ink-3)" }}>Loading schedule…</div>
+    </div>
+  );
+
+  const upcoming = exams.filter(e => daysUntil(e.date) >= 0).sort((a, b) => daysUntil(a.date) - daysUntil(b.date));
+  const past = exams.filter(e => daysUntil(e.date) < 0);
+
+  return (
+    <div style={{ marginBottom: 40 }}>
+      {/* Section header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--ink)", paddingBottom: 12, marginBottom: 20 }}>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic" }}>Exam Schedule</div>
+        <button onClick={() => setShowForm(!showForm)} className="btn ghost" style={{ padding: "4px 12px", fontSize: 11 }}>
+          {showForm ? "Cancel" : "+ Add exam"}
+        </button>
+      </div>
+
+      {/* Add exam form */}
+      {showForm && (
+        <div style={{ border: "1px solid var(--ink)", padding: "20px", marginBottom: 16, background: "var(--paper-2)" }}>
+          <div className="mono cin" style={{ marginBottom: 14 }}>New exam</div>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+            <div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Exam name</div>
+              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. Physics Unit Test"
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Subject</div>
+              <input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
+                placeholder="e.g. Physics"
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Date</div>
+              <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Board</div>
+              <select value={form.board} onChange={e => setForm(f => ({ ...f, board: e.target.value }))}
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }}>
+                {BOARDS.map(b => <option key={b}>{b}</option>)}
+              </select>
+            </div>
+          </div>
+          <button className="btn" onClick={addExam} disabled={saving || !form.name || !form.date} style={{ opacity: saving || !form.name || !form.date ? 0.5 : 1 }}>
+            {saving ? "Saving…" : "Add exam →"}
+          </button>
+        </div>
+      )}
+
+      {/* Exam list */}
+      {upcoming.length === 0 && !showForm ? (
+        <div style={{ padding: "20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>No exams scheduled. Add your upcoming exams to get personalised progress emails.</div>
+        </div>
+      ) : upcoming.length > 0 ? (
+        <div style={{ border: "1px solid var(--ink)", marginBottom: 16 }}>
+          <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "var(--paper-2)" }}>
+                {["Exam", "Subject", "Board", "Date", "Days", ""].map((h, i) => (
+                  <th key={i} style={{ padding: "8px 14px", textAlign: "left", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", fontWeight: "normal", letterSpacing: "0.06em", borderBottom: "1px solid var(--rule)" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {upcoming.map((e, i) => {
+                const d = daysUntil(e.date);
+                return (
+                  <tr key={i}>
+                    <td style={{ padding: "10px 14px", fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.name}</td>
+                    <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.subject}</td>
+                    <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.board}</td>
+                    <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
+                    <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700, color: d <= 7 ? "var(--cinnabar-ink)" : "var(--ink)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{d}d</td>
+                    <td style={{ padding: "10px 14px", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>
+                      <button onClick={() => removeExam(i)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>✕</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
+      {past.length > 0 && (
+        <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 16 }}>{past.length} past exam{past.length > 1 ? "s" : ""} hidden.</div>
+      )}
+
+      {/* Email reports section */}
+      <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", background: "var(--paper-2)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>Weekly Progress Email</div>
+          <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>Exam countdown · weak topics · marks · AI study plan · every Monday 8 AM IST</div>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+            <div onClick={() => toggleEmail(!emailEnabled)}
+              style={{ width: 36, height: 20, background: emailEnabled ? "var(--ink)" : "var(--rule)", borderRadius: 10, position: "relative", cursor: "pointer", transition: "background 200ms", flexShrink: 0 }}>
+              <div style={{ position: "absolute", top: 3, left: emailEnabled ? 19 : 3, width: 14, height: 14, background: "white", borderRadius: "50%", transition: "left 200ms" }} />
+            </div>
+            <span className="mono" style={{ fontSize: 10, color: "var(--ink-2)" }}>{emailEnabled ? "On" : "Off"}</span>
+          </label>
+          <button className="btn ghost" onClick={sendNow} disabled={sending} style={{ padding: "6px 14px", fontSize: 11, opacity: sending ? 0.5 : 1 }}>
+            {sending ? "Sending…" : "Send now →"}
+          </button>
+        </div>
+      </div>
+      {sendMsg && (
+        <div className="mono" style={{ marginTop: 8, fontSize: 11, color: sendMsg.startsWith("Error") ? "var(--cinnabar-ink)" : "var(--ink-2)" }}>{sendMsg}</div>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const name = user?.email?.split("@")[0] ?? "student";
@@ -101,7 +289,7 @@ export default function Dashboard() {
           { label: "Sessions today",  value: String(sessionsToday),  sub: sessionsToday === 0 ? "None yet" : `${sessionsToday * 25} min focused` },
           { label: "Notes saved",     value: String(notesCount),     sub: notesCount === 0 ? "Generate your first" : "In your library" },
           { label: "Papers done",     value: String(papersCount),    sub: papersCount === 0 ? "Start practising" : "Sessions completed" },
-          { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add in Planner" },
+          { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below" },
         ].map((s, i) => (
           <div key={i} style={{ padding: "18px 20px", borderRight: i < 4 ? "1px solid var(--ink)" : "none" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
@@ -125,6 +313,15 @@ export default function Dashboard() {
           </div>
           <Link href="/tools/papers" className="mono" style={{ color: "var(--ink-3)", fontSize: 10, whiteSpace: "nowrap" }}>Practice → </Link>
         </div>
+      )}
+
+      {/* Exam schedule */}
+      {user && (
+        <ExamSchedule
+          userId={user.id}
+          userEmail={user.email ?? ""}
+          userName={name}
+        />
       )}
 
       {/* Tools grid */}

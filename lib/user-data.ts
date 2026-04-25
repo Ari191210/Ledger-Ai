@@ -1,5 +1,12 @@
 import { supabase } from "./supabase";
 
+export type Exam = {
+  name: string;
+  subject: string;
+  date: string;
+  board: string;
+};
+
 export type UserData = {
   plan?: {
     subjects: unknown[];
@@ -14,6 +21,10 @@ export type UserData = {
     streak: number;
     lastDate: string;
   };
+  exams?: Exam[];
+  weakTopics?: Record<string, number>;
+  papersCount?: number;
+  emailEnabled?: boolean;
 };
 
 export async function loadUserData(userId: string): Promise<UserData | null> {

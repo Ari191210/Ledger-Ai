@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
+import { patchUserData } from "@/lib/user-data";
+import { useAuth } from "@/components/auth-provider";
 
 type PracticeState = {
   paper: Paper;
@@ -12,24 +14,28 @@ type PracticeState = {
   done: boolean;
 };
 
-function saveSessionResults(paper: Paper, answers: (number | null)[]) {
+function saveSessionResults(paper: Paper, answers: (number | null)[], userId?: string) {
   try {
-    // Track wrong topics
     const wt: Record<string, number> = JSON.parse(localStorage.getItem("ledger-weak-topics") || "{}");
     paper.questions.forEach((q, i) => {
       if (answers[i] !== q.ans) wt[q.topic] = (wt[q.topic] || 0) + 1;
     });
     localStorage.setItem("ledger-weak-topics", JSON.stringify(wt));
 
-    // Log completed session
     const log = JSON.parse(localStorage.getItem("ledger-papers-log") || "[]");
     const score = answers.filter((a, i) => a === paper.questions[i].ans).length;
     log.unshift({ date: new Date().toISOString(), subject: paper.subject, board: paper.board, score, total: paper.questions.length });
     localStorage.setItem("ledger-papers-log", JSON.stringify(log.slice(0, 50)));
+
+    // Sync to Supabase so email reports have accurate data
+    if (userId) {
+      patchUserData(userId, "weakTopics", wt);
+      patchUserData(userId, "papersCount", log.length);
+    }
   } catch {}
 }
 
-function PracticeMode({ state, setState }: { state: PracticeState; setState: (s: PracticeState | null) => void }) {
+function PracticeMode({ state, setState, userId }: { state: PracticeState; setState: (s: PracticeState | null) => void; userId?: string }) {
   const { paper, current, answers, done } = state;
   const q: Question = paper.questions[current];
 
@@ -97,7 +103,7 @@ function PracticeMode({ state, setState }: { state: PracticeState; setState: (s:
             <button key={j} onClick={() => {
               const newAnswers = [...answers]; newAnswers[current] = j;
               const isLast = current === paper.questions.length - 1;
-              if (isLast) saveSessionResults(paper, newAnswers);
+              if (isLast) saveSessionResults(paper, newAnswers, userId);
               setState({ ...state, answers: newAnswers, current: isLast ? current : current + 1, done: isLast });
             }}
               style={{
@@ -125,6 +131,7 @@ function PracticeMode({ state, setState }: { state: PracticeState; setState: (s:
 }
 
 export default function PapersPage() {
+  const { user } = useAuth();
   const [practice, setPractice] = useState<PracticeState | null>(null);
   const [board,    setBoard]    = useState<string>("All");
   const [subject,  setSubject]  = useState<string>("All");
@@ -151,7 +158,7 @@ export default function PapersPage() {
         <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 07 · Past Papers · Practice Mode</div>
       </header>
       <main className="mob-p" style={{ padding: "0 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        <PracticeMode state={practice} setState={(s) => setPractice(s)} />
+        <PracticeMode state={practice} setState={(s) => setPractice(s)} userId={user?.id} />
       </main>
     </div>
   );
