@@ -12,6 +12,23 @@ type PracticeState = {
   done: boolean;
 };
 
+function saveSessionResults(paper: Paper, answers: (number | null)[]) {
+  try {
+    // Track wrong topics
+    const wt: Record<string, number> = JSON.parse(localStorage.getItem("ledger-weak-topics") || "{}");
+    paper.questions.forEach((q, i) => {
+      if (answers[i] !== q.ans) wt[q.topic] = (wt[q.topic] || 0) + 1;
+    });
+    localStorage.setItem("ledger-weak-topics", JSON.stringify(wt));
+
+    // Log completed session
+    const log = JSON.parse(localStorage.getItem("ledger-papers-log") || "[]");
+    const score = answers.filter((a, i) => a === paper.questions[i].ans).length;
+    log.unshift({ date: new Date().toISOString(), subject: paper.subject, board: paper.board, score, total: paper.questions.length });
+    localStorage.setItem("ledger-papers-log", JSON.stringify(log.slice(0, 50)));
+  } catch {}
+}
+
 function PracticeMode({ state, setState }: { state: PracticeState; setState: (s: PracticeState | null) => void }) {
   const { paper, current, answers, done } = state;
   const q: Question = paper.questions[current];
@@ -38,6 +55,7 @@ function PracticeMode({ state, setState }: { state: PracticeState; setState: (s:
                   <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{q.q}</div>
                   <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>
                     Your answer: {answers[i] !== null ? q.opts[answers[i]!] : "—"} · Correct: {q.opts[q.ans]}
+                    {answers[i] !== q.ans && <span style={{ color: "var(--cinnabar-ink)" }}> · Topic: {q.topic}</span>}
                   </div>
                 </div>
               </div>
@@ -79,6 +97,7 @@ function PracticeMode({ state, setState }: { state: PracticeState; setState: (s:
             <button key={j} onClick={() => {
               const newAnswers = [...answers]; newAnswers[current] = j;
               const isLast = current === paper.questions.length - 1;
+              if (isLast) saveSessionResults(paper, newAnswers);
               setState({ ...state, answers: newAnswers, current: isLast ? current : current + 1, done: isLast });
             }}
               style={{

@@ -1,11 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 type Flashcard = { q: string; a: string };
 type QuizItem  = { q: string; opts: string[]; ans: number };
 type Output    = { explanation: string; summary: string[]; flashcards: Flashcard[]; quiz: QuizItem[] };
+type HistoryEntry = { id: number; title: string; date: string; input: string; output: Output };
+
+function saveToHistory(input: string, output: Output) {
+  try {
+    const existing: HistoryEntry[] = JSON.parse(localStorage.getItem("ledger-notes-history") || "[]");
+    const entry: HistoryEntry = {
+      id: Date.now(),
+      title: input.trim().slice(0, 60),
+      date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+      input,
+      output,
+    };
+    const updated = [entry, ...existing].slice(0, 10);
+    localStorage.setItem("ledger-notes-history", JSON.stringify(updated));
+  } catch {}
+}
 
 function FlashcardView({ cards }: { cards: Flashcard[] }) {
   const [flip, setFlip] = useState<Record<number, boolean>>({});
@@ -74,6 +90,15 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
   const [tab,     setTab]     = useState<"explanation" | "summary" | "flashcards" | "quiz">("explanation");
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    try {
+      const h = JSON.parse(localStorage.getItem("ledger-notes-history") || "[]");
+      setHistory(h);
+    } catch {}
+  }, []);
 
   async function generate() {
     if (!input.trim()) return;
@@ -82,12 +107,29 @@ export default function NotesPage() {
       const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "notes", content: input }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
-      setOutput(data); setTab("explanation");
+      setOutput(data);
+      setTab("explanation");
+      saveToHistory(input, data);
+      const updated = JSON.parse(localStorage.getItem("ledger-notes-history") || "[]");
+      setHistory(updated);
     } catch {
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function loadFromHistory(entry: HistoryEntry) {
+    setInput(entry.input);
+    setOutput(entry.output);
+    setTab("explanation");
+    setShowHistory(false);
+  }
+
+  function deleteFromHistory(id: number) {
+    const updated = history.filter((h) => h.id !== id);
+    setHistory(updated);
+    localStorage.setItem("ledger-notes-history", JSON.stringify(updated));
   }
 
   const TABS = [
@@ -99,10 +141,37 @@ export default function NotesPage() {
 
   return (
     <div>
-      <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
+      <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 03 · Notes Simplifier</div>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Textbook → plain English</div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {history.length > 0 && (
+            <button onClick={() => setShowHistory(!showHistory)} className="btn ghost" style={{ padding: "6px 14px", fontSize: 11 }}>
+              {showHistory ? "Hide" : `History (${history.length})`}
+            </button>
+          )}
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Textbook → plain English</div>
+        </div>
       </header>
+
+      {/* History drawer */}
+      {showHistory && history.length > 0 && (
+        <div style={{ borderBottom: "1px solid var(--ink)", background: "var(--paper-2)" }}>
+          <div className="mob-p" style={{ padding: "20px 44px", maxWidth: 1280, margin: "0 auto" }}>
+            <div className="mono cin" style={{ marginBottom: 12 }}>Recent notes · {history.length} saved</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 0, border: "1px solid var(--ink)" }}>
+              {history.map((h, i) => (
+                <div key={h.id} style={{ padding: "14px 16px", borderRight: "1px solid var(--rule)", borderBottom: i < history.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                  <button onClick={() => loadFromHistory(h)} style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", flex: 1, padding: 0 }}>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)", lineHeight: 1.3 }}>{h.title}</div>
+                    <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 4 }}>{h.date} · {h.output.flashcards.length} cards · {h.output.summary.length} points</div>
+                  </button>
+                  <button onClick={() => deleteFromHistory(h.id)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", flexShrink: 0 }}>✕</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1.4fr" : "1fr", gap: 48 }}>
@@ -113,7 +182,7 @@ export default function NotesPage() {
               value={input} onChange={(e) => setInput(e.target.value)}
               placeholder="Paste your textbook excerpt, lecture notes, or any study material here. The longer and denser, the better."
               rows={output ? 16 : 20}
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none" }}
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }}
             />
             <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
               <button className="btn" onClick={generate} disabled={loading || !input.trim()} style={{ opacity: loading || !input.trim() ? 0.5 : 1 }}>
