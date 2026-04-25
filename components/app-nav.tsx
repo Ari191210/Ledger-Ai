@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuth } from "./auth-provider";
+import { loadUserData } from "@/lib/user-data";
 
 const TOOLS = [
   { n: "01", slug: "planner",    label: "Planner"    },
@@ -17,17 +19,25 @@ const TOOLS = [
 ];
 
 export default function AppNav() {
-  const path    = usePathname();
-  const router  = useRouter();
+  const path   = usePathname();
+  const router = useRouter();
   const { user, signOut } = useAuth();
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then(ud => {
+      setDisplayName(ud?.username || user.email?.split("@")[0] || "");
+    });
+  }, [user]);
 
   async function handleSignOut() {
     await signOut();
     router.push("/auth");
   }
 
-  const email = user?.email ?? "";
-  const short = email.length > 18 ? email.slice(0, 16) + "…" : email;
+  const short = displayName.length > 16 ? displayName.slice(0, 14) + "…" : displayName;
+  const isProfile = path === "/dashboard/profile";
 
   return (
     <nav
@@ -66,7 +76,15 @@ export default function AppNav() {
       {/* User */}
       {user && (
         <div style={{ display: "flex", alignItems: "center", gap: 0, borderLeft: "1px solid var(--rule)", flexShrink: 0 }}>
-          <div className="mono" style={{ padding: "0 14px", color: "var(--ink-3)", fontSize: 9, whiteSpace: "nowrap" }}>{short}</div>
+          <Link href="/dashboard/profile"
+            style={{ textDecoration: "none", height: "100%", display: "flex", alignItems: "center", padding: "0 14px", gap: 8, background: isProfile ? "var(--ink)" : "transparent", borderRight: "1px solid var(--rule)", cursor: "pointer" }}>
+            <div style={{ width: 22, height: 22, background: isProfile ? "var(--paper)" : "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 13, color: isProfile ? "var(--ink)" : "var(--paper)", lineHeight: 1 }}>
+                {(displayName || "?")[0].toUpperCase()}
+              </span>
+            </div>
+            <span className="mono" style={{ color: isProfile ? "var(--paper)" : "var(--ink-3)", fontSize: 9, whiteSpace: "nowrap" }}>@{short}</span>
+          </Link>
           <button onClick={handleSignOut}
             style={{ height: "100%", padding: "0 16px", background: "none", border: "none", borderLeft: "1px solid var(--rule)", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", whiteSpace: "nowrap" }}>
             Sign out

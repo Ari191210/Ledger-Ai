@@ -74,6 +74,7 @@ export default function DoubtPage() {
               <div style={{ marginTop: 12 }}>
                 {image ? (
                   <div style={{ border: "1px solid var(--ink)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, background: "var(--paper-2)" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={image} alt="uploaded" style={{ width: 56, height: 56, objectFit: "cover", border: "1px solid var(--rule)" }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink)" }}>{imageName}</div>

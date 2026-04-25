@@ -328,8 +328,15 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const name = user?.email?.split("@")[0] ?? "student";
+  const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
   const greeting = getGreeting();
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then(ud => {
+      if (ud?.username) setName(ud.username);
+    });
+  }, [user]);
   const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount } = useStats();
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });

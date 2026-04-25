@@ -28,6 +28,7 @@ export type UserData = {
   parentCode?: string;
   parentName?: string;
   referralCode?: string;
+  username?: string;
 };
 
 export async function loadUserData(userId: string): Promise<UserData | null> {
