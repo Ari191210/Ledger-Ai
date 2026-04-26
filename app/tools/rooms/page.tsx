@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { supabase } from "@/lib/supabase";
@@ -40,12 +40,12 @@ function ActiveRoom({ roomId, myName, onLeave }: { roomId: string; myName: strin
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  async function fetchRoom() {
+  const fetchRoom = useCallback(async () => {
     const { data, error: e } = await supabase.from("rooms").select("*").eq("id", roomId).single();
     if (e || !data) { setError("Room not found."); return; }
     setRoom(data as RoomRow);
     setSeconds(computeSeconds(data as RoomRow));
-  }
+  }, [roomId]);
 
   useEffect(() => {
     fetchRoom();
@@ -54,7 +54,7 @@ function ActiveRoom({ roomId, myName, onLeave }: { roomId: string; myName: strin
       if (pollRef.current) clearInterval(pollRef.current);
       if (tickRef.current) clearInterval(tickRef.current);
     };
-  }, [roomId]);
+  }, [roomId, fetchRoom]);
 
   useEffect(() => {
     if (tickRef.current) clearInterval(tickRef.current);
