@@ -36,9 +36,11 @@ export default function OnboardPage() {
     if (authLoading) return;
     if (!user) { router.push("/auth"); return; }
     // Skip onboarding if already done
-    loadUserData(user.id).then(ud => {
-      if (ud?.onboardingDone === true) router.push("/dashboard");
-    });
+    loadUserData(user.id)
+      .then(ud => {
+        if (ud?.onboardingDone === true) router.push("/dashboard");
+      })
+      .catch(() => {});
   }, [user, authLoading, router]);
 
   const needsStream = grade === "Class 11" || grade === "Class 12";

@@ -344,13 +344,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
-    // localStorage is the source of truth — avoids flicker if DB column missing
-    if (localStorage.getItem("ledger-onboarding-done") === "1") return;
-    loadUserData(user.id).then(ud => {
-      if (ud?.username) setName(ud.username);
-      if (!ud?.onboardingDone) setShowProfileBanner(true);
-    });
-  }, [user, router]);
+    loadUserData(user.id)
+      .then(ud => {
+        if (ud?.username) setName(ud.username);
+        const done = localStorage.getItem("ledger-onboarding-done") === "1" || ud?.onboardingDone === true;
+        if (!done) setShowProfileBanner(true);
+      })
+      .catch(() => {});
+  }, [user]);
   const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount } = useStats();
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
