@@ -92,13 +92,15 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    loadUserData(userId).then((ud) => {
-      if (ud) {
-        setExams(ud.exams || []);
-        setEmailEnabled(ud.emailEnabled || false);
-      }
-      setLoaded(true);
-    });
+    loadUserData(userId)
+      .then((ud) => {
+        if (ud) {
+          setExams(ud.exams || []);
+          setEmailEnabled(ud.emailEnabled || false);
+        }
+        setLoaded(true);
+      })
+      .catch(() => { setLoaded(true); });
   }, [userId]);
 
   async function addExam() {
@@ -274,16 +276,18 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
   const [copied, setCopied] = useState<"parent" | "ref" | null>(null);
 
   useEffect(() => {
-    loadUserData(userId).then(async (ud) => {
-      if (ud?.parentCode) {
-        setParentCode(ud.parentCode);
-      } else {
-        const code = Math.random().toString(36).slice(2, 10);
-        setParentCode(code);
-        await patchUserData(userId, "parentCode", code);
-        await patchUserData(userId, "parentName", userName);
-      }
-    });
+    loadUserData(userId)
+      .then(async (ud) => {
+        if (ud?.parentCode) {
+          setParentCode(ud.parentCode);
+        } else {
+          const code = Math.random().toString(36).slice(2, 10);
+          setParentCode(code);
+          await patchUserData(userId, "parentCode", code).catch(() => {});
+          await patchUserData(userId, "parentName", userName).catch(() => {});
+        }
+      })
+      .catch(() => {});
   }, [userId, userName]);
 
   const referralCode = userId.replace(/-/g, "").slice(0, 8).toUpperCase();
