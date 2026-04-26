@@ -75,11 +75,14 @@ export default function FormulaPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed to generate. Try again."); return; }
+      if (!Array.isArray(data.sections) || data.sections.length === 0) {
+        setError("Generation failed — please try again."); return;
+      }
       setSheet({
         subject:     data.subject     || subject,
         chapter:     data.chapter     || chapter,
         board:       data.board       || board,
-        sections:    Array.isArray(data.sections)    ? data.sections    : [],
+        sections:    data.sections,
         keyConcepts: Array.isArray(data.keyConcepts) ? data.keyConcepts : [],
         units:       Array.isArray(data.units)       ? data.units       : [],
         examTips:    Array.isArray(data.examTips)    ? data.examTips    : [],

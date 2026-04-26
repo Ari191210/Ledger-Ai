@@ -264,7 +264,7 @@ export async function POST(req: Request) {
   }
 
   // Syllabus responses can be large (many subjects + chapters)
-  const max_tokens = tool === "syllabus" ? 6000 : 2048;
+  const max_tokens = (tool === "syllabus" || tool === "formula") ? 6000 : 2048;
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
