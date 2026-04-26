@@ -66,14 +66,6 @@ export default function AppNav() {
           ← Home
         </Link>
 
-        {/* Cmd+K hint */}
-        <button
-          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))}
-          className="mob-hide"
-          style={{ display: "flex", alignItems: "center", gap: 5, padding: "0 12px", background: "none", border: "none", borderRight: "1px solid var(--rule)", cursor: "pointer", flexShrink: 0 }}>
-          <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>⌘K</span>
-        </button>
-
         {/* Hamburger — only on mobile */}
         <button
           className="mob-nav-btn"
