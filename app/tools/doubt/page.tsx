@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
+import { type UserProfile } from "@/lib/user-data";
 
 type Output = { solution: string; principle: string; practice: string[] };
 
@@ -13,7 +14,15 @@ export default function DoubtPage() {
   const [output,    setOutput]    = useState<Output | null>(null);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState("");
+  const [profile,   setProfile]   = useState<UserProfile>({});
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ledger-profile");
+      if (raw) setProfile(JSON.parse(raw));
+    } catch {}
+  }, []);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -35,7 +44,7 @@ export default function DoubtPage() {
     if (!question.trim() && !image) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const body: Record<string, unknown> = { tool: "doubt", question };
+      const body: Record<string, unknown> = { tool: "doubt", question, ...profile };
       if (image) body.image = image;
       const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
@@ -62,6 +71,13 @@ export default function DoubtPage() {
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1fr" : "1fr", gap: 48, maxWidth: output ? "100%" : 700 }}>
             {/* Input */}
             <div>
+              {profile.grade && (
+                <div style={{ marginBottom: 14, padding: "8px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", gap: 10, alignItems: "center" }}>
+                  <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>Profile</div>
+                  <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{profile.grade}{profile.board ? ` · ${profile.board}` : ""}{profile.stream ? ` · ${profile.stream}` : ""}</div>
+                  <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginLeft: "auto" }}>Solutions follow your board&apos;s marking scheme</div>
+                </div>
+              )}
               <div className="mono cin" style={{ marginBottom: 14 }}>Input · Type your question or upload a photo</div>
               <textarea
                 value={question} onChange={(e) => setQuestion(e.target.value)}

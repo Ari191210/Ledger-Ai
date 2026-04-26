@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { type UserProfile } from "@/lib/user-data";
 
 type TopicStatus = "done" | "partial" | "untouched";
 type TopicItem = { name: string; status: TopicStatus };
@@ -20,6 +21,14 @@ export default function CrunchPage() {
   const [plan,       setPlan]       = useState<Plan | null>(null);
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState("");
+  const [profile,    setProfile]    = useState<UserProfile>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ledger-profile");
+      if (raw) setProfile(JSON.parse(raw));
+    } catch {}
+  }, []);
 
   function addTopic() {
     const t = topicInput.trim();
@@ -44,6 +53,7 @@ export default function CrunchPage() {
           examName: examName.trim(),
           hoursLeft: String(hoursLeft),
           topics: topics.map(t => `${t.name}: ${t.status}`).join("\n"),
+          ...profile,
         }),
       });
       const data = await res.json();

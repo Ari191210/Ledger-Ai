@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { type UserProfile } from "@/lib/user-data";
 
 type Flashcard = { q: string; a: string };
 type QuizItem  = { q: string; opts: string[]; ans: number };
@@ -92,11 +93,16 @@ export default function NotesPage() {
   const [tab,     setTab]     = useState<"explanation" | "summary" | "flashcards" | "quiz">("explanation");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [profile, setProfile] = useState<UserProfile>({});
 
   useEffect(() => {
     try {
       const h = JSON.parse(localStorage.getItem("ledger-notes-history") || "[]");
       setHistory(h);
+    } catch {}
+    try {
+      const raw = localStorage.getItem("ledger-profile");
+      if (raw) setProfile(JSON.parse(raw));
     } catch {}
   }, []);
 
@@ -104,7 +110,7 @@ export default function NotesPage() {
     if (!input.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "notes", content: input }) });
+      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "notes", content: input, ...profile }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);
@@ -177,6 +183,13 @@ export default function NotesPage() {
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1.4fr" : "1fr", gap: 48 }}>
           {/* Input */}
           <div>
+            {profile.grade && (
+              <div style={{ marginBottom: 14, padding: "8px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", gap: 10, alignItems: "center" }}>
+                <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>Profile</div>
+                <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{profile.grade}{profile.board ? ` · ${profile.board}` : ""}{profile.stream ? ` · ${profile.stream}` : ""}</div>
+                <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginLeft: "auto" }}>AI personalised for your board</div>
+              </div>
+            )}
             <div className="mono cin" style={{ marginBottom: 14 }}>Input · Paste your notes or chapter</div>
             <textarea
               value={input} onChange={(e) => setInput(e.target.value)}

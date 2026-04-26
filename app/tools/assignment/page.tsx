@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
+import { type UserProfile } from "@/lib/user-data";
 
 type OutlineSection = { section: string; points: string[] };
 type Output = { title: string; outline: OutlineSection[]; arguments: string[]; research: string[] };
@@ -14,12 +15,20 @@ export default function AssignmentPage() {
   const [output,    setOutput]    = useState<Output | null>(null);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState("");
+  const [profile,   setProfile]   = useState<UserProfile>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ledger-profile");
+      if (raw) setProfile(JSON.parse(raw));
+    } catch {}
+  }, []);
 
   async function generate() {
     if (!brief.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "assignment", brief, subject, wordLimit }) });
+      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "assignment", brief, subject, wordLimit, ...profile }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);
@@ -42,6 +51,13 @@ export default function AssignmentPage() {
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1.4fr" : "1fr", gap: 48, maxWidth: output ? "100%" : 680 }}>
             {/* Input */}
             <div>
+              {profile.grade && (
+                <div style={{ marginBottom: 14, padding: "8px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", gap: 10, alignItems: "center" }}>
+                  <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>Profile</div>
+                  <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{profile.grade}{profile.board ? ` · ${profile.board}` : ""}{profile.stream ? ` · ${profile.stream}` : ""}</div>
+                  <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginLeft: "auto" }}>Writing style matched to your board</div>
+                </div>
+              )}
               <div className="mono cin" style={{ marginBottom: 14 }}>Input · Your assignment brief</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 100px", gap: 10, marginBottom: 10 }}>
                 <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject (e.g. History, Economics)"

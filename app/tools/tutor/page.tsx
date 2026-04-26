@@ -77,12 +77,12 @@ export default function TutorPage() {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState("");
   const [tab,      setTab]      = useState<"concept" | "examples" | "keypoints" | "practice">("concept");
-  const [profile,  setProfile]  = useState<{ grade?: string; stream?: string; interests?: string[] }>({});
+  const [profile,  setProfile]  = useState<{ grade?: string; board?: string; stream?: string; interests?: string[]; targetExam?: string }>({});
 
   useEffect(() => {
     if (!user) return;
     loadUserData(user.id).then(ud => {
-      if (ud) setProfile({ grade: ud.grade, stream: ud.stream, interests: ud.interests });
+      if (ud) setProfile({ grade: ud.grade, board: ud.board, stream: ud.stream, interests: ud.interests, targetExam: ud.targetExam });
     });
   }, [user]);
 
@@ -98,7 +98,9 @@ export default function TutorPage() {
           subject,
           topic: topic.trim(),
           grade: profile.grade || "Class 10",
+          board: profile.board || "",
           stream: profile.stream || "",
+          targetExam: profile.targetExam || "",
           extra: profile.interests?.length ? `Student's interests: ${profile.interests.join(", ")}` : "",
         }),
       });
@@ -135,7 +137,7 @@ export default function TutorPage() {
             {profile.grade && (
               <div style={{ marginBottom: 16, padding: "10px 14px", border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", gap: 12, alignItems: "center" }}>
                 <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>Profile</div>
-                <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{profile.grade}{profile.stream ? ` · ${profile.stream}` : ""}</div>
+                <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{profile.grade}{profile.board ? ` · ${profile.board}` : ""}{profile.stream ? ` · ${profile.stream}` : ""}{profile.targetExam ? ` · ${profile.targetExam}` : ""}</div>
                 <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginLeft: "auto" }}>Lessons personalised for you</div>
               </div>
             )}
