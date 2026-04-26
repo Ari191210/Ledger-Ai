@@ -58,14 +58,18 @@ export default function OnboardPage() {
   async function finish() {
     if (!user) return;
     setSaving(true);
-    await saveUserData(user.id, {
-      onboardingDone: true,
-      grade,
-      board: board.split(" —")[0].split(" /")[0].trim(), // short form
-      stream: stream ? stream.split(" —")[0].split(" (")[0].trim() : undefined,
-      interests,
-      targetExam: targetExam.split(" /")[0].trim(),
-    });
+    try {
+      await saveUserData(user.id, {
+        onboardingDone: true,
+        grade,
+        board: board.split(" —")[0].split(" /")[0].trim(),
+        stream: stream ? stream.split(" —")[0].split(" (")[0].trim() : undefined,
+        interests,
+        targetExam: targetExam.split(" /")[0].trim(),
+      });
+    } catch {}
+    // Always mark done in localStorage so the banner never reappears
+    localStorage.setItem("ledger-onboarding-done", "1");
     router.push("/dashboard");
   }
 

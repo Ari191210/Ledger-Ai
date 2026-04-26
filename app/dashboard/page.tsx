@@ -344,9 +344,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
+    // localStorage is the source of truth — avoids flicker if DB column missing
+    if (localStorage.getItem("ledger-onboarding-done") === "1") return;
     loadUserData(user.id).then(ud => {
       if (ud?.username) setName(ud.username);
-      // Show banner (not a redirect) if profile not yet set up
       if (!ud?.onboardingDone) setShowProfileBanner(true);
     });
   }, [user, router]);
