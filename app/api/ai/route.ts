@@ -57,6 +57,11 @@ function buildProfileContext(params: Record<string, unknown>): string {
   let ctx = `\nSTUDENT PROFILE: ${parts.join(" · ")}.`;
   if (interests?.length) ctx += ` Interests: ${interests.join(", ")}.`;
 
+  const syllabusSubjects = params.syllabusSubjects as string[] | undefined;
+  if (syllabusSubjects?.length) {
+    ctx += ` Their curriculum covers: ${syllabusSubjects.join(", ")}.`;
+  }
+
   ctx += `\nYou are acting as a teacher from this student's board and curriculum. Calibrate every explanation, example, vocabulary, and question style to:
 - Their grade level and depth of understanding
 - The specific board's syllabus, marking scheme, and exam style (e.g. CBSE uses NCERT references and step-marking; ICSE values detailed explanations; IB emphasises critical thinking)
@@ -67,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -152,6 +157,21 @@ Student level: ${params.grade || "Class 10"}
 ${params.stream ? `Stream: ${params.stream}` : ""}
 ${params.extra ? `Additional context: ${params.extra}` : ""}`,
       };
+
+    case "syllabus":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a curriculum parser. Extract structured academic content from any syllabus document, no matter how messy or incomplete. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Parse this syllabus and extract all academic content. Respond with exactly this JSON shape:
+{"grade":"detected grade or null","board":"CBSE/ICSE/IB/State/etc or null","academicYear":"2024-25 or null","subjects":[{"name":"Subject","chapters":[{"name":"Chapter or Unit name","topics":["topic 1","topic 2"]}]}],"exams":[{"name":"exam name","date":"YYYY-MM-DD or null","note":"any date info found"}],"notes":"any other useful academic info"}
+
+Rules:
+- Extract EVERY subject and chapter you can find — be exhaustive
+- If topics aren't listed under a chapter, leave topics as []
+- Infer subject names if abbreviated (Maths → Mathematics, Phy → Physics)
+- If dates are vague ("November"), set date to null and describe in note
+- Never refuse — always return the best parse possible, even from partial info
+${params.text ? `\nDocument text:\n${params.text}` : "\nParse the attached document."}`,
+      };
   }
 }
 
@@ -171,7 +191,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
@@ -187,7 +207,7 @@ export async function POST(req: Request) {
   type SupportedMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
   const SUPPORTED: SupportedMediaType[] = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-  // Build message content — supports optional image for doubt solver
+  // Build message content
   let messageContent: Anthropic.MessageParam["content"] = userText;
 
   if (tool === "doubt" && typeof params.image === "string" && params.image.startsWith("data:")) {
@@ -202,9 +222,33 @@ export async function POST(req: Request) {
     ];
   }
 
+  if (tool === "syllabus") {
+    if (typeof params.pdf === "string") {
+      // Send PDF natively — Claude reads it directly
+      messageContent = [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        { type: "document", source: { type: "base64", media_type: "application/pdf", data: params.pdf } } as any,
+        { type: "text", text: userText },
+      ];
+    } else if (typeof params.image === "string" && params.image.startsWith("data:")) {
+      const [header, data] = params.image.split(",");
+      const rawType = header.replace("data:", "").replace(";base64", "");
+      const media_type: SupportedMediaType = SUPPORTED.includes(rawType as SupportedMediaType)
+        ? (rawType as SupportedMediaType)
+        : "image/jpeg";
+      messageContent = [
+        { type: "image", source: { type: "base64", media_type, data } },
+        { type: "text", text: userText },
+      ];
+    }
+  }
+
+  // Syllabus responses can be large (many subjects + chapters)
+  const max_tokens = tool === "syllabus" ? 6000 : 2048;
+
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 2048,
+    max_tokens,
     system,
     messages: [{ role: "user", content: messageContent }],
   });

@@ -110,7 +110,8 @@ export default function NotesPage() {
     if (!input.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "notes", content: input, ...profile }) });
+      const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
+      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "notes", content: input, ...profile, syllabusSubjects }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);

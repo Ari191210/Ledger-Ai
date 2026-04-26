@@ -44,7 +44,8 @@ export default function DoubtPage() {
     if (!question.trim() && !image) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const body: Record<string, unknown> = { tool: "doubt", question, ...profile };
+      const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
+      const body: Record<string, unknown> = { tool: "doubt", question, ...profile, syllabusSubjects };
       if (image) body.image = image;
       const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();

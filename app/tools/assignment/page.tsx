@@ -28,7 +28,8 @@ export default function AssignmentPage() {
     if (!brief.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "assignment", brief, subject, wordLimit, ...profile }) });
+      const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
+      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "assignment", brief, subject, wordLimit, ...profile, syllabusSubjects }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);
