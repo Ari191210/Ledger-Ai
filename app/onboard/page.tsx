@@ -227,7 +227,7 @@ export default function OnboardPage() {
               <div style={{ border: "1px solid var(--ink)", padding: "28px 24px", marginBottom: 20 }}>
                 {[
                   ["Upload a PDF or photo", "Your school-issued syllabus, a photo of a printed sheet, even a messy Word doc."],
-                  ["Claude reads it in seconds", "Subjects, chapters, topics — all extracted automatically."],
+                  ["AI reads it in seconds", "Subjects, chapters, topics — all extracted automatically."],
                   ["Every tool personalised", "Notes, Doubt Solver, Tutor — all calibrated to your exact curriculum from day one."],
                 ].map(([title, desc], i, arr) => (
                   <div key={i} style={{ display: "flex", gap: 16, padding: "12px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}>

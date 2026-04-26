@@ -185,7 +185,7 @@ export default function SyllabusPage() {
               <div style={{ marginTop: 28, border: "1px solid var(--rule)", padding: "18px 20px" }}>
                 <div className="mono cin" style={{ marginBottom: 12 }}>What happens</div>
                 {[
-                  ["01", "Claude reads your document", "PDFs, photos of printed sheets, messy text — anything works."],
+                  ["01", "AI reads your document", "PDFs, photos of printed sheets, messy text — anything works."],
                   ["02", "Subjects & chapters extracted", "Every unit, chapter, and topic is pulled into a clean structure."],
                   ["03", "All AI tools personalised", "Notes Simplifier, Doubt Solver, Tutor — all know your exact syllabus."],
                   ["04", "Planner pre-filled", "Your subjects are ready to drop into the Study Planner."],
