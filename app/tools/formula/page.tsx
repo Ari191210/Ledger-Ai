@@ -183,13 +183,13 @@ export default function FormulaPage() {
               <div style={{ marginTop: 28, border: "1px solid var(--rule)", padding: "18px" }}>
                 <div className="mono cin" style={{ marginBottom: 12 }}>Good to know</div>
                 {[
-                  ["Be specific", "\"Integration by Parts\" beats \"Integration\""],
-                  ["Board-matched", "Formulas follow your board&apos;s notation and marking scheme"],
+                  ["Be specific", '"Integration by Parts" beats "Integration"'],
+                  ["Board-matched", "Formulas follow your board's notation and marking scheme"],
                   ["Print-ready", "One click exports a clean reference card to PDF"],
                 ].map(([t, d]) => (
                   <div key={t} style={{ marginBottom: 10 }}>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600 }}>{t}</div>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 2 }} dangerouslySetInnerHTML={{ __html: d }} />
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 2 }}>{d}</div>
                   </div>
                 ))}
               </div>

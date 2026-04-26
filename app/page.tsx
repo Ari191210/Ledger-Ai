@@ -19,6 +19,7 @@ const TOOLS = [
   { n: "12", slug: "dna",        ttl: "Mistake DNA",          sub: "See exactly where you go wrong.",   desc: "Every wrong answer from Past Papers is categorised: Conceptual Gap, Calculation Slip, Misread, Rushed, or Memory Blank. Visualised by subject. The pattern becomes obvious within three sessions.", gets: ["5-category mistake taxonomy", "Per-subject breakdown chart", "Recurring topic tracker"] },
   { n: "13", slug: "crunch",     ttl: "48-Hour Crunch",       sub: "Exam tomorrow. Smart triage.",      desc: "Tell the AI what to skip and what to nail. Input your topics and their status (done / partial / not yet). Get a priority order, time estimates per topic, and an hour-by-hour schedule.",        gets: ["Priority triage of every topic", "Time estimates per chapter", "Hour-by-hour schedule"] },
   { n: "14", slug: "syllabus",   ttl: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped.", desc: "Upload your school's PDF syllabus — or a photo of the printed sheet. AI extracts every subject, chapter, and topic into a clean structure that powers every other tool on Ledger automatically.", gets: ["PDF + photo input", "Subjects, chapters, topics extracted", "Auto-powers all other tools"] },
+  { n: "15", slug: "formula",    ttl: "Formula Sheet",        sub: "Chapter → complete reference card.", desc: "Type any subject and chapter. Get every formula with variable definitions, SI units, dimensional analysis, and board-specific exam tips — formatted for one-click PDF export.", gets: ["Every formula for the chapter", "Variable meanings + SI units", "Board-specific exam tips, print-ready"] },
   { n: "★",  slug: "score",      ttl: "Ledger Score™",        sub: "Your real-time exam readiness.",    desc: "A 0–1000 index computed from four signals: PYQ accuracy (40%), syllabus coverage (25%), mistake velocity (20%), and daily consistency (15%). Updates every time you use any tool.",              gets: ["Live 0–1000 readiness score", "4-pillar breakdown", "Top 3 actions to improve today"] },
 ] as const;
 
@@ -497,7 +498,7 @@ export default function Home() {
           </div>
 
           {[
-            { h: "Tools", l: ["Planner", "Marks Predictor", "Notes Simplifier", "Doubt Solver", "Focus Dashboard", "Career Pathfinder", "Past Papers", "Assignment Rescue", "Resume Builder", "Study Rooms", "Topic Tutor", "Mistake DNA", "48-Hour Crunch", "Syllabus Parser", "Ledger Score™"] },
+            { h: "Tools", l: ["Planner", "Marks Predictor", "Notes Simplifier", "Doubt Solver", "Focus Dashboard", "Career Pathfinder", "Past Papers", "Assignment Rescue", "Resume Builder", "Study Rooms", "Topic Tutor", "Mistake DNA", "48-Hour Crunch", "Syllabus Parser", "Formula Sheet", "Ledger Score™"] },
             { h: "Institutions", l: ["For Schools", "For Tuition Centres", "Syllabus Parser", "Data Export", "API"] },
             { h: "The Ledger",   l: ["Changelog", "Roadmap", "Colophon", "Masthead", "Press", "Contact"] },
           ].map((g) => (
