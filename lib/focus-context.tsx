@@ -74,11 +74,11 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
 
   // Persist timer state on every change
   useEffect(() => {
-    localStorage.setItem("ledger-focus-timer", JSON.stringify({ s: seconds, n: sessions }));
+    try { localStorage.setItem("ledger-focus-timer", JSON.stringify({ s: seconds, n: sessions })); } catch {}
   }, [seconds, sessions]);
 
   useEffect(() => {
-    localStorage.setItem("ledger-focus-tasks", JSON.stringify(tasks));
+    try { localStorage.setItem("ledger-focus-tasks", JSON.stringify(tasks)); } catch {}
   }, [tasks]);
 
   // Mode reset — skip on first mount so restore wins
@@ -97,17 +97,19 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
           setSessions((n) => {
             const next = n + 1;
             if (next % 4 === 0) setMode("longbreak"); else setMode("break");
-            const today = new Date().toDateString();
-            const last = localStorage.getItem("ledger-focus-last");
-            const strk = parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10);
-            if (last !== today) {
-              const ns = strk + 1;
-              localStorage.setItem("ledger-focus-streak", String(ns));
-              localStorage.setItem("ledger-focus-last", today);
-              setStreak(ns);
-              const u = userRef.current;
-              if (u) patchUserData(u.id, "focus", { streak: ns, lastDate: today });
-            }
+            try {
+              const today = new Date().toDateString();
+              const last = localStorage.getItem("ledger-focus-last");
+              const strk = parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10);
+              if (last !== today) {
+                const ns = strk + 1;
+                localStorage.setItem("ledger-focus-streak", String(ns));
+                localStorage.setItem("ledger-focus-last", today);
+                setStreak(ns);
+                const u = userRef.current;
+                if (u) patchUserData(u.id, "focus", { streak: ns, lastDate: today });
+              }
+            } catch {}
             return next;
           });
         } else {

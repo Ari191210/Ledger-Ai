@@ -40,11 +40,11 @@ export default function CareerPage() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("ledger-career-answers", JSON.stringify(answers));
+    try { localStorage.setItem("ledger-career-answers", JSON.stringify(answers)); } catch {}
   }, [answers]);
 
   useEffect(() => {
-    if (output) localStorage.setItem("ledger-career-output", JSON.stringify(output));
+    try { if (output) localStorage.setItem("ledger-career-output", JSON.stringify(output)); } catch {}
   }, [output]);
 
   const allAnswered = QUESTIONS.every((q) => answers[q.id]);
