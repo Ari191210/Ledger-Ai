@@ -339,13 +339,15 @@ export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
+  const [showProfileBanner, setShowProfileBanner] = useState(false);
   const greeting = getGreeting();
 
   useEffect(() => {
     if (!user) return;
     loadUserData(user.id).then(ud => {
-      if (!ud?.onboardingDone) { router.push("/onboard"); return; }
       if (ud?.username) setName(ud.username);
+      // Show banner (not a redirect) if profile not yet set up
+      if (!ud?.onboardingDone) setShowProfileBanner(true);
     });
   }, [user, router]);
   const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount } = useStats();
@@ -365,6 +367,20 @@ export default function Dashboard() {
         </div>
         <div className="mono" style={{ color: "var(--ink-3)", fontSize: 11 }}>studyledger.in</div>
       </div>
+
+      {/* Profile setup banner */}
+      {showProfileBanner && (
+        <div style={{ marginBottom: 24, padding: "14px 20px", border: "1px solid var(--cinnabar-ink)", background: "var(--paper-2)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <span className="mono cin" style={{ marginRight: 10 }}>Profile incomplete</span>
+            <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>Set your grade, board and interests so every tool is personalised for you.</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <button className="btn" onClick={() => router.push("/onboard")} style={{ padding: "6px 16px", fontSize: 11 }}>Set up profile →</button>
+            <button className="btn ghost" onClick={() => setShowProfileBanner(false)} style={{ padding: "6px 12px", fontSize: 11 }}>Dismiss</button>
+          </div>
+        </div>
+      )}
 
       {/* Stats bar */}
       <div className="mob-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid var(--ink)", marginBottom: 40 }}>

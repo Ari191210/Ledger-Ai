@@ -37,7 +37,7 @@ export default function OnboardPage() {
     if (!user) { router.push("/auth"); return; }
     // Skip onboarding if already done
     loadUserData(user.id).then(ud => {
-      if (ud?.onboardingDone) router.push("/dashboard");
+      if (ud?.onboardingDone === true) router.push("/dashboard");
     });
   }, [user, authLoading, router]);
 
