@@ -3,22 +3,22 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 const ITEMS = [
-  { n: "↖",  path: "/dashboard",          label: "Dashboard",           keywords: "home" },
-  { n: "↖",  path: "/dashboard/profile",  label: "Profile & Settings",  keywords: "account settings" },
-  { n: "14", path: "/tools/syllabus",     label: "Syllabus Parser",     keywords: "pdf upload curriculum parse" },
-  { n: "01", path: "/tools/planner",      label: "Smart Study Planner", keywords: "plan schedule study" },
-  { n: "02", path: "/tools/marks",        label: "Marks Predictor",     keywords: "grades gpa score percentage" },
-  { n: "03", path: "/tools/notes",        label: "Notes Simplifier",    keywords: "notes summary flashcards quiz" },
-  { n: "04", path: "/tools/doubt",        label: "Doubt Solver",        keywords: "doubt question problem photo" },
-  { n: "05", path: "/tools/focus",        label: "Focus Dashboard",     keywords: "focus pomodoro streak timer" },
-  { n: "06", path: "/tools/career",       label: "Career Pathfinder",   keywords: "career college counsellor" },
-  { n: "07", path: "/tools/papers",       label: "Past Papers",         keywords: "pyq past papers practice test" },
-  { n: "08", path: "/tools/assignment",   label: "Assignment Rescue",   keywords: "assignment essay outline writing" },
-  { n: "09", path: "/tools/resume",       label: "Resume Builder",      keywords: "resume cv portfolio" },
-  { n: "10", path: "/tools/rooms",        label: "Study Rooms",         keywords: "rooms group study collaborate" },
-  { n: "11", path: "/tools/tutor",        label: "Topic Tutor",         keywords: "tutor lesson teach concept" },
-  { n: "12", path: "/tools/dna",          label: "Mistake DNA",         keywords: "mistakes wrong errors pattern" },
-  { n: "13", path: "/tools/crunch",       label: "48-Hour Crunch",      keywords: "crunch triage rescue plan exam" },
+  { n: "↖",  path: "/dashboard",         label: "Dashboard"           },
+  { n: "↖",  path: "/dashboard/profile", label: "Profile & Settings"  },
+  { n: "14", path: "/tools/syllabus",    label: "Syllabus Parser"     },
+  { n: "01", path: "/tools/planner",     label: "Smart Study Planner" },
+  { n: "02", path: "/tools/marks",       label: "Marks Predictor"     },
+  { n: "03", path: "/tools/notes",       label: "Notes Simplifier"    },
+  { n: "04", path: "/tools/doubt",       label: "Doubt Solver"        },
+  { n: "05", path: "/tools/focus",       label: "Focus Dashboard"     },
+  { n: "06", path: "/tools/career",      label: "Career Pathfinder"   },
+  { n: "07", path: "/tools/papers",      label: "Past Papers"         },
+  { n: "08", path: "/tools/assignment",  label: "Assignment Rescue"   },
+  { n: "09", path: "/tools/resume",      label: "Resume Builder"      },
+  { n: "10", path: "/tools/rooms",       label: "Study Rooms"         },
+  { n: "11", path: "/tools/tutor",       label: "Topic Tutor"         },
+  { n: "12", path: "/tools/dna",         label: "Mistake DNA"         },
+  { n: "13", path: "/tools/crunch",      label: "48-Hour Crunch"      },
 ];
 
 export default function CommandPalette() {
@@ -31,7 +31,6 @@ export default function CommandPalette() {
   const filtered = query.trim()
     ? ITEMS.filter(i =>
         i.label.toLowerCase().includes(query.toLowerCase()) ||
-        i.keywords.toLowerCase().includes(query.toLowerCase()) ||
         i.n.includes(query)
       )
     : ITEMS;
