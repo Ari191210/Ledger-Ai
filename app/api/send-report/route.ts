@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+
+export const dynamic = "force-dynamic";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 
 const anthropic = new Anthropic();
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Exam = { name: string; subject: string; date: string; board: string };
 type UserData = {
@@ -221,6 +218,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "RESEND_API_KEY not set." }, { status: 500 });
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   let userId: string, userEmail: string, userName: string;
   try {
@@ -235,6 +236,10 @@ export async function POST(req: Request) {
   // Load user data from Supabase
   const { data } = await supabaseAdmin.from("user_data").select("*").eq("id", userId).single();
   const ud = (data || {}) as UserData;
+
+  if (!ud.emailEnabled) {
+    return NextResponse.json({ error: "Email reports are disabled for this account." }, { status: 403 });
+  }
 
   const exams: Exam[] = ud.exams || [];
   const weakTopicsRaw: Record<string, number> = ud.weakTopics || {};

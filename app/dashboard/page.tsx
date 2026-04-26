@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 
@@ -15,6 +16,7 @@ const TOOLS = [
   { n: "08", slug: "assignment", ttl: "Assignment Rescue",    sub: "From prompt to outline.",         tier: "Pro",   desc: "Paste the brief. Get structure, argument options, and research directions." },
   { n: "09", slug: "resume",     ttl: "Resume Builder",       sub: "For applications, not LinkedIn.", tier: "Pro+",  desc: "Internships, summer programs, college essays — one polished PDF." },
   { n: "10", slug: "rooms",      ttl: "Study Rooms",          sub: "Silent accountability.",          tier: "Pro+",  desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
+  { n: "11", slug: "tutor",      ttl: "Topic Tutor",          sub: "Pick a topic. Get a full lesson.", tier: "Free",  desc: "AI generates a personalised lesson with concept, examples, key points and a practice quiz." },
 ] as const;
 
 const TIER_COLOR: Record<string, string> = {
@@ -255,7 +257,7 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
             </div>
             <span className="mono" style={{ fontSize: 10, color: "var(--ink-2)" }}>{emailEnabled ? "On" : "Off"}</span>
           </label>
-          <button className="btn ghost" onClick={sendNow} disabled={sending} style={{ padding: "6px 14px", fontSize: 11, opacity: sending ? 0.5 : 1 }}>
+          <button className="btn ghost" onClick={sendNow} disabled={sending || !emailEnabled} style={{ padding: "6px 14px", fontSize: 11, opacity: sending || !emailEnabled ? 0.4 : 1 }}>
             {sending ? "Sending…" : "Send now →"}
           </button>
         </div>
@@ -335,15 +337,17 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const router = useRouter();
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
   const greeting = getGreeting();
 
   useEffect(() => {
     if (!user) return;
     loadUserData(user.id).then(ud => {
+      if (!ud?.onboardingDone) { router.push("/onboard"); return; }
       if (ud?.username) setName(ud.username);
     });
-  }, [user]);
+  }, [user, router]);
   const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount } = useStats();
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -440,7 +444,7 @@ export default function Dashboard() {
       </div>
 
       <div className="mono" style={{ marginTop: 24, color: "var(--ink-3)", fontSize: 10, textAlign: "right" }}>
-        {user?.email} · <Link href="/" style={{ color: "var(--ink-3)" }}>Back to home</Link>
+        <Link href="/" style={{ color: "var(--ink-3)" }}>← Back to home</Link>
       </div>
     </main>
   );

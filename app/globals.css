@@ -275,6 +275,21 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
   .ticker-track { gap: 28px; }
 }
 
+/* ─── Nav tools: hide scrollbar so overflow is invisible ────────────────────── */
+.nav-tools-scroll::-webkit-scrollbar { display: none; }
+.nav-tools-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Medium screens: hide nav username, keep tool links ────────────────────── */
+@media (max-width: 1280px) {
+  .nav-username { display: none !important; }
+}
+
+/* ─── Phones only: swap tools row for hamburger ─────────────────────────────── */
+@media (max-width: 500px) {
+  .mob-nav-tools { display: none !important; }
+  .mob-nav-btn   { display: flex !important; }
+}
+
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Grid collapse helpers — !important overrides inline styles */
@@ -323,12 +338,11 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
   /* Dashboard heading */
   .mob-heading { font-size: 32px !important; }
 
-  /* Nav: hide tool links, show hamburger */
-  .mob-nav-tools  { display: none !important; }
-  .mob-nav-btn    { display: flex !important; }
+  /* Nav: hide username */
+  .nav-username   { display: none !important; }
   .mob-nav-menu {
     position: fixed;
-    top: 49px;
+    top: 75px;
     left: 0; right: 0; bottom: 0;
     background: var(--paper);
     border-top: 1px solid var(--ink);

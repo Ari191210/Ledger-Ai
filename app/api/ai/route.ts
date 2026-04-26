@@ -1,9 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const client = new Anthropic();
 
-type ToolName = "notes" | "doubt" | "career" | "assignment";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   switch (tool) {
@@ -53,6 +55,21 @@ Subject: ${params.subject}
 Word limit: ${params.wordLimit}
 Brief: ${params.brief}`,
       };
+
+    case "tutor":
+      return {
+        system: "You are a brilliant teacher who explains concepts at exactly the right level for the student. Always respond with valid JSON only — no markdown fences, no prose outside the JSON.",
+        userText: `Teach me about this topic and respond with exactly this JSON shape:
+{"title":"specific lesson title","concept":"3-4 paragraph plain-English explanation building from basics to full understanding","keyPoints":["key point 1","key point 2","...up to 8 key points"],"examples":[{"title":"example title","setup":"problem or scenario description","solution":"clear step-by-step solution or walkthrough"}],"commonMistakes":["common mistake 1","common mistake 2","common mistake 3"],"practice":[{"q":"question","opts":["A","B","C","D"],"ans":0}]}
+
+examples: 2-3 worked examples. practice: exactly 4 multiple-choice questions, ans is 0-based index.
+
+Subject: ${params.subject}
+Topic: ${params.topic}
+Student level: ${params.grade || "Class 10"}
+${params.stream ? `Stream: ${params.stream}` : ""}
+${params.extra ? `Additional context: ${params.extra}` : ""}`,
+      };
   }
 }
 
@@ -72,7 +89,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

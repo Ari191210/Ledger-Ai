@@ -29,6 +29,13 @@ export type UserData = {
   parentName?: string;
   referralCode?: string;
   username?: string;
+  // Onboarding profile
+  onboardingDone?: boolean;
+  grade?: string;
+  board?: string;
+  stream?: string;
+  interests?: string[];
+  targetExam?: string;
 };
 
 export async function loadUserData(userId: string): Promise<UserData | null> {

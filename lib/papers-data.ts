@@ -859,4 +859,376 @@ export const PAPERS: Paper[] = [
       { q: "The Haber process for ammonia synthesis uses catalyst:", opts: ["Platinum", "Iron with K₂O and Al₂O₃ promoters", "Vanadium pentoxide", "Nickel"], ans: 1, topic: "Industrial Chemistry" },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CBSE 12 — Economics & English
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "cbse-12-eco-2024",
+    board: "CBSE", subject: "Economics", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "GDP at Factor Cost = GDP at Market Price –", opts: ["Subsidies", "Indirect taxes", "Net indirect taxes", "Depreciation"], ans: 2, topic: "National Income" },
+      { q: "Which of the following is a stock concept?", opts: ["National income", "Savings", "Wealth", "Investment"], ans: 2, topic: "National Income" },
+      { q: "The 'Banker's Bank' function is performed by:", opts: ["Commercial banks", "RBI", "NABARD", "SBI"], ans: 1, topic: "Money & Banking" },
+      { q: "When government expenditure exceeds government revenue, it is called:", opts: ["Trade deficit", "Current account deficit", "Budget deficit", "Capital deficit"], ans: 2, topic: "Government Budget" },
+      { q: "Value Added = Value of Output –", opts: ["Wages paid", "Intermediate consumption", "Depreciation", "Taxes"], ans: 1, topic: "National Income" },
+      { q: "Which of the following is included in Money Supply (M1)?", opts: ["Fixed deposits", "Demand deposits", "Time deposits", "Recurring deposits"], ans: 1, topic: "Money & Banking" },
+      { q: "Marginal Propensity to Consume (MPC) + Marginal Propensity to Save (MPS) =", opts: ["0", "0.5", "1", "2"], ans: 2, topic: "Income Determination" },
+      { q: "Balance of Trade =", opts: ["Exports + Imports", "Exports − Imports", "Imports − Exports", "Exports × Imports"], ans: 1, topic: "Balance of Payments" },
+      { q: "Investment multiplier k =", opts: ["1/MPS", "1/MPC", "MPC/MPS", "MPS/MPC"], ans: 0, topic: "Income Determination" },
+      { q: "If Nominal GDP = ₹2000 cr and Price Index = 125, Real GDP =", opts: ["₹2500 cr", "₹1600 cr", "₹1000 cr", "₹2000 cr"], ans: 1, topic: "National Income" },
+    ],
+  },
+
+  {
+    id: "cbse-12-eco-2023",
+    board: "CBSE", subject: "Economics", grade: "Class 12", year: 2023, difficulty: "Medium",
+    questions: [
+      { q: "Which of the following is a flow concept?", opts: ["Money supply", "National debt", "National income", "Capital stock"], ans: 2, topic: "National Income" },
+      { q: "Transfer payments are:", opts: ["Included in NNP at MP", "Excluded from national income", "Included in GDP at FC", "Part of capital receipts"], ans: 1, topic: "National Income" },
+      { q: "Credit creation by commercial banks is limited by:", opts: ["Cash Reserve Ratio", "Repo rate only", "Bank rate only", "Government policy"], ans: 0, topic: "Money & Banking" },
+      { q: "An increase in government spending with constant tax revenue causes:", opts: ["Surplus budget", "Balanced budget", "Deficit budget", "No change"], ans: 2, topic: "Government Budget" },
+      { q: "Current Account of Balance of Payments includes:", opts: ["FDI flows", "Portfolio investment", "Trade in goods and services", "Loans from IMF"], ans: 2, topic: "Balance of Payments" },
+      { q: "The concept of 'effective demand' was given by:", opts: ["Marshall", "Pigou", "Keynes", "Ricardo"], ans: 2, topic: "Income Determination" },
+      { q: "Real GDP adjusts Nominal GDP for changes in:", opts: ["Population", "Price level", "Interest rates", "Exchange rates"], ans: 1, topic: "National Income" },
+      { q: "Which is NOT a function of money?", opts: ["Medium of exchange", "Store of value", "Production of goods", "Standard of deferred payment"], ans: 2, topic: "Money & Banking" },
+      { q: "Open market operations refer to buying/selling of:", opts: ["Foreign currency", "Government securities by RBI", "Shares on stock market", "Gold by government"], ans: 1, topic: "Money & Banking" },
+      { q: "If MPC = 0.8, the value of multiplier is:", opts: ["2", "4", "5", "8"], ans: 2, topic: "Income Determination" },
+    ],
+  },
+
+  {
+    id: "cbse-12-eng-2024",
+    board: "CBSE", subject: "English", grade: "Class 12", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "In 'The Last Lesson', M. Hamel wore his special Sunday clothes because:", opts: ["It was a holiday", "It was his last French lesson", "There was a school inspection", "It was his birthday"], ans: 1, topic: "Flamingo — Prose" },
+      { q: "'Deep Water' is an autobiographical account written by:", opts: ["Mark Twain", "Ernest Hemingway", "William O. Douglas", "Jack London"], ans: 2, topic: "Flamingo — Prose" },
+      { q: "In 'The Rattrap', the peddler compared the world to a rattrap because:", opts: ["It was a trap for animals", "The world lures people with riches then traps them", "People were like rats", "Life was circular with no escape"], ans: 1, topic: "Flamingo — Prose" },
+      { q: "'Aunt Jennifer's Tigers' is written by:", opts: ["Adrienne Rich", "Kamala Das", "Sylvia Plath", "Maya Angelou"], ans: 0, topic: "Flamingo — Poetry" },
+      { q: "Pablo Neruda in 'Keeping Quiet' urges the reader to count up to:", opts: ["5", "10", "12", "20"], ans: 2, topic: "Flamingo — Poetry" },
+      { q: "In 'Going Places', Sophie's closest friend who listens to her fantasies is:", opts: ["Geoff", "Danny Casey", "Jansie", "Derek"], ans: 2, topic: "Flamingo — Prose" },
+      { q: "'A Thing of Beauty' is an excerpt from the poem:", opts: ["Lamia", "Endymion", "The Eve of St. Agnes", "Ode to a Nightingale"], ans: 1, topic: "Flamingo — Poetry" },
+      { q: "In 'Lost Spring', Saheb's full name means:", opts: ["Lord of the poor", "Lord of the Universe", "Master of the city", "King of springs"], ans: 1, topic: "Flamingo — Prose" },
+      { q: "The story 'The Enemy' is set during:", opts: ["World War I", "The Korean War", "World War II", "The Vietnam War"], ans: 2, topic: "Vistas" },
+      { q: "In 'On the Face of It', Mr. Lamb's garden has a tree full of:", opts: ["Apples", "Mangoes", "Crab apples", "Pears"], ans: 2, topic: "Vistas" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CBSE 10 — English & SST
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "cbse-10-eng-2024",
+    board: "CBSE", subject: "English", grade: "Class 10", year: 2024, difficulty: "Easy",
+    questions: [
+      { q: "In 'A Letter to God', Lencho compared the raindrops to:", opts: ["Silver coins", "New coins", "Pearls", "Diamonds"], ans: 1, topic: "First Flight — Prose" },
+      { q: "'His First Flight' — the young seagull was afraid of:", opts: ["Water", "Other birds", "Flying", "Humans"], ans: 2, topic: "First Flight — Prose" },
+      { q: "Wanda Petronski in 'The Hundred Dresses' claimed to own:", opts: ["50 dresses", "100 dresses", "200 dresses", "10 dresses"], ans: 1, topic: "First Flight — Prose" },
+      { q: "Coorg is also known as the:", opts: ["God's Own Country", "Scotland of India", "Land of Spices", "Garden of India"], ans: 1, topic: "First Flight — Prose" },
+      { q: "In 'Mijbil the Otter', Gavin Maxwell got his otter from:", opts: ["Iraq", "Iran", "Kuwait", "Egypt"], ans: 0, topic: "First Flight — Prose" },
+      { q: "'The Trees' is written by:", opts: ["Robert Frost", "Adrienne Rich", "Walt Whitman", "William Blake"], ans: 1, topic: "First Flight — Poetry" },
+      { q: "In 'Amanda!', Amanda dreams of being:", opts: ["A princess", "An orphan roaming freely", "A mermaid", "All of these"], ans: 3, topic: "First Flight — Poetry" },
+      { q: "Valli's great desire was to ride the:", opts: ["Train", "Bus", "Boat", "Bicycle"], ans: 1, topic: "First Flight — Prose" },
+      { q: "In 'The Hack Driver', the narrator was searching for:", opts: ["Oliver Lutkins", "Bill Magnuson", "Fritz", "Gustaff"], ans: 0, topic: "Footprints Without Feet" },
+      { q: "'A Question of Trust' features a thief named:", opts: ["Horace Danby", "Griffin", "Lutkins", "Ausable"], ans: 0, topic: "Footprints Without Feet" },
+    ],
+  },
+
+  {
+    id: "cbse-10-sst-2024",
+    board: "CBSE", subject: "Social Science", grade: "Class 10", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "The Rowlatt Act was passed in:", opts: ["1917", "1919", "1921", "1923"], ans: 1, topic: "Nationalism in India" },
+      { q: "Satyagraha literally means:", opts: ["Non-cooperation", "Civil disobedience", "Soul force or truth force", "Passive resistance"], ans: 2, topic: "Nationalism in India" },
+      { q: "The Non-Cooperation Movement was launched in:", opts: ["1919", "1920", "1921", "1922"], ans: 1, topic: "Nationalism in India" },
+      { q: "Which sector is also called the service sector?", opts: ["Primary", "Secondary", "Tertiary", "Quaternary"], ans: 2, topic: "Sectors of Indian Economy" },
+      { q: "Which of the following is NOT a feature of federalism?", opts: ["Two or more levels of government", "Single central authority over all", "Written constitution", "Division of powers"], ans: 1, topic: "Federalism" },
+      { q: "India follows which type of party system?", opts: ["One-party", "Two-party", "Multi-party", "Bi-party"], ans: 2, topic: "Political Parties" },
+      { q: "NREGA was launched to guarantee:", opts: ["Free food", "100 days of rural employment", "Housing for all", "Free education"], ans: 1, topic: "Development" },
+      { q: "The Right to Information Act was passed in:", opts: ["2003", "2004", "2005", "2006"], ans: 2, topic: "Democracy & Diversity" },
+      { q: "Globalisation leads to:", opts: ["Isolation of markets", "Integration of world economies", "Decrease in trade", "Rise of local monopolies"], ans: 1, topic: "Globalisation" },
+      { q: "Which organisation resolves trade disputes between nations?", opts: ["IMF", "World Bank", "WTO", "UNCTAD"], ans: 2, topic: "Globalisation" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // JEE Advanced — Math & Chemistry
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "jee-adv-math-2023",
+    board: "JEE", subject: "Mathematics", grade: "JEE Advanced", year: 2023, difficulty: "Hard",
+    questions: [
+      { q: "The number of real solutions of x² + 4|x| + 4 = 0 is:", opts: ["0", "1", "2", "4"], ans: 0, topic: "Algebra" },
+      { q: "d/dx[sin²x] at x = π/2 equals:", opts: ["0", "1", "2", "−1"], ans: 0, topic: "Calculus" },
+      { q: "∫₀^π sin²x dx =", opts: ["0", "π/4", "π/2", "π"], ans: 2, topic: "Calculus" },
+      { q: "If det(A) = 5 for a 3×3 matrix A, then det(2A) =", opts: ["10", "20", "40", "5"], ans: 2, topic: "Matrices" },
+      { q: "Sum of infinite GP 1 + 1/3 + 1/9 + … =", opts: ["2", "3/2", "1/2", "3"], ans: 1, topic: "Sequences & Series" },
+      { q: "Letters of MATHEMATICS can be arranged in how many ways?", opts: ["11!/(2!2!2!)", "11!/4", "11!", "11!/8"], ans: 0, topic: "Permutations & Combinations" },
+      { q: "General solution of sin θ = 1/2 is:", opts: ["nπ + (−1)ⁿ π/6", "nπ ± π/6", "2nπ ± π/6", "nπ/6"], ans: 0, topic: "Trigonometry" },
+      { q: "Area enclosed between y = x² and y = x is:", opts: ["1/6", "1/3", "1/2", "1"], ans: 0, topic: "Calculus" },
+      { q: "lim(x→0) (sin x)/x =", opts: ["0", "∞", "1", "−1"], ans: 2, topic: "Limits" },
+      { q: "If |z| = 2 and arg(z) = π/3, the complex number z is:", opts: ["1 + i√3", "√3 + i", "2 + 2i", "1 + i"], ans: 0, topic: "Complex Numbers" },
+    ],
+  },
+
+  {
+    id: "jee-adv-chem-2023",
+    board: "JEE", subject: "Chemistry", grade: "JEE Advanced", year: 2023, difficulty: "Hard",
+    questions: [
+      { q: "Hybridization of carbon in CO₂ is:", opts: ["sp", "sp²", "sp³", "sp³d"], ans: 0, topic: "Chemical Bonding" },
+      { q: "IUPAC name of (CH₃)₃CCl is:", opts: ["1-Chlorobutane", "2-Chloro-2-methylpropane", "2-Methylpropyl chloride", "Butyl chloride"], ans: 1, topic: "Organic Chemistry" },
+      { q: "Oxidation state of Cr in K₂Cr₂O₇ is:", opts: ["+3", "+4", "+6", "+7"], ans: 2, topic: "d-Block Elements" },
+      { q: "pH of solution with [H⁺] = 10⁻⁷ M is:", opts: ["7", "−7", "0.1", "14"], ans: 0, topic: "Ionic Equilibrium" },
+      { q: "Enthalpy of neutralisation of strong acid with strong base is approximately:", opts: ["−13.7 kJ/mol", "−57.1 kJ/mol", "+57.1 kJ/mol", "−100 kJ/mol"], ans: 1, topic: "Thermodynamics" },
+      { q: "Number of σ bonds in ethyne (C₂H₂) is:", opts: ["2", "3", "4", "5"], ans: 1, topic: "Chemical Bonding" },
+      { q: "Geometrical isomerism is shown by:", opts: ["CH₃CH₂Cl", "2-Butene", "Propane", "Ethanol"], ans: 1, topic: "Isomerism" },
+      { q: "Which of the following has the highest first ionisation energy?", opts: ["Na", "Mg", "Al", "Si"], ans: 1, topic: "Periodic Table" },
+      { q: "In SN2 reaction, the stereochemical outcome is:", opts: ["Retention of configuration", "Inversion of configuration", "Racemisation", "No change"], ans: 1, topic: "Organic Reaction Mechanisms" },
+      { q: "The colligative property that depends on number of particles is:", opts: ["Colour", "Vapour pressure lowering", "Density", "Viscosity"], ans: 1, topic: "Solutions" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // NEET — Chemistry 2022
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "neet-chem-2022",
+    board: "NEET", subject: "Chemistry", grade: "NEET UG", year: 2022, difficulty: "Medium",
+    questions: [
+      { q: "The shape of PCl₅ molecule is:", opts: ["Trigonal planar", "Trigonal bipyramidal", "Octahedral", "Tetrahedral"], ans: 1, topic: "Chemical Bonding" },
+      { q: "Which of the following is an intensive property?", opts: ["Mass", "Volume", "Enthalpy", "Temperature"], ans: 3, topic: "Basic Concepts" },
+      { q: "In a galvanic cell, oxidation occurs at:", opts: ["Cathode", "Anode", "Both electrodes", "Salt bridge"], ans: 1, topic: "Electrochemistry" },
+      { q: "Freundlich adsorption isotherm fails at:", opts: ["Low pressure", "High pressure", "Moderate pressure", "All pressures"], ans: 1, topic: "Surface Chemistry" },
+      { q: "Which transition metal has highest melting point?", opts: ["Fe", "Cu", "W (Tungsten)", "Cr"], ans: 2, topic: "d-Block Elements" },
+      { q: "Phenol reacts with NaOH to give:", opts: ["Phenyl acetate", "Sodium phenoxide", "Benzene", "Aniline"], ans: 1, topic: "Organic Chemistry" },
+      { q: "Degree of unsaturation of benzene (C₆H₆) is:", opts: ["2", "3", "4", "6"], ans: 2, topic: "Organic Chemistry" },
+      { q: "Which amino acid is essential (not synthesised by human body)?", opts: ["Glycine", "Alanine", "Lysine", "Serine"], ans: 2, topic: "Biomolecules" },
+      { q: "The polymer used in making non-stick cookware is:", opts: ["PVC", "Neoprene", "Teflon (PTFE)", "Bakelite"], ans: 2, topic: "Polymers" },
+      { q: "Beer-Lambert law relates absorbance to:", opts: ["Temperature and pressure", "Concentration and path length", "Refractive index", "Wavelength only"], ans: 1, topic: "Analytical Chemistry" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CBSE 10 & 12 SST — Additional Papers
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "cbse-10-sst-2023",
+    board: "CBSE", subject: "Social Science", grade: "Class 10", year: 2023, difficulty: "Medium",
+    questions: [
+      { q: "Zollverein was a customs union created among:", opts: ["French states", "Italian states", "German states", "Austro-Hungarian states"], ans: 2, topic: "Nationalism in Europe" },
+      { q: "The Guomindang party was founded in:", opts: ["Japan", "Korea", "Vietnam", "China"], ans: 3, topic: "Industrialisation" },
+      { q: "Corn Laws were repealed in Britain in:", opts: ["1813", "1846", "1860", "1900"], ans: 1, topic: "Global Economy" },
+      { q: "The Bretton Woods Conference (1944) established:", opts: ["United Nations", "IMF and World Bank", "WTO", "NATO"], ans: 1, topic: "Global Economy" },
+      { q: "Which of the following is a renewable resource?", opts: ["Coal", "Petroleum", "Solar energy", "Natural gas"], ans: 2, topic: "Resources & Development" },
+      { q: "Laterite soil is found mainly in:", opts: ["Northern plains", "Peninsular plateau regions", "Desert areas", "Coastal deltas"], ans: 1, topic: "Resources & Development" },
+      { q: "Bhakra Nangal dam is located on river:", opts: ["Ganga", "Yamuna", "Sutlej", "Beas"], ans: 2, topic: "Water Resources" },
+      { q: "Power sharing in Belgium was agreed between:", opts: ["Hindus and Muslims", "Dutch and French-speaking communities", "Catholics and Protestants", "Rich and poor"], ans: 1, topic: "Power Sharing" },
+      { q: "Consumer Protection Act was passed in India in:", opts: ["1984", "1986", "1991", "1995"], ans: 1, topic: "Consumer Rights" },
+      { q: "SHG (Self Help Groups) primarily help:", opts: ["Large corporations", "Government agencies", "Rural poor especially women", "Urban industrialists"], ans: 2, topic: "Money & Credit" },
+    ],
+  },
+
+  {
+    id: "cbse-10-sst-2022",
+    board: "CBSE", subject: "Social Science", grade: "Class 10", year: 2022, difficulty: "Medium",
+    questions: [
+      { q: "Frederic Sorrieu's vision in 1848 depicted:", opts: ["A united Europe under Napoleon", "A world of democratic and social republics", "A British Empire", "A communist state"], ans: 1, topic: "Nationalism in Europe" },
+      { q: "The 1848 revolution in France led to:", opts: ["Monarchy being strengthened", "Declaration of a Republic", "French colonisation of Germany", "Formation of Zollverein"], ans: 1, topic: "Nationalism in Europe" },
+      { q: "Jallianwala Bagh massacre occurred on:", opts: ["13 April 1919", "13 April 1920", "1 August 1920", "26 January 1930"], ans: 0, topic: "Nationalism in India" },
+      { q: "Printing press was brought to India by:", opts: ["British traders", "Portuguese missionaries", "Dutch merchants", "French diplomats"], ans: 1, topic: "Print Culture" },
+      { q: "Which industry is called the 'backbone' of modern industry?", opts: ["Textile", "Iron and Steel", "Information Technology", "Automobile"], ans: 1, topic: "Manufacturing Industries" },
+      { q: "National Waterway No. 1 connects:", opts: ["Mumbai–Kochi", "Haldia–Allahabad", "Kolkata–Dhubri", "Chennai–Visakhapatnam"], ans: 1, topic: "Lifelines of Economy" },
+      { q: "India's Parliament consists of:", opts: ["Lok Sabha only", "Rajya Sabha only", "Lok Sabha, Rajya Sabha and President", "Lok Sabha and Rajya Sabha only"], ans: 2, topic: "Outcomes of Democracy" },
+      { q: "Poverty line in India is estimated based on:", opts: ["Income", "Calorie intake and consumption expenditure", "Land ownership", "Education level"], ans: 1, topic: "Development" },
+      { q: "The Headquarters of WTO is in:", opts: ["New York", "Washington D.C.", "Geneva", "Brussels"], ans: 2, topic: "Globalisation" },
+      { q: "NITI Aayog replaced which body in 2015?", opts: ["Finance Commission", "Planning Commission", "Election Commission", "CAG"], ans: 1, topic: "Development" },
+    ],
+  },
+
+  {
+    id: "cbse-12-history-2024",
+    board: "CBSE", subject: "History", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "The Harappan script is:", opts: ["Deciphered and similar to Sanskrit", "Still undeciphered", "Similar to Brahmi script", "Identical to Mesopotamian script"], ans: 1, topic: "Harappan Civilisation" },
+      { q: "The term 'mahajanapada' refers to:", opts: ["Large trading centres", "Sixteen powerful kingdoms and republics", "Buddhist monasteries", "Tax collection zones"], ans: 1, topic: "Political & Economic History" },
+      { q: "Ashoka's Dhamma was primarily:", opts: ["A new religion", "A code of ethical and moral conduct", "A set of Buddhist rituals", "A military policy"], ans: 1, topic: "Mauryan Empire" },
+      { q: "Al-Biruni came to India with:", opts: ["Timur", "Mahmud of Ghazni", "Muhammad Ghori", "Babur"], ans: 1, topic: "Medieval History" },
+      { q: "The Ain-i-Akbari was compiled by:", opts: ["Akbar", "Birbal", "Abul Fazl", "Todar Mal"], ans: 2, topic: "Mughal Empire" },
+      { q: "Indigo revolt (depicted in Neel Darpan) took place in:", opts: ["Punjab", "Bombay", "Bengal", "Madras"], ans: 2, topic: "Colonial Period" },
+      { q: "The Cabinet Mission Plan (1946) proposed:", opts: ["Immediate partition", "A federal union retaining India's unity", "Direct rule by Britain", "Dominion status for Pakistan"], ans: 1, topic: "Independence & Partition" },
+      { q: "The Constituent Assembly of India was chaired by:", opts: ["Nehru", "Patel", "Dr. Rajendra Prasad", "Ambedkar"], ans: 2, topic: "Constitution Making" },
+      { q: "The Vijayanagara Empire's capital was:", opts: ["Mysore", "Hampi", "Madurai", "Thanjavur"], ans: 1, topic: "Medieval History" },
+      { q: "Permanent Settlement of 1793 was introduced by:", opts: ["Warren Hastings", "Cornwallis", "Wellesley", "Dalhousie"], ans: 1, topic: "Colonial Period" },
+    ],
+  },
+
+  {
+    id: "cbse-12-polsci-2024",
+    board: "CBSE", subject: "Political Science", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "India's foreign policy principle of Non-Alignment was established under:", opts: ["Indira Gandhi", "Jawaharlal Nehru", "Rajiv Gandhi", "Lal Bahadur Shastri"], ans: 1, topic: "Cold War Era" },
+      { q: "The Directive Principles of State Policy in the Indian Constitution are:", opts: ["Justiciable", "Non-justiciable but fundamental to governance", "Applicable only to states", "Part of fundamental rights"], ans: 1, topic: "Constitution" },
+      { q: "NAM (Non-Aligned Movement) was formed in:", opts: ["1955", "1961", "1965", "1971"], ans: 1, topic: "Cold War Era" },
+      { q: "Which Article of Indian Constitution deals with Emergency?", opts: ["Article 352", "Article 370", "Article 356", "Both 352 and 356"], ans: 3, topic: "Constitution" },
+      { q: "The Berlin Wall fell in:", opts: ["1985", "1987", "1989", "1991"], ans: 2, topic: "End of Cold War" },
+      { q: "ASEAN was formed to promote:", opts: ["Military alliance", "Economic growth and regional stability", "Nuclear cooperation", "Cultural exchanges only"], ans: 1, topic: "Regional Organisations" },
+      { q: "India conducted its first nuclear test (Pokhran-I) in:", opts: ["1968", "1972", "1974", "1979"], ans: 2, topic: "India's Security" },
+      { q: "The 73rd Constitutional Amendment relates to:", opts: ["Reservation for OBCs", "Panchayati Raj institutions", "Freedom of press", "Right to Education"], ans: 1, topic: "Federalism" },
+      { q: "Which party won India's first general elections in 1952?", opts: ["BJP", "Congress", "CPI", "Socialist Party"], ans: 1, topic: "Party System" },
+      { q: "The concept of 'Third World' during Cold War referred to:", opts: ["Poor countries", "Non-aligned nations", "Communist bloc", "Western alliance"], ans: 1, topic: "Cold War Era" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CBSE 12 — Psychology
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "cbse-12-psy-2024",
+    board: "CBSE", subject: "Psychology", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "Spearman's theory of intelligence involves:", opts: ["7 Primary Mental Abilities", "g factor and s factors", "Multiple intelligences", "Triarchic theory"], ans: 1, topic: "Intelligence & Aptitude" },
+      { q: "According to Maslow's hierarchy, the highest need is:", opts: ["Safety", "Love and belonging", "Esteem", "Self-actualisation"], ans: 3, topic: "Self & Personality" },
+      { q: "The Big Five personality traits do NOT include:", opts: ["Openness", "Neuroticism", "Agreeableness", "Intelligence"], ans: 3, topic: "Self & Personality" },
+      { q: "Positive stress caused by good events like marriage is called:", opts: ["Distress", "Eustress", "Hyperstress", "Burnout"], ans: 1, topic: "Stress & Coping" },
+      { q: "DSM stands for:", opts: ["Differential Stress Measurement", "Diagnostic and Statistical Manual of Mental Disorders", "Dynamic Systems Model", "Disorders of Social Mentality"], ans: 1, topic: "Psychological Disorders" },
+      { q: "Phobia is classified as a type of:", opts: ["Mood disorder", "Anxiety disorder", "Personality disorder", "Psychotic disorder"], ans: 1, topic: "Psychological Disorders" },
+      { q: "Cognitive Behaviour Therapy (CBT) was primarily developed by:", opts: ["Sigmund Freud", "Carl Rogers", "Aaron Beck", "B.F. Skinner"], ans: 2, topic: "Therapeutic Approaches" },
+      { q: "A stereotype is best described as:", opts: ["A prejudiced action", "A generalised belief about a social group", "A type of therapy", "An individual personality trait"], ans: 1, topic: "Attitude & Social Cognition" },
+      { q: "Social loafing refers to:", opts: ["Working harder in groups", "Reduced individual effort when in a group", "Group conflict", "Leadership in groups"], ans: 1, topic: "Social Influence" },
+      { q: "The Rorschach Inkblot Test is a type of:", opts: ["Intelligence test", "Aptitude test", "Projective personality test", "Achievement test"], ans: 2, topic: "Self & Personality" },
+    ],
+  },
+
+  {
+    id: "cbse-12-psy-2023",
+    board: "CBSE", subject: "Psychology", grade: "Class 12", year: 2023, difficulty: "Medium",
+    questions: [
+      { q: "Howard Gardner's theory is known as:", opts: ["General intelligence theory", "Theory of Multiple Intelligences", "Triarchic theory", "Two-factor theory"], ans: 1, topic: "Intelligence & Aptitude" },
+      { q: "The Id, Ego, and Superego are concepts from:", opts: ["Humanistic psychology", "Cognitive psychology", "Freudian psychoanalysis", "Behaviourism"], ans: 2, topic: "Self & Personality" },
+      { q: "General Adaptation Syndrome (GAS) was proposed by:", opts: ["Lazarus", "Hans Selye", "Freud", "Maslow"], ans: 1, topic: "Stress & Coping" },
+      { q: "Schizophrenia is primarily classified as a:", opts: ["Mood disorder", "Anxiety disorder", "Dissociative disorder", "Psychotic disorder"], ans: 3, topic: "Psychological Disorders" },
+      { q: "The goal of psychoanalytic therapy is to:", opts: ["Reinforce positive behaviour", "Bring unconscious conflicts into consciousness", "Restructure cognitive patterns", "Use meditation and relaxation"], ans: 1, topic: "Therapeutic Approaches" },
+      { q: "Conformity experiments were classically conducted by:", opts: ["Milgram", "Solomon Asch", "Philip Zimbardo", "Bandura"], ans: 1, topic: "Social Influence" },
+      { q: "Milgram's obedience experiments demonstrated:", opts: ["People refuse authority easily", "Most people obey authority even against conscience", "Group conformity", "Bystander effect"], ans: 1, topic: "Social Influence" },
+      { q: "Cognitive dissonance occurs when:", opts: ["Two people have opposing views", "A person's beliefs conflict with their behaviour", "Emotions overwhelm thinking", "Memory is impaired"], ans: 1, topic: "Attitude & Social Cognition" },
+      { q: "Attribution theory explains how people:", opts: ["Form first impressions only", "Explain causes of their own and others' behaviour", "Conform to social norms", "Experience emotions"], ans: 1, topic: "Attitude & Social Cognition" },
+      { q: "Which of the following is a defence mechanism?", opts: ["Cognitive restructuring", "Systematic desensitisation", "Repression", "Token economy"], ans: 2, topic: "Self & Personality" },
+    ],
+  },
+
+  {
+    id: "cbse-12-psy-2022",
+    board: "CBSE", subject: "Psychology", grade: "Class 12", year: 2022, difficulty: "Medium",
+    questions: [
+      { q: "Sternberg's Triarchic Theory includes:", opts: ["Analytical, Creative, and Practical intelligence", "g and s factors", "7 primary abilities", "Emotional and social intelligence"], ans: 0, topic: "Intelligence & Aptitude" },
+      { q: "A person consistently blaming themselves for failures shows:", opts: ["External attribution", "Internal stable attribution", "Situational attribution", "Dispositional optimism"], ans: 1, topic: "Attitude & Social Cognition" },
+      { q: "Which of the following is NOT a type of coping with stress?", opts: ["Problem-focused coping", "Emotion-focused coping", "Avoidance coping", "Attribution coping"], ans: 3, topic: "Stress & Coping" },
+      { q: "Obsessive Compulsive Disorder (OCD) falls under:", opts: ["Psychotic disorders", "Mood disorders", "Anxiety-related disorders", "Dissociative disorders"], ans: 2, topic: "Psychological Disorders" },
+      { q: "Client-Centred Therapy was developed by:", opts: ["Freud", "Beck", "Carl Rogers", "Skinner"], ans: 2, topic: "Therapeutic Approaches" },
+      { q: "Which of the following is a group-level influence on behaviour?", opts: ["Sensation", "Perception", "Groupthink", "Individual cognition"], ans: 2, topic: "Social Influence" },
+      { q: "The Thematic Apperception Test (TAT) was developed by:", opts: ["Rorschach", "Murray and Morgan", "Freud", "Jung"], ans: 1, topic: "Self & Personality" },
+      { q: "Positive reinforcement in behaviour therapy involves:", opts: ["Removing a pleasant stimulus", "Adding a pleasant stimulus after desired behaviour", "Punishment after undesired behaviour", "Ignoring all behaviour"], ans: 1, topic: "Therapeutic Approaches" },
+      { q: "Burnout is most closely associated with:", opts: ["Eustress", "Acute stress", "Chronic occupational stress", "Post-traumatic stress"], ans: 2, topic: "Stress & Coping" },
+      { q: "Which of the following is an example of a primary prevention in mental health?", opts: ["Treating diagnosed patients", "Rehabilitation after recovery", "Reducing risk factors in the general population", "Medication for disorders"], ans: 2, topic: "Therapeutic Approaches" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CBSE 12 — Computer Science (Python)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "cbse-12-cs-2024",
+    board: "CBSE", subject: "Computer Science", grade: "Class 12", year: 2024, difficulty: "Medium",
+    questions: [
+      { q: "Which Python function reads a single line from a text file?", opts: ["read()", "readline()", "readlines()", "getline()"], ans: 1, topic: "File Handling" },
+      { q: "What is the output of type(10/3) in Python 3?", opts: ["int", "float", "double", "long"], ans: 1, topic: "Python Basics" },
+      { q: "Which SQL command removes all rows from a table without deleting its structure?", opts: ["DELETE", "DROP", "TRUNCATE", "REMOVE"], ans: 2, topic: "SQL & DBMS" },
+      { q: "A primary key must be:", opts: ["Unique and may be NULL", "Unique and NOT NULL", "Duplicate allowed", "Auto-increment only"], ans: 1, topic: "SQL & DBMS" },
+      { q: "In a stack, the last element inserted is:", opts: ["First to be deleted (LIFO)", "Last to be deleted", "Cannot be deleted", "Deleted randomly"], ans: 0, topic: "Data Structures" },
+      { q: "Which network topology connects all nodes to a central hub?", opts: ["Ring", "Bus", "Star", "Mesh"], ans: 2, topic: "Computer Networks" },
+      { q: "IP address 192.168.1.1 belongs to which class?", opts: ["Class A", "Class B", "Class C", "Class D"], ans: 2, topic: "Computer Networks" },
+      { q: "SELECT DISTINCT in SQL returns:", opts: ["All records", "Only unique records", "First record only", "Sorted records"], ans: 1, topic: "SQL & DBMS" },
+      { q: "Which Python keyword handles runtime exceptions?", opts: ["catch", "error", "except", "handle"], ans: 2, topic: "Python Basics" },
+      { q: "The OSI reference model has how many layers?", opts: ["4", "5", "6", "7"], ans: 3, topic: "Computer Networks" },
+    ],
+  },
+
+  {
+    id: "cbse-12-cs-2023",
+    board: "CBSE", subject: "Computer Science", grade: "Class 12", year: 2023, difficulty: "Medium",
+    questions: [
+      { q: "A function defined inside another function in Python is called:", opts: ["Lambda function", "Nested function", "Recursive function", "Anonymous function"], ans: 1, topic: "Python Functions" },
+      { q: "Which SQL clause filters results after GROUP BY?", opts: ["WHERE", "HAVING", "FILTER", "AND"], ans: 1, topic: "SQL & DBMS" },
+      { q: "Which data structure follows First-In-First-Out (FIFO)?", opts: ["Stack", "Queue", "Tree", "Graph"], ans: 1, topic: "Data Structures" },
+      { q: "A foreign key in a table references the ___ of another table:", opts: ["Foreign key", "Primary key", "Candidate key", "Composite key"], ans: 1, topic: "SQL & DBMS" },
+      { q: "Python file mode 'a' opens a file for:", opts: ["Read only", "Write (overwrite from start)", "Append at end", "Binary read"], ans: 2, topic: "File Handling" },
+      { q: "Which protocol handles email transmission between servers?", opts: ["HTTP", "FTP", "SMTP", "TCP"], ans: 2, topic: "Computer Networks" },
+      { q: "DNS (Domain Name System) converts:", opts: ["IP to MAC address", "Domain names to IP addresses", "Data to packets", "HTTP to HTTPS"], ans: 1, topic: "Computer Networks" },
+      { q: "Worst-case time complexity of linear search:", opts: ["O(1)", "O(log n)", "O(n)", "O(n²)"], ans: 2, topic: "Data Structures" },
+      { q: "Which of the following is a mutable data type in Python?", opts: ["Tuple", "String", "List", "Integer"], ans: 2, topic: "Python Basics" },
+      { q: "Normalization in DBMS primarily aims to:", opts: ["Increase redundancy", "Speed up queries only", "Reduce redundancy and anomalies", "Add more tables"], ans: 2, topic: "SQL & DBMS" },
+    ],
+  },
+
+  {
+    id: "cbse-12-cs-2022",
+    board: "CBSE", subject: "Computer Science", grade: "Class 12", year: 2022, difficulty: "Medium",
+    questions: [
+      { q: "What is the output of len('Hello World') in Python?", opts: ["10", "11", "9", "12"], ans: 1, topic: "Python Basics" },
+      { q: "Which SQL command modifies existing records in a table?", opts: ["INSERT", "ALTER", "UPDATE", "MODIFY"], ans: 2, topic: "SQL & DBMS" },
+      { q: "Which Python list method adds an element at the end?", opts: ["insert()", "add()", "append()", "push()"], ans: 2, topic: "Python Basics" },
+      { q: "The 'degree' of a relation in DBMS refers to:", opts: ["Number of rows (tuples)", "Number of columns (attributes)", "Number of primary keys", "Number of foreign keys"], ans: 1, topic: "SQL & DBMS" },
+      { q: "Which OSI layer handles data encryption and compression?", opts: ["Session layer", "Transport layer", "Presentation layer", "Application layer"], ans: 2, topic: "Computer Networks" },
+      { q: "Python's file.tell() method returns:", opts: ["File name", "Current cursor position", "File size", "Number of lines"], ans: 1, topic: "File Handling" },
+      { q: "Network bandwidth is measured in:", opts: ["Hertz", "Bytes", "Bits per second (bps)", "Watts"], ans: 2, topic: "Computer Networks" },
+      { q: "A Python tuple is:", opts: ["Mutable ordered sequence", "Immutable ordered sequence", "Unordered collection", "Key-value pairs"], ans: 1, topic: "Python Basics" },
+      { q: "The pop() operation in a stack removes from:", opts: ["Bottom", "Middle", "Top", "Any position"], ans: 2, topic: "Data Structures" },
+      { q: "Which is NOT a valid SQL JOIN type?", opts: ["INNER JOIN", "LEFT JOIN", "FULL OUTER JOIN", "DIAGONAL JOIN"], ans: 3, topic: "SQL & DBMS" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CBSE 12 — Psychology 2021 & 2020
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  {
+    id: "cbse-12-psy-2021",
+    board: "CBSE", subject: "Psychology", grade: "Class 12", year: 2021, difficulty: "Medium",
+    questions: [
+      { q: "The concept of 'collective unconscious' was proposed by:", opts: ["Freud", "Adler", "Carl Jung", "Erikson"], ans: 2, topic: "Self & Personality" },
+      { q: "Intelligence Quotient (IQ) is calculated as:", opts: ["CA/MA × 100", "MA/CA × 100", "MA + CA", "MA − CA"], ans: 1, topic: "Intelligence & Aptitude" },
+      { q: "Which scale of measurement allows calculation of ratio?", opts: ["Nominal", "Ordinal", "Interval", "Ratio"], ans: 3, topic: "Psychological Assessment" },
+      { q: "Post-Traumatic Stress Disorder (PTSD) is classified under:", opts: ["Mood disorders", "Trauma and stressor-related disorders", "Personality disorders", "Psychotic disorders"], ans: 1, topic: "Psychological Disorders" },
+      { q: "Token economy is a technique used in:", opts: ["Psychoanalysis", "Behaviour therapy", "Humanistic therapy", "Gestalt therapy"], ans: 1, topic: "Therapeutic Approaches" },
+      { q: "The 'fundamental attribution error' refers to:", opts: ["Blaming situations for others' failures", "Overemphasising dispositional factors for others' behaviour", "Underestimating one's own role", "Bias towards in-group members"], ans: 1, topic: "Attitude & Social Cognition" },
+      { q: "Bystander effect means people are less likely to help when:", opts: ["They are alone", "Others are present (diffusion of responsibility)", "The victim is known", "The situation is clear"], ans: 1, topic: "Social Influence" },
+      { q: "The Wechsler scale measures intelligence using:", opts: ["Only verbal tasks", "Only performance tasks", "Both verbal and performance subtests", "Only abstract reasoning"], ans: 2, topic: "Intelligence & Aptitude" },
+      { q: "Stress inoculation training is associated with:", opts: ["Meichenbaum", "Aaron Beck", "Rogers", "Freud"], ans: 0, topic: "Stress & Coping" },
+      { q: "Which of the following is an example of secondary appraisal in stress?", opts: ["Judging whether a situation is threatening", "Evaluating available coping resources", "Perceiving physical symptoms", "Experiencing emotional arousal"], ans: 1, topic: "Stress & Coping" },
+    ],
+  },
+
+  {
+    id: "cbse-12-psy-2020",
+    board: "CBSE", subject: "Psychology", grade: "Class 12", year: 2020, difficulty: "Medium",
+    questions: [
+      { q: "Aptitude tests measure:", opts: ["Current knowledge", "Potential to learn a specific skill", "Personality traits", "Emotional stability"], ans: 1, topic: "Intelligence & Aptitude" },
+      { q: "Type A personality is characterised by:", opts: ["Relaxed and easy-going behaviour", "Competitiveness, hostility and time urgency", "Introversion and low motivation", "High empathy and creativity"], ans: 1, topic: "Self & Personality" },
+      { q: "Which defence mechanism involves channelling unacceptable impulses into socially acceptable activities?", opts: ["Repression", "Projection", "Sublimation", "Rationalisation"], ans: 2, topic: "Self & Personality" },
+      { q: "The three phases of GAS (General Adaptation Syndrome) in order:", opts: ["Alarm → Exhaustion → Resistance", "Resistance → Alarm → Exhaustion", "Alarm → Resistance → Exhaustion", "Exhaustion → Resistance → Alarm"], ans: 2, topic: "Stress & Coping" },
+      { q: "Dissociative Identity Disorder was previously known as:", opts: ["Schizophrenia", "Multiple Personality Disorder", "Bipolar disorder", "Conversion disorder"], ans: 1, topic: "Psychological Disorders" },
+      { q: "Systematic desensitisation is used primarily to treat:", opts: ["Schizophrenia", "Depression", "Phobias and anxiety", "Personality disorders"], ans: 2, topic: "Therapeutic Approaches" },
+      { q: "Prejudice is an attitude that involves:", opts: ["Objective evaluation of a group", "Negative pre-judgement of a social group", "Factual belief about individuals", "Positive stereotypes only"], ans: 1, topic: "Attitude & Social Cognition" },
+      { q: "The concept of 'deindividuation' refers to:", opts: ["Increased self-awareness in groups", "Loss of self-awareness and personal responsibility in groups", "Individual problem-solving", "Leadership emergence"], ans: 1, topic: "Social Influence" },
+      { q: "Electroconvulsive Therapy (ECT) is used primarily for:", opts: ["Schizophrenia", "Severe depression unresponsive to medication", "Anxiety disorders", "Personality disorders"], ans: 1, topic: "Therapeutic Approaches" },
+      { q: "An attitude has three components: cognitive, affective, and:", opts: ["Social", "Behavioural (conative)", "Cultural", "Biological"], ans: 1, topic: "Attitude & Social Cognition" },
+    ],
+  },
 ];
