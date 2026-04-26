@@ -21,6 +21,7 @@ const TOOLS = [
   { n: "12", slug: "dna",        ttl: "Mistake DNA",          sub: "See exactly where you keep going wrong.", tier: "Free", desc: "Tracks every wrong answer by category and subject. Pinpoints your highest-leverage weak spots." },
   { n: "13", slug: "crunch",     ttl: "48-Hour Crunch",       sub: "Exam tomorrow. Smart triage.",   tier: "Free",  desc: "Tell the AI what to skip and what to nail. Get a topic-by-topic priority list with time blocks." },
   { n: "14", slug: "syllabus",   ttl: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped.", tier: "Free", desc: "Extract subjects, chapters, and topics from any syllabus document. Powers every AI tool on Ledger." },
+  { n: "15", slug: "formula",    ttl: "Formula Sheet",        sub: "Chapter → reference card.",     tier: "Free",  desc: "Type any subject and chapter. Get every formula, variable definition, units table, and exam tips — printable in one click." },
   { n: "★",  slug: "score",      ttl: "Ledger Score™",        sub: "Your real-time exam readiness.", tier: "Free",  desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, mistake velocity, and consistency." },
 ] as const;
 

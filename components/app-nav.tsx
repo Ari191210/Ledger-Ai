@@ -21,6 +21,7 @@ const TOOLS = [
   { n: "12", slug: "dna",        label: "DNA",      full: "Mistake DNA"           },
   { n: "13", slug: "crunch",     label: "Crunch",   full: "48-Hour Crunch"        },
   { n: "14", slug: "syllabus",   label: "Syllabus", full: "Syllabus Parser"        },
+  { n: "15", slug: "formula",   label: "Formula",  full: "Formula Sheet"           },
 ];
 
 export default function AppNav() {

@@ -72,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -172,6 +172,26 @@ Rules:
 - Never refuse — always return the best parse possible, even from partial info
 ${params.text ? `\nDocument text:\n${params.text}` : "\nParse the attached document."}`,
       };
+
+    case "formula":
+      return {
+        system: `${SAFETY_PREAMBLE}${profileCtx}You are an expert formula-sheet writer for school and entrance exam students. Use Unicode math symbols (×, ÷, √, ², ³, ⁴, π, α, β, θ, φ, λ, μ, σ, ω, Ω, Δ, ∇, ∫, Σ, ∞, →, ⇌, ≈, ≤, ≥, ∝, ⊥, ∥, °, ½, ¼) in formulas — NOT LaTeX. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a comprehensive formula sheet for the chapter below. Respond with exactly this JSON shape:
+{"subject":"...","chapter":"...","board":"...","sections":[{"title":"section title","formulas":[{"name":"formula name","formula":"formula with Unicode symbols","variables":"x = meaning (unit), y = meaning (unit)","notes":"condition or null"}]}],"keyConcepts":["concept"],"units":[{"quantity":"Force","unit":"Newton (N)","dimensions":"MLT⁻²"}],"examTips":["tip"]}
+
+Rules:
+- sections: 2–5 logical groups, each with 3–8 formulas — be thorough and complete
+- variables: list every symbol in the formula with its meaning and SI unit
+- keyConcepts: 4–8 important terms or principles for this chapter
+- units: all physical quantities with SI unit and dimensions (science) or key defined terms (commerce/humanities)
+- examTips: 3–5 specific, actionable tips for scoring marks on this chapter in exams
+- Never skip formulas — a student should be able to walk into an exam with only this sheet
+
+Subject: ${params.subject}
+Chapter: ${params.chapter}
+Board: ${params.board || "CBSE"}
+${params.grade ? `Grade: ${params.grade}` : ""}`,
+      };
   }
 }
 
@@ -191,7 +211,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
