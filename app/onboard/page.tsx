@@ -18,7 +18,7 @@ const EXAMS = [
   "IELTS / TOEFL", "No specific exam — just school boards",
 ];
 
-const STEPS = ["Grade", "Board", "Stream", "Interests", "Target"];
+const STEPS = ["Grade", "Board", "Stream", "Interests", "Target", "Syllabus"];
 
 export default function OnboardPage() {
   const router = useRouter();
@@ -51,13 +51,14 @@ export default function OnboardPage() {
     !needsStream || stream !== "",
     interests.length >= 2,
     targetExam !== "",
+    true, // Syllabus step is always skippable
   ];
 
   function toggleInterest(i: string) {
     setInterests(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
   }
 
-  async function finish() {
+  async function finish(skipRedirect = false) {
     if (!user) return;
     setSaving(true);
     try {
@@ -70,9 +71,8 @@ export default function OnboardPage() {
         targetExam: targetExam.split(" /")[0].trim(),
       });
     } catch {}
-    // Always mark done in localStorage so the banner never reappears
     localStorage.setItem("ledger-onboarding-done", "1");
-    router.push("/dashboard");
+    if (!skipRedirect) router.push("/dashboard");
   }
 
   function next() {
@@ -216,25 +216,58 @@ export default function OnboardPage() {
             </>
           )}
 
-          {/* Navigation */}
-          <div style={{ marginTop: 28, display: "flex", gap: 10, justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              {step > 0 && (
-                <button className="btn ghost" onClick={() => setStep(s => s - 1)} style={{ padding: "10px 20px" }}>← Back</button>
-              )}
-            </div>
-            <div>
-              {step < STEPS.length - 1 ? (
+          {step === 5 && (
+            <>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
+                Upload your syllabus.
+              </div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>
+                The single most powerful thing you can do. Every AI tool on Ledger will know your exact chapters and topics.
+              </div>
+              <div style={{ border: "1px solid var(--ink)", padding: "28px 24px", marginBottom: 20 }}>
+                {[
+                  ["Upload a PDF or photo", "Your school-issued syllabus, a photo of a printed sheet, even a messy Word doc."],
+                  ["Claude reads it in seconds", "Subjects, chapters, topics — all extracted automatically."],
+                  ["Every tool personalised", "Notes, Doubt Solver, Tutor — all calibrated to your exact curriculum from day one."],
+                ].map(([title, desc], i, arr) => (
+                  <div key={i} style={{ display: "flex", gap: 16, padding: "12px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}>
+                    <span className="mono" style={{ color: "var(--cinnabar-ink)", flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+                    <div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 14, fontWeight: 600 }}>{title}</div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 3 }}>{desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn" onClick={async () => { await finish(true); router.push("/tools/syllabus"); }} disabled={saving} style={{ flex: 1, opacity: saving ? 0.5 : 1 }}>
+                  {saving ? "Saving…" : "Upload my syllabus →"}
+                </button>
+                <button className="btn ghost" onClick={() => finish(false)} disabled={saving} style={{ flexShrink: 0, opacity: saving ? 0.5 : 1 }}>
+                  Skip for now
+                </button>
+              </div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginTop: 10, fontSize: 9 }}>
+                You can always do this later from Tool 14 in the navigation.
+              </div>
+            </>
+          )}
+
+          {/* Navigation — hidden on syllabus step (it has its own buttons) */}
+          {step < STEPS.length - 1 && (
+            <div style={{ marginTop: 28, display: "flex", gap: 10, justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                {step > 0 && (
+                  <button className="btn ghost" onClick={() => setStep(s => s - 1)} style={{ padding: "10px 20px" }}>← Back</button>
+                )}
+              </div>
+              <div>
                 <button className="btn" onClick={next} disabled={!STEP_VALID[step]} style={{ padding: "10px 24px", opacity: !STEP_VALID[step] ? 0.4 : 1 }}>
                   Continue →
                 </button>
-              ) : (
-                <button className="btn" onClick={finish} disabled={!STEP_VALID[step] || saving} style={{ padding: "10px 24px", opacity: !STEP_VALID[step] || saving ? 0.4 : 1 }}>
-                  {saving ? "Saving…" : "Go to dashboard →"}
-                </button>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

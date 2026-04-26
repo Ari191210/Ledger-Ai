@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
@@ -12,6 +12,8 @@ type PracticeState = {
   current: number;
   answers: (number | null)[];
   done: boolean;
+  timeLimit?: number; // seconds, undefined = untimed
+  timedOut?: boolean;
 };
 
 function saveSessionResults(paper: Paper, answers: (number | null)[], userId?: string) {
@@ -41,6 +43,28 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
 
   const score = answers.filter((a, i) => a === paper.questions[i].ans).length;
   const [mistakeTags, setMistakeTags] = useState<Record<number, string>>({});
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(state.timeLimit ?? null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!state.timeLimit || done) return;
+    timerRef.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timerRef.current!);
+          // Auto-submit — save and mark done
+          const finalAnswers = [...state.answers];
+          saveSessionResults(state.paper, finalAnswers, userId);
+          setState({ ...state, answers: finalAnswers, done: true, timedOut: true });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.timeLimit, done]);
   const [logged, setLogged] = useState(false);
   const CATS = ["Conceptual", "Slip", "Misread", "Rushed", "Blanked"] as const;
   const CAT_FULL: Record<string, string> = { Conceptual: "Conceptual Gap", Slip: "Calculation Slip", Misread: "Misread Question", Rushed: "Time Pressure", Blanked: "Memory Blank" };
@@ -63,7 +87,10 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   if (done) {
     return (
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 0" }}>
-        <div className="mono cin" style={{ marginBottom: 8 }}>Results · {paper.subject} {paper.year}</div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}>
+          <div className="mono cin">Results · {paper.subject} {paper.year}</div>
+          {state.timedOut && <span className="mono" style={{ fontSize: 9, padding: "2px 8px", background: "var(--cinnabar)", color: "var(--paper)" }}>⏱ Time&apos;s up</span>}
+        </div>
         <div style={{ fontFamily: "var(--serif)", fontSize: 72, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.9 }}>
           {score}/{paper.questions.length}
         </div>
@@ -129,7 +156,14 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
           <div className="mono cin">{paper.subject} · {paper.board} {paper.year}</div>
           <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>Question {current + 1} of {paper.questions.length}</div>
         </div>
-        <button onClick={() => setState(null)} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)" }}>✕ Exit</button>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          {timeRemaining !== null && (
+            <div style={{ fontFamily: "var(--mono)", fontSize: 18, fontWeight: 600, color: timeRemaining <= 120 ? "var(--cinnabar-ink)" : "var(--ink)", letterSpacing: "0.05em", transition: "color 500ms" }}>
+              {String(Math.floor(timeRemaining / 60)).padStart(2, "0")}:{String(timeRemaining % 60).padStart(2, "0")}
+            </div>
+          )}
+          <button onClick={() => setState(null)} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)" }}>✕ Exit</button>
+        </div>
       </div>
 
       {/* Progress */}
@@ -190,9 +224,10 @@ export default function PapersPage() {
     (diff    === "All" || p.difficulty === diff)
   );
 
-  function startPractice(paper: Paper) {
+  function startPractice(paper: Paper, timed = false) {
     const shuffled = [...paper.questions].sort(() => Math.random() - 0.5).slice(0, 10);
-    setPractice({ paper: { ...paper, questions: shuffled }, current: 0, answers: Array(shuffled.length).fill(null), done: false });
+    const timeLimit = timed ? 15 * 60 : undefined; // 15 minutes for 10 questions
+    setPractice({ paper: { ...paper, questions: shuffled }, current: 0, answers: Array(shuffled.length).fill(null), done: false, timeLimit });
   }
 
   if (practice) return (
@@ -248,9 +283,10 @@ export default function PapersPage() {
                 <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>{p.grade} · {p.year}</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 8 }}>{p.questions.length} questions in pool · 10 random per session</div>
                 <div style={{ flex: 1 }} />
-                <button className="btn" style={{ marginTop: 16 }} onClick={() => startPractice(p)}>
-                  Start practice →
-                </button>
+                <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                  <button className="btn" style={{ flex: 1 }} onClick={() => startPractice(p)}>Practice →</button>
+                  <button className="btn ghost" style={{ flexShrink: 0 }} onClick={() => startPractice(p, true)} title="15 minutes for 10 questions">⏱ Timed</button>
+                </div>
               </div>
             ))}
             {filtered.length === 0 && (

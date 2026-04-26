@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
+import CommandPalette from "./command-palette";
 
 const TOOLS = [
   { n: "01", slug: "planner",    label: "Planner",  full: "Smart Study Planner"  },
@@ -49,6 +50,7 @@ export default function AppNav() {
 
   return (
     <>
+      <CommandPalette />
       <nav style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--paper)", borderBottom: "1px solid var(--ink)", display: "flex", alignItems: "stretch" }}>
 
         {/* Wordmark */}
@@ -63,6 +65,14 @@ export default function AppNav() {
           style={{ textDecoration: "none", display: "flex", alignItems: "center", padding: "12px 12px", borderRight: "1px solid var(--ink)", background: path === "/dashboard" ? "var(--ink)" : "transparent", color: path === "/dashboard" ? "var(--paper)" : "var(--ink-2)", flexShrink: 0, fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
           ← Home
         </Link>
+
+        {/* Cmd+K hint */}
+        <button
+          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))}
+          className="mob-hide"
+          style={{ display: "flex", alignItems: "center", gap: 5, padding: "0 12px", background: "none", border: "none", borderRight: "1px solid var(--rule)", cursor: "pointer", flexShrink: 0 }}>
+          <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>⌘K</span>
+        </button>
 
         {/* Hamburger — only on mobile */}
         <button

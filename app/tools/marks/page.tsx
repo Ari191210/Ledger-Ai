@@ -68,6 +68,9 @@ export default function MarksPage() {
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [subjects, target, user]);
 
+  const [whatIfId,    setWhatIfId]    = useState<number | null>(null);
+  const [whatIfScore, setWhatIfScore] = useState(80);
+
   const totalWeight = subjects.reduce((s, x) => s + x.weight, 0);
   const { currentPct, needed } = useMemo(() => {
     if (!totalWeight) return { currentPct: 0, needed: null };
@@ -80,6 +83,14 @@ export default function MarksPage() {
   const gpa4 = pctToGpa4(currentPct);
   const grade = pctToGrade(currentPct);
   const gpaIndian = Math.round(currentPct / 9.5 * 10) / 10;
+
+  const hypotheticalPct = useMemo(() => {
+    if (whatIfId === null || !totalWeight) return null;
+    return subjects.reduce((sum, s) => {
+      const score = s.id === whatIfId ? whatIfScore : s.score;
+      return sum + score * (s.weight / totalWeight);
+    }, 0);
+  }, [whatIfId, whatIfScore, subjects, totalWeight]);
 
   function update(id: number, field: keyof Subject, val: number | string) {
     setSubjects((prev) => prev.map((s) => s.id === id ? { ...s, [field]: field === "name" ? val : Math.max(0, Math.min(field === "score" ? 100 : 100, Number(val))) } : s));
@@ -190,20 +201,51 @@ export default function MarksPage() {
               )}
             </div>
 
-            {/* Per-subject bar */}
+            {/* Per-subject bar with What-if */}
             <div style={{ marginTop: 24 }}>
-              <div className="mono cin" style={{ marginBottom: 10 }}>Score breakdown</div>
-              {subjects.map((s) => (
-                <div key={s.id} style={{ marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                    <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>{s.name}</span>
-                    <span className="mono" style={{ color: "var(--ink-3)" }}>{s.score}%</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <div className="mono cin">Score breakdown</div>
+                <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>Click a bar to run What-if</div>
+              </div>
+              {subjects.map((s) => {
+                const isWhatIf = whatIfId === s.id;
+                return (
+                  <div key={s.id} style={{ marginBottom: isWhatIf ? 0 : 10 }}>
+                    <button onClick={() => { setWhatIfId(isWhatIf ? null : s.id); setWhatIfScore(s.score); }}
+                      style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
+                      <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: isWhatIf ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.name}</span>
+                      <span className="mono" style={{ color: "var(--ink-3)" }}>{s.score}%</span>
+                    </button>
+                    <div style={{ height: 6, background: "var(--paper-2)", border: `1px solid ${isWhatIf ? "var(--cinnabar-ink)" : "var(--rule)"}` }}>
+                      <div style={{ height: "100%", width: `${s.score}%`, background: s.score >= target ? "var(--cinnabar)" : "var(--ink-3)", transition: "width 300ms" }} />
+                    </div>
+
+                    {/* What-if panel */}
+                    {isWhatIf && (
+                      <div style={{ margin: "8px 0 14px", padding: "16px", border: "1px solid var(--cinnabar-ink)", background: "var(--paper-2)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+                          <span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>What if {s.name} = {whatIfScore}%?</span>
+                          {hypotheticalPct !== null && (
+                            <span style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", fontWeight: 700 }}>
+                              {hypotheticalPct.toFixed(1)}%
+                              <span className="mono" style={{ fontSize: 11, marginLeft: 8, color: hypotheticalPct > currentPct ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>
+                                {hypotheticalPct > currentPct ? "+" : ""}{(hypotheticalPct - currentPct).toFixed(1)}%
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                        <input type="range" min={0} max={100} value={whatIfScore}
+                          onChange={e => setWhatIfScore(+e.target.value)}
+                          style={{ width: "100%", accentColor: "var(--cinnabar)" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>0%</span>
+                          <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>100%</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ height: 6, background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
-                    <div style={{ height: "100%", width: `${s.score}%`, background: s.score >= target ? "var(--cinnabar)" : "var(--ink-3)", transition: "width 300ms" }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
