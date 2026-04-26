@@ -183,7 +183,7 @@ export default function ScorePage() {
 
             {/* How the score works */}
             <div style={{ marginTop: 32, border: "1px solid var(--rule)", padding: "20px" }}>
-              <div className="mono cin" style={{ marginBottom: 12 }}>How it's calculated</div>
+              <div className="mono cin" style={{ marginBottom: 12 }}>How it&apos;s calculated</div>
               {[
                 ["PYQ Accuracy",      "400 pts", "Correct answers on past papers, weighted by sessions done"],
                 ["Syllabus Coverage", "250 pts", "Subjects covered via Notes and Tutor vs your uploaded syllabus"],
