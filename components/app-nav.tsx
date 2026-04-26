@@ -17,6 +17,8 @@ const TOOLS = [
   { n: "09", slug: "resume",     label: "Resume",   full: "Resume Builder"       },
   { n: "10", slug: "rooms",      label: "Rooms",    full: "Study Rooms"          },
   { n: "11", slug: "tutor",      label: "Tutor",    full: "Topic Tutor"          },
+  { n: "12", slug: "dna",        label: "DNA",      full: "Mistake DNA"           },
+  { n: "13", slug: "crunch",     label: "Crunch",   full: "48-Hour Crunch"        },
 ];
 
 export default function AppNav() {

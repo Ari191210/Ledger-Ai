@@ -40,6 +40,25 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   const q: Question = paper.questions[current];
 
   const score = answers.filter((a, i) => a === paper.questions[i].ans).length;
+  const [mistakeTags, setMistakeTags] = useState<Record<number, string>>({});
+  const [logged, setLogged] = useState(false);
+  const CATS = ["Conceptual", "Slip", "Misread", "Rushed", "Blanked"] as const;
+  const CAT_FULL: Record<string, string> = { Conceptual: "Conceptual Gap", Slip: "Calculation Slip", Misread: "Misread Question", Rushed: "Time Pressure", Blanked: "Memory Blank" };
+  const wrongIdxs = answers.map((a, i) => a !== paper.questions[i].ans ? i : -1).filter(i => i >= 0);
+
+  function logMistakes() {
+    try {
+      const existing = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
+      const entries = Object.entries(mistakeTags).map(([idx, cat]) => ({
+        date: new Date().toISOString(),
+        subject: paper.subject,
+        topic: paper.questions[+idx].topic,
+        category: CAT_FULL[cat] || cat,
+      }));
+      localStorage.setItem("ledger-mistakes", JSON.stringify([...entries, ...existing].slice(0, 500)));
+      setLogged(true);
+    } catch {}
+  }
 
   if (done) {
     return (
@@ -68,6 +87,30 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
             </div>
           ))}
         </div>
+
+        {wrongIdxs.length > 0 && (
+          <div style={{ marginTop: 28, border: "1px solid var(--rule)", padding: "20px 20px 16px" }}>
+            <div className="mono cin" style={{ marginBottom: 4 }}>Tag your mistakes</div>
+            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 16 }}>Why did you get each wrong? Builds your Mistake DNA profile.</div>
+            {wrongIdxs.map(i => (
+              <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid var(--rule)" }}>
+                <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 6 }}>{paper.questions[i].topic}</div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {CATS.map(cat => (
+                    <button key={cat} onClick={() => setMistakeTags(p => ({ ...p, [i]: cat }))}
+                      style={{ padding: "4px 10px", background: mistakeTags[i] === cat ? "var(--ink)" : "transparent", color: mistakeTags[i] === cat ? "var(--paper)" : "var(--ink-2)", border: "1px solid var(--rule)", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {Object.keys(mistakeTags).length > 0 && !logged && (
+              <button className="btn ghost" onClick={logMistakes} style={{ marginTop: 4 }}>Save to Mistake DNA →</button>
+            )}
+            {logged && <div className="mono" style={{ color: "var(--cinnabar-ink)", marginTop: 8 }}>Saved — view your profile in Tool 12 · Mistake DNA.</div>}
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
           <button className="btn" onClick={() => setState(null)}>← Back to papers</button>
