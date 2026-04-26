@@ -75,7 +75,15 @@ export default function FormulaPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed to generate. Try again."); return; }
-      setSheet(data as FormulaSheet);
+      setSheet({
+        subject:     data.subject     || subject,
+        chapter:     data.chapter     || chapter,
+        board:       data.board       || board,
+        sections:    Array.isArray(data.sections)    ? data.sections    : [],
+        keyConcepts: Array.isArray(data.keyConcepts) ? data.keyConcepts : [],
+        units:       Array.isArray(data.units)       ? data.units       : [],
+        examTips:    Array.isArray(data.examTips)    ? data.examTips    : [],
+      });
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -96,7 +104,14 @@ export default function FormulaPage() {
 
   function loadFromHistory(entry: HistoryEntry) {
     setSubject(entry.subject); setChapter(entry.chapter);
-    setSheet(entry.data); setShowHistory(false); setSaved(true);
+    setSheet({
+      ...entry.data,
+      sections:    Array.isArray(entry.data.sections)    ? entry.data.sections    : [],
+      keyConcepts: Array.isArray(entry.data.keyConcepts) ? entry.data.keyConcepts : [],
+      units:       Array.isArray(entry.data.units)       ? entry.data.units       : [],
+      examTips:    Array.isArray(entry.data.examTips)    ? entry.data.examTips    : [],
+    });
+    setShowHistory(false); setSaved(true);
   }
 
   return (
@@ -246,13 +261,13 @@ export default function FormulaPage() {
                 </div>
 
                 {/* Formula sections */}
-                {sheet.sections.map((section, si) => (
+                {(sheet.sections || []).map((section, si) => (
                   <div key={si} style={{ marginBottom: 16, border: "1px solid var(--ink)" }}>
                     <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                       <div className="mono cin">{section.title}</div>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-                      {section.formulas.map((f, fi) => (
+                      {(section.formulas || []).map((f, fi) => (
                         <div key={fi} style={{ padding: "16px 18px", borderRight: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
                           <div style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 700, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>{f.name}</div>
                           <div style={{ fontFamily: "var(--mono)", fontSize: 18, color: "var(--ink)", marginBottom: 10, lineHeight: 1.4, letterSpacing: "-0.01em" }}>{f.formula}</div>
@@ -267,13 +282,13 @@ export default function FormulaPage() {
                 ))}
 
                 {/* Key concepts */}
-                {sheet.keyConcepts.length > 0 && (
+                {(sheet.keyConcepts || []).length > 0 && (
                   <div style={{ marginBottom: 16, border: "1px solid var(--ink)" }}>
                     <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                       <div className="mono cin">Key Concepts</div>
                     </div>
                     <div style={{ padding: "14px 18px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {sheet.keyConcepts.map((c, i) => (
+                      {(sheet.keyConcepts || []).map((c, i) => (
                         <span key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, padding: "4px 10px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>{c}</span>
                       ))}
                     </div>
@@ -281,7 +296,7 @@ export default function FormulaPage() {
                 )}
 
                 {/* Units & dimensions */}
-                {sheet.units.length > 0 && (
+                {(sheet.units || []).length > 0 && (
                   <div style={{ marginBottom: 16, border: "1px solid var(--ink)" }}>
                     <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                       <div className="mono cin">Units &amp; Dimensions</div>
@@ -295,7 +310,7 @@ export default function FormulaPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {sheet.units.map((u, i) => (
+                        {(sheet.units || []).map((u, i) => (
                           <tr key={i}>
                             <td style={{ padding: "10px 18px", fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, borderBottom: i < sheet.units.length - 1 ? "1px solid var(--rule)" : "none" }}>{u.quantity}</td>
                             <td style={{ padding: "10px 18px", fontFamily: "var(--mono)", fontSize: 12, borderBottom: i < sheet.units.length - 1 ? "1px solid var(--rule)" : "none" }}>{u.unit}</td>
@@ -308,12 +323,12 @@ export default function FormulaPage() {
                 )}
 
                 {/* Exam tips */}
-                {sheet.examTips.length > 0 && (
+                {(sheet.examTips || []).length > 0 && (
                   <div style={{ border: "1px solid var(--ink)" }}>
                     <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--ink)", color: "var(--paper)" }}>
                       <div className="mono" style={{ letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 9 }}>Exam tips for this chapter</div>
                     </div>
-                    {sheet.examTips.map((tip, i) => (
+                    {(sheet.examTips || []).map((tip, i) => (
                       <div key={i} style={{ padding: "12px 18px", borderBottom: i < sheet.examTips.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 14, alignItems: "flex-start" }}>
                         <span className="mono" style={{ color: "var(--cinnabar-ink)", flexShrink: 0, marginTop: 1 }}>{String(i + 1).padStart(2, "0")}</span>
                         <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.55 }}>{tip}</span>
