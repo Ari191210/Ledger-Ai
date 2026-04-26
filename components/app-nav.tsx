@@ -66,6 +66,12 @@ export default function AppNav() {
           ← Home
         </Link>
 
+        {/* Ledger Score — pinned, cinnabar-highlighted */}
+        <Link href="/tools/score"
+          style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 13px", borderRight: "1px solid var(--ink)", background: path === "/tools/score" ? "var(--cinnabar-ink)" : "transparent", color: path === "/tools/score" ? "var(--paper)" : "var(--cinnabar-ink)", flexShrink: 0, fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+          <span>★</span><span>Score</span>
+        </Link>
+
         {/* Hamburger — only on mobile */}
         <button
           className="mob-nav-btn"
@@ -118,6 +124,11 @@ export default function AppNav() {
               </Link>
             );
           })}
+          <Link href="/tools/score"
+            style={{ textDecoration: "none", padding: "16px 20px", borderBottom: "1px solid var(--rule)", color: "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span>★ · Ledger Score™</span>
+            <span style={{ opacity: 0.4 }}>→</span>
+          </Link>
           <Link href="/dashboard/profile"
             style={{ textDecoration: "none", padding: "16px 20px", borderBottom: "1px solid var(--rule)", color: "var(--ink)", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", display: "flex", justifyContent: "space-between" }}>
             <span>Profile · @{short}</span>

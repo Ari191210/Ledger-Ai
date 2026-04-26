@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
+import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 
 const TOOLS = [
   { n: "01", slug: "planner",    ttl: "Smart Study Planner",  sub: "Subjects in. Timetable out.",     tier: "Free",  desc: "14-day reactive plan built around your exam dates and daily hours." },
@@ -17,6 +18,10 @@ const TOOLS = [
   { n: "09", slug: "resume",     ttl: "Resume Builder",       sub: "For applications, not LinkedIn.", tier: "Pro+",  desc: "Internships, summer programs, college essays — one polished PDF." },
   { n: "10", slug: "rooms",      ttl: "Study Rooms",          sub: "Silent accountability.",          tier: "Pro+",  desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
   { n: "11", slug: "tutor",      ttl: "Topic Tutor",          sub: "Pick a topic. Get a full lesson.", tier: "Free",  desc: "AI generates a personalised lesson with concept, examples, key points and a practice quiz." },
+  { n: "12", slug: "dna",        ttl: "Mistake DNA",          sub: "See exactly where you keep going wrong.", tier: "Free", desc: "Tracks every wrong answer by category and subject. Pinpoints your highest-leverage weak spots." },
+  { n: "13", slug: "crunch",     ttl: "48-Hour Crunch",       sub: "Exam tomorrow. Smart triage.",   tier: "Free",  desc: "Tell the AI what to skip and what to nail. Get a topic-by-topic priority list with time blocks." },
+  { n: "14", slug: "syllabus",   ttl: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped.", tier: "Free", desc: "Extract subjects, chapters, and topics from any syllabus document. Powers every AI tool on Ledger." },
+  { n: "★",  slug: "score",      ttl: "Ledger Score™",        sub: "Your real-time exam readiness.", tier: "Free",  desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, mistake velocity, and consistency." },
 ] as const;
 
 const TIER_COLOR: Record<string, string> = {
@@ -339,6 +344,40 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
   );
 }
 
+function LedgerScoreWidget() {
+  const [score, setScore] = useState<ScoreBreakdown | null>(null);
+  useEffect(() => {
+    try { setScore(computeLedgerScore()); } catch { setScore({ total: 0, pqaScore: 0, syllabusScore: 0, mistakeScore: 0, consistencyScore: 0, pqaAccuracy: 0, papersCount: 0, syllabusUploaded: false, subjectsCovered: 0, subjectsTotal: 0, recentMistakes: 0, streak: 0, actions: ["Upload your syllabus — this alone unlocks up to 250 score points"], subjectAccuracy: [] }); }
+  }, []);
+  if (!score) return null;
+  const tier = scoreTier(score.total);
+  const pct = (score.total / 1000) * 100;
+  return (
+    <Link href="/tools/score" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--ink)", padding: "24px 28px", background: "var(--paper)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+        <div>
+          <div className="mono cin" style={{ marginBottom: 4 }}>Ledger Score™</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+            <span style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1, color: "var(--ink)" }}>{score.total}</span>
+            <span className="mono" style={{ color: "var(--ink-3)" }}>/ 1000 · {tier.label}</span>
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ height: 10, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 8 }}>
+            <div style={{ height: "100%", width: `${pct}%`, background: "var(--ink)", transition: "width 800ms" }} />
+          </div>
+          {score.actions[0] && (
+            <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", lineHeight: 1.5 }}>
+              Next: {score.actions[0]}
+            </div>
+          )}
+        </div>
+        <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, flexShrink: 0 }}>View breakdown →</div>
+      </div>
+    </Link>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
@@ -421,6 +460,9 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Ledger Score */}
+      <LedgerScoreWidget />
+
       {/* Exam schedule */}
       {user && (
         <ExamSchedule
@@ -459,7 +501,7 @@ export default function Dashboard() {
             <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5, marginTop: 10 }}>{t.desc}</div>
             <div style={{ flex: 1 }} />
             <div className="mono" style={{ borderTop: "1px solid var(--rule)", marginTop: 14, paddingTop: 10, display: "flex", justifyContent: "space-between", fontSize: 9, color: "var(--ink-3)" }}>
-              <span>Tool {t.n} of 10</span><span>↗</span>
+              <span>Tool {t.n} of 16</span><span>↗</span>
             </div>
           </Link>
         ))}

@@ -19,6 +19,7 @@ const ITEMS = [
   { n: "11", path: "/tools/tutor",       label: "Topic Tutor"         },
   { n: "12", path: "/tools/dna",         label: "Mistake DNA"         },
   { n: "13", path: "/tools/crunch",      label: "48-Hour Crunch"      },
+  { n: "★",  path: "/tools/score",       label: "Ledger Score™"       },
 ];
 
 export default function CommandPalette() {
