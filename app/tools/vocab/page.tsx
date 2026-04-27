@@ -137,7 +137,7 @@ export default function VocabPage() {
               ) : (
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 18, lineHeight: 1.6, marginBottom: 16, color: "var(--ink)" }}>{w.definition}</div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", fontStyle: "italic", marginBottom: 16, lineHeight: 1.6 }}>"{w.example}"</div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", fontStyle: "italic", marginBottom: 16, lineHeight: 1.6 }}>&ldquo;{w.example}&rdquo;</div>
                   <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
                     {w.etymology && (
                       <div>
@@ -189,7 +189,7 @@ export default function VocabPage() {
                 <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 4 }}>{word.partOfSpeech}</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5, color: "var(--ink-2)", marginBottom: 8 }}>{word.definition}</div>
                 {word.memoryTip && <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", fontStyle: "italic" }}>💡 {word.memoryTip}</div>}
-                <button onClick={() => setKnown(k => { const n = new Set(k); known.has(i) ? n.delete(i) : n.add(i); return n; })}
+                <button onClick={() => setKnown(k => { const n = new Set(k); if (known.has(i)) { n.delete(i); } else { n.add(i); } return n; })}
                   style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: `1px solid ${known.has(i) ? "#2d7a3c" : "var(--rule)"}`, background: known.has(i) ? "#2d7a3c" : "var(--paper)", color: known.has(i) ? "var(--paper)" : "var(--ink-3)", cursor: "pointer" }}>
                   {known.has(i) ? "✓ known" : "mark known"}
                 </button>

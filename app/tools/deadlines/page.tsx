@@ -54,12 +54,9 @@ export default function DeadlinesPage() {
   const [adding, setAdding] = useState(false);
   const [filter, setFilter] = useState<"all" | "upcoming" | "done">("upcoming");
   const [catFilter, setCatFilter] = useState<Category | "all">("all");
-  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     try { const d = localStorage.getItem("ledger-deadlines"); if (d) setDeadlines(JSON.parse(d)); } catch {}
-    const iv = setInterval(() => setNow(Date.now()), 60000);
-    return () => clearInterval(iv);
   }, []);
 
   function save(list: Deadline[]) {

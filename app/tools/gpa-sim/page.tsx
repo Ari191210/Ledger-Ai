@@ -52,7 +52,6 @@ export default function GPASimPage() {
   const [grades, setGrades]   = useState<Grade[]>([]);
   const [scale, setScale]     = useState<Scale>("4.0");
   const [weighted, setWeighted] = useState(true);
-  const [what, setWhat]       = useState<"target" | null>(null);
   const [targetGPA, setTargetGPA] = useState("");
   const [newGrade, setNewGrade]   = useState({ ...EMPTY_GRADE });
 

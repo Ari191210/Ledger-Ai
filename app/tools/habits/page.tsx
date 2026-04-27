@@ -53,7 +53,8 @@ export default function HabitsPage() {
   function removeHabit(id: string) { save(habits.filter(h => h.id !== id), log); }
 
   function streak(habitId: string): number {
-    let s = 0, d = new Date();
+    let s = 0;
+    const d = new Date();
     while (true) {
       if (log[habitId]?.[dateStr(d)]) { s++; d.setDate(d.getDate() - 1); }
       else break;
