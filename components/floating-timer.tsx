@@ -1,12 +1,19 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useFocus, DURATIONS, MODE_LABELS } from "@/lib/focus-context";
 
 export default function FloatingTimer() {
   const path = usePathname();
   const { mode, seconds, running, sessions, toggleRunning } = useFocus();
+  const [embedded, setEmbedded] = useState(false);
 
+  useEffect(() => {
+    try { setEmbedded(window.self !== window.top); } catch { setEmbedded(true); }
+  }, []);
+
+  if (embedded) return null;
   if (path === "/tools/focus") return null;
   if (!running && seconds >= DURATIONS[mode]) return null;
 
