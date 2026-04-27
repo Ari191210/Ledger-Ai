@@ -72,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -213,6 +213,173 @@ Rules:
 - timeline: 5 concrete, dated application tasks (e.g. "August: Finalise Common App activities list", "November 1: Submit ED application to X")
 - Never be generic — every sentence should reference something specific from their profile`,
       };
+
+    case "flashcards":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a study-card expert. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate high-quality flashcards for the topic below. Respond with exactly this JSON shape:
+{"topic":"clean topic title","cards":[{"q":"question or term","a":"clear, concise answer","hint":"optional one-word hint or null"}]}
+
+Rules:
+- Generate exactly ${params.count || 10} cards
+- Questions should test understanding, not just recall
+- Answers should be 1-3 sentences max
+- Mix definition, application, and "why" questions
+${params.notes ? `\nStudent's notes to base cards on:\n${params.notes}` : `\nTopic: ${params.topic}`}
+Level: ${params.level || "A-Level"}`,
+      };
+
+    case "essay_grade":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an experienced examiner and writing coach. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Grade this student essay. Respond with exactly this JSON shape:
+{"overall":{"grade":"A","band":"Excellent","score":85,"max":100},"criteria":[{"name":"Argument & Analysis","score":22,"max":25,"feedback":"specific feedback"},{"name":"Evidence & Examples","score":20,"max":25,"feedback":"specific feedback"},{"name":"Structure & Coherence","score":21,"max":25,"feedback":"specific feedback"},{"name":"Language & Style","score":22,"max":25,"feedback":"specific feedback"}],"strengths":["strength 1","strength 2","strength 3"],"improvements":["improvement 1","improvement 2","improvement 3"],"summary":"2-3 sentence overall assessment","openingRewrite":"rewritten opening sentence if weak, or null"}
+
+Subject: ${params.subject}
+Level: ${params.level || "A-Level"}
+Type: ${params.type || "Essay"}
+${params.prompt ? `Essay prompt: ${params.prompt}` : ""}
+
+Essay:
+${params.essay}`,
+      };
+
+    case "personal_statement":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a university admissions writing coach who has read thousands of personal statements. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Analyse this personal statement and give detailed, honest feedback. Respond with exactly this JSON shape:
+{"score":7,"hook":{"rating":"strong/adequate/weak","comment":"specific comment on the opening"},"structure":{"rating":"strong/adequate/weak","comment":"comment on overall flow and structure"},"paragraphs":[{"index":1,"strength":"what works","suggestion":"specific improvement"}],"tone":"comment on voice and authenticity","suggestions":["actionable suggestion 1","actionable suggestion 2","actionable suggestion 3","actionable suggestion 4"],"openingRewrite":"rewritten opening 2-3 sentences that would be stronger"}
+
+Rules:
+- score: 1-10 overall
+- paragraphs: analyse each paragraph (up to 6)
+- Be honest — if it's generic or weak, say so clearly
+- suggestions must be specific and actionable
+
+Personal statement:
+${params.text}
+Word count: ${params.wordCount}
+Target: ${params.target || "UK university"}`,
+      };
+
+    case "interview_questions":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a senior interviewer who trains candidates for competitive interviews. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate interview questions for this candidate. Respond with exactly this JSON shape:
+{"questions":[{"id":1,"q":"full question text","type":"behavioral/technical/motivational","tip":"what interviewers look for in the answer"}]}
+
+Generate exactly 6 questions. Mix types appropriately for the interview type.
+
+Interview type: ${params.type}
+Role / Course: ${params.role}
+Level: ${params.level || "undergraduate"}
+${params.context ? `Additional context: ${params.context}` : ""}`,
+      };
+
+    case "interview_eval":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert interview coach. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Evaluate this interview answer. Respond with exactly this JSON shape:
+{"score":7,"strengths":["strength 1","strength 2"],"gaps":["gap 1","gap 2"],"sampleAnswer":"a strong model answer for this question in 3-4 sentences","tip":"one specific coaching tip for next time"}
+
+Question: ${params.question}
+Answer: ${params.answer}
+Interview type: ${params.type}`,
+      };
+
+    case "mindmap":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a knowledge architect. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a structured mind map for this topic. Respond with exactly this JSON shape:
+{"center":"topic name","branches":[{"label":"branch name","children":[{"label":"sub-topic","children":[{"label":"detail point"}]}]}]}
+
+Detail level: ${params.detail === "brief" ? "3 main branches, 2-3 children each" : params.detail === "deep" ? "7+ main branches, 3-4 children, 2-3 grandchildren each" : "5 main branches, 3-4 children each, 1-2 grandchildren where useful"}
+
+Topic: ${params.topic}`,
+      };
+
+    case "presentation":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a presentation coach and content strategist. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Create a complete presentation plan. Respond with exactly this JSON shape:
+{"title":"presentation title","slides":[{"title":"slide title","bullets":["bullet 1","bullet 2","bullet 3"],"speakerNote":"what to say for this slide in 2-3 sentences"}],"advice":"one key delivery tip"}
+
+Rules:
+- Number of slides: calibrate to ${params.duration} minutes (roughly 1-1.5 min per slide, include title + conclusion)
+- bullets: 3-5 per slide, concise and scannable
+- speakerNote: natural spoken language the presenter would say
+- Style ${params.style}: academic=formal tone; persuasive=rhetorical; informative=clear facts; narrative=story arc
+- Audience: ${params.audience}
+
+Topic: ${params.topic}`,
+      };
+
+    case "debate":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a debate coach and expert in argumentation. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Prepare debate arguments for this motion. Respond with exactly this JSON shape:
+{"motion":"restated motion clearly","for":[{"argument":"core argument","evidence":"specific evidence or example","rebuttal":"how to defend if challenged"}],"against":[{"argument":"core argument","evidence":"specific evidence or example","rebuttal":"how to defend if challenged"}],"keyTerms":[{"term":"term","def":"definition"}],"practiceQs":["practice question 1","practice question 2","practice question 3"]}
+
+Rules:
+- for and against: 3 arguments each, strongest to weakest
+- evidence: be specific (name studies, statistics, historical events, or real examples)
+- keyTerms: 4-6 terms essential to this debate
+- Level: ${params.level || "A-Level"}
+${params.side === "for" ? "Focus: generate only FOR arguments (copy them into against array as placeholders)" : params.side === "against" ? "Focus: generate only AGAINST arguments" : "Generate both sides equally"}
+
+Motion: ${params.motion}`,
+      };
+
+    case "exam_sim":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert exam setter. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a realistic multiple-choice exam. Respond with exactly this JSON shape:
+{"title":"Subject — Topic","timeMinutes":${Math.ceil(parseInt(params.count as string || "10") * 1.5)},"questions":[{"q":"question text","options":["A option","B option","C option","D option"],"answer":0,"explanation":"why the correct answer is correct, and why the main distractor is wrong"}]}
+
+Rules:
+- Generate exactly ${params.count || 10} questions
+- answer: 0-based index of correct option
+- Vary difficulty: ~30% easy, 50% medium, 20% hard
+- Distractors must be plausible — not obviously wrong
+- Level: ${params.level || "A-Level"}
+${params.topic ? `Topic: ${params.topic}` : ""}
+
+Subject: ${params.subject}`,
+      };
+
+    case "vocab":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a vocabulary expert and language educator. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a vocabulary set for this topic. Respond with exactly this JSON shape:
+{"theme":"short theme title","words":[{"word":"word","definition":"clear 1-2 sentence definition","partOfSpeech":"noun/verb/adjective/etc","example":"natural example sentence using the word in academic context","etymology":"word origin in 1 sentence or empty string","synonyms":["syn1","syn2"],"memoryTip":"vivid mnemonic or memory hook","difficulty":"basic/intermediate/advanced"}]}
+
+Rules:
+- Generate exactly ${params.count || 10} words
+- Choose words genuinely useful for ${params.context} context
+- Example sentences should model academic usage
+- memoryTip: create a vivid, memorable hook (wordplay, image, story)
+- Level: ${params.level || "A-Level"}
+- Context: ${params.context}
+
+Topic / subject: ${params.topic}`,
+      };
+
+    case "research":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a research analyst and academic writing consultant. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Conduct in-depth research on this topic. Respond with exactly this JSON shape:
+{"title":"precise research title","summary":"3-4 sentence executive summary","sections":[{"heading":"section heading","content":"2-3 paragraph analysis","keyPoints":["key point 1","key point 2","key point 3"]}],"keyArguments":["argument 1","argument 2","argument 3","argument 4"],"counterArguments":["counter 1","counter 2","counter 3"],"statistics":[{"stat":"statistic or data point","source":"source name or type"}],"furtherReading":[{"title":"book or article title","author":"author name","why":"why this is relevant"}],"essayAngles":["essay angle 1","essay angle 2","essay angle 3","essay angle 4","essay angle 5"]}
+
+Rules:
+- sections: ${params.depth === "overview" ? "2-3 sections" : params.depth === "deep" ? "5-6 sections" : "3-4 sections"}, each substantive
+- statistics: 4-6 real-world data points (clearly label if approximate/general)
+- furtherReading: 3-4 real, relevant sources
+- essayAngles: 5 distinct thesis angles that would make strong essays
+- Purpose: ${params.purpose}
+${params.subject ? `Subject area: ${params.subject}` : ""}
+
+Research question / topic: ${params.query}`,
+      };
   }
 }
 
@@ -232,7 +399,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
@@ -284,8 +451,8 @@ export async function POST(req: Request) {
     }
   }
 
-  // Syllabus responses can be large (many subjects + chapters)
-  const max_tokens = (tool === "syllabus" || tool === "formula" || tool === "admissions") ? 6000 : 2048;
+  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate"];
+  const max_tokens = LARGE_TOOLS.includes(tool) ? 6000 : 2048;
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
