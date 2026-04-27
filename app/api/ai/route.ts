@@ -72,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -192,6 +192,27 @@ Chapter: ${params.chapter}
 Board: ${params.board || "CBSE"}
 ${params.grade ? `Grade: ${params.grade}` : ""}`,
       };
+
+    case "admissions":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a senior college admissions consultant with 15+ years of experience at top-tier universities. You know exactly what Ivy League and top-30 admissions offices look for. Always respond with valid JSON only — no markdown fences, no prose outside the JSON.`,
+        userText: `A student has the following profile and is applying to university. Generate a highly personalised admissions strategy.
+
+Student profile:
+${JSON.stringify(params.profile, null, 2)}
+
+Their top-chance schools from our statistical model: ${(params.topColleges as string[]).join(", ")}
+
+Respond with exactly this JSON shape:
+{"strategy":"2-3 paragraph honest, specific strategy paragraph — name specific schools, address their actual profile strengths and weaknesses, advise on ED/EA vs RD, and give a realistic picture","gaps":["specific gap 1 with concrete advice","specific gap 2","specific gap 3"],"essayAngles":["specific essay angle 1 based on their ECs and profile","specific angle 2","specific angle 3"],"timeline":["key date/action 1","key date/action 2","key date/action 3","key date/action 4","key date/action 5"]}
+
+Rules:
+- strategy: be honest and direct — if their chances at far-reach schools are very low, say so and explain why
+- gaps: identify 3 genuine gaps (weak test scores, few national-level ECs, no research, etc.) with concrete actionable steps
+- essayAngles: 3 specific essay angles that would differentiate THIS student given their actual activities and profile
+- timeline: 5 concrete, dated application tasks (e.g. "August: Finalise Common App activities list", "November 1: Submit ED application to X")
+- Never be generic — every sentence should reference something specific from their profile`,
+      };
   }
 }
 
@@ -211,7 +232,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
@@ -264,7 +285,7 @@ export async function POST(req: Request) {
   }
 
   // Syllabus responses can be large (many subjects + chapters)
-  const max_tokens = (tool === "syllabus" || tool === "formula") ? 6000 : 2048;
+  const max_tokens = (tool === "syllabus" || tool === "formula" || tool === "admissions") ? 6000 : 2048;
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
