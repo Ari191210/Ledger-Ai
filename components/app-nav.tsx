@@ -38,7 +38,17 @@ const TOOLS = [
   { n: "28", slug: "gpa-sim",            full: "GPA Simulator",        sub: "Model your grades. Plan your GPA."        },
   { n: "29", slug: "vocab",              full: "Vocabulary Vault",     sub: "Deep word learning with memory hooks."    },
   { n: "30", slug: "research",           full: "Research Assistant",   sub: "Any topic. Arguments, stats, angles."     },
-  { n: "★",  slug: "score",              full: "Ledger Score™",        sub: "Your real-time exam readiness."           },
+  { n: "31", slug: "coach",             full: "AI Study Coach",       sub: "Your personal AI. Daily briefing + chat." },
+  { n: "32", slug: "mark-scheme",       full: "Mark Scheme Trainer",  sub: "Real questions. Real marking."            },
+  { n: "33", slug: "subject-picker",    full: "Subject Picker",       sub: "Find the perfect Grade 11 combination."   },
+  { n: "34", slug: "essay-blueprint",   full: "Essay Blueprint",      sub: "Structure before you write."             },
+  { n: "35", slug: "concept-web",       full: "Concept Web",          sub: "Any concept, fully mapped."              },
+  { n: "36", slug: "exam-planner",      full: "Exam Season Planner",  sub: "Spaced repetition, automatically."        },
+  { n: "37", slug: "paper-dissector",   full: "Paper Dissector",      sub: "Decode what examiners want."             },
+  { n: "38", slug: "lang-analyzer",     full: "Language Analyzer",    sub: "Unseen text, fully decoded."             },
+  { n: "39", slug: "lab-report",        full: "Lab Report Builder",   sub: "Turn experiments into full reports."      },
+  { n: "40", slug: "uni-match",         full: "University Match",     sub: "Your grades. Your field. Your matches."   },
+  { n: "★",  slug: "score",             full: "Ledger Score™",        sub: "Your real-time exam readiness."           },
 ];
 
 export default function AppNav() {

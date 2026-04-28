@@ -72,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -380,6 +380,174 @@ ${params.subject ? `Subject area: ${params.subject}` : ""}
 
 Research question / topic: ${params.query}`,
       };
+
+    case "coach_briefing": {
+      const ctx = params.context as Record<string, unknown> || {};
+      return {
+        system: `${SAFETY_PREAMBLE}You are a personal AI study coach for a school student. You have access to their study data. Be warm, direct, and specific. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a personalised daily briefing for this student. Respond with exactly this JSON shape:
+{"greeting":"1-2 warm, personalised sentences addressing today specifically","priorities":[{"task":"specific task","why":"reason based on their data"}],"insight":"1 sharp insight about their study patterns","focus":"1 specific focus recommendation for today","warning":"1 time-sensitive warning if any deadlines/weak areas need attention, or null"}
+
+priorities: 3-4 items, ordered by importance. warning: only set if genuinely urgent, otherwise null.
+
+Student data:
+- Date: ${ctx.date || "today"}
+- Study streak: ${ctx.streak || 0} days
+- Habits today: ${JSON.stringify(ctx.habits || [])}
+- Upcoming deadlines: ${JSON.stringify(ctx.deadlines || [])}
+- Weak topics: ${JSON.stringify(ctx.weakTopics || [])}
+- Recent subjects studied: ${JSON.stringify(ctx.recentSubjects || [])}`,
+      };
+    }
+
+    case "coach_chat": {
+      const chatCtx = params.context as Record<string, unknown> || {};
+      return {
+        system: `${SAFETY_PREAMBLE}You are a personal AI study coach for a school student. Be concise, warm, and actionable. Always respond with valid JSON only: {"reply":"your response"}`,
+        userText: `Student context:
+- Streak: ${chatCtx.streak || 0} days
+- Weak topics: ${JSON.stringify(chatCtx.weakTopics || [])}
+- Deadlines: ${JSON.stringify(chatCtx.deadlines || [])}
+
+Conversation history:
+${params.history || ""}
+
+Student: ${params.message}
+
+Respond with: {"reply":"your coaching response in 2-4 sentences, specific and actionable"}`,
+      };
+    }
+
+    case "mark_scheme":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an experienced exam setter for ${params.board} board. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a realistic exam question with mark scheme. Respond with exactly this JSON shape:
+{"question":"full exam question text","totalMarks":${params.marks || 8},"markScheme":[{"criterion":"criterion name","marks":2,"detail":"what earns these marks"}],"hint":"one-line structure hint for the student"}
+
+Rules:
+- question: a genuine exam-style question for ${params.board} ${params.subject}, ${params.marks || 8} marks
+- markScheme: criteria that sum to ${params.marks || 8} marks total
+- Style it authentically for ${params.board} board (command words, structure, expectations)
+- Topic: ${params.topic}`,
+      };
+
+    case "mark_scheme_eval":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a strict but fair ${params.board} examiner. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Mark this student's answer against the mark scheme. Respond with exactly this JSON shape:
+{"marksEarned":5,"totalMarks":8,"breakdown":[{"criterion":"criterion name","earned":2,"max":2,"comment":"specific feedback on this criterion"}],"missing":["mark point the student missed 1","mark point missed 2"],"improved":"a model 3-5 sentence answer that would score full marks"}
+
+Question: ${params.question}
+
+Mark scheme: ${JSON.stringify(params.markScheme)}
+
+Student's answer: ${params.answer}`,
+      };
+
+    case "subject_picker":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a senior school counsellor specialising in ${params.board} subject selection. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Recommend subject combinations for this Grade 11 student. Respond with exactly this JSON shape:
+{"intro":"2 sentence personalised intro","combos":[{"combo":["Subject A","Subject B","Subject C"],"why":"2 sentence explanation","careerFit":["career 1","career 2","career 3"],"uniReqs":"what this opens at top unis","difficulty":"manageable","score":8}],"avoid":["combination to avoid with reason"],"tip":"one sharp piece of advice"}
+
+combos: 3 different combinations, best first. difficulty: "manageable", "challenging", or "intense". score: 1-10 fit for this student.
+
+Board: ${params.board}
+Subjects they like/excel at: ${JSON.stringify(params.interests)}
+Career interests: ${JSON.stringify(params.career)}
+Additional context: ${params.extra || "none"}`,
+      };
+
+    case "essay_blueprint":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an essay writing coach and expert in ${params.subject} at ${params.level} level. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Create a detailed essay blueprint. Respond with exactly this JSON shape:
+{"title":"suggested essay title","thesis":"a clear, arguable thesis statement","totalWords":${params.words || 1000},"sections":[{"title":"section name","purpose":"what this section achieves","points":["what to include","argument or evidence","analytical point"],"wordCount":250,"openWith":"suggested opening phrase or sentence"}],"dos":["do this","do that"],"donts":["avoid this","avoid that"],"keyTerms":["term1","term2","term3","term4","term5"]}
+
+sections: Introduction + 3-4 body paragraphs + Conclusion. Word counts should sum to ${params.words || 1000}.
+dos: 4-5 specific to this essay type and level. donts: 4-5. keyTerms: 5-8 subject-specific terms to use.
+
+Subject: ${params.subject}
+Level: ${params.level}
+Essay type: ${params.type}
+Essay question: ${params.prompt}
+Word limit: ${params.words}`,
+      };
+
+    case "concept_web":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a knowledge cartographer and expert in ${params.subject}. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a concept web for this topic. Respond with exactly this JSON shape:
+{"center":"concept name","description":"1-2 sentence summary of the concept","branches":[{"label":"branch name","children":[{"label":"sub-concept","detail":"1-2 sentence explanation","crossLinks":["related concept in another branch or subject"]}]}],"summary":"big-picture paragraph connecting all the branches"}
+
+branches: 5-7 main branches, each with 3-4 children. crossLinks: note genuine connections to other concepts or subjects.
+
+Subject: ${params.subject}
+Level: ${params.level}
+Concept: ${params.topic}`,
+      };
+
+    case "paper_dissector":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a senior ${params.board} examiner and teacher. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Dissect this exam question for a student. Respond with exactly this JSON shape:
+{"commandWord":"the key command word","commandDefinition":"what this command word requires in 1 sentence","totalMarks":${params.marks || 0},"timeAdvice":"recommended time to spend","parts":[{"label":"Part (a)","marks":4,"what":"what this part tests","howToAnswer":"specific strategy for this part"}],"keyContent":["required knowledge point 1","required knowledge point 2","required knowledge point 3","required knowledge point 4"],"structure":["step 1 of ideal answer","step 2","step 3","step 4"],"examinersTip":"what separates A from B answers","commonMistakes":["mistake students make 1","mistake 2","mistake 3"]}
+
+parts: only include if there are sub-parts; otherwise empty array. keyContent: 4-6 points. structure: 4-6 steps.
+
+Board: ${params.board}
+Subject: ${params.subject}
+Question: ${params.question}`,
+      };
+
+    case "lang_analyzer":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert English literature and language teacher at ${params.level} level. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Analyse this ${params.textType} for a student. Respond with exactly this JSON shape:
+{"type":"${params.textType}","tone":[{"label":"tone word","explanation":"why this tone in 1 sentence"}],"structure":[{"feature":"structural feature","effect":"effect on reader"}],"language":[{"device":"literary/language device","example":"quote from text","effect":"analytical effect statement"}],"themes":[{"theme":"theme name","evidence":"how the text develops this theme"}],"audience":"who this is written for","purpose":"main purpose of the text","grade9Points":["what top-band analysis would include 1","2","3","4"],"exampleAnswer":"a model analytical paragraph using P-E-E or similar structure (5-8 sentences)"}
+
+tone: 3-4 tones. structure: 3-5 features. language: 5-7 devices with quotes. themes: 3-4 themes.
+Focus: ${params.focus === "language" ? "language devices only (structure and themes minimal)" : params.focus === "structure" ? "structural features only" : "full analysis"}
+
+Text type: ${params.textType}
+Level: ${params.level}
+
+Text:
+${params.text}`,
+      };
+
+    case "lab_report":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a science teacher and ${params.board} expert. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a structured lab report for this experiment. Respond with exactly this JSON shape:
+{"title":"formal experiment title","ibCriteria":"${params.board === "IB" ? "IB IA criteria overview: Personal Engagement, Exploration, Analysis, Evaluation, Communication" : null}","sections":[{"heading":"section name","content":"written content for this section","template":"table template or structured template if applicable, or null"}],"safetyNotes":["safety precaution 1","2","3"],"evaluationCriteria":["what examiners look for 1","2","3","4"]}
+
+sections (in order): Title & Research Question, Introduction & Background, Hypothesis, Variables (IV/DV/CV), Materials & Apparatus, Method, Raw Data Table (template), Processed Data & Analysis, Conclusion, Evaluation & Improvements.
+For IB: align to IA criteria. For A-Level: align to required practicals format.
+
+Board: ${params.board}
+Subject: ${params.subject}
+Experiment: ${params.experiment}
+Aim: ${params.aim || "not specified"}
+Variables: ${params.variables || "not specified"}
+Method summary: ${params.method || "not specified"}`,
+      };
+
+    case "uni_match":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a university admissions counsellor with expertise in international university applications. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Match this student to suitable universities. Respond with exactly this JSON shape:
+{"summary":"2-3 sentence honest assessment of this student's profile and prospects","unis":[{"name":"university name","country":"country","fitScore":8,"why":"2 sentence explanation of why this is a good fit","requirements":"entry requirements for their subject","strengths":["strength 1","strength 2","strength 3"],"applyBy":"application deadline or cycle","reach":"match"}],"gaps":["gap to address 1","gap 2","gap 3"],"advice":"2-3 sentence application strategy"}
+
+unis: 8 universities, mix of safety/match/reach. reach: "safety", "match", or "reach".
+fitScore: 1-10. requirements: specific grade thresholds. Be honest about chances.
+
+Board: ${params.board}
+Grades: ${params.grade}
+Field: ${params.field}
+Countries: ${JSON.stringify(params.countries)}
+Additional: ${params.extra || "none"}`,
+      };
   }
 }
 
@@ -399,7 +567,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
@@ -451,7 +619,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate"];
+  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer"];
   const max_tokens = LARGE_TOOLS.includes(tool) ? 6000 : 2048;
 
   const message = await client.messages.create({
