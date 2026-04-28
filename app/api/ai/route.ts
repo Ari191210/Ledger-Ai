@@ -280,7 +280,7 @@ ${params.context ? `Additional context: ${params.context}` : ""}`,
       return {
         system: `${SAFETY_PREAMBLE}You are an expert interview coach. Always respond with valid JSON only — no markdown fences.`,
         userText: `Evaluate this interview answer. Respond with exactly this JSON shape:
-{"score":7,"strengths":["strength 1","strength 2"],"gaps":["gap 1","gap 2"],"sampleAnswer":"a strong model answer for this question in 3-4 sentences","tip":"one specific coaching tip for next time"}
+{"score":7,"strengths":["strength 1","strength 2"],"gaps":["gap 1","gap 2"],"betterAnswer":"a strong model answer for this question in 4-6 sentences — detailed, specific, and structured","tip":"one specific coaching tip for next time"}
 
 Question: ${params.question}
 Answer: ${params.answer}

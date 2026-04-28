@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 type Question = { q: string; tip: string };
-type Evaluation = { score: number; strengths: string[]; gaps: string[]; betterAnswer: string };
+type Evaluation = { score: number; strengths: string[]; gaps: string[]; betterAnswer: string; tip: string };
 
 const TYPES = [
   { v: "university", l: "University Admissions", sub: "Oxford, Oxbridge, Ivy League, scholarship panels" },
@@ -142,9 +142,17 @@ export default function InterviewPage() {
               {evaluation!.gaps.map((g, i) => <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}><span style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 11 }}>{String(i+1).padStart(2,"0")}</span><span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{g}</span></div>)}
             </div>
           </div>
-          <div style={{ border: "1px solid var(--ink)", padding: "18px" }}>
-            <div className="mono cin" style={{ marginBottom: 10 }}>Stronger answer</div>
-            <div style={{ fontFamily: "Georgia, serif", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)" }}>{evaluation!.betterAnswer}</div>
+          <div>
+            <div style={{ border: "2px solid var(--ink)", padding: "18px", marginBottom: 14 }}>
+              <div className="mono cin" style={{ marginBottom: 12 }}>Stronger answer</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.9, color: "var(--ink)" }}>{evaluation!.betterAnswer}</div>
+            </div>
+            {evaluation!.tip && (
+              <div style={{ border: "1px solid var(--rule)", padding: "14px 18px", background: "var(--paper-2)" }}>
+                <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 6 }}>COACHING TIP</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, color: "var(--ink)" }}>{evaluation!.tip}</div>
+              </div>
+            )}
           </div>
         </div>
         <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
