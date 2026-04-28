@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
+import Tracker from "@/components/tracker";
 import "./globals.css";
 
 const sourceSerif4 = Source_Serif_4({
@@ -44,7 +45,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#222222" />
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
-      <body><AuthProvider>{children}</AuthProvider></body>
+      <body><AuthProvider><Tracker />{children}</AuthProvider></body>
     </html>
   );
 }
