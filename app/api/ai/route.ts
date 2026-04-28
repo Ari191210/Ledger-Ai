@@ -8,7 +8,7 @@ const client = new Anthropic();
 // ── Content moderation ──────────────────────────────────────────────────────
 const BLOCKED_PATTERNS: RegExp[] = [
   // Self-harm / suicide
-  /\b(suicide|self[\s-]?harm|kill\s+(my|him|her|them)self|cut\s+my(self)?|overdose|slit\s+wrist)\b/i,
+  /\b(suicide|self[\s-]?harm|kill\s+(my|him|her|them)self|cut\s+myself|overdose|slit\s+wrist)\b/i,
   // Violence / weapons
   /\b(how\s+to\s+(make|build|create|assemble)\s+(a\s+)?(bomb|weapon|explosive|gun|knife\s+attack|poison))\b/i,
   /\b(kill|murder|attack|stab|shoot|bomb)\s+(a\s+)?(person|people|student|teacher|school|human)\b/i,
@@ -225,7 +225,7 @@ Rules:
 - Questions should test understanding, not just recall
 - Answers should be 1-3 sentences max
 - Mix definition, application, and "why" questions
-${params.notes ? `\nStudent's notes to base cards on:\n${params.notes}` : `\nTopic: ${params.topic}`}
+${(params.content || params.notes) ? `\nStudent's notes to base cards on:\n${params.content || params.notes}` : `\nTopic: ${params.subject || params.topic}`}
 Level: ${params.level || "A-Level"}`,
       };
 
@@ -233,7 +233,7 @@ Level: ${params.level || "A-Level"}`,
       return {
         system: `${SAFETY_PREAMBLE}You are an experienced examiner and writing coach. Always respond with valid JSON only — no markdown fences.`,
         userText: `Grade this student essay. Respond with exactly this JSON shape:
-{"overall":{"grade":"A","band":"Excellent","score":85,"max":100},"criteria":[{"name":"Argument & Analysis","score":22,"max":25,"feedback":"specific feedback"},{"name":"Evidence & Examples","score":20,"max":25,"feedback":"specific feedback"},{"name":"Structure & Coherence","score":21,"max":25,"feedback":"specific feedback"},{"name":"Language & Style","score":22,"max":25,"feedback":"specific feedback"}],"strengths":["strength 1","strength 2","strength 3"],"improvements":["improvement 1","improvement 2","improvement 3"],"summary":"2-3 sentence overall assessment","openingRewrite":"rewritten opening sentence if weak, or null"}
+{"overall":"A","band":"Excellent","totalScore":85,"maxScore":100,"criteria":[{"name":"Argument & Analysis","score":22,"max":25,"feedback":"specific feedback"},{"name":"Evidence & Examples","score":20,"max":25,"feedback":"specific feedback"},{"name":"Structure & Coherence","score":21,"max":25,"feedback":"specific feedback"},{"name":"Language & Style","score":22,"max":25,"feedback":"specific feedback"}],"strengths":["strength 1","strength 2","strength 3"],"improvements":["improvement 1","improvement 2","improvement 3"],"summary":"2-3 sentence overall assessment"}
 
 Subject: ${params.subject}
 Level: ${params.level || "A-Level"}
@@ -248,18 +248,20 @@ ${params.essay}`,
       return {
         system: `${SAFETY_PREAMBLE}You are a university admissions writing coach who has read thousands of personal statements. Always respond with valid JSON only — no markdown fences.`,
         userText: `Analyse this personal statement and give detailed, honest feedback. Respond with exactly this JSON shape:
-{"score":7,"hook":{"rating":"strong/adequate/weak","comment":"specific comment on the opening"},"structure":{"rating":"strong/adequate/weak","comment":"comment on overall flow and structure"},"paragraphs":[{"index":1,"strength":"what works","suggestion":"specific improvement"}],"tone":"comment on voice and authenticity","suggestions":["actionable suggestion 1","actionable suggestion 2","actionable suggestion 3","actionable suggestion 4"],"openingRewrite":"rewritten opening 2-3 sentences that would be stronger"}
+{"score":7,"hook":"comment on the opening hook — is it strong, specific, memorable?","structure":["observation about overall structure 1","observation 2","observation 3"],"paragraphNotes":["brief note on paragraph 1","note on paragraph 2","note on paragraph 3","note on paragraph 4","note on paragraph 5"],"tone":"comment on voice, authenticity, and register","suggestions":["actionable suggestion 1","actionable suggestion 2","actionable suggestion 3","actionable suggestion 4"],"rewrite":"rewritten opening 2-3 sentences that would be stronger"}
 
 Rules:
 - score: 1-10 overall
-- paragraphs: analyse each paragraph (up to 6)
+- hook: 1-2 sentences commenting on whether the opening is compelling
+- structure: 3-4 string observations about overall flow and structure
+- paragraphNotes: one string note per paragraph (up to 6), each 1-2 sentences
 - Be honest — if it's generic or weak, say so clearly
 - suggestions must be specific and actionable
 
 Personal statement:
-${params.text}
-Word count: ${params.wordCount}
-Target: ${params.target || "UK university"}`,
+${params.ps}
+Word count: ${params.limit}
+Target: ${params.uni ? `${params.uni}${params.course ? " — " + params.course : ""}` : "UK university"}`,
       };
 
     case "interview_questions":
@@ -619,7 +621,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer"];
+  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer", "career", "tutor", "mindmap", "mark_scheme_eval", "subject_picker", "paper_dissector"];
   const max_tokens = LARGE_TOOLS.includes(tool) ? 6000 : 2048;
 
   const message = await client.messages.create({
