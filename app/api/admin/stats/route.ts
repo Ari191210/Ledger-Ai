@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { verifyPassword } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,10 @@ const supabase = createClient(
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  if (searchParams.get("key") !== process.env.ADMIN_KEY) {
+  const submitted = searchParams.get("key") ?? "";
+  const stored    = process.env.ADMIN_KEY ?? "";
+  const ok        = await verifyPassword(submitted, stored);
+  if (!ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
