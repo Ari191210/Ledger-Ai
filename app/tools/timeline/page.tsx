@@ -33,7 +33,7 @@ export default function TimelinePage() {
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 49 · Timeline Builder</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Timeline Builder</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>{result.period}</div>
         </div>
         <button className="btn ghost" onClick={() => setResult(null)}>New timeline</button>
@@ -81,7 +81,7 @@ export default function TimelinePage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 49 · Timeline Builder</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Timeline Builder</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Chronology, annotated.</div>

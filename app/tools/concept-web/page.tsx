@@ -35,7 +35,7 @@ export default function ConceptWebPage() {
   if (web) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 35 · Concept Web · {web.center}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Concept Web · {web.center}</div>
         <button className="btn ghost" onClick={() => setWeb(null)}>New web</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 860, margin: "0 auto" }}>
@@ -84,7 +84,7 @@ export default function ConceptWebPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 35 · Concept Web</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Concept Web</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 600, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>See the connections</div>

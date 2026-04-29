@@ -42,7 +42,7 @@ export default function LabReportPage() {
   if (report) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 39 · Lab Report Builder · {board} {subject}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Lab Report Builder · {board} {subject}</div>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn ghost" onClick={copyAll}>{copied ? "Copied!" : "Copy all"}</button>
           <button className="btn ghost" onClick={() => setReport(null)}>New report</button>
@@ -98,7 +98,7 @@ export default function LabReportPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 39 · Lab Report Builder</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Lab Report Builder</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Write it right, first time</div>

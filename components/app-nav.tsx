@@ -7,94 +7,94 @@ import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
 import CommandPalette from "./command-palette";
 
-type Tool = { n: string; slug: string; full: string; sub: string };
+type Tool = { slug: string; full: string; sub: string };
 type Category = { label: string; tools: Tool[] };
 
 const CATEGORIES: Category[] = [
   {
     label: "PLAN",
     tools: [
-      { n: "01", slug: "planner",      full: "Smart Study Planner",  sub: "Subjects in. Timetable out."          },
-      { n: "05", slug: "focus",        full: "Focus Dashboard",      sub: "Pomodoro, streaks, tasks."            },
-      { n: "25", slug: "habits",       full: "Habit Tracker",        sub: "Build study habits that stick."       },
-      { n: "26", slug: "deadlines",    full: "Deadline Hub",         sub: "Every deadline. Never miss one."      },
-      { n: "36", slug: "exam-planner", full: "Exam Season Planner",  sub: "Spaced repetition, automatically."    },
+      { slug: "planner",      full: "Smart Study Planner",  sub: "Subjects in. Timetable out."          },
+      { slug: "focus",        full: "Focus Dashboard",      sub: "Pomodoro, streaks, tasks."            },
+      { slug: "habits",       full: "Habit Tracker",        sub: "Build study habits that stick."       },
+      { slug: "deadlines",    full: "Deadline Hub",         sub: "Every deadline. Never miss one."      },
+      { slug: "exam-planner", full: "Exam Season Planner",  sub: "Spaced repetition, automatically."    },
     ],
   },
   {
     label: "LEARN",
     tools: [
-      { n: "03", slug: "notes",        full: "Notes Simplifier",     sub: "Textbook → plain English."            },
-      { n: "04", slug: "doubt",        full: "Doubt Solver",         sub: "A question, a worked answer."         },
-      { n: "11", slug: "tutor",        full: "Topic Tutor",          sub: "Pick a topic. Get a full lesson."     },
-      { n: "14", slug: "syllabus",     full: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped."    },
-      { n: "21", slug: "mindmap",      full: "Mind Map Builder",     sub: "Any topic. Full concept breakdown."   },
-      { n: "35", slug: "concept-web",  full: "Concept Web",          sub: "Any concept, fully mapped."           },
-      { n: "15", slug: "formula",      full: "Formula Sheet",        sub: "Chapter → complete reference card."   },
-      { n: "38", slug: "lang-analyzer",full: "Language Analyzer",    sub: "Unseen text, fully decoded."          },
-      { n: "29", slug: "vocab",        full: "Vocabulary Vault",     sub: "Deep word learning with memory hooks."},
+      { slug: "notes",        full: "Notes Simplifier",     sub: "Textbook → plain English."            },
+      { slug: "doubt",        full: "Doubt Solver",         sub: "A question, a worked answer."         },
+      { slug: "tutor",        full: "Topic Tutor",          sub: "Pick a topic. Get a full lesson."     },
+      { slug: "syllabus",     full: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped."    },
+      { slug: "mindmap",      full: "Mind Map Builder",     sub: "Any topic. Full concept breakdown."   },
+      { slug: "concept-web",  full: "Concept Web",          sub: "Any concept, fully mapped."           },
+      { slug: "formula",      full: "Formula Sheet",        sub: "Chapter → complete reference card."   },
+      { slug: "lang-analyzer",full: "Language Analyzer",    sub: "Unseen text, fully decoded."          },
+      { slug: "vocab",        full: "Vocabulary Vault",     sub: "Deep word learning with memory hooks."},
     ],
   },
   {
     label: "WRITE",
     tools: [
-      { n: "08", slug: "assignment",         full: "Assignment Rescue",    sub: "From prompt to outline."                  },
-      { n: "18", slug: "essay-grader",       full: "Essay Grader",         sub: "Paste essay. Get examiner marks."          },
-      { n: "19", slug: "personal-statement", full: "Personal Statement",   sub: "Score your application essay."             },
-      { n: "34", slug: "essay-blueprint",    full: "Essay Blueprint",      sub: "Structure before you write."               },
-      { n: "30", slug: "research",           full: "Research Assistant",   sub: "Any topic. Arguments, stats, angles."      },
-      { n: "23", slug: "presentation",       full: "Presentation Planner", sub: "Topic → full slide deck with notes."       },
-      { n: "24", slug: "debate",             full: "Debate Coach",         sub: "Any motion. Arguments both ways."          },
-      { n: "22", slug: "citation",           full: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard — instantly."   },
-      { n: "39", slug: "lab-report",         full: "Lab Report Builder",   sub: "Turn experiments into full reports."       },
-      { n: "44", slug: "argument",        full: "Argument Builder",      sub: "P-E-E-L plan from any claim."              },
-      { n: "51", slug: "grammar",         full: "Grammar Coach",         sub: "Improve academic writing instantly."        },
-      { n: "55", slug: "model-answer",    full: "Model Answer Factory",  sub: "See what full marks looks like."           },
+      { slug: "assignment",         full: "Assignment Rescue",    sub: "From prompt to outline."                  },
+      { slug: "essay-grader",       full: "Essay Grader",         sub: "Paste essay. Get examiner marks."          },
+      { slug: "personal-statement", full: "Personal Statement",   sub: "Score your application essay."             },
+      { slug: "essay-blueprint",    full: "Essay Blueprint",      sub: "Structure before you write."               },
+      { slug: "research",           full: "Research Assistant",   sub: "Any topic. Arguments, stats, angles."      },
+      { slug: "presentation",       full: "Presentation Planner", sub: "Topic → full slide deck with notes."       },
+      { slug: "debate",             full: "Debate Coach",         sub: "Any motion. Arguments both ways."          },
+      { slug: "citation",           full: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard — instantly."   },
+      { slug: "lab-report",         full: "Lab Report Builder",   sub: "Turn experiments into full reports."       },
+      { slug: "argument",           full: "Argument Builder",     sub: "P-E-E-L plan from any claim."              },
+      { slug: "grammar",            full: "Grammar Coach",        sub: "Improve academic writing instantly."       },
+      { slug: "model-answer",       full: "Model Answer Factory", sub: "See what full marks looks like."           },
     ],
   },
   {
     label: "PRACTISE",
     tools: [
-      { n: "07", slug: "papers",          full: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB."             },
-      { n: "17", slug: "flashcards",      full: "AI Flashcards",       sub: "Topic or notes → flip cards."          },
-      { n: "27", slug: "exam-sim",        full: "Exam Simulator",       sub: "Timed AI exam. Full explanations."     },
-      { n: "32", slug: "mark-scheme",     full: "Mark Scheme Trainer", sub: "Real questions. Real marking."          },
-      { n: "37", slug: "paper-dissector", full: "Paper Dissector",     sub: "Decode what examiners want."            },
-      { n: "43", slug: "practice",        full: "Practice Problems",   sub: "Graded problems, worked solutions."     },
-      { n: "13", slug: "crunch",          full: "48-Hour Crunch",      sub: "Exam tomorrow. Smart triage."           },
-      { n: "12", slug: "dna",              full: "Mistake DNA",          sub: "See exactly where you go wrong."        },
-      { n: "45", slug: "predict",          full: "Question Predictor",   sub: "Predict likely exam questions."         },
-      { n: "46", slug: "memory-palace",    full: "Memory Palace",        sub: "Walk through it. Never forget it."      },
-      { n: "47", slug: "analogy",          full: "Analogy Engine",       sub: "Complex concepts, memorably explained." },
-      { n: "53", slug: "exam-strategy",    full: "Exam Strategy",        sub: "Personalised exam-day plan."            },
+      { slug: "papers",          full: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB."             },
+      { slug: "flashcards",      full: "AI Flashcards",       sub: "Topic or notes → flip cards."          },
+      { slug: "exam-sim",        full: "Exam Simulator",      sub: "Timed AI exam. Full explanations."     },
+      { slug: "mark-scheme",     full: "Mark Scheme Trainer", sub: "Real questions. Real marking."          },
+      { slug: "paper-dissector", full: "Paper Dissector",     sub: "Decode what examiners want."            },
+      { slug: "practice",        full: "Practice Problems",   sub: "Graded problems, worked solutions."     },
+      { slug: "crunch",          full: "48-Hour Crunch",      sub: "Exam tomorrow. Smart triage."           },
+      { slug: "dna",             full: "Mistake DNA",         sub: "See exactly where you go wrong."        },
+      { slug: "predict",         full: "Question Predictor",  sub: "Predict likely exam questions."         },
+      { slug: "memory-palace",   full: "Memory Palace",       sub: "Walk through it. Never forget it."      },
+      { slug: "analogy",         full: "Analogy Engine",      sub: "Complex concepts, memorably explained." },
+      { slug: "exam-strategy",   full: "Exam Strategy",       sub: "Personalised exam-day plan."            },
     ],
   },
   {
     label: "FUTURE",
     tools: [
-      { n: "06", slug: "career",          full: "Career Pathfinder",    sub: "For the 14–18 year olds."              },
-      { n: "16", slug: "admissions",      full: "Admissions Engine",    sub: "Your real odds. 60 universities."      },
-      { n: "09", slug: "resume",          full: "Resume Builder",       sub: "For applications, not LinkedIn."       },
-      { n: "20", slug: "interview",       full: "Interview Coach",      sub: "Practice. Get scored. Improve."        },
-      { n: "33", slug: "subject-picker",  full: "Subject Picker",       sub: "Find the perfect Grade 11 combination."},
-      { n: "40", slug: "uni-match",       full: "University Match",     sub: "Your grades. Your field. Your matches."},
-      { n: "28", slug: "gpa-sim",         full: "GPA Simulator",        sub: "Model your grades. Plan your GPA."     },
+      { slug: "career",          full: "Career Pathfinder",    sub: "For the 14–18 year olds."              },
+      { slug: "admissions",      full: "Admissions Engine",    sub: "Your real odds. 60 universities."      },
+      { slug: "resume",          full: "Resume Builder",       sub: "For applications, not LinkedIn."       },
+      { slug: "interview",       full: "Interview Coach",      sub: "Practice. Get scored. Improve."        },
+      { slug: "subject-picker",  full: "Subject Picker",       sub: "Find the perfect Grade 11 combination."},
+      { slug: "uni-match",       full: "University Match",     sub: "Your grades. Your field. Your matches."},
+      { slug: "gpa-sim",         full: "GPA Simulator",        sub: "Model your grades. Plan your GPA."     },
     ],
   },
   {
     label: "TRACK",
     tools: [
-      { n: "02", slug: "marks",   full: "Marks Predictor",  sub: "The math of your report card."   },
-      { n: "31", slug: "coach",   full: "AI Study Coach",   sub: "Daily briefing + chat."           },
-      { n: "10", slug: "rooms",   full: "Study Rooms",      sub: "Silent accountability."           },
-      { n: "41", slug: "compare", full: "Comparison Chart", sub: "Any concepts, side by side."      },
-      { n: "42", slug: "source",        full: "Source Analyzer",   sub: "OPCVL analysis in seconds."       },
-      { n: "48", slug: "case-study",   full: "Case Study Pro",   sub: "Business analysis in seconds."    },
-      { n: "49", slug: "timeline",     full: "Timeline Builder",  sub: "Annotated timelines instantly."   },
-      { n: "50", slug: "reading",      full: "Reading Companion", sub: "Full passage analysis + Qs."      },
-      { n: "52", slug: "study-guide",  full: "Study Guide",      sub: "Comprehensive guide any topic."    },
-      { n: "54", slug: "concept-connect", full: "Concept Connect", sub: "Find hidden links between ideas." },
-      { n: "★",  slug: "score",        full: "Ledger Score™",    sub: "Your real-time exam readiness."   },
+      { slug: "marks",          full: "Marks Predictor",   sub: "The math of your report card."   },
+      { slug: "coach",          full: "AI Study Coach",    sub: "Daily briefing + chat."           },
+      { slug: "rooms",          full: "Study Rooms",       sub: "Silent accountability."           },
+      { slug: "compare",        full: "Comparison Chart",  sub: "Any concepts, side by side."      },
+      { slug: "source",         full: "Source Analyzer",   sub: "OPCVL analysis in seconds."       },
+      { slug: "case-study",     full: "Case Study Pro",    sub: "Business analysis in seconds."    },
+      { slug: "timeline",       full: "Timeline Builder",  sub: "Annotated timelines instantly."   },
+      { slug: "reading",        full: "Reading Companion", sub: "Full passage analysis + Qs."      },
+      { slug: "study-guide",    full: "Study Guide",       sub: "Comprehensive guide any topic."    },
+      { slug: "concept-connect",full: "Concept Connect",   sub: "Find hidden links between ideas." },
+      { slug: "score",          full: "Ledger Score™",     sub: "Your real-time exam readiness."   },
     ],
   },
 ];
@@ -104,9 +104,6 @@ const TOOLS: Tool[] = CATEGORIES.flatMap(c => c.tools);
 function ToolRow({ t, onOpen, onSplit }: { t: Tool; onOpen: (s: string) => void; onSplit: (s: string) => void }) {
   return (
     <div style={{ borderBottom: "1px solid var(--rule)", padding: "11px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ width: 24, flexShrink: 0 }}>
-        <span className="mono" style={{ fontSize: 9, color: t.n === "★" ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>{t.n}</span>
-      </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.full}</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.sub}</div>
@@ -161,7 +158,7 @@ export default function AppNav() {
   const isProfile = path === "/dashboard/profile";
   const initial   = (displayName || "?")[0].toUpperCase();
   const filtered  = TOOLS.filter(t =>
-    !q || t.full.toLowerCase().includes(q.toLowerCase()) || t.sub.toLowerCase().includes(q.toLowerCase()) || t.n.includes(q)
+    !q || t.full.toLowerCase().includes(q.toLowerCase()) || t.sub.toLowerCase().includes(q.toLowerCase())
   );
 
   return (
@@ -267,7 +264,7 @@ export default function AppNav() {
           ) : (
             CATEGORIES.map(cat => {
               const catTools = cat.tools.filter(t =>
-                !q || t.full.toLowerCase().includes(q.toLowerCase()) || t.sub.toLowerCase().includes(q.toLowerCase()) || t.n.includes(q)
+                !q || t.full.toLowerCase().includes(q.toLowerCase()) || t.sub.toLowerCase().includes(q.toLowerCase())
               );
               if (catTools.length === 0) return null;
               return (

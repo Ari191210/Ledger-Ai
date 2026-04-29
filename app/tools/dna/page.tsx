@@ -27,7 +27,7 @@ export default function DNAPage() {
     return (
       <div>
         <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 12 · Mistake DNA</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Mistake DNA</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>No data yet.</div>
         </header>
         <main className="mob-p" style={{ padding: "80px 44px", maxWidth: 600, margin: "0 auto" }}>
@@ -66,7 +66,7 @@ export default function DNAPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 12 · Mistake DNA</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Mistake DNA</div>
         <div className="mono" style={{ color: "var(--ink-3)" }}>{total} mistake{total !== 1 ? "s" : ""} logged</div>
       </header>
 
@@ -149,7 +149,7 @@ export default function DNAPage() {
 
         <div style={{ borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 12 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>

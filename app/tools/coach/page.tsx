@@ -81,7 +81,7 @@ export default function CoachPage() {
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 31 · AI Study Coach</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>AI Study Coach</div>
           <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 13, color: "var(--ink-2)", marginTop: 3 }}>{ctx?.date || ""}</div>
         </div>
         <div style={{ padding: "6px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", alignItems: "center", gap: 6 }}>

@@ -73,7 +73,7 @@ export default function HabitsPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 25 · Habit Tracker</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Habit Tracker</div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span className="mono" style={{ color: score >= 70 ? "#2d7a3c" : score >= 40 ? "#c97a1a" : "var(--cinnabar-ink)" }}>This week: {score}%</span>
         </div>
@@ -151,7 +151,7 @@ export default function HabitsPage() {
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 25 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>

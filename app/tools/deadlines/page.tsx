@@ -91,7 +91,7 @@ export default function DeadlinesPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 26 · Deadline Hub</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Deadline Hub</div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           {overdue > 0 && <span className="mono" style={{ color: "#c44b2a", fontSize: 11 }}>{overdue} overdue</span>}
           {dueThis7 > 0 && <span className="mono" style={{ color: "#c97a1a", fontSize: 11 }}>{dueThis7} this week</span>}
@@ -207,7 +207,7 @@ export default function DeadlinesPage() {
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 26 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>

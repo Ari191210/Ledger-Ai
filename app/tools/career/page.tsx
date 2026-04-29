@@ -69,7 +69,7 @@ export default function CareerPage() {
     <TierGate requires="pro">
       <div>
         <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 06 · Career Pathfinder · Your Profile</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Career Pathfinder · Your Profile</div>
           <button className="btn ghost" onClick={() => { setOutput(null); setAnswers({}); setStep(0); }}>Retake quiz</button>
         </header>
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
@@ -142,7 +142,7 @@ export default function CareerPage() {
 
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
             <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-            <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 06 of 44.</div>
+            <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
           </div>
         </main>
       </div>
@@ -153,7 +153,7 @@ export default function CareerPage() {
     <TierGate requires="pro">
       <div>
         <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 06 · Career Pathfinder</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Career Pathfinder</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Question {step + 1} of {QUESTIONS.length}</div>
         </header>
 
@@ -205,7 +205,7 @@ export default function CareerPage() {
 
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
             <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-            <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 06 of 44.</div>
+            <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
           </div>
         </main>
       </div>

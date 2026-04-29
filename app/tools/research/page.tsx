@@ -55,7 +55,7 @@ export default function ResearchPage() {
   if (!data) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 30 · Research Assistant</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Research Assistant</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 680, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Deep research, instantly</div>
@@ -96,7 +96,7 @@ export default function ResearchPage() {
         </button>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 30 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>
@@ -105,7 +105,7 @@ export default function ResearchPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "20px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 30 · Research Assistant</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Research Assistant</div>
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={copyAll} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "7px 14px", border: "1px solid var(--ink)", background: copied ? "#2d7a3c" : "var(--paper)", color: copied ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
             {copied ? "Copied ✓" : "Copy all"}
@@ -222,7 +222,7 @@ export default function ResearchPage() {
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 30 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>

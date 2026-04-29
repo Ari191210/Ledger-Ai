@@ -33,7 +33,7 @@ export default function PaperDissectorPage() {
   if (analysis) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 37 · Paper Dissector · {board} {subject}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Paper Dissector · {board} {subject}</div>
         <button className="btn ghost" onClick={() => setAnalysis(null)}>New question</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 900, margin: "0 auto" }}>
@@ -110,7 +110,7 @@ export default function PaperDissectorPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 37 · Paper Dissector</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Paper Dissector</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Decode what examiners want</div>

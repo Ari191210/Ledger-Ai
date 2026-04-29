@@ -37,7 +37,7 @@ export default function LangAnalyzerPage() {
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
         <div>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 38 · Language Analyzer · {analysis.type}</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Language Analyzer · {analysis.type}</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Audience: {analysis.audience} · Purpose: {analysis.purpose}</div>
         </div>
         <button className="btn ghost" onClick={() => setAnalysis(null)}>New text</button>
@@ -113,7 +113,7 @@ export default function LangAnalyzerPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 38 · Language Analyzer</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Language Analyzer</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Unseen text, fully decoded</div>

@@ -30,7 +30,7 @@ export default function CaseStudyPage() {
   if (result) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 48 · Case Study Pro · {result.title}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Case Study Pro · {result.title}</div>
         <button className="btn ghost" onClick={() => setResult(null)}>New case</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 860, margin: "0 auto" }}>
@@ -89,7 +89,7 @@ export default function CaseStudyPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 48 · Case Study Pro</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Case Study Pro</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Structure. Analyse. Recommend.</div>

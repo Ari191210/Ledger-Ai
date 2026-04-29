@@ -150,7 +150,7 @@ export default function NotesPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 03 · Notes Simplifier</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Notes Simplifier</div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           {history.length > 0 && (
             <button onClick={() => setShowHistory(!showHistory)} className="btn ghost" style={{ padding: "6px 14px", fontSize: 11 }}>
@@ -245,7 +245,7 @@ export default function NotesPage() {
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 03 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>

@@ -37,7 +37,7 @@ export default function EssayGraderPage() {
   if (grade) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 18 · Essay Grader · Results</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Essay Grader · Results</div>
         <button className="btn ghost" onClick={() => setGrade(null)}>Grade another →</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1100, margin: "0 auto" }}>
@@ -94,7 +94,7 @@ export default function EssayGraderPage() {
         </div>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 18 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>
@@ -103,7 +103,7 @@ export default function EssayGraderPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 18 · Essay Grader</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Essay Grader</div>
         <div className="mono" style={{ color: "var(--ink-3)" }}>{wc} words</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 800, margin: "0 auto" }}>
@@ -145,7 +145,7 @@ export default function EssayGraderPage() {
         </button>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 18 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>

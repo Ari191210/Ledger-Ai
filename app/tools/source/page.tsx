@@ -47,7 +47,7 @@ export default function SourcePage() {
   if (analysis) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 42 · Source Analyzer · {subject}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Source Analyzer · {subject}</div>
         <button className="btn ghost" onClick={() => setAnalysis(null)}>New source</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 860, margin: "0 auto" }}>
@@ -124,7 +124,7 @@ export default function SourcePage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 42 · Source Analyzer</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Source Analyzer</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Origin. Purpose. Value. Limitation.</div>

@@ -53,7 +53,7 @@ export default function InterviewPage() {
   if (phase === "setup") return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 20 · Interview Prep</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Interview Prep</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 680, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Set up your session</div>
@@ -82,7 +82,7 @@ export default function InterviewPage() {
         </button>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 20 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>
@@ -93,7 +93,7 @@ export default function InterviewPage() {
   if (phase === "practice") return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 20 · Interview Prep · Question {qIdx + 1} of {questions.length}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Interview Prep · Question {qIdx + 1} of {questions.length}</div>
         <button className="btn ghost" onClick={() => setPhase("setup")}>New session</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 720, margin: "0 auto" }}>
@@ -122,7 +122,7 @@ export default function InterviewPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 20 · Interview Prep · Feedback</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Interview Prep · Feedback</div>
         <button className="btn ghost" onClick={nextQ}>Next question →</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 900, margin: "0 auto" }}>

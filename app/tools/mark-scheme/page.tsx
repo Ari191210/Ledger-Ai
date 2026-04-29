@@ -48,7 +48,7 @@ export default function MarkSchemePage() {
   if (phase === "setup") return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 32 · Mark Scheme Trainer</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Mark Scheme Trainer</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Practice like an examiner marks</div>
@@ -97,7 +97,7 @@ export default function MarkSchemePage() {
   if (phase === "answer") return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 32 · Mark Scheme Trainer · {board} {subject} · {question!.totalMarks} marks</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Mark Scheme Trainer · {board} {subject} · {question!.totalMarks} marks</div>
         <button className="btn ghost" onClick={() => setPhase("setup")}>New question</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 720, margin: "0 auto" }}>
@@ -134,7 +134,7 @@ export default function MarkSchemePage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 32 · Mark Scheme Trainer · Result</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Mark Scheme Trainer · Result</div>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn ghost" onClick={() => { setPhase("answer"); setFeedback(null); }}>Retry</button>
           <button className="btn" onClick={() => setPhase("setup")}>New question</button>

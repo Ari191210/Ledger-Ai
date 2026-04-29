@@ -27,7 +27,7 @@ export default function ConceptConnectPage() {
   if (result) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 54 · Concept Connect · {result.conceptA} ↔ {result.conceptB}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Concept Connect · {result.conceptA} ↔ {result.conceptB}</div>
         <button className="btn ghost" onClick={() => setResult(null)}>New connection</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 820, margin: "0 auto" }}>
@@ -80,7 +80,7 @@ export default function ConceptConnectPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 54 · Concept Connect</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Concept Connect</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Everything connects.</div>

@@ -69,7 +69,7 @@ export default function ExamSimPage() {
   if (phase === "setup") return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 27 · Exam Simulator</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Exam Simulator</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 680, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Simulate your exam</div>
@@ -104,7 +104,7 @@ export default function ExamSimPage() {
         </button>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 27 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>
@@ -190,7 +190,7 @@ export default function ExamSimPage() {
     return (
       <div>
         <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 27 · Exam Simulator · Results</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Exam Simulator · Results</div>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn ghost" onClick={() => window.print()}>Print ↗</button>
             <button className="btn ghost" onClick={restart}>New exam</button>
@@ -260,7 +260,7 @@ export default function ExamSimPage() {
 
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
             <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-            <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 27 of 44.</div>
+            <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
           </div>
         </main>
       </div>

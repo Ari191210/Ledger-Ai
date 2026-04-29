@@ -289,7 +289,7 @@ export default function AdmissionsPage() {
     <TierGate requires="pro">
       <div>
         <header className="mob-hp" style={{ padding:"20px 44px", borderBottom:"1px solid var(--ink)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div className="mono" style={{ color:"var(--ink-3)" }}>Tool 16 · Admissions Engine</div>
+          <div className="mono" style={{ color:"var(--ink-3)" }}>Admissions Engine</div>
           <div className="mono" style={{ color:"var(--ink-3)" }}>Step {step+1} of 2 · Profile setup</div>
         </header>
         <main className="mob-p" style={{ padding:"40px 44px 80px", maxWidth:680, margin:"0 auto" }}>
@@ -456,7 +456,7 @@ export default function AdmissionsPage() {
 
           <div style={{ marginTop:60, borderTop:"1px solid var(--ink)", paddingTop:20, display:"flex", justifyContent:"space-between" }}>
             <Link href="/dashboard" className="mono" style={{ color:"var(--ink-3)" }}>← Dashboard</Link>
-            <div className="mono" style={{ color:"var(--ink-3)" }}>Tool 16 of 44.</div>
+            <div className="mono" style={{ color:"var(--ink-3)" }}>Ledger.</div>
           </div>
         </main>
       </div>
@@ -469,7 +469,7 @@ export default function AdmissionsPage() {
       <div style={{ display:"flex", flexDirection:"column", height:"100vh" }}>
         {/* Header */}
         <div style={{ padding:"14px 24px", borderBottom:"1px solid var(--ink)", display:"flex", gap:16, alignItems:"center", flexShrink:0, flexWrap:"wrap" }}>
-          <div className="mono" style={{ color:"var(--ink-3)", flexShrink:0 }}>Tool 16 · School Explorer</div>
+          <div className="mono" style={{ color:"var(--ink-3)", flexShrink:0 }}>School Explorer</div>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search school, city, or program (e.g. Engineering, London, CS)…"
             style={{ flex:1, minWidth:200, fontFamily:"var(--sans)", fontSize:13, border:"1px solid var(--ink)", background:"var(--paper)", padding:"8px 12px", color:"var(--ink)" }} />
           <div style={{ display:"flex", gap:0, border:"1px solid var(--rule)", flexShrink:0 }}>
@@ -650,7 +650,7 @@ export default function AdmissionsPage() {
     <TierGate requires="pro">
       <div>
         <header className="mob-hp" style={{ padding:"14px 24px", borderBottom:"1px solid var(--ink)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:10 }}>
-          <div className="mono" style={{ color:"var(--ink-3)" }}>Tool 16 · My Admissions List · {shortlist.length} school{shortlist.length!==1?"s":""}</div>
+          <div className="mono" style={{ color:"var(--ink-3)" }}>My Admissions List · {shortlist.length} school{shortlist.length!==1?"s":""}</div>
           <div style={{ display:"flex", gap:8 }}>
             <button className="btn ghost" onClick={()=>setPhase("explorer")}>← Explorer</button>
             <button className="btn ghost" onClick={()=>setPhase("profile")}>Edit profile</button>
@@ -793,7 +793,7 @@ export default function AdmissionsPage() {
 
           <div style={{ marginTop:60, borderTop:"1px solid var(--ink)", paddingTop:20, display:"flex", justifyContent:"space-between" }}>
             <Link href="/dashboard" className="mono" style={{ color:"var(--ink-3)" }}>← Dashboard</Link>
-            <div className="mono" style={{ color:"var(--ink-3)" }}>Tool 16 of 44.</div>
+            <div className="mono" style={{ color:"var(--ink-3)" }}>Ledger.</div>
           </div>
         </main>
       </div>

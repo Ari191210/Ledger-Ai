@@ -37,7 +37,7 @@ export default function ModelAnswerPage() {
   if (result) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 55 · Model Answer · {result.marks} marks</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Model Answer · {result.marks} marks</div>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn ghost" onClick={copy}>{copied ? "Copied!" : "Copy answer"}</button>
           <button className="btn ghost" onClick={() => setResult(null)}>New question</button>
@@ -87,7 +87,7 @@ export default function ModelAnswerPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 55 · Model Answer Factory</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Model Answer Factory</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>See what full marks looks like.</div>

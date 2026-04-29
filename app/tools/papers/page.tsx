@@ -135,7 +135,7 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
             {Object.keys(mistakeTags).length > 0 && !logged && (
               <button className="btn ghost" onClick={logMistakes} style={{ marginTop: 4 }}>Save to Mistake DNA →</button>
             )}
-            {logged && <div className="mono" style={{ color: "var(--cinnabar-ink)", marginTop: 8 }}>Saved — view your profile in Tool 12 · Mistake DNA.</div>}
+            {logged && <div className="mono" style={{ color: "var(--cinnabar-ink)", marginTop: 8 }}>Saved — view your profile in Mistake DNA.</div>}
           </div>
         )}
 
@@ -233,7 +233,7 @@ export default function PapersPage() {
   if (practice) return (
     <div>
       <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 07 · Past Papers · Practice Mode</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Past Papers · Practice Mode</div>
       </header>
       <main className="mob-p" style={{ padding: "0 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
         <PracticeMode state={practice} setState={(s) => setPractice(s)} userId={user?.id} />
@@ -245,7 +245,7 @@ export default function PapersPage() {
     <TierGate requires="pro">
       <div>
         <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between" }}>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 07 · Past Papers</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Past Papers</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>{PAPERS.length} papers · {PAPERS.reduce((s, p) => s + p.questions.length, 0)} questions in pool</div>
         </header>
 
@@ -298,7 +298,7 @@ export default function PapersPage() {
 
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
             <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-            <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 07 of 44.</div>
+            <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
           </div>
         </main>
       </div>

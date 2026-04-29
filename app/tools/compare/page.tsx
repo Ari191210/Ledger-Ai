@@ -34,7 +34,7 @@ export default function ComparePage() {
   if (chart) return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 41 · Comparison Chart</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Comparison Chart</div>
         <button className="btn ghost" onClick={() => setChart(null)}>New comparison</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 960, margin: "0 auto" }}>
@@ -92,7 +92,7 @@ export default function ComparePage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 41 · Comparison Chart</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Comparison Chart</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Side by side, instantly</div>

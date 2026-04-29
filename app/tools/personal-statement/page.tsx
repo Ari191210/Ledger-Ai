@@ -36,7 +36,7 @@ export default function PersonalStatementPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 19 · Personal Statement Coach</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Personal Statement Coach</div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span className="mono" style={{ color: wcColor }}>{wc} / {limit} words</span>
           {feedback && <button className="btn ghost" onClick={() => setFeedback(null)}>Edit</button>}
@@ -144,7 +144,7 @@ export default function PersonalStatementPage() {
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 19 of 44.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>
     </div>
