@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type MarkScheme = { question: string; totalMarks: number; markScheme: { criterion: string; marks: number; detail: string }[]; hint: string };
 type Feedback   = { marksEarned: number; totalMarks: number; breakdown: { criterion: string; earned: number; max: number; comment: string }[]; missing: string[]; improved: string };
@@ -24,7 +25,7 @@ export default function MarkSchemePage() {
     if (!topic.trim()) { setError("Enter a topic."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "mark_scheme", board, subject, topic, marks }) });
+      const res  = await callAI({ tool: "mark_scheme", board, subject, topic, marks });
       const data = await res.json();
       if (!res.ok || !data.question) { setError("Could not generate question."); return; }
       setQuestion(data); setPhase("answer"); setAnswer(""); setFeedback(null);
@@ -36,7 +37,7 @@ export default function MarkSchemePage() {
     if (answer.trim().length < 30) { setError("Write a proper answer first."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "mark_scheme_eval", question: question!.question, markScheme: question!.markScheme, answer, board, subject }) });
+      const res  = await callAI({ tool: "mark_scheme_eval", question: question!.question, markScheme: question!.markScheme, answer, board, subject });
       const data = await res.json();
       if (!res.ok || data.marksEarned === undefined) { setError("Could not mark answer."); return; }
       setFeedback(data); setPhase("result");

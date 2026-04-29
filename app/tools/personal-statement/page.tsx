@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Feedback = { score: number; hook: string; structure: string[]; paragraphNotes: string[]; tone: string; suggestions: string[]; rewrite: string };
 
@@ -23,7 +24,7 @@ export default function PersonalStatementPage() {
     if (wc < 50) { setError("Write at least 50 words first."); return; }
     setLoading(true); setError(""); setFeedback(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "personal_statement", ps, limit, uni, course }) });
+      const res  = await callAI({ tool: "personal_statement", ps, limit, uni, course });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed."); return; }
       if (!data.suggestions) { setError("Could not analyse — try again."); return; }

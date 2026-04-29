@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Section = { heading: string; content: string; keyPoints: string[] };
 type ResearchData = {
@@ -29,7 +30,7 @@ export default function ResearchPage() {
     if (!query.trim()) return;
     setLoading(true); setError(""); setData(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "research", query, subject, depth, purpose }) });
+      const res  = await callAI({ tool: "research", query, subject, depth, purpose });
       const d    = await res.json();
       if (!res.ok || !d.sections) { setError("Could not generate — try again."); return; }
       setData(d); setTab("overview");

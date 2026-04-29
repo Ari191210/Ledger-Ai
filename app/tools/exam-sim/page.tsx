@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Question = { q: string; options: string[]; answer: number; explanation: string };
 type ExamData = { title: string; questions: Question[]; timeMinutes: number };
@@ -29,7 +30,7 @@ export default function ExamSimPage() {
     if (!subject.trim()) return;
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "exam_sim", subject, topic, count, level }) });
+      const res  = await callAI({ tool: "exam_sim", subject, topic, count, level });
       const data = await res.json();
       if (!res.ok || !Array.isArray(data.questions)) { setError("Could not generate — try again."); return; }
       setExamData(data);

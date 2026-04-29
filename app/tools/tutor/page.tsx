@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData } from "@/lib/user-data";
+import { callAI } from "@/lib/ai-fetch";
 
 const SUBJECTS = [
   "Mathematics", "Physics", "Chemistry", "Biology",
@@ -90,19 +91,15 @@ export default function TutorPage() {
     if (!subject || !topic.trim()) return;
     setLoading(true); setError(""); setLesson(null);
     try {
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tool: "tutor",
-          subject,
-          topic: topic.trim(),
-          grade: profile.grade || "Class 10",
-          board: profile.board || "",
-          stream: profile.stream || "",
-          targetExam: profile.targetExam || "",
-          extra: profile.interests?.length ? `Student's interests: ${profile.interests.join(", ")}` : "",
-        }),
+      const res = await callAI({
+        tool: "tutor",
+        subject,
+        topic: topic.trim(),
+        grade: profile.grade || "Class 10",
+        board: profile.board || "",
+        stream: profile.stream || "",
+        targetExam: profile.targetExam || "",
+        extra: profile.interests?.length ? `Student's interests: ${profile.interests.join(", ")}` : "",
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }

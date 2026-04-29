@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { type UserProfile } from "@/lib/user-data";
+import { callAI } from "@/lib/ai-fetch";
 
 type Flashcard = { q: string; a: string };
 type QuizItem  = { q: string; opts: string[]; ans: number };
@@ -111,7 +112,7 @@ export default function NotesPage() {
     setLoading(true); setError(""); setOutput(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "notes", content: input, ...profile, syllabusSubjects }) });
+      const res = await callAI({ tool: "notes", content: input, ...profile, syllabusSubjects });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);

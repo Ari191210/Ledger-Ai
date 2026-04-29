@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
+import { callAI } from "@/lib/ai-fetch";
 
 const QUESTIONS = [
   { id: "q1", text: "Which of these activities do you enjoy most?", opts: ["Solving math or logic problems", "Writing essays and storytelling", "Conducting experiments", "Creating art, music, or designs", "Organizing and planning systems"] },
@@ -53,7 +54,7 @@ export default function CareerPage() {
   async function generate() {
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "career", answers }) });
+      const res = await callAI({ tool: "career", answers });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);

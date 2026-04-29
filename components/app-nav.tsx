@@ -47,7 +47,9 @@ const CATEGORIES: Category[] = [
       { n: "24", slug: "debate",             full: "Debate Coach",         sub: "Any motion. Arguments both ways."          },
       { n: "22", slug: "citation",           full: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard — instantly."   },
       { n: "39", slug: "lab-report",         full: "Lab Report Builder",   sub: "Turn experiments into full reports."       },
-      { n: "44", slug: "argument",           full: "Argument Builder",     sub: "P-E-E-L plan from any claim."              },
+      { n: "44", slug: "argument",        full: "Argument Builder",      sub: "P-E-E-L plan from any claim."              },
+      { n: "51", slug: "grammar",         full: "Grammar Coach",         sub: "Improve academic writing instantly."        },
+      { n: "55", slug: "model-answer",    full: "Model Answer Factory",  sub: "See what full marks looks like."           },
     ],
   },
   {
@@ -60,7 +62,11 @@ const CATEGORIES: Category[] = [
       { n: "37", slug: "paper-dissector", full: "Paper Dissector",     sub: "Decode what examiners want."            },
       { n: "43", slug: "practice",        full: "Practice Problems",   sub: "Graded problems, worked solutions."     },
       { n: "13", slug: "crunch",          full: "48-Hour Crunch",      sub: "Exam tomorrow. Smart triage."           },
-      { n: "12", slug: "dna",             full: "Mistake DNA",         sub: "See exactly where you go wrong."        },
+      { n: "12", slug: "dna",              full: "Mistake DNA",          sub: "See exactly where you go wrong."        },
+      { n: "45", slug: "predict",          full: "Question Predictor",   sub: "Predict likely exam questions."         },
+      { n: "46", slug: "memory-palace",    full: "Memory Palace",        sub: "Walk through it. Never forget it."      },
+      { n: "47", slug: "analogy",          full: "Analogy Engine",       sub: "Complex concepts, memorably explained." },
+      { n: "53", slug: "exam-strategy",    full: "Exam Strategy",        sub: "Personalised exam-day plan."            },
     ],
   },
   {
@@ -82,8 +88,13 @@ const CATEGORIES: Category[] = [
       { n: "31", slug: "coach",   full: "AI Study Coach",   sub: "Daily briefing + chat."           },
       { n: "10", slug: "rooms",   full: "Study Rooms",      sub: "Silent accountability."           },
       { n: "41", slug: "compare", full: "Comparison Chart", sub: "Any concepts, side by side."      },
-      { n: "42", slug: "source",  full: "Source Analyzer",  sub: "OPCVL analysis in seconds."       },
-      { n: "★",  slug: "score",   full: "Ledger Score™",    sub: "Your real-time exam readiness."   },
+      { n: "42", slug: "source",        full: "Source Analyzer",   sub: "OPCVL analysis in seconds."       },
+      { n: "48", slug: "case-study",   full: "Case Study Pro",   sub: "Business analysis in seconds."    },
+      { n: "49", slug: "timeline",     full: "Timeline Builder",  sub: "Annotated timelines instantly."   },
+      { n: "50", slug: "reading",      full: "Reading Companion", sub: "Full passage analysis + Qs."      },
+      { n: "52", slug: "study-guide",  full: "Study Guide",      sub: "Comprehensive guide any topic."    },
+      { n: "54", slug: "concept-connect", full: "Concept Connect", sub: "Find hidden links between ideas." },
+      { n: "★",  slug: "score",        full: "Ledger Score™",    sub: "Your real-time exam readiness."   },
     ],
   },
 ];
@@ -224,7 +235,7 @@ export default function AppNav() {
             <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 20, letterSpacing: "-0.02em" }}>
               Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
             </div>
-            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", marginTop: 2 }}>44 TOOLS · OPEN OR SPLIT</div>
+            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", marginTop: 2 }}>55 TOOLS · OPEN OR SPLIT</div>
           </div>
           <button onClick={closeSidebar} style={{ fontFamily: "var(--mono)", fontSize: 11, background: "none", border: "1px solid var(--rule)", padding: "5px 10px", cursor: "pointer", color: "var(--ink-3)" }}>✕</button>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Section   = { title: string; purpose: string; points: string[]; wordCount: number; openWith: string };
 type Blueprint = { title: string; thesis: string; totalWords: number; sections: Section[]; dos: string[]; donts: string[]; keyTerms: string[] };
@@ -23,7 +24,7 @@ export default function EssayBlueprintPage() {
     if (!prompt.trim()) { setError("Enter your essay question."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "essay_blueprint", subject, level, prompt, words, type }) });
+      const res  = await callAI({ tool: "essay_blueprint", subject, level, prompt, words, type });
       const data = await res.json();
       if (!res.ok || !data.sections) { setError("Could not generate blueprint."); return; }
       setBlueprint(data);

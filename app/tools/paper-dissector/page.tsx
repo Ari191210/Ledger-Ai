@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Part     = { label: string; marks: number; what: string; howToAnswer: string };
 type Analysis = { commandWord: string; commandDefinition: string; totalMarks: number; timeAdvice: string; parts: Part[]; keyContent: string[]; structure: string[]; examinersTip: string; commonMistakes: string[] };
@@ -21,7 +22,7 @@ export default function PaperDissectorPage() {
     if (question.trim().length < 10) { setError("Paste your exam question."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "paper_dissector", board, subject, question, marks }) });
+      const res  = await callAI({ tool: "paper_dissector", board, subject, question, marks });
       const data = await res.json();
       if (!res.ok || !data.commandWord) { setError("Could not analyse question."); return; }
       setAnalysis(data);

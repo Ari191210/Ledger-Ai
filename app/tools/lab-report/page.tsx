@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type ReportSection = { heading: string; content: string; template: string | null };
 type LabReport     = { title: string; sections: ReportSection[]; safetyNotes: string[]; evaluationCriteria: string[]; ibCriteria: string | null };
@@ -24,7 +25,7 @@ export default function LabReportPage() {
     if (!experiment.trim()) { setError("Enter your experiment name."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "lab_report", board, subject, experiment, aim, variables, method }) });
+      const res  = await callAI({ tool: "lab_report", board, subject, experiment, aim, variables, method });
       const data = await res.json();
       if (!res.ok || !data.sections) { setError("Could not generate report structure."); return; }
       setReport(data);

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Tone     = { label: string; explanation: string };
 type LangDev  = { device: string; example: string; effect: string };
@@ -24,7 +25,7 @@ export default function LangAnalyzerPage() {
     if (text.trim().length < 50) { setError("Paste at least a paragraph of text."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "lang_analyzer", text, textType, level, focus }) });
+      const res  = await callAI({ tool: "lang_analyzer", text, textType, level, focus });
       const data = await res.json();
       if (!res.ok || !data.language) { setError("Could not analyse text."); return; }
       setAnalysis(data); setTab("language");

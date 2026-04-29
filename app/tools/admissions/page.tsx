@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
+import { callAI } from "@/lib/ai-fetch";
 
 // ── College database (real CDS data, 2024-25 cycle) ────────────────────────
 type College = {
@@ -274,7 +275,7 @@ export default function AdmissionsPage() {
     setLoadingAI(true); setAnalysis(null);
     try {
       const top5 = shortlistResults.slice(0,5).map(r=>r.college.name);
-      const res = await fetch("/api/ai", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ tool:"admissions", profile, topColleges:top5 }) });
+      const res = await callAI({ tool:"admissions", profile, topColleges:top5 });
       const data = await res.json();
       if (res.ok && data.strategy) setAnalysis(data);
     } catch {}

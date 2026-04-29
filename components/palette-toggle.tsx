@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const palettes = ["porcelain", "ink", "moss"] as const;
+const palettes = ["porcelain", "ink", "moss", "dusk"] as const;
 type Palette = (typeof palettes)[number];
 
 export default function PaletteToggle() {

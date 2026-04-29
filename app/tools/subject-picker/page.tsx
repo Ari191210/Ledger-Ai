@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type SubjectRec = { combo: string[]; why: string; careerFit: string[]; uniReqs: string; difficulty: "manageable" | "challenging" | "intense"; score: number };
 type Result = { intro: string; combos: SubjectRec[]; avoid: string[]; tip: string };
@@ -27,7 +28,7 @@ export default function SubjectPickerPage() {
     if (career.length < 1)    { setError("Select at least 1 career direction."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "subject_picker", board, interests, career, extra }) });
+      const res  = await callAI({ tool: "subject_picker", board, interests, career, extra });
       const data = await res.json();
       if (!res.ok || !data.combos) { setError("Could not generate recommendations."); return; }
       setResult(data);

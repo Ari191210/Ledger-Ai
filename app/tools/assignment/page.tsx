@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { type UserProfile } from "@/lib/user-data";
+import { callAI } from "@/lib/ai-fetch";
 
 type OutlineSection = { section: string; points: string[] };
 type Output = { title: string; outline: OutlineSection[]; arguments: string[]; research: string[] };
@@ -29,7 +30,7 @@ export default function AssignmentPage() {
     setLoading(true); setError(""); setOutput(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "assignment", brief, subject, wordLimit, ...profile, syllabusSubjects }) });
+      const res = await callAI({ tool: "assignment", brief, subject, wordLimit, ...profile, syllabusSubjects });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);

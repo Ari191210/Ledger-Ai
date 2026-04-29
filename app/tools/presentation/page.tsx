@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Slide = { title: string; bullets: string[]; speakerNote: string };
 type Deck = { title: string; slides: Slide[]; advice: string };
@@ -19,7 +20,7 @@ export default function PresentationPage() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setDeck(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "presentation", topic, audience, duration, style }) });
+      const res  = await callAI({ tool: "presentation", topic, audience, duration, style });
       const data = await res.json();
       if (!res.ok || !data.slides) { setError("Could not generate — try again."); return; }
       setDeck(data); setSelected(0);

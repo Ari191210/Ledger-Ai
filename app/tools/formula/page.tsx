@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Formula = {
   name: string;
@@ -68,11 +69,7 @@ export default function FormulaPage() {
     if (!subject.trim() || !chapter.trim()) return;
     setLoading(true); setError(""); setSaved(false); setSheet(null);
     try {
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool: "formula", subject, chapter, board, grade: grade === "Any" ? "" : grade }),
-      });
+      const res = await callAI({ tool: "formula", subject, chapter, board, grade: grade === "Any" ? "" : grade });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed to generate. Try again."); return; }
       if (!Array.isArray(data.sections) || data.sections.length === 0) {

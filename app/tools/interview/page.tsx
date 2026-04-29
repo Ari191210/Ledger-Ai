@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Question = { q: string; tip: string };
 type Evaluation = { score: number; strengths: string[]; gaps: string[]; betterAnswer: string; tip: string };
@@ -27,7 +28,7 @@ export default function InterviewPage() {
   async function generateQuestions() {
     setGenLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "interview_questions", type, role }) });
+      const res  = await callAI({ tool: "interview_questions", type, role });
       const data = await res.json();
       if (!res.ok || !data.questions) { setError("Could not generate questions."); return; }
       setQuestions(data.questions); setPhase("practice"); setQIdx(0); setAnswer(""); setEval(null);
@@ -39,7 +40,7 @@ export default function InterviewPage() {
     if (answer.trim().length < 20) { setError("Write a proper answer first."); return; }
     setLoading(true); setError(""); setEval(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "interview_eval", question: questions[qIdx].q, answer, type }) });
+      const res  = await callAI({ tool: "interview_eval", question: questions[qIdx].q, answer, type });
       const data = await res.json();
       if (!res.ok || !data.strengths) { setError("Could not evaluate."); return; }
       setEval(data); setPhase("result");

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Word = { word: string; definition: string; partOfSpeech: string; example: string; etymology: string; synonyms: string[]; memoryTip: string; difficulty: "basic" | "intermediate" | "advanced" };
 type VaultData = { words: Word[]; theme: string };
@@ -23,7 +24,7 @@ export default function VocabPage() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setVault(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "vocab", topic, context, count, level }) });
+      const res  = await callAI({ tool: "vocab", topic, context, count, level });
       const data = await res.json();
       if (!res.ok || !Array.isArray(data.words)) { setError("Could not generate — try again."); return; }
       setVault(data); setIdx(0); setCardState("front"); setKnown(new Set());

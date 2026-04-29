@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { type UserProfile } from "@/lib/user-data";
+import { callAI } from "@/lib/ai-fetch";
 
 type Output = { solution: string; principle: string; practice: string[] };
 
@@ -47,7 +48,7 @@ export default function DoubtPage() {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
       const body: Record<string, unknown> = { tool: "doubt", question, ...profile, syllabusSubjects };
       if (image) body.image = image;
-      const res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const res = await callAI(body);
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); return; }
       setOutput(data);

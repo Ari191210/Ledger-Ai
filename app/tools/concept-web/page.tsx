@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Child  = { label: string; detail: string; crossLinks: string[] };
 type Branch = { label: string; children: Child[] };
@@ -23,7 +24,7 @@ export default function ConceptWebPage() {
     if (!topic.trim()) { setError("Enter a concept or topic."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "concept_web", topic, subject, level }) });
+      const res  = await callAI({ tool: "concept_web", topic, subject, level });
       const data = await res.json();
       if (!res.ok || !data.branches) { setError("Could not generate concept web."); return; }
       setWeb(data); setExpanded(null);

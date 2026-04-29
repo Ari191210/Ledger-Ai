@@ -46,7 +46,9 @@ const TOOL_CATEGORIES: DashCat[] = [
       { n: "24", slug: "debate",             ttl: "Debate Coach",         sub: "Any motion. Arguments both ways.",    tier: "Pro",  desc: "For and against arguments, evidence, rebuttals, and practice questions." },
       { n: "22", slug: "citation",           ttl: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard.",        tier: "Free", desc: "Fill in source details → instant formatted citation in 5 styles." },
       { n: "39", slug: "lab-report",         ttl: "Lab Report Builder",   sub: "Turn experiments into full reports.", tier: "Free", desc: "AI structures your experimental data into a complete IB/A-level lab report." },
-      { n: "44", slug: "argument",           ttl: "Argument Builder",     sub: "P-E-E-L plan from any claim.",        tier: "Free", desc: "Full P-E-E-L plan: thesis, intro, 3 points, counter-argument, rebuttal, conclusion." },
+      { n: "44", slug: "argument",       ttl: "Argument Builder",     sub: "P-E-E-L plan from any claim.",        tier: "Free", desc: "Full P-E-E-L plan: thesis, intro, 3 points, counter-argument, rebuttal, conclusion." },
+      { n: "51", slug: "grammar",        ttl: "Grammar Coach",        sub: "Improve academic writing instantly.",  tier: "Free", desc: "Score, fix issues, improve vocabulary, and get a rewritten version of your text." },
+      { n: "55", slug: "model-answer",   ttl: "Model Answer Factory", sub: "See what full marks looks like.",     tier: "Free", desc: "Perfect model answer for any exam question with marking points and structure guide." },
     ],
   },
   {
@@ -59,7 +61,11 @@ const TOOL_CATEGORIES: DashCat[] = [
       { n: "37", slug: "paper-dissector", ttl: "Paper Dissector",     sub: "Decode what examiners want.",     tier: "Free", desc: "AI analyses exam papers to extract question patterns, command words, and mark weightings." },
       { n: "43", slug: "practice",        ttl: "Practice Problems",   sub: "Graded problems, worked solutions.",tier: "Free", desc: "AI generates 3-10 exam-style problems with step-by-step worked solutions and hints." },
       { n: "13", slug: "crunch",          ttl: "48-Hour Crunch",      sub: "Exam tomorrow. Smart triage.",    tier: "Free", desc: "Tell the AI what to skip and what to nail. Get a time-blocked priority list." },
-      { n: "12", slug: "dna",             ttl: "Mistake DNA",         sub: "See exactly where you go wrong.",  tier: "Free", desc: "Tracks every wrong answer by category. Pinpoints your highest-leverage weak spots." },
+      { n: "12", slug: "dna",           ttl: "Mistake DNA",          sub: "See exactly where you go wrong.",   tier: "Free", desc: "Tracks every wrong answer by category. Pinpoints your highest-leverage weak spots." },
+      { n: "45", slug: "predict",       ttl: "Question Predictor",  sub: "Predict likely exam questions.",    tier: "Free", desc: "AI analyses past paper trends to predict the 6-8 most likely questions for any topic." },
+      { n: "46", slug: "memory-palace", ttl: "Memory Palace",       sub: "Walk through it. Never forget it.", tier: "Free", desc: "Build a vivid spatial memory palace with locations, images, and stories for any list." },
+      { n: "47", slug: "analogy",       ttl: "Analogy Engine",      sub: "Complex concepts, memorably explained.", tier: "Free", desc: "3 creative analogies with breakdowns and limitations — understand anything deeply." },
+      { n: "53", slug: "exam-strategy", ttl: "Exam Strategy",       sub: "Personalised exam-day plan.",       tier: "Free", desc: "Time allocation by section, nerve control, last-minute tips, and exam day checklist." },
     ],
   },
   {
@@ -82,7 +88,12 @@ const TOOL_CATEGORIES: DashCat[] = [
       { n: "10", slug: "rooms",   ttl: "Study Rooms",      sub: "Silent accountability.",           tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
       { n: "41", slug: "compare", ttl: "Comparison Chart", sub: "Any concepts, side by side.",      tier: "Free", desc: "Compare 2-4 items across 6-8 criteria. Similarities, differences, and verdict." },
       { n: "42", slug: "source",  ttl: "Source Analyzer",  sub: "OPCVL analysis in seconds.",       tier: "Free", desc: "Full origin, purpose, content, value, and limitation breakdown for any source." },
-      { n: "★",  slug: "score",   ttl: "Ledger Score™",   sub: "Your real-time exam readiness.",   tier: "Free", desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, and consistency." },
+      { n: "48", slug: "case-study",     ttl: "Case Study Pro",    sub: "Business analysis in seconds.",     tier: "Free", desc: "SWOT, Porter's, PESTLE and more. Stakeholders, analysis, recommendations, verdict." },
+      { n: "49", slug: "timeline",      ttl: "Timeline Builder",  sub: "Annotated timelines instantly.",    tier: "Free", desc: "10-14 annotated events with significance ratings, category tags, and key themes." },
+      { n: "50", slug: "reading",       ttl: "Reading Companion", sub: "Full passage analysis + Qs.",       tier: "Free", desc: "Paste any passage. Get tone, themes, devices, comprehension questions, and model answers." },
+      { n: "52", slug: "study-guide",   ttl: "Study Guide",       sub: "Comprehensive guide, any topic.",   tier: "Free", desc: "Complete study guide with sections, must-know facts, common mistakes, and quick review." },
+      { n: "54", slug: "concept-connect", ttl: "Concept Connect", sub: "Find hidden links between ideas.",  tier: "Free", desc: "Discover structural, causal, and philosophical connections between any two concepts." },
+      { n: "★",  slug: "score",         ttl: "Ledger Score™",    sub: "Your real-time exam readiness.",    tier: "Free", desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, and consistency." },
     ],
   },
 ];
@@ -544,7 +555,7 @@ export default function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "2px solid var(--ink)", paddingBottom: 12, marginBottom: 28 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic", fontWeight: 500 }}>All Tools</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>44 tools · click to open</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>55 tools · click to open</div>
         </div>
         {TOOL_CATEGORIES.map(cat => (
           <div key={cat.label} style={{ marginBottom: 36 }}>
@@ -577,7 +588,7 @@ export default function Dashboard() {
                   <div style={{ fontFamily: "var(--sans)", fontSize: 11.5, color: "var(--ink-2)", lineHeight: 1.55, marginTop: 10 }}>{t.desc}</div>
                   <div style={{ flex: 1 }} />
                   <div className="mono" style={{ borderTop: "1px solid var(--rule)", marginTop: 12, paddingTop: 8, display: "flex", justifyContent: "space-between", fontSize: 8, color: "var(--ink-3)" }}>
-                    <span>Tool {t.n} of 44</span><span>↗</span>
+                    <span>Tool {t.n} of 55</span><span>↗</span>
                   </div>
                 </Link>
               ))}

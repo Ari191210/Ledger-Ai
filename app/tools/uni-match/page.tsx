@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type UniMatch = { name: string; country: string; fitScore: number; why: string; requirements: string; strengths: string[]; applyBy: string; reach: "safety" | "match" | "reach" };
 type Result   = { summary: string; unis: UniMatch[]; advice: string; gaps: string[] };
@@ -28,7 +29,7 @@ export default function UniMatchPage() {
     if (countries.length === 0) { setError("Select at least one country."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "uni_match", board, grade, field, countries, extra }) });
+      const res  = await callAI({ tool: "uni_match", board, grade, field, countries, extra });
       const data = await res.json();
       if (!res.ok || !data.unis) { setError("Could not generate recommendations."); return; }
       setResult(data);

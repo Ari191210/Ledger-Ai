@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Node = { label: string; children?: Node[] };
 type MapData = { center: string; branches: Node[] };
@@ -36,7 +37,7 @@ export default function MindMapPage() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setMap(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "mindmap", topic, detail }) });
+      const res  = await callAI({ tool: "mindmap", topic, detail });
       const data = await res.json();
       if (!res.ok || !data.branches) { setError("Could not generate — try again."); return; }
       setMap(data);

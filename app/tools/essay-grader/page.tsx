@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Criterion = { name: string; score: number; max: number; feedback: string };
 type Grade = { overall: string; band: string; totalScore: number; maxScore: number; criteria: Criterion[]; strengths: string[]; improvements: string[]; summary: string };
@@ -22,7 +23,7 @@ export default function EssayGraderPage() {
     if (essay.trim().length < 100) { setError("Essay must be at least 100 characters."); return; }
     setLoading(true); setError(""); setGrade(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "essay_grade", essay, subject, level, type, prompt }) });
+      const res  = await callAI({ tool: "essay_grade", essay, subject, level, type, prompt });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed."); return; }
       if (!data.criteria) { setError("Could not grade — try again."); return; }

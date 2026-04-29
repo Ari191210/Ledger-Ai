@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData } from "@/lib/user-data";
+import { callAI } from "@/lib/ai-fetch";
 
 type Chapter  = { name: string; topics: string[] };
 type Subject  = { name: string; chapters: Chapter[] };
@@ -80,7 +81,7 @@ export default function SyllabusPage() {
         body.text = pastedText;
       }
 
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const res  = await callAI(body);
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Parsing failed. Try again."); return; }
       setSyllabus(data as ParsedSyllabus);

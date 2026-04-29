@@ -72,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -593,6 +593,137 @@ Topic: ${params.topic}
 Level: ${params.level}`,
       };
 
+    case "predict":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an experienced ${params.subject || "academic"} examiner at ${params.level} level. You deeply understand past paper patterns, examiner reports, and marking trends. Always respond with valid JSON only.`,
+        userText: `Predict the most likely exam questions for the topic below. Respond with exactly this JSON:
+{"topic":"${params.topic}","level":"${params.level}","questions":[{"q":"full exam question as it would appear on the paper","marks":0,"type":"Short Answer|Essay|Analysis|Evaluation|Problem","why":"why this question is likely — examiner trends, frequency, curriculum emphasis"}],"hotTopics":["topic that appears often","..."],"commandWords":["Explain","Evaluate","..."],"examTip":"one specific strategic tip"}
+
+Generate 6-8 realistic exam questions. Vary question types (recall, analysis, evaluation, application). Marks: 2-20 depending on type. hotTopics: 4-6 items. commandWords: 4-6 specific command words used for this topic.
+Topic: ${params.topic}
+Subject: ${params.subject || "General"}
+Level: ${params.level}`,
+      };
+
+    case "memory_palace":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a memory technique expert specialising in the Method of Loci (memory palace). You create vivid, memorable spatial journeys through familiar locations. Always respond with valid JSON only.`,
+        userText: `Create a memory palace for the items below. Use a familiar location (house, school corridor, high street) as the palace. Each station is a specific room or spot. Make images bizarre, vivid, and action-based — they stick better.
+
+Respond with exactly this JSON:
+{"topic":"${params.topic || "Items"}","palaceName":"name of the chosen location","stations":[{"number":1,"location":"specific spot in the location","item":"the item to memorise","image":"bizarre vivid image involving the item at this location","story":"one sentence narrative connecting the image to the item's meaning"}],"reviewTip":"how to review this palace for maximum retention"}
+
+Create one station per item. Items to memorise:
+${params.items}`,
+      };
+
+    case "analogy":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a master educator who explains complex academic concepts through powerful, memorable analogies. Always respond with valid JSON only.`,
+        userText: `Generate 3 progressively creative analogies for the concept below. The first should be the most intuitive, the third the most surprising and memorable.
+
+Respond with exactly this JSON:
+{"concept":"${params.concept}","analogies":[{"title":"short name for this analogy","analogy":"the analogy explained in 2-3 sentences, making it vivid and concrete","breakdown":"exactly how each element of the analogy maps to the concept","limitation":"where this analogy breaks down or misleads — critical for exam accuracy"}],"keyInsight":"the single deepest insight the analogies collectively reveal","examTip":"how understanding via analogy helps in exams"}
+
+Subject context: ${params.subject || "General academic"}
+Concept: ${params.concept}`,
+      };
+
+    case "case_study":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a senior business studies and economics teacher with expertise in case study analysis using multiple frameworks. Always respond with valid JSON only.`,
+        userText: `Analyse the following case study and respond with exactly this JSON:
+{"title":"short descriptive title","summary":"2-3 sentence summary of the case","situation":"background context and current position","problem":"the core problem or decision the business/entity faces","stakeholders":["stakeholder 1","..."],"analysis":[{"framework":"${params.framework === "Auto-select best" ? "most appropriate framework(s) for this case" : params.framework}","points":["analysis point 1","point 2","point 3","point 4"]}],"recommendations":["specific actionable recommendation 1","recommendation 2","recommendation 3"],"conclusion":"evaluative judgement that weighs the evidence","examTip":"specific tip for answering this type of case study in exams"}
+
+${params.question ? `Exam question to address: ${params.question}` : ""}
+Case study:
+${params.caseText}`,
+      };
+
+    case "timeline":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher who creates detailed annotated timelines. Always respond with valid JSON only.`,
+        userText: `Create a comprehensive annotated timeline for the topic below. Respond with exactly this JSON:
+{"title":"full descriptive title","period":"date range e.g. 1789–1815","events":[{"date":"specific date or year range","title":"name of event","description":"2-3 sentences explaining what happened","significance":"why this event matters — consequence and importance","category":"Political|Economic|Social|Military|Scientific|Other"}],"themes":["overarching theme 1","theme 2","theme 3","theme 4"],"examTip":"how to use timelines effectively in exam answers"}
+
+Generate 10-14 key events in chronological order. Vary categories for a complete picture.
+Subject: ${params.subject}
+Topic: ${params.topic}`,
+      };
+
+    case "reading":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher specialising in close reading, textual analysis, and comprehension. Always respond with valid JSON only.`,
+        userText: `Analyse the passage below and respond with exactly this JSON:
+{"title":"short descriptive title for the passage","summary":"3-4 sentence objective summary","tone":"the dominant tone(s) of the passage","themes":["theme 1","theme 2","theme 3"],"devices":[{"name":"device name","example":"short quote or description from text","effect":"analytical explanation of the intended effect"}],"questions":[{"q":"comprehension/analysis question","level":"Literal|Inference|Analysis|Evaluation","modelAnswer":"full model answer to this question"}],"vocabHighlights":[{"word":"word from text","meaning":"definition in context"}],"examTip":"specific tip for this passage type in exams"}
+
+devices: 4-6 literary/language devices. questions: 4 questions at different levels (one each: Literal, Inference, Analysis, Evaluation). vocabHighlights: 6-8 words.
+${params.question ? `Focus on exam question: ${params.question}` : ""}
+Subject: ${params.subject}
+Passage:
+${params.passage}`,
+      };
+
+    case "grammar":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert academic writing coach who helps students improve grammar, style, vocabulary, and academic register. Always respond with valid JSON only.`,
+        userText: `Check the writing below for grammar, style, vocabulary, and academic register issues. Respond with exactly this JSON:
+{"overallScore":0,"band":"Excellent|Good|Developing|Needs work","issues":[{"type":"Grammar|Style|Vocabulary|Punctuation|Structure","original":"the problematic phrase or sentence","suggestion":"improved version","explanation":"why this is better"}],"strengths":["strength 1","strength 2","strength 3"],"rewrite":"full rewritten version of the text with all improvements applied","academicPhrases":["useful academic phrase 1","phrase 2","phrase 3","phrase 4","phrase 5"],"examTip":"one specific writing tip for ${params.purpose} writing"}
+
+overallScore: 0-100. Identify up to 8 most important issues. strengths: 2-3 genuine strengths to acknowledge.
+Writing type: ${params.purpose}
+Text:
+${params.text}`,
+      };
+
+    case "study_guide":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a master ${params.subject || "academic"} teacher who creates comprehensive, exam-focused study guides. Always respond with valid JSON only.`,
+        userText: `Create a complete study guide for the topic below. Respond with exactly this JSON:
+{"topic":"${params.topic}","overview":"3-4 sentence overview of what this topic covers and why it matters","sections":[{"title":"section title","content":"clear explanation in 3-5 sentences","keyPoints":["key point 1","key point 2","key point 3"]}],"mustKnow":["essential fact/formula/definition 1","..."],"commonMistakes":["common mistake 1","..."],"quickReview":["one-line review point 1","..."],"examTip":"specific exam strategy for this topic"}
+
+sections: 4-6 logical sections covering the topic comprehensively. mustKnow: 5-7 items. commonMistakes: 4-5 items. quickReview: 8-10 one-liners.
+Subject: ${params.subject || "General"}
+Level: ${params.level}
+Topic: ${params.topic}`,
+      };
+
+    case "exam_strategy":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an experienced exam coach who has helped thousands of students optimise their exam performance through strategic time management and technique. Always respond with valid JSON only.`,
+        userText: `Create a personalised exam strategy. Respond with exactly this JSON:
+{"subject":"${params.subject}","duration":${params.duration},"sections":[{"name":"section name","timeAllocation":"X minutes","approach":"how to approach this section strategically","pitfalls":["common pitfall 1","pitfall 2"]}],"timeManagement":"overall time management strategy for this specific exam","nerveControl":["technique 1","technique 2","technique 3"],"lastMinuteTips":["tip 1","tip 2","tip 3","tip 4"],"examDayChecklist":["item 1","item 2","..."],"examTip":"the single most important strategic insight for this exam"}
+
+${params.format ? `Paper format: ${params.format}` : "Infer likely sections from the subject."}
+${params.concerns ? `Student's concerns: ${params.concerns}` : ""}
+Duration: ${params.duration} minutes
+Subject: ${params.subject}`,
+      };
+
+    case "concept_connect":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a brilliant interdisciplinary teacher who finds unexpected connections between concepts across and within subjects. Always respond with valid JSON only.`,
+        userText: `Find deep connections between the two concepts below. Respond with exactly this JSON:
+{"conceptA":"${params.conceptA}","conceptB":"${params.conceptB}","links":[{"type":"Structural|Causal|Analogical|Historical|Mathematical|Philosophical","description":"how these concepts connect via this type of link","example":"a specific concrete example illustrating this connection"}],"deepInsight":"the most surprising or profound insight this connection reveals","crossSubjectValue":"how understanding this connection helps across multiple subjects or disciplines","examAngles":["exam angle this connection enables 1","angle 2","angle 3"],"examTip":"how to use cross-concept connections in exam answers to gain marks"}
+
+Find 3-4 distinct types of connections. Be intellectually ambitious — the most valuable connections are often unexpected.
+Concept A: ${params.conceptA}
+Concept B: ${params.conceptB}`,
+      };
+
+    case "model_answer":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert ${params.subject || "academic"} examiner who writes model answers that demonstrate exactly what full marks requires. Always respond with valid JSON only.`,
+        userText: `Write a model answer for the exam question below. Respond with exactly this JSON:
+{"question":"${params.question}","marks":${params.marks},"modelAnswer":"the complete model answer written at the highest level for ${params.level} — use appropriate academic language, specific evidence, and structured argument","markingPoints":["marking point 1 that this answer covers","point 2","point 3"],"whatMakesItGood":["specific quality 1","quality 2","quality 3"],"structureGuide":"how this answer is structured and why — useful for students to replicate","examTip":"one insight into what examiners reward most for this question type"}
+
+markingPoints: list the 4-6 key marking points this model answer hits. The answer should be appropriate length for ${params.marks} marks at ${params.level}.
+Subject: ${params.subject || "General"}
+Level: ${params.level}
+Marks: ${params.marks}
+Question: ${params.question}`,
+      };
+
     case "argument":
       return {
         system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher who specialises in structured academic argument and essay technique. Always respond with valid JSON only — no markdown fences.`,
@@ -625,7 +756,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Card = { q: string; a: string };
 
@@ -23,7 +24,7 @@ export default function FlashcardsPage() {
     if (!input.trim() && !subject.trim()) return;
     setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setKnown(new Set()); setUnknown(new Set());
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "flashcards", content: input, subject }) });
+      const res  = await callAI({ tool: "flashcards", content: input, subject });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed."); return; }
       if (!Array.isArray(data.cards) || !data.cards.length) { setError("No cards generated — try again."); return; }

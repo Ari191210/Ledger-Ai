@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type Message = { role: "user" | "assistant"; text: string };
 type Briefing = { greeting: string; priorities: { task: string; why: string }[]; insight: string; focus: string; warning: string | null };
@@ -53,7 +54,7 @@ export default function CoachPage() {
   async function fetchBriefing(c: ReturnType<typeof gatherContext>) {
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "coach_briefing", context: c }) });
+      const res  = await callAI({ tool: "coach_briefing", context: c });
       const data = await res.json();
       if (!res.ok || !data.greeting) { setError("Couldn't load briefing."); return; }
       setBriefing(data);
@@ -67,7 +68,7 @@ export default function CoachPage() {
     setMessages(prev => [...prev, { role: "user", text: msg }]);
     setChatLoading(true);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "coach_chat", message: msg, context: ctx, history: messages.slice(-6).map(m => `${m.role === "user" ? "Student" : "Coach"}: ${m.text}`).join("\n") }) });
+      const res  = await callAI({ tool: "coach_chat", message: msg, context: ctx, history: messages.slice(-6).map(m => `${m.role === "user" ? "Student" : "Coach"}: ${m.text}`).join("\n") });
       const data = await res.json();
       setMessages(prev => [...prev, { role: "assistant", text: data.reply || data.raw || "Try again." }]);
     } catch { setMessages(prev => [...prev, { role: "assistant", text: "Network error." }]); }

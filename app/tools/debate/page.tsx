@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { callAI } from "@/lib/ai-fetch";
 
 type DebateOutput = { motion: string; for: { argument: string; evidence: string; rebuttal: string }[]; against: { argument: string; evidence: string; rebuttal: string }[]; keyTerms: { term: string; def: string }[]; practiceQs: string[] };
 
@@ -17,7 +18,7 @@ export default function DebatePage() {
     if (!motion.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res  = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool: "debate", motion, side, level }) });
+      const res  = await callAI({ tool: "debate", motion, side, level });
       const data = await res.json();
       if (!res.ok || !data.for) { setError("Could not generate — try again."); return; }
       setOutput(data);
