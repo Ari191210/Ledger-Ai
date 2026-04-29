@@ -2,11 +2,13 @@
 import { useState, useEffect, useCallback } from "react";
 
 type Event = { session_id: string; page: string; tool: string | null; created_at: string };
+type Query = { user_id: string; tool: string; input_text: string | null; created_at: string };
 type Stats = {
   activeNow: number; todayUsers: number; totalUsers: number; totalViews: number;
   totalAiToday: number;
   topTools: { tool: string; count: number }[];
   recent: Event[];
+  recentQueries: Query[];
   timestamp: string;
   dataError?: string;
 };
@@ -378,6 +380,54 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
                   Tool usage resets at midnight UTC
                 </div>
               </div>
+            </div>
+
+            {/* ── Recent Queries — what users are actually asking ── */}
+            <div style={{ border: "1px solid #111", borderTop: "none" }}>
+              <div style={{ padding: "22px 32px", borderBottom: "1px solid #111" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#2a2a2a", letterSpacing: "0.14em", textTransform: "uppercase" }}>Recent Queries</div>
+                    <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: "#f0ebe0", marginTop: 2, lineHeight: 1 }}>What users are asking.</div>
+                  </div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#1a1a1a" }}>Last 50 AI calls · all time</div>
+                </div>
+              </div>
+
+              {stats.recentQueries.length === 0 ? (
+                <div style={{ padding: "24px 32px" }}>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#2a2a2a", marginBottom: 8 }}>No queries recorded yet.</div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#1a1a1a", lineHeight: 1.9 }}>
+                    Queries appear here after you run the SQL migration to create the ai_history table.<br />
+                    SQL: <span style={{ color: "#2a3a2a" }}>create table ai_history (id uuid default gen_random_uuid() primary key, user_id uuid references auth.users(id) on delete cascade not null, tool text not null, input_text text, output jsonb, created_at timestamptz default now());</span>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  {/* Column headers */}
+                  <div style={{ display: "grid", gridTemplateColumns: "160px 80px 1fr 90px", padding: "8px 32px", borderBottom: "1px solid #0d0d0d", background: "#040404" }}>
+                    {["User", "Tool", "What they asked", "When"].map((h, i) => (
+                      <div key={i} style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#2a2a2a", letterSpacing: "0.12em", textTransform: "uppercase" }}>{h}</div>
+                    ))}
+                  </div>
+                  {stats.recentQueries.map((q, i) => (
+                    <div key={i} style={{ display: "grid", gridTemplateColumns: "160px 80px 1fr 90px", padding: "11px 32px", borderBottom: "1px solid #0a0a0a", background: i % 2 === 0 ? "#060606" : "#050505" }}>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#333", letterSpacing: "0.04em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {q.user_id.slice(0, 14)}…
+                      </div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#c55a2b", letterSpacing: "0.04em" }}>
+                        {TOOL_LABELS[q.tool] || q.tool}
+                      </div>
+                      <div style={{ fontFamily: "var(--serif)", fontSize: 13, color: q.input_text ? "#888" : "#2a2a2a", fontStyle: q.input_text ? "normal" : "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 16 }}>
+                        {q.input_text || "—"}
+                      </div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#222", letterSpacing: "0.04em" }}>
+                        {timeAgo(q.created_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Footer rule */}
