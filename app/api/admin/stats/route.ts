@@ -1,12 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabaseServer } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
-);
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -20,13 +15,14 @@ export async function GET(req: Request) {
   const fiveMinAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
   const dayAgo     = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
 
-  const [activeRes, todayRes, allRes, viewsRes, toolRes, recentRes] = await Promise.all([
-    supabase.from("page_events").select("session_id").gte("created_at", fiveMinAgo).limit(5000),
-    supabase.from("page_events").select("session_id").gte("created_at", dayAgo).limit(5000),
-    supabase.from("page_events").select("session_id").limit(10000),
-    supabase.from("page_events").select("*", { count: "exact", head: true }),
-    supabase.from("page_events").select("tool").gte("created_at", dayAgo).not("tool", "is", null).limit(5000),
-    supabase.from("page_events").select("session_id,page,tool,created_at").order("created_at", { ascending: false }).limit(25),
+  const [activeRes, todayRes, allRes, viewsRes, toolRes, recentRes, historyRes] = await Promise.all([
+    supabaseServer.from("page_events").select("session_id").gte("created_at", fiveMinAgo).limit(5000),
+    supabaseServer.from("page_events").select("session_id").gte("created_at", dayAgo).limit(5000),
+    supabaseServer.from("page_events").select("session_id").limit(10000),
+    supabaseServer.from("page_events").select("*", { count: "exact", head: true }),
+    supabaseServer.from("page_events").select("tool").gte("created_at", dayAgo).not("tool", "is", null).limit(5000),
+    supabaseServer.from("page_events").select("session_id,page,tool,created_at").order("created_at", { ascending: false }).limit(25),
+    supabaseServer.from("ai_history").select("tool,created_at").gte("created_at", dayAgo).limit(1000),
   ]);
 
   const activeNow  = new Set(activeRes.data?.map(r => r.session_id)).size;
@@ -43,12 +39,20 @@ export async function GET(req: Request) {
     .slice(0, 12)
     .map(([tool, count]) => ({ tool, count }));
 
+  // AI generation counts by tool (from ai_history)
+  const aiCounts: Record<string, number> = {};
+  for (const row of historyRes.data ?? []) {
+    if (row.tool) aiCounts[row.tool] = (aiCounts[row.tool] || 0) + 1;
+  }
+  const totalAiToday = Object.values(aiCounts).reduce((s, n) => s + n, 0);
+
   return NextResponse.json({
     activeNow,
     todayUsers,
     totalUsers,
     totalViews,
     topTools,
+    totalAiToday,
     recent: recentRes.data ?? [],
     timestamp: now.toISOString(),
   });

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 type Event = { session_id: string; page: string; tool: string | null; created_at: string };
 type Stats = {
   activeNow: number; todayUsers: number; totalUsers: number; totalViews: number;
+  totalAiToday: number;
   topTools: { tool: string; count: number }[];
   recent: Event[];
   timestamp: string;
@@ -236,11 +237,12 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
         ) : (
           <>
             {/* ── KPI strip ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", border: "1px solid #111", borderTop: "none", marginBottom: 1 }}>
-              <KPI label="Active Now"     value={stats.activeNow}  sub="sessions · last 5 min"   accent={stats.activeNow > 0 ? "#2d9c42" : "#222"} />
-              <KPI label="Today's Users"  value={stats.todayUsers} sub="unique sessions · 24 hrs" accent={stats.todayUsers > 0 ? "#c58a2a" : "#222"} />
-              <KPI label="All-time Users" value={stats.totalUsers} sub="unique sessions · ever"   accent="#f0ebe0" />
-              <KPI label="Total Views"    value={stats.totalViews} sub="page events recorded"     accent="#3a6a9a" dim />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid #111", borderTop: "none", marginBottom: 1 }}>
+              <KPI label="Active Now"     value={stats.activeNow}      sub="sessions · last 5 min"   accent={stats.activeNow > 0 ? "#2d9c42" : "#222"} />
+              <KPI label="Today's Users"  value={stats.todayUsers}     sub="unique sessions · 24 hrs" accent={stats.todayUsers > 0 ? "#c58a2a" : "#222"} />
+              <KPI label="All-time Users" value={stats.totalUsers}     sub="unique sessions · ever"   accent="#f0ebe0" />
+              <KPI label="AI Calls Today" value={stats.totalAiToday ?? 0} sub="generations · 24 hrs"  accent={stats.totalAiToday > 0 ? "#6a7ac8" : "#222"} />
+              <KPI label="Total Views"    value={stats.totalViews}     sub="page events recorded"     accent="#3a6a9a" dim />
             </div>
 
             {/* ── Body ── */}

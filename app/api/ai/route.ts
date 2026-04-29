@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { supabaseServer } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
@@ -826,6 +827,27 @@ export async function POST(req: Request) {
       const parsed = JSON.parse(jsonMatch[0]);
       if (parsed.error === "off_topic") {
         return NextResponse.json({ error: MODERATION_ERROR }, { status: 400 });
+      }
+      // Save to ai_history for cross-device history (silently, non-blocking)
+      const authHeader = req.headers.get("Authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.slice(7);
+        supabaseServer.auth.getUser(token).then(({ data: { user } }) => {
+          if (user?.id) {
+            const TEXT_KEYS = ["content","question","topic","passage","text","claim","essay","ps","query","concept","items","caseText","sourceText"];
+            const inputText = Object.entries(params)
+              .filter(([k]) => TEXT_KEYS.includes(k))
+              .map(([, v]) => String(v))
+              .join(" ")
+              .slice(0, 300);
+            supabaseServer.from("ai_history").insert({
+              user_id: user.id,
+              tool,
+              input_text: inputText || null,
+              output: parsed,
+            }).then(() => {}, () => {});
+          }
+        }, () => {});
       }
       return NextResponse.json(parsed);
     }

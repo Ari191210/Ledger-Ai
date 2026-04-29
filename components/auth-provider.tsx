@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { pullFromCloud, pushToCloud } from "@/lib/sync";
 
 type AuthCtx = {
   user: User | null;
@@ -23,19 +24,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        // Hydrate localStorage from cloud on every page load while signed in
+        pullFromCloud(session.user.id).catch(() => {});
+      }
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (_e === "SIGNED_IN" && session?.user) {
+        // Pull cloud data to localStorage when signing in on a new device
+        pullFromCloud(session.user.id).catch(() => {});
+      }
+      if (_e === "SIGNED_OUT") {
+        // Push any last changes before clearing session
+        // (user object still set at this point)
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
+  async function signOut() {
+    if (user) {
+      // Sync localStorage to cloud before signing out
+      await pushToCloud(user.id).catch(() => {});
+    }
+    await supabase.auth.signOut();
+  }
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut: () => supabase.auth.signOut().then(() => {}) }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
