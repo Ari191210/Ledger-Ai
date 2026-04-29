@@ -72,7 +72,7 @@ Do not explain this adaptation to the student — just do it naturally.\n`;
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -550,6 +550,62 @@ Field: ${params.field}
 Countries: ${JSON.stringify(params.countries)}
 Additional: ${params.extra || "none"}`,
       };
+
+    case "compare":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert academic tutor skilled at building structured comparisons. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a detailed comparison chart. Respond with exactly this JSON shape:
+{"title":"concise comparison title","items":${JSON.stringify(params.items)},"rows":[{"criterion":"criterion name","items":["description for item 1","description for item 2"]}],"similarities":["similarity 1","similarity 2","similarity 3"],"differences":["key difference 1","key difference 2","key difference 3"],"verdict":"2-3 sentence analytical summary of how they compare and what that means for a student studying this"}
+
+rows: 6-8 meaningful criteria. similarities: 3-4 genuine shared features. differences: 3-4 most important contrasts. verdict: analytical, exam-ready insight.
+${params.criteria ? `Focus criteria on: ${params.criteria}` : "Choose the most academically useful criteria."}
+${params.subject ? `Subject context: ${params.subject}` : ""}`,
+      };
+
+    case "source":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert humanities teacher specialising in source analysis (OPCVL, HAPP, reliability frameworks). Always respond with valid JSON only — no markdown fences.`,
+        userText: `Analyse this source for exam purposes. Respond with exactly this JSON shape:
+{"origin":{"who":"who created it","what":"what type of source","when":"when it was created","context":"historical/political context at the time"},"purpose":"why this source was created","content":"what the source shows/argues in 2-3 sentences","value":{"origin":"value arising from who/when created","purpose":"value arising from why created","content":"value of what it shows"},"limitation":{"origin":"limitation arising from who/when created","purpose":"limitation arising from why created","content":"what the source leaves out or distorts"},"bias":["specific bias 1","specific bias 2","specific bias 3"],"utility":"overall assessment of utility for the stated question in 2-3 sentences","examTip":"one specific tip for using this source type in ${params.subject} exams"}
+
+Be specific and analytical — generic answers score poorly. Reference the actual content throughout.
+Subject: ${params.subject}
+${params.origin ? `Origin information provided: ${params.origin}` : ""}
+${params.question ? `Exam question context: ${params.question}` : ""}
+
+Source text/description:
+${params.sourceText}`,
+      };
+
+    case "practice":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher and examiner. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a practice problem set. Respond with exactly this JSON shape:
+{"topic":"precise topic title","difficulty":"${params.difficulty}","problems":[{"number":1,"problem":"full problem statement with all necessary information","hint":"one-line hint that guides without giving away","marks":${params.difficulty === "Hard" ? 6 : params.difficulty === "Medium" ? 4 : 3},"solution":"complete step-by-step worked solution — show every step clearly, number each step, explain WHY at key steps"}]}
+
+Generate exactly ${params.count || 5} problems.
+difficulty distribution: ${params.difficulty === "Mixed" ? "roughly 2 easy, 2 medium, 1 hard" : `all ${params.difficulty}`}
+marks: reflect actual exam mark allocation
+solution: must be complete enough that a student who got it wrong can fully understand — no skipped steps
+
+Subject: ${params.subject}
+Topic: ${params.topic}
+Level: ${params.level}`,
+      };
+
+    case "argument":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher who specialises in structured academic argument and essay technique. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a full P-E-E-L argument plan. Respond with exactly this JSON shape:
+{"thesis":"a sharp, specific, arguable thesis statement (not vague)","intro":"a strong 3-4 sentence introduction that contextualises, states the thesis, and signposts the argument","points":[{"point":"clear topic sentence stating the argument","evidence":"specific evidence — name dates, people, data, quotes","explain":"analysis of WHY the evidence supports the point","link":"sentence linking back to the thesis"}],"counter":{"argument":"the strongest counter-argument to this thesis","rebuttal":"how to refute or qualify it, strengthening the original thesis"},"conclusion":"3-4 sentence conclusion that synthesises rather than just summarises — make a final evaluative judgement","keyPhrases":["academic phrase 1","phrase 2","phrase 3","phrase 4","phrase 5","phrase 6"],"examTip":"one specific tip for this question type in ${params.subject} ${params.level} exams"}
+
+points: 3 well-developed P-E-E-L points. keyPhrases: transition words, analytical phrases, evaluative language appropriate for ${params.level}.
+${params.evidence ? `Incorporate this evidence where relevant: ${params.evidence}` : ""}
+
+Subject: ${params.subject}
+Level: ${params.level}
+Claim / question: ${params.claim}`,
+      };
   }
 }
 
@@ -569,7 +625,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

@@ -6,39 +6,86 @@ import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 
-const TOOLS = [
-  { n: "01", slug: "planner",    ttl: "Smart Study Planner",  sub: "Subjects in. Timetable out.",     tier: "Free",  desc: "14-day reactive plan built around your exam dates and daily hours." },
-  { n: "02", slug: "marks",      ttl: "Marks Predictor",      sub: "The math of your report card.",   tier: "Free",  desc: "Weighted GPA, CBSE grade, and the score you need in remaining subjects." },
-  { n: "03", slug: "notes",      ttl: "Notes Simplifier",     sub: "Textbook → plain English.",       tier: "Free",  desc: "AI explanations, summaries, flashcards, and a graded quiz. Saves history." },
-  { n: "04", slug: "doubt",      ttl: "Doubt Solver",         sub: "A question, a worked answer.",    tier: "Pro",   desc: "Type the problem, get a full worked solution with the underlying principle." },
-  { n: "05", slug: "focus",      ttl: "Focus Dashboard",      sub: "Pomodoro, streaks, tasks.",       tier: "Free",  desc: "25-min timer that runs in the background across every tool." },
-  { n: "06", slug: "career",     ttl: "Career Pathfinder",    sub: "For the 14–18 year olds.",        tier: "Pro",   desc: "Quiz → recommended streams, colleges, entrance exams, 5-yr roadmap." },
-  { n: "07", slug: "papers",     ttl: "Past Papers",          sub: "CBSE, JEE, NEET, SAT, IB.",      tier: "Pro",   desc: "47 papers, 900+ questions. 10 random questions per session. Tracks weak topics." },
-  { n: "08", slug: "assignment", ttl: "Assignment Rescue",    sub: "From prompt to outline.",         tier: "Pro",   desc: "Paste the brief. Get structure, argument options, and research directions." },
-  { n: "09", slug: "resume",     ttl: "Resume Builder",       sub: "For applications, not LinkedIn.", tier: "Pro+",  desc: "Internships, summer programs, college essays — one polished PDF." },
-  { n: "10", slug: "rooms",      ttl: "Study Rooms",          sub: "Silent accountability.",          tier: "Pro+",  desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
-  { n: "11", slug: "tutor",      ttl: "Topic Tutor",          sub: "Pick a topic. Get a full lesson.", tier: "Free",  desc: "AI generates a personalised lesson with concept, examples, key points and a practice quiz." },
-  { n: "12", slug: "dna",        ttl: "Mistake DNA",          sub: "See exactly where you keep going wrong.", tier: "Free", desc: "Tracks every wrong answer by category and subject. Pinpoints your highest-leverage weak spots." },
-  { n: "13", slug: "crunch",     ttl: "48-Hour Crunch",       sub: "Exam tomorrow. Smart triage.",   tier: "Free",  desc: "Tell the AI what to skip and what to nail. Get a topic-by-topic priority list with time blocks." },
-  { n: "14", slug: "syllabus",   ttl: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped.", tier: "Free", desc: "Extract subjects, chapters, and topics from any syllabus document. Powers every AI tool on Ledger." },
-  { n: "15", slug: "formula",    ttl: "Formula Sheet",        sub: "Chapter → reference card.",     tier: "Free",  desc: "Type any subject and chapter. Get every formula, variable definition, units table, and exam tips — printable in one click." },
-  { n: "16", slug: "admissions",       ttl: "Admissions Engine",    sub: "Your real odds. 60 universities.",     tier: "Pro",  desc: "GPA, scores, activities → statistically modelled chances for 60 top universities with AI strategy, gap analysis, and essay angles." },
-  { n: "17", slug: "flashcards",       ttl: "AI Flashcards",        sub: "Topic or notes → flip cards.",         tier: "Free", desc: "AI generates high-quality flashcards from any topic or your own notes. Track known/unknown and drill what you haven't mastered." },
-  { n: "18", slug: "essay-grader",     ttl: "Essay Grader",         sub: "Paste essay. Get examiner marks.",     tier: "Pro",  desc: "Get a grade, band score, and detailed feedback on argument, evidence, structure, and language — with specific improvements." },
-  { n: "19", slug: "personal-statement", ttl: "Personal Statement", sub: "Score your uni application essay.",   tier: "Pro",  desc: "1-10 score, hook analysis, paragraph-by-paragraph notes, tone check, and a rewritten opening if yours is weak." },
-  { n: "20", slug: "interview",        ttl: "Interview Coach",      sub: "Practice. Get scored. Improve.",       tier: "Pro",  desc: "Choose your interview type, answer AI questions, get scored on each response with a model answer and coaching tip." },
-  { n: "21", slug: "mindmap",          ttl: "Mind Map Builder",     sub: "Any topic. Full concept breakdown.",   tier: "Free", desc: "AI generates a full collapsible mind map with depth levels. Print to PDF or export. Works for any subject." },
-  { n: "22", slug: "citation",         ttl: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard.",         tier: "Free", desc: "Fill in source details → instant formatted citation. Supports 5 source types and 5 referencing styles. No sign-up." },
-  { n: "23", slug: "presentation",     ttl: "Presentation Planner", sub: "Topic → full slide deck.",            tier: "Pro",  desc: "AI builds a complete slide deck with speaker notes calibrated to your audience and duration. Print-ready." },
-  { n: "24", slug: "debate",           ttl: "Debate Coach",         sub: "Any motion. Arguments both ways.",    tier: "Pro",  desc: "Generate for and against arguments, evidence, rebuttals, key terms, and practice questions for any debate motion." },
-  { n: "25", slug: "habits",           ttl: "Habit Tracker",        sub: "Build study habits that stick.",      tier: "Free", desc: "Track daily study habits with a 14-day heatmap, streak counter, and weekly score. Add custom habits with emoji." },
-  { n: "26", slug: "deadlines",        ttl: "Deadline Hub",         sub: "Every deadline. Never miss one.",     tier: "Free", desc: "Add exams, assignments, and applications with priority levels. Countdown timers, category filters, and overdue alerts." },
-  { n: "27", slug: "exam-sim",         ttl: "Exam Simulator",       sub: "Timed AI exam. Explained answers.",   tier: "Pro",  desc: "AI generates a full MCQ exam for any subject and level. Timed with a question map, flag-for-review, and full answer explanations." },
-  { n: "28", slug: "gpa-sim",          ttl: "GPA Simulator",        sub: "Model your grades. Plan your GPA.",   tier: "Free", desc: "Add courses, choose your scale (4.0 to 100), toggle weighted/unweighted, and simulate what grade you need to hit a target GPA." },
-  { n: "29", slug: "vocab",            ttl: "Vocabulary Vault",     sub: "Deep word learning with memory hooks.", tier: "Free", desc: "AI generates vocabulary sets with definitions, examples, etymology, synonyms, and vivid memory hooks. Card and list views." },
-  { n: "30", slug: "research",         ttl: "Research Assistant",   sub: "Any topic. Arguments, stats, angles.", tier: "Pro",  desc: "Full research briefing with sections, for/against arguments, statistics, essay angles, and further reading — tailored to your purpose." },
-  { n: "★",  slug: "score",            ttl: "Ledger Score™",        sub: "Your real-time exam readiness.",      tier: "Free", desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, mistake velocity, and consistency." },
-] as const;
+type DashTool = { n: string; slug: string; ttl: string; sub: string; tier: string; desc: string };
+type DashCat  = { label: string; tools: DashTool[] };
+
+const TOOL_CATEGORIES: DashCat[] = [
+  {
+    label: "PLAN",
+    tools: [
+      { n: "01", slug: "planner",      ttl: "Smart Study Planner",  sub: "Subjects in. Timetable out.",         tier: "Free", desc: "14-day reactive plan built around your exam dates and daily hours." },
+      { n: "05", slug: "focus",        ttl: "Focus Dashboard",      sub: "Pomodoro, streaks, tasks.",           tier: "Free", desc: "25-min timer that runs in the background across every tool." },
+      { n: "25", slug: "habits",       ttl: "Habit Tracker",        sub: "Build study habits that stick.",      tier: "Free", desc: "Track daily study habits with a 14-day heatmap, streak counter, and weekly score." },
+      { n: "26", slug: "deadlines",    ttl: "Deadline Hub",         sub: "Every deadline. Never miss one.",     tier: "Free", desc: "Add exams, assignments, and applications with priority levels. Countdown timers." },
+      { n: "36", slug: "exam-planner", ttl: "Exam Season Planner",  sub: "Spaced repetition, automatically.",   tier: "Free", desc: "AI builds a spaced-repetition revision schedule around your real exam dates." },
+    ],
+  },
+  {
+    label: "LEARN",
+    tools: [
+      { n: "03", slug: "notes",         ttl: "Notes Simplifier",   sub: "Textbook → plain English.",            tier: "Free", desc: "AI explanations, summaries, flashcards, and a graded quiz. Saves history." },
+      { n: "04", slug: "doubt",         ttl: "Doubt Solver",       sub: "A question, a worked answer.",         tier: "Pro",  desc: "Type the problem, get a full worked solution with the underlying principle." },
+      { n: "11", slug: "tutor",         ttl: "Topic Tutor",        sub: "Pick a topic. Get a full lesson.",     tier: "Free", desc: "AI generates a personalised lesson with concept, examples, key points and a practice quiz." },
+      { n: "14", slug: "syllabus",      ttl: "Syllabus Parser",    sub: "Upload PDF. Get your year mapped.",    tier: "Free", desc: "Extract subjects, chapters, and topics from any syllabus document." },
+      { n: "21", slug: "mindmap",       ttl: "Mind Map Builder",   sub: "Any topic. Full concept breakdown.",   tier: "Free", desc: "AI generates a full collapsible mind map with depth levels. Print to PDF or export." },
+      { n: "35", slug: "concept-web",   ttl: "Concept Web",        sub: "Any concept, fully mapped.",           tier: "Free", desc: "Deep concept map showing relationships, examples, and connections." },
+      { n: "15", slug: "formula",       ttl: "Formula Sheet",      sub: "Chapter → complete reference card.",   tier: "Free", desc: "Every formula, variable definition, units table, and exam tips — printable." },
+      { n: "38", slug: "lang-analyzer", ttl: "Language Analyzer",  sub: "Unseen text, fully decoded.",          tier: "Free", desc: "Annotates any passage with tone, devices, structure, and exam-ready commentary." },
+      { n: "29", slug: "vocab",         ttl: "Vocabulary Vault",   sub: "Deep word learning with memory hooks.",tier: "Free", desc: "AI generates vocabulary sets with definitions, etymology, synonyms, and memory hooks." },
+    ],
+  },
+  {
+    label: "WRITE",
+    tools: [
+      { n: "08", slug: "assignment",         ttl: "Assignment Rescue",    sub: "From prompt to outline.",             tier: "Pro",  desc: "Paste the brief. Get structure, argument options, and research directions." },
+      { n: "18", slug: "essay-grader",       ttl: "Essay Grader",         sub: "Paste essay. Get examiner marks.",    tier: "Pro",  desc: "Grade, band score, and detailed feedback on argument, evidence, structure, and language." },
+      { n: "19", slug: "personal-statement", ttl: "Personal Statement",   sub: "Score your uni application essay.",   tier: "Pro",  desc: "1-10 score, hook analysis, paragraph-by-paragraph notes, and a rewritten opening." },
+      { n: "34", slug: "essay-blueprint",    ttl: "Essay Blueprint",      sub: "Structure before you write.",         tier: "Free", desc: "AI generates a full essay structure with thesis, paragraph plan, and signpost phrases." },
+      { n: "30", slug: "research",           ttl: "Research Assistant",   sub: "Any topic. Arguments, stats, angles.",tier: "Pro",  desc: "Full research briefing with for/against arguments, statistics, and essay angles." },
+      { n: "23", slug: "presentation",       ttl: "Presentation Planner", sub: "Topic → full slide deck.",            tier: "Pro",  desc: "AI builds a complete slide deck with speaker notes calibrated to your audience." },
+      { n: "24", slug: "debate",             ttl: "Debate Coach",         sub: "Any motion. Arguments both ways.",    tier: "Pro",  desc: "For and against arguments, evidence, rebuttals, and practice questions." },
+      { n: "22", slug: "citation",           ttl: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard.",        tier: "Free", desc: "Fill in source details → instant formatted citation in 5 styles." },
+      { n: "39", slug: "lab-report",         ttl: "Lab Report Builder",   sub: "Turn experiments into full reports.", tier: "Free", desc: "AI structures your experimental data into a complete IB/A-level lab report." },
+      { n: "44", slug: "argument",           ttl: "Argument Builder",     sub: "P-E-E-L plan from any claim.",        tier: "Free", desc: "Full P-E-E-L plan: thesis, intro, 3 points, counter-argument, rebuttal, conclusion." },
+    ],
+  },
+  {
+    label: "PRACTISE",
+    tools: [
+      { n: "07", slug: "papers",          ttl: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB.",       tier: "Pro",  desc: "47 papers, 900+ questions. 10 random questions per session. Tracks weak topics." },
+      { n: "17", slug: "flashcards",      ttl: "AI Flashcards",       sub: "Topic or notes → flip cards.",    tier: "Free", desc: "AI generates high-quality flashcards. Track known/unknown and drill weak cards." },
+      { n: "27", slug: "exam-sim",        ttl: "Exam Simulator",       sub: "Timed AI exam. Explained answers.",tier: "Pro",  desc: "Full MCQ exam for any subject and level. Timed, with flag-for-review and explanations." },
+      { n: "32", slug: "mark-scheme",     ttl: "Mark Scheme Trainer",  sub: "Real questions. Real marking.",   tier: "Pro",  desc: "AI marks your answers against real marking criteria. Highlights where marks were lost." },
+      { n: "37", slug: "paper-dissector", ttl: "Paper Dissector",     sub: "Decode what examiners want.",     tier: "Free", desc: "AI analyses exam papers to extract question patterns, command words, and mark weightings." },
+      { n: "43", slug: "practice",        ttl: "Practice Problems",   sub: "Graded problems, worked solutions.",tier: "Free", desc: "AI generates 3-10 exam-style problems with step-by-step worked solutions and hints." },
+      { n: "13", slug: "crunch",          ttl: "48-Hour Crunch",      sub: "Exam tomorrow. Smart triage.",    tier: "Free", desc: "Tell the AI what to skip and what to nail. Get a time-blocked priority list." },
+      { n: "12", slug: "dna",             ttl: "Mistake DNA",         sub: "See exactly where you go wrong.",  tier: "Free", desc: "Tracks every wrong answer by category. Pinpoints your highest-leverage weak spots." },
+    ],
+  },
+  {
+    label: "FUTURE",
+    tools: [
+      { n: "06", slug: "career",         ttl: "Career Pathfinder",   sub: "For the 14–18 year olds.",         tier: "Pro",  desc: "Quiz → recommended streams, colleges, entrance exams, 5-yr roadmap." },
+      { n: "16", slug: "admissions",     ttl: "Admissions Engine",   sub: "Your real odds. 60 universities.", tier: "Pro",  desc: "GPA, scores, activities → modelled chances for 60 top universities + essay angles." },
+      { n: "09", slug: "resume",         ttl: "Resume Builder",      sub: "For applications, not LinkedIn.",  tier: "Pro+", desc: "Internships, summer programs, college essays — one polished document." },
+      { n: "20", slug: "interview",      ttl: "Interview Coach",     sub: "Practice. Get scored. Improve.",   tier: "Pro",  desc: "Answer AI questions, get scored on each response with a model answer and coaching tip." },
+      { n: "33", slug: "subject-picker", ttl: "Subject Picker",      sub: "Find the perfect combination.",    tier: "Free", desc: "AI recommends the ideal Grade 11 subject combination based on your goals." },
+      { n: "40", slug: "uni-match",      ttl: "University Match",    sub: "Your grades. Your field. Matched.", tier: "Free", desc: "Input your grades and interests → ranked university matches with fit scores." },
+      { n: "28", slug: "gpa-sim",        ttl: "GPA Simulator",       sub: "Model your grades. Plan your GPA.", tier: "Free", desc: "Add courses, choose your scale, and simulate what grade you need to hit a target GPA." },
+    ],
+  },
+  {
+    label: "TRACK",
+    tools: [
+      { n: "02", slug: "marks",   ttl: "Marks Predictor",  sub: "The math of your report card.",   tier: "Free", desc: "Weighted GPA, CBSE grade, and the score you need in remaining subjects." },
+      { n: "31", slug: "coach",   ttl: "AI Study Coach",   sub: "Daily briefing + personal chat.",  tier: "Pro",  desc: "Your personal AI. Morning briefing, streak coaching, and free-form study chat." },
+      { n: "10", slug: "rooms",   ttl: "Study Rooms",      sub: "Silent accountability.",           tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
+      { n: "41", slug: "compare", ttl: "Comparison Chart", sub: "Any concepts, side by side.",      tier: "Free", desc: "Compare 2-4 items across 6-8 criteria. Similarities, differences, and verdict." },
+      { n: "42", slug: "source",  ttl: "Source Analyzer",  sub: "OPCVL analysis in seconds.",       tier: "Free", desc: "Full origin, purpose, content, value, and limitation breakdown for any source." },
+      { n: "★",  slug: "score",   ttl: "Ledger Score™",   sub: "Your real-time exam readiness.",   tier: "Free", desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, and consistency." },
+    ],
+  },
+];
 
 const TIER_COLOR: Record<string, string> = {
   Free: "var(--ink-3)",
@@ -493,33 +540,49 @@ export default function Dashboard() {
         <SharePanel userId={user.id} userName={name} />
       )}
 
-      {/* Tools grid */}
-      <div
-        className="mob-2col"
-        style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", borderTop: "1px solid var(--ink)", borderLeft: "1px solid var(--ink)" }}
-      >
-        {TOOLS.map((t) => (
-          <Link
-            key={t.n}
-            href={`/tools/${t.slug}`}
-            style={{
-              textDecoration: "none", borderRight: "1px solid var(--ink)", borderBottom: "1px solid var(--ink)",
-              padding: "22px 18px 20px", minHeight: 200, background: "var(--paper)", display: "flex",
-              flexDirection: "column", color: "var(--ink)",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <div className="mono cin">№ {t.n}</div>
-              <div className="mono" style={{ fontSize: 9, color: TIER_COLOR[t.tier] }}>{t.tier}</div>
+      {/* Tools grid — categorised */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "2px solid var(--ink)", paddingBottom: 12, marginBottom: 28 }}>
+          <div style={{ fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic", fontWeight: 500 }}>All Tools</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>44 tools · click to open</div>
+        </div>
+        {TOOL_CATEGORIES.map(cat => (
+          <div key={cat.label} style={{ marginBottom: 36 }}>
+            {/* Category header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
+              <div style={{ flex: 1, height: 1, background: "var(--rule)" }} />
             </div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 600, lineHeight: 1.2, marginTop: 10 }}>{t.ttl}</div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4, fontSize: 9 }}>{t.sub}</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5, marginTop: 10 }}>{t.desc}</div>
-            <div style={{ flex: 1 }} />
-            <div className="mono" style={{ borderTop: "1px solid var(--rule)", marginTop: 14, paddingTop: 10, display: "flex", justifyContent: "space-between", fontSize: 9, color: "var(--ink-3)" }}>
-              <span>Tool {t.n} of 16</span><span>↗</span>
+            {/* Tool cards */}
+            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, borderTop: "1px solid var(--ink)", borderLeft: "1px solid var(--ink)" }}>
+              {cat.tools.map((t) => (
+                <Link
+                  key={t.n}
+                  href={`/tools/${t.slug}`}
+                  style={{
+                    textDecoration: "none", borderRight: "1px solid var(--ink)", borderBottom: "1px solid var(--ink)",
+                    padding: "20px 18px 18px", background: "var(--paper)", display: "flex",
+                    flexDirection: "column", color: "var(--ink)", minHeight: 180,
+                    transition: "background 120ms",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "var(--paper-2)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "var(--paper)")}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+                    <div className="mono cin" style={{ fontSize: 9 }}>№ {t.n}</div>
+                    <div className="mono" style={{ fontSize: 8, color: TIER_COLOR[t.tier] }}>{t.tier}</div>
+                  </div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 600, lineHeight: 1.25 }}>{t.ttl}</div>
+                  <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4, fontSize: 8, lineHeight: 1.5 }}>{t.sub}</div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 11.5, color: "var(--ink-2)", lineHeight: 1.55, marginTop: 10 }}>{t.desc}</div>
+                  <div style={{ flex: 1 }} />
+                  <div className="mono" style={{ borderTop: "1px solid var(--rule)", marginTop: 12, paddingTop: 8, display: "flex", justifyContent: "space-between", fontSize: 8, color: "var(--ink-3)" }}>
+                    <span>Tool {t.n} of 44</span><span>↗</span>
+                  </div>
+                </Link>
+              ))}
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 

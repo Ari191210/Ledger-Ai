@@ -346,7 +346,7 @@ export default function FormulaPage() {
 
         <div className="no-print" style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 15 of 16.</div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Tool 15 of 44.</div>
         </div>
       </main>
     </div>
