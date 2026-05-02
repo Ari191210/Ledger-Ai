@@ -4,42 +4,42 @@
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --serif: var(--font-source-serif-4), "Source Serif Pro", Georgia, serif;
+  --serif: var(--font-newsreader), "Newsreader", Georgia, serif;
   --sans:  var(--font-inter-tight), "Inter", system-ui, sans-serif;
   --mono:  var(--font-jetbrains-mono), ui-monospace, monospace;
 
-  /* Porcelain — warm editorial white */
-  --paper:        #FAF8F5;
-  --paper-2:      #F0EDE6;
-  --ink:          #1A1714;
-  --ink-2:        #3D3A36;
-  --ink-3:        #7A7570;
-  --rule:         rgba(26, 23, 20, 0.12);
-  --rule-2:       rgba(26, 23, 20, 0.05);
-  --cinnabar:     #C44B2A;
+  /* Stitch-aligned warm parchment + forest green */
+  --paper:        #FDFCFB;
+  --paper-2:      #F4F1EA;       /* warm parchment — sidebar & section accents */
+  --ink:          #18241b;       /* dark forest green */
+  --ink-2:        #2D3930;       /* medium forest green */
+  --ink-3:        #747873;       /* muted green-gray */
+  --rule:         #E2E2DE;       /* warm gray border */
+  --rule-2:       rgba(226, 226, 222, 0.5);
+  --cinnabar:     #C44B2A;       /* kept for accent highlights */
   --cinnabar-ink: #A33C1F;
   --highlight:    #FEF3C0;
-  /* Extended palette — low-stimulus accents */
-  --sage:         #4A7C59;       /* muted forest green */
+  /* Extended palette */
+  --sage:         #4A7C59;
   --sage-bg:      rgba(74, 124, 89, 0.07);
-  --slate:        #4A6FA5;       /* steel blue */
+  --slate:        #4A6FA5;
   --slate-bg:     rgba(74, 111, 165, 0.07);
-  --ochre:        #B5850A;       /* warm amber */
+  --ochre:        #B5850A;
   --ochre-bg:     rgba(181, 133, 10, 0.07);
-  --plum:         #7B5EA7;       /* soft purple */
+  --plum:         #7B5EA7;
   --plum-bg:      rgba(123, 94, 167, 0.07);
-  --teal:         #2A7A7A;       /* deep teal */
+  --teal:         #2A7A7A;
   --teal-bg:      rgba(42, 122, 122, 0.07);
 }
 
 [data-palette="ink"] {
-  --paper:        #0E0C0A;
-  --paper-2:      #181511;
-  --ink:          #F5F2ED;
-  --ink-2:        #C6C1BA;
-  --ink-3:        #8A837C;
-  --rule:         rgba(245, 242, 237, 0.13);
-  --rule-2:       rgba(245, 242, 237, 0.05);
+  --paper:        #0F120E;
+  --paper-2:      #181f17;
+  --ink:          #E8EDE9;
+  --ink-2:        #BCCABD;
+  --ink-3:        #8A9E8B;
+  --rule:         rgba(188, 202, 189, 0.18);
+  --rule-2:       rgba(188, 202, 189, 0.07);
   --cinnabar:     #E86B40;
   --cinnabar-ink: #F07F58;
   --highlight:    rgba(254, 243, 192, 0.10);
@@ -94,10 +94,10 @@ body {
 a { color: inherit; text-underline-offset: 3px; }
 * { box-sizing: border-box; }
 
-/* Headings default to serif — override inline where needed */
+/* Headings default to serif italic — Newsreader reads best at 400–500 */
 h1, h2, h3, h4, h5 {
   font-family: var(--serif);
-  font-weight: 700;
+  font-weight: 500;
   font-style: italic;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -390,7 +390,7 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 ::selection { background: var(--highlight); color: var(--ink); }
 
 /* ─── Landing page ───────────────────────────────────────────────────────────── */
-.lp-title  { font-family: var(--serif); font-size: 168px; font-weight: 900; font-style: italic; line-height: 0.9; letter-spacing: -0.035em; margin: 12px 0 0; }
+.lp-title  { font-family: var(--serif); font-size: 120px; font-weight: 600; font-style: italic; line-height: 0.9; letter-spacing: -0.03em; margin: 12px 0 0; }
 .lp-h3     { font-family: var(--serif); font-size: 56px; font-weight: 500; font-style: italic; line-height: 0.98; letter-spacing: -0.025em; margin: 10px 0 0; }
 .lp-h2     { font-family: var(--serif); font-size: 56px; font-weight: 400; font-style: italic; line-height: 1.02; letter-spacing: -0.02em; margin: 0; }
 .lp-metabar  { border-bottom: 1px solid var(--rule); padding: 10px 44px; display: flex; justify-content: space-between; align-items: center; }
@@ -432,6 +432,23 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 
   /* Ticker — smaller */
   .ticker-track { gap: 28px; }
+}
+
+/* ─── Bento grid — shared by dashboard and landing ─────────────────────────── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1px;
+  background-color: var(--rule);
+  border: 1px solid var(--rule);
+}
+.bento-item {
+  background-color: var(--paper);
+  padding: 24px;
+}
+.bento-item-parchment {
+  background-color: var(--paper-2);
+  padding: 24px;
 }
 
 /* ─── Nav tools: hide scrollbar so overflow is invisible ────────────────────── */

@@ -233,40 +233,38 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
 
   return (
     <div style={{ marginBottom: 40 }}>
-      {/* Section header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--ink)", paddingBottom: 12, marginBottom: 20 }}>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic" }}>Exam Schedule</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 12, marginBottom: 20 }}>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic", fontWeight: 500 }}>Exam Schedule</div>
         <button onClick={() => setShowForm(!showForm)} className="btn ghost" style={{ padding: "4px 12px", fontSize: 11 }}>
           {showForm ? "Cancel" : "+ Add exam"}
         </button>
       </div>
 
-      {/* Add exam form */}
       {showForm && (
-        <div style={{ border: "1px solid var(--ink)", padding: "20px", marginBottom: 16, background: "var(--paper-2)" }}>
+        <div style={{ border: "1px solid var(--rule)", padding: "20px", marginBottom: 16, background: "var(--paper-2)" }}>
           <div className="mono cin" style={{ marginBottom: 14 }}>New exam</div>
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Exam name</div>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Physics Unit Test"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Subject</div>
               <input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
                 placeholder="e.g. Physics"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Date</div>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Board</div>
               <select value={form.board} onChange={e => setForm(f => ({ ...f, board: e.target.value }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }}>
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }}>
                 {BOARDS.map(b => <option key={b}>{b}</option>)}
               </select>
             </div>
@@ -277,13 +275,12 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
         </div>
       )}
 
-      {/* Exam list */}
       {upcoming.length === 0 && !showForm ? (
         <div style={{ padding: "20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>No exams scheduled. Add your upcoming exams to get personalised progress emails.</div>
         </div>
       ) : upcoming.length > 0 ? (
-        <div style={{ border: "1px solid var(--ink)", marginBottom: 16 }}>
+        <div style={{ border: "1px solid var(--rule)", marginBottom: 16 }}>
           <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "var(--paper-2)" }}>
@@ -304,7 +301,7 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
                 const d = daysUntil(e.date);
                 return (
                   <tr key={i}>
-                    <td style={{ padding: "10px 14px", fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.name}</td>
+                    <td style={{ padding: "10px 14px", fontFamily: "var(--serif)", fontSize: 14, fontStyle: "italic", fontWeight: 500, borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.name}</td>
                     <td className="mob-exam-hide" style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.subject}</td>
                     <td className="mob-exam-hide" style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{e.board}</td>
                     <td style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid var(--rule)" : "none" }}>{new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
@@ -324,7 +321,6 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
         <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 16 }}>{past.length} past exam{past.length > 1 ? "s" : ""} hidden.</div>
       )}
 
-      {/* Email reports section */}
       <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", background: "var(--paper-2)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>Weekly Progress Email</div>
@@ -380,9 +376,8 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
   }
 
   return (
-    <div className="mob-share" style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
-      {/* Share with parent */}
-      <div style={{ padding: "20px", borderRight: "1px solid var(--ink)" }}>
+    <div className="mob-share" style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
+      <div style={{ padding: "20px", background: "var(--paper)" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Share with parent</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
           Your parent gets a live read-only view of your progress — streak, exams, marks, weak topics.
@@ -398,8 +393,7 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
         </div>
       </div>
 
-      {/* Refer a friend */}
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: "20px", background: "var(--paper)" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Refer a friend</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
           Share your referral link. When they sign up, both of you get 1 month Pro free once billing is live.
@@ -427,17 +421,17 @@ function LedgerScoreWidget() {
   const tier = scoreTier(score.total);
   const pct = (score.total / 1000) * 100;
   return (
-    <Link href="/tools/score" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--ink)", padding: "24px 28px", background: "var(--paper)" }}>
+    <Link href="/tools/score" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--rule)", padding: "28px 32px", background: "var(--paper-2)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
         <div>
-          <div className="mono cin" style={{ marginBottom: 4 }}>Ledger Score™</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>Ledger Score™</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-            <span style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1, color: "var(--ink)" }}>{score.total}</span>
+            <span style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.04em", lineHeight: 1, color: "var(--ink)" }}>{score.total}</span>
             <span className="mono" style={{ color: "var(--ink-3)" }}>/ 1000 · {tier.label}</span>
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ height: 10, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 8 }}>
+          <div style={{ height: 6, background: "var(--paper)", border: "1px solid var(--rule)", marginBottom: 10 }}>
             <div style={{ height: "100%", width: `${pct}%`, background: "var(--ink)", transition: "width 800ms" }} />
           </div>
           {score.actions[0] && (
@@ -476,13 +470,12 @@ export default function Dashboard() {
   return (
     <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
 
-      {/* Masthead header */}
-      <div style={{ borderBottom: "3px double var(--ink)", paddingBottom: 18, marginBottom: 32 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 8, marginBottom: 14 }}>
-          <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 8, letterSpacing: "0.18em" }}>LEDGER · STUDENT DASHBOARD · {today.toUpperCase()}</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 8 }}>studyledger.in</div>
+      {/* Command Centre header */}
+      <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10 }}>
+          Command Centre · {today.toUpperCase()}
         </div>
-        <h1 className="mob-heading" style={{ fontFamily: "var(--serif)", fontSize: 52, fontWeight: 700, fontStyle: "italic", letterSpacing: "-0.03em", lineHeight: 1.0, margin: 0 }}>
+        <h1 className="mob-heading" style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 1.0, margin: 0, color: "var(--ink)" }}>
           {greeting}, {name}.
         </h1>
       </div>
@@ -501,8 +494,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Stats bar */}
-      <div className="mob-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid var(--ink)", marginBottom: 40 }}>
+      {/* Stats bar — 5 bento cells */}
+      <div className="mob-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)", marginBottom: 32 }}>
         {[
           { label: "Study streak",    value: `${streak}d`,           sub: streak === 0 ? "Start today" : streak === 1 ? "Keep it up" : "On a roll" },
           { label: "Sessions today",  value: String(sessionsToday),  sub: sessionsToday === 0 ? "None yet" : `${sessionsToday * 25} min focused` },
@@ -510,9 +503,9 @@ export default function Dashboard() {
           { label: "Papers done",     value: String(papersCount),    sub: papersCount === 0 ? "Start practising" : "Sessions completed" },
           { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below" },
         ].map((s, i) => (
-          <div key={i} style={{ padding: "18px 20px", borderRight: i < 4 ? "1px solid var(--ink)" : "none" }}>
+          <div key={i} style={{ padding: "18px 20px", background: "var(--paper)" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: i === 4 && nextExam && nextExam.days <= 7 ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
+            <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: i === 4 && nextExam && nextExam.days <= 7 ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 4 }}>{s.sub}</div>
           </div>
         ))}
@@ -553,26 +546,24 @@ export default function Dashboard() {
 
       {/* Tools grid — categorised */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "3px double var(--ink)", paddingBottom: 14, marginBottom: 28 }}>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 700 }}>The Archive</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 8 }}>55 tools · click to open</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 28 }}>
+          <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 500 }}>The Archive</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>55 tools · click to open</div>
         </div>
         {TOOL_CATEGORIES.map(cat => (
           <div key={cat.label} style={{ marginBottom: 36 }}>
-            {/* Category header — newspaper section flag */}
-            <div className="section-flag" style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 12 }}>
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.16em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
             </div>
-            {/* Tool cards */}
-            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, borderTop: "1px solid var(--ink)", borderLeft: "1px solid var(--ink)" }}>
+            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
               {cat.tools.map((t) => (
                 <Link
                   key={t.slug}
                   href={`/tools/${t.slug}`}
                   style={{
-                    textDecoration: "none", borderRight: "1px solid var(--ink)", borderBottom: "1px solid var(--ink)",
+                    textDecoration: "none",
                     padding: "20px 18px 16px", background: "var(--paper)", display: "flex",
-                    flexDirection: "column", color: "var(--ink)", minHeight: 170,
+                    flexDirection: "column", color: "var(--ink)", minHeight: 160,
                     transition: "background 120ms",
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = "var(--paper-2)")}
@@ -581,7 +572,7 @@ export default function Dashboard() {
                   <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
                     <div className="mono" style={{ fontSize: 8, color: TIER_COLOR[t.tier] }}>{t.tier}</div>
                   </div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 700, fontStyle: "italic", lineHeight: 1.2 }}>{t.ttl}</div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 500, fontStyle: "italic", lineHeight: 1.2 }}>{t.ttl}</div>
                   <div className="mono" style={{ color: "var(--ink-3)", marginTop: 5, fontSize: 8, lineHeight: 1.5 }}>{t.sub}</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.6, marginTop: 8 }}>{t.desc}</div>
                   <div style={{ flex: 1 }} />
