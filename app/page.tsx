@@ -178,7 +178,7 @@ export default function Home() {
 
       {/* ── Hero ── */}
       <section style={{ maxWidth: 1120, margin: "0 auto", padding: "88px 32px 72px", textAlign: "center" }}>
-        <div style={{ display: "inline-block", border: S.borderInk, color: "var(--ink)", padding: "4px 16px", ...S.cap, marginBottom: 28 }}>
+        <div style={{ display: "inline-block", border: S.borderInk, padding: "4px 16px", ...S.cap, color: "var(--ink)", marginBottom: 28 }}>
           Academic OS
         </div>
         <h1 style={{ ...S.h1, fontSize: 88, maxWidth: 800, margin: "0 auto 28px", letterSpacing: "-0.03em" }} className="mob-heading">
