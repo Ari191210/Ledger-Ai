@@ -157,59 +157,130 @@ export default function Home() {
 
   const tool = TOOLS[selectedTool];
   const containerRef = useRef<HTMLDivElement>(null);
+  const testimRef    = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!testimRef.current) return;
+    gsap.from(testimRef.current, { opacity: 0, y: 10, duration: 0.35, ease: "power2.out" });
+  }, [testimIdx]);
 
   useGSAP(() => {
-    // ── Hero: staggered entrance on load ──
+    // ── Hero: badge wipe + word-by-word stagger ──
     gsap.timeline({ defaults: { ease: "power3.out" } })
-      .from(".hero-badge",  { opacity: 0, y: 20,  duration: 0.6 })
-      .from(".hero-h1",     { opacity: 0, y: 32,  duration: 0.85 }, "-=0.3")
-      .from(".hero-sub",    { opacity: 0, y: 20,  duration: 0.6  }, "-=0.55")
-      .from(".hero-ctas",   { opacity: 0, y: 16,  duration: 0.5  }, "-=0.45");
+      .fromTo(".hero-badge",
+        { clipPath: "inset(0 100% 0 0)" },
+        { clipPath: "inset(0 0% 0 0)", duration: 0.7, ease: "power2.inOut" })
+      .from(".hero-word",     { opacity: 0, y: 48, duration: 0.75, stagger: 0.08 }, "-=0.35")
+      .from(".hero-sub",      { opacity: 0, y: 20, duration: 0.6  }, "-=0.5")
+      .from(".hero-ctas > *", { opacity: 0, y: 16, scale: 0.95, duration: 0.5, stagger: 0.1 }, "-=0.4");
 
-    // ── Section headings: fade+slide as they enter viewport ──
+    // ── Hero h1 follows mouse ──
+    const heroSection = containerRef.current?.querySelector(".hero-section");
+    const onMouseMove = (e: Event) => {
+      const { clientX, clientY } = e as MouseEvent;
+      const x = (clientX / window.innerWidth  - 0.5) * 14;
+      const y = (clientY / window.innerHeight - 0.5) * 8;
+      gsap.to(".hero-h1", { x, y, duration: 1.2, ease: "power2.out", overwrite: "auto" });
+    };
+    const onMouseLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1, ease: "power3.out" });
+    heroSection?.addEventListener("mousemove", onMouseMove);
+    heroSection?.addEventListener("mouseleave", onMouseLeave);
+
+    // ── Hero content parallax ──
+    gsap.to(".hero-content", {
+      y: -50, ease: "none",
+      scrollTrigger: { trigger: ".hero-section", start: "top top", end: "+=600", scrub: 1.5 },
+    });
+
+    // ── Divider lines draw from left ──
+    gsap.utils.toArray<HTMLElement>(".anim-divider").forEach(el => {
+      gsap.from(el, {
+        scaleX: 0, transformOrigin: "left center", duration: 0.9, ease: "power2.out",
+        scrollTrigger: { trigger: el, start: "top 92%", once: true },
+      });
+    });
+
+    // ── Section headings ──
     gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
       gsap.from(el, {
-        opacity: 0, y: 24, duration: 0.7, ease: "power2.out",
+        opacity: 0, y: 32, duration: 0.85, ease: "power3.out",
         scrollTrigger: { trigger: el, start: "top 88%", once: true },
       });
     });
 
-    // ── Bento cards: stagger on scroll ──
+    // ── Bento cards ──
     ScrollTrigger.batch(".bento-card", {
       onEnter: els => gsap.from(els, {
-        opacity: 0, y: 28, duration: 0.65, stagger: 0.1,
-        ease: "power2.out", clearProps: "opacity,transform",
+        opacity: 0, y: 40, scale: 0.96, duration: 0.8, stagger: 0.13,
+        ease: "power3.out", clearProps: "opacity,transform",
       }),
       start: "top 85%", once: true,
     });
 
-    // ── Tool list rows: slide from left ──
+    // ── Count-up numbers ──
+    gsap.utils.toArray<HTMLElement>(".count-up").forEach(el => {
+      const target   = parseFloat(el.dataset.target   ?? "0");
+      const suffix   = el.dataset.suffix   ?? "";
+      const decimals = parseInt(el.dataset.decimals   ?? "0", 10);
+      const obj = { val: 0 };
+      gsap.to(obj, {
+        val: target, duration: 2, ease: "power2.out",
+        scrollTrigger: { trigger: el, start: "top 85%", once: true },
+        onUpdate() {
+          el.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix;
+        },
+      });
+    });
+
+    // ── Static progress bars fill from zero ──
+    gsap.utils.toArray<HTMLElement>(".progress-bar").forEach(el => {
+      const finalW = el.style.width;
+      gsap.fromTo(el, { width: 0 }, {
+        width: finalW, duration: 1.4, ease: "power3.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+      });
+    });
+
+    // ── Tool list rows ──
     ScrollTrigger.batch(".tool-item", {
       onEnter: els => gsap.from(els, {
-        opacity: 0, x: -16, duration: 0.45, stagger: 0.025,
+        opacity: 0, x: -20, duration: 0.5, stagger: 0.025,
         ease: "power2.out", clearProps: "opacity,transform",
       }),
       start: "top 90%", once: true,
     });
 
-    // ── Feature cards: stagger in ──
+    // ── Feature cards ──
     ScrollTrigger.batch(".feat-card", {
       onEnter: els => gsap.from(els, {
-        opacity: 0, y: 24, duration: 0.6, stagger: 0.1,
-        ease: "power2.out", clearProps: "opacity,transform",
+        opacity: 0, y: 32, scale: 0.97, duration: 0.7, stagger: 0.09,
+        ease: "power3.out", clearProps: "opacity,transform",
       }),
       start: "top 85%", once: true,
     });
 
-    // ── Stats cards: stagger in ──
+    // ── Stat cards: springy entrance ──
     ScrollTrigger.batch(".stat-card", {
       onEnter: els => gsap.from(els, {
-        opacity: 0, y: 20, duration: 0.6, stagger: 0.08,
-        ease: "power2.out", clearProps: "opacity,transform",
+        opacity: 0, y: 28, scale: 0.88, duration: 0.75, stagger: 0.1,
+        ease: "back.out(1.5)", clearProps: "opacity,transform",
       }),
       start: "top 85%", once: true,
     });
 
+    // ── Footer columns stagger ──
+    ScrollTrigger.batch(".footer-col", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, y: 28, duration: 0.65, stagger: 0.1,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 90%", once: true,
+    });
+
+    return () => {
+      heroSection?.removeEventListener("mousemove", onMouseMove);
+      heroSection?.removeEventListener("mouseleave", onMouseLeave);
+    };
   }, { scope: containerRef });
 
   return (
@@ -237,19 +308,23 @@ export default function Home() {
       </header>
 
       {/* ── Hero ── */}
-      <section style={{ maxWidth: 1120, margin: "0 auto", padding: "88px 32px 72px", textAlign: "center" }}>
-        <div className="hero-badge" style={{ display: "inline-block", border: S.borderInk, padding: "4px 16px", ...S.cap, color: "var(--ink)", marginBottom: 28 }}>
-          Academic OS
-        </div>
-        <h1 className="hero-h1 mob-heading" style={{ ...S.h1, maxWidth: 680, margin: "0 auto 24px" }}>
-          The Student&apos;s Operating System.
-        </h1>
-        <p className="hero-sub" style={{ ...S.bodyLg, maxWidth: 440, margin: "0 auto 36px" }}>
-          55 AI-powered tools. One streak. One score. One syllabus.
-        </p>
-        <div className="hero-ctas" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/dashboard" className="btn" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Initiate Protocol</Link>
-          <a href="#tools" className="btn ghost" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Explore 55 Tools</a>
+      <section className="hero-section" style={{ maxWidth: 1120, margin: "0 auto", padding: "88px 32px 72px", textAlign: "center", overflow: "hidden" }}>
+        <div className="hero-content">
+          <div className="hero-badge" style={{ display: "inline-block", border: S.borderInk, padding: "4px 16px", ...S.cap, color: "var(--ink)", marginBottom: 28 }}>
+            Academic OS
+          </div>
+          <h1 className="hero-h1 mob-heading" style={{ ...S.h1, maxWidth: 680, margin: "0 auto 24px" }}>
+            {["The", "Student's", "Operating", "System."].map((w, i) => (
+              <span key={i} className="hero-word" style={{ display: "inline-block", marginRight: "0.25em" }}>{w}</span>
+            ))}
+          </h1>
+          <p className="hero-sub" style={{ ...S.bodyLg, maxWidth: 440, margin: "0 auto 36px" }}>
+            55 AI-powered tools. One streak. One score. One syllabus.
+          </p>
+          <div className="hero-ctas" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/dashboard" className="btn" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Initiate Protocol</Link>
+            <a href="#tools" className="btn ghost" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Explore 55 Tools</a>
+          </div>
         </div>
       </section>
 
@@ -259,7 +334,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 40, alignItems: "end" }} className="mob-col">
             <div>
               <h2 className="reveal-up" style={S.h2}>The Quantified Mind</h2>
-              <div style={S.divider} />
+              <div className="anim-divider" style={S.divider} />
               <p style={{ ...S.body, fontStyle: "italic" }}>
                 A unified metric for academic health. Your Ledger Score™ accounts for past paper accuracy, syllabus coverage, and daily consistency.
               </p>
@@ -269,7 +344,7 @@ export default function Home() {
               <div className="bento-card" style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
                 <span style={S.cap}>Score Cluster</span>
                 <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 56, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 12 }}>842</div>
+                  <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 56, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 12 }}>842</div>
                   <div style={{ ...S.body, fontSize: 13, marginTop: 8 }}>+12% research velocity this week</div>
                 </div>
               </div>
@@ -287,9 +362,9 @@ export default function Home() {
               <div className="bento-card" style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
                 <span style={S.cap}>Retention Streak</span>
                 <div>
-                  <div style={{ ...S.h2, marginTop: 12, fontStyle: "italic" }}>142 Days</div>
+                  <div style={{ ...S.h2, marginTop: 12, fontStyle: "italic" }}><span className="count-up" data-target="142">142</span>{" Days"}</div>
                   <div style={{ marginTop: 12, height: 4, background: "var(--rule)" }}>
-                    <div style={{ height: "100%", width: "85%", background: "var(--ink)" }} />
+                    <div className="progress-bar" style={{ height: "100%", width: "85%", background: "var(--ink)" }} />
                   </div>
                 </div>
               </div>
@@ -514,7 +589,7 @@ export default function Home() {
             <div>
               <div style={S.capAccent}>Section D — Seven Signatures</div>
               <h2 className="reveal-up" style={{ ...S.h2, marginTop: 8 }}>Features nobody else ships.</h2>
-              <div style={S.divider} />
+              <div className="anim-divider" style={S.divider} />
               <p style={{ ...S.body, fontSize: 14 }}>
                 The tools above are the price of entry. These are the reason you stay. None of them are available in another student app — we looked, and then we built them.
               </p>
@@ -577,7 +652,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div style={{ border: S.border, padding: "28px 32px" }}>
+          <div ref={testimRef} style={{ border: S.border, padding: "28px 32px" }}>
             <div style={{ ...S.capAccent, fontSize: 10 }}>Dispatch № {String(testimIdx + 1).padStart(2, "0")}</div>
             <blockquote style={{ fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic", lineHeight: 1.4, margin: "14px 0 20px", letterSpacing: "-0.008em", maxWidth: 760, color: "var(--ink)", fontWeight: 400 }}>
               &ldquo;{TESTIMONIALS[testimIdx].q}&rdquo;
@@ -619,7 +694,7 @@ export default function Home() {
       {/* ── Footer ── */}
       <footer style={{ background: "var(--paper-2)", borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "48px 32px 56px", display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr 1fr", gap: 28 }} className="mob-2col">
-          <div>
+          <div className="footer-col">
             <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 500, fontSize: 32, letterSpacing: "-0.02em", lineHeight: 0.95, color: "var(--ink)" }}>Ledger</div>
             <div style={{ ...S.cap, fontSize: 10, marginTop: 8 }}>The Student&apos;s Operating System</div>
             <p style={{ fontFamily: "var(--sans)", fontSize: 12.5, color: "var(--ink-3)", marginTop: 16, maxWidth: 280, lineHeight: 1.6 }}>
@@ -631,7 +706,7 @@ export default function Home() {
             { h: "Institutions", l: ["For Schools", "For Tuition Centres", "Syllabus Parser", "Data Export", "API"] },
             { h: "The Ledger", l: ["Changelog", "Roadmap", "Colophon", "Masthead", "Press", "Contact"] },
           ].map((g) => (
-            <div key={g.h}>
+            <div className="footer-col" key={g.h}>
               <div style={{ ...S.capAccent, marginBottom: 14 }}>{g.h}</div>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 13, lineHeight: 2, color: "var(--ink-2)" }}>
                 {g.l.map((x) => <li key={x}>{x}</li>)}
