@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import PaletteToggle from "@/components/palette-toggle";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const TOOLS = [
   { n: "01", slug: "planner",            ttl: "Smart Study Planner",      sub: "Subjects in. Timetable out.",                  cat: "PLAN",     desc: "Enter subjects, exam dates, and the hours you can actually give. We return a day-by-day plan for every remaining day — not a calendar template you then spend two hours editing.",                                                              gets: ["14-day reactive schedule", "Adjusts when you miss a day", "Pre-fills from your syllabus"] },
@@ -117,7 +122,7 @@ function scoreTierLabel(n: number) {
 const S = {
   cap: { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "var(--ink-3)" },
   capAccent: { fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)" },
-  h1: { fontFamily: "var(--serif)", fontSize: 80, fontStyle: "italic" as const, fontWeight: 500, color: "var(--ink)", letterSpacing: "-0.025em", lineHeight: 1.0 },
+  h1: { fontFamily: "var(--serif)", fontSize: 48, fontStyle: "italic" as const, fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1.1 },
   h2: { fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic" as const, fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.01em", lineHeight: 1.2 },
   h3: { fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic" as const, fontWeight: 500, color: "var(--ink)", lineHeight: 1.3 },
   body: { fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", lineHeight: 1.6 },
@@ -151,9 +156,64 @@ export default function Home() {
   }, []);
 
   const tool = TOOLS[selectedTool];
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // ── Hero: staggered entrance on load ──
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+      .from(".hero-badge",  { opacity: 0, y: 20,  duration: 0.6 })
+      .from(".hero-h1",     { opacity: 0, y: 32,  duration: 0.85 }, "-=0.3")
+      .from(".hero-sub",    { opacity: 0, y: 20,  duration: 0.6  }, "-=0.55")
+      .from(".hero-ctas",   { opacity: 0, y: 16,  duration: 0.5  }, "-=0.45");
+
+    // ── Section headings: fade+slide as they enter viewport ──
+    gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
+      gsap.from(el, {
+        opacity: 0, y: 24, duration: 0.7, ease: "power2.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+      });
+    });
+
+    // ── Bento cards: stagger on scroll ──
+    ScrollTrigger.batch(".bento-card", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, y: 28, duration: 0.65, stagger: 0.1,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 85%", once: true,
+    });
+
+    // ── Tool list rows: slide from left ──
+    ScrollTrigger.batch(".tool-item", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, x: -16, duration: 0.45, stagger: 0.025,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 90%", once: true,
+    });
+
+    // ── Feature cards: stagger in ──
+    ScrollTrigger.batch(".feat-card", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, y: 24, duration: 0.6, stagger: 0.1,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 85%", once: true,
+    });
+
+    // ── Stats cards: stagger in ──
+    ScrollTrigger.batch(".stat-card", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, y: 20, duration: 0.6, stagger: 0.08,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 85%", once: true,
+    });
+
+  }, { scope: containerRef });
 
   return (
-    <div style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
+    <div ref={containerRef} style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
 
       {/* ── Sticky top bar ── */}
       <header style={{
@@ -178,16 +238,16 @@ export default function Home() {
 
       {/* ── Hero ── */}
       <section style={{ maxWidth: 1120, margin: "0 auto", padding: "88px 32px 72px", textAlign: "center" }}>
-        <div style={{ display: "inline-block", border: S.borderInk, padding: "4px 16px", ...S.cap, color: "var(--ink)", marginBottom: 28 }}>
+        <div className="hero-badge" style={{ display: "inline-block", border: S.borderInk, padding: "4px 16px", ...S.cap, color: "var(--ink)", marginBottom: 28 }}>
           Academic OS
         </div>
-        <h1 style={{ ...S.h1, fontSize: 88, maxWidth: 800, margin: "0 auto 28px", letterSpacing: "-0.03em" }} className="mob-heading">
+        <h1 className="hero-h1 mob-heading" style={{ ...S.h1, maxWidth: 680, margin: "0 auto 24px" }}>
           The Student&apos;s Operating System.
         </h1>
-        <p style={{ ...S.bodyLg, maxWidth: 480, margin: "0 auto 36px" }}>
+        <p className="hero-sub" style={{ ...S.bodyLg, maxWidth: 440, margin: "0 auto 36px" }}>
           55 AI-powered tools. One streak. One score. One syllabus.
         </p>
-        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+        <div className="hero-ctas" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/dashboard" className="btn" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Initiate Protocol</Link>
           <a href="#tools" className="btn ghost" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Explore 55 Tools</a>
         </div>
@@ -198,7 +258,7 @@ export default function Home() {
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 32px" }} className="mob-col" >
           <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 40, alignItems: "end" }} className="mob-col">
             <div>
-              <h2 style={S.h2}>The Quantified Mind</h2>
+              <h2 className="reveal-up" style={S.h2}>The Quantified Mind</h2>
               <div style={S.divider} />
               <p style={{ ...S.body, fontStyle: "italic" }}>
                 A unified metric for academic health. Your Ledger Score™ accounts for past paper accuracy, syllabus coverage, and daily consistency.
@@ -206,14 +266,14 @@ export default function Home() {
             </div>
             {/* 3 metric bento cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)", border: S.border }} className="mob-col">
-              <div style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
+              <div className="bento-card" style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
                 <span style={S.cap}>Score Cluster</span>
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 56, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1, marginTop: 12 }}>842</div>
                   <div style={{ ...S.body, fontSize: 13, marginTop: 8 }}>+12% research velocity this week</div>
                 </div>
               </div>
-              <div style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
+              <div className="bento-card" style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
                 <span style={S.cap}>Toolkit</span>
                 <div>
                   <div style={{ ...S.h2, marginTop: 12 }}>55 Tools</div>
@@ -224,7 +284,7 @@ export default function Home() {
                   </ul>
                 </div>
               </div>
-              <div style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
+              <div className="bento-card" style={{ background: "var(--paper)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 200 }}>
                 <span style={S.cap}>Retention Streak</span>
                 <div>
                   <div style={{ ...S.h2, marginTop: 12, fontStyle: "italic" }}>142 Days</div>
@@ -252,7 +312,7 @@ export default function Home() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
           <div>
             <div style={S.capAccent}>Section A — All 55 Tools</div>
-            <h2 style={{ ...S.h2, marginTop: 8 }}>Every tool a student needs.</h2>
+            <h2 className="reveal-up" style={{ ...S.h2, marginTop: 8 }}>Every tool a student needs.</h2>
           </div>
           <div style={S.cap}>Hover any tool to explore</div>
         </div>
@@ -262,6 +322,7 @@ export default function Home() {
           <div style={{ maxHeight: 640, overflowY: "auto", background: "var(--paper)" }}>
             {TOOLS.map((t, i) => (
               <button
+                className="tool-item"
                 key={t.n}
                 onClick={() => setSelectedTool(i)}
                 onMouseEnter={() => setSelectedTool(i)}
@@ -314,7 +375,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
             <div>
               <div style={S.capAccent}>Section B — Try It Live</div>
-              <h2 style={{ ...S.h2, marginTop: 8 }}>Adjust the sliders. Watch the grade move.</h2>
+              <h2 className="reveal-up" style={{ ...S.h2, marginTop: 8 }}>Adjust the sliders. Watch the grade move.</h2>
             </div>
             <div style={S.cap}>Tool 02 · Marks Predictor</div>
           </div>
@@ -371,7 +432,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
             <div>
               <div style={S.capAccent}>Section C — Ledger Score™</div>
-              <h2 style={{ ...S.h2, marginTop: 8 }}>What would your readiness score be right now?</h2>
+              <h2 className="reveal-up" style={{ ...S.h2, marginTop: 8 }}>What would your readiness score be right now?</h2>
             </div>
             <div style={S.cap}>Tool ★ · Live preview</div>
           </div>
@@ -452,7 +513,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 40, alignItems: "start" }} className="mob-col">
             <div>
               <div style={S.capAccent}>Section D — Seven Signatures</div>
-              <h2 style={{ ...S.h2, marginTop: 8 }}>Features nobody else ships.</h2>
+              <h2 className="reveal-up" style={{ ...S.h2, marginTop: 8 }}>Features nobody else ships.</h2>
               <div style={S.divider} />
               <p style={{ ...S.body, fontSize: 14 }}>
                 The tools above are the price of entry. These are the reason you stay. None of them are available in another student app — we looked, and then we built them.
@@ -462,6 +523,7 @@ export default function Home() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--rule)", border: S.border }} className="mob-col">
               {FEATS.map((f, i) => (
                 <div
+                  className="feat-card"
                   key={f.tag}
                   style={{ background: expandedFeat === i ? "var(--ink)" : "var(--paper)", cursor: "pointer", transition: "background 150ms", padding: "20px 18px" }}
                   onClick={() => setExpandedFeat(expandedFeat === i ? null : i)}
@@ -502,7 +564,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
             <div>
               <div style={S.capAccent}>Section E — Field Reports</div>
-              <h2 style={{ ...S.h2, marginTop: 8 }}>Dispatches from actual students.</h2>
+              <h2 className="reveal-up" style={{ ...S.h2, marginTop: 8 }}>Dispatches from actual students.</h2>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ ...S.cap, fontSize: 10 }}>n = 11,482 · Self-reported · Apr &apos;26</div>
@@ -545,7 +607,7 @@ export default function Home() {
           {/* Stats strip */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: S.border, marginTop: -1 }} className="mob-2col">
             {STATS.map(({ big, sm }, i) => (
-              <div key={i} style={{ background: "var(--paper)", padding: "20px 20px" }}>
+              <div className="stat-card" key={i} style={{ background: "var(--paper)", padding: "20px 20px" }}>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.02em", color: "var(--ink)" }}>{big}</div>
                 <div style={{ ...S.cap, fontSize: 10, marginTop: 8 }}>{sm}</div>
               </div>
