@@ -1,5 +1,12 @@
 "use client";
+import { useRef } from "react";
+import { usePathname } from "next/navigation";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { useUI } from "./ui-context";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const TOOL_NAMES: Record<string, string> = {
   planner: "Smart Study Planner",     marks: "Marks Predictor",
@@ -29,6 +36,23 @@ const TOOL_NAMES: Record<string, string> = {
 
 export default function SplitView({ children }: { children: React.ReactNode }) {
   const { splitSlug, setSplitSlug } = useUI();
+  const mainRef  = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Re-runs on every route change so each tool page gets a fresh entrance.
+  useGSAP(() => {
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+      .from("header", { opacity: 0, y: -18, duration: 0.5 })
+      .from("main",   { opacity: 0, y: 28,  duration: 0.65 }, "-=0.3");
+
+    ScrollTrigger.batch(".gsap-reveal", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, y: 20, duration: 0.5, stagger: 0.07,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 90%", once: true,
+    });
+  }, { scope: mainRef, dependencies: [pathname], revertOnUpdate: true });
 
   // Always render the same container — never an early return with a different tree.
   // If we swapped to <>{children}</> when splitSlug is null, React would unmount/remount
@@ -37,7 +61,7 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
     <div style={{ display: "flex", height: "calc(100vh - 49px)", overflow: "hidden" }}>
 
       {/* Main panel — always mounted, state always preserved */}
-      <div style={{
+      <div ref={mainRef} style={{
         flex: 1, overflowY: "auto", minWidth: 0,
         borderRight: splitSlug ? "2px solid var(--ink)" : "none",
       }}>

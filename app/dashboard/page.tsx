@@ -1,10 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 type DashTool = { slug: string; ttl: string; sub: string; tier: string; desc: string };
 type DashCat  = { label: string; tools: DashTool[] };
@@ -449,6 +453,21 @@ function LedgerScoreWidget() {
 export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
+  const containerRef = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+      .from(".dash-header", { opacity: 0, y: 24, duration: 0.7 })
+      .from(".dash-stat",   { opacity: 0, y: 20, duration: 0.55, stagger: 0.07 }, "-=0.4");
+    ScrollTrigger.batch(".dash-tool", {
+      onEnter: els => gsap.from(els, {
+        opacity: 0, y: 24, scale: 0.97, duration: 0.55, stagger: 0.04,
+        ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 88%", once: true,
+    });
+  }, { scope: containerRef });
+
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
   const [showProfileBanner, setShowProfileBanner] = useState(false);
   const greeting = getGreeting();
@@ -468,10 +487,10 @@ export default function Dashboard() {
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+    <main ref={containerRef} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
 
       {/* Command Centre header */}
-      <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>
+      <div className="dash-header" style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>
         <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10 }}>
           Command Centre · {today.toUpperCase()}
         </div>
@@ -503,7 +522,7 @@ export default function Dashboard() {
           { label: "Papers done",     value: String(papersCount),    sub: papersCount === 0 ? "Start practising" : "Sessions completed" },
           { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below" },
         ].map((s, i) => (
-          <div key={i} style={{ padding: "18px 20px", background: "var(--paper)" }}>
+          <div key={i} className="dash-stat" style={{ padding: "18px 20px", background: "var(--paper)" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: i === 4 && nextExam && nextExam.days <= 7 ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 4 }}>{s.sub}</div>
@@ -560,6 +579,7 @@ export default function Dashboard() {
                 <Link
                   key={t.slug}
                   href={`/tools/${t.slug}`}
+                  className="dash-tool"
                   style={{
                     textDecoration: "none",
                     padding: "20px 18px 16px", background: "var(--paper)", display: "flex",

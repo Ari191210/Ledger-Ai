@@ -1,8 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { saveUserData, loadUserData } from "@/lib/user-data";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+gsap.registerPlugin(useGSAP);
 
 const GRADES = ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "First Year (College)", "Second Year+ (College)"];
 const BOARDS = ["CBSE", "ICSE", "IB (International Baccalaureate)", "IGCSE / Cambridge", "State Board", "Home School / Other"];
@@ -25,6 +28,15 @@ export default function OnboardPage() {
   const { user, loading: authLoading } = useAuth();
 
   const [step,       setStep]       = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (!contentRef.current) return;
+    gsap.from(contentRef.current.children, {
+      opacity: 0, x: 24, duration: 0.45, stagger: 0.07, ease: "power3.out",
+      clearProps: "opacity,transform",
+    });
+  }, { dependencies: [step], revertOnUpdate: true });
   const [grade,      setGrade]      = useState("");
   const [board,      setBoard]      = useState("");
   const [stream,     setStream]     = useState("");
@@ -110,7 +122,7 @@ export default function OnboardPage() {
 
       {/* Content */}
       <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "60px 24px 80px" }}>
-        <div style={{ width: "100%", maxWidth: 560 }}>
+        <div ref={contentRef} style={{ width: "100%", maxWidth: 560 }}>
 
           {step === 0 && (
             <>

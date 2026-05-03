@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+gsap.registerPlugin(useGSAP);
 
 export default function AuthPage() {
   const router = useRouter();
@@ -13,6 +16,15 @@ export default function AuthPage() {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState("");
   const [done,     setDone]     = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (!formRef.current) return;
+    gsap.from(formRef.current.children, {
+      opacity: 0, y: 18, duration: 0.55, stagger: 0.09, ease: "power3.out",
+      clearProps: "opacity,transform",
+    });
+  }, { dependencies: [mode], revertOnUpdate: true });
 
   async function submit() {
     if (!email.trim() || !password.trim()) return;
@@ -74,7 +86,7 @@ export default function AuthPage() {
 
       {/* Form */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-        <div style={{ width: "100%", maxWidth: 420 }}>
+        <div ref={formRef} style={{ width: "100%", maxWidth: 420 }}>
           {/* Mode toggle */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", border: "1px solid var(--ink)", marginBottom: 32 }}>
             {(["signin", "signup"] as const).map((m, i) => (
