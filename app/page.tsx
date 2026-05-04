@@ -286,12 +286,15 @@ export default function Home() {
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
+    <div ref={containerRef} style={{ background: "transparent", color: "var(--ink)", minHeight: "100vh", position: "relative", zIndex: 1 }}>
+
+      {/* ── Fixed WebGL shader — persistent backdrop for the whole page ── */}
+      <WebGLShader />
 
       {/* ── Sticky top bar ── */}
-      <header style={{
+      <header className="gl-pane" style={{
         position: "sticky", top: 0, zIndex: 50,
-        background: "var(--paper)", borderBottom: S.border,
+        borderBottom: S.border,
         display: "flex", justifyContent: "space-between", alignItems: "center",
         padding: "0 32px", height: 60,
       }}>
@@ -309,13 +312,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Hero — full-screen WebGL shader ── */}
-      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {/* Shader fills the section */}
-        <WebGLShader />
-
-        {/* Grain overlay for depth */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E\")", opacity: 0.4, zIndex: 1, pointerEvents: "none" }} />
+      {/* ── Hero — content over the fixed WebGL shader ── */}
+      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
 
         {/* Content */}
         <div className="hero-content" style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px", width: "100%", maxWidth: 900, margin: "0 auto" }}>
@@ -367,7 +365,7 @@ export default function Home() {
       </section>
 
       {/* ── The Brief ── */}
-      <section style={{ borderTop: S.border, borderBottom: S.border }}>
+      <section className="gl-pane-alt" style={{ borderTop: S.border, borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
 
@@ -414,7 +412,7 @@ export default function Home() {
       </section>
 
       {/* ── The Quantified Mind ── */}
-      <section style={{ background: "var(--paper-2)", borderTop: S.border, borderBottom: S.border }}>
+      <section className="gl-pane" style={{ borderTop: S.border, borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 32px" }} className="mob-col" >
           <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 40, alignItems: "end" }} className="mob-col">
             <div>
@@ -459,7 +457,7 @@ export default function Home() {
       </section>
 
       {/* ── Ticker ── */}
-      <div style={{ borderBottom: S.border, padding: "9px 0", background: "var(--paper-2)", overflow: "hidden", whiteSpace: "nowrap" }}>
+      <div className="gl-pane-alt" style={{ borderBottom: S.border, padding: "9px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="ticker">
           <div className="ticker-track mono" style={{ color: "var(--ink-2)", fontSize: 10, letterSpacing: "0.08em" }}>
             {[0, 1].flatMap((k) => TICKER.map((item, i) => <span key={`${k}-${i}`}>{item}</span>))}
@@ -468,7 +466,8 @@ export default function Home() {
       </div>
 
       {/* ── Section A: All 55 Tools ── */}
-      <section id="tools" style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px", borderBottom: S.border }}>
+      <section id="tools" className="gl-pane" style={{ borderBottom: S.border }}>
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
           <div>
             <div style={S.capAccent}>Section A — All 55 Tools</div>
@@ -527,10 +526,11 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* ── Section B: Marks Demo ── */}
-      <section style={{ background: "var(--paper-2)", borderBottom: S.border }}>
+      <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
             <div>
@@ -587,7 +587,7 @@ export default function Home() {
       </section>
 
       {/* ── Section C: Score Preview ── */}
-      <section id="score" style={{ borderBottom: S.border }}>
+      <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
             <div>
@@ -668,7 +668,7 @@ export default function Home() {
       </section>
 
       {/* ── Section D: Seven signatures ── */}
-      <section id="features" style={{ background: "var(--paper-2)", borderBottom: S.border }}>
+      <section id="features" className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 40, alignItems: "start" }} className="mob-col">
             <div>
@@ -719,7 +719,7 @@ export default function Home() {
       </section>
 
       {/* ── Section E: Field reports ── */}
-      <section style={{ borderBottom: S.border }}>
+      <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 28 }}>
             <div>
@@ -777,7 +777,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ background: "var(--paper-2)", borderTop: S.border }}>
+      <footer className="gl-pane-alt" style={{ borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "48px 32px 56px", display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr 1fr", gap: 28 }} className="mob-2col">
           <div className="footer-col">
             <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 500, fontSize: 32, letterSpacing: "-0.02em", lineHeight: 0.95, color: "var(--ink)" }}>Ledger</div>

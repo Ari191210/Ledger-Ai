@@ -12,28 +12,23 @@
   --sans:  var(--font-inter-tight), "Inter", system-ui, sans-serif;
   --mono:  var(--font-jetbrains-mono), ui-monospace, monospace;
 
-  /* Stitch-aligned warm parchment + forest green */
-  --paper:        #FDFCFB;
-  --paper-2:      #F4F1EA;       /* warm parchment — sidebar & section accents */
-  --ink:          #18241b;       /* dark forest green */
-  --ink-2:        #2D3930;       /* medium forest green */
-  --ink-3:        #747873;       /* muted green-gray */
-  --rule:         #E2E2DE;       /* warm gray border */
-  --rule-2:       rgba(226, 226, 222, 0.5);
-  --cinnabar:     #C44B2A;       /* kept for accent highlights */
-  --cinnabar-ink: #A33C1F;
-  --highlight:    #FEF3C0;
+  /* Dark default — matches the WebGL shader hero */
+  --paper:        #080808;
+  --paper-2:      #111111;
+  --ink:          #f2f2ef;
+  --ink-2:        #c0c0bc;
+  --ink-3:        #686864;
+  --rule:         rgba(255,255,255,0.1);
+  --rule-2:       rgba(255,255,255,0.05);
+  --cinnabar:     #ff5030;
+  --cinnabar-ink: #ff6848;
+  --highlight:    rgba(255,200,100,0.12);
   /* Extended palette */
-  --sage:         #4A7C59;
-  --sage-bg:      rgba(74, 124, 89, 0.07);
-  --slate:        #4A6FA5;
-  --slate-bg:     rgba(74, 111, 165, 0.07);
-  --ochre:        #B5850A;
-  --ochre-bg:     rgba(181, 133, 10, 0.07);
-  --plum:         #7B5EA7;
-  --plum-bg:      rgba(123, 94, 167, 0.07);
-  --teal:         #2A7A7A;
-  --teal-bg:      rgba(42, 122, 122, 0.07);
+  --sage:         #5aaf6a; --sage-bg: rgba(90,175,106,0.1);
+  --slate:        #5a9ed4; --slate-bg: rgba(90,158,212,0.1);
+  --ochre:        #d4a840; --ochre-bg: rgba(212,168,64,0.1);
+  --plum:         #a888d4; --plum-bg: rgba(168,136,212,0.1);
+  --teal:         #44aaaa; --teal-bg: rgba(68,170,170,0.1);
 }
 
 [data-palette="ink"] {
@@ -85,6 +80,10 @@
   --highlight:    rgba(254, 243, 192, 0.85);
 }
 
+/* ─── Glass panels — used on landing page sections so shader bleeds through ── */
+.gl-pane     { background: rgba(8,8,8,0.72) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+.gl-pane-alt { background: rgba(14,14,14,0.80) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
 html { font-size: 15px; }
 html, body { background: var(--paper); color: var(--ink); margin: 0; overflow-x: hidden; }
@@ -124,11 +123,10 @@ hr.rule-double { border-top: 3px double var(--ink); }
   inset: 0;
   pointer-events: none;
   z-index: 1000;
-  opacity: 0.36;
-  mix-blend-mode: multiply;
+  opacity: 0.18;
+  mix-blend-mode: screen;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.07  0 0 0 0 0.05  0 0 0 0.20 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
-[data-palette="ink"] .grain::before { mix-blend-mode: screen; opacity: 0.20; }
 
 /* ─── Typography ────────────────────────────────────────────────────────────── */
 .mono {
