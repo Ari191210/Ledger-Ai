@@ -50,7 +50,7 @@ function readLocalProfile(): Partial<UserData> {
   } catch { return {}; }
 }
 
-function writeLocalProfile(updates: Partial<UserData>) {
+export function writeLocalProfile(updates: Partial<UserData>) {
   try {
     if (typeof window === "undefined") return;
     const existing = readLocalProfile();
@@ -80,6 +80,11 @@ export async function loadUserData(userId: string): Promise<UserData | null> {
 
   if (error || !data) {
     return Object.keys(localProfile).length > 0 ? (localProfile as UserData) : null;
+  }
+
+  // Cache profile from Supabase to localStorage so getLocalProfile() works on new devices
+  if (!localProfile.grade && (data as UserData).grade) {
+    writeLocalProfile(data as UserData);
   }
 
   return { ...(data as UserData), ...localProfile };

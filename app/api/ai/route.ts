@@ -49,26 +49,51 @@ function buildProfileContext(params: Record<string, unknown>): string {
 
   if (!grade && !board) return "";
 
-  const parts: string[] = [];
-  if (grade) parts.push(grade);
-  if (board) parts.push(`${board} board`);
-  if (stream) parts.push(stream);
-  if (targetExam) parts.push(`targeting ${targetExam}`);
-
-  let ctx = `\nSTUDENT PROFILE: ${parts.join(" · ")}.`;
-  if (interests?.length) ctx += ` Interests: ${interests.join(", ")}.`;
-
   const syllabusSubjects = params.syllabusSubjects as string[] | undefined;
-  if (syllabusSubjects?.length) {
-    ctx += ` Their curriculum covers: ${syllabusSubjects.join(", ")}.`;
-  }
 
-  ctx += `\nYou are acting as a teacher from this student's board and curriculum. Calibrate every explanation, example, vocabulary, and question style to:
-- Their grade level and depth of understanding
-- The specific board's syllabus, marking scheme, and exam style (e.g. CBSE uses NCERT references and step-marking; ICSE values detailed explanations; IB emphasises critical thinking)
-- Their stream where relevant (PCM students need more rigour in maths/physics; commerce students in economics/accounts; arts in essay-based reasoning)
-- Their target exam where relevant (JEE needs conceptual depth + numerical fluency; NEET needs biology diagrams + MCQ instinct; CUET needs speed + breadth)
-Do not explain this adaptation to the student — just do it naturally.\n`;
+  // ── Board-specific instructions ──────────────────────────────────────────
+  const boardInstructions: Record<string, string> = {
+    "CBSE": "Use NCERT terminology, chapter references, and examples throughout. Apply step-marking style — show every step clearly, as CBSE awards marks per step. Questions are straightforward formula-application; model that style in practice questions.",
+    "ICSE": "ICSE rewards thorough, well-reasoned answers. Use precise scientific/literary language. Structure answers with clear headings. ICSE often asks 'explain why' — make reasoning explicit, not just results.",
+    "IB": "Apply IB command terms naturally (analyse, evaluate, discuss, compare). Emphasise Theory of Knowledge connections where relevant. IB rewards critical thinking over rote recall — push the student to question assumptions.",
+    "IGCSE": "IGCSE mark schemes reward specific key phrases. Mirror that language in explanations. Keep answers focused and concise. Real-world application questions are common — ground abstract concepts in tangible examples.",
+    "State Board": "Match explanation depth to school-level State Board expectations. Prioritise textbook definitions and standard derivations over advanced extensions.",
+    "Home School": "Adapt freely — no rigid syllabus constraint. Prioritise genuine understanding over exam-format drilling.",
+  };
+  const boardKey = Object.keys(boardInstructions).find(k => board?.includes(k)) ?? "";
+  const boardNote = boardInstructions[boardKey] ?? "Calibrate to the student's board style.";
+
+  // ── Stream-specific instructions ─────────────────────────────────────────
+  let streamNote = "";
+  if (stream?.includes("PCM"))      streamNote = "PCM student: use mathematical rigour. Derive formulas step-by-step. Connect Physics, Chemistry, and Maths concepts where they overlap. Show dimensional analysis.";
+  else if (stream?.includes("PCB")) streamNote = "PCB student: describe diagrams in words (label key parts). Use biological nomenclature correctly. Link molecular mechanisms to organ-level effects.";
+  else if (stream?.includes("Commerce")) streamNote = "Commerce student: connect theory to real business/financial examples. Show journal entries or calculations wherever relevant. Use current economic context.";
+  else if (stream?.includes("Arts") || stream?.includes("Humanities")) streamNote = "Arts/Humanities student: emphasise essay structure, argument construction, and textual evidence. Show how to build a thesis and support it analytically.";
+
+  // ── Exam-specific instructions ────────────────────────────────────────────
+  let examNote = "";
+  if (targetExam?.includes("JEE"))        examNote = "JEE target: teach the conceptual WHY before the HOW. Flag topics that appear in JEE with multiple-step problems. Include a JEE-level practice question where natural.";
+  else if (targetExam?.includes("NEET"))  examNote = "NEET target: NCERT is the Bible. Frame everything around NCERT diagrams and direct MCQ recall. Include a NEET-style MCQ at the end where natural.";
+  else if (targetExam?.includes("CUET")) examNote = "CUET target: breadth and speed matter. Keep explanations efficient. Include a quick-recall summary at the end.";
+  else if (targetExam?.includes("IPMAT")) examNote = "IPMAT target: strong quant and verbal needed. Connect maths explanations to logical reasoning patterns common in IPMAT.";
+  else if (targetExam?.includes("CA"))   examNote = "CA Foundation target: precision in accounting and law language is critical. Use standard format for entries, reports, and answers.";
+  else if (targetExam?.includes("SAT") || targetExam?.includes("ACT")) examNote = "SAT/ACT target: frame concepts in multiple-choice test strategy terms. Show how to eliminate wrong options.";
+  else if (targetExam)                   examNote = `${targetExam} target: calibrate depth and style to what that exam tests.`;
+
+  // ── Assemble context ──────────────────────────────────────────────────────
+  let ctx = `\n--- STUDENT CONTEXT ---`;
+  ctx += `\nProfile: ${[grade, board ? `${board} board` : "", stream, targetExam ? `targeting ${targetExam}` : ""].filter(Boolean).join(" · ")}`;
+  if (interests?.length)        ctx += `\nInterests: ${interests.join(", ")}`;
+  if (syllabusSubjects?.length) ctx += `\nCurrent curriculum: ${syllabusSubjects.join(", ")}`;
+
+  ctx += `\n\nPERSONALISATION INSTRUCTIONS — apply silently, without meta-commentary:
+1. GRADE LEVEL: Write at ${grade ?? "school"} level. Match vocabulary, abstraction, and pace accordingly.
+2. BOARD: ${boardNote}
+3. STREAM: ${streamNote || "Adapt to the student's subjects."}
+4. EXAM: ${examNote || "No specific exam — focus on solid conceptual understanding."}
+5. INTERESTS: Where natural, connect explanations to the student's interests (${interests?.join(", ") || "their subjects"}) — the way a great tutor would say "since you're strong in X, think of this like…"
+6. NEVER say "as a ${grade} student…" or "since you study CBSE…" — just write at their level naturally.
+--- END STUDENT CONTEXT ---\n`;
 
   return ctx;
 }
