@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
   --serif: var(--font-newsreader), "Newsreader", Georgia, serif;

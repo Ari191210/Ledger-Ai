@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import PaletteToggle from "@/components/palette-toggle";
+import { WebGLShader } from "@/components/ui/web-gl-shader";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -307,23 +309,59 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="hero-section" style={{ maxWidth: 1120, margin: "0 auto", padding: "88px 32px 72px", textAlign: "center", overflow: "hidden" }}>
-        <div className="hero-content">
-          <div className="hero-badge" style={{ display: "inline-block", border: S.borderInk, padding: "4px 16px", ...S.cap, color: "var(--ink)", marginBottom: 28 }}>
-            Academic OS
+      {/* ── Hero — full-screen WebGL shader ── */}
+      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* Shader fills the section */}
+        <WebGLShader />
+
+        {/* Grain overlay for depth */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E\")", opacity: 0.4, zIndex: 1, pointerEvents: "none" }} />
+
+        {/* Content */}
+        <div className="hero-content" style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px", width: "100%", maxWidth: 900, margin: "0 auto" }}>
+
+          {/* Badge */}
+          <div className="hero-badge" style={{ display: "inline-block", border: "1px solid rgba(255,255,255,0.25)", padding: "4px 18px", marginBottom: 32, borderRadius: 2, backdropFilter: "blur(8px)", background: "rgba(0,0,0,0.3)" }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Academic OS · Est. 2025</span>
           </div>
-          <h1 className="hero-h1 mob-heading" style={{ ...S.h1, maxWidth: 680, margin: "0 auto 24px" }}>
+
+          {/* Headline */}
+          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontSize: "clamp(40px, 8vw, 96px)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 1.0, color: "#fff", margin: "0 auto 28px", textShadow: "0 2px 40px rgba(0,0,0,0.4)" }}>
             {["The", "Student's", "Operating", "System."].map((w, i) => (
-              <span key={i} className="hero-word" style={{ display: "inline-block", marginRight: "0.25em" }}>{w}</span>
+              <span key={i} className="hero-word" style={{ display: "inline-block", marginRight: "0.22em" }}>{w}</span>
             ))}
           </h1>
-          <p className="hero-sub" style={{ ...S.bodyLg, maxWidth: 440, margin: "0 auto 36px" }}>
+
+          {/* Subhead */}
+          <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(14px, 2vw, 18px)", color: "rgba(255,255,255,0.65)", maxWidth: 480, margin: "0 auto 16px", lineHeight: 1.6 }}>
             55 AI-powered tools. One streak. One score. One syllabus.
           </p>
-          <div className="hero-ctas" style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/dashboard" className="btn" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Initiate Protocol</Link>
-            <a href="#tools" className="btn ghost" style={{ padding: "12px 32px", fontSize: 11, letterSpacing: "0.14em", textDecoration: "none" }}>Explore 55 Tools</a>
+
+          {/* Live pulse */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 36 }}>
+            <span style={{ position: "relative", width: 10, height: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.75, animation: "ping 1.4s cubic-bezier(0,0,0.2,1) infinite" }} />
+              <span style={{ position: "relative", width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "block" }} />
+            </span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#22c55e", letterSpacing: "0.08em" }}>14,382 students active this week</span>
+          </div>
+
+          {/* CTAs */}
+          <div className="hero-ctas" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
+            <Link href="/dashboard" style={{ textDecoration: "none" }}>
+              <LiquidButton size="xl" className="border border-white/20 text-white font-semibold tracking-wider" style={{ fontFamily: "var(--sans)", letterSpacing: "0.12em", fontSize: 12 }}>
+                Open the Ledger →
+              </LiquidButton>
+            </Link>
+            <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", padding: "12px 20px", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", background: "rgba(0,0,0,0.2)", transition: "color 200ms" }}>
+              Explore 55 tools
+            </a>
+          </div>
+
+          {/* Scroll hint */}
+          <div style={{ position: "absolute", bottom: -80, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, opacity: 0.4 }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#fff", letterSpacing: "0.12em", textTransform: "uppercase" }}>Scroll</span>
+            <div style={{ width: 1, height: 32, background: "linear-gradient(to bottom, #fff, transparent)" }} />
           </div>
         </div>
       </section>
