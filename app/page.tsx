@@ -328,6 +328,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── The Brief ── */}
+      <section style={{ borderTop: S.border, borderBottom: S.border }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 32px 60px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
+
+            {/* Left: label + rule + meta */}
+            <div style={{ paddingTop: 6 }}>
+              <div style={S.capAccent}>The Brief</div>
+              <div className="anim-divider" style={{ ...S.divider, marginTop: 10 }} />
+              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", lineHeight: 1.8 }}>
+                Est. 2025<br />
+                55 instruments<br />
+                One operating system
+              </div>
+            </div>
+
+            {/* Right: editorial copy */}
+            <div>
+              <p className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 400, lineHeight: 1.45, letterSpacing: "-0.01em", color: "var(--ink)", marginBottom: 28, maxWidth: 720 }}>
+                Students don&apos;t have an operating system. They have seven apps that don&apos;t talk to each other, a notes folder they dread opening, a study plan they made in September that expired in October, and an exam five weeks away that still feels theoretical.
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }} className="mob-col">
+                <div>
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>
+                    Ledger is the system that was missing. Not a productivity app. Not a collection of AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, a syllabus that powers every tool, and 55 instruments calibrated to your board, your grade, and your exam date.
+                  </p>
+                </div>
+                <div>
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>
+                    Every student already knows how to study. What they lack is a system that shows them whether it&apos;s working — and what to fix when it isn&apos;t. Ledger tracks the gap between where you are and where you need to be, and closes it one session at a time.
+                  </p>
+                </div>
+              </div>
+
+              {/* Pull quote */}
+              <div style={{ marginTop: 36, borderTop: "2px solid var(--ink)", paddingTop: 20, display: "flex", alignItems: "baseline", gap: 20 }}>
+                <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 48, color: "var(--cinnabar-ink)", lineHeight: 1, flexShrink: 0 }}>&ldquo;</span>
+                <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 20, color: "var(--ink)", lineHeight: 1.5, margin: 0, letterSpacing: "-0.005em" }}>
+                  The only student tool built around your syllabus, your board, and your exam — not a generic student somewhere in the world.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── The Quantified Mind ── */}
       <section style={{ background: "var(--paper-2)", borderTop: S.border, borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 32px" }} className="mob-col" >
