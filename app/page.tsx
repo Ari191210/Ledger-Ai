@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { WebGLShader } from "@/components/ui/web-gl-shader";
-import { LiquidButton } from "@/components/ui/liquid-glass-button";
 import { GetStartedButton } from "@/components/ui/get-started-button";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
