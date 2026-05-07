@@ -4,10 +4,14 @@ import { useEffect, useRef } from "react"
 import * as THREE from "three"
 
 const PALETTE_COLORS: Record<string, [number, number, number]> = {
-  porcelain: [1.0, 0.65, 0.10],
+  porcelain: [1.0,  0.65, 0.10],
   ink:       [0.05, 0.80, 1.00],
   dusk:      [0.80, 0.10, 1.00],
   moss:      [0.15, 1.00, 0.20],
+  rose:      [1.0,  0.10, 0.50],
+  storm:     [0.30, 0.55, 0.90],
+  ember:     [1.0,  0.42, 0.05],
+  sand:      [0.85, 0.65, 0.20],
 }
 const DEFAULT_MIX: [number, number, number] = [1.0, 0.90, 0.80]
 

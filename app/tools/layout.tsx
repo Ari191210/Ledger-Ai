@@ -12,8 +12,10 @@ export default function ToolsLayout({ children }: { children: React.ReactNode })
     <AuthGuard>
       <FocusProvider>
         <UIProvider>
-          <div style={{ minHeight: "100vh", background: "var(--paper)", color: "var(--ink)" }}>
-            <ToolsBackground />
+          {/* Background sits at z-index 1, covers the root WebGL canvas (z-index 0) */}
+          <ToolsBackground />
+          {/* Content at z-index 2 so it renders above the background layers */}
+          <div style={{ position: "relative", zIndex: 2, minHeight: "100vh", color: "var(--ink)" }}>
             <AppNav />
             <SplitView>{children}</SplitView>
             <FloatingTimer />

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
+import ThemePersonalizer from "@/components/theme-personalizer";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -562,6 +563,9 @@ export default function Dashboard() {
       {user && (
         <SharePanel userId={user.id} userName={name} />
       )}
+
+      {/* Theme personalizer */}
+      <ThemePersonalizer />
 
       {/* Tools grid — categorised */}
       <div style={{ marginBottom: 20 }}>

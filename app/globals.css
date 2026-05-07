@@ -119,6 +119,70 @@
   --page-glow-b:  rgba(20,140,40,0.09);
 }
 
+/* ── Rose — dark, pink/blush atmosphere ─────────────────────────────────── */
+[data-palette="rose"] {
+  --paper:        #100609;
+  --paper-2:      #1a0a10;
+  --ink:          #f5e8ec;
+  --ink-2:        #d4a0b8;
+  --ink-3:        #8a5870;
+  --rule:         rgba(255,160,200,0.1);
+  --rule-2:       rgba(255,160,200,0.05);
+  --cinnabar:     #e06090;
+  --cinnabar-ink: #f078a8;
+  --highlight:    rgba(240,100,150,0.12);
+  --page-glow-a:  rgba(220,80,130,0.13);
+  --page-glow-b:  rgba(160,40,80,0.09);
+}
+
+/* ── Storm — dark, cold steel/silver atmosphere ──────────────────────────── */
+[data-palette="storm"] {
+  --paper:        #080a0e;
+  --paper-2:      #10141a;
+  --ink:          #e8ecf2;
+  --ink-2:        #8898b0;
+  --ink-3:        #485870;
+  --rule:         rgba(150,180,220,0.1);
+  --rule-2:       rgba(150,180,220,0.05);
+  --cinnabar:     #7090c0;
+  --cinnabar-ink: #88a8e0;
+  --highlight:    rgba(100,150,220,0.12);
+  --page-glow-a:  rgba(80,120,200,0.10);
+  --page-glow-b:  rgba(40,70,140,0.07);
+}
+
+/* ── Ember — dark, copper/orange atmosphere ──────────────────────────────── */
+[data-palette="ember"] {
+  --paper:        #0e0800;
+  --paper-2:      #1a1000;
+  --ink:          #f8f0e0;
+  --ink-2:        #d4a060;
+  --ink-3:        #906030;
+  --rule:         rgba(255,180,80,0.1);
+  --rule-2:       rgba(255,180,80,0.05);
+  --cinnabar:     #f07020;
+  --cinnabar-ink: #ff8830;
+  --highlight:    rgba(255,120,40,0.12);
+  --page-glow-a:  rgba(240,100,20,0.13);
+  --page-glow-b:  rgba(180,60,10,0.09);
+}
+
+/* ── Sand — dark, warm desert/ochre atmosphere ───────────────────────────── */
+[data-palette="sand"] {
+  --paper:        #0c0a06;
+  --paper-2:      #161208;
+  --ink:          #f0ead8;
+  --ink-2:        #c8b888;
+  --ink-3:        #806840;
+  --rule:         rgba(220,200,140,0.1);
+  --rule-2:       rgba(220,200,140,0.05);
+  --cinnabar:     #c89040;
+  --cinnabar-ink: #e0a850;
+  --highlight:    rgba(200,160,60,0.12);
+  --page-glow-a:  rgba(200,140,40,0.10);
+  --page-glow-b:  rgba(140,90,20,0.07);
+}
+
 /* ─── Glass panels — palette-aware dark glass so shader + glow bleed through ─ */
 .gl-pane     { background: color-mix(in srgb, var(--paper) 72%, transparent) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
 .gl-pane-alt { background: color-mix(in srgb, var(--paper) 80%, transparent) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }

@@ -1,24 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-const palettes = ["porcelain", "ink", "moss", "dusk"] as const;
-type Palette = (typeof palettes)[number];
+import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
 
 export default function PaletteToggle() {
-  const [active, setActive] = useState<Palette>("porcelain");
+  const [active, setActive] = useState<PaletteId>("porcelain");
 
   useEffect(() => {
-    const saved = localStorage.getItem("palette") as Palette | null;
-    const initial = saved && (palettes as readonly string[]).includes(saved) ? saved : "porcelain";
-    setActive(initial);
-    document.documentElement.dataset.palette = initial;
+    setActive(getActivePalette());
+    document.documentElement.dataset.palette = getActivePalette();
+
+    const handler = (e: Event) => setActive((e as CustomEvent<PaletteId>).detail);
+    window.addEventListener("ledger-palette", handler);
+    return () => window.removeEventListener("ledger-palette", handler);
   }, []);
 
-  function set(p: Palette) {
+  function set(p: PaletteId) {
     setActive(p);
-    document.documentElement.dataset.palette = p;
-    localStorage.setItem("palette", p);
+    applyPalette(p);
   }
 
   return (
@@ -50,25 +49,24 @@ export default function PaletteToggle() {
       >
         Palette
       </span>
-      {palettes.map((p) => (
+      {PALETTE_IDS.map((p) => (
         <button
           key={p}
+          title={PALETTE_META[p].name}
           onClick={() => set(p)}
           style={{
-            fontFamily: "var(--mono)",
-            fontSize: 10,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            padding: "4px 8px",
-            border: "1px solid var(--rule)",
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            border: active === p ? `2px solid ${PALETTE_META[p].accent}` : "2px solid transparent",
+            background: PALETTE_META[p].accent,
             cursor: "pointer",
-            background: active === p ? "var(--cinnabar)" : "transparent",
-            color: active === p ? "var(--paper)" : "var(--ink-2)",
+            padding: 0,
+            boxShadow: active === p ? `0 0 6px ${PALETTE_META[p].accent}88` : "none",
             transition: "all 120ms ease",
+            outline: "none",
           }}
-        >
-          {p}
-        </button>
+        />
       ))}
     </div>
   );
