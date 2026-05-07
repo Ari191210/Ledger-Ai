@@ -59,8 +59,8 @@ export default function AuthPage() {
   );
 
   if (done) return (
-    <div style={{ minHeight: "100vh", background: "var(--paper)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
-      <div style={{ maxWidth: 400, width: "100%", textAlign: "center" }}>
+    <div style={{ minHeight: "100vh", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
+      <div className="gl-pane-alt" style={{ maxWidth: 400, width: "100%", textAlign: "center", padding: "40px 32px", border: "1px solid var(--rule)" }}>
         <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic" }}>Check your email.</div>
         <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", marginTop: 12, lineHeight: 1.6 }}>
           We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then sign in.
@@ -73,9 +73,9 @@ export default function AuthPage() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--paper)", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "transparent", display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}>
       {/* Top bar */}
-      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="gl-pane" style={{ padding: "16px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link href="/" style={{ textDecoration: "none" }}>
           <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 22, letterSpacing: "-0.02em", color: "var(--ink)" }}>
             Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
@@ -86,7 +86,7 @@ export default function AuthPage() {
 
       {/* Form */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-        <div ref={formRef} style={{ width: "100%", maxWidth: 420 }}>
+        <div ref={formRef} className="gl-pane-alt" style={{ width: "100%", maxWidth: 420, padding: "36px 32px", border: "1px solid var(--rule)" }}>
           {/* Mode toggle */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", border: "1px solid var(--ink)", marginBottom: 32 }}>
             {(["signin", "signup"] as const).map((m, i) => (

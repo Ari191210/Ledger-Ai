@@ -4,6 +4,7 @@ import { FocusProvider } from "@/lib/focus-context";
 import FloatingTimer from "@/components/floating-timer";
 import { UIProvider } from "@/components/ui-context";
 import SplitView from "@/components/split-view";
+import DashboardDock from "@/components/dashboard-dock";
 
 export default function ToolsLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,6 +15,7 @@ export default function ToolsLayout({ children }: { children: React.ReactNode })
             <AppNav />
             <SplitView>{children}</SplitView>
             <FloatingTimer />
+            <DashboardDock />
           </div>
         </UIProvider>
       </FocusProvider>

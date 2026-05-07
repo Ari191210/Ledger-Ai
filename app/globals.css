@@ -29,60 +29,78 @@
   --ochre:        #d4a840; --ochre-bg: rgba(212,168,64,0.1);
   --plum:         #a888d4; --plum-bg: rgba(168,136,212,0.1);
   --teal:         #44aaaa; --teal-bg: rgba(68,170,170,0.1);
+  /* Gradient atmosphere — overridden per palette */
+  --page-glow-a:  rgba(255,80,48,0.07);
+  --page-glow-b:  rgba(180,40,20,0.04);
 }
 
+/* ── Porcelain — dark, amber/gold atmosphere ─────────────────────────────── */
+[data-palette="porcelain"] {
+  --paper:        #0e0c08;
+  --paper-2:      #181510;
+  --ink:          #f5f0e6;
+  --ink-2:        #c8b890;
+  --ink-3:        #8a7858;
+  --rule:         rgba(255,240,180,0.1);
+  --rule-2:       rgba(255,240,180,0.05);
+  --cinnabar:     #f0a030;
+  --cinnabar-ink: #f0b840;
+  --highlight:    rgba(255,200,60,0.12);
+  --page-glow-a:  rgba(240,160,30,0.13);
+  --page-glow-b:  rgba(200,100,20,0.09);
+}
+
+/* ── Ink — dark, cyan/blue atmosphere ───────────────────────────────────── */
 [data-palette="ink"] {
-  --paper:        #0F120E;
-  --paper-2:      #181f17;
-  --ink:          #E8EDE9;
-  --ink-2:        #BCCABD;
-  --ink-3:        #8A9E8B;
-  --rule:         rgba(188, 202, 189, 0.18);
-  --rule-2:       rgba(188, 202, 189, 0.07);
-  --cinnabar:     #E86B40;
-  --cinnabar-ink: #F07F58;
-  --highlight:    rgba(254, 243, 192, 0.10);
-  --sage:         #6AAF80; --sage-bg: rgba(106,175,128,0.08);
-  --slate:        #6A9ED4; --slate-bg: rgba(106,158,212,0.08);
-  --ochre:        #D4A840; --ochre-bg: rgba(212,168,64,0.08);
-  --plum:         #A988D4; --plum-bg: rgba(169,136,212,0.08);
-  --teal:         #44AAAA; --teal-bg: rgba(68,170,170,0.08);
+  --paper:        #050a10;
+  --paper-2:      #0a1218;
+  --ink:          #e6f0f8;
+  --ink-2:        #90b8d8;
+  --ink-3:        #508098;
+  --rule:         rgba(100,200,255,0.1);
+  --rule-2:       rgba(100,200,255,0.05);
+  --cinnabar:     #30c0f0;
+  --cinnabar-ink: #48d0ff;
+  --highlight:    rgba(60,180,255,0.12);
+  --page-glow-a:  rgba(40,160,240,0.13);
+  --page-glow-b:  rgba(20,100,200,0.09);
 }
 
+/* ── Dusk — dark, purple/violet atmosphere ──────────────────────────────── */
 [data-palette="dusk"] {
-  --paper:        #F2F0F8;
-  --paper-2:      #E8E5F2;
-  --ink:          #1E1A2E;
-  --ink-2:        #3D3860;
-  --ink-3:        #7A7499;
-  --rule:         rgba(30, 26, 46, 0.13);
-  --rule-2:       rgba(30, 26, 46, 0.05);
-  --cinnabar:     #C44B8A;
-  --cinnabar-ink: #A33070;
-  --highlight:    rgba(195, 150, 255, 0.15);
-  --sage:         #5A8A6A; --sage-bg: rgba(90,138,106,0.08);
-  --slate:        #5A7AC4; --slate-bg: rgba(90,122,196,0.08);
-  --ochre:        #C49A2A; --ochre-bg: rgba(196,154,42,0.08);
-  --plum:         #8A5EC4; --plum-bg: rgba(138,94,196,0.08);
-  --teal:         #2A8A9A; --teal-bg: rgba(42,138,154,0.08);
+  --paper:        #080510;
+  --paper-2:      #100a1a;
+  --ink:          #ede8f8;
+  --ink-2:        #b898d8;
+  --ink-3:        #7858a0;
+  --rule:         rgba(180,120,255,0.1);
+  --rule-2:       rgba(180,120,255,0.05);
+  --cinnabar:     #a060f0;
+  --cinnabar-ink: #b878ff;
+  --highlight:    rgba(160,80,255,0.12);
+  --page-glow-a:  rgba(140,60,240,0.13);
+  --page-glow-b:  rgba(80,20,200,0.09);
 }
 
+/* ── Moss — dark, green atmosphere ─────────────────────────────────────── */
 [data-palette="moss"] {
-  --paper:        #F0F5EC;
-  --paper-2:      #E5EDE0;
-  --ink:          #162416;
-  --ink-2:        #364F30;
-  --ink-3:        #6A8C60;
-  --rule:         rgba(22, 36, 22, 0.13);
-  --rule-2:       rgba(22, 36, 22, 0.05);
-  --cinnabar:     #C04416;
-  --cinnabar-ink: #9E3810;
-  --highlight:    rgba(254, 243, 192, 0.85);
+  --paper:        #050e06;
+  --paper-2:      #091408;
+  --ink:          #e6f5e8;
+  --ink-2:        #90c898;
+  --ink-3:        #508858;
+  --rule:         rgba(100,220,120,0.1);
+  --rule-2:       rgba(100,220,120,0.05);
+  --cinnabar:     #40d060;
+  --cinnabar-ink: #58e878;
+  --highlight:    rgba(60,200,80,0.12);
+  --page-glow-a:  rgba(50,190,70,0.13);
+  --page-glow-b:  rgba(20,140,40,0.09);
 }
 
-/* ─── Glass panels — used on landing page sections so shader bleeds through ── */
-.gl-pane     { background: rgba(8,8,8,0.72) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
-.gl-pane-alt { background: rgba(14,14,14,0.80) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+/* ─── Glass panels — palette-aware dark glass so shader + glow bleed through ─ */
+.gl-pane     { background: color-mix(in srgb, var(--paper) 72%, transparent) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+.gl-pane-alt { background: color-mix(in srgb, var(--paper) 80%, transparent) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
 
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
 html { font-size: 15px; }

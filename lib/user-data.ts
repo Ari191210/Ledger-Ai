@@ -7,6 +7,11 @@ export type Exam = {
   board: string;
 };
 
+export type AiProfile = {
+  learningStyle?: "examples-first" | "theory-first" | "bullet-points" | "step-by-step";
+  communicationStyle?: "simple" | "conversational" | "detailed" | "direct";
+};
+
 export type UserData = {
   plan?: {
     subjects: unknown[];
@@ -36,11 +41,13 @@ export type UserData = {
   stream?: string;
   interests?: string[];
   targetExam?: string;
+  // AI personalization profile
+  aiProfile?: AiProfile;
 };
 
-export type UserProfile = Pick<UserData, "grade" | "board" | "stream" | "interests" | "targetExam">;
+export type UserProfile = Pick<UserData, "grade" | "board" | "stream" | "interests" | "targetExam" | "aiProfile">;
 
-const PROFILE_FIELDS = ["onboardingDone", "grade", "board", "stream", "interests", "targetExam"] as const;
+const PROFILE_FIELDS = ["onboardingDone", "grade", "board", "stream", "interests", "targetExam", "aiProfile"] as const;
 
 function readLocalProfile(): Partial<UserData> {
   try {
@@ -65,7 +72,7 @@ export function writeLocalProfile(updates: Partial<UserData>) {
 // Reads from localStorage so profile persists even if Supabase columns are missing
 export function getLocalProfile(): UserProfile {
   const p = readLocalProfile();
-  return { grade: p.grade, board: p.board, stream: p.stream, interests: p.interests, targetExam: p.targetExam };
+  return { grade: p.grade, board: p.board, stream: p.stream, interests: p.interests, targetExam: p.targetExam, aiProfile: p.aiProfile };
 }
 
 export async function loadUserData(userId: string): Promise<UserData | null> {

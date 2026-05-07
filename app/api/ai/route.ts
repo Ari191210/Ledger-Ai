@@ -92,9 +92,28 @@ function buildProfileContext(params: Record<string, unknown>): string {
 3. STREAM: ${streamNote || "Adapt to the student's subjects."}
 4. EXAM: ${examNote || "No specific exam — focus on solid conceptual understanding."}
 5. INTERESTS: Where natural, connect explanations to the student's interests (${interests?.join(", ") || "their subjects"}) — the way a great tutor would say "since you're strong in X, think of this like…"
-6. NEVER say "as a ${grade} student…" or "since you study CBSE…" — just write at their level naturally.
---- END STUDENT CONTEXT ---\n`;
+6. NEVER say "as a ${grade} student…" or "since you study CBSE…" — just write at their level naturally.`;
 
+  // ── AI interaction style (set during onboarding) ──────────────────────────
+  const aiProfile = params.aiProfile as { learningStyle?: string; communicationStyle?: string } | undefined;
+  if (aiProfile?.learningStyle || aiProfile?.communicationStyle) {
+    const learningInstructions: Record<string, string> = {
+      "examples-first": "Lead with a concrete, relatable example before explaining the theory. Show what it looks like first — then explain why it works.",
+      "theory-first": "Explain the underlying principle first, then ground it with an example. The student wants to understand the why before seeing the how.",
+      "bullet-points": "Structure responses with clear bullet points and numbered lists. Avoid long paragraphs. Make everything scannable — the student processes lists faster than prose.",
+      "step-by-step": "Break everything into numbered steps. Never combine two steps into one. Never skip a step. Move at the student's pace, one idea at a time.",
+    };
+    const commInstructions: Record<string, string> = {
+      "simple": "Use everyday English throughout. Avoid or define jargon. Write like you're explaining to a smart friend who doesn't know the subject — not like a textbook.",
+      "conversational": "Keep a warm, natural tone. Slightly informal is fine — like a knowledgeable friend explaining something over coffee.",
+      "detailed": "Be thorough. Include context, nuance, and the bigger picture. The student wants depth, not a summary. Don't rush toward the conclusion.",
+      "direct": "Be concise. Skip preambles and filler. Every sentence should earn its place. If something can be said in 5 words, don't use 10.",
+    };
+    ctx += `\n7. LEARNING STYLE: ${learningInstructions[aiProfile.learningStyle ?? ""] || "Adapt to what helps the student understand."}`;
+    ctx += `\n8. COMMUNICATION TONE: ${commInstructions[aiProfile.communicationStyle ?? ""] || "Natural and clear."}`;
+  }
+
+  ctx += `\n--- END STUDENT CONTEXT ---\n`;
   return ctx;
 }
 
@@ -870,6 +889,8 @@ export async function POST(req: Request) {
               tool,
               input_text: inputText || null,
               output: parsed,
+              grade: (params.grade as string) || null,
+              board: (params.board as string) || null,
             }).then(() => {}, () => {});
           }
         }, () => {});

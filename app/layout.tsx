@@ -3,6 +3,9 @@ import { Newsreader, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
+import PaletteToggle from "@/components/palette-toggle";
+import PageGradient from "@/components/page-gradient";
+import { WebGLShader } from "@/components/ui/web-gl-shader";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -43,10 +46,25 @@ export default function RootLayout({
       className={`${newsreader.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        {/* Anti-flash: apply saved palette before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var p=localStorage.getItem('palette');if(p)document.documentElement.dataset.palette=p;})();`,
+          }}
+        />
         <meta name="theme-color" content="#18241b" />
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
-      <body><AuthProvider><Tracker /><SyncManager />{children}</AuthProvider></body>
+      <body>
+        <WebGLShader />
+        <AuthProvider>
+          <PageGradient />
+          <Tracker />
+          <SyncManager />
+          {children}
+          <PaletteToggle />
+        </AuthProvider>
+      </body>
     </html>
   );
 }

@@ -245,7 +245,7 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
       </div>
 
       {showForm && (
-        <div style={{ border: "1px solid var(--rule)", padding: "20px", marginBottom: 16, background: "var(--paper-2)" }}>
+        <div className="gl-pane-alt" style={{ border: "1px solid var(--rule)", padding: "20px", marginBottom: 16 }}>
           <div className="mono cin" style={{ marginBottom: 14 }}>New exam</div>
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
             <div>
@@ -280,14 +280,14 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
       )}
 
       {upcoming.length === 0 && !showForm ? (
-        <div style={{ padding: "20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+        <div className="gl-pane-alt" style={{ padding: "20px", border: "1px solid var(--rule)" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>No exams scheduled. Add your upcoming exams to get personalised progress emails.</div>
         </div>
       ) : upcoming.length > 0 ? (
         <div style={{ border: "1px solid var(--rule)", marginBottom: 16 }}>
           <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "var(--paper-2)" }}>
+              <tr className="gl-pane-alt">
                 {[
                   { label: "Exam", cls: "" },
                   { label: "Subject", cls: "mob-exam-hide" },
@@ -325,7 +325,7 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
         <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 16 }}>{past.length} past exam{past.length > 1 ? "s" : ""} hidden.</div>
       )}
 
-      <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", background: "var(--paper-2)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+      <div className="gl-pane-alt" style={{ border: "1px solid var(--rule)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
         <div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>Weekly Progress Email</div>
           <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>Exam countdown · weak topics · marks · AI study plan · every Monday 8 AM IST</div>
@@ -381,7 +381,7 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
 
   return (
     <div className="mob-share" style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
-      <div style={{ padding: "20px", background: "var(--paper)" }}>
+      <div className="gl-pane" style={{ padding: "20px" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Share with parent</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
           Your parent gets a live read-only view of your progress — streak, exams, marks, weak topics.
@@ -397,7 +397,7 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
         </div>
       </div>
 
-      <div style={{ padding: "20px", background: "var(--paper)" }}>
+      <div className="gl-pane" style={{ padding: "20px" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Refer a friend</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
           Share your referral link. When they sign up, both of you get 1 month Pro free once billing is live.
@@ -425,7 +425,7 @@ function LedgerScoreWidget() {
   const tier = scoreTier(score.total);
   const pct = (score.total / 1000) * 100;
   return (
-    <Link href="/tools/score" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--rule)", padding: "28px 32px", background: "var(--paper-2)" }}>
+    <Link href="/tools/score" className="gl-pane-alt" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--rule)", padding: "28px 32px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>Ledger Score™</div>
@@ -501,7 +501,7 @@ export default function Dashboard() {
 
       {/* Profile setup banner */}
       {showProfileBanner && (
-        <div style={{ marginBottom: 24, padding: "14px 20px", border: "1px solid var(--cinnabar-ink)", background: "var(--paper-2)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        <div className="gl-pane-alt" style={{ marginBottom: 24, padding: "14px 20px", border: "1px solid var(--cinnabar-ink)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <div>
             <span className="mono cin" style={{ marginRight: 10 }}>Profile incomplete</span>
             <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>Set your grade, board and interests so every tool is personalised for you.</span>
@@ -522,7 +522,7 @@ export default function Dashboard() {
           { label: "Papers done",     value: String(papersCount),    sub: papersCount === 0 ? "Start practising" : "Sessions completed" },
           { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below" },
         ].map((s, i) => (
-          <div key={i} className="dash-stat" style={{ padding: "18px 20px", background: "var(--paper)" }}>
+          <div key={i} className="dash-stat gl-pane" style={{ padding: "18px 20px" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: i === 4 && nextExam && nextExam.days <= 7 ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 4 }}>{s.sub}</div>
@@ -532,7 +532,7 @@ export default function Dashboard() {
 
       {/* Weak topics strip */}
       {weakTopics.length > 0 && (
-        <div style={{ marginBottom: 32, padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+        <div className="gl-pane-alt" style={{ marginBottom: 32, padding: "16px 20px", border: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div className="mono cin" style={{ flexShrink: 0 }}>Weak topics</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", flex: 1 }}>
             {weakTopics.map((wt, i) => (
@@ -579,15 +579,15 @@ export default function Dashboard() {
                 <Link
                   key={t.slug}
                   href={`/tools/${t.slug}`}
-                  className="dash-tool"
+                  className="dash-tool gl-pane"
                   style={{
                     textDecoration: "none",
-                    padding: "20px 18px 16px", background: "var(--paper)", display: "flex",
+                    padding: "20px 18px 16px", display: "flex",
                     flexDirection: "column", color: "var(--ink)", minHeight: 160,
-                    transition: "background 120ms",
+                    transition: "opacity 120ms",
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "var(--paper-2)")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "var(--paper)")}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                 >
                   <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
                     <div className="mono" style={{ fontSize: 8, color: TIER_COLOR[t.tier] }}>{t.tier}</div>

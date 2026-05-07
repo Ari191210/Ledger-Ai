@@ -21,13 +21,27 @@ const EXAMS = [
   "IELTS / TOEFL", "No specific exam — just school boards",
 ];
 
-const STEPS = ["Grade", "Board", "Stream", "Interests", "Target", "Syllabus"];
+const LEARNING_STYLES = [
+  { value: "examples-first", label: "Show me examples first", sub: "See it in action, then understand why" },
+  { value: "theory-first",   label: "Explain the theory first", sub: "Understand the principle, then apply it" },
+  { value: "bullet-points",  label: "Bullet points and lists", sub: "Quick, scannable — no long paragraphs" },
+  { value: "step-by-step",   label: "Step by step", sub: "One thing at a time, nothing skipped" },
+] as const;
+
+const COMM_STYLES = [
+  { value: "simple",         label: "Simple and clear", sub: "Everyday English, no jargon" },
+  { value: "conversational", label: "Conversational", sub: "Friendly, like a knowledgeable study buddy" },
+  { value: "detailed",       label: "Detailed and thorough", sub: "Full context, the bigger picture" },
+  { value: "direct",         label: "Direct and concise", sub: "Just the essentials — no filler" },
+] as const;
+
+const STEPS = ["Grade", "Board", "Stream", "Interests", "Learning", "Voice", "Target", "Syllabus"];
 
 export default function OnboardPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  const [step,       setStep]       = useState(0);
+  const [step, setStep] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
@@ -37,21 +51,21 @@ export default function OnboardPage() {
       clearProps: "opacity,transform",
     });
   }, { dependencies: [step], revertOnUpdate: true });
-  const [grade,      setGrade]      = useState("");
-  const [board,      setBoard]      = useState("");
-  const [stream,     setStream]     = useState("");
-  const [interests,  setInterests]  = useState<string[]>([]);
-  const [targetExam, setTargetExam] = useState("");
-  const [saving,     setSaving]     = useState(false);
+
+  const [grade,             setGrade]             = useState("");
+  const [board,             setBoard]             = useState("");
+  const [stream,            setStream]            = useState("");
+  const [interests,         setInterests]         = useState<string[]>([]);
+  const [learningStyle,     setLearningStyle]     = useState("");
+  const [communicationStyle, setCommunicationStyle] = useState("");
+  const [targetExam,        setTargetExam]        = useState("");
+  const [saving,            setSaving]            = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.push("/auth"); return; }
-    // Skip onboarding if already done
     loadUserData(user.id)
-      .then(ud => {
-        if (ud?.onboardingDone === true) router.push("/dashboard");
-      })
+      .then(ud => { if (ud?.onboardingDone === true) router.push("/dashboard"); })
       .catch(() => {});
   }, [user, authLoading, router]);
 
@@ -62,8 +76,10 @@ export default function OnboardPage() {
     board !== "",
     !needsStream || stream !== "",
     interests.length >= 2,
+    learningStyle !== "",
+    communicationStyle !== "",
     targetExam !== "",
-    true, // Syllabus step is always skippable
+    true,
   ];
 
   function toggleInterest(i: string) {
@@ -81,6 +97,10 @@ export default function OnboardPage() {
         stream: stream ? stream.split(" —")[0].split(" (")[0].trim() : undefined,
         interests,
         targetExam: targetExam.split(" /")[0].trim(),
+        aiProfile: {
+          learningStyle: learningStyle as "examples-first" | "theory-first" | "bullet-points" | "step-by-step",
+          communicationStyle: communicationStyle as "simple" | "conversational" | "detailed" | "direct",
+        },
       });
     } catch {}
     localStorage.setItem("ledger-onboarding-done", "1");
@@ -93,16 +113,16 @@ export default function OnboardPage() {
   }
 
   if (authLoading || !user) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "var(--paper)" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "transparent" }}>
       <div className="mono" style={{ color: "var(--ink-3)" }}>Loading…</div>
     </div>
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--paper)", color: "var(--ink)", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "transparent", color: "var(--ink)", display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}>
 
       {/* Top bar */}
-      <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="gl-pane" style={{ padding: "16px 24px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 20, letterSpacing: "-0.02em" }}>
           Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
         </span>
@@ -110,9 +130,9 @@ export default function OnboardPage() {
       </div>
 
       {/* Step indicator */}
-      <div style={{ display: "flex", borderBottom: "1px solid var(--rule)" }}>
+      <div className="gl-pane" style={{ display: "flex", borderBottom: "1px solid var(--rule)" }}>
         {STEPS.map((s, i) => (
-          <div key={s} style={{ flex: 1, padding: "10px 0", textAlign: "center", background: i === step ? "var(--ink)" : i < step ? "var(--paper-2)" : "transparent", borderRight: i < STEPS.length - 1 ? "1px solid var(--rule)" : "none" }}>
+          <div key={s} style={{ flex: 1, padding: "10px 0", textAlign: "center", background: i === step ? "var(--ink)" : i < step ? "rgba(255,255,255,0.04)" : "transparent", borderRight: i < STEPS.length - 1 ? "1px solid var(--rule)" : "none" }}>
             <div className="mono" style={{ fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", color: i === step ? "var(--paper)" : i < step ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>
               {String(i + 1).padStart(2, "0")} · {s}
             </div>
@@ -124,13 +144,14 @@ export default function OnboardPage() {
       <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "60px 24px 80px" }}>
         <div ref={contentRef} style={{ width: "100%", maxWidth: 560 }}>
 
+          {/* Step 0: Grade */}
           {step === 0 && (
             <>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
                 What grade are you in?
               </div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>Helps us set the right difficulty for all tools.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--ink)" }}>
+              <div className="gl-pane-alt" style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--rule)" }}>
                 {GRADES.map((g, i) => (
                   <button key={g} onClick={() => setGrade(g)}
                     style={{ padding: "16px 20px", background: grade === g ? "var(--ink)" : "transparent", color: grade === g ? "var(--paper)" : "var(--ink)", border: "none", borderBottom: i < GRADES.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", fontSize: 15, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -142,13 +163,14 @@ export default function OnboardPage() {
             </>
           )}
 
+          {/* Step 1: Board */}
           {step === 1 && (
             <>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
                 Which board do you follow?
               </div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>We&apos;ll surface papers and content relevant to your curriculum.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--ink)" }}>
+              <div className="gl-pane-alt" style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--rule)" }}>
                 {BOARDS.map((b, i) => (
                   <button key={b} onClick={() => setBoard(b)}
                     style={{ padding: "16px 20px", background: board === b ? "var(--ink)" : "transparent", color: board === b ? "var(--paper)" : "var(--ink)", border: "none", borderBottom: i < BOARDS.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", fontSize: 15, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -160,6 +182,7 @@ export default function OnboardPage() {
             </>
           )}
 
+          {/* Step 2: Stream */}
           {step === 2 && (
             <>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
@@ -169,7 +192,7 @@ export default function OnboardPage() {
                 {needsStream ? "The AI uses this for subject-specific advice." : "You're in " + grade + " — stream selection comes later."}
               </div>
               {needsStream ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--ink)" }}>
+                <div className="gl-pane-alt" style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--rule)" }}>
                   {STREAMS.map((s, i) => (
                     <button key={s} onClick={() => setStream(s)}
                       style={{ padding: "16px 20px", background: stream === s ? "var(--ink)" : "transparent", color: stream === s ? "var(--paper)" : "var(--ink)", border: "none", borderBottom: i < STREAMS.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", fontSize: 15, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -179,20 +202,21 @@ export default function OnboardPage() {
                   ))}
                 </div>
               ) : (
-                <div style={{ padding: "20px", border: "1px solid var(--rule)", background: "var(--paper-2)", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)" }}>
+                <div className="gl-pane-alt" style={{ padding: "20px", border: "1px solid var(--rule)", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)" }}>
                   We&apos;ll ask again when you upgrade to Class 11. You can update this any time in your profile.
                 </div>
               )}
             </>
           )}
 
+          {/* Step 3: Interests */}
           {step === 3 && (
             <>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
                 Which subjects interest you?
               </div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>Pick at least 2. The AI learns what to focus on.</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
+              <div className="gl-pane-alt" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--rule)" }}>
                 {INTERESTS.map((s, i) => {
                   const sel = interests.includes(s);
                   return (
@@ -210,13 +234,64 @@ export default function OnboardPage() {
             </>
           )}
 
+          {/* Step 4: Learning Style */}
           {step === 4 && (
+            <>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
+                How do you learn best?
+              </div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>The AI will match this style in every tool response.</div>
+              <div className="gl-pane-alt" style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--rule)" }}>
+                {LEARNING_STYLES.map((opt, i) => (
+                  <button key={opt.value} onClick={() => setLearningStyle(opt.value)}
+                    style={{ padding: "18px 20px", background: learningStyle === opt.value ? "var(--ink)" : "transparent", color: learningStyle === opt.value ? "var(--paper)" : "var(--ink)", border: "none", borderBottom: i < LEARNING_STYLES.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+                    <div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 15, fontWeight: 600 }}>{opt.label}</div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, opacity: 0.6, marginTop: 3 }}>{opt.sub}</div>
+                    </div>
+                    {learningStyle === opt.value && <span className="mono" style={{ fontSize: 10, color: "var(--paper)", opacity: 0.7, flexShrink: 0 }}>Selected</span>}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Step 5: Communication Style */}
+          {step === 5 && (
+            <>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
+                How should the AI talk to you?
+              </div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>Every response will match this voice — you can change it any time.</div>
+              <div className="gl-pane-alt" style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--rule)" }}>
+                {COMM_STYLES.map((opt, i) => (
+                  <button key={opt.value} onClick={() => setCommunicationStyle(opt.value)}
+                    style={{ padding: "18px 20px", background: communicationStyle === opt.value ? "var(--ink)" : "transparent", color: communicationStyle === opt.value ? "var(--paper)" : "var(--ink)", border: "none", borderBottom: i < COMM_STYLES.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+                    <div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 15, fontWeight: 600 }}>{opt.label}</div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, opacity: 0.6, marginTop: 3 }}>{opt.sub}</div>
+                    </div>
+                    {communicationStyle === opt.value && <span className="mono" style={{ fontSize: 10, color: "var(--paper)", opacity: 0.7, flexShrink: 0 }}>Selected</span>}
+                  </button>
+                ))}
+              </div>
+              <div className="gl-pane-alt" style={{ marginTop: 16, padding: "14px 16px", border: "1px solid var(--rule)" }}>
+                <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 4 }}>Why this matters</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>
+                  Every tool on Ledger — notes, doubt solver, tutor, coach — will use this exact style. The AI doesn&apos;t just answer questions; it learns how to talk to you.
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Step 6: Target Exam */}
+          {step === 6 && (
             <>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
                 What&apos;s your target exam?
               </div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>Career Pathfinder and Study Planner will use this.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--ink)" }}>
+              <div className="gl-pane-alt" style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--rule)" }}>
                 {EXAMS.map((e, i) => (
                   <button key={e} onClick={() => setTargetExam(e)}
                     style={{ padding: "16px 20px", background: targetExam === e ? "var(--ink)" : "transparent", color: targetExam === e ? "var(--paper)" : "var(--ink)", border: "none", borderBottom: i < EXAMS.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", fontSize: 15, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -228,7 +303,8 @@ export default function OnboardPage() {
             </>
           )}
 
-          {step === 5 && (
+          {/* Step 7: Syllabus */}
+          {step === 7 && (
             <>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 8 }}>
                 Upload your syllabus.
@@ -236,7 +312,7 @@ export default function OnboardPage() {
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28 }}>
                 The single most powerful thing you can do. Every AI tool on Ledger will know your exact chapters and topics.
               </div>
-              <div style={{ border: "1px solid var(--ink)", padding: "28px 24px", marginBottom: 20 }}>
+              <div className="gl-pane-alt" style={{ border: "1px solid var(--rule)", padding: "28px 24px", marginBottom: 20 }}>
                 {[
                   ["Upload a PDF or photo", "Your school-issued syllabus, a photo of a printed sheet, even a messy Word doc."],
                   ["AI reads it in seconds", "Subjects, chapters, topics — all extracted automatically."],
@@ -265,7 +341,7 @@ export default function OnboardPage() {
             </>
           )}
 
-          {/* Navigation — hidden on syllabus step (it has its own buttons) */}
+          {/* Navigation — hidden on syllabus step */}
           {step < STEPS.length - 1 && (
             <div style={{ marginTop: 28, display: "flex", gap: 10, justifyContent: "space-between", alignItems: "center" }}>
               <div>

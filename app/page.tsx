@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import PaletteToggle from "@/components/palette-toggle";
 import { WebGLShader } from "@/components/ui/web-gl-shader";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
+import { GetStartedButton } from "@/components/ui/get-started-button";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -288,9 +288,6 @@ export default function Home() {
   return (
     <div ref={containerRef} style={{ background: "transparent", color: "var(--ink)", minHeight: "100vh", position: "relative", zIndex: 1 }}>
 
-      {/* ── Fixed WebGL shader — persistent backdrop for the whole page ── */}
-      <WebGLShader />
-
       {/* ── Sticky top bar ── */}
       <header className="gl-pane" style={{
         position: "sticky", top: 0, zIndex: 50,
@@ -347,9 +344,7 @@ export default function Home() {
           {/* CTAs */}
           <div className="hero-ctas" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
             <Link href="/dashboard" style={{ textDecoration: "none" }}>
-              <LiquidButton size="xl" className="border border-white/20 text-white font-semibold tracking-wider" style={{ fontFamily: "var(--sans)", letterSpacing: "0.12em", fontSize: 12 }}>
-                Open the Ledger →
-              </LiquidButton>
+              <GetStartedButton />
             </Link>
             <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", padding: "12px 20px", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", background: "rgba(0,0,0,0.2)", transition: "color 200ms" }}>
               Explore 55 tools
@@ -809,7 +804,6 @@ export default function Home() {
         </div>
       </footer>
 
-      <PaletteToggle />
     </div>
   );
 }

@@ -1,16 +1,19 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 
-type Event = { session_id: string; page: string; tool: string | null; created_at: string };
-type Query = { user_id: string; tool: string; input_text: string | null; created_at: string };
-type Stats = {
+type Event  = { session_id: string; page: string; tool: string | null; created_at: string };
+type Query  = { user_id: string; tool: string; input_text: string | null; created_at: string };
+type Stats  = {
   activeNow: number; todayUsers: number; totalUsers: number; totalViews: number;
-  totalAiToday: number;
+  totalAiToday: number; totalAiAllTime: number;
   topTools: { tool: string; count: number }[];
+  allTimeTools: { tool: string; count: number }[];
   recent: Event[];
   recentQueries: Query[];
+  registeredUsers: number;
+  gradeDistribution: { grade: string; count: number }[];
+  boardDistribution: { board: string; count: number }[];
   timestamp: string;
-  dataError?: string;
 };
 
 const TOOL_LABELS: Record<string, string> = {
@@ -48,7 +51,7 @@ function timeAgo(iso: string) {
   return `${Math.floor(s / 3600)}h ago`;
 }
 
-// ── Login ───────────────────────────────────────────────────────────────────────
+// ── Login ────────────────────────────────────────────────────────────────────
 function LoginScreen({ onAuth }: { onAuth: (key: string) => void }) {
   const [key, setKey]     = useState("");
   const [error, setError] = useState("");
@@ -66,59 +69,41 @@ function LoginScreen({ onAuth }: { onAuth: (key: string) => void }) {
   return (
     <div style={{ minHeight: "100vh", background: "#050505", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--mono)" }}>
       <div style={{ width: 360 }}>
-        {/* Masthead */}
         <div style={{ borderBottom: "1px solid #1a1a1a", paddingBottom: 20, marginBottom: 28 }}>
           <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 8 }}>
-            The Ledger · Command Centre · Restricted
+            studyledger.in · Command Centre · Restricted
           </div>
           <div style={{ fontFamily: "var(--serif)", fontSize: 44, fontStyle: "italic", fontWeight: 700, color: "#f0ebe0", lineHeight: 0.9, letterSpacing: "-0.02em" }}>
             The Press<br />Room.
           </div>
         </div>
-
         <div style={{ border: "1px solid #131313", background: "#080808" }}>
           <div style={{ borderBottom: "1px solid #131313", padding: "12px 20px" }}>
             <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.12em" }}>ADMIN KEY</span>
           </div>
           <div style={{ padding: "20px" }}>
-            <input
-              type="password"
-              value={key}
-              onChange={e => setKey(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && attempt(key)}
-              autoFocus
-              placeholder="Enter key…"
-              style={{ width: "100%", background: "#050505", border: "1px solid #1a1a1a", borderBottom: error ? "1px solid #8a2a1a" : "1px solid #1a1a1a", color: "#f0ebe0", fontFamily: "var(--mono)", fontSize: 13, padding: "12px 14px", boxSizing: "border-box", outline: "none", marginBottom: error ? 8 : 16, letterSpacing: "0.1em" }}
-            />
-            {error && (
-              <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#c44b2a", letterSpacing: "0.06em", marginBottom: 16 }}>
-                ✕ &nbsp;{error}
-              </div>
-            )}
-            <button
-              onClick={() => attempt(key)}
-              disabled={busy || !key.trim()}
-              style={{ width: "100%", background: busy ? "#111" : "#f0ebe0", color: "#050505", border: "none", fontFamily: "var(--mono)", fontSize: 9, padding: "13px", cursor: busy ? "not-allowed" : "pointer", letterSpacing: "0.12em", textTransform: "uppercase", opacity: !key.trim() ? 0.3 : 1, transition: "all 150ms" }}
-            >
+            <input type="password" value={key} onChange={e => setKey(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && attempt(key)} autoFocus placeholder="Enter key…"
+              style={{ width: "100%", background: "#050505", border: "1px solid #1a1a1a", borderBottom: error ? "1px solid #8a2a1a" : "1px solid #1a1a1a", color: "#f0ebe0", fontFamily: "var(--mono)", fontSize: 13, padding: "12px 14px", boxSizing: "border-box", outline: "none", marginBottom: error ? 8 : 16, letterSpacing: "0.1em" }} />
+            {error && <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#c44b2a", letterSpacing: "0.06em", marginBottom: 16 }}>✕ &nbsp;{error}</div>}
+            <button onClick={() => attempt(key)} disabled={busy || !key.trim()}
+              style={{ width: "100%", background: busy ? "#111" : "#f0ebe0", color: "#050505", border: "none", fontFamily: "var(--mono)", fontSize: 9, padding: "13px", cursor: busy ? "not-allowed" : "pointer", letterSpacing: "0.12em", textTransform: "uppercase", opacity: !key.trim() ? 0.3 : 1, transition: "all 150ms" }}>
               {busy ? "Verifying…" : "Enter the press room →"}
             </button>
           </div>
         </div>
-
-        <div style={{ marginTop: 16, fontFamily: "var(--mono)", fontSize: 8, color: "#555", letterSpacing: "0.06em" }}>
-          All access attempts are logged and timestamped.
-        </div>
+        <div style={{ marginTop: 16, fontFamily: "var(--mono)", fontSize: 8, color: "#555", letterSpacing: "0.06em" }}>All access attempts are logged and timestamped.</div>
       </div>
     </div>
   );
 }
 
-// ── KPI Card ────────────────────────────────────────────────────────────────────
+// ── KPI Card ─────────────────────────────────────────────────────────────────
 function KPI({ label, value, sub, accent, dim }: { label: string; value: string | number; sub: string; accent: string; dim?: boolean }) {
   return (
     <div style={{ borderRight: "1px solid #111", padding: "24px 28px", background: dim ? "#050505" : "#080808" }}>
       <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 10 }}>{label}</div>
-      <div style={{ fontFamily: "var(--serif)", fontSize: 56, fontWeight: 700, fontStyle: "italic", lineHeight: 0.9, letterSpacing: "-0.03em", color: accent, transition: "color 400ms" }}>
+      <div style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 700, fontStyle: "italic", lineHeight: 0.9, letterSpacing: "-0.03em", color: accent, transition: "color 400ms" }}>
         {typeof value === "number" ? fmt(value) : value}
       </div>
       <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", marginTop: 8, letterSpacing: "0.06em" }}>{sub}</div>
@@ -126,11 +111,43 @@ function KPI({ label, value, sub, accent, dim }: { label: string; value: string 
   );
 }
 
-// ── Dashboard ───────────────────────────────────────────────────────────────────
+// ── Horizontal bar ────────────────────────────────────────────────────────────
+function BarRow({ label, count, max, accent }: { label: string; count: number; max: number; accent: string }) {
+  const pct = max > 0 ? Math.round((count / max) * 100) : 0;
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+        <span style={{ fontFamily: "var(--serif)", fontSize: 13, color: "#c8c3bc" }}>{label}</span>
+        <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+          <span style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", fontWeight: 700, color: "#f0ebe0" }}>{count}</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555" }}>{pct}%</span>
+        </div>
+      </div>
+      <div style={{ height: 3, background: "#111" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: accent, transition: "width 700ms ease" }} />
+      </div>
+    </div>
+  );
+}
+
+// ── Section header ────────────────────────────────────────────────────────────
+function SectionHead({ kicker, title, meta }: { kicker: string; title: string; meta?: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24, borderBottom: "1px solid #111", paddingBottom: 14 }}>
+      <div>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.14em", textTransform: "uppercase" }}>{kicker}</div>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: "#f0ebe0", marginTop: 2, lineHeight: 1 }}>{title}</div>
+      </div>
+      {meta && <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", textAlign: "right" }}>{meta}</div>}
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void }) {
-  const [stats,    setStats]    = useState<Stats | null>(null);
-  const [fetchErr, setFetchErr] = useState("");
-  const [lastMs,   setLastMs]   = useState(0);
+  const [stats,     setStats]     = useState<Stats | null>(null);
+  const [fetchErr,  setFetchErr]  = useState("");
+  const [lastMs,    setLastMs]    = useState(0);
   const [countdown, setCountdown] = useState(10);
   const [, setTick] = useState(0);
 
@@ -139,8 +156,7 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
     try {
       const res = await fetch(`/api/admin/stats?key=${encodeURIComponent(adminKey)}`);
       if (res.ok) {
-        const data = await res.json();
-        setStats(data);
+        setStats(await res.json());
         setLastMs(Date.now());
         setFetchErr("");
       } else if (res.status === 401) {
@@ -148,34 +164,30 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
       } else {
         setFetchErr("Server error — check Vercel logs.");
       }
-    } catch {
-      setFetchErr("Network error.");
-    }
+    } catch { setFetchErr("Network error."); }
   }, [adminKey, onLock]);
 
   useEffect(() => { poll(); }, [poll]);
 
-  // Countdown to next poll
   useEffect(() => {
     const t = setInterval(() => {
-      setCountdown(n => {
-        if (n <= 1) { poll(); return 10; }
-        return n - 1;
-      });
+      setCountdown(n => { if (n <= 1) { poll(); return 10; } return n - 1; });
     }, 1000);
     return () => clearInterval(t);
   }, [poll]);
 
-  // Re-render for timeAgo
   useEffect(() => {
     const t = setInterval(() => setTick(n => n + 1), 1000);
     return () => clearInterval(t);
   }, []);
 
-  const secondsSince = lastMs ? Math.floor((Date.now() - lastMs) / 1000) : null;
-  const isLive = secondsSince !== null && secondsSince < 15;
-  const maxTool = stats?.topTools[0]?.count || 1;
-  const totalToolUses = stats?.topTools.reduce((s, t) => s + t.count, 0) || 0;
+  const secondsSince    = lastMs ? Math.floor((Date.now() - lastMs) / 1000) : null;
+  const isLive          = secondsSince !== null && secondsSince < 15;
+  const maxTool         = stats?.topTools[0]?.count || 1;
+  const maxAllTime      = stats?.allTimeTools[0]?.count || 1;
+  const maxGrade        = stats?.gradeDistribution[0]?.count || 1;
+  const maxBoard        = stats?.boardDistribution[0]?.count || 1;
+  const totalToolUses   = stats?.topTools.reduce((s, t) => s + t.count, 0) || 0;
 
   return (
     <div style={{ minHeight: "100vh", background: "#050505", color: "#f0ebe0" }}>
@@ -184,22 +196,17 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
       <header style={{ borderBottom: "3px double #111", padding: "0 44px" }}>
         <div style={{ borderBottom: "1px solid #111", padding: "10px 0", display: "flex", justifyContent: "space-between" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.14em" }}>
-            THE LEDGER · COMMAND CENTRE · ANALYTICS
+            STUDYLEDGER.IN · COMMAND CENTRE · ANALYTICS
           </span>
           <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", letterSpacing: "0.08em" }}>
             {new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }).toUpperCase()}
           </span>
         </div>
-
         <div style={{ padding: "20px 0 16px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-          <div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.03em", color: "#f0ebe0" }}>
-              The Press Room.
-            </div>
+          <div style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.03em", color: "#f0ebe0" }}>
+            The Press Room.
           </div>
-
           <div style={{ display: "flex", alignItems: "center", gap: 20, paddingBottom: 4 }}>
-            {/* Live indicator */}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: isLive ? "#1e7c35" : "#333", boxShadow: isLive ? "0 0 8px #2d7a3c" : "none", transition: "all 600ms" }} />
               <div>
@@ -207,15 +214,13 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
                   {secondsSince === null ? "CONNECTING" : isLive ? "LIVE" : `${secondsSince}s ago`}
                 </div>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", letterSpacing: "0.08em", marginTop: 2 }}>
-                  Next refresh in {countdown}s
+                  Refresh in {countdown}s
                 </div>
               </div>
             </div>
-
             <button onClick={poll} style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", background: "none", border: "1px solid #333", padding: "5px 12px", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase" }}>
               ↺ Refresh
             </button>
-
             <button onClick={onLock} style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", background: "none", border: "1px solid #333", padding: "5px 12px", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase" }}>
               Lock ↗
             </button>
@@ -226,50 +231,30 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
       <main style={{ padding: "0 44px 80px", maxWidth: 1400, margin: "0 auto" }}>
         {fetchErr && (
           <div style={{ margin: "20px 0", border: "1px solid #3a1a1a", background: "#0d0505", padding: "14px 18px" }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#c44b2a", letterSpacing: "0.06em" }}>
-              ✕ &nbsp;{fetchErr}
-            </span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#c44b2a", letterSpacing: "0.06em" }}>✕ &nbsp;{fetchErr}</span>
           </div>
         )}
 
         {!stats ? (
-          <div style={{ paddingTop: 60, fontFamily: "var(--mono)", fontSize: 9, color: "#555", letterSpacing: "0.08em" }}>
-            Collecting data…
-          </div>
+          <div style={{ paddingTop: 60, fontFamily: "var(--mono)", fontSize: 9, color: "#555", letterSpacing: "0.08em" }}>Collecting data…</div>
         ) : (
           <>
-            {/* ── KPI strip ── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid #111", borderTop: "none", marginBottom: 1 }}>
-              <KPI label="Active Now"     value={stats.activeNow}      sub="sessions · last 5 min"   accent={stats.activeNow > 0 ? "#2d9c42" : "#555"} />
-              <KPI label="Today's Users"  value={stats.todayUsers}     sub="unique sessions · 24 hrs" accent={stats.todayUsers > 0 ? "#c58a2a" : "#555"} />
-              <KPI label="All-time Users" value={stats.totalUsers}     sub="unique sessions · ever"   accent="#f0ebe0" />
-              <KPI label="AI Calls Today" value={stats.totalAiToday ?? 0} sub="generations · 24 hrs"  accent={stats.totalAiToday > 0 ? "#6a7ac8" : "#555"} />
-              <KPI label="Total Views"    value={stats.totalViews}     sub="page events recorded"     accent="#3a6a9a" dim />
+            {/* ── KPI strip — 6 columns ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", border: "1px solid #111", borderTop: "none", marginBottom: 1 }}>
+              <KPI label="Active Now"        value={stats.activeNow}        sub="sessions · last 5 min"    accent={stats.activeNow > 0 ? "#2d9c42" : "#555"} />
+              <KPI label="Today's Users"     value={stats.todayUsers}       sub="unique sessions · 24 hrs"  accent={stats.todayUsers > 0 ? "#c58a2a" : "#555"} />
+              <KPI label="Registered Users"  value={stats.registeredUsers}  sub="accounts created"          accent="#f0ebe0" />
+              <KPI label="Session IDs Ever"  value={stats.totalUsers}       sub="unique sessions · all time" accent="#888" dim />
+              <KPI label="AI Calls Today"    value={stats.totalAiToday}     sub="generations · 24 hrs"       accent={stats.totalAiToday > 0 ? "#6a7ac8" : "#555"} />
+              <KPI label="AI Calls Total"    value={stats.totalAiAllTime}   sub="all-time generations"       accent="#3a6a9a" dim />
             </div>
 
-            {/* ── Body ── */}
+            {/* ── Row 1: Today's tools + Live feed ── */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", border: "1px solid #111", borderTop: "none" }}>
-
-              {/* Tool chart */}
               <div style={{ borderRight: "1px solid #111", padding: "28px 32px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24, borderBottom: "1px solid #111", paddingBottom: 14 }}>
-                  <div>
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.14em", textTransform: "uppercase" }}>Tool Usage</div>
-                    <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: "#f0ebe0", marginTop: 2, lineHeight: 1 }}>Today&apos;s most-used tools.</div>
-                  </div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", textAlign: "right" }}>
-                    <div>{totalToolUses.toLocaleString()} uses today</div>
-                  </div>
-                </div>
-
+                <SectionHead kicker="Tool Usage" title="Today's most-used tools." meta={`${totalToolUses} uses today`} />
                 {stats.topTools.length === 0 ? (
-                  <div>
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#555", marginBottom: 12 }}>No tool activity recorded yet.</div>
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#444", lineHeight: 1.7 }}>
-                      This updates as students use tools. If you&apos;ve just launched, check back once users start sessions.<br />
-                      If you have users but see no data, verify the page_events table has public read access in Supabase RLS settings.
-                    </div>
-                  </div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555" }}>No tool activity yet. Check Supabase RLS settings if users are active.</div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     {stats.topTools.map(({ tool, count }, i) => {
@@ -278,12 +263,8 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
                         <div key={tool}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
                             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                              {i === 0 && (
-                                <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#c55a2b", border: "1px solid #c55a2b", padding: "1px 6px", letterSpacing: "0.1em" }}>TOP</span>
-                              )}
-                              <span style={{ fontFamily: "var(--serif)", fontSize: 14, color: i === 0 ? "#f0ebe0" : "#888" }}>
-                                {TOOL_LABELS[tool] || tool}
-                              </span>
+                              {i === 0 && <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#c55a2b", border: "1px solid #c55a2b", padding: "1px 6px", letterSpacing: "0.1em" }}>TOP</span>}
+                              <span style={{ fontFamily: "var(--serif)", fontSize: 14, color: i === 0 ? "#f0ebe0" : "#888" }}>{TOOL_LABELS[tool] || tool}</span>
                             </div>
                             <div style={{ display: "flex", gap: 12, alignItems: "baseline" }}>
                               <span style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic", fontWeight: 700, color: i === 0 ? "#f0ebe0" : "#666" }}>{count}</span>
@@ -300,17 +281,10 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
                 )}
               </div>
 
-              {/* Live feed */}
               <div style={{ padding: "28px 24px" }}>
-                <div style={{ borderBottom: "1px solid #111", paddingBottom: 14, marginBottom: 18 }}>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.14em", textTransform: "uppercase" }}>Live Dispatch</div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: "#f0ebe0", marginTop: 2, lineHeight: 1 }}>Recent sessions.</div>
-                </div>
-
+                <SectionHead kicker="Live Dispatch" title="Recent sessions." />
                 {stats.recent.length === 0 ? (
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", lineHeight: 1.8 }}>
-                    No events recorded yet.<br />Events appear here as pages are visited.
-                  </div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", lineHeight: 1.8 }}>No events yet. Pages appear here as they are visited.</div>
                 ) : (
                   <div>
                     {stats.recent.map((ev, i) => (
@@ -328,61 +302,119 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
                     ))}
                   </div>
                 )}
-
                 <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid #111" }}>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", letterSpacing: "0.06em", lineHeight: 1.8 }}>
-                    Auto-refresh every 10s<br />
-                    Showing last 25 events
+                    Auto-refresh every 10s<br />Showing last 25 events
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── Second row: session trend placeholder + notes ── */}
+            {/* ── Row 2: Retention metrics ── */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", border: "1px solid #111", borderTop: "none" }}>
               <div style={{ borderRight: "1px solid #111", padding: "22px 32px" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.12em", marginBottom: 8 }}>RETENTION</div>
                 <div style={{ display: "flex", gap: 32, alignItems: "flex-end" }}>
-                  {stats.totalUsers > 0 && (
+                  {stats.totalUsers > 0 ? (
                     <>
                       <div>
                         <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, color: "#f0ebe0", lineHeight: 1 }}>
-                          {stats.totalUsers > 0 ? Math.round((stats.todayUsers / Math.max(stats.totalUsers, 1)) * 100) : 0}<span style={{ fontSize: 18 }}>%</span>
+                          {Math.round((stats.todayUsers / Math.max(stats.totalUsers, 1)) * 100)}<span style={{ fontSize: 18 }}>%</span>
                         </div>
-                        <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", marginTop: 6, letterSpacing: "0.08em" }}>Of all users seen today</div>
+                        <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", marginTop: 6, letterSpacing: "0.08em" }}>Of all sessions seen today</div>
                       </div>
                       <div>
-                        <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, color: stats.activeNow > 0 ? "#2d9c42" : "#555", lineHeight: 1 }}>
-                          {stats.activeNow}
-                        </div>
+                        <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, color: stats.activeNow > 0 ? "#2d9c42" : "#555", lineHeight: 1 }}>{stats.activeNow}</div>
                         <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", marginTop: 6, letterSpacing: "0.08em" }}>In session right now</div>
                       </div>
                       <div>
                         <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, color: "#3a6a9a", lineHeight: 1 }}>
                           {stats.totalViews > 0 && stats.totalUsers > 0 ? (stats.totalViews / stats.totalUsers).toFixed(1) : "—"}
                         </div>
-                        <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", marginTop: 6, letterSpacing: "0.08em" }}>Views per user (avg)</div>
+                        <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", marginTop: 6, letterSpacing: "0.08em" }}>Views per session (avg)</div>
                       </div>
                     </>
-                  )}
-                  {stats.totalUsers === 0 && (
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555" }}>No user data yet.</div>
+                  ) : (
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555" }}>No session data yet.</div>
                   )}
                 </div>
               </div>
-
               <div style={{ padding: "22px 32px" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.12em", marginBottom: 8 }}>NOTES</div>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", lineHeight: 1.9, letterSpacing: "0.04em" }}>
                   Active sessions = unique session IDs in last 5 min<br />
                   Today&apos;s users = unique sessions in last 24 hrs<br />
-                  All-time users = unique sessions ever recorded<br />
+                  Registered users = accounts in user_data table<br />
                   Tool usage resets at midnight UTC
                 </div>
               </div>
             </div>
 
-            {/* ── Recent Queries — what users are actually asking ── */}
+            {/* ── Row 3: All-time tools + Demographics ── */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", border: "1px solid #111", borderTop: "none" }}>
+
+              {/* All-time tool leaderboard */}
+              <div style={{ borderRight: "1px solid #111", padding: "28px 32px" }}>
+                <SectionHead kicker="All-time Tool Usage" title="Most used since launch." meta={`${stats.totalAiAllTime.toLocaleString()} total AI calls`} />
+                {stats.allTimeTools.length === 0 ? (
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555" }}>No AI history yet.</div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                    {stats.allTimeTools.slice(0, 12).map(({ tool, count }, i) => (
+                      <div key={tool} style={{ display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 12, padding: "10px 0", borderBottom: "1px solid #111", alignItems: "center" }}>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: i < 3 ? "#c55a2b" : "#444" }}>
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <div>
+                          <div style={{ fontFamily: "var(--serif)", fontSize: 14, color: i === 0 ? "#f0ebe0" : "#888" }}>{TOOL_LABELS[tool] || tool}</div>
+                          <div style={{ height: 2, background: "#111", marginTop: 5 }}>
+                            <div style={{ height: "100%", width: `${Math.round((count / maxAllTime) * 100)}%`, background: i === 0 ? "#c55a2b" : i < 3 ? "#2a3a5a" : "#1a2a1a", transition: "width 700ms ease" }} />
+                          </div>
+                        </div>
+                        <span style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", fontWeight: 700, color: i === 0 ? "#f0ebe0" : "#555" }}>{fmt(count)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Demographics */}
+              <div style={{ padding: "28px 32px" }}>
+                <SectionHead kicker="User Demographics" title="Who's studying." meta={`${stats.registeredUsers} registered`} />
+
+                {/* Grade distribution */}
+                {stats.gradeDistribution.length > 0 && (
+                  <div style={{ marginBottom: 28 }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#666", letterSpacing: "0.12em", marginBottom: 14, textTransform: "uppercase" }}>Grade</div>
+                    {stats.gradeDistribution.map(({ grade, count }) => (
+                      <BarRow key={grade} label={grade} count={count} max={maxGrade} accent="#c55a2b" />
+                    ))}
+                  </div>
+                )}
+
+                {/* Board distribution */}
+                {stats.boardDistribution.length > 0 && (
+                  <div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#666", letterSpacing: "0.12em", marginBottom: 14, textTransform: "uppercase" }}>Board</div>
+                    {stats.boardDistribution.map(({ board, count }) => (
+                      <BarRow key={board} label={board} count={count} max={maxBoard} accent="#2a3a5a" />
+                    ))}
+                  </div>
+                )}
+
+                {stats.gradeDistribution.length === 0 && stats.boardDistribution.length === 0 && (
+                  <div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", marginBottom: 8 }}>No profile data yet.</div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", lineHeight: 1.8 }}>
+                      Demographics populate once users complete onboarding.<br />
+                      grade and board columns must exist in user_data table.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── Row 4: Recent Queries ── */}
             <div style={{ border: "1px solid #111", borderTop: "none" }}>
               <div style={{ padding: "22px 32px", borderBottom: "1px solid #111" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
@@ -398,32 +430,25 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
                 <div style={{ padding: "24px 32px" }}>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#555", marginBottom: 8 }}>No queries recorded yet.</div>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", lineHeight: 1.9 }}>
-                    Queries appear here after you run the SQL migration to create the ai_history table.<br />
-                    SQL: <span style={{ color: "#666" }}>create table ai_history (id uuid default gen_random_uuid() primary key, user_id uuid references auth.users(id) on delete cascade not null, tool text not null, input_text text, output jsonb, created_at timestamptz default now());</span>
+                    Create the ai_history table if it doesn&apos;t exist:<br />
+                    <span style={{ color: "#666" }}>create table ai_history (id uuid default gen_random_uuid() primary key, user_id uuid references auth.users(id) on delete cascade not null, tool text not null, input_text text, grade text, board text, output jsonb, created_at timestamptz default now());</span>
                   </div>
                 </div>
               ) : (
                 <div>
-                  {/* Column headers */}
-                  <div style={{ display: "grid", gridTemplateColumns: "160px 80px 1fr 90px", padding: "8px 32px", borderBottom: "1px solid #111", background: "#040404" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "160px 160px 1fr 90px", padding: "8px 32px", borderBottom: "1px solid #111", background: "#040404" }}>
                     {["User", "Tool", "What they asked", "When"].map((h, i) => (
                       <div key={i} style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#666", letterSpacing: "0.12em", textTransform: "uppercase" }}>{h}</div>
                     ))}
                   </div>
                   {stats.recentQueries.map((q, i) => (
-                    <div key={i} style={{ display: "grid", gridTemplateColumns: "160px 80px 1fr 90px", padding: "11px 32px", borderBottom: "1px solid #111", background: i % 2 === 0 ? "#060606" : "#050505" }}>
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.04em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {q.user_id.slice(0, 14)}…
-                      </div>
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#c55a2b", letterSpacing: "0.04em" }}>
-                        {TOOL_LABELS[q.tool] || q.tool}
-                      </div>
+                    <div key={i} style={{ display: "grid", gridTemplateColumns: "160px 160px 1fr 90px", padding: "11px 32px", borderBottom: "1px solid #111", background: i % 2 === 0 ? "#060606" : "#050505" }}>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{q.user_id.slice(0, 14)}…</div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#c55a2b" }}>{TOOL_LABELS[q.tool] || q.tool}</div>
                       <div style={{ fontFamily: "var(--serif)", fontSize: 13, color: q.input_text ? "#aaa" : "#555", fontStyle: q.input_text ? "normal" : "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 16 }}>
                         {q.input_text || "—"}
                       </div>
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", letterSpacing: "0.04em" }}>
-                        {timeAgo(q.created_at)}
-                      </div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555" }}>{timeAgo(q.created_at)}</div>
                     </div>
                   ))}
                 </div>
@@ -432,12 +457,8 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
 
             {/* Footer rule */}
             <div style={{ marginTop: 0, borderTop: "1px solid #111", padding: "12px 0", display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", letterSpacing: "0.08em" }}>
-                Last fetched: {new Date(stats.timestamp).toLocaleTimeString()} UTC
-              </span>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", letterSpacing: "0.08em" }}>
-                Ledger Command Centre · For authorised use only
-              </span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", letterSpacing: "0.08em" }}>Last fetched: {new Date(stats.timestamp).toLocaleTimeString()} UTC</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#444", letterSpacing: "0.08em" }}>studyledger.in Command Centre · Authorised use only</span>
             </div>
           </>
         )}
@@ -446,7 +467,7 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
   );
 }
 
-// ── Root ─────────────────────────────────────────────────────────────────────────
+// ── Root ──────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState<string | null>(null);
 
@@ -455,15 +476,8 @@ export default function AdminPage() {
     if (stored) setAdminKey(stored);
   }, []);
 
-  function handleAuth(key: string) {
-    sessionStorage.setItem("ledger-admin-key", key);
-    setAdminKey(key);
-  }
-
-  function handleLock() {
-    sessionStorage.removeItem("ledger-admin-key");
-    setAdminKey(null);
-  }
+  function handleAuth(key: string) { sessionStorage.setItem("ledger-admin-key", key); setAdminKey(key); }
+  function handleLock()            { sessionStorage.removeItem("ledger-admin-key");    setAdminKey(null); }
 
   if (!adminKey) return <LoginScreen onAuth={handleAuth} />;
   return <Dashboard adminKey={adminKey} onLock={handleLock} />;

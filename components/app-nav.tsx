@@ -198,9 +198,9 @@ export default function AppNav() {
       <CommandPalette />
 
       {/* ── Top nav bar ── */}
-      <nav style={{
+      <nav className="gl-pane" style={{
         position: "sticky", top: 0, zIndex: 100,
-        background: "var(--paper)", borderBottom: "1px solid var(--rule)",
+        borderBottom: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
       }}>
         <Link href="/" style={{
