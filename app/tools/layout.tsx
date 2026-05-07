@@ -5,6 +5,7 @@ import FloatingTimer from "@/components/floating-timer";
 import { UIProvider } from "@/components/ui-context";
 import SplitView from "@/components/split-view";
 import DashboardDock from "@/components/dashboard-dock";
+import ToolsBackground from "@/components/tools-background";
 
 export default function ToolsLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function ToolsLayout({ children }: { children: React.ReactNode })
       <FocusProvider>
         <UIProvider>
           <div style={{ minHeight: "100vh", background: "var(--paper)", color: "var(--ink)" }}>
+            <ToolsBackground />
             <AppNav />
             <SplitView>{children}</SplitView>
             <FloatingTimer />

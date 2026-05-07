@@ -6,6 +6,27 @@
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
+/* ─── Tools page ambient background ────────────────────────────────────────── */
+@keyframes tools-drift-a {
+  0%,100% { transform: translate(0%, 0%) scale(1); }
+  35%     { transform: translate(4%, 6%) scale(1.06); }
+  68%     { transform: translate(-3%, -4%) scale(0.95); }
+}
+@keyframes tools-drift-b {
+  0%,100% { transform: translate(0%, 0%) scale(1); }
+  42%     { transform: translate(-5%, 3%) scale(1.04); }
+  74%     { transform: translate(3%, -5%) scale(1.07); }
+}
+
+.tools-bg-blob-a {
+  background: radial-gradient(ellipse 65% 50% at 20% 85%, var(--page-glow-a), transparent 70%);
+  animation: tools-drift-a 38s ease-in-out infinite;
+}
+.tools-bg-blob-b {
+  background: radial-gradient(ellipse 55% 45% at 80% 18%, var(--page-glow-b), transparent 70%);
+  animation: tools-drift-b 44s ease-in-out infinite;
+}
+
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
   --serif: var(--font-newsreader), "Newsreader", Georgia, serif;
