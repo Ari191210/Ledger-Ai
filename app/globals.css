@@ -255,7 +255,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   line-height: 1.65;
-  overscroll-behavior-y: none;
 }
 a {
   color: inherit;
@@ -684,11 +683,11 @@ img { image-rendering: auto; }
 
 /* ─── Page-level fade-in for route transitions ───────────────────────────────── */
 @keyframes page-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 main {
-  animation: page-in 350ms cubic-bezier(.4,0,.2,1) both;
+  animation: page-in 280ms ease both;
 }
 
 /* ─── Dock pill active link highlight ────────────────────────────────────────── */
