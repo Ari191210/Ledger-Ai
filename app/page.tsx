@@ -371,13 +371,16 @@ export default function Home() {
           </div>
 
           {/* CTAs */}
-          <div className="hero-ctas" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
+          <div className="hero-ctas" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
             <Link href="/dashboard" style={{ textDecoration: "none" }}>
               <GetStartedButton />
             </Link>
             <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", padding: "12px 20px", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(6px)", background: "rgba(0,0,0,0.2)", transition: "color 200ms" }}>
               Explore 55 tools
             </a>
+            <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", padding: "12px 4px", transition: "color 200ms" }}>
+              Sign in →
+            </Link>
           </div>
 
           {/* Scroll hint */}

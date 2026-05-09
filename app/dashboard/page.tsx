@@ -19,11 +19,13 @@ const TOOL_CATEGORIES: DashCat[] = [
   {
     label: "PLAN",
     tools: [
-      { slug: "planner",      ttl: "Smart Study Planner",  sub: "Subjects in. Timetable out.",         tier: "Free", desc: "14-day reactive plan built around your exam dates and daily hours." },
-      { slug: "focus",        ttl: "Focus Dashboard",      sub: "Pomodoro, streaks, tasks.",           tier: "Free", desc: "25-min timer that runs in the background across every tool." },
-      { slug: "habits",       ttl: "Habit Tracker",        sub: "Build study habits that stick.",      tier: "Free", desc: "Track daily study habits with a 14-day heatmap, streak counter, and weekly score." },
-      { slug: "deadlines",    ttl: "Deadline Hub",         sub: "Every deadline. Never miss one.",     tier: "Free", desc: "Add exams, assignments, and applications with priority levels. Countdown timers." },
-      { slug: "exam-planner", ttl: "Exam Season Planner",  sub: "Spaced repetition, automatically.",   tier: "Free", desc: "AI builds a spaced-repetition revision schedule around your real exam dates." },
+      { slug: "planner",      ttl: "Smart Study Planner",    sub: "Subjects in. Timetable out.",         tier: "Free", desc: "14-day reactive plan built around your exam dates and daily hours." },
+      { slug: "focus",        ttl: "Focus Dashboard",        sub: "Pomodoro, streaks, tasks.",           tier: "Free", desc: "25-min timer that runs in the background across every tool." },
+      { slug: "habits",       ttl: "Habit Tracker",          sub: "Build study habits that stick.",      tier: "Free", desc: "Track daily study habits with a 14-day heatmap, streak counter, and weekly score." },
+      { slug: "deadlines",    ttl: "Deadline Hub",           sub: "Every deadline. Never miss one.",     tier: "Free", desc: "Add exams, assignments, and applications with priority levels. Countdown timers." },
+      { slug: "exam-planner", ttl: "Exam Season Planner",    sub: "Spaced repetition, automatically.",   tier: "Free", desc: "AI builds a spaced-repetition revision schedule around your real exam dates." },
+      { slug: "debt-meter",   ttl: "Cognitive Debt Meter",   sub: "Your academic APR, in real time.",    tier: "Free", desc: "Unfinished chapters accrue interest. See your debt score and minimum daily payment." },
+      { slug: "circadian",    ttl: "Circadian Study Window", sub: "Study at your biological peak.",      tier: "Free", desc: "Maps your chronotype from sleep times and places the hardest subject in your peak window." },
     ],
   },
   {
@@ -60,8 +62,9 @@ const TOOL_CATEGORIES: DashCat[] = [
   {
     label: "PRACTISE",
     tools: [
-      { slug: "papers",          ttl: "Past Papers",          sub: "CBSE, JEE, NEET, SAT, IB.",        tier: "Pro",  desc: "47 papers, 900+ questions. 10 random questions per session. Tracks weak topics." },
-      { slug: "flashcards",      ttl: "AI Flashcards",        sub: "Topic or notes → flip cards.",      tier: "Free", desc: "AI generates high-quality flashcards. Track known/unknown and drill weak cards." },
+      { slug: "papers",          ttl: "Past Papers",              sub: "CBSE, JEE, NEET, SAT, IB.",        tier: "Pro",  desc: "47 papers, 900+ questions. 10 random questions per session. Tracks weak topics." },
+      { slug: "flashcards",      ttl: "AI Flashcards",            sub: "Topic or notes → flip cards.",      tier: "Free", desc: "AI generates high-quality flashcards. Track known/unknown and drill weak cards." },
+      { slug: "spaced-review",   ttl: "Forgetting-Curve Revision",sub: "Review at the moment before you forget.", tier: "Free", desc: "Ebbinghaus spaced intervals: topics resurface at 1→3→7→14→30→60 days after a mistake." },
       { slug: "exam-sim",        ttl: "Exam Simulator",       sub: "Timed AI exam. Explained answers.", tier: "Pro",  desc: "Full MCQ exam for any subject and level. Timed, with flag-for-review and explanations." },
       { slug: "mark-scheme",     ttl: "Mark Scheme Trainer",  sub: "Real questions. Real marking.",     tier: "Pro",  desc: "AI marks your answers against real marking criteria. Highlights where marks were lost." },
       { slug: "paper-dissector", ttl: "Paper Dissector",      sub: "Decode what examiners want.",       tier: "Free", desc: "AI analyses exam papers to extract question patterns, command words, and mark weightings." },
@@ -92,6 +95,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "marks",          ttl: "Marks Predictor",   sub: "The math of your report card.",    tier: "Free", desc: "Weighted GPA, CBSE grade, and the score you need in remaining subjects." },
       { slug: "coach",          ttl: "AI Study Coach",    sub: "Daily briefing + personal chat.",  tier: "Pro",  desc: "Your personal AI. Morning briefing, streak coaching, and free-form study chat." },
       { slug: "rooms",          ttl: "Study Rooms",       sub: "Silent accountability.",           tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
+      { slug: "peer-heatmap",   ttl: "Peer Heatmap",      sub: "See what your board is struggling with.", tier: "Free", desc: "Anonymous heatmap of which topics students on your board are stuck on — updated hourly." },
       { slug: "compare",        ttl: "Comparison Chart",  sub: "Any concepts, side by side.",      tier: "Free", desc: "Compare 2-4 items across 6-8 criteria. Similarities, differences, and verdict." },
       { slug: "source",         ttl: "Source Analyzer",   sub: "OPCVL analysis in seconds.",       tier: "Free", desc: "Full origin, purpose, content, value, and limitation breakdown for any source." },
       { slug: "case-study",     ttl: "Case Study Pro",    sub: "Business analysis in seconds.",    tier: "Free", desc: "SWOT, Porter's, PESTLE and more. Stakeholders, analysis, recommendations, verdict." },
