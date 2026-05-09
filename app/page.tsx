@@ -170,9 +170,10 @@ export default function Home() {
       .fromTo(".hero-badge",
         { clipPath: "inset(0 100% 0 0)" },
         { clipPath: "inset(0 0% 0 0)", duration: 0.7, ease: "power2.inOut" })
-      .from(".hero-word",     { opacity: 0, y: 48, duration: 0.75, stagger: 0.08 }, "-=0.35")
-      .from(".hero-sub",      { opacity: 0, y: 20, duration: 0.6  }, "-=0.5")
-      .from(".hero-ctas > *", { opacity: 0, y: 16, scale: 0.95, duration: 0.5, stagger: 0.1 }, "-=0.4");
+      .from(".hero-word",     { opacity: 0, y: 64, duration: 0.85, stagger: 0.18 }, "-=0.35")
+      .from(".hero-sub",      { opacity: 0, y: 20, duration: 0.6  }, "-=0.45")
+      .from(".hero-stats",    { opacity: 0, y: 16, duration: 0.55 }, "-=0.4")
+      .from(".hero-ctas > *", { opacity: 0, y: 16, scale: 0.95, duration: 0.5, stagger: 0.1 }, "-=0.3");
 
     // ── Hero h1 follows mouse ──
     const heroSection = containerRef.current?.querySelector(".hero-section");
@@ -314,29 +315,59 @@ export default function Home() {
         <div className="hero-content" style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px", width: "100%", maxWidth: 900, margin: "0 auto" }}>
 
           {/* Badge */}
-          <div className="hero-badge" style={{ display: "inline-block", border: "1px solid rgba(255,255,255,0.25)", padding: "4px 18px", marginBottom: 32, borderRadius: 2, backdropFilter: "blur(8px)", background: "rgba(0,0,0,0.3)" }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Academic OS · Est. 2025</span>
+          <div className="hero-badge" style={{
+            display: "inline-flex", alignItems: "center", gap: 14,
+            border: "1px solid rgba(255,255,255,0.18)", padding: "5px 20px", marginBottom: 44,
+            borderRadius: 2, backdropFilter: "blur(12px)", background: "rgba(0,0,0,0.35)",
+          }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ position: "relative", width: 7, height: 7, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.6, animation: "ping 1.4s cubic-bezier(0,0,0.2,1) infinite" }} />
+                <span style={{ position: "relative", width: 4, height: 4, borderRadius: "50%", background: "#22c55e", display: "block" }} />
+              </span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "#22c55e" }}>Live</span>
+            </span>
+            <span style={{ width: 1, height: 10, background: "rgba(255,255,255,0.18)", display: "inline-block" }} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.62)" }}>Academic OS</span>
+            <span style={{ width: 1, height: 10, background: "rgba(255,255,255,0.18)", display: "inline-block" }} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.32)" }}>Est. 2025</span>
           </div>
 
           {/* Headline */}
-          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontSize: "clamp(40px, 8vw, 96px)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 1.0, color: "#fff", margin: "0 auto 28px", textShadow: "0 2px 40px rgba(0,0,0,0.4)" }}>
-            {["The", "Student's", "Operating", "System."].map((w, i) => (
-              <span key={i} className="hero-word" style={{ display: "inline-block", marginRight: "0.22em" }}>{w}</span>
-            ))}
+          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 0.95, margin: "0 auto 32px" }}>
+            <div className="hero-word" style={{ display: "block", fontSize: "clamp(52px, 9.5vw, 116px)", color: "#fff", textShadow: "0 2px 60px rgba(0,0,0,0.4)" }}>
+              The Student&apos;s
+            </div>
+            <div className="hero-word" style={{
+              display: "block", fontSize: "clamp(52px, 9.5vw, 116px)",
+              background: "linear-gradient(120deg, #ffffff 15%, #ffb090 55%, #ff5535 100%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+              filter: "drop-shadow(0 0 72px rgba(255, 90, 55, 0.65))",
+            }}>
+              Operating System.
+            </div>
           </h1>
 
           {/* Subhead */}
-          <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(14px, 2vw, 18px)", color: "rgba(255,255,255,0.65)", maxWidth: 480, margin: "0 auto 16px", lineHeight: 1.6 }}>
+          <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(14px, 1.8vw, 17px)", color: "rgba(255,255,255,0.58)", maxWidth: 460, margin: "0 auto 28px", lineHeight: 1.6 }}>
             55 AI-powered tools. One streak. One score. One syllabus.
           </p>
 
-          {/* Live pulse */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 36 }}>
-            <span style={{ position: "relative", width: 10, height: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.75, animation: "ping 1.4s cubic-bezier(0,0,0.2,1) infinite" }} />
-              <span style={{ position: "relative", width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "block" }} />
-            </span>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#22c55e", letterSpacing: "0.08em" }}>14,382 students active this week</span>
+          {/* Stats strip */}
+          <div className="hero-stats" style={{ display: "flex", justifyContent: "center", gap: 0, maxWidth: 460, margin: "0 auto 36px", borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "4px 0" }}>
+            {[
+              { n: "14,382+", l: "active students" },
+              { n: "+14.2%", l: "avg score lift" },
+              { n: "55", l: "AI tools" },
+            ].map((s, i) => (
+              <div key={i} style={{
+                flex: 1, textAlign: "center", padding: "12px 0",
+                borderRight: i < 2 ? "1px solid rgba(255,255,255,0.12)" : "none",
+              }}>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px, 3.2vw, 30px)", fontStyle: "italic", fontWeight: 500, color: "#fff", lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.36)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 5 }}>{s.l}</div>
+              </div>
+            ))}
           </div>
 
           {/* CTAs */}

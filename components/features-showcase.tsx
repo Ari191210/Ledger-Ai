@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 
 const SIGNATURES = [
   {
@@ -9,6 +10,7 @@ const SIGNATURES = [
     body: "Unfinished chapters accrue interest. The meter shows your academic APR — and the minimum daily payment to stay solvent before exams.",
     extra: "The debt meter recalculates every time you log a session or skip one. It uses your exam dates to reverse-engineer the daily cost of procrastination in marks.",
     stat: "2.6× more revision sessions",
+    href: "/tools/debt-meter",
   },
   {
     tag: "β",
@@ -16,6 +18,7 @@ const SIGNATURES = [
     body: "We map your chronotype from sleep times and place the hardest subject inside your personal peak — not a generic morning/evening default.",
     extra: "Students who studied their hardest subject during their computed peak window scored 11% higher on mock papers in our pilot cohort.",
     stat: "+11% mock paper scores",
+    href: "/tools/circadian",
   },
   {
     tag: "γ",
@@ -23,6 +26,7 @@ const SIGNATURES = [
     body: "Past-paper questions resurface on Ebbinghaus intervals. Not by topic. Not by date. By the precise moment before you would have forgotten.",
     extra: "Each correct answer pushes the next review interval forward. Each wrong answer resets the curve. The same algorithm used by the world's top medical schools.",
     stat: "3× better long-term retention",
+    href: "/tools/spaced-review",
   },
   {
     tag: "δ",
@@ -30,6 +34,7 @@ const SIGNATURES = [
     body: "Anonymous map of which chapters students in your board, grade, and week are struggling with right now. You are not alone on Conic Sections.",
     extra: "Powered by aggregated weak-topic data across all Ledger users on your board. Updated hourly. Only shown when a topic has 50+ struggling students this week.",
     stat: "Updated hourly across your board",
+    href: "/tools/peer-heatmap",
   },
   {
     tag: "ε",
@@ -37,6 +42,7 @@ const SIGNATURES = [
     body: "Upload your school's PDF syllabus. We read it and build the full plan — not a template you then edit for an hour.",
     extra: "Handles handwritten notes, scanned PDFs, and messy Word docs. The AI extracts chapter structure, topic lists, and exam schedules even when the formatting is inconsistent.",
     stat: "Any format — PDF, photo, scan",
+    href: "/tools/syllabus",
   },
   {
     tag: "ζ",
@@ -44,6 +50,7 @@ const SIGNATURES = [
     body: "Lock a session with a friend. If either of you bails, both streaks reset. The only social feature that works by being uncomfortable.",
     extra: "The pact mechanic has a 94% completion rate vs 71% for solo sessions. The discomfort of letting someone else down is more motivating than personal discipline alone.",
     stat: "94% session completion rate",
+    href: "/tools/rooms",
   },
   {
     tag: "η",
@@ -51,6 +58,7 @@ const SIGNATURES = [
     body: "A live feedback loop: score X on this week's test and these colleges move in or out of reach. Based on actual historic cutoffs.",
     extra: "Cutoff data from the last 6 years across 340 colleges. Updated annually. Shows rolling percentile — so you know if you are in the margin or safely inside the band.",
     stat: "340 colleges · 6 years of data",
+    href: "/tools/admissions",
   },
 ] as const
 
@@ -59,7 +67,6 @@ export default function FeaturesShowcase() {
 
   return (
     <div style={{ marginBottom: 40 }}>
-      {/* Section header */}
       <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 24 }}>
         <div className="mono" style={{
           color: "var(--cinnabar-ink)", fontSize: 9,
@@ -78,27 +85,27 @@ export default function FeaturesShowcase() {
         </p>
       </div>
 
-      {/* Feature cards */}
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
         {SIGNATURES.map((f, i) => {
           const isOpen = open === i
           return (
-            <button
+            <div
               key={f.tag}
               onClick={() => setOpen(isOpen ? null : i)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => (e.key === "Enter" || e.key === " ") && setOpen(isOpen ? null : i)}
               style={{
                 background: isOpen
                   ? "color-mix(in srgb, var(--cinnabar-ink) 9%, var(--paper-2))"
                   : "var(--paper)",
-                border: "none",
                 cursor: "pointer",
                 padding: "22px 20px",
                 textAlign: "left",
                 transition: "background 200ms ease",
-                width: "100%",
+                outline: "none",
               }}
             >
-              {/* Card header row */}
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
                   <span style={{
@@ -129,30 +136,43 @@ export default function FeaturesShowcase() {
                 </span>
               </div>
 
-              {/* Body */}
               <p style={{
                 fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.65,
-                color: "var(--ink-2)", marginTop: 12, textAlign: "left", margin: "12px 0 0",
+                color: "var(--ink-2)", margin: "12px 0 0",
               }}>
                 {f.body}
               </p>
 
-              {/* Expanded detail */}
               {isOpen && (
-                <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--rule)" }}>
+                <div
+                  style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--rule)" }}
+                  onClick={e => e.stopPropagation()}
+                >
                   <p style={{
                     fontFamily: "var(--sans)", fontSize: 12.5, lineHeight: 1.7,
-                    color: "var(--ink-3)", textAlign: "left", margin: 0,
+                    color: "var(--ink-3)", margin: 0,
                   }}>
                     {f.extra}
                   </p>
+                  <Link
+                    href={f.href}
+                    style={{
+                      display: "inline-block", marginTop: 14,
+                      fontFamily: "var(--mono)", fontSize: 10,
+                      color: "var(--cinnabar-ink)", letterSpacing: "0.08em",
+                      textDecoration: "none",
+                      borderBottom: "1px solid var(--cinnabar-ink)",
+                      paddingBottom: 1,
+                    }}
+                  >
+                    Open tool →
+                  </Link>
                 </div>
               )}
-            </button>
+            </div>
           )
         })}
 
-        {/* Coming soon — 8th slot */}
         <div style={{
           background: "color-mix(in srgb, var(--ink) 4%, var(--paper-2))",
           padding: "22px 20px",
