@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
@@ -472,7 +472,26 @@ export default function Dashboard() {
 
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
   const [showProfileBanner, setShowProfileBanner] = useState(false);
+  const [toolQuery, setToolQuery] = useState("");
   const greeting = getGreeting();
+
+  const filteredCategories = useMemo(() => {
+    const q = toolQuery.trim().toLowerCase();
+    if (!q) return TOOL_CATEGORIES;
+    return TOOL_CATEGORIES
+      .map(cat => ({
+        ...cat,
+        tools: cat.tools.filter(t =>
+          t.ttl.toLowerCase().includes(q) ||
+          t.sub.toLowerCase().includes(q) ||
+          t.desc.toLowerCase().includes(q) ||
+          cat.label.toLowerCase().includes(q)
+        ),
+      }))
+      .filter(cat => cat.tools.length > 0);
+  }, [toolQuery]);
+
+  const totalMatches = filteredCategories.reduce((sum, cat) => sum + cat.tools.length, 0);
 
   useEffect(() => {
     if (!user) return;
@@ -489,7 +508,7 @@ export default function Dashboard() {
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <main ref={containerRef} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+    <main ref={containerRef} id="main-content" tabIndex={-1} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
 
       {/* Command Centre header */}
       <div className="dash-header" style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>
@@ -573,11 +592,67 @@ export default function Dashboard() {
 
       {/* Tools grid — categorised */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 20 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 500 }}>The Archive</div>
           <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>55 tools · click to open</div>
         </div>
-        {TOOL_CATEGORIES.map(cat => (
+
+        {/* Tool search */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, border: "1px solid var(--rule)", background: "var(--paper-2)", padding: "0 14px", marginBottom: 28, height: 42 }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 14, color: "var(--ink-3)", flexShrink: 0 }}>⌕</span>
+          <input
+            type="search"
+            value={toolQuery}
+            onChange={e => setToolQuery(e.target.value)}
+            placeholder="Search 55 tools…"
+            aria-label="Search tools"
+            aria-controls="tools-grid"
+            style={{
+              flex: 1, background: "transparent", border: "none",
+              fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)",
+              outline: "none",
+            }}
+          />
+          {toolQuery && (
+            <>
+              <span
+                className="mono"
+                aria-live="polite"
+                aria-atomic="true"
+                style={{ color: totalMatches > 0 ? "var(--ink-3)" : "var(--cinnabar-ink)", fontSize: 9, flexShrink: 0 }}
+              >
+                {totalMatches > 0 ? `${totalMatches} result${totalMatches !== 1 ? "s" : ""}` : "No matches"}
+              </span>
+              <button
+                onClick={() => setToolQuery("")}
+                aria-label="Clear search"
+                style={{
+                  background: "none", border: "1px solid var(--rule)",
+                  color: "var(--ink-3)", cursor: "pointer",
+                  padding: "2px 8px", fontFamily: "var(--mono)", fontSize: 10,
+                  flexShrink: 0,
+                }}
+              >
+                ✕
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* No results state */}
+        {filteredCategories.length === 0 && toolQuery && (
+          <div style={{ padding: "48px 20px", textAlign: "center", border: "1px solid var(--rule)" }}>
+            <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 20, color: "var(--ink-3)" }}>
+              No tools match &ldquo;{toolQuery}&rdquo;
+            </div>
+            <button onClick={() => setToolQuery("")} className="btn ghost" style={{ marginTop: 16, padding: "6px 16px", fontSize: 11 }}>
+              Clear search
+            </button>
+          </div>
+        )}
+
+        <div id="tools-grid">
+        {filteredCategories.map(cat => (
           <div key={cat.label} style={{ marginBottom: 36 }}>
             <div style={{ marginBottom: 12 }}>
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.16em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
@@ -588,6 +663,7 @@ export default function Dashboard() {
                   key={t.slug}
                   href={`/tools/${t.slug}`}
                   className="dash-tool gl-pane"
+                  aria-label={`Open ${t.ttl} — ${t.sub}`}
                   style={{
                     textDecoration: "none",
                     padding: "20px 18px 16px", display: "flex",
@@ -605,13 +681,14 @@ export default function Dashboard() {
                   <div style={{ fontFamily: "var(--serif)", fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.6, marginTop: 8 }}>{t.desc}</div>
                   <div style={{ flex: 1 }} />
                   <div className="mono" style={{ borderTop: "1px solid var(--rule)", marginTop: 12, paddingTop: 8, display: "flex", justifyContent: "flex-end", fontSize: 8, color: "var(--ink-3)" }}>
-                    <span>↗</span>
+                    <span aria-hidden="true">↗</span>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       <div className="mono" style={{ marginTop: 24, color: "var(--ink-3)", fontSize: 10, textAlign: "right" }}>

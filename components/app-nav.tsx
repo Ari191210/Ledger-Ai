@@ -121,10 +121,12 @@ function ToolRow({ t, onOpen, onSplit }: { t: Tool; onOpen: (s: string) => void;
       <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
         <button
           onClick={() => onOpen(t.slug)}
+          aria-label={`Open ${t.full}`}
           style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, padding: "4px 10px", border: "1px solid var(--ink-2)", background: "transparent", color: "var(--ink-2)", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase" }}
         >Open</button>
         <button
           onClick={() => onSplit(t.slug)}
+          aria-label={`Split view with ${t.full}`}
           style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500, padding: "4px 10px", border: "1px solid var(--rule)", background: "transparent", color: "var(--ink-3)", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase" }}
         >Split</button>
       </div>
@@ -198,12 +200,12 @@ export default function AppNav() {
       <CommandPalette />
 
       {/* ── Top nav bar ── */}
-      <nav className="gl-pane" style={{
+      <nav role="navigation" aria-label="Main navigation" className="gl-pane" style={{
         position: "sticky", top: 0, zIndex: 100,
         borderBottom: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
       }}>
-        <Link href="/" style={{
+        <Link href="/" aria-label="Ledger — home" style={{
           textDecoration: "none", display: "flex", alignItems: "center", padding: "0 20px",
           borderRight: "1px solid var(--rule)", flexShrink: 0,
         }}>
@@ -228,6 +230,9 @@ export default function AppNav() {
 
         <button
           onClick={() => setOpen(true)}
+          aria-label="Open tools panel"
+          aria-expanded={open}
+          aria-haspopup="dialog"
           style={{
             display: "flex", alignItems: "center", gap: 7, padding: "0 18px",
             background: open ? "var(--paper-2)" : "transparent", border: "none",
@@ -236,7 +241,7 @@ export default function AppNav() {
             textTransform: "uppercase", color: "var(--ink)", flexShrink: 0, whiteSpace: "nowrap",
           }}
         >
-          <span style={{ fontSize: 12 }}>⊞</span><span>Tools</span>
+          <span aria-hidden="true" style={{ fontSize: 12 }}>⊞</span><span>Tools</span>
         </button>
 
         {splitSlug && (
@@ -260,7 +265,7 @@ export default function AppNav() {
               </div>
               <span className="mono nav-username" style={{ color: "var(--ink-3)", fontSize: 9, whiteSpace: "nowrap" }}>@{short}</span>
             </Link>
-            <button onClick={handleSignOut} style={{
+            <button onClick={handleSignOut} aria-label="Sign out" style={{
               height: "100%", padding: "0 16px", background: "none", border: "none", cursor: "pointer",
               fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
               textTransform: "uppercase", color: "var(--ink-3)", whiteSpace: "nowrap",
@@ -273,24 +278,39 @@ export default function AppNav() {
 
       {/* ── Sidebar backdrop ── */}
       {open && (
-        <div onClick={closeSidebar} style={{ position: "fixed", inset: 0, background: "rgba(24,36,27,0.45)", zIndex: 199 }} />
+        <div
+          onClick={closeSidebar}
+          aria-hidden="true"
+          style={{ position: "fixed", inset: 0, background: "rgba(24,36,27,0.45)", zIndex: 199 }}
+        />
       )}
 
       {/* ── Slide-in sidebar panel ── */}
-      <div style={{
-        position: "fixed", top: 0, left: 0, bottom: 0, width: 360,
-        background: "var(--paper-2)", borderRight: "1px solid var(--rule)",
-        zIndex: 200, display: "flex", flexDirection: "column",
-        transform: open ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 220ms cubic-bezier(0.4,0,0.2,1)",
-      }}>
+      <div
+        role="dialog"
+        aria-label="Tools panel"
+        aria-modal="true"
+        aria-hidden={!open}
+        style={{
+          position: "fixed", top: 0, left: 0, bottom: 0,
+          width: "min(360px, calc(100vw - 32px))",
+          background: "var(--paper-2)", borderRight: "1px solid var(--rule)",
+          zIndex: 200, display: "flex", flexDirection: "column",
+          transform: open ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 220ms cubic-bezier(0.4,0,0.2,1)",
+        }}
+      >
         {/* Sidebar header */}
         <div style={{ padding: "20px 24px 16px", borderBottom: "1px solid var(--rule)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div>
             <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 500, fontSize: 18, color: "var(--ink)", letterSpacing: "-0.01em" }}>Ledger</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginTop: 3 }}>55 Tools · Open or Split</div>
           </div>
-          <button onClick={closeSidebar} style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, background: "none", border: "1px solid var(--rule)", padding: "5px 10px", cursor: "pointer", color: "var(--ink-3)", letterSpacing: "0.04em" }}>✕</button>
+          <button
+            onClick={closeSidebar}
+            aria-label="Close tools panel"
+            style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, background: "none", border: "1px solid var(--rule)", padding: "5px 10px", cursor: "pointer", color: "var(--ink-3)", letterSpacing: "0.04em" }}
+          >✕</button>
         </div>
 
         {/* Search */}
@@ -299,6 +319,8 @@ export default function AppNav() {
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Search tools…"
+            aria-label="Search tools"
+            aria-controls="nav-tool-list"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "8px 12px", color: "var(--ink)", boxSizing: "border-box", outline: "none" }}
           />
         </div>
@@ -312,7 +334,7 @@ export default function AppNav() {
         </div>
 
         {/* Tool list */}
-        <div className="nav-tools-scroll" style={{ flex: 1, overflowY: "auto" }}>
+        <div id="nav-tool-list" role="list" className="nav-tools-scroll" style={{ flex: 1, overflowY: "auto" }}>
           {filtered.length === 0 ? (
             <div style={{ padding: "40px 20px", textAlign: "center", fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>No tools match &ldquo;{q}&rdquo;</div>
           ) : q ? (

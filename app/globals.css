@@ -963,6 +963,45 @@ main {
   .mob-nav-btn   { display: flex !important; }
 }
 
+/* ─── Skip link (keyboard / screen reader accessibility) ────────────────────── */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 28px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  white-space: nowrap;
+  transition: top 150ms ease;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--cinnabar-ink);
+  outline-offset: 3px;
+}
+
+/* ─── Reduced motion — honour system preference ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Custom cursor still needs to track position — only drop its transitions */
+  .cur-dot, .cur-ring { transition: opacity 0ms !important; }
+  main { animation: none !important; }
+}
+
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Grid collapse helpers — !important overrides inline styles */
