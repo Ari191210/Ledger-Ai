@@ -6,6 +6,7 @@ import SyncManager from "@/components/sync-manager";
 import PaletteToggle from "@/components/palette-toggle";
 import PageGradient from "@/components/page-gradient";
 import { WebGLShader } from "@/components/ui/web-gl-shader";
+import Cursor from "@/components/cursor";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -56,6 +57,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body>
+        <Cursor />
         <WebGLShader />
         <AuthProvider>
           <PageGradient />

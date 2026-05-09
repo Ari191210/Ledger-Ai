@@ -183,21 +183,86 @@
   --page-glow-b:  rgba(140,90,20,0.07);
 }
 
-/* ─── Glass panels — palette-aware dark glass so shader + glow bleed through ─ */
-.gl-pane     { background: color-mix(in srgb, var(--paper) 72%, transparent) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
-.gl-pane-alt { background: color-mix(in srgb, var(--paper) 80%, transparent) !important; backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+/* ─── Glass panels ───────────────────────────────────────────────────────────── */
+.gl-pane {
+  background: color-mix(in srgb, var(--paper) 72%, transparent) !important;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  transition: background 220ms ease;
+}
+.gl-pane-alt {
+  background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  transition: background 220ms ease;
+}
+
+/* Dashboard tool card lift */
+.dash-tool {
+  transition: background 180ms ease, transform 180ms cubic-bezier(.4,0,.2,1), box-shadow 180ms ease !important;
+}
+.dash-tool:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
+}
+
+/* ─── Custom cursor ─────────────────────────────────────────────────────────── */
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+.cur-dot {
+  position: fixed; top: 0; left: 0;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--cinnabar-ink);
+  pointer-events: none; z-index: 99999;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 300ms, width 180ms cubic-bezier(.4,0,.2,1),
+              height 180ms cubic-bezier(.4,0,.2,1),
+              background 220ms;
+}
+.cur-ring {
+  position: fixed; top: 0; left: 0;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1.5px solid var(--cinnabar-ink);
+  pointer-events: none; z-index: 99998;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 300ms, width 220ms cubic-bezier(.4,0,.2,1),
+              height 220ms cubic-bezier(.4,0,.2,1),
+              border-color 220ms;
+}
+
+/* Hover state — ring expands, dot hides */
+.cur-dot[data-hover]  { width: 3px; height: 3px; opacity: 0.4; }
+.cur-ring[data-hover] { width: 52px; height: 52px; opacity: 0.35; }
+
+/* Press state */
+.cur-dot[data-press]  { background: var(--cinnabar); }
+.cur-ring[data-press] { width: 24px; height: 24px; opacity: 0.8; }
 
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
-html { font-size: 15px; }
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
 html, body { background: var(--paper); color: var(--ink); margin: 0; overflow-x: hidden; }
 body {
   font-family: var(--sans);
-  font-feature-settings: "kern", "liga", "onum";
+  font-feature-settings: "kern", "liga", "calt", "onum";
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  line-height: 1.6;
+  line-height: 1.65;
+  overscroll-behavior-y: none;
 }
-a { color: inherit; text-underline-offset: 3px; }
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+  transition: opacity 150ms ease;
+}
+a:hover { opacity: 0.75; }
 * { box-sizing: border-box; }
 
 /* Headings default to serif italic — Newsreader reads best at 400–500 */
@@ -282,15 +347,21 @@ hr.rule-double { border-top: 3px double var(--ink); }
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 80ms ease, box-shadow 80ms ease, background 80ms ease, color 80ms ease;
+  transition: transform 160ms cubic-bezier(.4,0,.2,1),
+              box-shadow 160ms cubic-bezier(.4,0,.2,1),
+              background 160ms ease,
+              color 160ms ease,
+              opacity 160ms ease;
   user-select: none;
   white-space: nowrap;
   -webkit-appearance: none;
 }
 .btn:hover:not(:disabled) {
-  opacity: 0.85;
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 .btn:active:not(:disabled) {
+  transform: translateY(0);
   opacity: 1;
 }
 .btn:disabled {
@@ -483,9 +554,13 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 }
 
 /* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--paper-2); }
-::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 0; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 2px;
+  transition: background 200ms;
+}
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 
 /* ─── Misc ──────────────────────────────────────────────────────────────────── */
@@ -561,6 +636,65 @@ input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 /* ─── Medium screens: hide nav username, keep tool links ────────────────────── */
 @media (max-width: 1280px) {
   .nav-username { display: none !important; }
+}
+
+/* ─── Global interaction polish ─────────────────────────────────────────────── */
+
+/* Smooth focus rings */
+:focus-visible {
+  outline: 2px solid var(--cinnabar-ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Form inputs */
+input, textarea, select {
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* Image quality */
+img { image-rendering: auto; }
+
+/* Selection */
+::selection { background: var(--highlight); color: var(--ink); }
+
+/* ─── Reveal animations (for GSAP targets) ───────────────────────────────────── */
+.reveal-up   { will-change: transform, opacity; }
+.bento-card  { will-change: transform, opacity; }
+.feat-card   { will-change: transform, opacity; }
+.stat-card   { will-change: transform, opacity; }
+.tool-item   { will-change: transform, opacity; }
+.footer-col  { will-change: transform, opacity; }
+
+/* ─── Tool grid — mobile: 2-col instead of collapsing to 1 ──────────────────── */
+@media (max-width: 768px) {
+  .mob-2col { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 480px) {
+  .mob-2col { grid-template-columns: 1fr !important; }
+}
+
+/* ─── Section dividers: animated accent line ─────────────────────────────────── */
+.anim-divider {
+  height: 1px;
+  background: var(--rule);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* ─── Page-level fade-in for route transitions ───────────────────────────────── */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+main {
+  animation: page-in 350ms cubic-bezier(.4,0,.2,1) both;
+}
+
+/* ─── Dock pill active link highlight ────────────────────────────────────────── */
+.dock-item-active {
+  background: color-mix(in oklch, var(--cinnabar) 15%, transparent);
+  color: var(--cinnabar);
 }
 
 /* ─── Phones only: swap tools row for hamburger ─────────────────────────────── */
