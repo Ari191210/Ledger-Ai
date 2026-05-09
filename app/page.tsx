@@ -678,33 +678,42 @@ export default function Home() {
                 <div
                   className="feat-card"
                   key={f.tag}
-                  style={{ background: expandedFeat === i ? "var(--ink)" : "var(--paper)", cursor: "pointer", transition: "background 150ms", padding: "20px 18px" }}
+                  style={{
+                    background: expandedFeat === i
+                      ? "color-mix(in srgb, var(--cinnabar-ink) 9%, var(--paper-2))"
+                      : "var(--paper)",
+                    cursor: "pointer",
+                    transition: "background 200ms ease",
+                    padding: "22px 20px",
+                  }}
                   onClick={() => setExpandedFeat(expandedFeat === i ? null : i)}
                 >
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10, justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                      <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 28, color: expandedFeat === i ? "var(--paper)" : "var(--cinnabar-ink)", fontWeight: 400 }}>{f.tag}</span>
-                      <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, fontWeight: 500, lineHeight: 1.2, color: expandedFeat === i ? "var(--paper)" : "var(--ink)" }}>{f.ttl}</span>
+                      <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 28, color: "var(--cinnabar-ink)", fontWeight: 400, lineHeight: 1, flexShrink: 0 }}>{f.tag}</span>
+                      <div>
+                        <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, fontWeight: 500, lineHeight: 1.25, color: "var(--ink)" }}>{f.ttl}</div>
+                      </div>
                     </div>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: expandedFeat === i ? "var(--paper)" : "var(--ink-3)", opacity: 0.6, flexShrink: 0 }}>{expandedFeat === i ? "▲" : "▼"}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: expandedFeat === i ? "var(--cinnabar-ink)" : "var(--ink-3)", flexShrink: 0, marginTop: 4, transition: "color 200ms" }}>{expandedFeat === i ? "▲" : "▼"}</span>
                   </div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.55, color: expandedFeat === i ? "rgba(253,252,251,0.85)" : "var(--ink-3)", marginTop: 8 }}>{f.body}</p>
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.65, color: "var(--ink-2)", marginTop: 12 }}>{f.body}</p>
                   {expandedFeat === i && (
-                    <p style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.55, color: "rgba(253,252,251,0.75)", marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(253,252,251,0.15)" }}>
+                    <p style={{ fontFamily: "var(--sans)", fontSize: 12.5, lineHeight: 1.7, color: "var(--ink-3)", marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--rule)" }}>
                       {f.extra}
                     </p>
                   )}
                 </div>
               ))}
-              <div style={{ background: "var(--ink)", color: "var(--paper)", padding: "20px 18px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div style={{ background: "color-mix(in srgb, var(--ink) 4%, var(--paper-2))", padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <div>
-                  <div style={{ ...S.cap, color: "rgba(253,252,251,0.6)" }}>Coming Q3</div>
-                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, fontWeight: 500, lineHeight: 1.2, marginTop: 10 }}>Exam-Day Mode</div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.55, opacity: 0.8, marginTop: 8 }}>
-                    The morning of the paper, Ledger locks to a single-screen revision of only what you got wrong in the last 14 days.
+                  <div style={{ ...S.cap, color: "var(--ink-3)" }}>Coming Q3 2026</div>
+                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, fontWeight: 500, lineHeight: 1.25, marginTop: 12, color: "var(--ink)" }}>Exam-Day Mode</div>
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.65, color: "var(--ink-3)", marginTop: 10 }}>
+                    The morning of the paper, Ledger locks to a single-screen revision of only what you got wrong in the last 14 days. No distractions. No decisions. Just the gaps.
                   </p>
                 </div>
-                <div style={{ ...S.cap, opacity: 0.6, marginTop: 16, fontSize: 10 }}>Waitlist: 3,204</div>
+                <div style={{ ...S.cap, color: "var(--ink-3)", marginTop: 16, fontSize: 10 }}>Waitlist: 3,204</div>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import ThemePersonalizer from "@/components/theme-personalizer";
+import FeaturesShowcase from "@/components/features-showcase";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -563,6 +564,9 @@ export default function Dashboard() {
       {user && (
         <SharePanel userId={user.id} userName={name} />
       )}
+
+      {/* Features nobody else ships */}
+      <FeaturesShowcase />
 
       {/* Theme personalizer */}
       <ThemePersonalizer />
