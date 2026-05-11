@@ -215,6 +215,7 @@ export default function AppNav() {
         </Link>
 
         {navLink("/dashboard", "Dashboard")}
+        {navLink("/tools/personalise", "Themes")}
 
         <Link href="/tools/score" style={{
           textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 14px",

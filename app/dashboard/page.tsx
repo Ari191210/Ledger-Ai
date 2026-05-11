@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
-import ThemePersonalizer from "@/components/theme-personalizer";
 import FeaturesShowcase from "@/components/features-showcase";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -590,9 +589,6 @@ export default function Dashboard() {
 
       {/* Features nobody else ships */}
       <FeaturesShowcase />
-
-      {/* Theme personalizer */}
-      <ThemePersonalizer />
 
       {/* Tools grid — categorised */}
       <div style={{ marginBottom: 20 }}>
