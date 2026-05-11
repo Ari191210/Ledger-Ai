@@ -107,11 +107,6 @@ const TOOL_CATEGORIES: DashCat[] = [
   },
 ];
 
-const TIER_COLOR: Record<string, string> = {
-  Free: "var(--ink-3)",
-  Pro: "var(--cinnabar-ink)",
-  "Pro+": "var(--cinnabar-ink)",
-};
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -594,7 +589,7 @@ export default function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 20 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 500 }}>The Archive</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>55 tools · click to open</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>60 tools · click to open</div>
         </div>
 
         {/* Tool search */}
@@ -604,7 +599,7 @@ export default function Dashboard() {
             type="search"
             value={toolQuery}
             onChange={e => setToolQuery(e.target.value)}
-            placeholder="Search 55 tools…"
+            placeholder="Search 60 tools…"
             aria-label="Search tools"
             aria-controls="tools-grid"
             style={{
@@ -653,12 +648,13 @@ export default function Dashboard() {
 
         <div id="tools-grid">
         {filteredCategories.map(cat => (
-          <div key={cat.label} style={{ marginBottom: 36 }}>
-            <div style={{ marginBottom: 12 }}>
-              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.16em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
+          <div key={cat.label} style={{ marginBottom: 40 }}>
+            <div style={{ marginBottom: 12, display: "flex", alignItems: "baseline", gap: 12, paddingBottom: 10, borderBottom: "1px solid var(--rule)" }}>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
+              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{cat.tools.length} tools</div>
             </div>
             <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
-              {cat.tools.map((t) => (
+              {cat.tools.map((t, ti) => (
                 <Link
                   key={t.slug}
                   href={`/tools/${t.slug}`}
@@ -666,22 +662,42 @@ export default function Dashboard() {
                   aria-label={`Open ${t.ttl} — ${t.sub}`}
                   style={{
                     textDecoration: "none",
-                    padding: "20px 18px 16px", display: "flex",
-                    flexDirection: "column", color: "var(--ink)", minHeight: 160,
-                    transition: "opacity 120ms",
+                    padding: "22px 20px 18px",
+                    display: "flex", flexDirection: "column",
+                    color: "var(--ink)", minHeight: 188,
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                 >
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-                    <div className="mono" style={{ fontSize: 8, color: TIER_COLOR[t.tier] }}>{t.tier}</div>
+                  {/* Card header: category label + tier badge */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <div className="mono" style={{ fontSize: 7, letterSpacing: "0.2em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
+                    {t.tier !== "Free" && (
+                      <div className="mono" style={{ fontSize: 7, letterSpacing: "0.1em", color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)", padding: "1px 6px", opacity: 0.7 }}>
+                        {t.tier}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 500, fontStyle: "italic", lineHeight: 1.2 }}>{t.ttl}</div>
-                  <div className="mono" style={{ color: "var(--ink-3)", marginTop: 5, fontSize: 8, lineHeight: 1.5 }}>{t.sub}</div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.6, marginTop: 8 }}>{t.desc}</div>
-                  <div style={{ flex: 1 }} />
-                  <div className="mono" style={{ borderTop: "1px solid var(--rule)", marginTop: 12, paddingTop: 8, display: "flex", justifyContent: "flex-end", fontSize: 8, color: "var(--ink-3)" }}>
-                    <span aria-hidden="true">↗</span>
+
+                  {/* Title */}
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 500, fontStyle: "italic", lineHeight: 1.15, color: "var(--ink)", marginBottom: 7 }}>
+                    {t.ttl}
+                  </div>
+
+                  {/* Subtitle */}
+                  <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.12em", lineHeight: 1.4 }}>
+                    {t.sub}
+                  </div>
+
+                  {/* Description */}
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.65, marginTop: 10, flex: 1 }}>
+                    {t.desc}
+                  </div>
+
+                  {/* Footer: index + animated arrow */}
+                  <div style={{ borderTop: "1px solid var(--rule)", marginTop: 14, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.06em" }}>
+                      {String(ti + 1).padStart(2, "0")}
+                    </div>
+                    <span className="dash-tool-arrow mono" style={{ fontSize: 13 }} aria-hidden="true">↗</span>
                   </div>
                 </Link>
               ))}
