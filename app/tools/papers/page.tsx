@@ -6,6 +6,11 @@ import TierGate from "@/components/tier-gate";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
 import { useAuth } from "@/components/auth-provider";
+import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
+
+type ExplainResult = { explanation: string; keyConcept: string; examTip: string };
 
 type PracticeState = {
   paper: Paper;
@@ -43,6 +48,7 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
 
   const score = answers.filter((a, i) => a === paper.questions[i].ans).length;
   const [mistakeTags, setMistakeTags] = useState<Record<number, string>>({});
+  const [explains, setExplains] = useState<Record<number, { loading: boolean; result: ExplainResult | null }>>({});
   const [timeRemaining, setTimeRemaining] = useState<number | null>(state.timeLimit ?? null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -103,12 +109,46 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
             <div key={i} style={{ padding: "16px 20px", borderBottom: i < paper.questions.length - 1 ? "1px solid var(--rule)" : "none", background: answers[i] === q.ans ? "var(--paper)" : "var(--paper-2)" }}>
               <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
                 <span className="mono" style={{ color: answers[i] === q.ans ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>{answers[i] === q.ans ? "✓" : "✗"}</span>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{q.q}</div>
                   <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>
                     Your answer: {answers[i] !== null ? q.opts[answers[i]!] : "—"} · Correct: {q.opts[q.ans]}
                     {answers[i] !== q.ans && <span style={{ color: "var(--cinnabar-ink)" }}> · Topic: {q.topic}</span>}
                   </div>
+                  {answers[i] !== q.ans && (
+                    <div style={{ marginTop: 10 }}>
+                      {!explains[i] && (
+                        <button className="btn ghost" style={{ fontSize: 11, padding: "4px 12px" }}
+                          onClick={async () => {
+                            setExplains(p => ({ ...p, [i]: { loading: true, result: null } }));
+                            try {
+                              const r = await callAI({ tool: "papers_explain", question: q.q, correct: q.opts[q.ans], topic: q.topic }) as ExplainResult;
+                              setExplains(p => ({ ...p, [i]: { loading: false, result: r } }));
+                            } catch {
+                              setExplains(p => ({ ...p, [i]: { loading: false, result: null } }));
+                            }
+                          }}>
+                          Explain this answer →
+                        </button>
+                      )}
+                      {explains[i]?.loading && <div style={{ marginTop: 8 }}><AIThinking /></div>}
+                      {explains[i]?.result && (
+                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--rule)" }}>
+                          <AIOutput text={explains[i]!.result!.explanation} />
+                          <div style={{ marginTop: 10, display: "flex", gap: 16, flexWrap: "wrap" }}>
+                            <div style={{ flex: 1, minWidth: 180 }}>
+                              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>KEY CONCEPT</div>
+                              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5 }}>{explains[i]!.result!.keyConcept}</div>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 180 }}>
+                              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>EXAM TIP</div>
+                              <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontStyle: "italic", color: "var(--ink-2)", lineHeight: 1.5 }}>{explains[i]!.result!.examTip}</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

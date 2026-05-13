@@ -142,7 +142,7 @@ export default function GpaSimPage() {
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Score Needed Calculator</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>GPA Simulator</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <select value={board} onChange={e => setBoard(e.target.value as Board)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: `2px solid ${cfg.color}`, background: "var(--paper)", padding: "6px 10px", color: cfg.color, cursor: "pointer" }}>
             {(Object.keys(BOARD_CONFIGS) as Board[]).map(b => <option key={b} value={b}>{BOARD_CONFIGS[b].label}</option>)}

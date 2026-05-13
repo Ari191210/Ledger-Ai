@@ -172,7 +172,7 @@ export default function PeerHeatmapPage() {
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Peer Heatmap · δ</div>
-        <div className="mono" style={{ color: "var(--cinnabar-ink)" }}>Updated hourly · {board}</div>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Sample data · {board}</div>
       </header>
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1100, margin: "0 auto" }}>
@@ -248,7 +248,7 @@ export default function PeerHeatmapPage() {
         <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 24, marginBottom: 40 }}>
           <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>About the data</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.7, maxWidth: 640 }}>
-            Aggregated from weak-topic data across Ledger users on your board. A topic appears only when 50+ students have flagged it as a mistake this week. Data is anonymous. Updated hourly.
+            Sample data · Representative distribution of common struggle topics across boards. When live aggregation is available, this will reflect real student data from your board.
           </div>
         </div>
 
