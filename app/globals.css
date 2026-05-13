@@ -6,6 +6,16 @@
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
+@keyframes ai-cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes ai-shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
 /* ─── Tools page ambient background ────────────────────────────────────────── */
 @keyframes tools-drift-a {
   0%,100% { transform: translate(0%, 0%) scale(1); }

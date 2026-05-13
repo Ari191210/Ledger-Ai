@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 // ── College database (real CDS data, 2024-25 cycle) ────────────────────────
 type College = {
@@ -751,14 +753,14 @@ export default function AdmissionsPage() {
                 {loadingAI && (
                   <div style={{ border:"1px solid var(--ink)", padding:"24px" }}>
                     <div className="mono cin" style={{ marginBottom:8 }}>Analysing your list…</div>
-                    <div className="mono" style={{ color:"var(--ink-3)", fontSize:11 }}>Reading your profile, evaluating school fit, generating your strategy.</div>
+                    <AIThinking />
                   </div>
                 )}
                 {analysis && (
                   <>
                     <div style={{ border:"1px solid var(--ink)", padding:"20px", marginBottom:14 }}>
                       <div className="mono cin" style={{ marginBottom:10 }}>Your strategy</div>
-                      <p style={{ fontFamily:"var(--sans)", fontSize:13, lineHeight:1.65, color:"var(--ink-2)", margin:0 }}>{analysis.strategy}</p>
+                      <AIOutput text={analysis.strategy} />
                     </div>
                     <div style={{ border:"1px solid var(--ink)", padding:"20px", marginBottom:14 }}>
                       <div className="mono cin" style={{ marginBottom:10 }}>Profile gaps to fix</div>

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Slide = { title: string; bullets: string[]; speakerNote: string };
 type Deck = { title: string; slides: Slide[]; advice: string };
@@ -65,7 +67,7 @@ export default function PresentationPage() {
             {/* Speaker notes */}
             <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", marginBottom: 20 }}>
               <div className="mono cin" style={{ marginBottom: 8 }}>Speaker notes</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, color: "var(--ink-2)" }}>{deck.slides[selected].speakerNote}</div>
+              <AIOutput text={deck.slides[selected].speakerNote} />
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
@@ -76,7 +78,7 @@ export default function PresentationPage() {
             {deck.advice && (
               <div style={{ marginTop: 24, border: "1px solid var(--rule)", padding: "14px 18px" }}>
                 <div className="mono cin" style={{ marginBottom: 6 }}>Delivery tip</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, color: "var(--ink-2)" }}>{deck.advice}</div>
+                <AIOutput text={deck.advice} />
               </div>
             )}
           </div>
@@ -130,6 +132,7 @@ export default function PresentationPage() {
         <button className="btn" onClick={generate} disabled={loading || !topic.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building slides…" : "Generate presentation →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>

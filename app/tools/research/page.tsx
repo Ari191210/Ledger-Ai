@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Section = { heading: string; content: string; keyPoints: string[] };
 type ResearchData = {
@@ -94,6 +96,7 @@ export default function ResearchPage() {
         <button className="btn" onClick={generate} disabled={loading || !query.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1, marginTop: 14 }}>
           {loading ? "Researching…" : "Start research →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
@@ -118,7 +121,7 @@ export default function ResearchPage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1100, margin: "0 auto" }}>
         {/* Title + summary */}
         <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontWeight: 700, fontStyle: "italic", marginBottom: 12, lineHeight: 1.3 }}>{data.title}</div>
-        <div style={{ fontFamily: "var(--sans)", fontSize: 15, lineHeight: 1.8, color: "var(--ink-2)", marginBottom: 32, padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>{data.summary}</div>
+        <div style={{ marginBottom: 32, padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}><AIOutput text={data.summary} /></div>
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", marginBottom: 28, width: "fit-content" }}>
@@ -136,7 +139,7 @@ export default function ResearchPage() {
               {data.sections.map((s, i) => (
                 <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < data.sections.length - 1 ? "none" : "1px solid var(--ink)", padding: "20px 22px" }}>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, marginBottom: 10, color: "var(--ink)" }}>{s.heading}</div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)", marginBottom: 12 }}>{s.content}</div>
+                  <div style={{ marginBottom: 12 }}><AIOutput text={s.content} /></div>
                   {s.keyPoints.length > 0 && (
                     <div>
                       <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>KEY POINTS</div>

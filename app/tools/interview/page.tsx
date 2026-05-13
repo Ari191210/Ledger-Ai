@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Question = { q: string; tip: string };
 type Evaluation = { score: number; strengths: string[]; gaps: string[]; betterAnswer: string; tip: string };
@@ -80,6 +82,7 @@ export default function InterviewPage() {
         <button className="btn" onClick={generateQuestions} disabled={genLoading} style={{ width: "100%", opacity: genLoading ? 0.5 : 1 }}>
           {genLoading ? "Generating questions…" : "Start practice session →"}
         </button>
+        {genLoading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
@@ -115,6 +118,7 @@ export default function InterviewPage() {
           <button className="btn ghost" onClick={nextQ} style={{ flex: 1 }}>Skip →</button>
           <button className="btn" onClick={evaluate} disabled={loading} style={{ flex: 2, opacity: loading ? 0.5 : 1 }}>{loading ? "Evaluating…" : "Evaluate my answer →"}</button>
         </div>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
       </main>
     </div>
   );
@@ -146,7 +150,7 @@ export default function InterviewPage() {
           <div>
             <div style={{ border: "2px solid var(--ink)", padding: "18px", marginBottom: 14 }}>
               <div className="mono cin" style={{ marginBottom: 12 }}>Stronger answer</div>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.9, color: "var(--ink)" }}>{evaluation!.betterAnswer}</div>
+              <AIOutput text={evaluation!.betterAnswer} />
             </div>
             {evaluation!.tip && (
               <div style={{ border: "1px solid var(--rule)", padding: "14px 18px", background: "var(--paper-2)" }}>

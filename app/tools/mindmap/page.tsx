@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Node = { label: string; children?: Node[] };
 type MapData = { center: string; branches: Node[] };
@@ -70,6 +71,7 @@ export default function MindMapPage() {
             <button className="btn" onClick={generate} disabled={loading || !topic.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
               {loading ? "Building map…" : "Generate mind map →"}
             </button>
+            {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
           </>
         ) : (
           <>

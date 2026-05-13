@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type TopicStatus = "done" | "partial" | "untouched";
 type TopicItem = { name: string; status: TopicStatus };
@@ -61,7 +63,7 @@ export default function CrunchPage() {
       </header>
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: plan ? "1fr 1.6fr" : "1fr", gap: 48 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (plan || loading) ? "1fr 1.6fr" : "1fr", gap: 48 }}>
 
           {/* Input panel */}
           <div>
@@ -127,12 +129,13 @@ export default function CrunchPage() {
           </div>
 
           {/* Plan output */}
+          {loading && !plan && <div style={{ paddingTop: 40 }}><AIThinking /></div>}
           {plan && (
             <div>
               {/* Verdict */}
               <div style={{ border: "1px solid var(--ink)", padding: "24px", marginBottom: 24 }}>
                 <div className="mono cin" style={{ marginBottom: 8 }}>Reality Check</div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic", lineHeight: 1.6 }}>{plan.verdict}</div>
+                <AIOutput text={plan.verdict} variant="principle" />
               </div>
 
               {/* Skip + Priority */}
@@ -184,7 +187,7 @@ export default function CrunchPage() {
               {/* Exam day tip */}
               <div style={{ border: "1px solid var(--ink)", padding: "20px 24px" }}>
                 <div className="mono cin" style={{ marginBottom: 8 }}>Exam Day Tip</div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontStyle: "italic", lineHeight: 1.6 }}>{plan.advice}</div>
+                <AIOutput text={plan.advice} variant="principle" />
               </div>
             </div>
           )}

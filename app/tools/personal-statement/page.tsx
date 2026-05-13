@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Feedback = { score: number; hook: string; structure: string[]; paragraphNotes: string[]; tone: string; suggestions: string[]; rewrite: string };
 
@@ -80,6 +82,7 @@ export default function PersonalStatementPage() {
             <button className="btn" onClick={analyse} disabled={loading || wc < 50} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
               {loading ? "Analysing…" : "Get feedback →"}
             </button>
+            {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
           </>
         ) : (
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
@@ -118,7 +121,7 @@ export default function PersonalStatementPage() {
               {feedback.rewrite && (
                 <div style={{ border: "1px solid var(--rule)", padding: "20px 24px" }}>
                   <div className="mono cin" style={{ marginBottom: 10 }}>Suggested opening rewrite</div>
-                  <div style={{ fontFamily: "Georgia, serif", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)", fontStyle: "italic" }}>{feedback.rewrite}</div>
+                  <AIOutput text={feedback.rewrite} variant="principle" />
                 </div>
               )}
             </div>

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Point = { point: string; evidence: string; explain: string; link: string };
 type ArgumentPlan = { thesis: string; intro: string; points: Point[]; counter: { argument: string; rebuttal: string }; conclusion: string; keyPhrases: string[]; examTip: string };
@@ -64,7 +66,7 @@ export default function ArgumentPage() {
         {/* Intro */}
         <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", marginBottom: 20 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>INTRODUCTION</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, color: "var(--ink)" }}>{plan.intro}</div>
+          <AIOutput text={plan.intro} />
         </div>
 
         {/* Points */}
@@ -98,7 +100,7 @@ export default function ArgumentPage() {
         {/* Conclusion */}
         <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", marginBottom: 20 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>CONCLUSION</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7 }}>{plan.conclusion}</div>
+          <AIOutput text={plan.conclusion} />
         </div>
 
         {/* Key phrases + Exam tip */}
@@ -162,6 +164,7 @@ export default function ArgumentPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building argument…" : "Build my argument →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

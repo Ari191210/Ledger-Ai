@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Question = { q: string; options: string[]; answer: number; explanation: string };
 type ExamData = { title: string; questions: Question[]; timeMinutes: number };
@@ -102,6 +103,7 @@ export default function ExamSimPage() {
         <button className="btn" onClick={generate} disabled={loading || !subject.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1, marginTop: 14 }}>
           {loading ? "Generating exam…" : "Start exam →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>

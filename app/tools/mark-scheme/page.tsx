@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type MarkScheme = { question: string; totalMarks: number; markScheme: { criterion: string; marks: number; detail: string }[]; hint: string };
 type Feedback   = { marksEarned: number; totalMarks: number; breakdown: { criterion: string; earned: number; max: number; comment: string }[]; missing: string[]; improved: string };
@@ -87,6 +89,7 @@ export default function MarkSchemePage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Generating question…" : "Generate exam question →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>
@@ -126,6 +129,7 @@ export default function MarkSchemePage() {
         <button className="btn" onClick={markAnswer} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Marking…" : "Mark my answer →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
       </main>
     </div>
   );
@@ -180,7 +184,7 @@ export default function MarkSchemePage() {
             )}
             <div style={{ border: "2px solid var(--ink)", padding: "16px" }}>
               <div className="mono cin" style={{ marginBottom: 10 }}>Model answer extract</div>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 14, lineHeight: 1.8 }}>{feedback!.improved}</div>
+              <AIOutput text={feedback!.improved} />
             </div>
             <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>MARK SCHEME USED</div>

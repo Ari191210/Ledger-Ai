@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Prediction = { topic: string; level: string; questions: { q: string; marks: number; type: string; why: string }[]; hotTopics: string[]; commandWords: string[]; examTip: string };
 
@@ -103,6 +104,7 @@ export default function PredictPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Predicting questions…" : "Predict exam questions →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

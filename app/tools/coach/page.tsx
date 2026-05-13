@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Message = { role: "user" | "assistant"; text: string };
 type Briefing = { greeting: string; priorities: { task: string; why: string }[]; insight: string; focus: string; warning: string | null };
@@ -94,12 +96,12 @@ export default function CoachPage() {
         {/* Briefing panel */}
         <div style={{ borderRight: "1px solid var(--ink)", padding: "32px 36px", overflowY: "auto" }}>
           <div className="mono cin" style={{ marginBottom: 16 }}>Today&apos;s Briefing</div>
-          {loading && <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", padding: "40px 0" }}>Analysing your data…</div>}
+          {loading && <AIThinking />}
           {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error} <button className="btn ghost" style={{ marginLeft: 8 }} onClick={() => ctx && fetchBriefing(ctx)}>Retry</button></div>}
 
           {briefing && !loading && (
             <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 19, fontStyle: "italic", lineHeight: 1.5, marginBottom: 24 }}>{briefing.greeting}</div>
+              <div style={{ marginBottom: 24 }}><AIOutput text={briefing.greeting} variant="principle" /></div>
 
               <div style={{ marginBottom: 20 }}>
                 <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 10, letterSpacing: "0.08em" }}>TODAY&apos;S PRIORITIES</div>
@@ -116,7 +118,7 @@ export default function CoachPage() {
 
               <div style={{ padding: "14px 16px", border: "2px solid var(--ink)", marginBottom: 12 }}>
                 <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>INSIGHT</div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontStyle: "italic", lineHeight: 1.6 }}>{briefing.insight}</div>
+                <AIOutput text={briefing.insight} variant="principle" />
               </div>
 
               <div style={{ padding: "12px 14px", border: "1px solid var(--rule)", background: "var(--paper-2)", marginBottom: briefing.warning ? 12 : 0 }}>

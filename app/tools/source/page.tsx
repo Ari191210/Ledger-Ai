@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type SourceAnalysis = {
   origin: { who: string; what: string; when: string; context: string };
@@ -69,11 +71,11 @@ export default function SourcePage() {
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
           <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 8 }}>PURPOSE</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{analysis.purpose}</div>
+            <AIOutput text={analysis.purpose} />
           </div>
           <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 8 }}>CONTENT</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{analysis.content}</div>
+            <AIOutput text={analysis.content} />
           </div>
         </div>
 
@@ -105,7 +107,7 @@ export default function SourcePage() {
           </div>
           <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 8 }}>OVERALL UTILITY</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{analysis.utility}</div>
+            <AIOutput text={analysis.utility} />
           </div>
         </div>
 
@@ -160,6 +162,7 @@ export default function SourcePage() {
         <button className="btn" onClick={analyse} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Analysing source…" : "Analyse source →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

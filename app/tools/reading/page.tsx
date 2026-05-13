@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type ReadingResult = { title: string; summary: string; tone: string; themes: string[]; devices: { name: string; example: string; effect: string }[]; questions: { q: string; level: string; modelAnswer: string }[]; vocabHighlights: { word: string; meaning: string }[]; examTip: string };
 
@@ -38,7 +40,7 @@ export default function ReadingPage() {
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
           <div style={{ flex: 2, border: "1px solid var(--rule)", padding: "14px 16px" }}>
             <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>SUMMARY</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.summary}</div>
+            <AIOutput text={result.summary} />
           </div>
           <div style={{ flex: 1, border: "1px solid var(--rule)", padding: "14px 16px" }}>
             <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>TONE</div>
@@ -74,7 +76,7 @@ export default function ReadingPage() {
                 </div>
                 <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)", flexShrink: 0 }}>{openQ === i ? "▲" : "▼"}</span>
               </button>
-              {openQ === i && <div style={{ padding: "0 14px 12px", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, color: "var(--ink-2)", borderTop: "1px solid var(--rule)" }}><div style={{ paddingTop: 10 }}>{q.modelAnswer}</div></div>}
+              {openQ === i && <div style={{ padding: "0 14px 12px", borderTop: "1px solid var(--rule)", paddingTop: 10 }}><AIOutput text={q.modelAnswer} /></div>}
             </div>
           ))}
         </div>
@@ -131,6 +133,7 @@ export default function ReadingPage() {
         <button className="btn" onClick={analyse} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Analysing passage…" : "Analyse passage →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

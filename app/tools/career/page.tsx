@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 const QUESTIONS = [
   { id: "q1", text: "Which of these activities do you enjoy most?", opts: ["Solving math or logic problems", "Writing essays and storytelling", "Conducting experiments", "Creating art, music, or designs", "Organizing and planning systems"] },
@@ -83,7 +85,7 @@ export default function CareerPage() {
                     <span className="mono cin">{String(i + 1).padStart(2, "0")}</span>
                     <span style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600 }}>{s.name}</span>
                   </div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: "8px 0 10px" }}>{s.why}</p>
+                  <div style={{ margin: "8px 0 10px" }}><AIOutput text={s.why} /></div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {s.roles.map((r, j) => (
                       <span key={j} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: "1px solid var(--rule)", color: "var(--ink-3)", textTransform: "uppercase" }}>{r}</span>
@@ -192,7 +194,7 @@ export default function CareerPage() {
 
             {allAnswered && step === QUESTIONS.length - 1 ? (
               <button className="btn" onClick={generate} disabled={loading} style={{ opacity: loading ? 0.5 : 1 }}>
-                {loading ? "Generating profile…" : "Generate career profile →"}
+                {loading ? "Analysing profile…" : "Generate career profile →"}
               </button>
             ) : (
               <button onClick={() => setStep((s) => Math.min(QUESTIONS.length - 1, s + 1))} disabled={step === QUESTIONS.length - 1}
@@ -201,6 +203,7 @@ export default function CareerPage() {
               </button>
             )}
           </div>
+          {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
           {error && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>}
 
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>

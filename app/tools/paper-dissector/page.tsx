@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Part     = { label: string; marks: number; what: string; howToAnswer: string };
 type Analysis = { commandWord: string; commandDefinition: string; totalMarks: number; timeAdvice: string; parts: Part[]; keyContent: string[]; structure: string[]; examinersTip: string; commonMistakes: string[] };
@@ -95,7 +97,7 @@ export default function PaperDissectorPage() {
             </div>
             <div style={{ padding: "14px", border: "1px solid var(--rule)", background: "var(--paper-2)", marginBottom: 12 }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 6 }}>EXAMINER TIP</div>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontStyle: "italic", lineHeight: 1.6 }}>{analysis.examinersTip}</div>
+              <AIOutput text={analysis.examinersTip} variant="principle" />
             </div>
             <div style={{ padding: "14px", border: "1px solid var(--rule)" }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>COMMON MISTAKES</div>
@@ -147,6 +149,7 @@ export default function PaperDissectorPage() {
         <button className="btn" onClick={analyse} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Dissecting question…" : "Dissect this question →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

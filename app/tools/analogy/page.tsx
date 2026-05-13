@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type AnalogyResult = { concept: string; analogies: { title: string; analogy: string; breakdown: string; limitation: string }[]; keyInsight: string; examTip: string };
 
@@ -51,7 +53,7 @@ export default function AnalogyPage() {
 
         <div style={{ border: "1px solid #1a6091", padding: "16px 20px", background: "rgba(26,96,145,0.04)", marginBottom: 12 }}>
           <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>KEY INSIGHT</div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.7, fontStyle: "italic" }}>{result.keyInsight}</div>
+          <AIOutput text={result.keyInsight} variant="principle" />
         </div>
         <div style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>EXAM TIP</div>
@@ -86,6 +88,7 @@ export default function AnalogyPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Generating analogies…" : "Generate analogies →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

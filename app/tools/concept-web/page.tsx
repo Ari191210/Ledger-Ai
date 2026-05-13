@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Child  = { label: string; detail: string; crossLinks: string[] };
 type Branch = { label: string; children: Child[] };
@@ -43,7 +45,7 @@ export default function ConceptWebPage() {
           <div style={{ display: "inline-block", border: "3px solid var(--ink)", padding: "16px 32px", background: "var(--ink)", color: "var(--paper)" }}>
             <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 700 }}>{web.center}</div>
           </div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 12, maxWidth: 500, margin: "12px auto 0" }}>{web.description}</div>
+          <div style={{ marginTop: 12, maxWidth: 500, margin: "12px auto 0" }}><AIOutput text={web.description} noBorder /></div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
@@ -75,7 +77,7 @@ export default function ConceptWebPage() {
 
         <div style={{ padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>BIG PICTURE</div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontStyle: "italic", lineHeight: 1.7 }}>{web.summary}</div>
+          <AIOutput text={web.summary} variant="principle" />
         </div>
       </main>
     </div>
@@ -114,6 +116,7 @@ export default function ConceptWebPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Mapping concept…" : "Build concept web →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

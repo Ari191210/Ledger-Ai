@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { type UserProfile } from "@/lib/user-data";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Flashcard = { q: string; a: string };
 type QuizItem  = { q: string; opts: string[]; ans: number };
@@ -182,7 +184,7 @@ export default function NotesPage() {
       )}
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1.4fr" : "1fr", gap: 48 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (output || loading) ? "1fr 1.4fr" : "1fr", gap: 48 }}>
           {/* Input */}
           <div>
             {profile.grade && (
@@ -208,8 +210,24 @@ export default function NotesPage() {
             {error && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>}
           </div>
 
+          {/* Skeleton while loading */}
+          {loading && (
+            <div>
+              <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 0 }}>
+                {["Explanation", "Summary", "Flashcards", "Quiz"].map((label, i, arr) => (
+                  <div key={label} style={{ flex: 1, padding: "12px 8px", background: "var(--paper)", borderRight: i < arr.length - 1 ? "1px solid var(--rule)" : "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", textAlign: "center" }}>
+                    {label}
+                  </div>
+                ))}
+              </div>
+              <div style={{ border: "1px solid var(--ink)", borderTop: "none", padding: "24px 20px" }}>
+                <AIThinking />
+              </div>
+            </div>
+          )}
+
           {/* Output */}
-          {output && (
+          {output && !loading && (
             <div>
               <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 0 }}>
                 {TABS.map((t, i) => (
@@ -222,9 +240,7 @@ export default function NotesPage() {
 
               <div style={{ border: "1px solid var(--ink)", borderTop: "none", padding: "24px 20px" }}>
                 {tab === "explanation" && (
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.65, color: "var(--ink-2)" }}>
-                    {output.explanation.split("\n\n").map((p, i) => <p key={i} style={{ marginBottom: 14 }}>{p}</p>)}
-                  </div>
+                  <AIOutput text={output.explanation} />
                 )}
                 {tab === "summary" && (
                   <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none" }}>

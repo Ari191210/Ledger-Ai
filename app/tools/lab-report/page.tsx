@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type ReportSection = { heading: string; content: string; template: string | null };
 type LabReport     = { title: string; sections: ReportSection[]; safetyNotes: string[]; evaluationCriteria: string[]; ibCriteria: string | null };
@@ -67,7 +69,7 @@ export default function LabReportPage() {
                   <span style={{ fontFamily: "var(--sans)", fontSize: 15, fontWeight: 700 }}>{s.heading}</span>
                 </div>
               </div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, color: "var(--ink)", marginBottom: s.template ? 12 : 0 }}>{s.content}</div>
+              <div style={{ marginBottom: s.template ? 12 : 0 }}><AIOutput text={s.content} /></div>
               {s.template && (
                 <div style={{ padding: "12px 14px", background: "var(--paper-2)", border: "1px solid var(--rule)", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
                   {s.template}
@@ -146,6 +148,7 @@ export default function LabReportPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building lab report…" : "Generate lab report structure →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

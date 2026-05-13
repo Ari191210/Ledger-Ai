@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Guide = { topic: string; overview: string; sections: { title: string; content: string; keyPoints: string[] }[]; mustKnow: string[]; commonMistakes: string[]; quickReview: string[]; examTip: string };
 
@@ -37,7 +39,7 @@ export default function StudyGuidePage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 820, margin: "0 auto" }}>
         <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 20 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>OVERVIEW</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7 }}>{guide.overview}</div>
+          <AIOutput text={guide.overview} />
         </div>
 
         {guide.sections.map((s, i) => (
@@ -48,7 +50,7 @@ export default function StudyGuidePage() {
             </button>
             {open === i && (
               <div style={{ padding: "0 16px 16px" }}>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, color: "var(--ink-2)", marginBottom: 12 }}>{s.content}</div>
+                <div style={{ marginBottom: 12 }}><AIOutput text={s.content} /></div>
                 {s.keyPoints.map((kp, j) => <div key={j} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                   <span style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 9, marginTop: 2 }}>✓</span>
                   <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{kp}</span>
@@ -113,6 +115,7 @@ export default function StudyGuidePage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building study guide…" : "Build study guide →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

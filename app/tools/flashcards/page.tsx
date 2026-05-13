@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Card = { q: string; a: string };
 
@@ -77,6 +78,7 @@ export default function FlashcardsPage() {
             <button className="btn" onClick={generate} disabled={loading || (!input.trim() && !subject.trim())} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
               {loading ? "Generating cards…" : "Generate flashcards →"}
             </button>
+            {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
           </>
         ) : (
           <>

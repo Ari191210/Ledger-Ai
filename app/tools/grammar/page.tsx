@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Issue = { type: string; original: string; suggestion: string; explanation: string };
 type GrammarResult = { overallScore: number; band: string; issues: Issue[]; strengths: string[]; rewrite: string; academicPhrases: string[]; examTip: string };
@@ -91,7 +93,7 @@ export default function GrammarPage() {
               {showRewrite ? "Hide" : "Show rewrite"}
             </button>
           </div>
-          {showRewrite && <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{result.rewrite}</div>}
+          {showRewrite && <AIOutput text={result.rewrite} />}
         </div>
 
         <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
@@ -129,6 +131,7 @@ export default function GrammarPage() {
         <button className="btn" onClick={check} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Checking writing…" : "Check my writing →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

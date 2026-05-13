@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Connection = { conceptA: string; conceptB: string; links: { type: string; description: string; example: string }[]; deepInsight: string; crossSubjectValue: string; examAngles: string[]; examTip: string };
 
@@ -53,12 +55,12 @@ export default function ConceptConnectPage() {
 
         <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Deep Insight</div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.7, fontStyle: "italic" }}>{result.deepInsight}</div>
+          <AIOutput text={result.deepInsight} variant="principle" />
         </div>
 
         <div style={{ border: "1px solid #2d7a3c", padding: "14px 16px", marginBottom: 12 }}>
           <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.crossSubjectValue}</div>
+          <AIOutput text={result.crossSubjectValue} />
         </div>
 
         <div style={{ border: "1px solid var(--rule)", padding: "14px 16px", marginBottom: 12 }}>
@@ -102,6 +104,7 @@ export default function ConceptConnectPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Finding connections…" : "Find the connection →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

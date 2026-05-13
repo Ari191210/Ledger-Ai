@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Strategy = { subject: string; duration: number; sections: { name: string; timeAllocation: string; approach: string; pitfalls: string[] }[]; timeManagement: string; nerveControl: string[]; lastMinuteTips: string[]; examDayChecklist: string[]; examTip: string };
 
@@ -50,7 +52,7 @@ export default function ExamStrategyPage() {
 
         <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Time Management</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.timeManagement}</div>
+          <AIOutput text={result.timeManagement} />
         </div>
 
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
@@ -118,6 +120,7 @@ export default function ExamStrategyPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building strategy…" : "Build exam strategy →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

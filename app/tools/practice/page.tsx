@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Problem = { number: number; problem: string; hint: string; marks: number; solution: string };
 type PracticeSet = { topic: string; difficulty: string; problems: Problem[] };
@@ -76,7 +78,7 @@ export default function PracticePage() {
               {revealed[p.number] && (
                 <div style={{ marginTop: 12, padding: "16px 18px", border: "2px solid var(--ink)", background: "var(--paper-2)" }}>
                   <div className="mono cin" style={{ marginBottom: 10 }}>Worked solution</div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{p.solution}</div>
+                  <AIOutput text={p.solution} />
                 </div>
               )}
             </div>
@@ -139,6 +141,7 @@ export default function PracticePage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Generating problems…" : "Generate practice set →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Section   = { title: string; purpose: string; points: string[]; wordCount: number; openWith: string };
 type Blueprint = { title: string; thesis: string; totalWords: number; sections: Section[]; dos: string[]; donts: string[]; keyTerms: string[] };
@@ -44,7 +46,7 @@ export default function EssayBlueprintPage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 800, margin: "0 auto" }}>
         <div style={{ border: "2px solid var(--ink)", padding: "20px 24px", marginBottom: 28 }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Thesis statement</div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", lineHeight: 1.6 }}>{blueprint.thesis}</div>
+          <AIOutput text={blueprint.thesis} variant="principle" />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
@@ -142,6 +144,7 @@ export default function EssayBlueprintPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building blueprint…" : "Build my essay blueprint →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

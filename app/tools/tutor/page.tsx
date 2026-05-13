@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 const SUBJECTS = [
   "Mathematics", "Physics", "Chemistry", "Biology",
@@ -127,7 +129,7 @@ export default function TutorPage() {
       </header>
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: lesson ? "1fr 1.5fr" : "1fr", gap: 48 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (lesson || loading) ? "1fr 1.5fr" : "1fr", gap: 48 }}>
 
           {/* Input panel */}
           <div>
@@ -190,8 +192,11 @@ export default function TutorPage() {
             )}
           </div>
 
+          {/* Skeleton while loading */}
+          {loading && <AIThinking />}
+
           {/* Lesson output */}
-          {lesson && (
+          {lesson && !loading && (
             <div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2 }}>{lesson.title}</div>
@@ -211,9 +216,8 @@ export default function TutorPage() {
 
                 {tab === "concept" && (
                   <div>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7, color: "var(--ink-2)" }}>
-                      {lesson.concept.split("\n\n").map((p, i) => <p key={i} style={{ marginBottom: 14 }}>{p}</p>)}
-                    </div>
+                    <AIOutput text={lesson.concept} noBorder />
+
                     {lesson.commonMistakes?.length > 0 && (
                       <div style={{ marginTop: 20, padding: "16px 18px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                         <div className="mono cin" style={{ marginBottom: 10 }}>Common mistakes to avoid</div>

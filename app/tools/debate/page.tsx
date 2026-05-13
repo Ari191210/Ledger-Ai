@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type DebateOutput = { motion: string; for: { argument: string; evidence: string; rebuttal: string }[]; against: { argument: string; evidence: string; rebuttal: string }[]; keyTerms: { term: string; def: string }[]; practiceQs: string[] };
 
@@ -129,6 +130,7 @@ export default function DebatePage() {
         <button className="btn" onClick={generate} disabled={loading || !motion.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building arguments…" : "Generate debate prep →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>

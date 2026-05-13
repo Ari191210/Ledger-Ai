@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Criterion = { name: string; score: number; max: number; feedback: string };
 type Grade = { overall: string; band: string; totalScore: number; maxScore: number; criteria: Criterion[]; strengths: string[]; improvements: string[]; summary: string };
@@ -78,7 +80,7 @@ export default function EssayGraderPage() {
               ))}
             </div>
 
-            <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", lineHeight: 1.7, color: "var(--ink-2)", border: "1px solid var(--rule)", padding: "20px 24px" }}>&ldquo;{grade.summary}&rdquo;</div>
+            <AIOutput text={grade.summary} variant="principle" />
           </div>
 
           <div>
@@ -143,6 +145,7 @@ export default function EssayGraderPage() {
         <button className="btn" onClick={analyse} disabled={loading || essay.trim().length < 100} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Grading essay…" : "Grade my essay →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>

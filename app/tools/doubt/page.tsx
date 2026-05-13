@@ -5,6 +5,8 @@ import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { type UserProfile } from "@/lib/user-data";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Output = { solution: string; principle: string; practice: string[] };
 
@@ -70,7 +72,7 @@ export default function DoubtPage() {
         </header>
 
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1fr" : "1fr", gap: 48, maxWidth: output ? "100%" : 700 }}>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (output || loading) ? "1fr 1fr" : "1fr", gap: 48, maxWidth: (output || loading) ? "100%" : 700 }}>
             {/* Input */}
             <div>
               {profile.grade && (
@@ -118,24 +120,23 @@ export default function DoubtPage() {
               {error && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>}
             </div>
 
+            {/* Skeleton while loading */}
+            {loading && <AIThinking />}
+
             {/* Output */}
-            {output && (
+            {output && !loading && (
               <div>
                 <div style={{ border: "1px solid var(--ink)" }}>
                   {/* Solution */}
                   <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--ink)" }}>
                     <div className="mono cin" style={{ marginBottom: 12 }}>Worked solution</div>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.7, color: "var(--ink-2)", whiteSpace: "pre-wrap" }}>
-                      {output.solution}
-                    </div>
+                    <AIOutput text={output.solution} />
                   </div>
 
                   {/* Principle */}
                   <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ink)", background: "var(--paper-2)" }}>
                     <div className="mono cin" style={{ marginBottom: 8 }}>Underlying principle</div>
-                    <div style={{ fontFamily: "var(--serif)", fontSize: 16, lineHeight: 1.55, fontStyle: "italic" }}>
-                      {output.principle}
-                    </div>
+                    <AIOutput text={output.principle} variant="principle" />
                   </div>
 
                   {/* Practice */}

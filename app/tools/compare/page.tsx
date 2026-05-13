@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Row = { criterion: string; items: string[] };
 type Chart = { title: string; items: string[]; rows: Row[]; similarities: string[]; differences: string[]; verdict: string };
@@ -79,7 +81,7 @@ export default function ComparePage() {
 
         <div style={{ border: "2px solid var(--ink)", padding: "16px 20px" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Verdict</div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.7, fontStyle: "italic" }}>{chart.verdict}</div>
+          <AIOutput text={chart.verdict} variant="principle" />
         </div>
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
@@ -128,6 +130,7 @@ export default function ComparePage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building comparison…" : "Build comparison chart →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Formula = {
   name: string;
@@ -215,12 +216,18 @@ export default function FormulaPage() {
           <div className="formula-output">
             {!sheet ? (
               <div style={{ border: "1px solid var(--rule)", padding: "60px 40px", textAlign: "center", background: "var(--paper-2)", minHeight: 400, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: "var(--ink-2)", marginBottom: 8 }}>
-                  {loading ? "Reading the chapter…" : "Your formula sheet will appear here."}
-                </div>
-                <div className="mono" style={{ color: "var(--ink-3)" }}>
-                  {loading ? "This takes about 10 seconds." : "Enter a subject and chapter to begin."}
-                </div>
+                {loading ? (
+                  <AIThinking />
+                ) : (
+                  <>
+                    <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: "var(--ink-2)", marginBottom: 8 }}>
+                      Your formula sheet will appear here.
+                    </div>
+                    <div className="mono" style={{ color: "var(--ink-3)" }}>
+                      Enter a subject and chapter to begin.
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <>

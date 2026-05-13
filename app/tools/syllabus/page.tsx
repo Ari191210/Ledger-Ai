@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData } from "@/lib/user-data";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Chapter  = { name: string; topics: string[] };
 type Subject  = { name: string; chapters: Chapter[] };
@@ -126,7 +127,7 @@ export default function SyllabusPage() {
       </header>
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: syllabus ? "1fr 1.5fr" : "1fr", gap: 48 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (syllabus || loading) ? "1fr 1.5fr" : "1fr", gap: 48 }}>
 
           {/* Input panel */}
           <div>
@@ -203,8 +204,11 @@ export default function SyllabusPage() {
             )}
           </div>
 
+          {/* Skeleton while loading */}
+          {loading && <AIThinking />}
+
           {/* Results panel */}
-          {syllabus && (
+          {syllabus && !loading && (
             <div>
               {/* Meta row */}
               <div style={{ border: "1px solid var(--ink)", padding: "20px 24px", marginBottom: 20, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>

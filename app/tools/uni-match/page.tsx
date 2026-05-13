@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type UniMatch = { name: string; country: string; fitScore: number; why: string; requirements: string; strengths: string[]; applyBy: string; reach: "safety" | "match" | "reach" };
 type Result   = { summary: string; unis: UniMatch[]; advice: string; gaps: string[] };
@@ -47,7 +49,7 @@ export default function UniMatchPage() {
         <button className="btn ghost" onClick={() => setResult(null)}>Start over</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 860, margin: "0 auto" }}>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontStyle: "italic", lineHeight: 1.6, marginBottom: 28, padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>{result.summary}</div>
+        <div style={{ marginBottom: 28, padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}><AIOutput text={result.summary} variant="principle" /></div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
           {result.unis.map((u, i) => (
@@ -92,7 +94,7 @@ export default function UniMatchPage() {
 
         <div style={{ padding: "14px 18px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
           <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 4 }}>APPLICATION ADVICE</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.advice}</div>
+          <AIOutput text={result.advice} />
         </div>
       </main>
     </div>
@@ -144,6 +146,7 @@ export default function UniMatchPage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Finding your matches…" : "Find my universities →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { type UserProfile } from "@/lib/user-data";
 import { callAI } from "@/lib/ai-fetch";
+import { AIThinking } from "@/components/ai-thinking";
 
 type OutlineSection = { section: string; points: string[] };
 type Output = { title: string; outline: OutlineSection[]; arguments: string[]; research: string[] };
@@ -50,7 +51,7 @@ export default function AssignmentPage() {
         </header>
 
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: output ? "1fr 1.4fr" : "1fr", gap: 48, maxWidth: output ? "100%" : 680 }}>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (output || loading) ? "1fr 1.4fr" : "1fr", gap: 48, maxWidth: (output || loading) ? "100%" : 680 }}>
             {/* Input */}
             <div>
               {profile.grade && (
@@ -83,6 +84,7 @@ export default function AssignmentPage() {
             </div>
 
             {/* Output */}
+            {loading && !output && <div style={{ paddingTop: 40 }}><AIThinking /></div>}
             {output && (
               <div>
                 {/* Title */}

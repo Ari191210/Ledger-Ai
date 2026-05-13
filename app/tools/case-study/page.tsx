@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type CaseStudy = { title: string; summary: string; situation: string; problem: string; stakeholders: string[]; analysis: { framework: string; points: string[] }[]; recommendations: string[]; conclusion: string; examTip: string };
 
@@ -36,7 +38,7 @@ export default function CaseStudyPage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 860, margin: "0 auto" }}>
         <div style={{ border: "2px solid var(--ink)", padding: "18px 22px", marginBottom: 20 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>SUMMARY</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7 }}>{result.summary}</div>
+          <AIOutput text={result.summary} />
         </div>
 
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
@@ -71,7 +73,7 @@ export default function CaseStudyPage() {
 
         <div style={{ border: "1px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>CONCLUSION</div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 14, lineHeight: 1.7, fontStyle: "italic" }}>{result.conclusion}</div>
+          <AIOutput text={result.conclusion} variant="principle" />
         </div>
 
         <div style={{ border: "1px solid #1a6091", padding: "14px 18px", background: "rgba(26,96,145,0.04)" }}>
@@ -115,6 +117,7 @@ export default function CaseStudyPage() {
         <button className="btn" onClick={analyse} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Analysing case…" : "Analyse case study →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>

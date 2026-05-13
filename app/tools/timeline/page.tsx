@@ -2,6 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 type Event = { date: string; title: string; description: string; significance: string; category: string };
 type Timeline = { title: string; period: string; events: Event[]; themes: string[]; examTip: string };
@@ -53,7 +55,7 @@ export default function TimelinePage() {
                     <span className="mono" style={{ fontSize: 9, color: color }}>{ev.category} · {ev.date}</span>
                   </div>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{ev.title}</div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.5, color: "var(--ink-2)", marginBottom: 6 }}>{ev.description}</div>
+                  <AIOutput text={ev.description} />
                   <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#2d7a3c" }}>SIGNIFICANCE · <span style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "none", letterSpacing: 0, color: "var(--ink-2)" }}>{ev.significance}</span></div>
                 </div>
               </div>
@@ -101,6 +103,7 @@ export default function TimelinePage() {
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building timeline…" : "Build timeline →"}
         </button>
+        {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
         </div>
