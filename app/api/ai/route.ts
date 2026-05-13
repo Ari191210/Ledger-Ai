@@ -117,7 +117,7 @@ function buildProfileContext(params: Record<string, unknown>): string {
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -793,6 +793,70 @@ Subject: ${params.subject}
 Level: ${params.level}
 Claim / question: ${params.claim}`,
       };
+
+    case "cremator":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an elite exam strategy advisor with encyclopedic knowledge of JEE, NEET, CBSE Board, and IB examination patterns spanning the last 15 years. You think like the toppers' secret weapon — a senior who has dissected every past paper, mapped examiner obsessions, and knows exactly which topics get asked year after year versus which ones are syllabus filler. Your job is not to be encouraging or comprehensive — your job is to be brutally precise. You identify the highest-yield topics, assign them priority based on historical mark frequency, and tell students exactly what to do with the hours they have left. You have deep familiarity with how each exam board structures marks: CBSE's love of NCERT-verbatim 3-markers, JEE's obsession with conceptual traps in specific chapters, NEET's repeated return to certain physiology and organic chemistry mechanisms, IB's essay-style mark schemes. You understand the difference between a topic that appears on the syllabus and a topic that actually gets asked. You are not a flashcard generator. You are a triage surgeon. You respond only with valid JSON matching the exact schema provided — no prose, no preamble, no explanation outside the JSON structure.`,
+        userText: `A student is ${params.daysRemaining} day(s) away from their ${params.examBoard} exam. They have ${params.hoursPerDay} hours available per day, giving roughly ${Math.round(Number(params.hoursPerDay) * Number(params.daysRemaining) * 60)} total minutes. They have pasted their syllabus or chapter list below. Some topics they have already revised and should be deprioritised.
+
+Exam Board: ${params.examBoard}
+Days Remaining: ${params.daysRemaining}
+Hours Per Day Available: ${params.hoursPerDay}
+Total Minutes Available: ${Math.round(Number(params.hoursPerDay) * Number(params.daysRemaining) * 60)}
+Already Revised Topics (deprioritise these): ${params.alreadyRevised || "None specified"}
+
+Syllabus / Chapter List:
+${params.syllabusText}
+
+Your task:
+1. Analyse every topic in the syllabus against historical ${params.examBoard} question frequency and mark allocation patterns.
+2. Rank the top 8 topics by priority — not by syllabus order, but by expected marks yield vs time cost ratio. Factor in how often this exact exam board has tested this topic in the last decade, how many marks it typically carries, and how quickly a student can become exam-ready on it.
+3. Assign each topic an examiner_obsession_score from 1–10 (10 = this board asks this every single year, often multiple times).
+4. Allocate the available minutes across the ranked topics realistically. The allocations must sum to no more than the total minutes available.
+5. Assign urgency tiers: "DO NOW" (top yield, do immediately), "DO TODAY" (high yield, second pass), "IF TIME" (moderate yield, only if buffer exists), "SKIP" (low yield given time constraints).
+6. Build a skip list of topics the student should consciously abandon — with a clear, non-apologetic reason why the time cost outweighs the expected marks.
+7. Identify one hidden gem — a topic that most students in a panic-revision scenario overlook, but which this specific exam board has a pattern of rewarding. It should be low prep time, disproportionately high marks yield.
+8. Write an examiner_pattern_note of 2–3 sentences that reveals something specific and non-obvious about how ${params.examBoard} sets and marks papers — something that should change how the student reads questions or structures answers.
+
+Be specific to ${params.examBoard}. Do not give generic advice. If you know this board favours numerical over theory, say so. If they recycle specific question types, name them. If a particular subtopic has appeared in 7 of the last 10 papers, reflect that in the obsession score.
+
+Respond with exactly this JSON:
+{
+  "ranked_topics": [
+    {
+      "rank": 1,
+      "topic_name": "string — specific topic name, not just chapter name",
+      "chapter": "string — parent chapter",
+      "marks_weight_percent": "number — estimated % of total paper marks this topic historically accounts for",
+      "examiner_obsession_score": "number 1-10",
+      "time_allocation_minutes": "number — realistic prep time in minutes allocated from available budget",
+      "urgency_tier": "DO NOW | DO TODAY | IF TIME | SKIP",
+      "one_line_reason": "string — one sharp sentence on why this ranks here, referencing exam board patterns",
+      "key_subtopics_to_nail": ["string", "string", "string — the 2-4 specific sub-concepts that appear most in questions"]
+    }
+  ],
+  "skip_list": [
+    {
+      "topic_name": "string",
+      "reason_to_skip": "string — direct, data-backed reason: low frequency, high complexity, poor marks-per-hour ratio"
+    }
+  ],
+  "hidden_gem": {
+    "topic_name": "string",
+    "why_overlooked": "string — why students skip it in panic mode",
+    "expected_marks": "number — realistic marks this topic can yield",
+    "prep_time_minutes": "number — how long it actually takes to get exam-ready on this"
+  },
+  "time_budget_summary": {
+    "total_minutes_available": "number",
+    "minutes_allocated": "number — sum of all time_allocation_minutes across ranked topics",
+    "coverage_confidence_percent": "number — realistic estimate of how well-covered the high-yield portion of the paper will be if student follows this plan"
+  },
+  "examiner_pattern_note": "string — 2-3 sentences, specific to ${params.examBoard}, non-generic, actionable insight about marking style or question patterns"
+}
+
+Syllabus to analyse: ${params.syllabusText}`,
+      };
   }
 }
 
@@ -812,7 +876,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

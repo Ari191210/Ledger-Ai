@@ -74,6 +74,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "memory-palace",   ttl: "Memory Palace",        sub: "Walk through it. Never forget it.", tier: "Free", desc: "Build a vivid spatial memory palace with locations, images, and stories for any list." },
       { slug: "analogy",         ttl: "Analogy Engine",       sub: "Complex concepts, memorably explained.", tier: "Free", desc: "3 creative analogies with breakdowns and limitations — understand anything deeply." },
       { slug: "exam-strategy",   ttl: "Exam Strategy",        sub: "Personalised exam-day plan.",       tier: "Free", desc: "Time allocation by section, nerve control, last-minute tips, and exam day checklist." },
+      { slug: "cremator", ttl: "Syllabus Cremator", sub: "Paste your syllabus. Get the 20% that covers 80% of mar", tier: "Free", desc: "At 2AM before a JEE/NEET/Board paper, a student has 6 hours and 14 chapters. They don't need another flashcard deck — th" },
     ],
   },
   {

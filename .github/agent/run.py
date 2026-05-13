@@ -41,12 +41,20 @@ client = anthropic.Anthropic(api_key=_api_key)
 
 
 # ── Shell helpers ─────────────────────────────────────────────────────────────
+_IS_WIN = sys.platform == "win32"
+
 def sh(cmd: list, **kwargs) -> subprocess.CompletedProcess:
     print(f"  $ {' '.join(str(c) for c in cmd)}")
+    # On Windows, npx/next/eslint are .cmd batch files — shell=True is required
+    if _IS_WIN:
+        kwargs.setdefault("shell", True)
     return subprocess.run(cmd, cwd=REPO_ROOT, **kwargs)
 
 def sh_out(cmd: list) -> str:
-    return subprocess.run(cmd, cwd=REPO_ROOT, capture_output=True, text=True).stdout.strip()
+    kwargs = {"cwd": REPO_ROOT, "capture_output": True, "text": True}
+    if _IS_WIN:
+        kwargs["shell"] = True
+    return subprocess.run(cmd, **kwargs).stdout.strip()
 
 
 # ── Vault reader ──────────────────────────────────────────────────────────────
