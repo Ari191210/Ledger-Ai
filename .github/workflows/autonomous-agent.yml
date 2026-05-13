@@ -1,9 +1,7 @@
-name: Ledger Agent
+name: Ledger Agent (disabled — use local agent v2)
 
 on:
-  schedule:
-    - cron: '0 3 * * 1,4'   # Monday and Thursday at 3 AM UTC
-  workflow_dispatch:          # Run manually from GitHub → Actions tab anytime
+  workflow_dispatch:          # Manual only — agent now runs locally via .github/agent/run.py
 
 concurrency:
   group: ledger-agent
