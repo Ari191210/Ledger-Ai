@@ -17,7 +17,7 @@ export default function PaletteToggle() {
     return () => window.removeEventListener("ledger-palette", handler);
   }, []);
 
-  if (path.startsWith("/dashboard") || path.startsWith("/admin")) return null;
+  if (path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/tools")) return null;
 
   function set(p: PaletteId) {
     setActive(p);
