@@ -89,11 +89,13 @@ interface AIOutputProps {
   text: string;
   variant?: "prose" | "principle";
   noBorder?: boolean;
+  onRegenerate?: () => void;
 }
 
-export function AIOutput({ text, variant = "prose", noBorder = false }: AIOutputProps) {
+export function AIOutput({ text, variant = "prose", noBorder = false, onRegenerate }: AIOutputProps) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!text) { setDisplayed(""); setDone(false); return; }
@@ -108,6 +110,13 @@ export function AIOutput({ text, variant = "prose", noBorder = false }: AIOutput
     }, 30);
     return () => clearInterval(id);
   }, [text]);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   const cursor = !done ? (
     <span
@@ -124,6 +133,53 @@ export function AIOutput({ text, variant = "prose", noBorder = false }: AIOutput
     />
   ) : null;
 
+  const toolbar = done ? (
+    <div style={{ display: "flex", gap: 6, marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--rule-2)" }}>
+      <button
+        onClick={handleCopy}
+        style={{
+          fontFamily: "var(--mono)",
+          fontSize: 9,
+          letterSpacing: "0.10em",
+          textTransform: "uppercase",
+          padding: "5px 12px",
+          border: `1px solid ${copied ? "var(--cinnabar-ink)" : "var(--rule)"}`,
+          background: "transparent",
+          color: copied ? "var(--cinnabar-ink)" : "var(--ink-3)",
+          cursor: "pointer",
+          transition: "color 160ms ease, border-color 160ms ease",
+        }}
+        onMouseDown={e => (e.currentTarget.style.transform = "scale(0.96)")}
+        onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
+      >
+        {copied ? "Copied ✓" : "Copy"}
+      </button>
+      {onRegenerate && (
+        <button
+          onClick={onRegenerate}
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 9,
+            letterSpacing: "0.10em",
+            textTransform: "uppercase",
+            padding: "5px 12px",
+            border: "1px solid var(--rule)",
+            background: "transparent",
+            color: "var(--ink-3)",
+            cursor: "pointer",
+            transition: "color 160ms ease, border-color 160ms ease",
+          }}
+          onMouseOver={e => { e.currentTarget.style.color = "var(--ink)"; e.currentTarget.style.borderColor = "var(--ink-3)"; }}
+          onMouseOut={e => { e.currentTarget.style.color = "var(--ink-3)"; e.currentTarget.style.borderColor = "var(--rule)"; }}
+          onMouseDown={e => (e.currentTarget.style.transform = "scale(0.96)")}
+          onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          Try again ↺
+        </button>
+      )}
+    </div>
+  ) : null;
+
   const borderStyle: React.CSSProperties = noBorder ? {} : {
     borderLeft: "3px solid var(--cinnabar)",
     paddingLeft: 16,
@@ -135,6 +191,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false }: AIOutput
         <div style={{ fontFamily: "var(--serif)", fontSize: 16, lineHeight: 1.6, fontStyle: "italic", color: "var(--ink-2)" }}>
           {displayed}{cursor}
         </div>
+        {toolbar}
       </div>
     );
   }
@@ -143,6 +200,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false }: AIOutput
     <div style={borderStyle}>
       {renderMarkdown(displayed)}
       {cursor}
+      {toolbar}
     </div>
   );
 }

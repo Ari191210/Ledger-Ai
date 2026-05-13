@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
+import { trackToolVisit, getRecentTools, getFavTools, saveFavTools } from "@/lib/recent-tools";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import FeaturesShowcase from "@/components/features-showcase";
 import gsap from "gsap";
@@ -24,7 +25,8 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "deadlines",    ttl: "Deadline Hub",           sub: "Every deadline. Never miss one.",     tier: "Free", desc: "Add exams, assignments, and applications with priority levels. Countdown timers." },
       { slug: "exam-planner", ttl: "Exam Season Planner",    sub: "Spaced repetition, automatically.",   tier: "Free", desc: "AI builds a spaced-repetition revision schedule around your real exam dates." },
       { slug: "debt-meter",   ttl: "Cognitive Debt Meter",   sub: "Your academic APR, in real time.",    tier: "Free", desc: "Unfinished chapters accrue interest. See your debt score and minimum daily payment." },
-      { slug: "circadian",    ttl: "Circadian Study Window", sub: "Study at your biological peak.",      tier: "Free", desc: "Maps your chronotype from sleep times and places the hardest subject in your peak window." },
+      { slug: "circadian",       ttl: "Circadian Study Window", sub: "Study at your biological peak.",      tier: "Free", desc: "Maps your chronotype from sleep times and places the hardest subject in your peak window." },
+      { slug: "circuit-breaker", ttl: "Circuit Breaker",        sub: "Can't start? Break the block.",        tier: "Free", desc: "Tell us what you're avoiding. Get one 2-minute micro-task to break inertia. Timer included." },
     ],
   },
   {
@@ -74,6 +76,8 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "memory-palace",   ttl: "Memory Palace",        sub: "Walk through it. Never forget it.", tier: "Free", desc: "Build a vivid spatial memory palace with locations, images, and stories for any list." },
       { slug: "analogy",         ttl: "Analogy Engine",       sub: "Complex concepts, memorably explained.", tier: "Free", desc: "3 creative analogies with breakdowns and limitations — understand anything deeply." },
       { slug: "exam-strategy",   ttl: "Exam Strategy",        sub: "Personalised exam-day plan.",       tier: "Free", desc: "Time allocation by section, nerve control, last-minute tips, and exam day checklist." },
+      { slug: "cremator",       ttl: "Syllabus Cremator",    sub: "Last night triage. What to study, what to skip.",  tier: "Free", desc: "Paste chapters + exam date. AI ranks every topic with urgency tiers: DO NOW, DO TODAY, IF TIME, SKIP." },
+      { slug: "formula-recall", ttl: "Formula Recall",       sub: "Name shown. Formula from memory.",                tier: "Free", desc: "Active recall drill for formulas. 8–10 per session. Spaced repetition built in. Beats re-reading by 4×." },
     ],
   },
   {
@@ -103,6 +107,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "study-guide",    ttl: "Study Guide",       sub: "Comprehensive guide, any topic.",  tier: "Free", desc: "Complete study guide with sections, must-know facts, common mistakes, and quick review." },
       { slug: "concept-connect",ttl: "Concept Connect",   sub: "Find hidden links between ideas.", tier: "Free", desc: "Discover structural, causal, and philosophical connections between any two concepts." },
       { slug: "score",          ttl: "Ledger Score™",     sub: "Your real-time exam readiness.",   tier: "Free", desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, and consistency." },
+      { slug: "exam-debrief",   ttl: "Exam Debrief",      sub: "Log every exam. Find your patterns.", tier: "Free", desc: "Score, sleep, anxiety, hard topics — after 3 exams the AI finds what's actually holding you back." },
     ],
   },
 ];
@@ -125,6 +130,8 @@ function useStats() {
   const [nextExam, setNextExam] = useState<NextExam | null>(null);
   const [notesCount, setNotesCount] = useState(0);
   const [papersCount, setPapersCount] = useState(0);
+  const [recentSlugs, setRecentSlugs] = useState<string[]>([]);
+  const [favSlugs, setFavSlugs] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     try {
@@ -152,10 +159,22 @@ function useStats() {
 
       const papers = JSON.parse(localStorage.getItem("ledger-papers-log") || "[]");
       setPapersCount(papers.length);
+
+      setRecentSlugs(getRecentTools());
+      setFavSlugs(new Set(getFavTools()));
     } catch {}
   }, []);
 
-  return { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount };
+  function toggleFav(slug: string) {
+    setFavSlugs(prev => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug); else next.add(slug);
+      saveFavTools(Array.from(next));
+      return next;
+    });
+  }
+
+  return { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav };
 }
 
 const BOARDS = ["CBSE", "ICSE", "IB", "State Board", "JEE", "NEET", "Other"];
@@ -501,7 +520,7 @@ export default function Dashboard() {
       })
       .catch(() => {});
   }, [user]);
-  const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount } = useStats();
+  const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
@@ -565,6 +584,45 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Daily recommendation */}
+      {weakTopics.length > 0 && (
+        <div className="gl-pane-alt" style={{ marginBottom: 32, border: "1px solid var(--cinnabar-ink)", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+          <div>
+            <div className="mono cin" style={{ fontSize: 9, letterSpacing: "0.16em", marginBottom: 6 }}>Recommended now</div>
+            <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontStyle: "italic", color: "var(--ink)", lineHeight: 1.4 }}>
+              You&apos;ve missed <strong style={{ fontStyle: "normal" }}>{weakTopics[0].topic}</strong> {weakTopics[0].count}× in practice. Run Exam Simulator on it.
+            </div>
+          </div>
+          <Link href="/tools/exam-sim" className="btn" style={{ padding: "8px 18px", fontSize: 11, flexShrink: 0, textDecoration: "none" }}>Open →</Link>
+        </div>
+      )}
+
+      {/* Recently used strip */}
+      {recentSlugs.length > 0 && (() => {
+        const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
+        const recent = recentSlugs.map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
+        if (!recent.length) return null;
+        return (
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 10, marginBottom: 14 }}>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--ink-3)" }}>Recently used</div>
+            </div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }} className="nav-tools-scroll">
+              {recent.map(t => (
+                <Link key={t.slug} href={`/tools/${t.slug}`} style={{ textDecoration: "none", flexShrink: 0 }}>
+                  <div style={{ padding: "10px 14px", border: "1px solid var(--rule)", background: "var(--paper-2)", whiteSpace: "nowrap", transition: "border-color 160ms ease, background 160ms ease" }}
+                    onMouseOver={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--ink-3)"; (e.currentTarget as HTMLDivElement).style.background = "var(--paper)"; }}
+                    onMouseOut={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--rule)"; (e.currentTarget as HTMLDivElement).style.background = "var(--paper-2)"; }}>
+                    <div style={{ fontFamily: "var(--serif)", fontSize: 13, fontStyle: "italic", color: "var(--ink)" }}>{t.ttl}</div>
+                    <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginTop: 2 }}>{t.sub.slice(0, 28)}{t.sub.length > 28 ? "…" : ""}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Ledger Score */}
       <LedgerScoreWidget />
 
@@ -585,11 +643,42 @@ export default function Dashboard() {
       {/* Features nobody else ships */}
       <FeaturesShowcase />
 
+      {/* Favorites strip */}
+      {favSlugs.size > 0 && (() => {
+        const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
+        const favs = Array.from(favSlugs).map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
+        return (
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 10, marginBottom: 14 }}>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>★ Favourites</div>
+              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{favs.length} pinned</div>
+            </div>
+            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
+              {favs.map((t, ti) => (
+                <Link key={t.slug} href={`/tools/${t.slug}`} className="dash-tool gl-pane"
+                  onClick={() => trackToolVisit(t.slug)}
+                  style={{ textDecoration: "none", padding: "18px 20px 14px", display: "flex", flexDirection: "column", color: "var(--ink)", minHeight: 120 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                    <div className="mono" style={{ fontSize: 7, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>★</div>
+                    <button onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFav(t.slug); }} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", padding: 0 }}>✕</button>
+                  </div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 500, fontStyle: "italic", color: "var(--ink)", flex: 1 }}>{t.ttl}</div>
+                  <div style={{ borderTop: "1px solid var(--rule)", marginTop: 10, paddingTop: 8, display: "flex", justifyContent: "space-between" }}>
+                    <div className="mono" style={{ fontSize: 7, color: "var(--ink-3)" }}>{String(ti + 1).padStart(2, "0")}</div>
+                    <span className="dash-tool-arrow mono" style={{ fontSize: 11 }}>↗</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Tools grid — categorised */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 20 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 500 }}>The Archive</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>60 tools · click to open</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>63 tools · click to open</div>
         </div>
 
         {/* Tool search */}
@@ -660,6 +749,7 @@ export default function Dashboard() {
                   href={`/tools/${t.slug}`}
                   className="dash-tool gl-pane"
                   aria-label={`Open ${t.ttl} — ${t.sub}`}
+                  onClick={() => trackToolVisit(t.slug)}
                   style={{
                     textDecoration: "none",
                     padding: "22px 20px 18px",
@@ -667,14 +757,23 @@ export default function Dashboard() {
                     color: "var(--ink)", minHeight: 188,
                   }}
                 >
-                  {/* Card header: category label + tier badge */}
+                  {/* Card header: category label + fav star + tier badge */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <div className="mono" style={{ fontSize: 7, letterSpacing: "0.2em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
-                    {t.tier !== "Free" && (
-                      <div className="mono" style={{ fontSize: 7, letterSpacing: "0.1em", color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)", padding: "1px 6px", opacity: 0.7 }}>
-                        {t.tier}
-                      </div>
-                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <button
+                        onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFav(t.slug); }}
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 4px", fontSize: 12, color: favSlugs.has(t.slug) ? "var(--cinnabar-ink)" : "var(--ink-3)", opacity: favSlugs.has(t.slug) ? 1 : 0.4, transition: "opacity 160ms, color 160ms", lineHeight: 1 }}
+                        aria-label={favSlugs.has(t.slug) ? "Unfavorite" : "Favorite"}
+                      >
+                        {favSlugs.has(t.slug) ? "★" : "☆"}
+                      </button>
+                      {t.tier !== "Free" && (
+                        <div className="mono" style={{ fontSize: 7, letterSpacing: "0.1em", color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)", padding: "1px 6px", opacity: 0.7 }}>
+                          {t.tier}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Title */}
