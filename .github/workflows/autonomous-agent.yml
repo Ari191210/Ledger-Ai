@@ -1,0 +1,40 @@
+name: Ledger Agent
+
+on:
+  schedule:
+    - cron: '0 3 * * 1,4'   # Monday and Thursday at 3 AM UTC
+  workflow_dispatch:          # Run manually from GitHub → Actions tab anytime
+
+concurrency:
+  group: ledger-agent
+  cancel-in-progress: false   # Never cancel a running agent mid-task
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Anthropic SDK
+        run: pip install anthropic
+
+      - name: Run Ledger Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/agent.py
