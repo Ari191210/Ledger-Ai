@@ -191,107 +191,187 @@ def list_dir(path: str) -> str:
     return "\n".join(f"{'D' if x.is_dir() else 'F'}  {x.name}" for x in sorted(p.iterdir()))
 
 
-def _agent_loop(system: str, first_message: str, tools: list, max_turns: int = 12) -> dict | None:
-    """Generic tool-use loop. Returns the task_complete/fixes_complete input dict, or None."""
+def _fix_loop(system: str, first_message: str, max_turns: int = 8) -> None:
+    """Tool-use loop used only for auto-fix. Supports write_file + fixes_complete."""
+    tools = [
+        {"name": "write_file", "description": "Write corrected file (full content)",
+         "input_schema": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]}},
+        {"name": "fixes_complete", "description": "Call when all fixes applied",
+         "input_schema": {"type": "object", "properties": {"summary": {"type": "string"}}, "required": ["summary"]}},
+    ]
     messages = [{"role": "user", "content": first_message}]
-    result = None
-
     for turn in range(max_turns):
-        print(f"  [turn {turn+1}/{max_turns}]")
-        if turn == max_turns - 3:
-            messages.append({"role": "user", "content": "IMPORTANT: Write all remaining files now and call task_complete immediately. Do not read any more files."})
-
+        print(f"  [fix turn {turn+1}/{max_turns}]")
         resp = client.messages.create(model=MODEL, max_tokens=8192, system=system, tools=tools, messages=messages)
         messages.append({"role": "assistant", "content": resp.content})
-
         tool_results = []
+        done = False
         for block in resp.content:
             if block.type != "tool_use": continue
             inp = block.input
-            print(f"    → {block.name}({list(inp.keys())})")
+            print(f"    -> {block.name}({list(inp.keys())})")
             try:
-                if block.name == "read_file":
-                    out = read_file(inp["path"])
-                elif block.name == "write_file":
-                    out = write_file(inp["path"], inp["content"]) if "content" in inp else "ERROR: missing content param"
-                elif block.name == "list_dir":
-                    out = list_dir(inp["path"])
-                elif block.name in ("task_complete", "fixes_complete"):
-                    result = inp
-                    out = "acknowledged"
+                if block.name == "write_file":
+                    out = write_file(inp["path"], inp["content"]) if "content" in inp else "ERROR: missing content"
+                elif block.name == "fixes_complete":
+                    done = True; out = "done"
                 else:
-                    out = f"UNKNOWN_TOOL: {block.name}"
+                    out = f"unknown: {block.name}"
             except Exception as e:
-                out = f"TOOL_ERROR: {e}"
+                out = f"ERROR: {e}"
             tool_results.append({"type": "tool_result", "tool_use_id": block.id, "content": out})
-
-        if result: break
+        if done: break
         if resp.stop_reason == "end_turn" and not tool_results: break
         if tool_results:
             messages.append({"role": "user", "content": tool_results})
 
-    return result
 
+# ── Phase 2: Implementation (targeted — no full-file rewrites of large files) ──
 
-# ── Phase 2: Implementation ───────────────────────────────────────────────────
-def implement(idea: dict) -> list[str]:
-    print(f"\n[Phase 2] Implementing {idea['name']}...\n")
-
-    # Pre-read a reference tool so Claude has a style example
+def generate_page_content(idea: dict) -> str:
+    """Single API call — returns complete page.tsx content."""
     ref = read_file("app/tools/concept-connect/page.tsx")
-
-    system = f"""You are an expert Next.js/TypeScript developer building a feature for studyledger.in.
-
-PROJECT RULES:
-{read_file("CLAUDE.md")}
+    resp = client.messages.create(
+        model=MODEL,
+        max_tokens=8192,
+        messages=[{"role": "user", "content": f"""Write a complete Next.js page component for this feature. Return ONLY the file content — no explanation, no markdown fences.
 
 FEATURE:
-Name: {idea['name']} | Slug: {idea['slug']} | Category: {idea['category']}
-AI case name: {idea['ai_tool_name']}
-Plan: {idea['implementation_plan']}
+Name: {idea['name']} | Slug: {idea['slug']} | Route: /tools/{idea['slug']}
+Category: {idea['category']} | AI case: {idea['ai_tool_name']}
+What it does: {idea['why_students_need_it']}
+Implementation: {idea['implementation_plan']}
 Output schema: {json.dumps(idea['output_schema'])}
-New files: {idea['new_files']}
-Modified files: {idea['modified_files']}
 
-STYLE REFERENCE (concept-connect/page.tsx):
-{ref[:3000]}
-
-KEY RULES:
-- TypeScript strict — no implicit 'any'
-- Inline styles only — CSS vars (--ink, --paper, --cinnabar, --sans, --serif, --mono)
+RULES (follow exactly):
+- "use client" at top
+- TypeScript strict — define all types explicitly
+- import callAI from "@/lib/ai-fetch"
+- import {{ AIOutput }} from "@/components/ai-output"  (variant="principle" for 1-2 sentence serif italic quotes)
+- import {{ AIThinking }} from "@/components/ai-thinking"  (show during loading, below submit button)
+- Inline styles only. CSS vars: --ink --ink-2 --ink-3 --paper --paper-2 --cinnabar --cinnabar-ink --rule --sans --serif --mono
 - NO Tailwind color classes
-- Loading: <AIThinking /> from "@/components/ai-thinking"
-- AI output: <AIOutput text={{...}} /> from "@/components/ai-output" (variant="principle" for short serif quotes)
-- callAI from "@/lib/ai-fetch" — pass {{tool: "{idea['ai_tool_name']}", ...params}}
-- For app/api/ai/route.ts: READ it first (it is ~900 lines), then write the COMPLETE modified file
-- Add the new tool to TOOL_CATEGORIES in app/dashboard/page.tsx
-- Call task_complete when ALL files are written"""
+- callAI call: await callAI({{ tool: "{idea['ai_tool_name']}", ...inputParams }}) as ResultType
+- Header: <header> with back link + tool name (see style reference)
+- Include a Link back to /dashboard
 
-    tools = [
-        {"name": "read_file", "description": "Read file (repo-relative path)",
-         "input_schema": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
-        {"name": "write_file", "description": "Write complete file. Always the FULL content.",
-         "input_schema": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]}},
-        {"name": "list_dir", "description": "List directory contents",
-         "input_schema": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
-        {"name": "task_complete", "description": "Call when every file is written",
-         "input_schema": {"type": "object", "properties": {
-             "pr_title": {"type": "string"},
-             "summary": {"type": "string"},
-             "files_written": {"type": "array", "items": {"type": "string"}}
-         }, "required": ["pr_title", "summary", "files_written"]}},
-    ]
+STYLE REFERENCE (match this structure and design exactly):
+{ref[:3000]}"""}]
+    )
+    text = resp.content[0].text.strip()
+    text = re.sub(r'^```(?:tsx?|typescript)?\n', '', text)
+    text = re.sub(r'\n```$', '', text)
+    return text.strip()
 
-    result = _agent_loop(
-        system=system,
-        first_message="Start with app/api/ai/route.ts (read it first, then write the full modified version). Then create the page file. Then update app/dashboard/page.tsx. Call task_complete when all files are done.",
-        tools=tools,
-        max_turns=12,
+
+def generate_api_case(idea: dict) -> str:
+    """Single API call — returns just the case block to insert into route.ts."""
+    resp = client.messages.create(
+        model=MODEL,
+        max_tokens=2000,
+        messages=[{"role": "user", "content": f"""Write the API route case block for this tool. Return ONLY the case block — no surrounding code.
+
+Tool name (snake_case): {idea['ai_tool_name']}
+Feature: {idea['name']}
+Purpose: {idea['why_students_need_it']}
+Output schema: {json.dumps(idea['output_schema'])}
+Implementation: {idea['implementation_plan']}
+
+The block must follow this EXACT format:
+    case "{idea['ai_tool_name']}":
+      return {{
+        system: `${{SAFETY_PREAMBLE}}You are [role]. Always respond with valid JSON only.`,
+        userText: `[instruction]. Respond with exactly this JSON:\\n{json.dumps({{k: "..." for k in idea['output_schema'].keys()}, indent=2)})}\\n\\n[param interpolations using ${{params.fieldName}}]`,
+      }};
+
+Write a thorough, detailed system prompt. The userText must build the prompt from the request params.
+Return ONLY the block starting from `    case` to `      }};` (inclusive).
+Do not include backticks or any surrounding text."""}]
+    )
+    return resp.content[0].text.strip()
+
+
+def patch_route_ts(case_block: str, tool_name: str):
+    """Insert the new case into route.ts and add tool_name to ToolName + validTools."""
+    text = read_file("app/api/ai/route.ts")
+
+    # 1. Add to ToolName union type (append before the semicolon)
+    text = re.sub(
+        r'(type ToolName = [^;]+);',
+        lambda m: m.group(0)[:-1] + f' | "{tool_name}";',
+        text,
+        count=1,
     )
 
-    files_written = result.get("files_written", []) if result else []
-    print(f"  → Files written: {files_written}")
-    return result, files_written
+    # 2. Insert case before "export async function POST" (safest insertion point)
+    marker = "\n  }\n}\n\nexport async function POST"
+    if marker in text:
+        text = text.replace(marker, f"\n\n    {case_block}{marker}", 1)
+    else:
+        print("  WARNING: Could not find insertion point in route.ts")
+
+    # 3. Add to validTools array (append before closing bracket)
+    text = re.sub(
+        r'(const validTools: ToolName\[\] = \[[^\]]+)(\];)',
+        lambda m: m.group(1) + f', "{tool_name}"' + m.group(2),
+        text,
+        count=1,
+    )
+
+    write_file("app/api/ai/route.ts", text)
+    print(f"  -> Patched route.ts: added {tool_name}")
+
+
+def patch_dashboard(idea: dict):
+    """Append the new tool card to the correct category in dashboard/page.tsx."""
+    text = read_file("app/dashboard/page.tsx")
+    cat   = idea["category"]
+    slug  = idea["slug"]
+    ttl   = idea["name"]
+    sub   = idea["tagline"][:55].replace('"', "'")
+    desc  = idea["why_students_need_it"][:120].replace('"', "'")
+
+    new_entry = f'      {{ slug: "{slug}", ttl: "{ttl}", sub: "{sub}", tier: "Free", desc: "{desc}" }},'
+
+    # Find the category block and append to its tools array
+    cat_pos = text.find(f'label: "{cat}"')
+    if cat_pos == -1:
+        print(f"  WARNING: Category {cat} not found in dashboard"); return
+
+    tools_end = text.find("\n    ],", cat_pos)
+    if tools_end == -1:
+        print(f"  WARNING: tools array end not found for {cat}"); return
+
+    text = text[:tools_end] + "\n" + new_entry + text[tools_end:]
+    write_file("app/dashboard/page.tsx", text)
+    print(f"  -> Patched dashboard: added {slug} to {cat}")
+
+
+def implement(idea: dict) -> list[str]:
+    print(f"\n[Phase 2] Implementing {idea['name']}...\n")
+    changed_files = []
+
+    page_path = (idea.get("new_files") or [f"app/tools/{idea['slug']}/page.tsx"])[0]
+
+    # 1. Generate page file (focused single API call — no large file context needed)
+    print("  Generating page...")
+    page_content = generate_page_content(idea)
+    write_file(page_path, page_content)
+    changed_files.append(page_path)
+    print(f"  -> {page_path} ({len(page_content):,} chars)")
+
+    # 2. Generate API case (single focused call — just the case block)
+    print("  Generating API case...")
+    case_block = generate_api_case(idea)
+    patch_route_ts(case_block, idea["ai_tool_name"])
+    changed_files.append("app/api/ai/route.ts")
+
+    # 3. Patch dashboard (script handles insertion — no Claude needed)
+    print("  Patching dashboard...")
+    patch_dashboard(idea)
+    changed_files.append("app/dashboard/page.tsx")
+
+    return changed_files
 
 
 # ── Phase 3: Verification (5 steps) ──────────────────────────────────────────
@@ -394,18 +474,9 @@ def auto_fix(changed_files: list[str], failed_steps: list[dict]) -> list[str]:
         if not read_file(p).startswith("FILE_NOT_FOUND")
     )
 
-    tools = [
-        {"name": "write_file", "description": "Write corrected file (full content)",
-         "input_schema": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}, "required": ["path", "content"]}},
-        {"name": "fixes_complete", "description": "Call when all fixes are applied",
-         "input_schema": {"type": "object", "properties": {"summary": {"type": "string"}}, "required": ["summary"]}},
-    ]
-
-    _agent_loop(
+    _fix_loop(
         system=f"Fix code issues. Write complete corrected files.\n\nCLAUDE.md rules:\n{read_file('CLAUDE.md')}",
         first_message=f"Fix these issues:\n\n{issues_text}\n\nCurrent files:\n{files_content}\n\nWrite corrected files then call fixes_complete.",
-        tools=tools,
-        max_turns=8,
     )
     return changed_files
 
@@ -512,7 +583,7 @@ def main():
     sh(["git", "checkout", "-b", branch], check=True)
 
     # Implement
-    result, changed_files = implement(idea)
+    changed_files = implement(idea)
     if not changed_files:
         print("No files written — agent did not complete. Aborting."); sys.exit(1)
 
