@@ -7,198 +7,191 @@ import { getDensity, applyDensity, type Density } from "@/lib/density";
 import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_DEFAULTS } from "@/lib/dash-layout";
 
 const PALETTE_DESC: Record<PaletteId, string> = {
-  porcelain: "Deep obsidian base, warm cream ink, gold accents. The default.",
-  ink:       "Cold black with soft blue-white ink and electric cyan highlights.",
-  dusk:      "Deep violet with lavender ink and vivid purple accents.",
-  moss:      "Dark forest base with pale sage ink and emerald accents.",
-  rose:      "Near-black wine with blush ink and crimson-rose highlights.",
-  storm:     "Muted navy-charcoal with steel ink and cool periwinkle accents.",
-  ember:     "Black-amber base with warm parchment and burned-orange highlights.",
-  sand:      "Dark warm brown with antique cream ink and brass-gold accents.",
+  porcelain: "Obsidian + warm cream + amber gold",
+  ink:       "Cold black + icy blue + electric cyan",
+  dusk:      "Deep violet + lavender + vivid purple",
+  moss:      "Forest dark + pale sage + emerald",
+  rose:      "Wine black + blush + crimson rose",
+  storm:     "Navy charcoal + steel + periwinkle",
+  ember:     "Midnight amber + parchment + copper",
+  sand:      "Warm brown + antique cream + brass",
 };
 
-const DENSITY_OPTIONS: { id: Density; label: string; desc: string; size: number; line: number; gap: number }[] = [
-  { id: "compact",     label: "Compact",     desc: "Space-efficient. More content on screen.",        size: 12, line: 1.5,  gap: 14 },
-  { id: "default",     label: "Default",     desc: "Balanced. The original Ledger reading experience.", size: 14, line: 1.65, gap: 18 },
-  { id: "comfortable", label: "Comfortable", desc: "Generous spacing. Easier on the eyes over time.",  size: 16, line: 1.85, gap: 22 },
+const DENSITY_OPTIONS: {
+  id: Density; label: string; sub: string; size: number; line: number;
+}[] = [
+  { id: "compact",     label: "Compact",     sub: "More on screen",           size: 12, line: 1.5  },
+  { id: "default",     label: "Default",     sub: "Balanced",                 size: 14, line: 1.65 },
+  { id: "comfortable", label: "Comfortable", sub: "Easier over long sessions", size: 16, line: 1.85 },
 ];
 
-const LAYOUT_SECTIONS: { id: DashSection; label: string; desc: string }[] = [
-  { id: "recommendation", label: "Daily Recommendation", desc: "Surfaces the #1 weak topic you should practice right now." },
-  { id: "recent",         label: "Recently Used",        desc: "Your last 8 tools at a glance — one click to return." },
-  { id: "score",          label: "Ledger Score™",        desc: "Your real-time exam readiness score with next actions." },
-  { id: "exams",          label: "Exam Schedule",        desc: "Add upcoming exams and get weekly progress emails." },
-  { id: "features",       label: "Features Showcase",    desc: "Highlights what makes Ledger different from everything else." },
-];
+const SAMPLE_TEXT =
+  `Your Ledger Score is built from three signals: the accuracy of your practice paper answers, how much of your syllabus you have actually covered, and whether you have been consistent over the last fourteen days. A student who has covered 40% of the syllabus with 80% accuracy outscores one who has covered 90% with 60% accuracy — because retention matters more than exposure.`;
 
-function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
-  return (
-    <button
-      role="switch"
-      aria-checked={on}
-      onClick={onToggle}
-      style={{
-        width: 36, height: 20, borderRadius: 10, border: "none", cursor: "pointer", flexShrink: 0,
-        background: on ? "var(--ink)" : "var(--rule)",
-        position: "relative", transition: "background 200ms", padding: 0,
-      }}
-    >
-      <div style={{
-        position: "absolute", top: 3,
-        left: on ? 19 : 3,
-        width: 14, height: 14,
-        background: on ? "var(--paper)" : "var(--ink-3)",
-        borderRadius: "50%", transition: "left 200ms, background 200ms",
-      }} />
-    </button>
-  );
-}
+const LAYOUT_SECTIONS: { id: DashSection; label: string; sub: string }[] = [
+  { id: "recommendation", label: "Daily Recommendation", sub: "Your #1 weak topic to study right now" },
+  { id: "recent",         label: "Recently Used",        sub: "Last 8 tools at a glance"              },
+  { id: "score",          label: "Ledger Score™",        sub: "Real-time exam readiness card"         },
+  { id: "exams",          label: "Exam Schedule",        sub: "Upcoming exams + weekly email"         },
+  { id: "features",       label: "Features Showcase",    sub: "What makes Ledger different"           },
+];
 
 export default function PersonalisePage() {
-  const [active,   setActive]   = useState<PaletteId>("porcelain");
-  const [density,  setDensity]  = useState<Density>("default");
-  const [layout,   setLayout]   = useState<DashLayout>(DASH_DEFAULTS);
+  const [active,  setActive]  = useState<PaletteId>("porcelain");
+  const [density, setDensity] = useState<Density>("default");
+  const [layout,  setLayout]  = useState<DashLayout>(DASH_DEFAULTS);
 
   useEffect(() => {
     setActive(getActivePalette());
     setDensity(getDensity());
     setLayout(getDashLayout());
-
-    const onPalette = (e: Event) => setActive((e as CustomEvent<PaletteId>).detail);
-    const onDensity = (e: Event) => setDensity((e as CustomEvent<Density>).detail);
-    window.addEventListener("ledger-palette", onPalette);
-    window.addEventListener("ledger-density", onDensity);
+    const onP = (e: Event) => setActive((e as CustomEvent<PaletteId>).detail);
+    const onD = (e: Event) => setDensity((e as CustomEvent<Density>).detail);
+    window.addEventListener("ledger-palette", onP);
+    window.addEventListener("ledger-density", onD);
     return () => {
-      window.removeEventListener("ledger-palette", onPalette);
-      window.removeEventListener("ledger-density", onDensity);
+      window.removeEventListener("ledger-palette", onP);
+      window.removeEventListener("ledger-density", onD);
     };
   }, []);
 
-  function pick(p: PaletteId) { setActive(p); applyPalette(p); }
-
-  function pickDensity(d: Density) { setDensity(d); applyDensity(d); }
-
+  function pick(p: PaletteId)    { setActive(p);  applyPalette(p); }
+  function pickDensity(d: Density){ setDensity(d); applyDensity(d); }
   function toggleSection(id: DashSection) {
     const next = { ...layout, [id]: !layout[id] };
     setLayout(next);
     saveDashLayout(next);
   }
 
-  const activeMeta = PALETTE_META[active];
+  const m = PALETTE_META[active];
+  const densityOpt = DENSITY_OPTIONS.find(d => d.id === density) ?? DENSITY_OPTIONS[1];
 
   return (
-    <div>
-      <header className="mob-hp" style={{
-        padding: "24px 44px", borderBottom: "1px solid var(--ink)",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
+    <div style={{ minHeight: "100vh" }}>
+
+      {/* ── Studio bar ── */}
+      <div style={{
+        borderBottom: "1px solid var(--rule)",
+        padding: "0 44px",
+        height: 48,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        <div className="mono" style={{ color: "var(--ink-3)" }}>Personalise · Ledger</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: activeMeta.accent, flexShrink: 0 }} />
-          <div className="mono" style={{ color: "var(--cinnabar-ink)" }}>{activeMeta.name} active</div>
+        <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--ink-3)" }}>
+          Personalise · Ledger Studio
         </div>
-      </header>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: m.accent, boxShadow: `0 0 10px ${m.accent}99`, flexShrink: 0, transition: "background 300ms, box-shadow 300ms" }} />
+          <div className="mono" style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--ink-2)", transition: "color 300ms" }}>
+            {m.name} · {densityOpt.label}
+          </div>
+        </div>
+      </div>
 
-      <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <div className="mob-p" style={{ padding: "0 44px 100px", maxWidth: 1200, margin: "0 auto" }}>
 
-        {/* ── Colour Palette ── */}
-        <div style={{ marginBottom: 56 }}>
-          <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 32 }}>
-            <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>
-              Colour Palette
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500 }}>
-                Choose your Ledger.
+        {/* ══════════════════════════════════════════
+            COLOUR PALETTE
+        ══════════════════════════════════════════ */}
+        <section style={{ paddingTop: 56, marginBottom: 72 }}>
+
+          {/* Section header */}
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 32, borderBottom: "1px solid var(--rule)", paddingBottom: 16 }}>
+            <div>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 8 }}>
+                01 · Colour Palette
               </div>
-              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>
-                {PALETTE_IDS.length} themes · applies instantly
-              </div>
+              <h2 style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, margin: 0, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                Make Ledger yours.
+              </h2>
             </div>
-            <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.65, marginTop: 8 }}>
-              Every theme is built around the same typographic system — only the colour values change. Switch freely; your choice is saved to this device.
-            </p>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", textAlign: "right" }}>
+              {PALETTE_IDS.length} themes<br />applies instantly
+            </div>
           </div>
 
-          <div className="mob-2col" style={{
-            display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 1, background: "var(--rule)", border: "1px solid var(--rule)",
+          {/* Palette grid — each card IS the theme */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 2,
           }}>
-            {PALETTE_IDS.map((p) => {
-              const m = PALETTE_META[p];
-              const isActive = active === p;
+            {PALETTE_IDS.map((p, idx) => {
+              const pm     = PALETTE_META[p];
+              const isAct  = active === p;
               return (
                 <button
                   key={p}
                   onClick={() => pick(p)}
                   style={{
-                    border: "none", margin: 0, padding: "24px 20px",
-                    cursor: "pointer", background: m.paper,
-                    display: "flex", flexDirection: "column", gap: 14,
-                    position: "relative",
-                    outline: isActive ? `2px solid ${m.accent}` : "2px solid transparent",
-                    outlineOffset: -2, transition: "opacity 120ms",
-                    width: "100%", textAlign: "left", fontFamily: "inherit", boxSizing: "border-box",
+                    border: "none", padding: 0, cursor: "pointer",
+                    display: "flex", flexDirection: "column",
+                    background: "transparent",
+                    outline: isAct ? `2px solid ${pm.accent}` : "2px solid transparent",
+                    outlineOffset: 2,
+                    transition: "outline-color 200ms, transform 200ms cubic-bezier(0.34,1.2,0.64,1)",
+                    transform: isAct ? "scale(1.01)" : "scale(1)",
+                    textAlign: "left",
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.opacity = "0.85"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                  onMouseEnter={e => { if (!isAct) e.currentTarget.style.transform = "scale(1.02)"; }}
+                  onMouseLeave={e => { if (!isAct) e.currentTarget.style.transform = "scale(1)"; }}
                 >
-                  {isActive && (
-                    <div style={{
-                      position: "absolute", top: 12, right: 12,
-                      background: m.accent, color: m.paper,
-                      fontFamily: "var(--mono)", fontSize: 8,
-                      letterSpacing: "0.1em", textTransform: "uppercase", padding: "2px 7px",
-                    }}>
-                      Active
-                    </div>
-                  )}
-
+                  {/* Card body in the theme's own colours */}
                   <div style={{
-                    width: "100%", aspectRatio: "4/3", background: m.paper,
-                    border: `1px solid ${m.rule}`, borderRadius: 2,
-                    padding: "10px 12px", display: "flex", flexDirection: "column", gap: 5,
-                    overflow: "hidden", boxSizing: "border-box",
+                    background: pm.paper,
+                    padding: "28px 24px 22px",
+                    flex: 1,
+                    display: "flex", flexDirection: "column",
+                    minHeight: 200,
+                    position: "relative",
+                    overflow: "hidden",
                   }}>
-                    <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
-                      <div style={{ width: 22, height: 3, background: m.accent, borderRadius: 1, opacity: 0.9 }} />
-                      <div style={{ flex: 1 }} />
-                      <div style={{ width: 8, height: 3, background: m.ink, borderRadius: 1, opacity: 0.2 }} />
-                      <div style={{ width: 8, height: 3, background: m.ink, borderRadius: 1, opacity: 0.2 }} />
-                    </div>
-                    <div style={{ height: 1, background: m.rule }} />
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>
-                      <div style={{ width: "75%", height: 5, background: m.ink, borderRadius: 1, opacity: 0.8 }} />
-                      <div style={{ width: "55%", height: 3, background: m.ink, borderRadius: 1, opacity: 0.35 }} />
-                      <div style={{ width: "65%", height: 3, background: m.ink, borderRadius: 1, opacity: 0.35 }} />
-                      <div style={{ width: "45%", height: 3, background: m.ink, borderRadius: 1, opacity: 0.25 }} />
-                    </div>
-                    <div style={{ marginTop: "auto", display: "flex", gap: 5 }}>
-                      <div style={{ width: 30, height: 10, background: m.accent, borderRadius: 1, opacity: 0.9 }} />
-                      <div style={{ width: 20, height: 10, background: m.ink, borderRadius: 1, opacity: 0.12 }} />
-                    </div>
-                  </div>
+                    {/* Top accent stripe */}
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: pm.accent }} />
 
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <div style={{ width: 18, height: 18, borderRadius: "50%", background: m.accent, flexShrink: 0 }} />
-                    <div style={{ width: 13, height: 13, borderRadius: "50%", background: m.ink, opacity: 0.7, flexShrink: 0 }} />
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: m.ink, opacity: 0.22, flexShrink: 0 }} />
-                    <div style={{ flex: 1 }} />
-                    <div style={{ width: 28, height: 2, background: m.rule, borderRadius: 1 }} />
-                  </div>
+                    {/* Index + active badge */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: pm.ink, opacity: 0.3, letterSpacing: "0.1em" }}>
+                        {String(idx + 1).padStart(2, "0")}
+                      </div>
+                      {isAct && (
+                        <div style={{
+                          background: pm.accent, color: pm.paper,
+                          fontFamily: "var(--mono)", fontSize: 7,
+                          letterSpacing: "0.12em", textTransform: "uppercase",
+                          padding: "2px 8px",
+                        }}>
+                          Active
+                        </div>
+                      )}
+                    </div>
 
-                  <div>
+                    {/* Big theme name */}
                     <div style={{
-                      fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17,
-                      fontWeight: 500, color: m.ink, marginBottom: 5, letterSpacing: "-0.01em",
+                      fontFamily: "var(--serif)", fontStyle: "italic",
+                      fontSize: 32, fontWeight: 500,
+                      color: pm.ink, lineHeight: 0.95,
+                      letterSpacing: "-0.02em",
+                      flex: 1,
                     }}>
-                      {m.name}
+                      {pm.name}
                     </div>
+
+                    {/* Description */}
                     <div style={{
-                      fontFamily: "var(--mono)", fontSize: 9, color: m.ink,
-                      opacity: 0.42, lineHeight: 1.55,
+                      fontFamily: "var(--mono)", fontSize: 8,
+                      color: pm.ink, opacity: 0.38,
+                      lineHeight: 1.55, marginTop: 14,
                     }}>
                       {PALETTE_DESC[p]}
+                    </div>
+
+                    {/* Colour swatches */}
+                    <div style={{ display: "flex", gap: 5, marginTop: 18, alignItems: "center" }}>
+                      <div style={{ width: 20, height: 20, borderRadius: "50%", background: pm.accent, flexShrink: 0 }} />
+                      <div style={{ width: 14, height: 14, borderRadius: "50%", background: pm.ink, opacity: 0.85, flexShrink: 0 }} />
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: pm.ink, opacity: 0.35, flexShrink: 0 }} />
+                      <div style={{ flex: 1 }} />
+                      <div style={{ width: 24, height: 1, background: pm.rule }} />
                     </div>
                   </div>
                 </button>
@@ -206,175 +199,211 @@ export default function PersonalisePage() {
             })}
           </div>
 
-          <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 13, color: "var(--ink-3)", marginTop: 14 }}>
-            All eight themes use the same OKLCH colour token system — the full WebGL shader, glassmorphism panels, and typography adapt to each one automatically.
+          <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 13, color: "var(--ink-3)", marginTop: 16 }}>
+            All eight themes share the same typographic system. The WebGL shader, glass panels, and every component adapt automatically.
           </p>
-        </div>
+        </section>
 
-        {/* ── Reading Density ── */}
-        <div style={{ marginBottom: 56 }}>
-          <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 24 }}>
-            <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>
-              Reading Density
+        {/* ══════════════════════════════════════════
+            READING DENSITY
+        ══════════════════════════════════════════ */}
+        <section style={{ marginBottom: 72 }}>
+
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 32, borderBottom: "1px solid var(--rule)", paddingBottom: 16 }}>
+            <div>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 8 }}>
+                02 · Reading Density
+              </div>
+              <h2 style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, margin: 0, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                How should words feel?
+              </h2>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500 }}>
-                How dense should the text feel?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>
-                applies to all AI output
-              </div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", textAlign: "right" }}>
+              affects all AI output
             </div>
           </div>
 
-          <div style={{
-            display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 1, background: "var(--rule)", border: "1px solid var(--rule)",
-          }}>
-            {DENSITY_OPTIONS.map((opt) => {
-              const isActive = density === opt.id;
+          {/* Selector pills */}
+          <div style={{ display: "flex", gap: 2, marginBottom: 20 }}>
+            {DENSITY_OPTIONS.map(opt => {
+              const isAct = density === opt.id;
               return (
                 <button
                   key={opt.id}
                   onClick={() => pickDensity(opt.id)}
                   style={{
-                    border: "none", margin: 0, padding: "28px 24px",
-                    cursor: "pointer", background: "var(--paper-2)",
-                    display: "flex", flexDirection: "column", gap: 20,
-                    position: "relative", textAlign: "left",
-                    outline: isActive ? "2px solid var(--ink)" : "2px solid transparent",
-                    outlineOffset: -2, transition: "opacity 120ms, outline-color 160ms",
-                    width: "100%", fontFamily: "inherit", boxSizing: "border-box",
+                    flex: 1,
+                    padding: "14px 20px",
+                    border: "1px solid var(--rule)",
+                    borderBottom: isAct ? "2px solid var(--ink)" : "1px solid var(--rule)",
+                    background: isAct ? "var(--paper-2)" : "transparent",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "background 180ms, border-color 180ms",
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.opacity = "0.75"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
                 >
-                  {isActive && (
-                    <div style={{
-                      position: "absolute", top: 12, right: 12,
-                      background: "var(--ink)", color: "var(--paper)",
-                      fontFamily: "var(--mono)", fontSize: 8,
-                      letterSpacing: "0.1em", textTransform: "uppercase", padding: "2px 7px",
-                    }}>
-                      Active
-                    </div>
-                  )}
-
-                  {/* Live text preview */}
-                  <div style={{
-                    border: "1px solid var(--rule)", padding: "14px 16px",
-                    background: "var(--paper)", minHeight: 88,
-                    display: "flex", flexDirection: "column", gap: opt.gap,
-                  }}>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: opt.size, lineHeight: opt.line, color: "var(--ink-2)" }}>
-                      The Ledger reads your weak topics and surfaces what to study today. Not tomorrow.
-                    </div>
-                    <div style={{ display: "flex", gap: 6 }}>
-                      <div style={{ height: 2, flex: 2, background: "var(--cinnabar)", opacity: 0.7 }} />
-                      <div style={{ height: 2, flex: 3, background: "var(--rule)" }} />
-                    </div>
+                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17, fontWeight: 500, color: isAct ? "var(--ink)" : "var(--ink-3)", marginBottom: 3, transition: "color 180ms" }}>
+                    {opt.label}
                   </div>
-
-                  <div>
-                    <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17, fontWeight: 500, color: "var(--ink)", marginBottom: 6 }}>
-                      {opt.label}
-                    </div>
-                    <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", lineHeight: 1.6 }}>
-                      {opt.desc}
-                    </div>
-                  </div>
-
-                  <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", borderTop: "1px solid var(--rule)", paddingTop: 10 }}>
-                    {opt.size}px · {opt.line} leading
+                  <div className="mono" style={{ fontSize: 8, color: isAct ? "var(--ink-3)" : "var(--ink-3)", opacity: isAct ? 1 : 0.5 }}>
+                    {opt.size}px · {opt.line} leading · {opt.sub}
                   </div>
                 </button>
               );
             })}
           </div>
-        </div>
 
-        {/* ── Dashboard Layout ── */}
-        <div style={{ marginBottom: 56 }}>
-          <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 24 }}>
-            <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>
-              Dashboard Layout
+          {/* Live preview block */}
+          <div style={{
+            border: "1px solid var(--rule)",
+            borderTop: "3px solid var(--cinnabar)",
+            padding: "36px 40px",
+            background: "var(--paper-2)",
+            position: "relative",
+          }}>
+            <div className="mono" style={{ fontSize: 8, color: "var(--cinnabar-ink)", letterSpacing: "0.12em", marginBottom: 20 }}>
+              PREVIEW · {densityOpt.label.toUpperCase()}
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500 }}>
-                Choose your command centre.
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>
-                saved instantly
-              </div>
-            </div>
-            <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.65, marginTop: 8 }}>
-              Toggle which widgets appear on your dashboard. The Tools Archive and stats bar are always shown.
+            <p style={{
+              fontFamily: "var(--sans)",
+              fontSize: densityOpt.size,
+              lineHeight: densityOpt.line,
+              color: "var(--ink-2)",
+              margin: 0,
+              transition: "font-size 300ms ease, line-height 300ms ease",
+              maxWidth: 720,
+            }}>
+              {SAMPLE_TEXT}
             </p>
+            <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--rule-2)", display: "flex", gap: 24 }}>
+              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>— Weak topics: <span style={{ color: "var(--cinnabar-ink)" }}>3 flagged</span></div>
+              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>— Ledger Score: <span style={{ color: "var(--ink)" }}>642 / 1000</span></div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════
+            DASHBOARD LAYOUT
+        ══════════════════════════════════════════ */}
+        <section style={{ marginBottom: 72 }}>
+
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 32, borderBottom: "1px solid var(--rule)", paddingBottom: 16 }}>
+            <div>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 8 }}>
+                03 · Dashboard Layout
+              </div>
+              <h2 style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, margin: 0, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                Your command centre, your way.
+              </h2>
+            </div>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", textAlign: "right" }}>
+              {Object.values(layout).filter(Boolean).length} of {LAYOUT_SECTIONS.length} shown
+            </div>
           </div>
 
           <div style={{ border: "1px solid var(--rule)" }}>
-            {LAYOUT_SECTIONS.map((s, i) => (
-              <div
-                key={s.id}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  gap: 24, padding: "18px 24px",
-                  borderBottom: i < LAYOUT_SECTIONS.length - 1 ? "1px solid var(--rule)" : "none",
-                  background: layout[s.id] ? "var(--paper-2)" : "var(--paper)",
-                  transition: "background 200ms",
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, fontWeight: 500, color: layout[s.id] ? "var(--ink)" : "var(--ink-3)", marginBottom: 3, transition: "color 200ms" }}>
-                    {s.label}
+            {LAYOUT_SECTIONS.map((s, i) => {
+              const on = layout[s.id];
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => toggleSection(s.id)}
+                  style={{
+                    width: "100%", border: "none", margin: 0,
+                    borderBottom: i < LAYOUT_SECTIONS.length - 1 ? "1px solid var(--rule)" : "none",
+                    display: "flex", alignItems: "center", gap: 24,
+                    padding: "20px 28px",
+                    background: on ? "var(--paper-2)" : "var(--paper)",
+                    cursor: "pointer", textAlign: "left",
+                    transition: "background 200ms",
+                  }}
+                >
+                  {/* Index */}
+                  <div className="mono" style={{ fontSize: 9, color: on ? "var(--cinnabar-ink)" : "var(--ink-3)", width: 20, flexShrink: 0, transition: "color 200ms" }}>
+                    {String(i + 1).padStart(2, "0")}
                   </div>
-                  <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    {s.desc}
+
+                  {/* Label + sub */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17, fontWeight: 500, color: on ? "var(--ink)" : "var(--ink-3)", transition: "color 200ms", marginBottom: 2 }}>
+                      {s.label}
+                    </div>
+                    <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", opacity: on ? 1 : 0.5, transition: "opacity 200ms" }}>
+                      {s.sub}
+                    </div>
                   </div>
-                </div>
-                <Toggle on={layout[s.id]} onToggle={() => toggleSection(s.id)} />
-              </div>
-            ))}
+
+                  {/* Toggle */}
+                  <div
+                    role="switch"
+                    aria-checked={on}
+                    style={{
+                      width: 40, height: 22, borderRadius: 11, flexShrink: 0,
+                      background: on ? "var(--cinnabar)" : "var(--rule)",
+                      position: "relative", transition: "background 220ms",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute", top: 3,
+                      left: on ? 21 : 3,
+                      width: 14, height: 14, borderRadius: "50%",
+                      background: on ? "#fff" : "var(--ink-3)",
+                      transition: "left 220ms cubic-bezier(0.34,1.2,0.64,1), background 220ms",
+                    }} />
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           <p className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 12 }}>
-            Changes take effect the next time you open the dashboard.
+            Takes effect the next time you open the dashboard. The stats bar and tools archive are always visible.
           </p>
-        </div>
+        </section>
 
-        {/* ── Cloud Sync — Coming Soon ── */}
-        <div style={{ marginBottom: 56 }}>
-          <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 24 }}>
-            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>Coming Soon · Q4 2026</div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, color: "var(--ink-3)" }}>
-              Cloud Sync.
+        {/* ══════════════════════════════════════════
+            CLOUD SYNC — COMING SOON
+        ══════════════════════════════════════════ */}
+        <section style={{ marginBottom: 40 }}>
+
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 32, borderBottom: "1px solid var(--rule)", paddingBottom: 16 }}>
+            <div>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 8 }}>
+                04 · Cloud Sync · Q4 2026
+              </div>
+              <h2 style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, margin: 0, letterSpacing: "-0.02em", lineHeight: 1, color: "var(--ink-3)" }}>
+                Every device, one Ledger.
+              </h2>
             </div>
           </div>
-          <div style={{ border: "1px solid var(--rule)", padding: "28px 32px", background: "var(--paper-2)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 40, flexWrap: "wrap" }}>
-            <div style={{ maxWidth: 480 }}>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 16 }}>
-                Your palette, reading density, and dashboard layout will follow you to every device automatically — phone, tablet, new laptop. No setup required.
+
+          <div style={{ border: "1px solid var(--rule)", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "var(--rule)" }}>
+            {[
+              { feat: "Palette",         note: "Your colour theme follows you across every sign-in." },
+              { feat: "Reading density", note: "Font size preference synced to all your devices." },
+              { feat: "Dashboard",       note: "Widget visibility settings saved to your account." },
+            ].map((f, i) => (
+              <div key={i} style={{ background: "var(--paper-2)", padding: "28px 24px" }}>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, fontWeight: 500, color: "var(--ink-3)", marginBottom: 10 }}>
+                  {f.feat}
+                </div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.6, opacity: 0.6 }}>
+                  {f.note}
+                </div>
+                <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginTop: 20, opacity: 0.4 }}>On roadmap · Q4 2026</div>
               </div>
-              <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                {["Palette sync", "Density sync", "Dashboard layout"].map((item) => (
-                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--rule)", border: "1px solid var(--ink-3)" }} />
-                    <span className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", textAlign: "right", letterSpacing: "0.1em" }}>
-              ON ROADMAP<br />Q4 2026
-            </div>
+            ))}
           </div>
+        </section>
+
+        {/* Footer */}
+        <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Link href="/dashboard" className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textDecoration: "none" }}>← Dashboard</Link>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em" }}>Ledger Studio · {PALETTE_IDS.length} themes</div>
         </div>
 
-        <div style={{ borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
-          <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
-          <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
