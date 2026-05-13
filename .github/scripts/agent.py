@@ -163,8 +163,15 @@ HOW TO WORK:
 
     messages = [{"role": "user", "content": "Start by reading the relevant files, then implement the task."}]
     result = None
+    MAX_TURNS = 15
 
-    for turn in range(30):
+    for turn in range(MAX_TURNS):
+        print(f"  [turn {turn + 1}/{MAX_TURNS}]")
+
+        # Nudge Claude to finish if it's taking too long
+        if turn == MAX_TURNS - 3:
+            messages.append({"role": "user", "content": "You are running out of turns. Write the files now and call task_complete immediately — do not read any more files."})
+
         resp = client.messages.create(
             model=MODEL,
             max_tokens=8192,
@@ -179,6 +186,7 @@ HOW TO WORK:
             if block.type != "tool_use":
                 continue
             inp = block.input
+            print(f"    → {block.name}({list(inp.keys())})")
             try:
                 if block.name == "read_file":
                     out = read_file(inp["path"])
