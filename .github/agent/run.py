@@ -266,22 +266,25 @@ STYLE REFERENCE (match this structure and design exactly):
 
 def generate_api_case(idea: dict) -> str:
     """Single API call — returns just the case block to insert into route.ts."""
+    schema_json = json.dumps(idea['output_schema'], indent=2)
+    schema_example = json.dumps({k: "..." for k in idea['output_schema'].keys()}, indent=2)
+    tool_name = idea['ai_tool_name']
     resp = client.messages.create(
         model=MODEL,
         max_tokens=2000,
         messages=[{"role": "user", "content": f"""Write the API route case block for this tool. Return ONLY the case block — no surrounding code.
 
-Tool name (snake_case): {idea['ai_tool_name']}
+Tool name (snake_case): {tool_name}
 Feature: {idea['name']}
 Purpose: {idea['why_students_need_it']}
-Output schema: {json.dumps(idea['output_schema'])}
+Output schema: {schema_json}
 Implementation: {idea['implementation_plan']}
 
 The block must follow this EXACT format:
-    case "{idea['ai_tool_name']}":
+    case "{tool_name}":
       return {{
         system: `${{SAFETY_PREAMBLE}}You are [role]. Always respond with valid JSON only.`,
-        userText: `[instruction]. Respond with exactly this JSON:\\n{json.dumps({{k: "..." for k in idea['output_schema'].keys()}, indent=2)})}\\n\\n[param interpolations using ${{params.fieldName}}]`,
+        userText: `[instruction]. Respond with exactly this JSON:\\n{schema_example}\\n\\n[param interpolations using ${{params.fieldName}}]`,
       }};
 
 Write a thorough, detailed system prompt. The userText must build the prompt from the request params.
