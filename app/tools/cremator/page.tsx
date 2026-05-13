@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
-import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -845,8 +844,8 @@ export default function CrematorPage() {
               margin: 0,
             }}
           >
-            It's 2AM. You have 6 hours and 14 chapters. Tell me what you're
-            working with — I'll tell you exactly what to study, in what order,
+            It&apos;s 2AM. You have 6 hours and 14 chapters. Tell me what you&apos;re
+            working with — I&apos;ll tell you exactly what to study, in what order,
             and what to consciously skip.
           </p>
         </div>

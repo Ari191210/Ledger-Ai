@@ -202,7 +202,7 @@ export default function ExamDebriefPage() {
               Debrief every exam.
             </h1>
             <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7, margin: 0 }}>
-              Log your score, sleep, and stress level. After 3 exams, the AI detects your personal patterns — what's actually holding your score back.
+              Log your score, sleep, and stress level. After 3 exams, the AI detects your personal patterns — what&apos;s actually holding your score back.
             </p>
           </div>
 
