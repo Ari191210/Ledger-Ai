@@ -18,7 +18,13 @@ TASKS_FILE = REPO_ROOT / ".github" / "agent-tasks.md"
 MODEL = "claude-sonnet-4-6"
 
 
-client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+_api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+if not _api_key:
+    print("ERROR: ANTHROPIC_API_KEY secret is not set or is empty.")
+    print("Go to GitHub → Settings → Secrets and variables → Actions → New repository secret")
+    sys.exit(1)
+
+client = anthropic.Anthropic(api_key=_api_key)
 
 
 def sh(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
@@ -35,8 +41,9 @@ def sh_out(cmd: list[str]) -> str:
 def get_next_task() -> tuple[int, str] | None:
     lines = TASKS_FILE.read_text(encoding="utf-8").splitlines()
     for i, line in enumerate(lines):
-        if "- [ ]" in line:
-            text = line[line.index("- [ ]") + 5:].strip()
+        # Only match lines that START with "- [ ]" — skip instruction text containing the pattern
+        if line.strip().startswith("- [ ]"):
+            text = line.strip()[5:].strip()
             return i, text
     return None
 
@@ -44,7 +51,9 @@ def get_next_task() -> tuple[int, str] | None:
 def mark_task_done(line_index: int):
     text = TASKS_FILE.read_text(encoding="utf-8")
     lines = text.splitlines()
-    lines[line_index] = lines[line_index].replace("- [ ]", "- [x]", 1)
+    stripped = lines[line_index].strip()
+    if stripped.startswith("- [ ]"):
+        lines[line_index] = lines[line_index].replace("- [ ]", "- [x]", 1)
     TASKS_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
