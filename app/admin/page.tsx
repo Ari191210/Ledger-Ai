@@ -67,7 +67,7 @@ function LoginScreen({ onAuth }: { onAuth: (key: string) => void }) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050505", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--mono)" }}>
+    <div style={{ minHeight: "100vh", background: "#050505", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--mono)", position: "relative", zIndex: 10 }}>
       <div style={{ width: 360 }}>
         <div style={{ borderBottom: "1px solid #1a1a1a", paddingBottom: 20, marginBottom: 28 }}>
           <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#666", letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 8 }}>
@@ -190,7 +190,7 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
   const totalToolUses   = stats?.topTools.reduce((s, t) => s + t.count, 0) || 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050505", color: "#f0ebe0" }}>
+    <div style={{ minHeight: "100vh", background: "#050505", color: "#f0ebe0", position: "relative", zIndex: 10 }}>
 
       {/* ── Masthead ── */}
       <header style={{ borderBottom: "3px double #111", padding: "0 44px" }}>

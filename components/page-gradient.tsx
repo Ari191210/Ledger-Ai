@@ -1,6 +1,11 @@
 "use client"
 
+import { usePathname } from "next/navigation";
+
 export default function PageGradient() {
+  const path = usePathname();
+  if (path.startsWith("/admin")) return null;
+
   return (
     <div
       aria-hidden="true"

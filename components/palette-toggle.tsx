@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
 
 export default function PaletteToggle() {
+  const path   = usePathname();
   const [active, setActive] = useState<PaletteId>("porcelain");
 
   useEffect(() => {
@@ -14,6 +16,8 @@ export default function PaletteToggle() {
     window.addEventListener("ledger-palette", handler);
     return () => window.removeEventListener("ledger-palette", handler);
   }, []);
+
+  if (path.startsWith("/dashboard") || path.startsWith("/admin")) return null;
 
   function set(p: PaletteId) {
     setActive(p);
