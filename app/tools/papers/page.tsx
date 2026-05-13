@@ -122,7 +122,7 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
                           onClick={async () => {
                             setExplains(p => ({ ...p, [i]: { loading: true, result: null } }));
                             try {
-                              const r = await callAI({ tool: "papers_explain", question: q.q, correct: q.opts[q.ans], topic: q.topic }) as ExplainResult;
+                              const r = await callAI({ tool: "papers_explain", question: q.q, correct: q.opts[q.ans], topic: q.topic }) as unknown as ExplainResult;
                               setExplains(p => ({ ...p, [i]: { loading: false, result: r } }));
                             } catch {
                               setExplains(p => ({ ...p, [i]: { loading: false, result: null } }));
