@@ -117,7 +117,7 @@ function buildProfileContext(params: Record<string, unknown>): string {
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -857,6 +857,72 @@ Respond with exactly this JSON:
 
 Syllabus to analyse: ${params.syllabusText}`,
       };
+
+    case "formula_recall":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a formula drill generator for exam students. Return ONLY valid JSON, no markdown fences.`,
+        userText: `Generate exactly 8 formulas for a student drilling ${params.subject} — specifically the topic: ${params.topic}.
+
+Return JSON:
+{
+  "formulas": [
+    {
+      "id": 1,
+      "name": "Name of the formula or law",
+      "formula": "The formula using standard notation, e.g. F = ma or E = mc²",
+      "variables_explained": "Brief definition of each variable: F = force (N), m = mass (kg), a = acceleration (m/s²)",
+      "memory_tip": "One memorable trick or mnemonic to recall this formula",
+      "topic": "${params.topic}"
+    }
+  ]
+}
+
+Rules:
+- Include only high-yield formulas that commonly appear in exams
+- formula field must be the actual mathematical expression, not the name
+- Keep variables_explained under 25 words
+- memory_tip must be genuinely memorable, not generic advice
+- No duplicates`,
+      };
+
+    case "exam_debrief":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a personal academic coach analysing a student's exam performance. Be direct, specific, and actionable. Return ONLY valid JSON, no markdown fences.`,
+        userText: `Student just finished an exam. Analyse and debrief.
+
+Exam: ${params.examName}
+Board: ${params.examBoard}
+Score: ${params.scorePercent}%
+Hard topics: ${params.hardTopics || "not specified"}
+Sleep last night: ${params.sleepHours} hours
+Anxiety level going in: ${params.anxietyLevel}/5
+
+Return JSON:
+{
+  "immediate_focus": "The single most important thing to work on next. Specific topic or skill, not generic advice. 2-3 sentences.",
+  "pattern_note": "What this score + these hard topics + this anxiety level suggest about the student's current preparation pattern. Be honest, not comforting. 2-3 sentences.",
+  "sleep_impact": "Direct comment on how ${params.sleepHours}h sleep affected performance. If under 7h, be specific about the cognitive effects. 1-2 sentences.",
+  "next_session": "Exactly what to do in the next study session. Topic, method, duration. Concrete and specific. 2-3 sentences.",
+  "mindset_note": "One honest, non-cliché observation about the student's mindset based on their anxiety level and score. 1-2 sentences."
+}`,
+      };
+
+    case "circuit_breaker":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a procrastination coach. Your job is to give students the tiniest possible first step to break inertia. Return ONLY valid JSON, no markdown fences.`,
+        userText: `Student is stuck and can't start studying.
+Subject: ${params.subject}
+Context: ${params.context || "Just can't get started"}
+
+Give them ONE micro task — something they can actually do in 2 minutes that will create momentum. Not "review your notes". Something so small it's impossible to say no to.
+
+Return JSON:
+{
+  "micro_task": "The exact 2-minute task. Verb-first, ultra specific. E.g. 'Open your textbook to page 1 of Chapter 3. Read just the first heading and the first paragraph. Stop there.' Under 40 words.",
+  "why_it_works": "One sentence on the psychology — why starting this tiny action breaks inertia. Reference the Zeigarnik effect, momentum, or a related concept. Under 20 words.",
+  "follow_up_nudge": "After the 2 minutes, one sentence telling them what to do next. Not motivational — just the next logical small step. Under 20 words."
+}`,
+      };
   }
 }
 
@@ -876,7 +942,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
