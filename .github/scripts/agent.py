@@ -179,17 +179,23 @@ HOW TO WORK:
             if block.type != "tool_use":
                 continue
             inp = block.input
-            if block.name == "read_file":
-                out = read_file(inp["path"])
-            elif block.name == "write_file":
-                out = write_file(inp["path"], inp["content"])
-            elif block.name == "list_dir":
-                out = list_dir(inp["path"])
-            elif block.name == "task_complete":
-                result = inp
-                out = "Task complete. Committing."
-            else:
-                out = f"UNKNOWN_TOOL: {block.name}"
+            try:
+                if block.name == "read_file":
+                    out = read_file(inp["path"])
+                elif block.name == "write_file":
+                    if "content" not in inp:
+                        out = "ERROR: write_file requires both 'path' and 'content'. Call again with the full file content in the 'content' parameter."
+                    else:
+                        out = write_file(inp["path"], inp["content"])
+                elif block.name == "list_dir":
+                    out = list_dir(inp["path"])
+                elif block.name == "task_complete":
+                    result = inp
+                    out = "Task complete. Committing."
+                else:
+                    out = f"UNKNOWN_TOOL: {block.name}"
+            except Exception as e:
+                out = f"TOOL_ERROR: {e}"
 
             tool_results.append({
                 "type": "tool_result",
