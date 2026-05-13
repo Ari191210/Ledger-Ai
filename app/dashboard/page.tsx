@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { trackToolVisit, getRecentTools, getFavTools, saveFavTools } from "@/lib/recent-tools";
+import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import FeaturesShowcase from "@/components/features-showcase";
 import gsap from "gsap";
@@ -490,6 +491,8 @@ export default function Dashboard() {
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
   const [showProfileBanner, setShowProfileBanner] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
+  const [dashLayout, setDashLayout] = useState<DashLayout>(DASH_DEFAULTS);
+  useEffect(() => { setDashLayout(getDashLayout()); }, []);
   const greeting = getGreeting();
 
   const filteredCategories = useMemo(() => {
@@ -585,7 +588,7 @@ export default function Dashboard() {
       )}
 
       {/* Daily recommendation */}
-      {weakTopics.length > 0 && (
+      {dashLayout.recommendation && weakTopics.length > 0 && (
         <div className="gl-pane-alt" style={{ marginBottom: 32, border: "1px solid var(--cinnabar-ink)", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div>
             <div className="mono cin" style={{ fontSize: 9, letterSpacing: "0.16em", marginBottom: 6 }}>Recommended now</div>
@@ -598,7 +601,7 @@ export default function Dashboard() {
       )}
 
       {/* Recently used strip */}
-      {recentSlugs.length > 0 && (() => {
+      {dashLayout.recent && recentSlugs.length > 0 && (() => {
         const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
         const recent = recentSlugs.map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
         if (!recent.length) return null;
@@ -624,10 +627,10 @@ export default function Dashboard() {
       })()}
 
       {/* Ledger Score */}
-      <LedgerScoreWidget />
+      {dashLayout.score && <LedgerScoreWidget />}
 
       {/* Exam schedule */}
-      {user && (
+      {dashLayout.exams && user && (
         <ExamSchedule
           userId={user.id}
           userEmail={user.email ?? ""}
@@ -641,7 +644,7 @@ export default function Dashboard() {
       )}
 
       {/* Features nobody else ships */}
-      <FeaturesShowcase />
+      {dashLayout.features && <FeaturesShowcase />}
 
       {/* Favorites strip */}
       {favSlugs.size > 0 && (() => {

@@ -44,7 +44,7 @@ function renderMarkdown(text: string): React.ReactNode {
       return (
         <ul key={pIdx} style={{ paddingLeft: 0, margin: "6px 0 10px", listStyle: "none" }}>
           {lines.map((l, i) => (
-            <li key={i} style={{ display: "flex", gap: 10, marginBottom: 5, fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.65, color: "var(--ink-2)" }}>
+            <li key={i} style={{ display: "flex", gap: 10, marginBottom: 5, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
               <span style={{ color: "var(--cinnabar-ink)", flexShrink: 0, userSelect: "none" }}>—</span>
               <span>{renderInline(l.trim().replace(/^[-•*] /, ""))}</span>
             </li>
@@ -60,7 +60,7 @@ function renderMarkdown(text: string): React.ReactNode {
           {lines.map((l, i) => {
             const match = l.trim().match(/^\d+[.)]\s+(.*)/);
             return (
-              <li key={i} style={{ display: "flex", gap: 12, marginBottom: 6, fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.65, color: "var(--ink-2)" }}>
+              <li key={i} style={{ display: "flex", gap: 12, marginBottom: 6, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
                 <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", flexShrink: 0, width: 20, paddingTop: 4 }}>
                   {String(i + 1).padStart(2, "0")}.
                 </span>
@@ -73,7 +73,7 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     return (
-      <p key={pIdx} style={{ margin: "0 0 10px", fontFamily: "var(--sans)", fontSize: 13.5, lineHeight: 1.75, color: "var(--ink-2)" }}>
+      <p key={pIdx} style={{ margin: "0 0 10px", fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
         {lines.map((line, lIdx) => (
           <React.Fragment key={lIdx}>
             {lIdx > 0 && <br />}

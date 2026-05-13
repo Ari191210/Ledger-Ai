@@ -50,7 +50,7 @@ export default function RootLayout({
         {/* Anti-flash: apply saved palette before first paint */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var p=localStorage.getItem('palette');if(p)document.documentElement.dataset.palette=p;})();`,
+            __html: `(function(){var p=localStorage.getItem('palette');if(p)document.documentElement.dataset.palette=p;var d=localStorage.getItem('ledger-density');if(d&&d!=='default')document.documentElement.dataset.density=d;})();`,
           }}
         />
         <meta name="theme-color" content="#18241b" />

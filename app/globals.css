@@ -37,6 +37,11 @@
   animation: tools-drift-b 44s ease-in-out infinite;
 }
 
+/* ─── Reading density ───────────────────────────────────────────────────────── */
+:root                       { --density-prose: 14px; --density-line: 1.65; }
+[data-density="compact"]    { --density-prose: 12px; --density-line: 1.5;  }
+[data-density="comfortable"]{ --density-prose: 16px; --density-line: 1.85; }
+
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
   --serif: var(--font-newsreader), "Newsreader", Georgia, serif;
