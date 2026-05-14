@@ -7,6 +7,8 @@ import PaletteToggle from "@/components/palette-toggle";
 import PageGradient from "@/components/page-gradient";
 import { WebGLShader } from "@/components/ui/web-gl-shader";
 import Cursor from "@/components/cursor";
+import ErrorBoundary from "@/components/error-boundary";
+import ErrorLogger from "@/components/error-logger";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -61,10 +63,13 @@ export default function RootLayout({
         <Cursor />
         <WebGLShader />
         <AuthProvider>
+          <ErrorLogger />
           <PageGradient />
           <Tracker />
           <SyncManager />
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
           <PaletteToggle />
         </AuthProvider>
       </body>
