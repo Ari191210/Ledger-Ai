@@ -336,7 +336,7 @@ export default function EssayWorkshopPage() {
             <>
               <div className="mono cin" style={{ marginBottom: 8 }}>Grade my essay</div>
               <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>Paste your essay. Get a real grade.</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+              <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
                 <div>
                   <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay type</div>
                   <select value={gradeType} onChange={e => setGradeType(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>

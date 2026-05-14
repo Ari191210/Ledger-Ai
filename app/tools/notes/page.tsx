@@ -46,7 +46,7 @@ function saveToHistory(input: string, output: NotesOutput) {
 function FlashcardView({ cards }: { cards: Flashcard[] }) {
   const [flip, setFlip] = useState<Record<number, boolean>>({});
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
+    <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
       {cards.map((c, i) => (
         <div key={i} onClick={() => setFlip((p) => ({ ...p, [i]: !p[i] }))}
           style={{ padding: "20px 18px", minHeight: 100, cursor: "pointer", borderRight: i % 2 === 0 ? "1px solid var(--ink)" : "none", borderBottom: i < cards.length - 2 ? "1px solid var(--ink)" : "none", background: flip[i] ? "var(--ink)" : "var(--paper-2)", color: flip[i] ? "var(--paper)" : "var(--ink)", transition: "background 200ms, color 200ms" }}>
