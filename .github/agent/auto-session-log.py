@@ -9,6 +9,12 @@ writes it to LedgerBrain/Sessions/ and links it in 00-Index.md.
 import os, sys, re, subprocess
 from pathlib import Path
 
+# Windows terminals default to cp1252 — force UTF-8 for all output
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr.encoding != "utf-8":
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 try:
     import anthropic
 except ImportError:

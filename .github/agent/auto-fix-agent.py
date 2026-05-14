@@ -16,6 +16,11 @@ import os, sys, json, re, subprocess
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr.encoding != "utf-8":
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 try:
     import requests
 except ImportError:
