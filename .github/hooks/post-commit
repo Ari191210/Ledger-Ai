@@ -1,0 +1,4 @@
+#!/bin/sh
+# LedgerBrain auto-session logger
+# Installed to .git/hooks/post-commit by install-hooks.bat
+python "C:\Users\DELL\Downloads\design_handoff_ledger\ledger\.github\agent\auto-session-log.py"
