@@ -484,6 +484,24 @@ export default function Dashboard() {
   useEffect(() => { setDashLayout(getDashLayout()); }, []);
   const greeting = getGreeting();
 
+  type Announcement = { id: string; message: string; style: "banner" | "modal" };
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [modalDismissed, setModalDismissed] = useState(false);
+  useEffect(() => {
+    fetch("/api/admin/broadcast")
+      .then(r => r.json())
+      .then(d => {
+        if (!d.announcement) return;
+        const a: Announcement = d.announcement;
+        if (a.style === "modal") {
+          const key = `ledger-modal-dismissed-${a.id}`;
+          if (sessionStorage.getItem(key)) return;
+        }
+        setAnnouncement(a);
+      })
+      .catch(() => {});
+  }, []);
+
   const filteredCategories = useMemo(() => {
     const q = toolQuery.trim().toLowerCase();
     if (!q) return TOOL_CATEGORIES;
@@ -539,6 +557,29 @@ export default function Dashboard() {
           <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
             <button className="btn" onClick={() => router.push("/onboard")} style={{ padding: "6px 16px", fontSize: 11 }}>Set up profile →</button>
             <button className="btn ghost" onClick={() => setShowProfileBanner(false)} style={{ padding: "6px 12px", fontSize: 11 }}>Dismiss</button>
+          </div>
+        </div>
+      )}
+
+      {/* Announcement banner */}
+      {announcement?.style === "banner" && (
+        <div style={{ marginBottom: 24, padding: "12px 20px", background: "var(--ink)", color: "var(--paper)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+          <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{announcement.message}</span>
+          <button onClick={() => setAnnouncement(null)} style={{ background: "none", border: "none", color: "var(--paper)", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, opacity: 0.7, flexShrink: 0, padding: "0 4px" }}>✕</button>
+        </div>
+      )}
+
+      {/* Announcement modal */}
+      {announcement?.style === "modal" && !modalDismissed && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <div className="gl-pane" style={{ maxWidth: 480, width: "100%", padding: "36px 32px", border: "1px solid var(--rule)", position: "relative" }}>
+            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 16 }}>Announcement</div>
+            <p style={{ fontFamily: "var(--sans)", fontSize: 15, lineHeight: 1.6, color: "var(--ink)", margin: "0 0 28px" }}>{announcement.message}</p>
+            <button className="btn" onClick={() => {
+              sessionStorage.setItem(`ledger-modal-dismissed-${announcement.id}`, "1");
+              setModalDismissed(true);
+              setAnnouncement(null);
+            }} style={{ padding: "8px 24px", fontSize: 12 }}>Got it</button>
           </div>
         </div>
       )}

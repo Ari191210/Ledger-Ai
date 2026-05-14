@@ -19,6 +19,7 @@ export async function GET(req: Request) {
     activeRes, todayRes, allRes, viewsRes, toolRes, recentRes,
     historyCountRes, recentQueriesRes,
     registeredRes, gradeRes, boardRes, allTimeToolRes,
+    errorsRes, signupsRes, announcementRes,
   ] = await Promise.all([
     supabaseServer.from("page_events").select("session_id").gte("created_at", fiveMinAgo).limit(5000),
     supabaseServer.from("page_events").select("session_id").gte("created_at", dayAgo).limit(5000),
@@ -28,11 +29,13 @@ export async function GET(req: Request) {
     supabaseServer.from("page_events").select("session_id,page,tool,created_at").order("created_at", { ascending: false }).limit(25),
     supabaseServer.from("ai_history").select("tool,created_at").gte("created_at", dayAgo).limit(1000),
     supabaseServer.from("ai_history").select("user_id,tool,input_text,created_at").order("created_at", { ascending: false }).limit(50),
-    // ── New analytics queries ──
     supabaseServer.from("user_data").select("id", { count: "exact", head: true }),
     supabaseServer.from("user_data").select("grade").not("grade", "is", null).limit(10000),
     supabaseServer.from("user_data").select("board").not("board", "is", null).limit(10000),
     supabaseServer.from("ai_history").select("tool,grade,board").limit(100000),
+    supabaseServer.from("error_logs").select("id,type,route,message,created_at,user_id").order("created_at", { ascending: false }).limit(20),
+    supabaseServer.from("user_data").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
+    supabaseServer.from("announcements").select("*").eq("active", true).limit(1),
   ]);
 
   const activeNow  = new Set(activeRes.data?.map(r => r.session_id)).size;
@@ -97,6 +100,9 @@ export async function GET(req: Request) {
     boardDistribution,
     allTimeTools,
     totalAiAllTime,
+    recentErrors:    errorsRes.data ?? [],
+    todaySignups:    signupsRes.count ?? 0,
+    activeAnnouncement: announcementRes.data?.[0] ?? null,
     timestamp: now.toISOString(),
   });
 }
