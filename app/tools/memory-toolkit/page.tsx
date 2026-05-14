@@ -54,15 +54,15 @@ function MemoryPalaceTab() {
             <div>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>{s.location}</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 700, marginBottom: 4 }}>{s.item}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#1a6091", marginBottom: 6 }}>🖼 {s.image}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--slate)", marginBottom: 6 }}>{s.image}</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", fontStyle: "italic", lineHeight: 1.5 }}>{s.story}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ border: "1px solid #1a6091", padding: "14px 18px", background: "rgba(26,96,145,0.04)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>REVIEW TIP</div>
+      <div style={{ border: "1px solid var(--slate)", padding: "14px 18px", background: "var(--slate-bg)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--slate)", marginBottom: 6 }}>REVIEW TIP</div>
         <AIOutput text={palace.reviewTip} />
       </div>
     </div>
@@ -136,8 +136,8 @@ function AnalogyTab() {
           </div>
         ))}
       </div>
-      <div style={{ border: "1px solid #1a6091", padding: "16px 20px", background: "rgba(26,96,145,0.04)", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>KEY INSIGHT</div>
+      <div style={{ border: "1px solid var(--slate)", padding: "16px 20px", background: "var(--slate-bg)", marginBottom: 12 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--slate)", marginBottom: 6 }}>KEY INSIGHT</div>
         <AIOutput text={result.keyInsight} variant="principle" />
       </div>
       <div style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>

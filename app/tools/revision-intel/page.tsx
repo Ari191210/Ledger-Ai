@@ -237,8 +237,8 @@ function PredictTab() {
             {result.commandWords.map((w, i) => <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: "1px solid var(--rule)" }}>{w}</span>)}
           </div>
         </div>
-        <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 8 }}>EXAM TIP</div>
+        <div style={{ border: "1px solid var(--slate)", padding: "14px 16px", background: "var(--slate-bg)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--slate)", marginBottom: 8 }}>EXAM TIP</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
         </div>
       </div>
