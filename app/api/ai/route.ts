@@ -117,7 +117,7 @@ function buildProfileContext(params: Record<string, unknown>): string {
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -923,6 +923,33 @@ Return JSON:
   "follow_up_nudge": "After the 2 minutes, one sentence telling them what to do next. Not motivational — just the next logical small step. Under 20 words."
 }`,
       };
+
+    case "topic_half_life":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a cognitive science expert and exam strategist. Apply a modified Ebbinghaus forgetting-curve model to estimate current memory retention for each chapter. Higher original mastery = slower decay. Harder STEM chapters (derivations, reaction mechanisms, proofs) decay faster than factual recall chapters. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Apply the forgetting-curve model to this student's chapter log and generate a decay analysis.
+
+Exam: ${params.exam}
+Subject: ${params.subject}
+
+Chapter log (format: chapter name | weeks ago last studied | original mastery 1-5):
+${params.chaptersLog}
+
+Rules:
+- current_recall_pct: estimate using modified Ebbinghaus. Mastery 5 = very slow decay (half-life ~6 weeks). Mastery 1 = fast decay (half-life ~2 weeks). Adjust for topic type: derivation-heavy topics decay faster.
+- status: "fresh" ≥70%, "aging" 40–69%, "critical" <40%
+- decay_table: ALL chapters, sorted ascending by current_recall_pct (most urgent first)
+- critical_chapters: chapter names where status is "critical", ordered by urgency
+- revive_sequence: exactly 7 days. Focus days 1–5 on the most critical chapters. method must be a SPECIFIC quick-revive action — e.g. "Redo 3 derivations from memory without notes", "Solve 10 MCQs on this topic from PYQ bank", "Write the 5 key formulas and their conditions without looking". NEVER say "revise the chapter" or "re-read notes".
+- time_budget: realistic — e.g. "35 min", "1 hr"
+
+Respond with exactly this JSON:
+{
+  "decay_table": [{"chapter":"string","weeks_since":2,"original_mastery":4,"current_recall_pct":62,"status":"aging"}],
+  "critical_chapters": ["chapter names below 40%, most urgent first"],
+  "revive_sequence": [{"day":1,"chapter":"string","method":"specific verb-first action","time_budget":"45 min"}]
+}`,
+      };
   }
 }
 
@@ -942,7 +969,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
@@ -994,7 +1021,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer", "career", "tutor", "mindmap", "mark_scheme_eval", "subject_picker", "paper_dissector"];
+  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer", "career", "tutor", "mindmap", "mark_scheme_eval", "subject_picker", "paper_dissector", "topic_half_life"];
   const max_tokens = LARGE_TOOLS.includes(tool) ? 6000 : 2048;
 
   const message = await client.messages.create({
