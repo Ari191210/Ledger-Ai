@@ -35,4 +35,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# Claude Code internals
+.agents/
+.claude/
+.continue/
+skills/
+skills-lock.json
+stitch-assets/
+
+# agent logs and scratch files
+.github/agent/*.log
+test.txt
+Studyledger/
