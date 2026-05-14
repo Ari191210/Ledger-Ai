@@ -149,7 +149,7 @@ function AnalogyTab() {
 
   return (
     <div style={{ maxWidth: 600 }}>
-      <div className="mono cin" style={{ marginBottom: 6 }}>If you can't explain it simply, you don't understand it yet.</div>
+      <div className="mono cin" style={{ marginBottom: 6 }}>If you can&apos;t explain it simply, you don&apos;t understand it yet.</div>
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 26, fontWeight: 500, fontStyle: "italic", margin: "0 0 24px" }}>Turn any complex concept into three memorable analogies.</h2>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Concept to explain <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>

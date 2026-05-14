@@ -284,7 +284,7 @@ export default function RevisionIntelPage() {
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Revision Intelligence</div>
-          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Know what's decaying and what the examiner will ask.</div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Know what&apos;s decaying and what the examiner will ask.</div>
         </div>
         <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
           {([["halflife", "Topic Half-Life"], ["predict", "Question Predictor"]] as [Tab, string][]).map(([v, l], i) => (

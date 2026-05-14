@@ -44,7 +44,6 @@ function FlashcardsTab() {
   const [error, setError]     = useState("");
   const [idx, setIdx]         = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [known, setKnown]     = useState<Set<number>>(new Set());
   const [unknown, setUnknown] = useState<Set<number>>(new Set());
   const [mode, setMode]       = useState<"all" | "unknown">("all");
 
@@ -53,7 +52,7 @@ function FlashcardsTab() {
 
   async function generate() {
     if (!input.trim() && !subject.trim()) return;
-    setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setKnown(new Set()); setUnknown(new Set());
+    setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setUnknown(new Set());
     try {
       const res  = await callAI({ tool: "flashcards", content: input, subject });
       const data = await res.json();
@@ -66,11 +65,11 @@ function FlashcardsTab() {
 
   function markKnown() {
     const orig = cards.indexOf(cur);
-    setKnown(s => new Set(Array.from(s).concat(orig))); setUnknown(s => { const n = new Set(s); n.delete(orig); return n; }); next();
+    setUnknown(s => { const n = new Set(s); n.delete(orig); return n; }); next();
   }
   function markUnknown() {
     const orig = cards.indexOf(cur);
-    setUnknown(s => new Set(Array.from(s).concat(orig))); setKnown(s => { const n = new Set(s); n.delete(orig); return n; }); next();
+    setUnknown(s => new Set(Array.from(s).concat(orig))); next();
   }
   function next() { setFlipped(false); setTimeout(() => setIdx(i => (i + 1) % deck.length), 80); }
   function prev() { setFlipped(false); setTimeout(() => setIdx(i => (i - 1 + deck.length) % deck.length), 80); }

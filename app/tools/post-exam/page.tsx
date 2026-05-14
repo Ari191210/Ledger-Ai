@@ -44,7 +44,7 @@ function DNATab() {
     <div style={{ maxWidth: 560 }}>
       <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 12 }}>No mistakes logged yet.</div>
       <div className="mono" style={{ color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 28 }}>
-        After each Past Papers session, use the "Tag your mistakes" section. Tap why you got each question wrong — Conceptual, Slip, Misread, Rushed, or Blanked. Your fingerprint builds up here automatically.
+        After each Past Papers session, use the &quot;Tag your mistakes&quot; section. Tap why you got each question wrong — Conceptual, Slip, Misread, Rushed, or Blanked. Your fingerprint builds up here automatically.
       </div>
       <Link href="/tools/papers" className="btn">Go to Past Papers →</Link>
     </div>
