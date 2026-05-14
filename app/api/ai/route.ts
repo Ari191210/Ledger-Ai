@@ -980,6 +980,54 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: MODERATION_ERROR }, { status: 400 });
   }
 
+  // ── Rate limiting ─────────────────────────────────────────────────────────
+  // Tracking starts now; enforcement activates 2026-10-08.
+  const RATE_LIMIT_DATE = new Date("2026-10-08T00:00:00Z");
+  const DAILY_LIMIT     = 20;
+  const enforcing       = new Date() >= RATE_LIMIT_DATE;
+
+  const authHeader = req.headers.get("Authorization");
+  let rateLimitUserId: string | null = null;
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    const { data: { user } } = await supabaseServer.auth.getUser(token);
+    rateLimitUserId = user?.id ?? null;
+  }
+
+  if (rateLimitUserId) {
+    const { data: ud } = await supabaseServer
+      .from("user_data")
+      .select("ai_calls_today, ai_calls_reset_at")
+      .eq("user_id", rateLimitUserId)
+      .single();
+
+    const now      = new Date();
+    const resetAt  = ud?.ai_calls_reset_at ? new Date(ud.ai_calls_reset_at) : null;
+    const needsReset = !resetAt || resetAt < new Date(now.toDateString()); // midnight reset
+    const currentCount = needsReset ? 0 : (ud?.ai_calls_today ?? 0);
+
+    if (enforcing && currentCount >= DAILY_LIMIT) {
+      const midnight = new Date(now);
+      midnight.setUTCHours(24, 0, 0, 0);
+      const hoursLeft = Math.ceil((midnight.getTime() - now.getTime()) / 3600000);
+      return NextResponse.json(
+        { error: `You've queried the ledger ${DAILY_LIMIT} times today. It resets at midnight (${hoursLeft}h away).` },
+        { status: 429 }
+      );
+    }
+
+    // Increment counter (non-blocking)
+    supabaseServer
+      .from("user_data")
+      .update({
+        ai_calls_today: currentCount + 1,
+        ai_calls_reset_at: needsReset ? now.toISOString() : (ud?.ai_calls_reset_at ?? now.toISOString()),
+      })
+      .eq("user_id", rateLimitUserId)
+      .then(() => {}, () => {});
+  }
+  // ── End rate limiting ──────────────────────────────────────────────────────
+
   const { system, userText } = buildPrompt(tool, params);
 
   type SupportedMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
@@ -1041,27 +1089,21 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: MODERATION_ERROR }, { status: 400 });
       }
       // Save to ai_history for cross-device history (silently, non-blocking)
-      const authHeader = req.headers.get("Authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.slice(7);
-        supabaseServer.auth.getUser(token).then(({ data: { user } }) => {
-          if (user?.id) {
-            const TEXT_KEYS = ["content","question","topic","passage","text","claim","essay","ps","query","concept","items","caseText","sourceText"];
-            const inputText = Object.entries(params)
-              .filter(([k]) => TEXT_KEYS.includes(k))
-              .map(([, v]) => String(v))
-              .join(" ")
-              .slice(0, 300);
-            supabaseServer.from("ai_history").insert({
-              user_id: user.id,
-              tool,
-              input_text: inputText || null,
-              output: parsed,
-              grade: (params.grade as string) || null,
-              board: (params.board as string) || null,
-            }).then(() => {}, () => {});
-          }
-        }, () => {});
+      if (rateLimitUserId) {
+        const TEXT_KEYS = ["content","question","topic","passage","text","claim","essay","ps","query","concept","items","caseText","sourceText"];
+        const inputText = Object.entries(params)
+          .filter(([k]) => TEXT_KEYS.includes(k))
+          .map(([, v]) => String(v))
+          .join(" ")
+          .slice(0, 300);
+        supabaseServer.from("ai_history").insert({
+          user_id: rateLimitUserId,
+          tool,
+          input_text: inputText || null,
+          output: parsed,
+          grade: (params.grade as string) || null,
+          board: (params.board as string) || null,
+        }).then(() => {}, () => {});
       }
       return NextResponse.json(parsed);
     }
