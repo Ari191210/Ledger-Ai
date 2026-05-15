@@ -1,6 +1,5 @@
 "use client"
 import * as React from "react"
-import { motion, type Variants, type Easing } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
 
@@ -22,33 +21,22 @@ interface DockIconButtonProps {
   className?: string
 }
 
-const floatingAnimation: Variants = {
-  initial: { y: 0 },
-  animate: {
-    y: [-2, 2, -2],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut" as Easing,
-    },
-  },
-}
-
 const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
   ({ icon: Icon, label, onClick, active, className }, ref) => {
     return (
-      <motion.button
+      <button
         ref={ref}
-        whileHover={{ scale: 1.1, y: -2 }}
-        whileTap={{ scale: 0.95 }}
         onClick={onClick}
         className={cn(
-          "relative group p-3 rounded-xl transition-colors",
-          active
-            ? "bg-[var(--cinnabar)]/15"
-            : "hover:bg-[var(--paper-2)]",
+          "relative group p-3 rounded-xl transition-all duration-150",
+          active ? "bg-[var(--cinnabar)]/15" : "hover:bg-[var(--paper-2)]",
           className
         )}
+        style={{ transform: "translateY(0)", transition: "transform 150ms ease, background 150ms ease" }}
+        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.1)" }}
+        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(1)" }}
+        onMouseDown={e  => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.95)" }}
+        onMouseUp={e    => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.1)" }}
       >
         <Icon
           className={cn(
@@ -72,7 +60,7 @@ const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
         >
           {label}
         </span>
-      </motion.button>
+      </button>
     )
   }
 )
@@ -87,11 +75,15 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
           "fixed bottom-6 left-1/2 -translate-x-1/2 z-50",
           className
         )}
+        style={{ animation: "dock-float 4s ease-in-out infinite" }}
       >
-        <motion.div
-          initial="initial"
-          animate="animate"
-          variants={floatingAnimation}
+        <style>{`
+          @keyframes dock-float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50%       { transform: translateX(-50%) translateY(4px); }
+          }
+        `}</style>
+        <div
           className="flex items-center gap-0.5 p-2 rounded-2xl border backdrop-blur-xl shadow-lg"
           style={{
             background: "color-mix(in oklch, var(--paper) 88%, transparent)",
@@ -101,7 +93,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
           {items.map((item) => (
             <DockIconButton key={item.label} {...item} />
           ))}
-        </motion.div>
+        </div>
       </div>
     )
   }
