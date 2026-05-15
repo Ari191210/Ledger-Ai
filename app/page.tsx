@@ -209,7 +209,8 @@ export default function Home() {
       .from(".hero-sub",      { opacity: 0, y: 20, duration: 0.65 }, "-=0.4")
       .from(".hero-stats > *",{ opacity: 0, y: 18, duration: 0.5, stagger: 0.09 }, "-=0.4")
       .from(".hero-ctas > *", { opacity: 0, y: 14, scale: 0.96, duration: 0.5, stagger: 0.08 }, "-=0.35")
-      .from(".hero-scroll",   { opacity: 0, duration: 0.5 }, "-=0.2");
+      .from(".hero-scroll",   { opacity: 0, duration: 0.5 }, "-=0.2")
+      .from(".hero-panel > *",{ opacity: 0, y: 20, duration: 0.55, stagger: 0.06, ease: "power2.out" }, "-=0.6");
 
     /* ── Hero h1 parallax on mouse ── */
     const heroEl = containerRef.current?.querySelector(".hero-section");
@@ -439,6 +440,45 @@ export default function Home() {
             <div style={{ width: 1, height: 36, background: "linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)" }} />
           </div>
         </div>
+
+        {/* Category preview panel — anchored to hero bottom */}
+        <div className="hero-panel" style={{
+          position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)",
+          width: "min(1000px, 92vw)", zIndex: 3,
+          display: "grid", gridTemplateColumns: "repeat(6, 1fr)",
+          gap: 1, background: "rgba(255,255,255,0.06)",
+        }}>
+          {([
+            { cat: "PLAN",     n: 7,  tools: ["Study Planner", "Focus Dashboard", "Habit Tracker"]   },
+            { cat: "LEARN",    n: 7,  tools: ["Study Engine",  "Doubt Solver",    "Mind Map Builder"] },
+            { cat: "WRITE",    n: 8,  tools: ["Essay Workshop","Research Hub",    "Writing Polish"]   },
+            { cat: "PRACTISE", n: 12, tools: ["Practice Suite","Past Papers",     "Revision Planner"] },
+            { cat: "FUTURE",   n: 5,  tools: ["Future Finder", "Admissions",      "GPA Simulator"]    },
+            { cat: "TRACK",    n: 12, tools: ["Ledger Score",  "Text Analyst",    "Academic Coach"]   },
+          ] as const).map(({ cat, n, tools }) => (
+            <a key={cat} href="#tools" style={{ textDecoration: "none" }}>
+              <div style={{
+                background: "rgba(8,6,4,0.78)", backdropFilter: "blur(24px)",
+                padding: "14px 13px 16px",
+                borderTop: `2px solid ${CAT_COLOR[cat as keyof typeof CAT_COLOR]}`,
+                transition: "background 180ms",
+              }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(20,16,12,0.92)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "rgba(8,6,4,0.78)")}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 9 }}>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase", color: CAT_COLOR[cat as keyof typeof CAT_COLOR] }}>{cat}</span>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.22)" }}>{n}</span>
+                </div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {tools.map(t => (
+                    <li key={t} style={{ fontFamily: "var(--sans)", fontSize: 10, color: "rgba(255,255,255,0.38)", lineHeight: 1.95, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t}</li>
+                  ))}
+                </ul>
+              </div>
+            </a>
+          ))}
+        </div>
       </section>
 
       {/* ─── Ticker ─── */}
@@ -571,7 +611,7 @@ export default function Home() {
       {/* ─── 03 / All 55 Tools ─── */}
       <section id="tools" className="gl-pane" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="03" label="All 55 Tools" />
+          <SectionLabel num="03" label="All 51 Tools" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
@@ -657,7 +697,7 @@ export default function Home() {
               </div>
               <div style={{ marginTop: 28, paddingTop: 20, borderTop: S.border, display: "flex", gap: 10 }}>
                 <Link href={`/tools/${tool.slug}`} className="btn" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>Open tool →</Link>
-                <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 55 tools</Link>
+                <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 51 tools</Link>
               </div>
             </div>
           </div>
@@ -779,7 +819,7 @@ export default function Home() {
               <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
               <div className="anim-divider" style={{ ...S.rule, margin: "20px 0" }} />
               <p style={{ ...S.body, fontSize: 13 }}>
-                The 55 tools are the price of entry. These seven are the reason you stay. None are available in another student app — we looked, and then we built them.
+                The 51 tools are the price of entry. These seven are the reason you stay. None are available in another student app — we looked, and then we built them.
               </p>
             </div>
 
@@ -912,7 +952,7 @@ export default function Home() {
               Your exam is closer than it feels.
             </h2>
             <p style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 40, maxWidth: 480, margin: "0 auto 40px" }}>
-              Build the system that closes the gap. Fifty-five tools. One score. One streak. Everything calibrated to your board and your exam date.
+              Build the system that closes the gap. Fifty-one tools. One score. One streak. Everything calibrated to your board and your exam date.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px" }}>
@@ -940,7 +980,7 @@ export default function Home() {
             </p>
           </div>
           {[
-            { h: "Tools", l: ["Planner", "Marks Predictor", "Notes Simplifier", "Doubt Solver", "Essay Blueprint", "Essay Grader", "Argument Builder", "Grammar Coach", "Model Answer Factory", "Topic Tutor", "AI Flashcards", "Concept Web", "Vocabulary Vault", "Analogy Engine", "Memory Palace", "Past Papers", "Exam Simulator", "Practice Engine", "Focus Dashboard", "Ledger Score"] },
+            { h: "Tools", l: ["Study Engine", "Essay Workshop", "Research Hub", "Writing Polish", "Question Decoder", "Practice Suite", "Revision Planner", "Future Finder", "Text Analyst", "Doubt Solver", "AI Flashcards", "Vocabulary Vault", "Analogy Engine", "Memory Palace", "Past Papers", "Focus Dashboard", "Ledger Score"] },
             { h: "Institutions", l: ["For Schools", "For Tuition Centres", "Syllabus Parser", "Data Export", "API"] },
             { h: "The Ledger", l: ["Changelog", "Roadmap", "Colophon", "Masthead", "Press", "Contact"] },
           ].map((g) => (
