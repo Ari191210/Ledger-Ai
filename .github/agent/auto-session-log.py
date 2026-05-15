@@ -40,29 +40,35 @@ SLUG_TO_CAT: dict[str, str] = {
     # PLAN
     "planner": "PLAN", "focus": "PLAN", "habits": "PLAN",
     "deadlines": "PLAN", "debt-meter": "PLAN", "circadian": "PLAN",
-    "circuit-breaker": "PLAN",
+    "circuit-breaker": "PLAN", "brain-budget": "PLAN", "focus-lab": "PLAN",
+    "study-command": "PLAN",
     # LEARN
     "notes": "LEARN", "doubt": "LEARN", "syllabus": "LEARN",
     "mindmap": "LEARN", "formula": "LEARN", "lang-analyzer": "LEARN",
-    "vocab": "LEARN",
+    "vocab": "LEARN", "language-lab": "LEARN",
     # WRITE
     "essay-blueprint": "WRITE", "research": "WRITE", "grammar": "WRITE",
     "presentation": "WRITE", "debate": "WRITE", "citation": "WRITE",
     "lab-report": "WRITE", "model-answer": "WRITE",
+    "reference-builder": "WRITE", "report-tools": "WRITE",
+    "research-suite": "WRITE", "writing-tools": "WRITE",
     # PRACTISE
     "papers": "PRACTISE", "flashcards": "PRACTISE", "exam-planner": "PRACTISE",
     "mark-scheme": "PRACTISE", "practice": "PRACTISE", "crunch": "PRACTISE",
     "dna": "PRACTISE", "predict": "PRACTISE", "memory-palace": "PRACTISE",
     "analogy": "PRACTISE", "exam-strategy": "PRACTISE", "cremator": "PRACTISE",
-    "formula-recall": "PRACTISE",
+    "formula-recall": "PRACTISE", "exam-triage": "PRACTISE", "half-life": "PRACTISE",
+    "memory-toolkit": "PRACTISE", "recall-studio": "PRACTISE", "revision-intel": "PRACTISE",
     # FUTURE
     "uni-match": "FUTURE", "admissions": "FUTURE", "resume": "FUTURE",
-    "interview": "FUTURE", "gpa-sim": "FUTURE",
+    "interview": "FUTURE", "gpa-sim": "FUTURE", "applications": "FUTURE",
+    "uni-prep": "FUTURE",
     # TRACK
     "marks": "TRACK", "coach": "TRACK", "rooms": "TRACK",
     "peer-heatmap": "TRACK", "compare": "TRACK", "source": "TRACK",
     "case-study": "TRACK", "timeline": "TRACK", "study-guide": "TRACK",
     "concept-connect": "TRACK", "score": "TRACK", "exam-debrief": "TRACK",
+    "analysis-hub": "TRACK", "grade-tracker": "TRACK", "post-exam": "TRACK",
 }
 
 
