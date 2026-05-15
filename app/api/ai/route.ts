@@ -117,7 +117,7 @@ function buildProfileContext(params: Record<string, unknown>): string {
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -950,6 +950,380 @@ Respond with exactly this JSON:
   "revive_sequence": [{"day":1,"chapter":"string","method":"specific verb-first action","time_budget":"45 min"}]
 }`,
       };
+
+    case "analysis_hub":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an academic data analyst. Identify patterns, anomalies, and actionable insights from student performance data. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Analyse this academic data and produce a structured insight report.
+
+Data type: ${params.dataType}
+Data: ${params.data}
+Context: ${params.context ?? "general academic performance"}
+
+Respond with exactly this JSON:
+{
+  "title": "string",
+  "summary": "2-3 sentence overview of what the data shows",
+  "keyFindings": ["finding 1", "finding 2", "finding 3"],
+  "patterns": ["pattern 1", "pattern 2"],
+  "anomalies": ["anything unexpected"],
+  "implications": "what this means for the student's study strategy",
+  "recommendations": ["action 1", "action 2", "action 3"],
+  "dataQuality": "brief note on data completeness or caveats"
+}`,
+      };
+
+    case "application_plan":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a university admissions consultant. Build a realistic, actionable application plan for a student. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a university application plan for this student.
+
+Institution: ${params.institution}
+Course: ${params.course}
+Deadline: ${params.deadline}
+Student profile: ${params.profile}
+Current grades: ${params.grades ?? "not provided"}
+
+Respond with exactly this JSON:
+{
+  "institution": "string",
+  "course": "string",
+  "deadline": "string",
+  "overview": "2 sentence summary of the application challenge",
+  "requirements": ["requirement 1", "requirement 2"],
+  "tasks": [{"task": "string", "due": "string", "priority": "high|medium|low"}],
+  "essayPrompts": ["prompt 1", "prompt 2"],
+  "strengthsToHighlight": ["strength 1", "strength 2"],
+  "weaknessesToAddress": ["weakness 1", "how to mitigate"],
+  "timeline": [{"week": 1, "focus": "string"}]
+}`,
+      };
+
+    case "brain_budget":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a cognitive load and productivity expert. Evaluate a student's daily study schedule for cognitive overload, underscheduling, and poor recovery. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Evaluate this student's study schedule and produce a cognitive load report.
+
+Schedule: ${params.schedule}
+Exams upcoming: ${params.exams ?? "not specified"}
+Sleep hours: ${params.sleepHours ?? "7"}
+Extra-curriculars: ${params.extras ?? "none"}
+
+Respond with exactly this JSON:
+{
+  "verdict": "sustainable|borderline|overloaded|underloaded",
+  "schedule": [{"slot": "string", "subject": "string", "duration": "string", "loadRating": "low|medium|high"}],
+  "loadDistribution": "assessment of how load is spread across the day/week",
+  "breaks": ["specific break recommendation 1", "specific break recommendation 2"],
+  "warnings": ["warning 1 if any"],
+  "energyTip": "one concrete tip based on circadian science"
+}`,
+      };
+
+    case "exam_triage":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a high-stakes exam strategist. Given limited time before an exam, ruthlessly prioritise topics by mark-yield per hour. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Triage these exam topics for maximum mark yield given the time constraint.
+
+Exam: ${params.exam}
+Hours left: ${params.hoursLeft}
+Topics: ${params.topics}
+Student weak areas: ${params.weakAreas ?? "not specified"}
+
+Respond with exactly this JSON:
+{
+  "exam": "string",
+  "hoursLeft": ${params.hoursLeft ?? 0},
+  "verdict": "one sentence on the overall situation",
+  "tiers": {
+    "critical": [{"topic": "string", "why": "string", "timeAlloc": "string"}],
+    "important": [{"topic": "string", "why": "string", "timeAlloc": "string"}],
+    "review": [{"topic": "string", "why": "string", "timeAlloc": "string"}],
+    "skip": [{"topic": "string", "why": "string"}]
+  },
+  "hiddenGem": "one overlooked topic likely to appear that students underestimate"
+}`,
+      };
+
+    case "focus_lab":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a deep-work and flow-state coach. Design a structured focus session with phases, environment setup, and recovery built in. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Design a focus session for this student.
+
+Subject/task: ${params.task}
+Duration available: ${params.duration}
+Goal: ${params.goal}
+Environment: ${params.environment ?? "home desk"}
+Known distractions: ${params.distractions ?? "phone, social media"}
+
+Respond with exactly this JSON:
+{
+  "sessionTitle": "string",
+  "duration": "string",
+  "goal": "string",
+  "phases": [{"name": "string", "duration": "string", "activity": "string", "tip": "string"}],
+  "environment": ["setup step 1", "setup step 2"],
+  "focusTechnique": "Pomodoro|Flow|Timeboxing|Deep Work Block — with brief explanation",
+  "milestones": ["checkpoint 1", "checkpoint 2"],
+  "exitCriteria": "how to know the session was successful",
+  "recoveryNote": "what to do immediately after"
+}`,
+      };
+
+    case "language_lab":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a language acquisition expert and CEFR-trained tutor. Build a structured language micro-lesson. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a language learning lesson for this student.
+
+Language: ${params.language}
+Focus area: ${params.focus}
+Level: ${params.level ?? "intermediate"}
+Topic/context: ${params.topic ?? "general academic"}
+
+Respond with exactly this JSON:
+{
+  "language": "string",
+  "focus": "string",
+  "level": "string",
+  "lesson": "2-3 sentence overview of what will be covered",
+  "vocabulary": [{"word": "string", "translation": "string", "example": "string", "tip": "string"}],
+  "grammar": {"rule": "string", "structure": "string", "examples": ["string"]},
+  "exercises": [{"type": "string", "instruction": "string", "items": ["string"]}],
+  "culturalNote": "one relevant cultural insight",
+  "practiceDialogue": [{"speaker": "A|B", "line": "string"}]
+}`,
+      };
+
+    case "memory_toolkit":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a memory science expert trained in mnemonics, spaced repetition, and the method of loci. Match memory techniques to specific academic content. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Recommend memory techniques for learning this academic content.
+
+Topic: ${params.topic}
+Content to memorise: ${params.content}
+Exam type: ${params.examType ?? "written exam"}
+Time to exam: ${params.timeToExam ?? "4 weeks"}
+
+Respond with exactly this JSON:
+{
+  "topic": "string",
+  "techniques": [
+    {
+      "name": "technique name",
+      "description": "what it is",
+      "application": "how to apply it to THIS specific content",
+      "output": "what the student should produce/create"
+    }
+  ],
+  "topRecommendation": "which single technique to prioritise and why",
+  "reviewSchedule": [{"day": 1, "activity": "string"}, {"day": 3, "activity": "string"}, {"day": 7, "activity": "string"}],
+  "examTip": "how to use these techniques under exam conditions"
+}`,
+      };
+
+    case "recall_studio":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a retrieval-practice expert. Generate varied recall questions (MCQ, short answer, cue-card, diagram prompt) targeting different difficulty levels and Bloom's taxonomy layers. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate a recall practice session for this topic.
+
+Topic: ${params.topic}
+Content/notes: ${params.content}
+Difficulty: ${params.difficulty ?? "mixed"}
+Question count: ${params.questionCount ?? 8}
+
+Respond with exactly this JSON:
+{
+  "topic": "string",
+  "totalQuestions": ${params.questionCount ?? 8},
+  "questions": [
+    {
+      "id": 1,
+      "type": "mcq|short-answer|cue-card|diagram-prompt",
+      "q": "question text",
+      "idealAnswer": "model answer",
+      "cue": "memory cue or hint",
+      "difficulty": "easy|medium|hard",
+      "concept": "the underlying concept being tested"
+    }
+  ],
+  "sessionFlow": "recommended order and timing",
+  "spacedRep": "when to repeat this session for optimal retention",
+  "selfAssessment": "how to score yourself honestly"
+}`,
+      };
+
+    case "reference_builder":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an academic referencing expert fluent in APA 7, Harvard, MLA 9, Chicago 17, and Vancouver. Generate correctly formatted references and in-text citations. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Format these sources as academic references.
+
+Citation style: ${params.style}
+Sources: ${params.sources}
+Include annotations: ${params.annotated ?? false}
+
+Respond with exactly this JSON:
+{
+  "style": "string",
+  "references": [
+    {
+      "id": 1,
+      "type": "journal|book|website|report|other",
+      "formatted": "full reference in correct style",
+      "inText": "(Author, Year) or footnote number",
+      "annotation": "50-word summary if annotated bibliography requested, else null"
+    }
+  ],
+  "formattingNotes": ["any style-specific note or correction"],
+  "generalTip": "one tip for avoiding common referencing mistakes in this style"
+}`,
+      };
+
+    case "report_writer":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an academic writing specialist. Produce structured, well-argued academic reports, lab reports, and essays tailored to the student's subject and level. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Write a structured academic report based on this brief.
+
+Report type: ${params.reportType}
+Title/topic: ${params.title}
+Subject: ${params.subject}
+Key points to cover: ${params.keyPoints}
+Word limit: ${params.wordLimit ?? "800-1000 words"}
+Level: ${params.level ?? "A-Level / Year 12"}
+
+Respond with exactly this JSON:
+{
+  "title": "string",
+  "type": "string",
+  "executiveSummary": "2-3 sentence abstract",
+  "sections": [
+    {
+      "heading": "string",
+      "content": "paragraph text",
+      "subpoints": ["bullet if needed"]
+    }
+  ],
+  "conclusions": "string",
+  "recommendations": ["recommendation 1 if applicable"],
+  "formatNotes": "word count estimate and any structural advice"
+}`,
+      };
+
+    case "research_suite":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a research methods expert and academic librarian. Map the scholarly landscape of a research question, identify key debates, and suggest methodology. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a research overview for this question.
+
+Research question: ${params.question}
+Subject area: ${params.subject}
+Level: ${params.level ?? "undergraduate"}
+Focus: ${params.focus ?? "balanced overview"}
+
+Respond with exactly this JSON:
+{
+  "question": "string",
+  "literatureReview": {
+    "overview": "paragraph summarising the field",
+    "keyDebates": ["debate 1", "debate 2"],
+    "consensus": "what is generally agreed",
+    "gaps": ["gap 1", "gap 2"]
+  },
+  "argumentMap": [{"position": "string", "keyProponents": "string", "mainEvidence": "string", "counterargument": "string"}],
+  "methodology": "recommended approach for investigating this question",
+  "furtherReading": [{"title": "string", "author": "string", "why": "string"}]
+}`,
+      };
+
+    case "revision_intel":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an exam strategist applying spaced repetition, interleaving, and retrieval practice science. Build personalised revision plans. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a revision intelligence plan for this student.
+
+Exam: ${params.exam}
+Days left: ${params.daysLeft}
+Subjects/topics: ${params.topics}
+Weak areas: ${params.weakAreas ?? "not specified"}
+Daily study hours available: ${params.dailyHours ?? 3}
+
+Respond with exactly this JSON:
+{
+  "exam": "string",
+  "daysLeft": ${params.daysLeft ?? 0},
+  "strategy": "2 sentence summary of the recommended approach",
+  "dailyPlan": [{"day": 1, "focus": "string", "technique": "string", "duration": "string"}],
+  "spacedIntervals": [{"topic": "string", "reviewDays": [1, 3, 7, 14]}],
+  "warningTopics": ["topic at highest risk of being underprepared"],
+  "dailyHabits": ["habit 1", "habit 2", "habit 3"]
+}`,
+      };
+
+    case "study_command":
+      return {
+        system: `${SAFETY_PREAMBLE}You are the student's personal academic command centre. Review their current status and generate a sharp daily briefing: what to do today, what to watch out for, and one clear win. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Generate today's study command briefing.
+
+Student profile: Grade ${params.grade ?? "unknown"}, ${params.stream ?? "general"}, Target: ${params.targetExam ?? "not specified"}
+Upcoming exams: ${params.exams ?? "none noted"}
+Current weak topics: ${params.weakTopics ?? "none noted"}
+Focus streak: ${params.focusStreak ?? 0} days
+Today's date: ${new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+
+Respond with exactly this JSON:
+{
+  "greeting": "personalised one-line greeting referencing the day or streak",
+  "statusSummary": "2 sentence snapshot of where the student stands",
+  "todaysPlan": [{"time": "string", "task": "string", "duration": "string", "priority": "high|medium|low"}],
+  "quickWins": ["something achievable in under 20 minutes"],
+  "watchOut": "one risk or thing not to neglect today",
+  "motivationNote": "one sentence — concrete and specific, not generic"
+}`,
+      };
+
+    case "uni_prep":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a university preparation advisor. Build a detailed readiness assessment and preparation roadmap for a student targeting a specific university and course. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Build a university preparation plan for this student.
+
+Target institution: ${params.institution}
+Course: ${params.course}
+Application cycle: ${params.cycle ?? "2026 entry"}
+Student profile: ${params.profile}
+Current grades: ${params.grades ?? "not provided"}
+
+Respond with exactly this JSON:
+{
+  "institution": "string",
+  "course": "string",
+  "applicationCycle": "string",
+  "profileAssessment": "honest 2-3 sentence assessment of the student's competitiveness",
+  "requirements": [{"requirement": "string", "studentStatus": "met|partial|missing"}],
+  "roadmap": [{"month": "string", "actions": ["action 1", "action 2"]}],
+  "strengthenAreas": ["area to develop 1", "area to develop 2"],
+  "essayTopics": ["suggested personal statement angle 1", "angle 2"],
+  "redFlags": ["potential rejection reason if any"],
+  "advice": "one concrete piece of advice most students applying to this course ignore"
+}`,
+      };
+
+    case "writing_tools":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert academic editor and writing coach. Improve, rewrite, or analyse student writing based on the requested operation. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Apply the requested writing operation to this text.
+
+Operation: ${params.operation}
+Text: ${params.text}
+Subject: ${params.subject ?? "general"}
+Level: ${params.level ?? "A-Level"}
+Target tone: ${params.tone ?? "formal academic"}
+
+Respond with exactly this JSON:
+{
+  "operation": "string",
+  "result": "the improved/rewritten/analysed text",
+  "changes": ["change made 1", "change made 2", "change made 3"],
+  "qualityNote": "one sentence on the biggest remaining weakness",
+  "alternativeVersion": "a shorter alternative if the text can be tightened further"
+}`,
+      };
   }
 }
 
@@ -969,7 +1343,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
