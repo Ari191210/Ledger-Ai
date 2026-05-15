@@ -3,7 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
-import { AIOutput } from "@/components/ai-output";
 
 type Task = { task: string; due: string; priority: "high" | "medium" | "low" };
 type TimelineItem = { week: number; focus: string };
