@@ -181,8 +181,8 @@ export default function Home() {
   useEffect(() => {
     if (!testimRef.current) return;
     gsap.fromTo(testimRef.current,
-      { opacity: 0, y: 14 },
-      { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
     );
   }, [testimIdx]);
 
@@ -194,25 +194,33 @@ export default function Home() {
     prevScoreRef.current = scorePreview;
     const obj = { val: from };
     gsap.to(obj, {
-      val: to, duration: 0.6, ease: "power2.out",
+      val: to, duration: 0.5, ease: "power3.out",
       onUpdate() { if (scoreNumRef.current) scoreNumRef.current.textContent = String(Math.round(obj.val)); },
     });
   }, [scorePreview]);
 
   useGSAP(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     /* ── Hero entrance ── */
-    gsap.timeline({ defaults: { ease: "power3.out" } })
-      .fromTo(".hero-badge",
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.8, ease: "power2.inOut" })
-      .from(".hero-word-1",   { opacity: 0, y: 72, duration: 0.9, stagger: 0.16 }, "-=0.3")
-      .from(".hero-word-2",   { opacity: 0, y: 72, duration: 0.9 }, "-=0.55")
-      .from(".hero-divider",  { scaleX: 0, transformOrigin: "left", duration: 0.7, ease: "power2.inOut" }, "-=0.5")
-      .from(".hero-sub",      { opacity: 0, y: 20, duration: 0.65 }, "-=0.4")
-      .from(".hero-stats > *",{ opacity: 0, y: 18, duration: 0.5, stagger: 0.09 }, "-=0.4")
-      .from(".hero-ctas > *", { opacity: 0, y: 14, scale: 0.96, duration: 0.5, stagger: 0.08 }, "-=0.35")
-      .from(".hero-scroll",   { opacity: 0, duration: 0.5 }, "-=0.2")
-      .from(".hero-panel > *",{ opacity: 0, y: 20, duration: 0.55, stagger: 0.06, ease: "power2.out" }, "-=0.6");
+    if (reduced) {
+      gsap.set([".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
+                ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-panel > *"],
+        { opacity: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" });
+    } else {
+      gsap.timeline({ defaults: { ease: "power3.out" } })
+        .fromTo(".hero-badge",
+          { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+          { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.7, ease: "power2.inOut" })
+        .from(".hero-word-1",   { opacity: 0, y: 36, duration: 0.85, stagger: 0.12 }, "-=0.25")
+        .from(".hero-word-2",   { opacity: 0, y: 36, duration: 0.85 }, "-=0.5")
+        .from(".hero-divider",  { scaleX: 0, transformOrigin: "left", duration: 0.6, ease: "power2.inOut" }, "-=0.45")
+        .from(".hero-sub",      { opacity: 0, y: 16, duration: 0.55 }, "-=0.35")
+        .from(".hero-stats > *",{ opacity: 0, y: 14, duration: 0.45, stagger: 0.07 }, "-=0.35")
+        .from(".hero-ctas > *", { opacity: 0, y: 12, scale: 0.97, duration: 0.45, stagger: 0.07 }, "-=0.3")
+        .from(".hero-scroll",   { opacity: 0, duration: 0.4 }, "-=0.15")
+        .from(".hero-panel > *",{ opacity: 0, y: 16, duration: 0.5, stagger: 0.05, ease: "power2.out" }, "-=0.55");
+    }
 
     /* ── ScrollToPlugin: smooth scroll all #anchor links ── */
     const handleAnchorClick = (e: Event) => {
@@ -222,17 +230,19 @@ export default function Home() {
       const target = document.querySelector(hash);
       if (!target) return;
       e.preventDefault();
-      gsap.to(window, { scrollTo: { y: target, offsetY: 60 }, duration: 1.1, ease: "power3.inOut" });
+      gsap.to(window, { scrollTo: { y: target, offsetY: 60 }, duration: reduced ? 0 : 1.0, ease: "power3.inOut" });
     };
     const anchors = containerRef.current?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [];
     anchors.forEach(a => a.addEventListener("click", handleAnchorClick));
 
+    if (reduced) return;
+
     /* ── Section headings reveal ── */
     gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
       gsap.fromTo(el,
-        { opacity: 0, y: 36, filter: "blur(2px)" },
-        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 87%", once: true } }
+        { opacity: 0, y: 28, filter: "blur(1px)" },
+        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.75, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true } }
       );
     });
 
@@ -240,11 +250,11 @@ export default function Home() {
     const heroEl = containerRef.current?.querySelector(".hero-section");
     const onMove = (e: Event) => {
       const { clientX, clientY } = e as MouseEvent;
-      const x = (clientX / window.innerWidth  - 0.5) * 16;
-      const y = (clientY / window.innerHeight - 0.5) * 9;
-      gsap.to(".hero-h1", { x, y, duration: 1.4, ease: "power2.out", overwrite: "auto" });
+      const x = (clientX / window.innerWidth  - 0.5) * 12;
+      const y = (clientY / window.innerHeight - 0.5) * 7;
+      gsap.to(".hero-h1", { x, y, duration: 1.8, ease: "power2.out", overwrite: "auto" });
     };
-    const onLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1.2, ease: "power3.out" });
+    const onLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1.4, ease: "power3.out" });
     heroEl?.addEventListener("mousemove", onMove);
     heroEl?.addEventListener("mouseleave", onLeave);
 
@@ -266,8 +276,8 @@ export default function Home() {
     /* ── Bento cards stagger ── */
     ScrollTrigger.batch(".bento-card", {
       onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 44, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.85, stagger: 0.12, ease: "power3.out", clearProps: "filter" }
+        { opacity: 0, y: 32, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: "power3.out", clearProps: "transform,opacity" }
       ),
       start: "top 86%", once: true,
     });
@@ -290,17 +300,17 @@ export default function Home() {
     /* ── Feature cards ── */
     ScrollTrigger.batch(".feat-card", {
       onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 36, scale: 0.97 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.75, stagger: 0.08, ease: "power3.out", clearProps: "opacity,transform" }
+        { opacity: 0, y: 24, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.07, ease: "power3.out", clearProps: "transform,opacity" }
       ),
       start: "top 86%", once: true,
     });
 
-    /* ── Stat cards spring in ── */
+    /* ── Stat cards slide in ── */
     ScrollTrigger.batch(".stat-card", {
       onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 32, scale: 0.86 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.09, ease: "back.out(1.7)", clearProps: "opacity,transform" }
+        { opacity: 0, y: 24, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.08, ease: "power3.out", clearProps: "transform,opacity" }
       ),
       start: "top 86%", once: true,
     });

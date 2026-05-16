@@ -147,17 +147,17 @@ function ActiveRoom({ roomId, myName, onLeave }: { roomId: string; myName: strin
 
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
         {/* Timer */}
-        <div style={{ border: "1px solid var(--ink)" }}>
-          <div style={{ padding: "40px 28px 32px", textAlign: "center", background: "var(--paper-2)", borderBottom: "1px solid var(--ink)" }}>
+        <div style={{ border: "1px solid var(--rule-2)", borderRadius: 2, overflow: "hidden", background: "var(--paper-2)" }}>
+          <div style={{ padding: "40px 28px 32px", textAlign: "center", background: "color-mix(in srgb, var(--paper-2) 60%, var(--paper) 40%)", borderBottom: "1px solid var(--rule)" }}>
             <div style={{ fontFamily: "var(--serif)", fontSize: 96, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 1, color: done ? "var(--cinnabar-ink)" : "var(--ink)" }}>
               {mm}:{ss}
             </div>
             {done && <div className="mono cin" style={{ marginTop: 8 }}>Session complete.</div>}
-            <div style={{ margin: "20px 0 0", height: 4, background: "var(--paper)", border: "1px solid var(--rule)" }}>
-              <div style={{ height: "100%", width: `${progress * 100}%`, background: done ? "var(--cinnabar)" : "var(--ink-2)", transition: "width 1s linear" }} />
+            <div style={{ margin: "20px 0 0", height: 3, background: "var(--rule-2)", borderRadius: 2 }}>
+              <div style={{ height: "100%", width: `${progress * 100}%`, background: done ? "var(--cinnabar)" : "var(--cinnabar-ink)", transition: "width 1s linear", borderRadius: 2 }} />
             </div>
           </div>
-          <div style={{ padding: "16px 20px", display: "flex", gap: 10, justifyContent: "center", borderBottom: "1px solid var(--ink)" }}>
+          <div style={{ padding: "16px 20px", display: "flex", gap: 10, justifyContent: "center", borderBottom: "1px solid var(--rule)" }}>
             <button className="btn" onClick={room.running ? handlePause : handleStart} disabled={done} style={{ minWidth: 80 }}>
               {room.running ? "Pause" : "Start"}
             </button>
@@ -174,7 +174,7 @@ function ActiveRoom({ roomId, myName, onLeave }: { roomId: string; myName: strin
         </div>
 
         {/* Tasks */}
-        <div style={{ border: "1px solid var(--ink)" }}>
+        <div style={{ border: "1px solid var(--rule-2)", borderRadius: 2, overflow: "hidden", background: "var(--paper-2)" }}>
           <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--ink)" }}>
             <div className="mono cin">Shared tasks</div>
           </div>
@@ -284,19 +284,23 @@ export default function RoomsPage() {
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, maxWidth: 800 }}>
-          <div>
-            <div className="mono cin" style={{ marginBottom: 14 }}>Create a room</div>
+          <div style={{ padding: "28px", background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
+            <div className="mono cin" style={{ marginBottom: 18 }}>Create a room</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Your name"
-                style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }} />
+                style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", outline: "none", transition: "border-color 160ms" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "var(--ink)")}
+                onBlur={e => (e.currentTarget.style.borderColor = "var(--rule)")} />
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Room name"
-                style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }} />
+                style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", outline: "none", transition: "border-color 160ms" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "var(--ink)")}
+                onBlur={e => (e.currentTarget.style.borderColor = "var(--rule)")} />
               <div>
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 8 }}>Session duration</div>
-                <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
+                <div style={{ display: "flex", gap: 0, border: "1px solid var(--rule)" }}>
                   {[25, 50, 90].map((d, i) => (
                     <button key={d} onClick={() => setDuration(d)}
-                      style={{ flex: 1, padding: "10px 0", background: duration === d ? "var(--ink)" : "var(--paper)", color: duration === d ? "var(--paper)" : "var(--ink)", border: "none", borderRight: i < 2 ? "1px solid var(--ink)" : "none", cursor: "pointer", fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13 }}>
+                      style={{ flex: 1, padding: "10px 0", background: duration === d ? "var(--ink)" : "transparent", color: duration === d ? "var(--paper)" : "var(--ink-2)", border: "none", borderRight: i < 2 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13, transition: "background 180ms, color 180ms" }}>
                       {d} min
                     </button>
                   ))}
@@ -309,21 +313,25 @@ export default function RoomsPage() {
             </div>
           </div>
 
-          <div>
-            <div className="mono cin" style={{ marginBottom: 14 }}>Join by code</div>
+          <div style={{ padding: "28px", background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
+            <div className="mono cin" style={{ marginBottom: 18 }}>Join by code</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <input value={myNameJoin} onChange={(e) => setMyNameJoin(e.target.value)} placeholder="Your name"
-                style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }} />
-              <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="6-letter room code"
-                style={{ fontFamily: "var(--mono)", fontSize: 16, letterSpacing: "0.15em", border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", textTransform: "uppercase" }} />
+                style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", outline: "none", transition: "border-color 160ms" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "var(--ink)")}
+                onBlur={e => (e.currentTarget.style.borderColor = "var(--rule)")} />
+              <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="6-LETTER CODE"
+                style={{ fontFamily: "var(--mono)", fontSize: 16, letterSpacing: "0.18em", border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", textTransform: "uppercase", outline: "none", transition: "border-color 160ms" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "var(--ink)")}
+                onBlur={e => (e.currentTarget.style.borderColor = "var(--rule)")} />
               <button className="btn" onClick={joinByCode} disabled={joining} style={{ marginTop: 4 }}>
                 {joining ? "Joining…" : "Join room →"}
               </button>
             </div>
 
-            <div style={{ marginTop: 24, padding: "16px 18px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+            <div style={{ marginTop: 20, padding: "14px 16px", borderLeft: "2px solid var(--cinnabar-ink)", background: "color-mix(in srgb, var(--paper-2) 70%, transparent)" }}>
               <div className="mono cin" style={{ marginBottom: 8 }}>How it works</div>
-              <ul style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, color: "var(--ink-2)", margin: 0, paddingLeft: 16 }}>
+              <ul style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.75, color: "var(--ink-2)", margin: 0, paddingLeft: 16 }}>
                 <li>Create a room and share the 6-letter code</li>
                 <li>Friends open the site and enter the code to join</li>
                 <li>Timer and tasks stay in sync across all members</li>
@@ -333,7 +341,7 @@ export default function RoomsPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
+        <div style={{ marginTop: 60, borderTop: "1px solid var(--rule)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
           <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
