@@ -35,21 +35,23 @@ function readLocalBlob(): Record<string, string> {
 // Write all synced localStorage keys to Supabase
 export async function pushToCloud(userId: string): Promise<void> {
   const blob = readLocalBlob();
-  await supabase.from("user_data").upsert({
+  const { error } = await supabase.from("user_data").upsert({
     id: userId,
     blob,
     updated_at: new Date().toISOString(),
   });
+  if (error) console.error("[sync] pushToCloud failed:", error.message);
 }
 
 // Read Supabase blob and hydrate localStorage.
 // Returns true if any data was written (i.e. cloud had data the device didn't).
 export async function pullFromCloud(userId: string): Promise<boolean> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("user_data")
     .select("blob")
     .eq("id", userId)
     .maybeSingle();
+  if (error) console.error("[sync] pullFromCloud failed:", error.message);
 
   if (!data?.blob || typeof data.blob !== "object") return false;
 
