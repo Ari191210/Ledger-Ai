@@ -108,8 +108,8 @@ function ToolRow({ t, onOpen, onSplit }: { t: Tool; onOpen: (s: string) => void;
       style={{
         borderBottom: "1px solid var(--rule)", padding: "10px 16px",
         display: "flex", alignItems: "center", gap: 10,
-        background: hovered ? "rgba(226,226,222,0.5)" : "transparent",
-        transition: "background 150ms",
+        background: hovered ? "var(--paper-2)" : "transparent",
+        transition: "background 160ms ease",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -188,7 +188,7 @@ export default function AppNav() {
         color: active ? "var(--ink)" : "var(--ink-2)",
         fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
         letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
-        height: "100%", transition: "background 150ms",
+        height: "100%", transition: "background 160ms ease, color 160ms ease",
       }}>
         {extra}{label}
       </Link>
@@ -327,7 +327,7 @@ export default function AppNav() {
         </div>
 
         {/* Hint */}
-        <div style={{ padding: "7px 16px", background: "rgba(226,226,222,0.4)", borderBottom: "1px solid var(--rule)", flexShrink: 0 }}>
+        <div style={{ padding: "7px 16px", background: "color-mix(in srgb, var(--ink) 4%, transparent)", borderBottom: "1px solid var(--rule)", flexShrink: 0 }}>
           <span style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, color: "var(--cinnabar-ink)" }}>→ Open</span>
           <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: "var(--ink-3)" }}> navigates · </span>
           <span style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, color: "#1a6091" }}>⊞ Split</span>
@@ -343,7 +343,7 @@ export default function AppNav() {
           ) : (
             CATEGORIES.map(cat => (
               <div key={cat.label}>
-                <div style={{ padding: "7px 16px", background: "rgba(226,226,222,0.45)", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)" }}>
+                <div style={{ padding: "7px 16px", background: "color-mix(in srgb, var(--ink) 5%, transparent)", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)" }}>
                   <span style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 700, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" }}>{cat.label}</span>
                 </div>
                 {cat.tools.map(t => <ToolRow key={t.slug} t={t} onOpen={openTool} onSplit={splitTool} />)}
