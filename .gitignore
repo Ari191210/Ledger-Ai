@@ -47,3 +47,5 @@ stitch-assets/
 .github/agent/*.log
 test.txt
 Studyledger/
+
+.vercel

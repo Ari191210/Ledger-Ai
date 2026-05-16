@@ -68,6 +68,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "memory-toolkit",  ttl: "Memory Toolkit",       sub: "Memory palace + analogy engine.",   tier: "Free", desc: "Build a vivid spatial memory palace for any list of facts, or generate 3 creative analogies with breakdowns and limitations for any concept." },
       { slug: "exam-strategy",   ttl: "Exam Strategy",        sub: "Personalised exam-day plan.",       tier: "Free", desc: "Time allocation by section, nerve control, last-minute tips, and exam day checklist." },
       { slug: "recall-studio",   ttl: "Recall Studio",        sub: "Flashcards + formula recall.",      tier: "Free", desc: "AI Flashcards from notes or any topic with known/unknown tracking. Formula Recall drills 8–10 formulas per session using active recall — beats re-reading by 4×." },
+      { slug: "paper-triage", ttl: "Paper Panic Triage", sub: "2AM before the exam. Tell it what you haven't studied. ", tier: "Free", desc: "At 11PM the night before a JEE/NEET/Board paper, students open their syllabus and feel paralysed — 40% of topics untouch" },
     ],
   },
   {

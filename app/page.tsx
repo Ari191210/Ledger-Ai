@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { GetStartedButton } from "@/components/ui/get-started-button";
 import gsap from "gsap";
@@ -181,8 +181,8 @@ export default function Home() {
   useEffect(() => {
     if (!testimRef.current) return;
     gsap.fromTo(testimRef.current,
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+      { autoAlpha: 0, y: 10 },
+      { autoAlpha: 1, y: 0, duration: 0.35, ease: "power2.out" }
     );
   }, [testimIdx]);
 
@@ -200,165 +200,208 @@ export default function Home() {
   }, [scorePreview]);
 
   useGSAP(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const mm = gsap.matchMedia();
 
-    /* ── Hero entrance ── */
-    if (reduced) {
-      gsap.set([".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
-                ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-panel > *"],
-        { opacity: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" });
-    } else {
-      gsap.timeline({ defaults: { ease: "power3.out" } })
-        .fromTo(".hero-badge",
-          { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-          { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.7, ease: "power2.inOut" })
-        .from(".hero-word-1",   { opacity: 0, y: 36, duration: 0.85, stagger: 0.12 }, "-=0.25")
-        .from(".hero-word-2",   { opacity: 0, y: 36, duration: 0.85 }, "-=0.5")
-        .from(".hero-divider",  { scaleX: 0, transformOrigin: "left", duration: 0.6, ease: "power2.inOut" }, "-=0.45")
-        .from(".hero-sub",      { opacity: 0, y: 16, duration: 0.55 }, "-=0.35")
-        .from(".hero-stats > *",{ opacity: 0, y: 14, duration: 0.45, stagger: 0.07 }, "-=0.35")
-        .from(".hero-ctas > *", { opacity: 0, y: 12, scale: 0.97, duration: 0.45, stagger: 0.07 }, "-=0.3")
-        .from(".hero-scroll",   { opacity: 0, duration: 0.4 }, "-=0.15")
-        .from(".hero-panel > *",{ opacity: 0, y: 16, duration: 0.5, stagger: 0.05, ease: "power2.out" }, "-=0.55");
-    }
+    mm.add({ reduceMotion: "(prefers-reduced-motion: reduce)" }, (ctx) => {
+      const reduceMotion = ctx.conditions?.reduceMotion ?? false;
 
-    /* ── ScrollToPlugin: smooth scroll all #anchor links ── */
-    const handleAnchorClick = (e: Event) => {
-      const a = e.currentTarget as HTMLAnchorElement;
-      const hash = a.getAttribute("href");
-      if (!hash?.startsWith("#")) return;
-      const target = document.querySelector(hash);
-      if (!target) return;
-      e.preventDefault();
-      gsap.to(window, { scrollTo: { y: target, offsetY: 60 }, duration: reduced ? 0 : 1.0, ease: "power3.inOut" });
-    };
-    const anchors = containerRef.current?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [];
-    anchors.forEach(a => a.addEventListener("click", handleAnchorClick));
+      /* ── Hero entrance ── */
+      if (reduceMotion) {
+        gsap.set(
+          [".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
+           ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-panel > *"],
+          { autoAlpha: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" }
+        );
+      } else {
+        gsap.timeline({ defaults: { ease: "power3.out" } })
+          .fromTo(".hero-badge",
+            { clipPath: "inset(0 100% 0 0)", autoAlpha: 0 },
+            { clipPath: "inset(0 0% 0 0)", autoAlpha: 1, duration: 0.7, ease: "power2.inOut" })
+          .from(".hero-word-1",   { autoAlpha: 0, y: 36, duration: 0.85, stagger: 0.12 }, "-=0.25")
+          .from(".hero-word-2",   { autoAlpha: 0, y: 36, duration: 0.85 }, "-=0.5")
+          .from(".hero-divider",  { scaleX: 0, transformOrigin: "left", duration: 0.6, ease: "power2.inOut" }, "-=0.45")
+          .from(".hero-sub",      { autoAlpha: 0, y: 16, duration: 0.55 }, "-=0.35")
+          .from(".hero-stats > *",{ autoAlpha: 0, y: 14, duration: 0.45, stagger: 0.07 }, "-=0.35")
+          .from(".hero-ctas > *", { autoAlpha: 0, y: 12, scale: 0.97, duration: 0.45, stagger: 0.07 }, "-=0.3")
+          .from(".hero-scroll",   { autoAlpha: 0, duration: 0.4 }, "-=0.15")
+          .from(".hero-panel > *",{ autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.05, ease: "power2.out" }, "-=0.55");
+      }
 
-    if (reduced) return;
+      /* ── ScrollToPlugin: smooth scroll all #anchor links ── */
+      const handleAnchorClick = (e: Event) => {
+        const a = e.currentTarget as HTMLAnchorElement;
+        const hash = a.getAttribute("href");
+        if (!hash?.startsWith("#")) return;
+        const target = document.querySelector(hash);
+        if (!target) return;
+        e.preventDefault();
+        gsap.to(window, { scrollTo: { y: target, offsetY: 60 }, duration: reduceMotion ? 0 : 1.0, ease: "power3.inOut" });
+      };
+      const anchors = containerRef.current?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [];
+      anchors.forEach(a => a.addEventListener("click", handleAnchorClick));
 
-    /* ── Section headings reveal ── */
-    gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 28, filter: "blur(1px)" },
-        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.75, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 88%", once: true } }
-      );
-    });
+      if (reduceMotion) {
+        return () => anchors.forEach(a => a.removeEventListener("click", handleAnchorClick));
+      }
 
-    /* ── Hero h1 parallax on mouse ── */
-    const heroEl = containerRef.current?.querySelector(".hero-section");
-    const onMove = (e: Event) => {
-      const { clientX, clientY } = e as MouseEvent;
-      const x = (clientX / window.innerWidth  - 0.5) * 12;
-      const y = (clientY / window.innerHeight - 0.5) * 7;
-      gsap.to(".hero-h1", { x, y, duration: 1.8, ease: "power2.out", overwrite: "auto" });
-    };
-    const onLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1.4, ease: "power3.out" });
-    heroEl?.addEventListener("mousemove", onMove);
-    heroEl?.addEventListener("mouseleave", onLeave);
-
-    /* ── Hero content parallax on scroll ── */
-    gsap.to(".hero-content", {
-      y: -60, ease: "none",
-      scrollTrigger: { trigger: ".hero-section", start: "top top", end: "+=700", scrub: 1.8 },
-    });
-
-    /* ── Dividers draw ── */
-    gsap.utils.toArray<HTMLElement>(".anim-divider").forEach(el => {
-      gsap.fromTo(el,
-        { scaleX: 0 },
-        { scaleX: 1, transformOrigin: "left center", duration: 1.0, ease: "power2.inOut",
-          scrollTrigger: { trigger: el, start: "top 93%", once: true } }
-      );
-    });
-
-    /* ── Bento cards stagger ── */
-    ScrollTrigger.batch(".bento-card", {
-      onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 32, scale: 0.97 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: "power3.out", clearProps: "transform,opacity" }
-      ),
-      start: "top 86%", once: true,
-    });
-
-    /* ── Category tabs ── */
-    gsap.from(".cat-tab", {
-      opacity: 0, y: 10, duration: 0.4, stagger: 0.05, ease: "power2.out",
-      scrollTrigger: { trigger: ".cat-tabs", start: "top 88%", once: true },
-    });
-
-    /* ── Tool list rows slide in ── */
-    ScrollTrigger.batch(".tool-item", {
-      onEnter: els => gsap.fromTo(els,
-        { opacity: 0, x: -24 },
-        { opacity: 1, x: 0, duration: 0.5, stagger: 0.022, ease: "power2.out", clearProps: "opacity,transform" }
-      ),
-      start: "top 91%", once: true,
-    });
-
-    /* ── Feature cards ── */
-    ScrollTrigger.batch(".feat-card", {
-      onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 24, scale: 0.98 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.07, ease: "power3.out", clearProps: "transform,opacity" }
-      ),
-      start: "top 86%", once: true,
-    });
-
-    /* ── Stat cards slide in ── */
-    ScrollTrigger.batch(".stat-card", {
-      onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 24, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.08, ease: "power3.out", clearProps: "transform,opacity" }
-      ),
-      start: "top 86%", once: true,
-    });
-
-    /* ── Count-up numbers ── */
-    gsap.utils.toArray<HTMLElement>(".count-up").forEach(el => {
-      const target   = parseFloat(el.dataset.target   ?? "0");
-      const suffix   = el.dataset.suffix   ?? "";
-      const decimals = parseInt(el.dataset.decimals   ?? "0", 10);
-      const obj = { val: 0 };
-      gsap.to(obj, {
-        val: target, duration: 2.2, ease: "power2.out",
-        scrollTrigger: { trigger: el, start: "top 86%", once: true },
-        onUpdate() {
-          el.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix;
-        },
+      /* ── Section headings reveal ── */
+      gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
+        gsap.fromTo(el,
+          { autoAlpha: 0, y: 28, filter: "blur(1px)" },
+          { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.75, ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 88%", once: true } }
+        );
       });
-    });
 
-    /* ── Progress bars ── */
-    gsap.utils.toArray<HTMLElement>(".progress-bar").forEach(el => {
-      const finalW = el.style.width;
-      gsap.fromTo(el, { width: 0 }, {
-        width: finalW, duration: 1.6, ease: "power3.out",
-        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+      /* ── Hero h1 parallax on mouse ── */
+      const heroEl = containerRef.current?.querySelector(".hero-section");
+      const onHeroMove = (e: Event) => {
+        const { clientX, clientY } = e as MouseEvent;
+        const x = (clientX / window.innerWidth  - 0.5) * 12;
+        const y = (clientY / window.innerHeight - 0.5) * 7;
+        gsap.to(".hero-h1", { x, y, duration: 1.8, ease: "power2.out", overwrite: "auto" });
+      };
+      const onHeroLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1.4, ease: "power3.out" });
+      heroEl?.addEventListener("mousemove", onHeroMove);
+      heroEl?.addEventListener("mouseleave", onHeroLeave);
+
+      /* ── Hero content parallax on scroll ── */
+      gsap.to(".hero-content", {
+        y: -60, ease: "none",
+        scrollTrigger: { trigger: ".hero-section", start: "top top", end: "+=700", scrub: 1.8 },
       });
+
+      /* ── Dividers draw ── */
+      gsap.utils.toArray<HTMLElement>(".anim-divider").forEach(el => {
+        gsap.fromTo(el,
+          { scaleX: 0 },
+          { scaleX: 1, transformOrigin: "left center", duration: 1.0, ease: "power2.inOut",
+            scrollTrigger: { trigger: el, start: "top 93%", once: true } }
+        );
+      });
+
+      /* ── Bento cards stagger ── */
+      ScrollTrigger.batch(".bento-card", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, y: 32, scale: 0.97 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: "power3.out", clearProps: "transform,opacity,visibility" }
+        ),
+        start: "top 86%", once: true,
+      });
+
+      /* ── Category tabs ── */
+      gsap.from(".cat-tab", {
+        autoAlpha: 0, y: 10, duration: 0.4, stagger: 0.05, ease: "power2.out",
+        scrollTrigger: { trigger: ".cat-tabs", start: "top 88%", once: true },
+      });
+
+      /* ── Tool list rows — scattered random-order reveal ── */
+      ScrollTrigger.batch(".tool-item", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, x: -24 },
+          { autoAlpha: 1, x: 0, duration: 0.5, stagger: { each: 0.022, from: "random" }, ease: "power2.out", clearProps: "opacity,transform,visibility" }
+        ),
+        start: "top 91%", once: true,
+      });
+
+      /* ── Feature cards — wave Y offset via function-based values ── */
+      ScrollTrigger.batch(".feat-card", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, y: (i: number) => 16 + i * 8, scale: 0.98 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.07, ease: "power3.out", clearProps: "transform,opacity,visibility" }
+        ),
+        start: "top 86%", once: true,
+      });
+
+      /* ── Stat cards slide in ── */
+      ScrollTrigger.batch(".stat-card", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, y: 24, scale: 0.95 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.08, ease: "power3.out", clearProps: "transform,opacity,visibility" }
+        ),
+        start: "top 86%", once: true,
+      });
+
+      /* ── Count-up numbers ── */
+      gsap.utils.toArray<HTMLElement>(".count-up").forEach(el => {
+        const target   = parseFloat(el.dataset.target   ?? "0");
+        const suffix   = el.dataset.suffix   ?? "";
+        const decimals = parseInt(el.dataset.decimals   ?? "0", 10);
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: target, duration: 2.2, ease: "power2.out",
+          scrollTrigger: { trigger: el, start: "top 86%", once: true },
+          onUpdate() {
+            el.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix;
+          },
+        });
+      });
+
+      /* ── Progress bars ── */
+      gsap.utils.toArray<HTMLElement>(".progress-bar").forEach(el => {
+        const finalW = el.style.width;
+        gsap.fromTo(el, { width: 0 }, {
+          width: finalW, duration: 1.6, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
+      });
+
+      /* ── Footer columns ── */
+      ScrollTrigger.batch(".footer-col", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, y: 28 },
+          { autoAlpha: 1, y: 0, duration: 0.65, stagger: 0.1, ease: "power2.out", clearProps: "opacity,transform,visibility" }
+        ),
+        start: "top 92%", once: true,
+      });
+
+      /* ── CTA section ── */
+      gsap.from(".cta-content > *", {
+        autoAlpha: 0, y: 28, duration: 0.7, stagger: 0.12, ease: "power3.out",
+        scrollTrigger: { trigger: ".cta-section", start: "top 80%", once: true },
+      });
+
+      /* ── Hero glow CSS variable fade on scroll exit ── */
+      gsap.to(".hero-section", {
+        "--hero-glow-opacity": 0,
+        ease: "power1.in",
+        scrollTrigger: { trigger: ".hero-section", start: "center top", end: "bottom top", scrub: 1.5 },
+      });
+
+      /* ── Hover micro-interactions (bento + feat cards) ── */
+      const hoverListeners: Array<() => void> = [];
+      const addHover = (el: HTMLElement, enterVars: gsap.TweenVars, leaveVars: gsap.TweenVars) => {
+        const onEnter = () => gsap.to(el, { ...enterVars, overwrite: "auto" });
+        const onLeave = () => gsap.to(el, { ...leaveVars, overwrite: "auto" });
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mouseleave", onLeave);
+        });
+      };
+      gsap.utils.toArray<HTMLElement>(".bento-card").forEach(el =>
+        addHover(el,
+          { y: -3, scale: 1.012, duration: 0.25, ease: "power2.out" },
+          { y: 0,  scale: 1,     duration: 0.45, ease: "power3.out" }
+        )
+      );
+      gsap.utils.toArray<HTMLElement>(".feat-card").forEach(el =>
+        addHover(el,
+          { y: -2, duration: 0.22, ease: "power2.out" },
+          { y: 0,  duration: 0.4,  ease: "power3.out" }
+        )
+      );
+
+      return () => {
+        heroEl?.removeEventListener("mousemove", onHeroMove);
+        heroEl?.removeEventListener("mouseleave", onHeroLeave);
+        anchors.forEach(a => a.removeEventListener("click", handleAnchorClick));
+        hoverListeners.forEach(fn => fn());
+      };
     });
 
-    /* ── Footer columns ── */
-    ScrollTrigger.batch(".footer-col", {
-      onEnter: els => gsap.fromTo(els,
-        { opacity: 0, y: 28 },
-        { opacity: 1, y: 0, duration: 0.65, stagger: 0.1, ease: "power2.out", clearProps: "opacity,transform" }
-      ),
-      start: "top 92%", once: true,
-    });
-
-    /* ── CTA section ── */
-    gsap.from(".cta-content > *", {
-      opacity: 0, y: 28, duration: 0.7, stagger: 0.12, ease: "power3.out",
-      scrollTrigger: { trigger: ".cta-section", start: "top 80%", once: true },
-    });
-
-    return () => {
-      heroEl?.removeEventListener("mousemove", onMove);
-      heroEl?.removeEventListener("mouseleave", onLeave);
-      anchors.forEach(a => a.removeEventListener("click", handleAnchorClick));
-    };
+    return () => mm.revert();
   }, { scope: containerRef });
 
   return (
@@ -392,7 +435,7 @@ export default function Home() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
         <div className="hero-content" style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px", width: "100%", maxWidth: 880, margin: "0 auto" }}>
 
           {/* Badge */}
@@ -423,7 +466,7 @@ export default function Home() {
               display: "block", fontSize: "clamp(56px,10vw,122px)",
               background: "linear-gradient(125deg, #ffffff 10%, #ffb090 50%, #ff5535 100%)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-              filter: "drop-shadow(0 0 80px rgba(255,90,55,0.6))",
+              filter: "drop-shadow(0 0 80px rgba(255,90,55,var(--hero-glow-opacity)))",
             }}>
               Operating System.
             </div>
