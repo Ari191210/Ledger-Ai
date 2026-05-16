@@ -6,11 +6,9 @@ import { GetStartedButton } from "@/components/ui/get-started-button";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-import { SplitText } from "gsap/SplitText";
-import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, SplitText, ScrambleTextPlugin, useGSAP);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
 const TOOLS = [
   { n: "01", slug: "planner",         ttl: "Smart Study Planner",   sub: "Subjects in. Timetable out.",                    cat: "PLAN",     desc: "Enter subjects, exam dates, and the hours you can actually give. We return a day-by-day plan for every remaining day — not a calendar template you then spend two hours editing.",                                                                                                                  gets: ["14-day reactive schedule", "Adjusts when you miss a day", "Pre-fills from your syllabus"] },
@@ -202,16 +200,13 @@ export default function Home() {
   }, [scorePreview]);
 
   useGSAP(() => {
-    /* ── SplitText: hero first line (white text — safe to split chars) ── */
-    const splitWord1 = SplitText.create(".hero-word-1", { type: "chars,words", charsClass: "hero-char" });
-
     /* ── Hero entrance ── */
     gsap.timeline({ defaults: { ease: "power3.out" } })
       .fromTo(".hero-badge",
         { clipPath: "inset(0 100% 0 0)", opacity: 0 },
         { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.8, ease: "power2.inOut" })
-      .from(splitWord1.chars, { opacity: 0, y: 80, rotateX: -40, duration: 0.7, stagger: 0.028, ease: "back.out(1.4)", transformOrigin: "top center" }, "-=0.2")
-      .from(".hero-word-2",   { opacity: 0, y: 72, duration: 0.9, ease: "power3.out" }, "-=0.35")
+      .from(".hero-word-1",   { opacity: 0, y: 72, duration: 0.9, stagger: 0.16 }, "-=0.3")
+      .from(".hero-word-2",   { opacity: 0, y: 72, duration: 0.9 }, "-=0.55")
       .from(".hero-divider",  { scaleX: 0, transformOrigin: "left", duration: 0.7, ease: "power2.inOut" }, "-=0.5")
       .from(".hero-sub",      { opacity: 0, y: 20, duration: 0.65 }, "-=0.4")
       .from(".hero-stats > *",{ opacity: 0, y: 18, duration: 0.5, stagger: 0.09 }, "-=0.4")
@@ -219,9 +214,9 @@ export default function Home() {
       .from(".hero-scroll",   { opacity: 0, duration: 0.5 }, "-=0.2")
       .from(".hero-panel > *",{ opacity: 0, y: 20, duration: 0.55, stagger: 0.06, ease: "power2.out" }, "-=0.6");
 
-    /* ── ScrollToPlugin: smooth scroll all internal anchor links ── */
+    /* ── ScrollToPlugin: smooth scroll all #anchor links ── */
     const handleAnchorClick = (e: Event) => {
-      const a = (e.currentTarget as HTMLAnchorElement);
+      const a = e.currentTarget as HTMLAnchorElement;
       const hash = a.getAttribute("href");
       if (!hash?.startsWith("#")) return;
       const target = document.querySelector(hash);
@@ -232,13 +227,13 @@ export default function Home() {
     const anchors = containerRef.current?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [];
     anchors.forEach(a => a.addEventListener("click", handleAnchorClick));
 
-    /* ── SplitText: section headings reveal word-by-word on scroll ── */
+    /* ── Section headings reveal ── */
     gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
-      const split = SplitText.create(el, { type: "words", wordsClass: "reveal-word" });
-      gsap.from(split.words, {
-        opacity: 0, y: 32, duration: 0.7, stagger: 0.06, ease: "power3.out",
-        scrollTrigger: { trigger: el, start: "top 88%", once: true },
-      });
+      gsap.fromTo(el,
+        { opacity: 0, y: 36, filter: "blur(2px)" },
+        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 87%", once: true } }
+      );
     });
 
     /* ── Hero h1 parallax on mouse ── */
@@ -266,23 +261,6 @@ export default function Home() {
         { scaleX: 1, transformOrigin: "left center", duration: 1.0, ease: "power2.inOut",
           scrollTrigger: { trigger: el, start: "top 93%", once: true } }
       );
-    });
-
-    /* ── ScrambleText: ticker items scramble on scroll-enter ── */
-    const tickerEls = containerRef.current?.querySelectorAll<HTMLElement>(".ticker-scramble") ?? [];
-    tickerEls.forEach((el, i) => {
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top 95%",
-        once: true,
-        onEnter: () => {
-          gsap.to(el, {
-            duration: 0.9,
-            scrambleText: { text: el.dataset.text ?? "", chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", revealDelay: 0.2, speed: 0.8, delimiter: " " },
-            delay: i * 0.06,
-          });
-        },
-      });
     });
 
     /* ── Bento cards stagger ── */
@@ -525,8 +503,7 @@ export default function Home() {
           <div className="ticker-track" style={{ color: "var(--ink-3)", fontSize: 10, fontFamily: "var(--mono)", letterSpacing: "0.08em" }}>
             {[0, 1].flatMap((k) => TICKER.map((item, i) => (
               <span key={`${k}-${i}`} style={{ padding: "0 28px" }}>
-                <span style={{ color: "var(--cinnabar-ink)", marginRight: 12 }}>—</span>
-                <span className="ticker-scramble" data-text={item}>{item}</span>
+                <span style={{ color: "var(--cinnabar-ink)", marginRight: 12 }}>—</span>{item}
               </span>
             )))}
           </div>

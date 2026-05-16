@@ -117,7 +117,7 @@ function buildProfileContext(params: Record<string, unknown>): string {
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -1324,6 +1324,66 @@ Respond with exactly this JSON:
   "alternativeVersion": "a shorter alternative if the text can be tightened further"
 }`,
       };
+
+    case "paper_triage":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a ruthless, compassionate last-night exam strategist for Indian and international high-stakes exams (JEE Mains, JEE Advanced, NEET, CBSE Class 12, IGCSE). Your only job is to maximise marks in the exact hours a student has left — not to be encouraging, not to cover everything, but to make brutal, mathematically honest decisions about what to skip, what to skim, and what to grind. You know the mark-weight distribution of every major exam cold. You understand that a student who has not touched Rotational Dynamics at 11PM is better off skipping it entirely than doing it badly and bleeding time from high-yield topics. You give specific, actionable micro-tasks — not 'revise Electrochemistry' but 'write the 4 Nernst equation variants, solve Q3 and Q7 from the 2022 paper'. Your schedule is unforgiving and realistic: 45-minute deep blocks, 15-minute quick blocks, and a mandatory buffer. You never pad the plan — if the student has 3 hours, the schedule totals 3 hours exactly. You weigh each topic by: (1) historical mark frequency in that specific exam, (2) student's self-reported confidence (GREEN = confident, AMBER = shaky, RED = not touched), and (3) time required for meaningful improvement. GREEN topics get skipped or get a 5-minute confidence check only. RED + low-yield topics get skipped with a clear reason. RED + high-yield topics get deep focus. AMBER + high-yield topics get quick revision with a targeted micro-task. Your sleep verdict is honest: if the student has fewer than 4 hours of study and wants 7 hours of sleep, you tell them that sleeping is the right call. If they have 6 hours and want 2 hours of sleep, you tell them exactly what that tradeoff costs. Always respond with valid JSON only. No markdown, no prose outside the JSON, no apologies, no encouragement fluff.`,
+        userText: `A student is doing last-night triage for their exam. Here are their details:
+
+Exam: ${params.exam}
+Total study window available: ${params.studyWindowMinutes} minutes
+Hours they want to sleep: ${params.hoursToSleep}
+
+Topic confidence map (GREEN = confident, AMBER = shaky, RED = not touched):
+${params.topicStatusMap}
+
+Your task:
+1. Identify which topics to SKIP entirely — these are topics that are either (a) RED + low historical mark-weight, (b) too time-intensive to improve meaningfully in this window, or (c) GREEN and already solid. Give a brutally honest one-line reason for each skip.
+2. Identify which topics need QUICK REVISION — typically AMBER + medium-to-high yield, or RED + very high yield but narrow scope (e.g. a single formula set). Assign a specific micro-task (e.g. 'rewrite the 3 integration-by-parts templates, do 2 MCQs from 2023 paper') and a realistic time in minutes (10–20 min max per topic).
+3. Identify which topics need DEEP FOCUS — RED or AMBER + high mark-weight where meaningful improvement is possible in 30–50 minutes. Rank these by (mark weight × weakness score). Give a specific micro-task and realistic time in minutes (30–50 min per topic).
+4. Build a TIME-BOXED SCHEDULE in 45-minute blocks that fits exactly within ${params.studyWindowMinutes} minutes. Name each block with start/end times starting from now (assume it is 11:00 PM). Include short breaks if the window exceeds 90 minutes. List exactly which topics are covered in each block.
+5. Give a SLEEP VERDICT — one honest sentence about whether their sleep plan makes sense given the study window and what they are sacrificing either way.
+
+The total minutes across all quick_revision and deep_focus items must not exceed ${params.studyWindowMinutes} minutes. Do not invent topics not present in the topic status map. Do not assign a deep_focus block to a GREEN topic.
+
+Respond with exactly this JSON:
+{
+  "skip": [
+    {
+      "topic": "topic name",
+      "reason": "why skipping is the right call given time and weight"
+    }
+  ],
+  "quick_revision": [
+    {
+      "topic": "topic name",
+      "micro_task": "exactly what to do — e.g. re-read 3 formulae, solve 2 past MCQs",
+      "minutes": 15
+    }
+  ],
+  "deep_focus": [
+    {
+      "topic": "topic name",
+      "why_priority": "mark weight × your gap",
+      "micro_task": "specific action",
+      "minutes": 40
+    }
+  ],
+  "schedule": [
+    {
+      "block": "Block 1 — 11:00 PM to 11:45 PM",
+      "activity": "what to do in plain language",
+      "topics": ["topic1", "topic2"]
+    }
+  ],
+  "sleep_verdict": "honest one-line statement: whether sleeping is worth it given their window and plan"
+}
+
+Exam: ${params.exam}
+Study window: ${params.studyWindowMinutes} minutes
+Sleep hours wanted: ${params.hoursToSleep}
+Topic map: ${params.topicStatusMap}`,
+      };
   }
 }
 
@@ -1343,7 +1403,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

@@ -25,9 +25,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        // Hydrate localStorage from cloud on every page load while signed in
         pullFromCloud(session.user.id).catch(() => {});
       }
+      setLoading(false);
+    }).catch(() => {
       setLoading(false);
     });
 
