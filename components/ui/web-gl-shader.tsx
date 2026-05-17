@@ -147,12 +147,18 @@ export function WebGLShader() {
       refs.animationId = requestAnimationFrame(animate)
     }
 
-    const observer = new MutationObserver(() => {
+    const applyTheme = () => {
       const p = document.documentElement.dataset.palette ?? ""
       const [r, g, b] = PALETTE_COLORS[p] ?? DEFAULT_MIX
       refs.target.set(r, g, b)
-    })
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-palette"] })
+      const isLight = document.documentElement.dataset.mode === "light"
+      if (canvasRef.current) {
+        canvasRef.current.style.opacity = isLight ? "0.08" : "1"
+      }
+    }
+    const observer = new MutationObserver(applyTheme)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-palette", "data-mode"] })
+    applyTheme()
 
     handleResize()
     animate()

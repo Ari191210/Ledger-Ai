@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
 import AnimatedThemeToggler from "@/components/animated-theme-toggler";
+import { sounds } from "@/lib/sounds";
 
 export default function PaletteToggle() {
   const path = usePathname();
@@ -23,6 +24,7 @@ export default function PaletteToggle() {
   function set(p: PaletteId) {
     setActive(p);
     applyPalette(p);
+    sounds.select();
   }
 
   return (

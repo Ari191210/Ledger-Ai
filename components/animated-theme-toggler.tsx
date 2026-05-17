@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
+import { sounds } from "@/lib/sounds";
 
 type LedgerMode = "dark" | "light";
 
@@ -41,6 +42,7 @@ export default function AnimatedThemeToggler({ size = 30 }: { size?: number }) {
     const next: LedgerMode = modeRef.current === "dark" ? "light" : "dark";
     modeRef.current = next;
     applyMode(next);
+    next === "light" ? sounds.toggleOn() : sounds.toggleOff();
 
     gsap.fromTo(btnRef.current,
       { scale: 0.84 },
