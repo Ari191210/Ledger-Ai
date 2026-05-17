@@ -61,7 +61,7 @@ export default function SyncManager() {
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("beforeunload", handleUnload);
     };
-  }, [user?.id]);
+  }, [user]);
 
   return null;
 }
