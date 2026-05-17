@@ -69,6 +69,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "exam-strategy",   ttl: "Exam Strategy",        sub: "Personalised exam-day plan.",       tier: "Free", desc: "Time allocation by section, nerve control, last-minute tips, and exam day checklist." },
       { slug: "recall-studio",   ttl: "Recall Studio",        sub: "Flashcards + formula recall.",      tier: "Free", desc: "AI Flashcards from notes or any topic with known/unknown tracking. Formula Recall drills 8–10 formulas per session using active recall — beats re-reading by 4×." },
       { slug: "paper-triage", ttl: "Paper Panic Triage", sub: "2AM before the exam. Tell it what you haven't studied. ", tier: "Free", desc: "At 11PM the night before a JEE/NEET/Board paper, students open their syllabus and feel paralysed — 40% of topics untouch" },
+      { slug: "last-night", ttl: "Last Night Triage", sub: "12 hours left. Tell me what to actually study.", tier: "Free", desc: "The night before a JEE/NEET/Board paper, students have 8-12 hours and 40+ chapters. They waste 2 of those hours deciding" },
     ],
   },
   {
@@ -537,12 +538,49 @@ export default function Dashboard() {
 
       {/* Command Centre header */}
       <div className="dash-header" style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>
-        <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10 }}>
-          Command Centre · {today.toUpperCase()}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10 }}>
+              Command Centre · {today.toUpperCase()}
+            </div>
+            <h1 className="mob-heading" style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 1.0, margin: 0, color: "var(--ink)" }}>
+              {greeting}, {name}.
+            </h1>
+          </div>
+          {/* Streak badge */}
+          {streak > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, paddingTop: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 9999, border: "1.5px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", background: "color-mix(in srgb, var(--cinnabar) 7%, transparent)", backdropFilter: "blur(8px)" }}>
+                <span style={{ fontSize: 20 }}>🔥</span>
+                <span style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--cinnabar-ink)", lineHeight: 1 }}>{streak}</span>
+                <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", opacity: 0.8 }}>day streak</span>
+              </div>
+              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{streak >= 7 ? "On a serious roll" : streak >= 3 ? "Building momentum" : "Keep it going"}</div>
+            </div>
+          )}
         </div>
-        <h1 className="mob-heading" style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 1.0, margin: 0, color: "var(--ink)" }}>
-          {greeting}, {name}.
-        </h1>
+
+        {/* Quick-launch pills */}
+        <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" }}>
+          {[
+            { label: "Doubt Solver", slug: "doubt" },
+            { label: "Practice", slug: "practice" },
+            { label: "Notes", slug: "notes" },
+            { label: "Grade Tracker", slug: "grade-tracker" },
+          ].map(item => (
+            <Link key={item.slug} href={`/tools/${item.slug}`} onClick={() => trackToolVisit(item.slug)}
+              className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}>
+              {item.label}
+            </Link>
+          ))}
+          <Link href="/dashboard/saved" className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}>
+            Saved →
+          </Link>
+          <button className="btn ghost" style={{ padding: "7px 16px", fontSize: 11 }}
+            onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }); document.dispatchEvent(e); }}>
+            ⌘K Search
+          </button>
+        </div>
       </div>
 
       {/* Profile setup banner */}
@@ -582,18 +620,56 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Jump back in — recently used, now at the top */}
+      {recentSlugs.length > 0 && (() => {
+        const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
+        const recent = recentSlugs.slice(0, 5).map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
+        if (!recent.length) return null;
+        return (
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule-2)", paddingBottom: 10, marginBottom: 14 }}>
+              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--ink-3)" }}>Jump back in</div>
+              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{recent.length} recent</div>
+            </div>
+            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+              {recent.map(t => {
+                const cat = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
+                return (
+                  <Link key={t.slug} href={`/tools/${t.slug}`} onClick={() => trackToolVisit(t.slug)}
+                    style={{ textDecoration: "none", flexShrink: 0, display: "flex", flexDirection: "column", gap: 6,
+                      padding: "16px 20px", borderRadius: 16, minWidth: 180, maxWidth: 220,
+                      border: "1.5px solid var(--rule)",
+                      background: "color-mix(in srgb, var(--ink) 4%, transparent)",
+                      backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+                      transition: "border-color 200ms ease, background 200ms ease",
+                    }}
+                    onMouseOver={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "color-mix(in srgb, var(--ink) 30%, transparent)"; el.style.background = "color-mix(in srgb, var(--ink) 8%, transparent)"; }}
+                    onMouseOut={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "var(--rule)"; el.style.background = "color-mix(in srgb, var(--ink) 4%, transparent)"; }}
+                  >
+                    {cat && <div className="mono" style={{ fontSize: 7, letterSpacing: "0.16em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>}
+                    <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontStyle: "italic", fontWeight: 500, color: "var(--ink)", lineHeight: 1.2 }}>{t.ttl}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", lineHeight: 1.45, flex: 1 }}>{t.sub}</div>
+                    <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 4 }}>Open →</div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Stats bar — 5 bento cells */}
       <div className="mob-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)", marginBottom: 32 }}>
         {[
-          { label: "Study streak",    value: `${streak}d`,           sub: streak === 0 ? "Start today" : streak === 1 ? "Keep it up" : "On a roll" },
-          { label: "Sessions today",  value: String(sessionsToday),  sub: sessionsToday === 0 ? "None yet" : `${sessionsToday * 25} min focused` },
-          { label: "Notes saved",     value: String(notesCount),     sub: notesCount === 0 ? "Generate your first" : "In your library" },
-          { label: "Papers done",     value: String(papersCount),    sub: papersCount === 0 ? "Start practising" : "Sessions completed" },
-          { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below" },
+          { label: "Study streak",    value: streak > 0 ? `${streak}d` : "—",     sub: streak === 0 ? "Start today" : streak === 1 ? "Keep it up" : "On a roll", hot: streak >= 3 },
+          { label: "Sessions today",  value: String(sessionsToday),                sub: sessionsToday === 0 ? "None yet" : `${sessionsToday * 25} min focused`, hot: false },
+          { label: "Notes saved",     value: String(notesCount),                   sub: notesCount === 0 ? "Generate your first" : "In your library", hot: false },
+          { label: "Papers done",     value: String(papersCount),                  sub: papersCount === 0 ? "Start practising" : "Sessions completed", hot: false },
+          { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below", hot: !!nextExam && nextExam.days <= 7 },
         ].map((s, i) => (
-          <div key={i} className="dash-stat gl-pane" style={{ padding: "18px 20px" }}>
-            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: i === 4 && nextExam && nextExam.days <= 7 ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
+          <div key={i} className="dash-stat gl-pane" style={{ padding: "18px 20px", borderLeft: s.hot ? "2px solid var(--cinnabar)" : undefined }}>
+            <div className="mono" style={{ color: s.hot ? "var(--cinnabar-ink)" : "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
+            <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: s.hot ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 4 }}>{s.sub}</div>
           </div>
         ))}
@@ -628,31 +704,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Recently used strip */}
-      {dashLayout.recent && recentSlugs.length > 0 && (() => {
-        const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
-        const recent = recentSlugs.map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
-        if (!recent.length) return null;
-        return (
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 10, marginBottom: 14 }}>
-              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--ink-3)" }}>Recently used</div>
-            </div>
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }} className="nav-tools-scroll">
-              {recent.map(t => (
-                <Link key={t.slug} href={`/tools/${t.slug}`} style={{ textDecoration: "none", flexShrink: 0 }}>
-                  <div style={{ padding: "10px 14px", border: "1px solid var(--rule)", background: "var(--paper-2)", whiteSpace: "nowrap", transition: "border-color 160ms ease, background 160ms ease" }}
-                    onMouseOver={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--ink-3)"; (e.currentTarget as HTMLDivElement).style.background = "var(--paper)"; }}
-                    onMouseOut={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "var(--rule)"; (e.currentTarget as HTMLDivElement).style.background = "var(--paper-2)"; }}>
-                    <div style={{ fontFamily: "var(--serif)", fontSize: 13, fontStyle: "italic", color: "var(--ink)" }}>{t.ttl}</div>
-                    <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginTop: 2 }}>{t.sub.slice(0, 28)}{t.sub.length > 28 ? "…" : ""}</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
+      {/* Recently used — now shown at top, skip here */}
 
       {/* Ledger Score */}
       {dashLayout.score && <LedgerScoreWidget />}

@@ -322,7 +322,11 @@ def main():
         print("Set it in idea-gen.bat or in System Environment Variables.")
         sys.exit(1)
 
-    today = date.today().isoformat()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date", default=None, help="Override date (YYYY-MM-DD)")
+    args = parser.parse_args()
+    today = args.date if args.date else date.today().isoformat()
     print(f"Ledger Idea Engine · {today}")
     print("Reading vault context...")
 

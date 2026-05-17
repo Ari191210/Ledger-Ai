@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { type UserProfile } from "@/lib/user-data";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { AIErrorDisplay } from "@/components/ai-error";
+import SaveOutputButton from "@/components/save-output-button";
 
 type Output = { solution: string; principle: string; practice: string[] };
 
@@ -16,7 +18,7 @@ export default function DoubtPage() {
   const [imageName, setImageName] = useState("");
   const [output,    setOutput]    = useState<Output | null>(null);
   const [loading,   setLoading]   = useState(false);
-  const [error,     setError]     = useState("");
+  const [error,     setError]     = useState<AIError | string | null>(null);
   const [profile,   setProfile]   = useState<UserProfile>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -45,17 +47,15 @@ export default function DoubtPage() {
 
   async function solve() {
     if (!question.trim() && !image) return;
-    setLoading(true); setError(""); setOutput(null);
+    setLoading(true); setError(null); setOutput(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
       const body: Record<string, unknown> = { tool: "doubt", question, ...profile, syllabusSubjects };
       if (image) body.image = image;
-      const res = await callAI(body);
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Something went wrong."); return; }
+      const data = await callAIOrThrow<Output>(body);
       setOutput(data);
-    } catch {
-      setError("Network error. Please try again.");
+    } catch (err) {
+      setError(err instanceof AIError ? err : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ export default function DoubtPage() {
                 </button>
                 {output && <button className="btn ghost" onClick={() => { setOutput(null); setQuestion(""); clearImage(); }}>Clear</button>}
               </div>
-              {error && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>}
+              {error && <AIErrorDisplay error={error} onRetry={solve} inline />}
             </div>
 
             {/* Skeleton while loading */}
@@ -140,7 +140,7 @@ export default function DoubtPage() {
                   </div>
 
                   {/* Practice */}
-                  <div style={{ padding: "16px 20px" }}>
+                  <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ink)" }}>
                     <div className="mono cin" style={{ marginBottom: 10 }}>Three similar problems</div>
                     {output.practice.map((p, i) => (
                       <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderBottom: i < output.practice.length - 1 ? "1px solid var(--rule)" : "none" }}>
@@ -148,6 +148,16 @@ export default function DoubtPage() {
                         <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5, color: "var(--ink-2)" }}>{p}</span>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Save */}
+                  <div style={{ padding: "10px 20px", display: "flex", justifyContent: "flex-end" }}>
+                    <SaveOutputButton
+                      toolSlug="doubt"
+                      toolName="Doubt Solver"
+                      input={question}
+                      outputText={output.solution}
+                    />
                   </div>
                 </div>
               </div>

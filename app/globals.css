@@ -6,6 +6,10 @@
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes ai-cursor-blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
@@ -198,6 +202,167 @@
   --page-glow-b:  rgba(140,90,20,0.07);
 }
 
+/* ─── Light mode — default ──────────────────────────────────────────────────── */
+[data-mode="light"] {
+  --paper:        #f7f7f4;
+  --paper-2:      #eeeeea;
+  --ink:          #111111;
+  --ink-2:        #454540;
+  --ink-3:        #909088;
+  --rule:         rgba(0,0,0,0.10);
+  --rule-2:       rgba(0,0,0,0.05);
+  --cinnabar:     #d02800;
+  --cinnabar-ink: #b82000;
+  --highlight:    rgba(200,80,30,0.12);
+  --page-glow-a:  rgba(200,60,30,0.06);
+  --page-glow-b:  rgba(160,30,20,0.04);
+}
+
+/* ── Porcelain light — warm parchment, amber accent ──────────────────────────── */
+[data-mode="light"][data-palette="porcelain"] {
+  --paper:        #faf6ee;
+  --paper-2:      #f0e8d8;
+  --ink:          #2a1f0e;
+  --ink-2:        #6a4e28;
+  --ink-3:        #a07840;
+  --rule:         rgba(100,60,10,0.12);
+  --rule-2:       rgba(100,60,10,0.06);
+  --cinnabar:     #c07010;
+  --cinnabar-ink: #a05808;
+  --highlight:    rgba(200,140,30,0.14);
+  --page-glow-a:  rgba(200,140,30,0.10);
+  --page-glow-b:  rgba(160,90,20,0.07);
+}
+
+/* ── Ink light — cool blue-white, cyan accent ────────────────────────────────── */
+[data-mode="light"][data-palette="ink"] {
+  --paper:        #eef4fa;
+  --paper-2:      #e0ecf5;
+  --ink:          #081420;
+  --ink-2:        #284860;
+  --ink-3:        #487090;
+  --rule:         rgba(30,80,140,0.12);
+  --rule-2:       rgba(30,80,140,0.06);
+  --cinnabar:     #1880c0;
+  --cinnabar-ink: #0868a8;
+  --highlight:    rgba(20,120,200,0.12);
+  --page-glow-a:  rgba(30,120,200,0.10);
+  --page-glow-b:  rgba(20,80,160,0.07);
+}
+
+/* ── Dusk light — lavender, purple accent ────────────────────────────────────── */
+[data-mode="light"][data-palette="dusk"] {
+  --paper:        #f4f0fa;
+  --paper-2:      #e8e0f5;
+  --ink:          #150828;
+  --ink-2:        #4a2870;
+  --ink-3:        #7848a0;
+  --rule:         rgba(100,40,180,0.12);
+  --rule-2:       rgba(100,40,180,0.06);
+  --cinnabar:     #7030d0;
+  --cinnabar-ink: #5818b8;
+  --highlight:    rgba(110,40,210,0.12);
+  --page-glow-a:  rgba(120,50,220,0.10);
+  --page-glow-b:  rgba(80,20,180,0.07);
+}
+
+/* ── Moss light — pale green, forest accent ──────────────────────────────────── */
+[data-mode="light"][data-palette="moss"] {
+  --paper:        #eef5ee;
+  --paper-2:      #deeede;
+  --ink:          #081408;
+  --ink-2:        #285028;
+  --ink-3:        #487848;
+  --rule:         rgba(20,100,30,0.12);
+  --rule-2:       rgba(20,100,30,0.06);
+  --cinnabar:     #208040;
+  --cinnabar-ink: #106830;
+  --highlight:    rgba(20,130,50,0.12);
+  --page-glow-a:  rgba(30,160,50,0.10);
+  --page-glow-b:  rgba(20,110,30,0.07);
+}
+
+/* ── Rose light — blush, deep pink accent ────────────────────────────────────── */
+[data-mode="light"][data-palette="rose"] {
+  --paper:        #faf0f4;
+  --paper-2:      #f5e0ea;
+  --ink:          #200810;
+  --ink-2:        #602040;
+  --ink-3:        #904060;
+  --rule:         rgba(160,40,80,0.12);
+  --rule-2:       rgba(160,40,80,0.06);
+  --cinnabar:     #c02860;
+  --cinnabar-ink: #a01848;
+  --highlight:    rgba(190,30,80,0.12);
+  --page-glow-a:  rgba(200,40,100,0.10);
+  --page-glow-b:  rgba(140,20,60,0.07);
+}
+
+/* ── Storm light — cool grey, steel-blue accent ──────────────────────────────── */
+[data-mode="light"][data-palette="storm"] {
+  --paper:        #eef0f5;
+  --paper-2:      #e0e4ee;
+  --ink:          #0a0e18;
+  --ink-2:        #2a3048;
+  --ink-3:        #485868;
+  --rule:         rgba(60,80,140,0.12);
+  --rule-2:       rgba(60,80,140,0.06);
+  --cinnabar:     #4060a0;
+  --cinnabar-ink: #304880;
+  --highlight:    rgba(50,70,160,0.12);
+  --page-glow-a:  rgba(60,90,180,0.10);
+  --page-glow-b:  rgba(30,50,130,0.07);
+}
+
+/* ── Ember light — warm cream, copper accent ─────────────────────────────────── */
+[data-mode="light"][data-palette="ember"] {
+  --paper:        #faf4ec;
+  --paper-2:      #f0e4d0;
+  --ink:          #1a0800;
+  --ink-2:        #5a2c00;
+  --ink-3:        #905020;
+  --rule:         rgba(140,60,0,0.12);
+  --rule-2:       rgba(140,60,0,0.06);
+  --cinnabar:     #b84010;
+  --cinnabar-ink: #9c2c00;
+  --highlight:    rgba(180,60,10,0.12);
+  --page-glow-a:  rgba(200,80,20,0.10);
+  --page-glow-b:  rgba(150,50,10,0.07);
+}
+
+/* ── Sand light — pale sand, ochre accent ────────────────────────────────────── */
+[data-mode="light"][data-palette="sand"] {
+  --paper:        #f8f4ec;
+  --paper-2:      #ede6d4;
+  --ink:          #1a1408;
+  --ink-2:        #584428;
+  --ink-3:        #806840;
+  --rule:         rgba(120,90,20,0.12);
+  --rule-2:       rgba(120,90,20,0.06);
+  --cinnabar:     #a07018;
+  --cinnabar-ink: #885808;
+  --highlight:    rgba(150,100,10,0.12);
+  --page-glow-a:  rgba(180,130,30,0.10);
+  --page-glow-b:  rgba(130,90,10,0.07);
+}
+
+/* ─── Light mode surface overrides ──────────────────────────────────────────── */
+[data-mode="light"] canvas {
+  opacity: 0.10;
+  mix-blend-mode: multiply;
+}
+[data-mode="light"] .grain::before {
+  mix-blend-mode: multiply;
+  opacity: 0.08;
+}
+[data-mode="light"] .btn {
+  --glass-reflex-light: 0.30;
+  --glass-reflex-dark:  1.6;
+}
+[data-mode="light"] .dash-tool:hover {
+  box-shadow: 0 20px 52px rgba(0,0,0,0.10), 0 4px 14px rgba(0,0,0,0.06) !important;
+}
+
 /* ─── Glass panels ───────────────────────────────────────────────────────────── */
 .gl-pane {
   background: color-mix(in srgb, var(--paper) 72%, transparent) !important;
@@ -367,13 +532,17 @@ hr.rule-double { border-top: 3px double var(--ink); }
 
 /* ─── Buttons ───────────────────────────────────────────────────────────────── */
 .btn {
+  --glass-reflex-light: 1;
+  --glass-reflex-dark: 1;
+
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 22px;
-  border: 1.5px solid var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  padding: 12px 26px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: color-mix(in srgb, var(--ink) 13%, transparent);
+  color: var(--ink);
   font-family: var(--sans);
   font-weight: 700;
   font-size: 12px;
@@ -381,46 +550,75 @@ hr.rule-double { border-top: 3px double var(--ink); }
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 160ms cubic-bezier(.4,0,.2,1),
-              box-shadow 160ms cubic-bezier(.4,0,.2,1),
-              background 160ms ease,
-              color 160ms ease,
-              opacity 160ms ease;
+  position: relative;
+  isolation: isolate;
   user-select: none;
   white-space: nowrap;
   -webkit-appearance: none;
+
+  backdrop-filter: blur(10px) url(#global-liquid-glass) saturate(200%);
+  -webkit-backdrop-filter: blur(10px) saturate(200%);
+
+  box-shadow:
+    /* Full-width top-edge specular — the primary glass tell */
+    inset 0 1.5px 0 0 color-mix(in srgb, white calc(var(--glass-reflex-light) * 62%), transparent),
+    /* Angled top-left corner highlight */
+    inset 1.5px 2.5px 0px -1.5px color-mix(in srgb, white calc(var(--glass-reflex-light) * 88%), transparent),
+    /* Subtle bottom-right catch-light */
+    inset -1.5px -1.5px 0px -1.5px color-mix(in srgb, white calc(var(--glass-reflex-light) * 22%), transparent),
+    /* Concave inner shadow for depth */
+    inset 0px 3px 6px -2px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 24%), transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, black calc(var(--glass-reflex-dark) * 30%), transparent),
+    /* Outer lift shadow */
+    0px 2px 6px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 14%), transparent),
+    0px 8px 22px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 10%), transparent);
+
+  transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 280ms ease,
+              background-color 200ms ease,
+              border-color 200ms ease;
 }
 .btn:hover:not(:disabled) {
-  opacity: 0.88;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.01);
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  border-color: color-mix(in srgb, var(--ink) 28%, transparent);
+  box-shadow:
+    inset 0 1.5px 0 0 color-mix(in srgb, white calc(var(--glass-reflex-light) * 75%), transparent),
+    inset 1.5px 2.5px 0px -1.5px color-mix(in srgb, white calc(var(--glass-reflex-light) * 98%), transparent),
+    inset -1.5px -1.5px 0px -1.5px color-mix(in srgb, white calc(var(--glass-reflex-light) * 28%), transparent),
+    inset 0px 3px 6px -2px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 20%), transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, black calc(var(--glass-reflex-dark) * 24%), transparent),
+    0px 4px 14px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 22%), transparent),
+    0px 16px 38px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 16%), transparent);
 }
 .btn:active:not(:disabled) {
-  transform: scale(0.97) translateY(0);
-  opacity: 1;
+  transform: scale(0.96);
 }
 .btn:disabled {
-  opacity: 0.35;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 .btn.ghost {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--ink);
+  --glass-reflex-light: 0.38;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  color: var(--ink-2);
+  border-color: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 .btn.ghost:hover:not(:disabled) {
-  background: var(--ink);
-  color: var(--paper);
-  opacity: 1;
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--ink) 11%, transparent);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 22%, transparent);
+  transform: translateY(-2px) scale(1.01);
 }
 .btn.ghost:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 .btn.success {
-  background: #2A7A52;
-  border-color: #2A7A52;
-  color: #fff;
+  --glass-reflex-light: 0.7;
+  background: color-mix(in srgb, #2A7A52 30%, transparent);
+  color: #7affc0;
+  border-color: color-mix(in srgb, #2A7A52 42%, transparent);
 }
 
 /* ─── Forms ─────────────────────────────────────────────────────────────────── */
@@ -484,58 +682,96 @@ select option {
   color: var(--ink);
 }
 
-/* Range sliders — custom track + thumb */
+/* Range sliders — glass pill thumb */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 20px;
+  height: 28px;
   background: transparent;
   outline: none;
   padding: 0;
 }
 input[type="range"]::-webkit-slider-runnable-track {
-  height: 3px;
-  background: var(--rule);
-  border-radius: 2px;
-  border: none;
+  height: 5px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  border-radius: 3px;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--cinnabar-ink);
-  border: 2px solid var(--paper);
-  box-shadow: 0 0 0 1.5px var(--cinnabar-ink);
-  margin-top: -5.5px;
-  transition: box-shadow 160ms ease, transform 160ms ease;
+  width: 44px;
+  height: 22px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  backdrop-filter: blur(8px) saturate(180%);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  box-shadow:
+    inset 0 1.5px 0 0 color-mix(in srgb, white 58%, transparent),
+    inset 1.5px 1.5px 0px -1px color-mix(in srgb, white 80%, transparent),
+    inset 0px 2.5px 5px -1px color-mix(in srgb, black 22%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, black 28%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.12);
+  margin-top: -9px;
+  cursor: grab;
+  transition: box-shadow 160ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), background 160ms ease, border-color 160ms ease;
 }
 input[type="range"]:hover::-webkit-slider-thumb,
 input[type="range"]:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--cinnabar-ink) 22%, transparent);
-  transform: scale(1.1);
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  border-color: color-mix(in srgb, var(--ink) 30%, transparent);
+  transform: scale(1.06);
+  box-shadow:
+    inset 0 1.5px 0 0 color-mix(in srgb, white 70%, transparent),
+    inset 1.5px 1.5px 0px -1px color-mix(in srgb, white 92%, transparent),
+    inset 0px 2.5px 5px -1px color-mix(in srgb, black 18%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, black 22%, transparent),
+    0 4px 14px rgba(0, 0, 0, 0.26),
+    0 8px 26px rgba(0, 0, 0, 0.18);
+}
+input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(0.92);
+  background: color-mix(in srgb, var(--ink) 18%, transparent);
+  box-shadow:
+    inset 0 1.5px 0 0 color-mix(in srgb, white 65%, transparent),
+    inset 1.5px 1.5px 0px -1px color-mix(in srgb, white 88%, transparent),
+    inset 0px 2.5px 5px -1px color-mix(in srgb, black 28%, transparent),
+    inset 0 -1px 0 0 color-mix(in srgb, black 32%, transparent),
+    0 1px 4px rgba(0, 0, 0, 0.14);
 }
 input[type="range"]::-moz-range-track {
-  height: 3px;
-  background: var(--rule);
-  border-radius: 2px;
-  border: none;
+  height: 5px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  border-radius: 3px;
 }
 input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--cinnabar-ink);
-  border: 2px solid var(--paper);
-  box-shadow: 0 0 0 1.5px var(--cinnabar-ink);
-  cursor: pointer;
-  transition: box-shadow 160ms ease;
+  width: 44px;
+  height: 22px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  box-shadow:
+    inset 0 1.5px 0 0 color-mix(in srgb, white 58%, transparent),
+    inset 0px 2.5px 5px -1px color-mix(in srgb, black 22%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+  cursor: grab;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+  -moz-appearance: none;
+  appearance: none;
 }
 input[type="range"]:hover::-moz-range-thumb,
 input[type="range"]:focus::-moz-range-thumb {
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--cinnabar-ink) 22%, transparent);
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  transform: scale(1.06);
+  box-shadow:
+    inset 0 1.5px 0 0 color-mix(in srgb, white 70%, transparent),
+    inset 0px 2.5px 5px -1px color-mix(in srgb, black 18%, transparent),
+    0 4px 14px rgba(0, 0, 0, 0.26);
 }
 
 /* Checkboxes */

@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { AIErrorDisplay } from "@/components/ai-error";
 
 type Section      = { title: string; purpose: string; points: string[]; wordCount: number; openWith: string };
 type Blueprint    = { title: string; thesis: string; totalWords: number; sections: Section[]; dos: string[]; donts: string[]; keyTerms: string[] };
@@ -37,14 +38,14 @@ export default function EssayWorkshopPage() {
   const [essayType,   setEssayType]   = useState("analytical");
   const [blueprint,   setBlueprint]   = useState<Blueprint | null>(null);
   const [planLoading, setPlanLoading] = useState(false);
-  const [planError,   setPlanError]   = useState("");
+  const [planError,   setPlanError]   = useState<AIError | string | null>(null);
 
   // Argue state
   const [claim,      setClaim]      = useState("");
   const [evidence,   setEvidence]   = useState("");
   const [argPlan,    setArgPlan]    = useState<ArgumentPlan | null>(null);
   const [argLoading, setArgLoading] = useState(false);
-  const [argError,   setArgError]   = useState("");
+  const [argError,   setArgError]   = useState<AIError | string | null>(null);
   const [argCopied,  setArgCopied]  = useState(false);
 
   // Grade state
@@ -53,7 +54,7 @@ export default function EssayWorkshopPage() {
   const [gradeType,    setGradeType]    = useState("Argumentative");
   const [grade,        setGrade]        = useState<Grade | null>(null);
   const [gradeLoading, setGradeLoading] = useState(false);
-  const [gradeError,   setGradeError]   = useState("");
+  const [gradeError,   setGradeError]   = useState<AIError | string | null>(null);
 
   function switchTab(t: "plan" | "argue" | "grade", prefill?: { claim?: string }) {
     if (prefill?.claim) setClaim(prefill.claim);
@@ -62,25 +63,23 @@ export default function EssayWorkshopPage() {
 
   async function generatePlan() {
     if (!prompt.trim()) { setPlanError("Enter your essay question."); return; }
-    setPlanLoading(true); setPlanError("");
+    setPlanLoading(true); setPlanError(null);
     try {
-      const res  = await callAI({ tool: "essay_blueprint", subject, level, prompt, words, type: essayType });
-      const data = await res.json();
-      if (!res.ok || !data.sections) { setPlanError("Could not generate blueprint."); return; }
+      const data = await callAIOrThrow<Blueprint>({ tool: "essay_blueprint", subject, level, prompt, words, type: essayType });
+      if (!data.sections) { setPlanError("Could not generate blueprint. Please try again."); return; }
       setBlueprint(data);
-    } catch { setPlanError("Network error."); }
+    } catch (err) { setPlanError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
     finally { setPlanLoading(false); }
   }
 
   async function generateArgument() {
     if (!claim.trim()) { setArgError("Enter a claim or essay question."); return; }
-    setArgLoading(true); setArgError("");
+    setArgLoading(true); setArgError(null);
     try {
-      const res  = await callAI({ tool: "argument", claim, subject, level, evidence });
-      const data = await res.json();
-      if (!res.ok || !data.points) { setArgError(data.error || "Could not build argument."); return; }
+      const data = await callAIOrThrow<ArgumentPlan>({ tool: "argument", claim, subject, level, evidence });
+      if (!data.points) { setArgError("Could not build argument. Please try again."); return; }
       setArgPlan(data);
-    } catch { setArgError("Network error."); }
+    } catch (err) { setArgError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
     finally { setArgLoading(false); }
   }
 
@@ -99,14 +98,12 @@ export default function EssayWorkshopPage() {
 
   async function gradeEssay() {
     if (essay.trim().length < 100) { setGradeError("Essay must be at least 100 characters."); return; }
-    setGradeLoading(true); setGradeError(""); setGrade(null);
+    setGradeLoading(true); setGradeError(null); setGrade(null);
     try {
-      const res  = await callAI({ tool: "essay_grade", essay, subject, level, type: gradeType, prompt: gradePrompt });
-      const data = await res.json();
-      if (!res.ok) { setGradeError(data.error || "Failed."); return; }
+      const data = await callAIOrThrow<Grade>({ tool: "essay_grade", essay, subject, level, type: gradeType, prompt: gradePrompt });
       if (!data.criteria) { setGradeError("Could not grade — try again."); return; }
       setGrade(data);
-    } catch { setGradeError("Network error."); }
+    } catch (err) { setGradeError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
     finally { setGradeLoading(false); }
   }
 
@@ -168,7 +165,7 @@ export default function EssayWorkshopPage() {
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>3000 words</span>
                 </div>
               </div>
-              {planError && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{planError}</div>}
+              {planError && <AIErrorDisplay error={planError} onRetry={generatePlan} inline />}
               <button className="btn" onClick={generatePlan} disabled={planLoading} style={{ width: "100%", opacity: planLoading ? 0.5 : 1 }}>
                 {planLoading ? "Building blueprint…" : "Build my essay blueprint →"}
               </button>
@@ -257,7 +254,7 @@ export default function EssayWorkshopPage() {
                 <input value={evidence} onChange={e => setEvidence(e.target.value)} placeholder="e.g. Treaty of Versailles, economic data, specific quotes…"
                   style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
               </div>
-              {argError && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{argError}</div>}
+              {argError && <AIErrorDisplay error={argError} onRetry={generateArgument} inline />}
               <button className="btn" onClick={generateArgument} disabled={argLoading} style={{ width: "100%", opacity: argLoading ? 0.5 : 1 }}>
                 {argLoading ? "Building argument…" : "Build my argument →"}
               </button>
@@ -354,7 +351,7 @@ export default function EssayWorkshopPage() {
                 <textarea value={essay} onChange={e => setEssay(e.target.value)} rows={16} placeholder="Paste your full essay here…"
                   style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
               </div>
-              {gradeError && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{gradeError}</div>}
+              {gradeError && <AIErrorDisplay error={gradeError} onRetry={gradeEssay} inline />}
               <button className="btn" onClick={gradeEssay} disabled={gradeLoading || essay.trim().length < 100} style={{ width: "100%", opacity: gradeLoading ? 0.5 : 1 }}>
                 {gradeLoading ? "Grading essay…" : "Grade my essay →"}
               </button>

@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { type UserProfile } from "@/lib/user-data";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { AIErrorDisplay } from "@/components/ai-error";
+import SaveOutputButton from "@/components/save-output-button";
 
 type Flashcard    = { q: string; a: string };
 type QuizItem     = { q: string; opts: string[]; ans: number };
@@ -149,7 +151,7 @@ export default function StudyEnginePage() {
   const [notesOut,    setNotesOut]    = useState<NotesOutput | null>(null);
   const [notesTab,    setNotesTab]    = useState<"explanation" | "summary" | "flashcards" | "quiz">("explanation");
   const [notesLoading, setNotesLoading] = useState(false);
-  const [notesError,   setNotesError]   = useState("");
+  const [notesError,   setNotesError]   = useState<AIError | string | null>(null);
   const [history,      setHistory]      = useState<HistoryEntry[]>([]);
   const [showHistory,  setShowHistory]  = useState(false);
   const [profile,      setProfile]      = useState<UserProfile>({});
@@ -160,7 +162,7 @@ export default function StudyEnginePage() {
   const [lesson,       setLesson]       = useState<Lesson | null>(null);
   const [lessonTab,    setLessonTab]    = useState<"concept" | "examples" | "keypoints" | "practice">("concept");
   const [learnLoading, setLearnLoading] = useState(false);
-  const [learnError,   setLearnError]   = useState("");
+  const [learnError,   setLearnError]   = useState<AIError | string | null>(null);
   const [learnProfile, setLearnProfile] = useState<{ grade?: string; board?: string; stream?: string; interests?: string[]; targetExam?: string }>({});
 
   useEffect(() => {
@@ -181,16 +183,14 @@ export default function StudyEnginePage() {
 
   async function simplify() {
     if (!input.trim()) return;
-    setNotesLoading(true); setNotesError(""); setNotesOut(null);
+    setNotesLoading(true); setNotesError(null); setNotesOut(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
-      const res = await callAI({ tool: "notes", content: input, ...profile, syllabusSubjects });
-      const data = await res.json();
-      if (!res.ok) { setNotesError(data.error || "Something went wrong."); return; }
+      const data = await callAIOrThrow<NotesOutput>({ tool: "notes", content: input, ...profile, syllabusSubjects });
       setNotesOut(data); setNotesTab("explanation");
       saveToHistory(input, data);
       setHistory(JSON.parse(localStorage.getItem("ledger-notes-history") || "[]"));
-    } catch { setNotesError("Network error. Please try again."); }
+    } catch (err) { setNotesError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
     finally { setNotesLoading(false); }
   }
 
@@ -206,18 +206,16 @@ export default function StudyEnginePage() {
 
   async function learn() {
     if (!subject || !topic.trim()) return;
-    setLearnLoading(true); setLearnError(""); setLesson(null);
+    setLearnLoading(true); setLearnError(null); setLesson(null);
     try {
-      const res = await callAI({
+      const data = await callAIOrThrow<Lesson>({
         tool: "tutor", subject, topic: topic.trim(),
         grade: learnProfile.grade || "Class 10", board: learnProfile.board || "",
         stream: learnProfile.stream || "", targetExam: learnProfile.targetExam || "",
         extra: learnProfile.interests?.length ? `Student's interests: ${learnProfile.interests.join(", ")}` : "",
       });
-      const data = await res.json();
-      if (!res.ok) { setLearnError(data.error || "Something went wrong."); return; }
       setLesson(data); setLessonTab("concept");
-    } catch { setLearnError("Network error. Please try again."); }
+    } catch (err) { setLearnError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
     finally { setLearnLoading(false); }
   }
 
@@ -294,7 +292,7 @@ export default function StudyEnginePage() {
                   </button>
                   {notesOut && <button className="btn ghost" onClick={() => { setNotesOut(null); setInput(""); }}>Clear</button>}
                 </div>
-                {notesError && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{notesError}</div>}
+                {notesError && <AIErrorDisplay error={notesError} onRetry={simplify} inline />}
               </div>
 
               {notesLoading && (
@@ -332,6 +330,14 @@ export default function StudyEnginePage() {
                     )}
                     {notesTab === "flashcards" && <FlashcardView cards={notesOut.flashcards} />}
                     {notesTab === "quiz" && <QuizView items={notesOut.quiz} />}
+                  </div>
+                  <div style={{ padding: "10px 20px", borderLeft: "1px solid var(--rule)", borderRight: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "flex-end" }}>
+                    <SaveOutputButton
+                      toolSlug="notes"
+                      toolName="Study Engine"
+                      input={input}
+                      outputText={notesOut.explanation}
+                    />
                   </div>
                 </div>
               )}
@@ -373,7 +379,7 @@ export default function StudyEnginePage() {
                 {learnLoading ? "Generating lesson…" : "Teach me →"}
               </button>
               {lesson && <button className="btn ghost" onClick={() => { setLesson(null); setTopic(""); }} style={{ marginLeft: 10 }}>Clear</button>}
-              {learnError && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{learnError}</div>}
+              {learnError && <AIErrorDisplay error={learnError} onRetry={learn} inline />}
               {!lesson && !learnLoading && (
                 <div style={{ marginTop: 32, border: "1px solid var(--rule)", padding: "20px 18px" }}>
                   <div className="mono cin" style={{ marginBottom: 10 }}>What to try</div>

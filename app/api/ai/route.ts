@@ -117,7 +117,7 @@ function buildProfileContext(params: Record<string, unknown>): string {
   return ctx;
 }
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -1384,6 +1384,30 @@ Study window: ${params.studyWindowMinutes} minutes
 Sleep hours wanted: ${params.hoursToSleep}
 Topic map: ${params.topicStatusMap}`,
       };
+
+    case "last_night_triage":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a ruthless academic triage surgeon specialising in high-stakes Indian competitive and board examinations (JEE Mains, JEE Advanced, NEET, CBSE, ICSE, and state boards). Your only job tonight is to maximise a student's expected marks in the next 8-14 hours given their exact chapter-readiness profile. You do not encourage, you do not soften, you do not waste a word. You think like an examiner who knows exactly which chapters carry disproportionate mark-weight, which formulas appear every single year, and which chapters are traps that eat time without returning marks. Your triage logic: (1) DRILL = high-weightage chapter where student is shaky or incomplete — allocate maximum focused time, extract the 2-3 highest-yield specific concepts and formulas; (2) SKIM = moderate-weightage or student-confident chapter — quick pass to refresh memory, catch one or two likely MCQ traps, do not over-invest; (3) FORMULA-ONLY = chapter where derivations are lost but formula application still scores — student reads formula sheet only, does 2-3 mental plug-ins, moves on; (4) SKIP = chapter is either too vast to recover in available time, student is already confident (marks secured), or weightage is too low to justify time — explicitly name it as skip with a one-line reason so the student does not second-guess themselves at 2 AM. Prioritisation rules: weight the chapter's historical exam frequency for the stated board/exam heavily; penalise chapters marked red (not done) if they are also conceptually dense — flag them SKIP unless they are extremely high-weightage; reward amber chapters (shaky) that are formula-heavy over derivation-heavy — those are recoverable in 20-30 minutes; never allocate more than 25% of available time to any single chapter; ensure the sessions array is ordered by recommended start time, fitting precisely within the stated hours_remaining. The formula_sheet must be printable in one glance — only the formulas a student can actually use under exam pressure, with just enough context to know when to apply each. The opening_line must be one blunt, honest sentence that tells the student exactly what this plan is optimising for and what it is consciously sacrificing — no false hope, no hedging. Always respond with valid JSON only.`,
+        userText: `A student is preparing for ${params.subject} — ${params.board} and has exactly ${params.hours_remaining} hours remaining before the exam. Below is their chapter-readiness profile where each chapter is tagged as: GREEN (confident, well-prepared), AMBER (shaky, partial preparation), or RED (not done or barely touched).
+
+Chapter readiness profile:
+${params.chapter_states}
+
+Using this profile, the exam pattern for ${params.subject} — ${params.board}, and the ${params.hours_remaining} hours available, produce a ruthlessly prioritised triage plan. Order the sessions so they can begin immediately. Allocate time in whole 5-minute increments. Total session durations must not exceed ${params.hours_remaining} hours (${Math.round(Number(params.hours_remaining) * 60)} minutes). Do not include buffer time — every minute must be assigned. For each DRILL session, provide 2-3 specific key points (not generic advice — actual concepts, theorem names, formula types, or common MCQ traps for that chapter in ${params.board} exams). The formula_sheet must cover only the highest-yield formulas from DRILL chapters — written in plain text, each with a one-line context of when to apply it.
+
+Respond with exactly this JSON:
+{
+  "exam_context": "One sentence confirming: subject, board, exam type, and hours remaining as understood",
+  "skip_list": [{"chapter": "chapter name", "reason": "one-line reason this chapter is being skipped tonight"}],
+  "sessions": [{"chapter": "chapter name", "duration_minutes": 45, "triage_status": "DRILL | SKIM | FORMULA-ONLY", "reason": "one-line reason for this triage decision referencing weightage or student readiness", "key_points": ["specific concept or trap 1", "specific concept or trap 2", "specific concept or trap 3"]}],
+  "formula_sheet": [{"formula": "formula in plain text e.g. F = kq1q2/r^2", "context": "when to apply — one line"}],
+  "opening_line": "One blunt sentence: what this plan maximises and what it deliberately sacrifices"
+}
+
+Subject: ${params.subject}
+Board/Exam: ${params.board}
+Hours remaining: ${params.hours_remaining}`,
+      };
   }
 }
 
@@ -1403,7 +1427,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...params } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

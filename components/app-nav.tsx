@@ -253,6 +253,25 @@ export default function AppNav() {
 
         <div style={{ flex: 1 }} />
 
+        {/* ⌘K shortcut hint — opens command palette */}
+        <button
+          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))}
+          aria-label="Open command palette (Ctrl+K)"
+          title="Command palette — Ctrl+K / ⌘K"
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            height: "100%", padding: "0 14px",
+            background: "none", border: "none", borderLeft: "1px solid var(--rule)",
+            cursor: "pointer", flexShrink: 0,
+          }}
+        >
+          <span style={{
+            fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em",
+            color: "var(--ink-3)", padding: "2px 6px",
+            border: "1px solid var(--rule)", borderRadius: 4,
+          }}>⌘K</span>
+        </button>
+
         {user && (
           <div style={{ display: "flex", alignItems: "center", borderLeft: "1px solid var(--rule)", flexShrink: 0 }}>
             <Link href="/dashboard/profile" style={{
