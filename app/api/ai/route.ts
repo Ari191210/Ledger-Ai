@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
@@ -1422,7 +1423,8 @@ export async function POST(req: Request) {
   let body: Record<string, unknown>;
   try {
     body = await req.json();
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err, { tags: { route: "api/ai", phase: "parse" } });
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -1530,12 +1532,18 @@ export async function POST(req: Request) {
   const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer", "career", "tutor", "mindmap", "mark_scheme_eval", "subject_picker", "paper_dissector", "topic_half_life"];
   const max_tokens = LARGE_TOOLS.includes(tool) ? 6000 : 2048;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens,
-    system,
-    messages: [{ role: "user", content: messageContent }],
-  });
+  let message: Anthropic.Message;
+  try {
+    message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens,
+      system,
+      messages: [{ role: "user", content: messageContent }],
+    });
+  } catch (err) {
+    Sentry.captureException(err, { tags: { route: "api/ai", tool, phase: "anthropic_call" } });
+    return NextResponse.json({ error: "AI request failed. Please try again." }, { status: 502 });
+  }
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
 
@@ -1566,7 +1574,8 @@ export async function POST(req: Request) {
       return NextResponse.json(parsed);
     }
     return NextResponse.json({ raw: text });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err, { tags: { route: "api/ai", tool, phase: "response_parse" } });
     return NextResponse.json({ raw: text });
   }
 }

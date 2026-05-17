@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { getLocalProfile } from "./user-data";
+import { sounds } from "./sounds";
 
 // ── Typed AI error ────────────────────────────────────────────────────────────
 export class AIError extends Error {
@@ -16,6 +17,7 @@ export class AIError extends Error {
 
 // ── Raw fetch — returns Response, caller handles status ───────────────────────
 export async function callAI(body: Record<string, unknown>): Promise<Response> {
+  sounds.aiStart();
   const profile = getLocalProfile();
   const { data: { session } } = await supabase.auth.getSession();
   return fetch("/api/ai", {

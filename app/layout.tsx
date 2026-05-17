@@ -10,6 +10,7 @@ import Cursor from "@/components/cursor";
 import ErrorBoundary from "@/components/error-boundary";
 import ErrorLogger from "@/components/error-logger";
 import ButtonClickEffect from "@/components/ui/button-click-effect";
+import PostHogProvider from "@/components/posthog-provider";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import "./globals.css";
 
@@ -93,6 +94,7 @@ export default function RootLayout({
         <Cursor />
         <WebGLShader />
         <AuthProvider>
+          <PostHogProvider />
           <ErrorLogger />
           <PageGradient />
           <Tracker />

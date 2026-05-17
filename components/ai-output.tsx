@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { sounds } from "@/lib/sounds";
 
 function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*\n]+\*\*|`[^`\n]+`|\*[^*\n]+\*)/g);
@@ -106,7 +107,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false, onRegenera
     const id = setInterval(() => {
       idx = Math.min(idx + charsPerTick, text.length);
       setDisplayed(text.slice(0, idx));
-      if (idx >= text.length) { setDone(true); clearInterval(id); }
+      if (idx >= text.length) { setDone(true); clearInterval(id); sounds.aiDone(); }
     }, 30);
     return () => clearInterval(id);
   }, [text]);
