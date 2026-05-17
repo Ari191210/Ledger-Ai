@@ -11,7 +11,7 @@ function play(
   freq: number,
   gain: number,
   duration: number,
-  fadeStart = 0.6,
+  _fadeStart = 0.6,
 ) {
   try {
     const ac  = getCtx()

@@ -42,7 +42,7 @@ export default function AnimatedThemeToggler({ size = 30 }: { size?: number }) {
     const next: LedgerMode = modeRef.current === "dark" ? "light" : "dark";
     modeRef.current = next;
     applyMode(next);
-    next === "light" ? sounds.toggleOn() : sounds.toggleOff();
+    if (next === "light") sounds.toggleOn(); else sounds.toggleOff();
 
     gsap.fromTo(btnRef.current,
       { scale: 0.84 },
