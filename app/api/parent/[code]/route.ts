@@ -3,12 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_req: Request, { params }: { params: { code: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ code: string }> }) {
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-  const { code } = params;
+  const { code } = await params;
   if (!code) return NextResponse.json({ error: "No code" }, { status: 400 });
 
   const { data, error } = await supabaseAdmin

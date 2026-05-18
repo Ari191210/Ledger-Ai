@@ -355,6 +355,23 @@ export default function Home() {
         start: "top 92%", once: true,
       });
 
+      /* ── How It Works steps ── */
+      const hiwSteps = gsap.utils.toArray<HTMLElement>(".hiw-step");
+      if (hiwSteps.length) {
+        gsap.fromTo(".hiw-line",
+          { scaleX: 0, transformOrigin: "left center" },
+          { scaleX: 1, duration: 1.2, ease: "power2.inOut",
+            scrollTrigger: { trigger: ".hiw-line", start: "top 85%", once: true } }
+        );
+        hiwSteps.forEach((el, i) =>
+          gsap.fromTo(el,
+            { autoAlpha: 0, y: 28 },
+            { autoAlpha: 1, y: 0, duration: 0.65, delay: i * 0.14, ease: "power3.out",
+              scrollTrigger: { trigger: el, start: "top 88%", once: true } }
+          )
+        );
+      }
+
       /* ── CTA section ── */
       gsap.from(".cta-content > *", {
         autoAlpha: 0, y: 28, duration: 0.7, stagger: 0.12, ease: "power3.out",
@@ -417,7 +434,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
           <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 500, fontSize: 21, color: "var(--ink)", letterSpacing: "-0.02em" }}>Ledger</span>
           <nav style={{ display: "flex", gap: 28 }} className="mob-hide">
-            {[["#tools", "Tools"], ["#score", "Score"], ["#features", "Features"]].map(([href, label]) => (
+            {[["#tools", "Tools"], ["#features", "Features"], ["#score", "Score"]].map(([href, label]) => (
               <a key={href} href={href} style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 500, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 180ms" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "var(--ink)")}
                 onMouseLeave={e => (e.currentTarget.style.color = "var(--ink-3)")}
@@ -614,10 +631,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 02 / The System ─── */}
+      {/* ─── 02 / How It Works ─── */}
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="02" label="The Quantified Mind" />
+          <SectionLabel num="02" label="How It Works" />
+
+          <h2 className="reveal-up" style={{ ...S.h2, marginBottom: 64 }}>Three steps to a system that works.</h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, position: "relative" }} className="mob-col">
+            {/* Connecting rule */}
+            <div className="hiw-line" style={{ position: "absolute", top: 27, left: "calc(16.6% + 16px)", right: "calc(16.6% + 16px)", height: 1, background: "var(--rule)", zIndex: 0, transformOrigin: "left center" }} />
+
+            {([
+              {
+                n: "01", icon: "↑",
+                title: "Upload your syllabus",
+                body: "Paste a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in seconds.",
+              },
+              {
+                n: "02", icon: "◎",
+                title: "Study with 51 AI tools",
+                body: "Every tool knows your syllabus. Flashcards pull from your topics. The planner knows your exam dates. Each session feeds the next.",
+              },
+              {
+                n: "03", icon: "↗",
+                title: "Track your readiness",
+                body: "Your Ledger Score updates in real time — PYQ accuracy, syllabus coverage, mistake velocity, and daily streak. One number that tells you the truth.",
+              },
+            ] as const).map((step, i) => (
+              <div key={step.n} className="hiw-step" style={{ padding: "0 0 0 0", position: "relative", zIndex: 1 }}>
+                <div style={{
+                  width: 56, height: 56,
+                  border: "1px solid var(--rule)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  marginBottom: 32, background: "var(--paper)",
+                  fontFamily: "var(--serif)", fontSize: 22, color: "var(--cinnabar-ink)",
+                }}>
+                  {step.icon}
+                </div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 14 }}>
+                  Step {step.n}
+                </div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 700, color: "var(--ink)", marginBottom: 14, letterSpacing: "0.03em", lineHeight: 1.15 }}>
+                  {step.title}
+                </div>
+                <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", lineHeight: 1.72, margin: 0, maxWidth: 280 }}>
+                  {step.body}
+                </p>
+                {i < 2 && (
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 16, color: "var(--rule)", position: "absolute", top: 13, right: "-4px", display: "none" }} className="mob-hide">→</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 03 / The System ─── */}
+      <section className="gl-pane" style={{ borderBottom: S.border }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+          <SectionLabel num="03" label="The Quantified Mind" />
 
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
             <div>
@@ -675,10 +748,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 03 / All 55 Tools ─── */}
-      <section id="tools" className="gl-pane" style={{ borderBottom: S.border }}>
+      {/* ─── 04 / All 51 Tools ─── */}
+      <section id="tools" className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="03" label="All 51 Tools" />
+          <SectionLabel num="04" label="All 51 Tools" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
@@ -771,10 +844,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 04 / Ledger Score ─── */}
-      <section id="score" className="gl-pane-alt" style={{ borderBottom: S.border }}>
+      {/* ─── 05 / Ledger Score ─── */}
+      <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="04" label="Ledger Score" />
+          <SectionLabel num="05" label="Ledger Score" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
             <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
@@ -876,73 +949,77 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 05 / Seven Signatures ─── */}
-      <section id="features" className="gl-pane" style={{ borderBottom: S.border }}>
+      {/* ─── 06 / Key Features ─── */}
+      <section id="features" className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="05" label="Seven Signatures" />
+          <SectionLabel num="06" label="Key Features" />
 
-          <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
-            <div>
-              <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
-              <div className="anim-divider" style={{ ...S.rule, margin: "20px 0" }} />
-              <p style={{ ...S.body, fontSize: 13 }}>
-                The 51 tools are the price of entry. These seven are the reason you stay. None are available in another student app — we looked, and then we built them.
-              </p>
-            </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 40 }}>
+            <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
+            <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", maxWidth: 320, lineHeight: 1.6, margin: 0 }}>
+              The 51 tools are table stakes. These are why students stay.
+            </p>
+          </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "var(--rule)", border: S.border }} className="mob-col">
-              {FEATS.map((f, i) => (
-                <div
-                  className="feat-card"
-                  key={f.tag}
-                  style={{
-                    background: expandedFeat === i
-                      ? "color-mix(in srgb, var(--cinnabar-ink) 7%, var(--paper-2))"
-                      : "var(--paper)",
-                    cursor: "pointer",
-                    transition: "background 220ms ease",
-                    padding: "24px 22px",
-                  }}
-                  onClick={() => setExpandedFeat(expandedFeat === i ? null : i)}
-                >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                      <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 30, color: "var(--cinnabar-ink)", fontWeight: 400, lineHeight: 1, flexShrink: 0 }}>{f.tag}</span>
-                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, fontWeight: 500, lineHeight: 1.3, color: "var(--ink)" }}>{f.ttl}</div>
-                    </div>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: expandedFeat === i ? "var(--cinnabar-ink)" : "var(--ink-3)", flexShrink: 0, marginTop: 4, transition: "color 200ms" }}>
-                      {expandedFeat === i ? "▲" : "▼"}
-                    </span>
-                  </div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.68, color: "var(--ink-2)", marginTop: 12 }}>{f.body}</p>
-                  {expandedFeat === i && (
-                    <p style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.72, color: "var(--ink-3)", marginTop: 12, paddingTop: 12, borderTop: S.border }}>
-                      {f.extra}
-                    </p>
-                  )}
-                </div>
-              ))}
-
-              {/* Coming soon card */}
-              <div style={{ background: "color-mix(in srgb, var(--ink) 4%, var(--paper-2))", padding: "24px 22px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ ...S.cap, marginBottom: 14 }}>Coming Q3 2026</div>
-                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, fontWeight: 500, lineHeight: 1.3, color: "var(--ink)", marginBottom: 10 }}>Exam-Day Mode</div>
-                  <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.68, color: "var(--ink-3)" }}>
-                    The morning of the paper, Ledger locks to a single-screen revision of only what you got wrong in the last 14 days. No distractions. No decisions. Just the gaps.
-                  </p>
-                </div>
-                <div style={{ ...S.cap, marginTop: 16, fontSize: 9 }}>Waitlist: 3,204</div>
+          {/* 3 prominent feature cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)", border: S.border, marginBottom: 1 }} className="mob-col">
+            {FEATS.slice(0, 3).map((f) => (
+              <div className="feat-card" key={f.tag} style={{ background: "var(--paper)", padding: "36px 28px" }}>
+                <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 44, color: "var(--cinnabar-ink)", fontWeight: 700, lineHeight: 1, display: "block", marginBottom: 24, letterSpacing: "0.04em" }}>{f.tag}</span>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 700, color: "var(--ink)", marginBottom: 14, letterSpacing: "0.03em", lineHeight: 1.2 }}>{f.ttl}</div>
+                <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.72, color: "var(--ink-2)", margin: 0 }}>{f.body}</p>
               </div>
+            ))}
+          </div>
+
+          {/* Remaining features + coming soon, compact */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: S.border, borderTop: "none" }} className="mob-2col">
+            {FEATS.slice(3).map((f, i) => (
+              <div
+                className="feat-card"
+                key={f.tag}
+                style={{
+                  background: expandedFeat === i + 3
+                    ? "color-mix(in srgb, var(--cinnabar-ink) 6%, var(--paper-2))"
+                    : "var(--paper-2)",
+                  cursor: "pointer", transition: "background 200ms ease", padding: "22px 20px",
+                }}
+                onClick={() => setExpandedFeat(expandedFeat === i + 3 ? null : i + 3)}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 6 }}>
+                  <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 24, color: "var(--cinnabar-ink)", fontWeight: 700, letterSpacing: "0.04em" }}>{f.tag}</span>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: expandedFeat === i + 3 ? "var(--cinnabar-ink)" : "var(--ink-3)", marginTop: 6 }}>
+                    {expandedFeat === i + 3 ? "▲" : "▼"}
+                  </span>
+                </div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, color: "var(--ink)", margin: "8px 0 8px", letterSpacing: "0.02em", lineHeight: 1.3 }}>{f.ttl}</div>
+                <p style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.65, color: "var(--ink-3)", margin: 0 }}>{f.body}</p>
+                {expandedFeat === i + 3 && (
+                  <p style={{ fontFamily: "var(--sans)", fontSize: 11, lineHeight: 1.65, color: "var(--ink-3)", marginTop: 10, paddingTop: 10, borderTop: S.border }}>
+                    {f.extra}
+                  </p>
+                )}
+              </div>
+            ))}
+            {/* Coming soon */}
+            <div style={{ background: "color-mix(in srgb, var(--ink) 4%, var(--paper-2))", padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 10 }}>Q3 2026</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 8, lineHeight: 1.3 }}>Exam-Day Mode</div>
+                <p style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.65, color: "var(--ink-3)", margin: 0 }}>
+                  Locks to what you got wrong in the last 14 days. No decisions. Just the gaps.
+                </p>
+              </div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", marginTop: 14, letterSpacing: "0.08em" }}>Waitlist: 3,204</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── 06 / Field Reports ─── */}
-      <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
+      {/* ─── 07 / Field Reports ─── */}
+      <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="06" label="Field Reports" />
+          <SectionLabel num="07" label="Field Reports" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
             <h2 className="reveal-up" style={S.h2}>Dispatches from actual students.</h2>
@@ -1006,8 +1083,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 07 / Final CTA ─── */}
-      <section className="cta-section gl-pane" style={{ borderBottom: S.border }}>
+      {/* ─── 08 / Final CTA ─── */}
+      <section className="cta-section gl-pane-alt" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 40px" }}>
           <div className="cta-content" style={{ textAlign: "center", maxWidth: 680, margin: "0 auto" }}>
             <div style={{ ...S.capAccent, marginBottom: 28 }}>Start today — free, no credit card</div>

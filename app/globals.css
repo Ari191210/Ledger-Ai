@@ -1204,6 +1204,13 @@ img { image-rendering: auto; }
 /* Selection */
 ::selection { background: var(--highlight); color: var(--ink); }
 
+/* ─── How It Works section ───────────────────────────────────────────────────── */
+.hiw-step { will-change: transform, opacity; }
+@media (max-width: 768px) {
+  .hiw-step { padding-bottom: 32px !important; }
+  .hiw-line  { display: none !important; }
+}
+
 /* ─── Reveal animations (for GSAP targets) ───────────────────────────────────── */
 .reveal-up   { will-change: transform, opacity; }
 .bento-card  { will-change: transform, opacity; transition: box-shadow 220ms ease, border-color 200ms ease; }
