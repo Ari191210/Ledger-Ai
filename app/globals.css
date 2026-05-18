@@ -48,9 +48,9 @@
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --serif: var(--font-newsreader), "Newsreader", Georgia, serif;
-  --sans:  var(--font-inter-tight), "Inter", system-ui, sans-serif;
-  --mono:  var(--font-jetbrains-mono), ui-monospace, monospace;
+  --serif: var(--font-orbitron), "Orbitron", system-ui, sans-serif;
+  --sans:  var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  --mono:  var(--font-space-mono), "Space Mono", ui-monospace, monospace;
 
   /* Dark default — matches the WebGL shader hero */
   --paper:        #080808;
@@ -350,7 +350,6 @@
 /* Both lines hardcode white for dark-mode hero — override for light */
 [data-mode="light"] .hero-word-1 {
   color: #000000 !important;
-  text-shadow: 0 2px 40px rgba(0,0,0,0.10) !important;
 }
 [data-mode="light"] .hero-word-2 {
   background: linear-gradient(125deg, #6b0e00 10%, #a82000 50%, #c44000 100%) !important;
@@ -480,9 +479,9 @@ a:hover { opacity: 0.75; }
 /* Headings default to serif italic — Newsreader reads best at 400–500 */
 h1, h2, h3, h4, h5 {
   font-family: var(--serif);
-  font-weight: 500;
-  font-style: italic;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.04em;
   line-height: 1.1;
   margin: 0;
 }
@@ -1060,10 +1059,10 @@ input[type="radio"]:checked::after {
 .article-body p + p { margin-top: 1em; }
 
 /* Headline scale */
-.hed-xl { font-family: var(--serif); font-size: 72px; font-weight: 900; font-style: italic; line-height: 0.88; letter-spacing: -0.035em; }
-.hed-lg  { font-family: var(--serif); font-size: 44px; font-weight: 700; font-style: italic; line-height: 0.95; letter-spacing: -0.025em; }
-.hed-md  { font-family: var(--serif); font-size: 28px; font-weight: 700; font-style: italic; line-height: 1.1;  letter-spacing: -0.02em;  }
-.hed-sm  { font-family: var(--serif); font-size: 20px; font-weight: 700; font-style: italic; line-height: 1.2;  letter-spacing: -0.01em;  }
+.hed-xl { font-family: var(--serif); font-size: 72px; font-weight: 900; font-style: normal; line-height: 0.88; letter-spacing: 0.06em; }
+.hed-lg  { font-family: var(--serif); font-size: 44px; font-weight: 700; font-style: normal; line-height: 0.95; letter-spacing: 0.05em; }
+.hed-md  { font-family: var(--serif); font-size: 28px; font-weight: 700; font-style: normal; line-height: 1.1;  letter-spacing: 0.04em; }
+.hed-sm  { font-family: var(--serif); font-size: 20px; font-weight: 700; font-style: normal; line-height: 1.2;  letter-spacing: 0.03em; }
 
 /* Tool page masthead — editorial header for tool pages */
 .tool-masthead {
@@ -1117,9 +1116,9 @@ input[type="radio"]:checked::after {
 ::selection { background: var(--highlight); color: var(--ink); }
 
 /* ─── Landing page ───────────────────────────────────────────────────────────── */
-.lp-title  { font-family: var(--serif); font-size: 120px; font-weight: 600; font-style: italic; line-height: 0.9; letter-spacing: -0.03em; margin: 12px 0 0; }
-.lp-h3     { font-family: var(--serif); font-size: 56px; font-weight: 500; font-style: italic; line-height: 0.98; letter-spacing: -0.025em; margin: 10px 0 0; }
-.lp-h2     { font-family: var(--serif); font-size: 56px; font-weight: 400; font-style: italic; line-height: 1.02; letter-spacing: -0.02em; margin: 0; }
+.lp-title  { font-family: var(--serif); font-size: 96px; font-weight: 700; font-style: normal; line-height: 0.95; letter-spacing: 0.06em; margin: 12px 0 0; }
+.lp-h3     { font-family: var(--serif); font-size: 44px; font-weight: 600; font-style: normal; line-height: 1.0;  letter-spacing: 0.05em; margin: 10px 0 0; }
+.lp-h2     { font-family: var(--serif); font-size: 44px; font-weight: 500; font-style: normal; line-height: 1.05; letter-spacing: 0.04em; margin: 0; }
 .lp-metabar  { border-bottom: 1px solid var(--rule); padding: 10px 44px; display: flex; justify-content: space-between; align-items: center; }
 .lp-header   { padding: 40px 44px 28px; border-bottom: 3px double var(--ink); }
 .lp-lede     { padding: 36px 44px; border-bottom: 1px solid var(--ink); display: grid; grid-template-columns: 220px 1fr 300px; gap: 32px; }

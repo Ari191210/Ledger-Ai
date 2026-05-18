@@ -458,22 +458,20 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 0.92, margin: "0 auto 28px", perspective: 800 }}>
-            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(56px,10vw,122px)", color: "#fff", textShadow: "0 2px 80px rgba(0,0,0,0.35)" }}>
+          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.06em", lineHeight: 0.95, margin: "0 auto 28px", perspective: 800 }}>
+            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(40px,7.5vw,96px)", color: "#fff" }}>
               The Student&apos;s
             </div>
             <div className="hero-word-2" style={{
-              display: "block", fontSize: "clamp(56px,10vw,122px)",
+              display: "block", fontSize: "clamp(40px,7.5vw,96px)",
               background: "linear-gradient(125deg, #ffffff 10%, #ffb090 50%, #ff5535 100%)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-              filter: "drop-shadow(0 0 80px rgba(255,90,55,var(--hero-glow-opacity)))",
             }}>
               Operating System.
             </div>
           </h1>
 
-          {/* Divider */}
-          <div className="hero-divider" style={{ height: 1, background: "rgba(255,255,255,0.12)", maxWidth: 480, margin: "0 auto 26px", transformOrigin: "left" }} />
+          {/* Divider removed */}
 
           {/* Sub */}
           <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.6vw,16px)", color: "rgba(255,255,255,0.5)", maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
@@ -484,7 +482,7 @@ export default function Home() {
           <div className="hero-stats" style={{ display: "flex", justifyContent: "center", maxWidth: 440, margin: "0 auto 40px", border: "1px solid rgba(255,255,255,0.09)" }}>
             {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "51", l: "AI tools" }].map((s, i) => (
               <div key={i} style={{ flex: 1, textAlign: "center", padding: "14px 0", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.09)" : "none" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(18px,2.8vw,28px)", fontStyle: "italic", fontWeight: 500, color: "#fff", lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(18px,2.8vw,28px)", fontStyle: "normal", fontWeight: 700, color: "#fff", lineHeight: 1 }}>{s.n}</div>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
               </div>
             ))}
@@ -506,7 +504,6 @@ export default function Home() {
           {/* Scroll hint */}
           <div className="hero-scroll" style={{ position: "absolute", bottom: -96, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.35 }}>
             <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#fff", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
-            <div style={{ width: 1, height: 36, background: "linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)" }} />
           </div>
         </div>
 

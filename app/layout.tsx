@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Newsreader, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Orbitron, Space_Grotesk, Space_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
@@ -14,25 +14,24 @@ import PostHogProvider from "@/components/posthog-provider";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import "./globals.css";
 
-const newsreader = Newsreader({
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-orbitron",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
+  variable: "--font-space-grotesk",
   display: "swap",
 });
 
-const interTight = Inter_Tight({
+const spaceMono = Space_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter-tight",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-jetbrains-mono",
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
   display: "swap",
 });
 
@@ -49,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
+      className={`${orbitron.variable} ${spaceGrotesk.variable} ${spaceMono.variable}`}
     >
       <head>
         {/* Anti-flash: apply saved palette before first paint */}
