@@ -204,18 +204,18 @@
 
 /* ─── Light mode — default ──────────────────────────────────────────────────── */
 [data-mode="light"] {
-  --paper:        #c8bfb0;   /* warm stone — dim ambient, not white */
-  --paper-2:      #bdb3a4;
+  --paper:        #ddd5c8;   /* warm buff — darker than cream, lighter than stone */
+  --paper-2:      #d2c9bb;
   --ink:          #0c0b08;
-  --ink-2:        #28261e;
-  --ink-3:        #524e44;
-  --rule:         rgba(16,12,4,0.20);
-  --rule-2:       rgba(16,12,4,0.10);
+  --ink-2:        #2c2a22;
+  --ink-3:        #5a5650;
+  --rule:         rgba(16,12,4,0.18);
+  --rule-2:       rgba(16,12,4,0.09);
   --cinnabar:     #c42000;
   --cinnabar-ink: #a81800;
-  --highlight:    rgba(180,50,20,0.16);
-  --page-glow-a:  rgba(200,70,30,0.20);
-  --page-glow-b:  rgba(160,40,20,0.14);
+  --highlight:    rgba(180,50,20,0.15);
+  --page-glow-a:  rgba(200,70,30,0.18);
+  --page-glow-b:  rgba(160,40,20,0.12);
 }
 
 /* ── Porcelain light — warm parchment, amber accent ──────────────────────────── */
@@ -348,7 +348,7 @@
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
 [data-mode="light"] canvas {
-  opacity: 0.22;
+  opacity: 0.10;
   mix-blend-mode: soft-light;
 }
 [data-mode="light"] .grain::before {
