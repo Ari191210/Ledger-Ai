@@ -346,6 +346,19 @@
   --page-glow-b:  rgba(130,90,10,0.07);
 }
 
+/* ─── Hero headline light mode overrides ────────────────────────────────────── */
+/* Both lines hardcode white for dark-mode hero — override for light */
+[data-mode="light"] .hero-word-1 {
+  color: #000000 !important;
+  text-shadow: 0 2px 40px rgba(0,0,0,0.10) !important;
+}
+[data-mode="light"] .hero-word-2 {
+  background: linear-gradient(125deg, #6b0e00 10%, #a82000 50%, #c44000 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
 [data-mode="light"] canvas {
   opacity: 0.10;
