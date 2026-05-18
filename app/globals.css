@@ -349,13 +349,11 @@
 /* ─── Hero headline light mode overrides ────────────────────────────────────── */
 /* Both lines hardcode white for dark-mode hero — override for light */
 [data-mode="light"] .hero-word-1 {
-  color: #000000 !important;
+  color: rgba(0,0,0,0.55) !important;
 }
 [data-mode="light"] .hero-word-2 {
-  background: linear-gradient(125deg, #6b0e00 10%, #a82000 50%, #c44000 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
+  color: #000000 !important;
+  text-shadow: 0 0 40px rgba(180,40,0,0.18) !important;
 }
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */

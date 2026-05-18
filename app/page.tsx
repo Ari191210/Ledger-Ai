@@ -458,14 +458,15 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.06em", lineHeight: 0.95, margin: "0 auto 28px", perspective: 800 }}>
-            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(40px,7.5vw,96px)", color: "#fff" }}>
+          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1.0, margin: "0 auto 28px" }}>
+            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(36px,6.5vw,80px)", color: "rgba(255,255,255,0.72)", letterSpacing: "0.08em" }}>
               The Student&apos;s
             </div>
             <div className="hero-word-2" style={{
-              display: "block", fontSize: "clamp(40px,7.5vw,96px)",
-              background: "linear-gradient(125deg, #ffffff 10%, #ffb090 50%, #ff5535 100%)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+              display: "block", fontSize: "clamp(36px,6.5vw,80px)",
+              color: "#ffffff",
+              letterSpacing: "0.06em",
+              textShadow: "0 0 60px rgba(255,80,30,0.35)",
             }}>
               Operating System.
             </div>
@@ -1057,12 +1058,20 @@ export default function Home() {
               </ul>
             </div>
           ))}
+          <div className="footer-col">
+            <div style={{ ...S.capAccent, marginBottom: 16 }}>Legal</div>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12, lineHeight: 2.1 }}>
+              {([["Privacy Policy", "/legal/privacy"], ["Terms of Use", "/legal/terms"], ["Data & Compliance", "/legal/data"], ["IP & Copyright", "/legal/ip"]] as const).map(([label, href]) => (
+                <li key={label}><Link href={href} style={{ color: "var(--ink-3)", textDecoration: "none" }}>{label}</Link></li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div style={{ borderTop: S.border, padding: "14px 40px", maxWidth: 1120, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, ...S.cap, fontSize: 9 }}>
             <span>MMXXVI Ledger Study Co.</span>
-            <span>Set in Newsreader, Inter Tight &amp; JetBrains Mono</span>
+            <span>Set in Orbitron, Space Grotesk &amp; Space Mono</span>
             <span>{today}</span>
           </div>
         </div>
