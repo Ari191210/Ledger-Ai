@@ -204,18 +204,18 @@
 
 /* ─── Light mode — default ──────────────────────────────────────────────────── */
 [data-mode="light"] {
-  --paper:        #f7f7f4;
-  --paper-2:      #eeeeea;
-  --ink:          #111111;
-  --ink-2:        #454540;
-  --ink-3:        #909088;
-  --rule:         rgba(0,0,0,0.10);
-  --rule-2:       rgba(0,0,0,0.05);
-  --cinnabar:     #d02800;
-  --cinnabar-ink: #b82000;
-  --highlight:    rgba(200,80,30,0.12);
-  --page-glow-a:  rgba(200,60,30,0.06);
-  --page-glow-b:  rgba(160,30,20,0.04);
+  --paper:        #f3ede2;   /* warm cream — aged press paper, not clinical white */
+  --paper-2:      #e9e1d4;
+  --ink:          #0c0b08;   /* warm near-black */
+  --ink-2:        #3b3930;
+  --ink-3:        #797568;
+  --rule:         rgba(40,34,18,0.14);
+  --rule-2:       rgba(40,34,18,0.07);
+  --cinnabar:     #c42000;
+  --cinnabar-ink: #a81800;
+  --highlight:    rgba(180,50,20,0.14);
+  --page-glow-a:  rgba(200,70,30,0.14);
+  --page-glow-b:  rgba(160,40,20,0.09);
 }
 
 /* ── Porcelain light — warm parchment, amber accent ──────────────────────────── */
@@ -348,12 +348,12 @@
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
 [data-mode="light"] canvas {
-  opacity: 0.10;
-  mix-blend-mode: multiply;
+  opacity: 0.12;
+  mix-blend-mode: soft-light;  /* adds atmosphere without muddying the cream */
 }
 [data-mode="light"] .grain::before {
-  mix-blend-mode: multiply;
-  opacity: 0.08;
+  mix-blend-mode: multiply;    /* grain multiplies onto cream = paper texture */
+  opacity: 0.12;
 }
 [data-mode="light"] .btn {
   --glass-reflex-light: 0.30;
