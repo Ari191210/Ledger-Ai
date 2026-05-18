@@ -99,7 +99,7 @@ export default function IPPage() {
         </Section>
 
         <Section title="Trademark">
-          <P>"Ledger", "studyledger.in", "The Student's Operating System", and the Ledger logo are trademarks of Ledger Study Co. You may not use these marks in any way that implies affiliation, endorsement, or sponsorship without our prior written consent.</P>
+          <P>&ldquo;Ledger&rdquo;, &ldquo;studyledger.in&rdquo;, &ldquo;The Student&apos;s Operating System&rdquo;, and the Ledger logo are trademarks of Ledger Study Co. You may not use these marks in any way that implies affiliation, endorsement, or sponsorship without our prior written consent.</P>
         </Section>
 
         <Section title="Contact">

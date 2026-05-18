@@ -6,6 +6,49 @@ Vault: `C:\Users\DELL\Documents\LedgerBrain\`
 
 ---
 
+## MANDATORY: Agent Protocol — Every Command, No Exceptions
+
+Ruflo is installed. 98 agents live in `.claude/agents/`. **You MUST spawn the correct agents for every task before writing any code.** No exceptions. No "quick fixes" done solo.
+
+### Agent map — spawn based on task type
+
+| Task type | Agents to spawn (in parallel) |
+|-----------|-------------------------------|
+| New UI / frontend feature | `core/coder` + `core/reviewer` + `analysis/analyze-code-quality` |
+| New API route / backend logic | `development/dev-backend-api` + `core/reviewer` |
+| Bug fix | `analysis/code-analyzer` + `core/coder` + `core/tester` |
+| New feature (full) | `sparc/specification` + `core/planner` → then `core/coder` + `core/reviewer` |
+| Refactor | `core/reviewer` + `analysis/analyze-code-quality` + `core/coder` |
+| Architecture decision | `sparc/architecture` + `architecture/arch-system-design` |
+| Security / auth / RLS | `analysis/code-review/analyze-code-quality` + `development/dev-backend-api` |
+| Performance | `optimization/performance-monitor` + `core/reviewer` |
+
+### Pre-push verification — ALL three must pass before `git push`
+
+```
+1. npx tsc --noEmit          → 0 errors
+2. npx next lint             → 0 errors (warnings OK)
+3. npx next build            → exit code 0
+```
+
+If any step fails, fix it before pushing. Never push a broken build.
+
+### Proof required — in every response that pushes code
+
+After every `git push`, report:
+1. **Agents spawned**: list agent names and what each one did
+2. **Verification results**: paste the tsc / lint / build output (or "0 errors")
+3. **What was changed**: file list + one-line summary per file
+
+### Why this matters
+
+Every push deploys to Vercel automatically. A broken push = a broken live site at studyledger.in.
+Students are using the site. No mistakes.
+
+---
+
+---
+
 ## Vault logging — ALWAYS do this
 
 After every code change in this project, update the vault. This is non-negotiable.

@@ -22,7 +22,7 @@ export default function PrivacyPage() {
         <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
 
         <Section title="Who We Are">
-          <P>Ledger is operated by Ledger Study Co. ("we", "us", "our"), an independent student-education platform at studyledger.in. We build AI-powered study tools for students aged 14–18 preparing for JEE, NEET, CBSE, IB, and other curricula.</P>
+          <P>Ledger is operated by Ledger Study Co. (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), an independent student-education platform at studyledger.in. We build AI-powered study tools for students aged 14–18 preparing for JEE, NEET, CBSE, IB, and other curricula.</P>
           <P>Questions about this policy: <A href="mailto:privacy@studyledger.in">privacy@studyledger.in</A></P>
         </Section>
 
