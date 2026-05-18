@@ -25,7 +25,7 @@ export default function IPPage() {
           <P>All original elements of the Ledger platform are owned by Ledger Study Co. and protected under the Copyright Act, 1957 (India) and applicable international treaties. This includes:</P>
           <ul style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>The Ledger name, logo, and wordmark</li>
-            <li>The platform's visual design, layout, and user interface</li>
+            <li>The platform&apos;s visual design, layout, and user interface</li>
             <li>Original AI tool prompts, system instructions, and scoring logic</li>
             <li>Original written content, documentation, and marketing materials</li>
             <li>The Ledger Score algorithm and methodology</li>
@@ -39,7 +39,7 @@ export default function IPPage() {
         </Section>
 
         <Section title="Third-Party Content">
-          <P>Ledger's AI tools may help you study content from textbooks, past papers, syllabi, and other third-party sources. It is your responsibility to ensure your use of such content complies with the terms of those sources.</P>
+          <P>Ledger&apos;s AI tools may help you study content from textbooks, past papers, syllabi, and other third-party sources. It is your responsibility to ensure your use of such content complies with the terms of those sources.</P>
           <P>Ledger does not host exam papers or copyrighted textbooks. AI responses are generated, not reproduced from copyrighted sources verbatim.</P>
         </Section>
 
