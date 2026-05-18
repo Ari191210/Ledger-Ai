@@ -21,9 +21,9 @@ Sentry.init({
   ],
 
   beforeSend(event) {
-    // Strip PII from breadcrumbs
-    if (event.breadcrumbs?.values) {
-      event.breadcrumbs.values = event.breadcrumbs.values.map(b => ({
+    // Strip email PII from breadcrumb messages (Sentry v8: breadcrumbs is Breadcrumb[])
+    if (Array.isArray(event.breadcrumbs)) {
+      event.breadcrumbs = event.breadcrumbs.map(b => ({
         ...b,
         message: b.message?.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email]"),
       }));
