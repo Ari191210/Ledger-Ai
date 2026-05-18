@@ -204,11 +204,11 @@
 
 /* ─── Light mode — default ──────────────────────────────────────────────────── */
 [data-mode="light"] {
-  --paper:        #ddd5c8;   /* warm buff — darker than cream, lighter than stone */
+  --paper:        #ddd5c8;
   --paper-2:      #d2c9bb;
-  --ink:          #0c0b08;
-  --ink-2:        #2c2a22;
-  --ink-3:        #5a5650;
+  --ink:          #000000;
+  --ink-2:        #141210;
+  --ink-3:        #3a3630;
   --rule:         rgba(16,12,4,0.18);
   --rule-2:       rgba(16,12,4,0.09);
   --cinnabar:     #c42000;
