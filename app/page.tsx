@@ -92,6 +92,17 @@ const TICKER = [
   "Debt meter holders revised 2.6x more often",
 ];
 
+const LIVE_ACTIVITY = [
+  { who: "Ananya R.",     ctx: "CBSE Class 12 · Pune",      action: "just reached 800 on Ledger Score" },
+  { who: "14 students",  ctx: "JEE Advanced prep",          action: "opened a study room this hour" },
+  { who: "Rohan K.",     ctx: "ICSE Class 10 · Mumbai",     action: "finished a 90-min focus session" },
+  { who: "Dev P.",       ctx: "NEET 2026 prep",             action: "mock rank improved 4,800 places" },
+  { who: "Priya S.",     ctx: "IB DP Year 2 · Bangalore",   action: "uploaded syllabus — plan ready in 6s" },
+  { who: "138 students", ctx: "this week",                  action: "improved their Ledger Score by 50+ pts" },
+  { who: "Marcus O.",    ctx: "IB Diploma · Singapore",     action: "HL Math prediction moved from 5 → 7" },
+  { who: "Zara Q.",      ctx: "A-Level · London",           action: "just completed a Past Papers session" },
+] as const;
+
 const CATEGORIES = ["ALL", "PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"] as const;
 
 const CAT_COLOR: Record<string, string> = {
@@ -159,10 +170,12 @@ export default function Home() {
   const [mistakesPerWeek,setMistakesPerWeek]= useState(8);
   const [streak,         setStreak]         = useState(5);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const testimRef    = useRef<HTMLDivElement>(null);
-  const scoreNumRef  = useRef<HTMLDivElement>(null);
-  const prevScoreRef = useRef(scorePreviewCalc(3, false, 8, 5));
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const testimRef     = useRef<HTMLDivElement>(null);
+  const scoreNumRef   = useRef<HTMLDivElement>(null);
+  const activityRef   = useRef<HTMLDivElement>(null);
+  const prevScoreRef  = useRef(scorePreviewCalc(3, false, 8, 5));
+  const [activityIdx, setActivityIdx] = useState(0);
 
   const filteredTools = activeCategory === "ALL"
     ? TOOLS
@@ -176,6 +189,38 @@ export default function Home() {
   }, []);
 
   useEffect(() => { setSelectedTool(0); }, [activeCategory]);
+
+  /* Scroll progress bar */
+  useEffect(() => {
+    const bar = document.getElementById("lp-scroll-bar");
+    if (!bar) return;
+    const onScroll = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = total > 0 ? `${Math.min(100, (scrolled / total) * 100)}%` : "0%";
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  /* Live activity cycling */
+  useEffect(() => {
+    const el = activityRef.current;
+    if (!el) return;
+    const cycle = setInterval(() => {
+      gsap.to(el, {
+        autoAlpha: 0, y: -10, duration: 0.28, ease: "power2.in",
+        onComplete: () => {
+          setActivityIdx(i => (i + 1) % LIVE_ACTIVITY.length);
+          gsap.fromTo(el,
+            { autoAlpha: 0, y: 10 },
+            { autoAlpha: 1, y: 0, duration: 0.38, ease: "power2.out" }
+          );
+        },
+      });
+    }, 3800);
+    return () => clearInterval(cycle);
+  }, []);
 
   /* Animate testimonial on change */
   useEffect(() => {
@@ -209,7 +254,7 @@ export default function Home() {
       if (reduceMotion) {
         gsap.set(
           [".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
-           ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-panel > *"],
+           ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-panel > *", ".hero-activity"],
           { autoAlpha: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" }
         );
       } else {
@@ -224,7 +269,8 @@ export default function Home() {
           .from(".hero-stats > *",{ autoAlpha: 0, y: 14, duration: 0.45, stagger: 0.07 }, "-=0.35")
           .from(".hero-ctas > *", { autoAlpha: 0, y: 12, scale: 0.97, duration: 0.45, stagger: 0.07 }, "-=0.3")
           .from(".hero-scroll",   { autoAlpha: 0, duration: 0.4 }, "-=0.15")
-          .from(".hero-panel > *",{ autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.05, ease: "power2.out" }, "-=0.55");
+          .from(".hero-panel > *",{ autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.05, ease: "power2.out" }, "-=0.55")
+          .from(".hero-activity", { autoAlpha: 0, x: -20, duration: 0.55, ease: "power2.out" }, "-=0.4");
       }
 
       /* ── ScrollToPlugin: smooth scroll all #anchor links ── */
@@ -424,6 +470,15 @@ export default function Home() {
   return (
     <div ref={containerRef} id="main-content" style={{ background: "transparent", color: "var(--ink)", minHeight: "100vh", position: "relative", zIndex: 1 }}>
 
+      {/* ─── Scroll progress ─── */}
+      <div id="lp-scroll-bar" style={{
+        position: "fixed", top: 0, left: 0, height: 2,
+        background: "var(--cinnabar-ink)", width: "0%",
+        zIndex: 9999, pointerEvents: "none",
+        boxShadow: "0 0 8px var(--cinnabar-ink)",
+        transition: "none",
+      }} />
+
       {/* ─── Sticky header ─── */}
       <header className="gl-pane" style={{
         position: "sticky", top: 0, zIndex: 50,
@@ -522,6 +577,30 @@ export default function Home() {
           {/* Scroll hint */}
           <div className="hero-scroll" style={{ position: "absolute", bottom: -96, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.35 }}>
             <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#fff", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
+          </div>
+        </div>
+
+        {/* ─── Live activity toast ─── */}
+        <div className="mob-hide hero-activity" style={{ position: "absolute", bottom: 96, left: 40, zIndex: 4 }}>
+          <div ref={activityRef} style={{
+            display: "flex", alignItems: "flex-start", gap: 12,
+            background: "rgba(6,5,4,0.88)", backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            padding: "12px 16px", maxWidth: 320,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+          }}>
+            <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0, marginTop: 4 }}>
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.45, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
+              <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "block", margin: "1.5px" }} />
+            </span>
+            <div>
+              <div style={{ marginBottom: 3 }}>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>{LIVE_ACTIVITY[activityIdx].who}</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", marginLeft: 8 }}>{LIVE_ACTIVITY[activityIdx].ctx}</span>
+              </div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>{LIVE_ACTIVITY[activityIdx].action}</div>
+            </div>
           </div>
         </div>
 

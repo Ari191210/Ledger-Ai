@@ -22,11 +22,11 @@ export default function TermsPage() {
         <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
 
         <Section title="Agreement">
-          <P>By accessing or using Ledger at studyledger.in, you agree to be bound by these Terms of Use. If you do not agree, do not use the service. These terms constitute a binding agreement between you and Ledger Study Co. ("Ledger", "we", "us").</P>
+          <P>By accessing or using Ledger at studyledger.in, you agree to be bound by these Terms of Use. If you do not agree, do not use the service. These terms constitute a binding agreement between you and Ledger Study Co. (&ldquo;Ledger&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;).</P>
         </Section>
 
         <Section title="Eligibility">
-          <P>You must be at least 13 years old to use Ledger. If you are under 18, you must have your parent or guardian's consent. By creating an account, you represent that you meet these requirements.</P>
+          <P>You must be at least 13 years old to use Ledger. If you are under 18, you must have your parent or guardian&apos;s consent. By creating an account, you represent that you meet these requirements.</P>
           <P>Ledger is intended for personal, educational use. Use by automated systems, bots, or scrapers is prohibited without our written consent.</P>
         </Section>
 
@@ -55,8 +55,8 @@ export default function TermsPage() {
         </Section>
 
         <Section title="AI Tools — Important Disclaimer">
-          <P>Ledger's AI tools are powered by Claude (Anthropic) and are designed to assist learning. They are not a substitute for qualified teachers, tutors, or official exam guidance. AI responses may contain errors.</P>
-          <P>Do not use Ledger's AI outputs as the sole basis for medical, legal, financial, or any other professional decisions.</P>
+          <P>Ledger&apos;s AI tools are powered by Claude (Anthropic) and are designed to assist learning. They are not a substitute for qualified teachers, tutors, or official exam guidance. AI responses may contain errors.</P>
+          <P>Do not use Ledger&apos;s AI outputs as the sole basis for medical, legal, financial, or any other professional decisions.</P>
           <P>AI responses to questions involving harmful or off-topic content will be blocked. Repeated attempts to bypass this may result in account suspension.</P>
         </Section>
 
@@ -76,7 +76,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="Limitation of Liability">
-          <P>Ledger is provided "as is". To the maximum extent permitted by law, Ledger Study Co. is not liable for:</P>
+          <P>Ledger is provided &ldquo;as is&rdquo;. To the maximum extent permitted by law, Ledger Study Co. is not liable for:</P>
           <ul style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>Errors or inaccuracies in AI-generated content</li>
             <li>Loss of study data due to technical failure (though we maintain backups)</li>
