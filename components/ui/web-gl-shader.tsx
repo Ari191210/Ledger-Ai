@@ -153,7 +153,7 @@ export function WebGLShader() {
       refs.target.set(r, g, b)
       const isLight = document.documentElement.dataset.mode === "light"
       if (canvasRef.current) {
-        canvasRef.current.style.opacity = isLight ? "0.08" : "1"
+        canvasRef.current.style.opacity = isLight ? "0.22" : "1"
       }
     }
     const observer = new MutationObserver(applyTheme)

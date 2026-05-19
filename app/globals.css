@@ -356,10 +356,18 @@
   text-shadow: 0 0 40px rgba(180,40,0,0.18) !important;
 }
 
+/* ─── Light mode — body atmosphere gradient ────────────────────────────────── */
+[data-mode="light"] body {
+  background:
+    radial-gradient(ellipse 110% 55% at 50% -8%,  color-mix(in srgb, var(--cinnabar) 16%, transparent), transparent 52%),
+    radial-gradient(ellipse  70% 40% at 10% 95%,  color-mix(in srgb, var(--cinnabar) 10%, transparent), transparent 50%),
+    var(--paper);
+}
+
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
 [data-mode="light"] canvas {
-  opacity: 0.10;
-  mix-blend-mode: soft-light;
+  opacity: 0.22;
+  mix-blend-mode: screen;
 }
 [data-mode="light"] .grain::before {
   mix-blend-mode: multiply;    /* grain multiplies onto cream = paper texture */
