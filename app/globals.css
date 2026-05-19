@@ -357,16 +357,18 @@
 }
 
 /* ─── Light mode — body atmosphere gradient ────────────────────────────────── */
+/* rgba values hardcoded for reliability — color-mix with vars resolves too faint */
 [data-mode="light"] body {
   background:
-    radial-gradient(ellipse 110% 55% at 50% -8%,  color-mix(in srgb, var(--cinnabar) 16%, transparent), transparent 52%),
-    radial-gradient(ellipse  70% 40% at 10% 95%,  color-mix(in srgb, var(--cinnabar) 10%, transparent), transparent 50%),
+    radial-gradient(ellipse 130% 65% at 50% -15%, rgba(196,32,0,0.30),  transparent 54%),
+    radial-gradient(ellipse  80% 45% at  5% 108%, rgba(196,32,0,0.18),  transparent 52%),
+    radial-gradient(ellipse  50% 35% at 95%  92%, rgba(196,32,0,0.10),  transparent 50%),
     var(--paper);
 }
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
 [data-mode="light"] canvas {
-  opacity: 0.22;
+  opacity: 0.06;   /* near-invisible — body gradient supplies the atmosphere */
   mix-blend-mode: screen;
 }
 [data-mode="light"] .grain::before {
