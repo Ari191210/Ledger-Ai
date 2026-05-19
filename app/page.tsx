@@ -141,7 +141,7 @@ const TIERS = [
 const S = {
   cap:       { fontFamily: "var(--mono)", fontSize: 10, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)" },
   capAccent: { fontFamily: "var(--mono)", fontSize: 10, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)" },
-  h2:        { fontFamily: "var(--serif)", fontSize: "clamp(26px,3.5vw,40px)", fontStyle: "italic" as const, fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1.15 },
+  h2:        { fontFamily: "var(--serif)", fontSize: "clamp(26px,3.5vw,40px)", fontStyle: "normal" as const, fontWeight: 700, color: "var(--ink)", letterSpacing: "0.04em", lineHeight: 1.1 },
   body:      { fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", lineHeight: 1.7 },
   rule:      { height: 1, background: "var(--rule)", width: "100%" },
   border:    "1px solid var(--rule)",
@@ -254,7 +254,7 @@ export default function Home() {
       if (reduceMotion) {
         gsap.set(
           [".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
-           ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-panel > *", ".hero-activity"],
+           ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-activity"],
           { autoAlpha: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" }
         );
       } else {
@@ -269,7 +269,6 @@ export default function Home() {
           .from(".hero-stats > *",{ autoAlpha: 0, y: 14, duration: 0.45, stagger: 0.07 }, "-=0.35")
           .from(".hero-ctas > *", { autoAlpha: 0, y: 12, scale: 0.97, duration: 0.45, stagger: 0.07 }, "-=0.3")
           .from(".hero-scroll",   { autoAlpha: 0, duration: 0.4 }, "-=0.15")
-          .from(".hero-panel > *",{ autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.05, ease: "power2.out" }, "-=0.55")
           .from(".hero-activity", { autoAlpha: 0, x: -20, duration: 0.55, ease: "power2.out" }, "-=0.4");
       }
 
@@ -487,7 +486,7 @@ export default function Home() {
         padding: "0 40px", height: 60,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
-          <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 500, fontSize: 21, color: "var(--ink)", letterSpacing: "-0.02em" }}>Ledger</span>
+          <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16, color: "var(--ink)", letterSpacing: "0.1em" }}>LEDGER</span>
           <nav style={{ display: "flex", gap: 28 }} className="mob-hide">
             {[["#tools", "Tools"], ["#features", "Features"], ["#score", "Score"]].map(([href, label]) => (
               <a key={href} href={href} style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 500, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 180ms" }}
@@ -513,33 +512,28 @@ export default function Home() {
           {/* Badge */}
           <div className="hero-badge" style={{
             display: "inline-flex", alignItems: "center", gap: 16,
-            border: "1px solid rgba(255,255,255,0.14)", padding: "6px 22px", marginBottom: 52,
-            backdropFilter: "blur(16px)", background: "rgba(0,0,0,0.38)",
+            border: "1px solid var(--rule)", padding: "6px 22px", marginBottom: 52,
+            background: "var(--paper)",
           }}>
             <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <span style={{ position: "relative", width: 8, height: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.55, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
-                <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "block" }} />
+                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.4, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
+                <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block" }} />
               </span>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22c55e" }}>Live</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>Live</span>
             </span>
-            <span style={{ width: 1, height: 12, background: "rgba(255,255,255,0.15)", display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>Academic OS</span>
-            <span style={{ width: 1, height: 12, background: "rgba(255,255,255,0.15)", display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "rgba(255,255,255,0.28)" }}>Est. 2025</span>
+            <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-2)" }}>Academic OS</span>
+            <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
           </div>
 
           {/* Headline */}
           <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1.0, margin: "0 auto 28px" }}>
-            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(36px,6.5vw,80px)", color: "rgba(255,255,255,0.72)", letterSpacing: "0.08em" }}>
+            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(36px,6.5vw,80px)", color: "var(--ink-2)", letterSpacing: "0.08em" }}>
               The Student&apos;s
             </div>
-            <div className="hero-word-2" style={{
-              display: "block", fontSize: "clamp(36px,6.5vw,80px)",
-              color: "#ffffff",
-              letterSpacing: "0.06em",
-              textShadow: "0 0 60px rgba(255,80,30,0.35)",
-            }}>
+            <div className="hero-word-2" style={{ display: "block", fontSize: "clamp(36px,6.5vw,80px)", color: "var(--ink)", letterSpacing: "0.06em" }}>
               Operating System.
             </div>
           </h1>
@@ -547,16 +541,16 @@ export default function Home() {
           {/* Divider removed */}
 
           {/* Sub */}
-          <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.6vw,16px)", color: "rgba(255,255,255,0.5)", maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
+          <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.6vw,16px)", color: "var(--ink-3)", maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
             51 AI-powered tools. One streak. One score. One syllabus.
           </p>
 
           {/* Stats strip */}
-          <div className="hero-stats" style={{ display: "flex", justifyContent: "center", maxWidth: 440, margin: "0 auto 40px", border: "1px solid rgba(255,255,255,0.09)" }}>
+          <div className="hero-stats" style={{ display: "flex", justifyContent: "center", maxWidth: 440, margin: "0 auto 40px", border: "1px solid var(--rule)" }}>
             {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "51", l: "AI tools" }].map((s, i) => (
-              <div key={i} style={{ flex: 1, textAlign: "center", padding: "14px 0", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.09)" : "none" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(18px,2.8vw,28px)", fontStyle: "normal", fontWeight: 700, color: "#fff", lineHeight: 1 }}>{s.n}</div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
+              <div key={i} style={{ flex: 1, textAlign: "center", padding: "14px 0", borderRight: i < 2 ? "1px solid var(--rule)" : "none" }}>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(18px,2.8vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
               </div>
             ))}
           </div>
@@ -566,17 +560,17 @@ export default function Home() {
             <Link href="/dashboard" style={{ textDecoration: "none" }}>
               <GetStartedButton />
             </Link>
-            <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", padding: "12px 22px", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(8px)", background: "rgba(0,0,0,0.22)", transition: "color 200ms, border-color 200ms" }}>
+            <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
               Explore tools
             </a>
-            <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", padding: "12px 4px", transition: "color 200ms" }}>
+            <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
               Sign in
             </Link>
           </div>
 
           {/* Scroll hint */}
           <div className="hero-scroll" style={{ position: "absolute", bottom: -96, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.35 }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "#fff", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
           </div>
         </div>
 
@@ -584,64 +578,23 @@ export default function Home() {
         <div className="mob-hide hero-activity" style={{ position: "absolute", bottom: 96, left: 40, zIndex: 4 }}>
           <div ref={activityRef} style={{
             display: "flex", alignItems: "flex-start", gap: 12,
-            background: "rgba(6,5,4,0.88)", backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--paper)", border: "1px solid var(--rule)",
             padding: "12px 16px", maxWidth: 320,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
           }}>
             <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0, marginTop: 4 }}>
-              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#22c55e", opacity: 0.45, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
-              <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "#22c55e", display: "block", margin: "1.5px" }} />
+              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.35, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
+              <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block", margin: "1.5px" }} />
             </span>
             <div>
               <div style={{ marginBottom: 3 }}>
-                <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>{LIVE_ACTIVITY[activityIdx].who}</span>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", marginLeft: 8 }}>{LIVE_ACTIVITY[activityIdx].ctx}</span>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>{LIVE_ACTIVITY[activityIdx].who}</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", marginLeft: 8 }}>{LIVE_ACTIVITY[activityIdx].ctx}</span>
               </div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>{LIVE_ACTIVITY[activityIdx].action}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4 }}>{LIVE_ACTIVITY[activityIdx].action}</div>
             </div>
           </div>
         </div>
 
-        {/* Category preview panel — anchored to hero bottom */}
-        <div className="hero-panel" style={{
-          position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)",
-          width: "min(1000px, 92vw)", zIndex: 3,
-          display: "grid", gridTemplateColumns: "repeat(6, 1fr)",
-          gap: 1, background: "rgba(255,255,255,0.06)",
-        }}>
-          {([
-            { cat: "PLAN",     n: 7,  tools: ["Study Planner", "Focus Dashboard", "Habit Tracker"]   },
-            { cat: "LEARN",    n: 7,  tools: ["Study Engine",  "Doubt Solver",    "Mind Map Builder"] },
-            { cat: "WRITE",    n: 8,  tools: ["Essay Workshop","Research Hub",    "Writing Polish"]   },
-            { cat: "PRACTISE", n: 12, tools: ["Practice Suite","Past Papers",     "Revision Planner"] },
-            { cat: "FUTURE",   n: 5,  tools: ["Future Finder", "Admissions",      "GPA Simulator"]    },
-            { cat: "TRACK",    n: 12, tools: ["Ledger Score",  "Text Analyst",    "Academic Coach"]   },
-          ] as const).map(({ cat, n, tools }) => (
-            <a key={cat} href="#tools" style={{ textDecoration: "none" }}>
-              <div style={{
-                background: "rgba(8,6,4,0.78)", backdropFilter: "blur(24px)",
-                padding: "14px 13px 16px",
-                borderTop: `2px solid ${CAT_COLOR[cat as keyof typeof CAT_COLOR]}`,
-                transition: "background 180ms",
-              }}
-                onMouseEnter={e => (e.currentTarget.style.background = "rgba(20,16,12,0.92)")}
-                onMouseLeave={e => (e.currentTarget.style.background = "rgba(8,6,4,0.78)")}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 9 }}>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase", color: CAT_COLOR[cat as keyof typeof CAT_COLOR] }}>{cat}</span>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "rgba(255,255,255,0.22)" }}>{n}</span>
-                </div>
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  {tools.map(t => (
-                    <li key={t} style={{ fontFamily: "var(--sans)", fontSize: 10, color: "rgba(255,255,255,0.38)", lineHeight: 1.95, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t}</li>
-                  ))}
-                </ul>
-              </div>
-            </a>
-          ))}
-        </div>
       </section>
 
       {/* ─── Ticker ─── */}
@@ -678,7 +631,7 @@ export default function Home() {
             <div>
               {/* Pull quote */}
               <div style={{ borderTop: "2px solid var(--ink)", paddingTop: 24, marginBottom: 32 }}>
-                <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "clamp(18px,2.2vw,24px)", color: "var(--ink)", lineHeight: 1.5, letterSpacing: "-0.01em", margin: 0 }}>
+                <p style={{ fontFamily: "var(--sans)", fontStyle: "italic", fontSize: "clamp(18px,2.2vw,24px)", color: "var(--ink)", lineHeight: 1.5, letterSpacing: "-0.01em", margin: 0 }}>
                   &ldquo;The only student tool built around your syllabus, your board, and your exam — not a generic student somewhere in the world.&rdquo;
                 </p>
               </div>
@@ -691,7 +644,7 @@ export default function Home() {
                   { n: "8w", l: "To see results" },
                 ].map((m, i) => (
                   <div key={i} style={{ background: "var(--paper)", padding: "20px 16px" }}>
-                    <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>{m.n}</div>
+                    <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1, letterSpacing: "0.04em" }}>{m.n}</div>
                     <div style={{ ...S.cap, marginTop: 8 }}>{m.l}</div>
                   </div>
                 ))}
@@ -787,7 +740,7 @@ export default function Home() {
               <div className="bento-card" style={{ background: "var(--paper)", padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.capAccent}>Ledger Score</span>
                 <div>
-                  <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.03em", lineHeight: 1, marginTop: 12 }}>0</div>
+                  <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>0</div>
                   <div style={{ marginTop: 14, height: 3, background: "var(--rule)" }}>
                     <div className="progress-bar" style={{ height: "100%", width: "84%", background: "var(--cinnabar-ink)" }} />
                   </div>
@@ -799,7 +752,7 @@ export default function Home() {
               <div className="bento-card" style={{ background: "var(--paper)", padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Toolkit</span>
                 <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.03em", lineHeight: 1, marginTop: 12 }}>51</div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>51</div>
                   <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.8 }}>
                     <li>· Study Engine</li>
                     <li>· Practice Suite</li>
@@ -812,7 +765,7 @@ export default function Home() {
               <div className="bento-card" style={{ background: "var(--paper)", padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Focus Streak</span>
                 <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 400, color: "var(--ink)", letterSpacing: "-0.03em", lineHeight: 1, marginTop: 12 }}>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>
                     <span className="count-up" data-target="142">0</span>
                     <span style={{ fontSize: 28, color: "var(--ink-3)" }}>d</span>
                   </div>
@@ -902,7 +855,7 @@ export default function Home() {
                   <span style={{ width: 1, height: 10, background: "var(--rule)", display: "inline-block" }} />
                   <span style={{ ...S.cap, fontSize: 9 }}>/tools/{tool.slug}</span>
                 </div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(22px,2.8vw,32px)", fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", lineHeight: 1.15, color: "var(--ink)", marginBottom: 8 }}>{tool.ttl}</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(22px,2.8vw,32px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.03em", lineHeight: 1.15, color: "var(--ink)", marginBottom: 8 }}>{tool.ttl}</div>
                 <div style={{ ...S.capAccent, marginBottom: 16 }}>{tool.sub}</div>
                 <p style={{ ...S.body, fontSize: 13, lineHeight: 1.72 }}>{tool.desc}</p>
                 <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9 }}>
@@ -946,7 +899,7 @@ export default function Home() {
                 <div key={label} style={{ marginTop: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
                     <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic", fontWeight: 500, color: "var(--cinnabar-ink)" }}>{unit}</span>
+                    <span style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "normal", fontWeight: 700, color: "var(--cinnabar-ink)" }}>{unit}</span>
                   </div>
                   <input type="range" min={min} max={max} value={val} onChange={e => set(+e.target.value)} style={{ width: "100%" }} />
                 </div>
@@ -978,7 +931,7 @@ export default function Home() {
             {/* Score display */}
             <div style={{ padding: "32px 32px", display: "flex", flexDirection: "column", justifyContent: "center", background: "var(--paper)" }}>
               <div style={S.cap}>Estimated Ledger Score</div>
-              <div ref={scoreNumRef} style={{ fontFamily: "var(--serif)", fontSize: "clamp(72px,10vw,100px)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.04em", lineHeight: 1, marginTop: 8, color: "var(--ink)", transition: "color 300ms" }}>
+              <div ref={scoreNumRef} style={{ fontFamily: "var(--serif)", fontSize: "clamp(72px,10vw,100px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.02em", lineHeight: 1, marginTop: 8, color: "var(--ink)", transition: "color 300ms" }}>
                 {scorePreview}
               </div>
               <div style={{ ...S.cap, marginTop: 6, color: "var(--cinnabar-ink)" }}>/ 1000 · {scoreTierLabel(scorePreview)}</div>
@@ -1118,7 +1071,7 @@ export default function Home() {
             <div style={{ padding: "32px 36px 28px" }}>
               <div style={{ ...S.capAccent, fontSize: 9, marginBottom: 18 }}>Dispatch No.{String(testimIdx + 1).padStart(2, "0")}</div>
               <blockquote style={{
-                fontFamily: "var(--serif)", fontSize: "clamp(20px,2.8vw,28px)", fontStyle: "italic",
+                fontFamily: "var(--sans)", fontSize: "clamp(20px,2.8vw,28px)", fontStyle: "italic",
                 lineHeight: 1.42, margin: "0 0 24px", letterSpacing: "-0.01em",
                 maxWidth: 800, color: "var(--ink)", fontWeight: 400,
               }}>
@@ -1151,7 +1104,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: S.border, borderTop: "none" }} className="mob-2col">
             {STATS.map(({ big, suffix, sm }, i) => (
               <div className="stat-card" key={i} style={{ background: "var(--paper)", padding: "24px 22px" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.025em", color: "var(--ink)", display: "flex", alignItems: "baseline", gap: 4 }}>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "normal", fontWeight: 700, lineHeight: 1, letterSpacing: "0.02em", color: "var(--ink)", display: "flex", alignItems: "baseline", gap: 4 }}>
                   <span className="count-up" data-target={big} data-decimals={big.includes(".") ? "1" : "0"}>{big}</span>
                   <span style={{ fontSize: 22 }}>{suffix}</span>
                 </div>
@@ -1168,8 +1121,8 @@ export default function Home() {
           <div className="cta-content" style={{ textAlign: "center", maxWidth: 680, margin: "0 auto" }}>
             <div style={{ ...S.capAccent, marginBottom: 28 }}>Start today — free, no credit card</div>
             <h2 style={{
-              fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 400,
-              fontSize: "clamp(32px,5.5vw,64px)", color: "var(--ink)", letterSpacing: "-0.03em", lineHeight: 1.05,
+              fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700,
+              fontSize: "clamp(32px,5.5vw,64px)", color: "var(--ink)", letterSpacing: "0.04em", lineHeight: 1.05,
               marginBottom: 24,
             }}>
               Your exam is closer than it feels.
@@ -1196,7 +1149,7 @@ export default function Home() {
       <footer className="gl-pane-alt" style={{ borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "56px 40px 60px", display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32 }} className="mob-2col">
           <div className="footer-col">
-            <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 500, fontSize: 36, letterSpacing: "-0.025em", lineHeight: 0.9, color: "var(--ink)", marginBottom: 8 }}>Ledger</div>
+            <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 28, letterSpacing: "0.08em", lineHeight: 0.9, color: "var(--ink)", marginBottom: 8 }}>LEDGER</div>
             <div style={{ ...S.cap, fontSize: 9 }}>The Student&apos;s Operating System</div>
             <p style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 16, maxWidth: 260, lineHeight: 1.65 }}>
               Independent, student-funded. We will never sell your study data.
