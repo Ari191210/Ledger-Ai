@@ -110,12 +110,12 @@ function ToolRow({ t, color, onOpen, onSplit }: { t: Tool; color: string; onOpen
         <button
           onClick={() => onOpen(t.slug)}
           aria-label={`Open ${t.full}`}
-          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--ink-2)", background: "transparent", color: "var(--ink-2)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase" }}
+          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--ink-2)", background: "transparent", color: "var(--ink-2)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
         >Open</button>
         <button
           onClick={() => onSplit(t.slug)}
           aria-label={`Split view with ${t.full}`}
-          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--rule)", background: "transparent", color: "var(--ink-3)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase" }}
+          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--rule)", background: "transparent", color: "var(--ink-3)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
         >Split</button>
       </div>
     </div>
@@ -166,10 +166,10 @@ export default function AppNav() {
   const isProfile = path === "/dashboard/profile";
   const initial   = (displayName || "?")[0].toUpperCase();
 
-  const navLink = (href: string, label: string, extra?: React.ReactNode) => {
+  const navLink = (href: string, label: string, extra?: React.ReactNode, mobileHide?: boolean) => {
     const active = path === href;
     return (
-      <Link href={href} style={{
+      <Link href={href} className={mobileHide ? "mob-hide" : undefined} style={{
         textDecoration: "none", display: "flex", alignItems: "center", gap: 6, padding: "0 16px",
         borderRight: "1px solid var(--rule)",
         background: active ? "var(--paper-2)" : "transparent",
@@ -202,10 +202,10 @@ export default function AppNav() {
           </span>
         </Link>
 
-        {navLink("/dashboard", "Dashboard")}
-        {navLink("/tools/personalise", "Themes")}
+        {navLink("/dashboard", "Dashboard", undefined, true)}
+        {navLink("/tools/personalise", "Themes", undefined, true)}
 
-        <Link href="/tools/score" style={{
+        <Link href="/tools/score" className="mob-hide" style={{
           textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 14px",
           borderRight: "1px solid var(--rule)",
           background: path === "/tools/score" ? "var(--paper-2)" : "transparent",
@@ -317,7 +317,7 @@ export default function AppNav() {
           <button
             onClick={closeSidebar}
             aria-label="Close tools panel"
-            style={{ fontFamily: "var(--mono)", fontSize: 9, background: "none", border: "1px solid var(--rule)", padding: "4px 10px", cursor: "pointer", color: "var(--ink-3)", letterSpacing: "0.04em" }}
+            style={{ fontFamily: "var(--mono)", fontSize: 9, background: "none", border: "1px solid var(--rule)", padding: "4px 10px", cursor: "pointer", color: "var(--ink-3)", letterSpacing: "0.04em", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
           >✕ Esc</button>
         </div>
 
@@ -329,6 +329,7 @@ export default function AppNav() {
             padding: "11px 16px", background: "none", border: "none",
             borderBottom: "1px solid var(--rule)",
             cursor: "pointer", textAlign: "left", flexShrink: 0,
+            borderRadius: 0, boxShadow: "none", backdropFilter: "none",
           }}
         >
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", flex: 1 }}>Search all tools…</span>

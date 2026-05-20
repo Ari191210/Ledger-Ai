@@ -698,6 +698,19 @@ button:not(.btn):not([class*="ui-btn"]):disabled {
   cursor: not-allowed;
 }
 
+/* ─── Nav + tab-bar buttons: strip glass (they carry structural inline styles) ── */
+nav button,
+.mob-tab-bar button {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+nav button:hover:not(:disabled),
+.mob-tab-bar button:hover:not(:disabled) { transform: none !important; }
+nav button:active:not(:disabled),
+.mob-tab-bar button:active:not(:disabled) { transform: none !important; }
+
 /* ─── Forms ─────────────────────────────────────────────────────────────────── */
 input, textarea, select { outline: none; }
 input[type="range"] { cursor: pointer; }
@@ -1494,6 +1507,13 @@ main {
 
   /* Tool content: extra bottom clearance for the mobile tab bar + breathing room */
   .mob-p { padding: 20px 16px calc(80px + env(safe-area-inset-bottom, 0px)) !important; }
+
+  /* Palette panel: lift above mobile tab bar */
+  .palette-panel {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+    right: 12px !important;
+    width: 172px !important;
+  }
 
   /* Desktop dock: hide on mobile */
   .desk-dock { display: none !important; }

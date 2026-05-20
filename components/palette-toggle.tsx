@@ -16,8 +16,9 @@ import { sounds } from "@/lib/sounds";
 gsap.registerPlugin(useGSAP);
 
 export default function PaletteToggle() {
-  const [active,  setActive]  = useState<PaletteId>("porcelain");
-  const [hovered, setHovered] = useState<PaletteId | null>(null);
+  const [active,    setActive]    = useState<PaletteId>("porcelain");
+  const [hovered,   setHovered]   = useState<PaletteId | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   const panelRef  = useRef<HTMLDivElement>(null);
   const swatchMap = useRef<Partial<Record<PaletteId, HTMLButtonElement>>>({});
@@ -75,11 +76,29 @@ export default function PaletteToggle() {
     PALETTE_IDS.slice(4) as PaletteId[],
   ];
 
+  if (collapsed) return (
+    <button
+      onClick={() => setCollapsed(false)}
+      aria-label="Open theme selector"
+      style={{
+        position: "fixed", bottom: "calc(56px + env(safe-area-inset-bottom, 0px) + 12px)", right: 16,
+        zIndex: 2000, width: 36, height: 36,
+        background: "color-mix(in srgb, var(--paper) 85%, transparent)",
+        border: "1px solid var(--rule)", borderRadius: 6,
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+        color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: 14,
+      }}
+    >◈</button>
+  );
+
   return (
     <div
       ref={panelRef}
       role="group"
       aria-label="Theme and palette selector"
+      className="palette-panel"
       style={{
         position: "fixed",
         bottom: 24,
@@ -114,7 +133,18 @@ export default function PaletteToggle() {
         }}>
           Theme
         </span>
-        <AnimatedThemeToggler size={26} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <AnimatedThemeToggler size={26} />
+          <button
+            onClick={() => setCollapsed(true)}
+            aria-label="Collapse theme selector"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: 14,
+              padding: "0 2px", lineHeight: 1, boxShadow: "none", borderRadius: 0,
+            }}
+          >—</button>
+        </div>
       </div>
 
       {/* ── Row 2: palette label + live name ──────────────────────── */}
