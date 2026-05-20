@@ -1,112 +1,88 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-
-const TOOLS = [
-  // PLAN
-  { name: "Exam Planner",        slug: "exam-planner",   category: "PLAN"     },
-  { name: "Study Planner",       slug: "planner",        category: "PLAN"     },
-  { name: "Deadlines",           slug: "deadlines",      category: "PLAN"     },
-  { name: "Exam Triage",         slug: "exam-triage",    category: "PLAN"     },
-  { name: "Circuit Breaker",     slug: "circuit-breaker",category: "PLAN"     },
-  { name: "Circadian",           slug: "circadian",      category: "PLAN"     },
-  { name: "Brain Budget",        slug: "brain-budget",   category: "PLAN"     },
-  // LEARN
-  { name: "Half-Life",           slug: "half-life",      category: "LEARN"    },
-  { name: "Analogy Engine",      slug: "analogy",        category: "LEARN"    },
-  { name: "Concept Connect",     slug: "concept-connect",category: "LEARN"    },
-  { name: "Memory Palace",       slug: "memory-palace",  category: "LEARN"    },
-  { name: "Memory Toolkit",      slug: "memory-toolkit", category: "LEARN"    },
-  { name: "Recall Studio",       slug: "recall-studio",  category: "LEARN"    },
-  { name: "Flashcards",          slug: "flashcards",     category: "LEARN"    },
-  { name: "Language Lab",        slug: "language-lab",   category: "LEARN"    },
-  { name: "Vocab Builder",       slug: "vocab",          category: "LEARN"    },
-  // WRITE
-  { name: "Notes Simplifier",    slug: "notes",          category: "WRITE"    },
-  { name: "Essay Blueprint",     slug: "essay-blueprint",category: "WRITE"    },
-  { name: "Grammar Fix",         slug: "grammar",        category: "WRITE"    },
-  { name: "Citation Builder",    slug: "citation",       category: "WRITE"    },
-  { name: "Lab Report",          slug: "lab-report",     category: "WRITE"    },
-  { name: "Presentation Builder",slug: "presentation",   category: "WRITE"    },
-  { name: "Writing Tools",       slug: "writing-tools",  category: "WRITE"    },
-  { name: "Reference Builder",   slug: "reference-builder",category: "WRITE"  },
-  { name: "Model Answer",        slug: "model-answer",   category: "WRITE"    },
-  { name: "Study Guide",         slug: "study-guide",    category: "WRITE"    },
-  { name: "Case Study",          slug: "case-study",     category: "WRITE"    },
-  { name: "Research Suite",      slug: "research-suite", category: "WRITE"    },
-  // PRACTISE
-  { name: "Doubt Solver",        slug: "doubt",          category: "PRACTISE" },
-  { name: "Practice Questions",  slug: "practice",       category: "PRACTISE" },
-  { name: "Mark Scheme",         slug: "mark-scheme",    category: "PRACTISE" },
-  { name: "Paper Triage",        slug: "paper-triage",   category: "PRACTISE" },
-  { name: "Past Papers",         slug: "papers",         category: "PRACTISE" },
-  { name: "Exam Debrief",        slug: "exam-debrief",   category: "PRACTISE" },
-  { name: "Debate Practice",     slug: "debate",         category: "PRACTISE" },
-  { name: "Interview Prep",      slug: "interview",      category: "PRACTISE" },
-  { name: "Formula Recall",      slug: "formula-recall", category: "PRACTISE" },
-  { name: "Exam Strategy",       slug: "exam-strategy",  category: "PRACTISE" },
-  { name: "Post-Exam",           slug: "post-exam",      category: "PRACTISE" },
-  { name: "Crunch Mode",         slug: "crunch",         category: "PRACTISE" },
-  { name: "Source Analyser",     slug: "source",         category: "PRACTISE" },
-  // TRACK
-  { name: "Grade Tracker",       slug: "grade-tracker",  category: "TRACK"    },
-  { name: "Marks Predictor",     slug: "marks",          category: "TRACK"    },
-  { name: "Ledger Score",        slug: "score",          category: "TRACK"    },
-  { name: "GPA Simulator",       slug: "gpa-sim",        category: "TRACK"    },
-  { name: "Peer Heatmap",        slug: "peer-heatmap",   category: "TRACK"    },
-  { name: "Syllabus Tracker",    slug: "syllabus",       category: "TRACK"    },
-  { name: "Habits",              slug: "habits",         category: "TRACK"    },
-  { name: "Debt Meter",          slug: "debt-meter",     category: "TRACK"    },
-  { name: "DNA Report",          slug: "dna",            category: "TRACK"    },
-  { name: "Revision Intel",      slug: "revision-intel", category: "TRACK"    },
-  { name: "Analysis Hub",        slug: "analysis-hub",   category: "TRACK"    },
-  { name: "Report Tools",        slug: "report-tools",   category: "TRACK"    },
-  // FUTURE
-  { name: "Study Rooms",         slug: "rooms",          category: "FUTURE"   },
-  { name: "Focus Lab",           slug: "focus-lab",      category: "FUTURE"   },
-  { name: "Student Command",     slug: "study-command",  category: "FUTURE"   },
-  { name: "Uni Match",           slug: "uni-match",      category: "FUTURE"   },
-  { name: "Admissions",          slug: "admissions",     category: "FUTURE"   },
-  { name: "Applications",        slug: "applications",   category: "FUTURE"   },
-  { name: "Uni Prep",            slug: "uni-prep",       category: "FUTURE"   },
-];
+import { TOOLS_REGISTRY, CAT_COLOR } from "@/lib/tools-registry";
+import { getRecentTools } from "@/lib/recent-tools";
 
 const QUICK_ACTIONS = [
-  { name: "Dashboard",           path: "/dashboard",         category: "NAV"  },
-  { name: "Profile & Settings",  path: "/dashboard/profile", category: "NAV"  },
-  { name: "Ledger Score",        path: "/tools/score",       category: "NAV"  },
-  { name: "Themes",              path: "/tools/personalise", category: "NAV"  },
+  { name: "Dashboard",           path: "/dashboard",         category: "NAV", subtitle: "Your study overview" },
+  { name: "Profile & Settings",  path: "/dashboard/profile", category: "NAV", subtitle: "Account and preferences" },
+  { name: "Ledger Score",        path: "/tools/score",       category: "NAV", subtitle: "Your real-time readiness" },
+  { name: "Themes",              path: "/tools/personalise", category: "NAV", subtitle: "Palette, mode, density" },
 ];
 
 type Item =
-  | { kind: "tool";   name: string; slug: string; category: string }
-  | { kind: "action"; name: string; path: string; category: string };
+  | { kind: "tool";   title: string; subtitle: string; slug: string; category: string }
+  | { kind: "action"; name: string;  subtitle: string; path: string;  category: string };
 
-function buildItems(): Item[] {
-  return [
-    ...QUICK_ACTIONS.map(a => ({ kind: "action" as const, ...a })),
-    ...TOOLS.map(t => ({ kind: "tool" as const, ...t })),
-  ];
+function fuzzyScore(query: string, tool: { title?: string; name?: string; slug?: string; subtitle?: string; keywords?: string[] }): number {
+  const q = query.toLowerCase();
+  const title = (tool.title ?? tool.name ?? "").toLowerCase();
+  const sub   = (tool.subtitle ?? "").toLowerCase();
+  const slug  = (tool.slug ?? "").toLowerCase();
+  if (title.startsWith(q))     return 5;
+  if (title.includes(q))       return 4;
+  if (slug.includes(q))        return 3;
+  if (sub.includes(q))         return 2;
+  if (tool.keywords?.some(k => k.includes(q))) return 1;
+  return 0;
 }
 
-const ALL_ITEMS = buildItems();
+function matchesQuery(query: string, item: Item): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  if (item.kind === "action") {
+    return item.name.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q);
+  }
+  return (
+    item.title.toLowerCase().includes(q)    ||
+    item.subtitle.toLowerCase().includes(q) ||
+    item.slug.toLowerCase().includes(q)     ||
+    (item as { keywords?: string[] }).keywords?.some((k: string) => k.includes(q)) === true
+  );
+}
 
 export default function CommandPalette() {
   const router  = useRouter();
-  const [open,   setOpen]   = useState(false);
-  const [query,  setQuery]  = useState("");
-  const [cursor, setCursor] = useState(0);
+  const [open,    setOpen]    = useState(false);
+  const [query,   setQuery]   = useState("");
+  const [cursor,  setCursor]  = useState(0);
   const [mounted, setMounted] = useState(false);
-  const inputRef   = useRef<HTMLInputElement>(null);
-  const listRef    = useRef<HTMLDivElement>(null);
-  const itemRefs   = useRef<(HTMLButtonElement | null)[]>([]);
+  const [recents, setRecents] = useState<string[]>([]);
+  const inputRef  = useRef<HTMLInputElement>(null);
+  const listRef   = useRef<HTMLDivElement>(null);
+  const itemRefs  = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const filtered: Item[] = query.trim()
-    ? ALL_ITEMS.filter(i =>
-        i.name.toLowerCase().includes(query.toLowerCase()) ||
-        i.category.toLowerCase().includes(query.toLowerCase())
-      )
-    : ALL_ITEMS;
+  // Build a merged+sorted item list
+  const allTools: Item[] = TOOLS_REGISTRY.map(t => ({
+    kind:     "tool" as const,
+    title:    t.title,
+    subtitle: t.subtitle,
+    slug:     t.slug,
+    category: t.cat,
+    keywords: t.keywords,
+  }));
+  const allActions: Item[] = QUICK_ACTIONS.map(a => ({ kind: "action" as const, ...a }));
+
+  const filtered: Item[] = (() => {
+    const q = query.trim();
+    if (q) {
+      // Scored search across tools + actions
+      const toolHits = allTools
+        .map(t => ({ item: t, score: fuzzyScore(q, t.kind === "tool" ? { title: t.title, subtitle: t.subtitle, slug: t.slug, keywords: (t as { keywords?: string[] }).keywords } : { name: (t as Item & { name?: string }).name }) }))
+        .filter(({ score }) => score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(({ item }) => item);
+      const actionHits = allActions.filter(a => matchesQuery(q, a));
+      return [...actionHits, ...toolHits].slice(0, 24);
+    }
+    // No query — show quick actions + recents first, then rest
+    const recentItems = allTools
+      .filter(t => recents.includes(t.kind === "tool" ? t.slug : ""))
+      .sort((a, b) => recents.indexOf((a as { slug: string }).slug) - recents.indexOf((b as { slug: string }).slug));
+    const restItems = allTools.filter(t => !recents.includes(t.kind === "tool" ? t.slug : ""));
+    return [...allActions, ...recentItems, ...restItems].slice(0, 28);
+  })();
 
   const close = useCallback(() => {
     setOpen(false);
@@ -120,13 +96,15 @@ export default function CommandPalette() {
     close();
   }, [router, close]);
 
-  // Keyboard shortcut: Ctrl+K / Cmd+K
   useEffect(() => {
     setMounted(true);
     function onKey(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
-        setOpen(o => !o);
+        setOpen(o => {
+          if (!o) setRecents(getRecentTools());
+          return !o;
+        });
         setQuery("");
         setCursor(0);
       }
@@ -135,18 +113,19 @@ export default function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Focus input when opened
   useEffect(() => {
     if (open) {
+      setRecents(getRecentTools());
       setTimeout(() => inputRef.current?.focus(), 30);
     }
   }, [open]);
 
-  // Scroll highlighted item into view
   useEffect(() => {
     const el = itemRefs.current[cursor];
     if (el) el.scrollIntoView({ block: "nearest" });
   }, [cursor]);
+
+  useEffect(() => { setCursor(0); }, [query]);
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Escape")    { close(); return; }
@@ -241,12 +220,13 @@ export default function CommandPalette() {
           background: color-mix(in srgb, var(--ink) 8%, transparent);
         }
         .cp-item-name {
-          flex: 1;
-          font-family: var(--sans);
+          display: block;
+          font-family: var(--serif);
           font-size: 14px;
-          font-weight: 500;
+          font-weight: 600;
           color: var(--ink);
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          line-height: 1.3;
         }
         .cp-item-badge {
           font-family: var(--mono);
@@ -318,7 +298,7 @@ export default function CommandPalette() {
                 value={query}
                 onChange={e => { setQuery(e.target.value); setCursor(0); }}
                 onKeyDown={onKeyDown}
-                placeholder="Search 55 tools…"
+                placeholder="Search tools and pages…"
                 aria-label="Search tools and actions"
                 autoComplete="off"
                 spellCheck={false}
@@ -328,29 +308,73 @@ export default function CommandPalette() {
 
             {/* Results */}
             <div className="cp-results" ref={listRef} role="listbox" aria-label="Results">
+              {!query.trim() && recents.length > 0 && (
+                <div style={{
+                  padding: "8px 12px 2px",
+                  fontFamily: "var(--mono)",
+                  fontSize: 9,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-3)",
+                  opacity: 0.5,
+                }}>
+                  Recent
+                </div>
+              )}
               {filtered.length === 0 ? (
                 <div className="cp-empty">
                   No results for &ldquo;{query}&rdquo;
                 </div>
               ) : (
-                filtered.map((item, i) => (
-                  <button
-                    key={item.kind === "tool" ? item.slug : item.path}
-                    ref={el => { itemRefs.current[i] = el; }}
-                    className="cp-item"
-                    data-active={i === cursor ? "true" : "false"}
-                    role="option"
-                    aria-selected={i === cursor}
-                    onClick={() => go(item)}
-                    onMouseEnter={() => setCursor(i)}
-                  >
-                    <span className="cp-item-icon" aria-hidden="true">
-                      {item.category === "NAV" ? "↗" : "→"}
-                    </span>
-                    <span className="cp-item-name">{item.name}</span>
-                    <span className="cp-item-badge">{item.category}</span>
-                  </button>
-                ))
+                filtered.map((item, i) => {
+                  const isRecent = item.kind === "tool" && recents.includes(item.slug);
+                  const label    = item.kind === "tool" ? item.title : item.name;
+                  const sub      = item.subtitle;
+                  const catColor = item.category !== "NAV"
+                    ? CAT_COLOR[item.category as keyof typeof CAT_COLOR]
+                    : "var(--ink-3)";
+                  return (
+                    <button
+                      key={item.kind === "tool" ? item.slug : item.path}
+                      ref={el => { itemRefs.current[i] = el; }}
+                      className="cp-item"
+                      data-active={i === cursor ? "true" : "false"}
+                      role="option"
+                      aria-selected={i === cursor}
+                      onClick={() => go(item)}
+                      onMouseEnter={() => setCursor(i)}
+                    >
+                      <span className="cp-item-icon" aria-hidden="true">
+                        {item.category === "NAV" ? "↗" : "→"}
+                      </span>
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span className="cp-item-name">{label}</span>
+                        {sub && (
+                          <span style={{
+                            display: "block",
+                            fontFamily: "var(--mono)",
+                            fontSize: 10,
+                            color: "var(--ink-3)",
+                            opacity: 0.55,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            marginTop: 1,
+                            lineHeight: 1.3,
+                          }}>
+                            {sub}
+                          </span>
+                        )}
+                      </span>
+                      <span className="cp-item-badge" style={{ color: catColor, borderColor: "color-mix(in srgb, " + catColor + " 30%, transparent)" }}>
+                        {item.category}
+                      </span>
+                      {isRecent && !query && (
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", opacity: 0.35, flexShrink: 0 }}>↩</span>
+                      )}
+                    </button>
+                  );
+                })
               )}
             </div>
 
@@ -368,7 +392,9 @@ export default function CommandPalette() {
                 <span className="cp-hint-key">esc</span>
                 <span className="cp-hint-label">close</span>
               </div>
-              <span className="cp-count">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</span>
+              <span className="cp-count">
+                {query.trim() ? `${filtered.length} result${filtered.length !== 1 ? "s" : ""}` : `${TOOLS_REGISTRY.length} tools`}
+              </span>
             </div>
           </div>
         </div>
