@@ -95,9 +95,9 @@ export function WebGLShader() {
         float gx = (p.x - mx);
         float bx = (p.x - mx * 0.9) * (1.0 - d);
 
-        float r = 0.05 / abs(p.y + my        + sin((rx + time) * xScale) * yScale);
-        float g = 0.05 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
-        float b = 0.05 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
+        float r = 0.07 / abs(p.y + my        + sin((rx + time) * xScale) * yScale);
+        float g = 0.07 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
+        float b = 0.07 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
 
         // Identical wave formula in both light and dark mode.
         // bgColor is near-black in dark mode, palette paper in light mode.
