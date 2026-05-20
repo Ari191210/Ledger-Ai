@@ -506,93 +506,104 @@ export default function Home() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
-        <div className="hero-content" style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px", width: "100%", maxWidth: 880, margin: "0 auto" }}>
+      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
 
-          {/* Badge */}
-          <div className="hero-badge" style={{
-            display: "inline-flex", alignItems: "center", gap: 16,
-            border: "1px solid var(--rule)", padding: "6px 22px", marginBottom: 52,
-            background: "var(--paper)",
-          }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <span style={{ position: "relative", width: 8, height: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.4, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
-                <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block" }} />
+        {/* 2-col editorial layout: headline left, stats + activity right */}
+        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1200, margin: "0 auto", padding: "0 48px", display: "grid", gridTemplateColumns: "1fr 260px", gap: 56, alignItems: "center" }}>
+
+          {/* LEFT: badge + headline + subtitle + CTAs */}
+          <div>
+
+            {/* Badge */}
+            <div className="hero-badge" style={{
+              display: "inline-flex", alignItems: "center", gap: 16,
+              border: "1px solid var(--rule)", padding: "6px 22px", marginBottom: 44,
+              background: "var(--paper)",
+            }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ position: "relative", width: 8, height: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.4, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
+                  <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block" }} />
+                </span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>Live</span>
               </span>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>Live</span>
-            </span>
-            <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-2)" }}>Academic OS</span>
-            <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.06em", lineHeight: 1.0, margin: "0 auto 28px" }}>
-            <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(36px,6.5vw,80px)", color: "var(--ink-2)", letterSpacing: "0.08em" }}>
-              The Student&apos;s
+              <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-2)" }}>Academic OS</span>
+              <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
             </div>
-            <div className="hero-word-2" style={{ display: "block", fontSize: "clamp(36px,6.5vw,80px)", color: "var(--ink)", letterSpacing: "0.06em" }}>
-              Operating System.
-            </div>
-          </h1>
 
-          {/* Divider removed */}
-
-          {/* Sub */}
-          <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.6vw,16px)", color: "var(--ink-3)", maxWidth: 420, margin: "0 auto 32px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
-            51 AI-powered tools. One streak. One score. One syllabus.
-          </p>
-
-          {/* Stats strip */}
-          <div className="hero-stats" style={{ display: "flex", justifyContent: "center", maxWidth: 440, margin: "0 auto 40px", border: "1px solid var(--rule)" }}>
-            {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "51", l: "AI tools" }].map((s, i) => (
-              <div key={i} style={{ flex: 1, textAlign: "center", padding: "14px 0", borderRight: i < 2 ? "1px solid var(--rule)" : "none" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(18px,2.8vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
+            {/* Headline */}
+            <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1.0, margin: "0 0 24px" }}>
+              <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(48px,7vw,96px)", color: "var(--ink-2)", letterSpacing: "0.06em" }}>
+                The Student&apos;s
               </div>
-            ))}
+              <div className="hero-word-2" style={{ display: "block", fontSize: "clamp(48px,7vw,96px)", color: "var(--ink)", letterSpacing: "0.04em" }}>
+                Operating System.
+              </div>
+            </h1>
+
+            {/* Sub */}
+            <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.5vw,16px)", color: "var(--ink-3)", maxWidth: 480, margin: "0 0 36px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
+              51 AI-powered tools. One streak. One score. One syllabus.
+            </p>
+
+            {/* CTAs */}
+            <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+              <Link href="/dashboard" style={{ textDecoration: "none" }}>
+                <GetStartedButton />
+              </Link>
+              <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
+                Explore tools
+              </a>
+              <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
+                Sign in
+              </Link>
+            </div>
+
           </div>
 
-          {/* CTAs */}
-          <div className="hero-ctas" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
-            <Link href="/dashboard" style={{ textDecoration: "none" }}>
-              <GetStartedButton />
-            </Link>
-            <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
-              Explore tools
-            </a>
-            <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
-              Sign in
-            </Link>
+          {/* RIGHT: stats strip + live activity (desktop only) */}
+          <div className="mob-hide" style={{ display: "flex", flexDirection: "column", gap: 20, borderLeft: "1px solid var(--rule)", paddingLeft: 40 }}>
+
+            {/* Stats: vertical stack */}
+            <div className="hero-stats" style={{ display: "flex", flexDirection: "column", border: "1px solid var(--rule)" }}>
+              {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "51", l: "AI tools" }].map((s, i) => (
+                <div key={i} style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid var(--rule)" : "none" }}>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px,2vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Live activity toast — embedded in sidebar */}
+            <div className="hero-activity">
+              <div ref={activityRef} style={{
+                display: "flex", alignItems: "flex-start", gap: 12,
+                background: "var(--paper)", border: "1px solid var(--rule)",
+                padding: "12px 16px",
+              }}>
+                <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0, marginTop: 4 }}>
+                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.35, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
+                  <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block", margin: "1.5px" }} />
+                </span>
+                <div>
+                  <div style={{ marginBottom: 3 }}>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>{LIVE_ACTIVITY[activityIdx].who}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", marginLeft: 8 }}>{LIVE_ACTIVITY[activityIdx].ctx}</span>
+                  </div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4 }}>{LIVE_ACTIVITY[activityIdx].action}</div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* Scroll hint */}
-          <div className="hero-scroll" style={{ position: "absolute", bottom: -96, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.35 }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
-          </div>
         </div>
 
-        {/* ─── Live activity toast ─── */}
-        <div className="mob-hide hero-activity" style={{ position: "absolute", bottom: 96, left: 40, zIndex: 4 }}>
-          <div ref={activityRef} style={{
-            display: "flex", alignItems: "flex-start", gap: 12,
-            background: "var(--paper)", border: "1px solid var(--rule)",
-            padding: "12px 16px", maxWidth: 320,
-          }}>
-            <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0, marginTop: 4 }}>
-              <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.35, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
-              <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block", margin: "1.5px" }} />
-            </span>
-            <div>
-              <div style={{ marginBottom: 3 }}>
-                <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>{LIVE_ACTIVITY[activityIdx].who}</span>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", marginLeft: 8 }}>{LIVE_ACTIVITY[activityIdx].ctx}</span>
-              </div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4 }}>{LIVE_ACTIVITY[activityIdx].action}</div>
-            </div>
-          </div>
+        {/* Scroll hint */}
+        <div className="hero-scroll" style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.35 }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
         </div>
 
       </section>

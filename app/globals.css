@@ -1485,6 +1485,12 @@ main {
     border-top:     1px solid var(--rule);
     z-index:        200;
   }
+  /* Hero grid collapses to single column on mobile */
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    padding: 0 24px !important;
+    gap: 0 !important;
+  }
 }
 
 /* ─── Tool split wrap — height with dvh for mobile address-bar safety ─────── */
