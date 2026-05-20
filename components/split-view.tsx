@@ -41,9 +41,40 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
 
   // Re-runs on every route change so each tool page gets a fresh entrance.
   useGSAP(() => {
-    gsap.timeline({ defaults: { ease: "power3.out" } })
-      .from("header", { opacity: 0, y: -18, duration: 0.5 })
-      .from("main",   { opacity: 0, y: 28,  duration: 0.65 }, "-=0.3");
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    // 1. Header slides down
+    tl.fromTo(
+      "header",
+      { autoAlpha: 0, y: -22 },
+      { autoAlpha: 1, y: 0, duration: 0.44, clearProps: "opacity,transform,visibility" }
+    );
+
+    // 2. Cascade the content panels.
+    // Most tool pages: main > div (grid) > [input, output].
+    // If main has exactly one child whose children are the real panels, go one
+    // level deeper so input and output enter with separate stagger beats.
+    // Fallback: animate direct children of main as a single beat.
+    const mainEl = mainRef.current?.querySelector<HTMLElement>("main");
+    if (mainEl) {
+      const direct = Array.from(mainEl.children) as HTMLElement[];
+      const cascadeTargets: HTMLElement[] =
+        direct.length === 1 && direct[0].children.length > 1
+          ? (Array.from(direct[0].children) as HTMLElement[])
+          : direct;
+
+      tl.fromTo(
+        cascadeTargets,
+        { autoAlpha: 0, y: 48, scale: 0.983, transformOrigin: "top center" },
+        {
+          autoAlpha: 1, y: 0, scale: 1,
+          duration: 0.68,
+          stagger: 0.13,
+          clearProps: "opacity,transform,visibility,scale",
+        },
+        "-=0.26"
+      );
+    }
 
     ScrollTrigger.batch(".gsap-reveal", {
       onEnter: els => gsap.from(els, {
