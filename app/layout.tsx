@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Orbitron, Space_Grotesk, Space_Mono } from "next/font/google";
+import { Orbitron, Inter, Space_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
@@ -21,10 +21,10 @@ const orbitron = Orbitron({
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-space-grotesk",
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} ${spaceGrotesk.variable} ${spaceMono.variable}`}
+      className={`${orbitron.variable} ${inter.variable} ${spaceMono.variable}`}
     >
       <head>
         {/* Anti-flash: apply saved palette before first paint */}
