@@ -102,8 +102,16 @@ export function WebGLShader() {
         float g = 0.05 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
         float b = 0.05 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
 
-        vec3 darkOut  = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
-        vec3 lightOut = paperColor - vec3(r, g, b) * vec3(colorMix.r * 0.50, colorMix.g * 0.50, colorMix.b * 0.50);
+        vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
+
+        // Clamp before light subtraction so near-wave-center never goes pitch black
+        float rc = clamp(r, 0.0, 0.65);
+        float gc = clamp(g, 0.0, 0.65);
+        float bc = clamp(b, 0.0, 0.65);
+        vec3 lightOut = clamp(
+          paperColor - vec3(rc * colorMix.r * 0.22, gc * colorMix.g * 0.22, bc * colorMix.b * 0.22),
+          0.0, 1.0
+        );
 
         gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
       }
@@ -207,7 +215,8 @@ export function WebGLShader() {
       }
 
       if (canvasRef.current) {
-        canvasRef.current.style.opacity = isLight ? "0.88" : "1"
+        // Full opacity in both modes — canvas IS the background; no dark body bleed-through
+        canvasRef.current.style.opacity = "1"
       }
     }
 

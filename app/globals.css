@@ -214,8 +214,8 @@
   --cinnabar:     #c42000;
   --cinnabar-ink: #a81800;
   --highlight:    rgba(180,50,20,0.15);
-  --page-glow-a:  rgba(200,70,30,0.18);
-  --page-glow-b:  rgba(160,40,20,0.12);
+  --page-glow-a:  rgba(200,70,30,0.06);
+  --page-glow-b:  rgba(160,40,20,0.04);
 }
 
 /* ── Porcelain light — warm parchment, amber accent ──────────────────────────── */
@@ -230,8 +230,8 @@
   --cinnabar:     #c07010;
   --cinnabar-ink: #a05808;
   --highlight:    rgba(200,140,30,0.14);
-  --page-glow-a:  rgba(200,140,30,0.10);
-  --page-glow-b:  rgba(160,90,20,0.07);
+  --page-glow-a:  rgba(200,140,30,0.04);
+  --page-glow-b:  rgba(160,90,20,0.03);
 }
 
 /* ── Ink light — cool blue-white, cyan accent ────────────────────────────────── */
@@ -246,8 +246,8 @@
   --cinnabar:     #1880c0;
   --cinnabar-ink: #0868a8;
   --highlight:    rgba(20,120,200,0.12);
-  --page-glow-a:  rgba(30,120,200,0.10);
-  --page-glow-b:  rgba(20,80,160,0.07);
+  --page-glow-a:  rgba(30,120,200,0.04);
+  --page-glow-b:  rgba(20,80,160,0.03);
 }
 
 /* ── Dusk light — lavender, purple accent ────────────────────────────────────── */
@@ -262,8 +262,8 @@
   --cinnabar:     #7030d0;
   --cinnabar-ink: #5818b8;
   --highlight:    rgba(110,40,210,0.12);
-  --page-glow-a:  rgba(120,50,220,0.10);
-  --page-glow-b:  rgba(80,20,180,0.07);
+  --page-glow-a:  rgba(120,50,220,0.04);
+  --page-glow-b:  rgba(80,20,180,0.03);
 }
 
 /* ── Moss light — pale green, forest accent ──────────────────────────────────── */
@@ -278,8 +278,8 @@
   --cinnabar:     #208040;
   --cinnabar-ink: #106830;
   --highlight:    rgba(20,130,50,0.12);
-  --page-glow-a:  rgba(30,160,50,0.10);
-  --page-glow-b:  rgba(20,110,30,0.07);
+  --page-glow-a:  rgba(30,160,50,0.04);
+  --page-glow-b:  rgba(20,110,30,0.03);
 }
 
 /* ── Rose light — blush, deep pink accent ────────────────────────────────────── */
@@ -294,8 +294,8 @@
   --cinnabar:     #c02860;
   --cinnabar-ink: #a01848;
   --highlight:    rgba(190,30,80,0.12);
-  --page-glow-a:  rgba(200,40,100,0.10);
-  --page-glow-b:  rgba(140,20,60,0.07);
+  --page-glow-a:  rgba(200,40,100,0.04);
+  --page-glow-b:  rgba(140,20,60,0.03);
 }
 
 /* ── Storm light — cool grey, steel-blue accent ──────────────────────────────── */
@@ -310,8 +310,8 @@
   --cinnabar:     #4060a0;
   --cinnabar-ink: #304880;
   --highlight:    rgba(50,70,160,0.12);
-  --page-glow-a:  rgba(60,90,180,0.10);
-  --page-glow-b:  rgba(30,50,130,0.07);
+  --page-glow-a:  rgba(60,90,180,0.04);
+  --page-glow-b:  rgba(30,50,130,0.03);
 }
 
 /* ── Ember light — warm cream, copper accent ─────────────────────────────────── */
@@ -326,8 +326,8 @@
   --cinnabar:     #b84010;
   --cinnabar-ink: #9c2c00;
   --highlight:    rgba(180,60,10,0.12);
-  --page-glow-a:  rgba(200,80,20,0.10);
-  --page-glow-b:  rgba(150,50,10,0.07);
+  --page-glow-a:  rgba(200,80,20,0.04);
+  --page-glow-b:  rgba(150,50,10,0.03);
 }
 
 /* ── Sand light — pale sand, ochre accent ────────────────────────────────────── */
@@ -342,8 +342,8 @@
   --cinnabar:     #a07018;
   --cinnabar-ink: #885808;
   --highlight:    rgba(150,100,10,0.12);
-  --page-glow-a:  rgba(180,130,30,0.10);
-  --page-glow-b:  rgba(130,90,10,0.07);
+  --page-glow-a:  rgba(180,130,30,0.04);
+  --page-glow-b:  rgba(130,90,10,0.03);
 }
 
 /* ─── Hero headline light mode overrides ────────────────────────────────────── */
@@ -356,14 +356,11 @@
   text-shadow: 0 0 40px rgba(180,40,0,0.18) !important;
 }
 
-/* ─── Light mode — body atmosphere gradient ────────────────────────────────── */
-/* Canvas is 0.88 opacity; the 12% gap + glass panel gaps show this gradient.
-   Uses CSS vars so it auto-adapts to each palette's cinnabar colour. */
+/* ─── Light mode — body ────────────────────────────────────────────────────── */
+/* Canvas is opacity 1.0 so body is fully hidden — keep as var(--paper) fallback
+   for the instant before the canvas renders on first load */
 [data-mode="light"] body {
-  background:
-    radial-gradient(ellipse 110% 55% at 50% -8%,  color-mix(in srgb, var(--cinnabar) 14%, transparent), transparent 52%),
-    radial-gradient(ellipse  70% 40% at  8% 105%, color-mix(in srgb, var(--cinnabar)  8%, transparent), transparent 50%),
-    var(--paper);
+  background: var(--paper);
 }
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
