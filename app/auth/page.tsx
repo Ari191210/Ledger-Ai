@@ -111,15 +111,25 @@ export default function AuthPage() {
             <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>
           )}
 
-          <button className="btn" onClick={submit} disabled={loading || !email.trim() || !password.trim()}
-            style={{ marginTop: 20, width: "100%", justifyContent: "center", opacity: loading ? 0.5 : 1 }}>
+          <button onClick={submit} disabled={loading || !email.trim() || !password.trim()}
+            style={{
+              marginTop: 20, width: "100%", display: "block",
+              background: loading || !email.trim() || !password.trim() ? "color-mix(in srgb, var(--ink) 40%, transparent)" : "var(--ink)",
+              color: "var(--paper)", border: "1px solid var(--ink)",
+              padding: "14px 0", cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.1em",
+              textTransform: "uppercase", boxShadow: "none", borderRadius: 0,
+              transition: "background 150ms ease",
+            }}>
             {loading ? "Please wait…" : mode === "signin" ? "Sign in →" : "Create account →"}
           </button>
 
           {mode === "signin" && (
             <div style={{ marginTop: 16, fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", textAlign: "center" }}>
               No account?{" "}
-              <button onClick={() => setMode("signup")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
+              <button onClick={() => setMode("signup")}
+                style={{ background: "none", border: "none", boxShadow: "none", borderRadius: 0, padding: 0,
+                  cursor: "pointer", color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
                 Create one free
               </button>
             </div>
