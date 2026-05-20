@@ -1264,44 +1264,73 @@ export default function Home() {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="gl-pane-alt" style={{ borderTop: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "56px 40px 60px", display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32 }} className="mob-2col">
-          <div className="footer-col">
-            <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 28, letterSpacing: "0.08em", lineHeight: 0.9, color: "var(--ink)", marginBottom: 8 }}>LEDGER</div>
-            <div style={{ ...S.cap, fontSize: 9 }}>The Student&apos;s Operating System</div>
-            <p style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 16, maxWidth: 260, lineHeight: 1.65 }}>
+      <footer style={{ borderTop: S.border, background: "var(--paper-2)" }}>
+
+        {/* 4-col editorial grid */}
+        <div style={{ maxWidth: 1120, margin: "0 auto", display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: 1, background: "var(--rule)" }} className="mob-2col">
+
+          {/* Branding */}
+          <div className="footer-col" style={{ background: "var(--paper)", padding: "48px 36px" }}>
+            <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, fontSize: 38, letterSpacing: "0.08em", color: "var(--ink)", lineHeight: 0.9, marginBottom: 10 }}>LEDGER</div>
+            <div style={{ height: 3, width: 44, background: "var(--cinnabar-ink)", marginBottom: 18 }} />
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const, marginBottom: 20 }}>
+              The Student&apos;s Operating System · Est. MMXXV
+            </div>
+            <p style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", margin: 0, lineHeight: 1.68, maxWidth: 250 }}>
               Independent, student-funded. We will never sell your study data.
             </p>
           </div>
-          {[
-            { h: "Tools", l: ["Study Engine", "Essay Workshop", "Research Hub", "Writing Polish", "Question Decoder", "Practice Suite", "Revision Planner", "Future Finder", "Text Analyst", "Doubt Solver", "AI Flashcards", "Vocabulary Vault", "Analogy Engine", "Memory Palace", "Past Papers", "Focus Dashboard", "Ledger Score"] },
-            { h: "Institutions", l: ["For Schools", "For Tuition Centres", "Syllabus Parser", "Data Export", "API"] },
-            { h: "The Ledger", l: ["Changelog", "Roadmap", "Colophon", "Masthead", "Press", "Contact"] },
-          ].map((g) => (
-            <div className="footer-col" key={g.h}>
-              <div style={{ ...S.capAccent, marginBottom: 16 }}>{g.h}</div>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12, lineHeight: 2.1, color: "var(--ink-3)" }}>
-                {g.l.map(x => <li key={x}>{x}</li>)}
-              </ul>
-            </div>
-          ))}
-          <div className="footer-col">
-            <div style={{ ...S.capAccent, marginBottom: 16 }}>Legal</div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12, lineHeight: 2.1 }}>
-              {([["Privacy Policy", "/legal/privacy"], ["Terms of Use", "/legal/terms"], ["Data & Compliance", "/legal/data"], ["IP & Copyright", "/legal/ip"]] as const).map(([label, href]) => (
-                <li key={label}><Link href={href} style={{ color: "var(--ink-3)", textDecoration: "none" }}>{label}</Link></li>
+
+          {/* Tools */}
+          <div className="footer-col" style={{ background: "var(--paper)", padding: "48px 24px" }}>
+            <div style={{ ...S.capAccent, marginBottom: 20 }}>Tools</div>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
+              {["Study Engine", "Past Papers", "Doubt Solver", "AI Flashcards", "Focus Dashboard", "Essay Workshop", "Practice Suite", "Ledger Score™"].map(t => (
+                <li key={t} style={{ marginBottom: 10, lineHeight: 1 }}>{t}</li>
+              ))}
+              <li style={{ marginTop: 16 }}>
+                <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
+                  → All 51 tools
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div className="footer-col" style={{ background: "var(--paper)", padding: "48px 24px" }}>
+            <div style={{ ...S.capAccent, marginBottom: 20 }}>Company</div>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
+              {["For Schools", "For Tuition Centres", "Data Export", "Changelog", "Roadmap", "Press", "Contact"].map(t => (
+                <li key={t} style={{ marginBottom: 10, lineHeight: 1 }}>{t}</li>
               ))}
             </ul>
           </div>
+
+          {/* Legal */}
+          <div className="footer-col" style={{ background: "var(--paper)", padding: "48px 24px" }}>
+            <div style={{ ...S.capAccent, marginBottom: 20 }}>Legal</div>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12 }}>
+              {([["Privacy Policy", "/legal/privacy"], ["Terms of Use", "/legal/terms"], ["Data & Compliance", "/legal/data"], ["IP & Copyright", "/legal/ip"]] as const).map(([label, href]) => (
+                <li key={label} style={{ marginBottom: 10, lineHeight: 1 }}>
+                  <Link href={href} style={{ color: "var(--ink-3)", textDecoration: "none" }}>{label}</Link>
+                </li>
+              ))}
+            </ul>
+            <div style={{ marginTop: 24, paddingTop: 18, borderTop: "1px solid var(--rule)" }}>
+              <a href="mailto:legal@studyledger.in" style={{ display: "block", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", textDecoration: "none", marginBottom: 7 }}>legal@studyledger.in</a>
+              <a href="mailto:data@studyledger.in" style={{ display: "block", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", textDecoration: "none" }}>data@studyledger.in</a>
+            </div>
+          </div>
+
         </div>
 
-        <div style={{ borderTop: S.border, padding: "14px 40px", maxWidth: 1120, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, ...S.cap, fontSize: 9 }}>
-            <span>MMXXVI Ledger Study Co.</span>
-            <span>Set in Orbitron, Space Grotesk &amp; Space Mono</span>
-            <span>{today}</span>
-          </div>
+        {/* Colophon */}
+        <div style={{ borderTop: "1px solid var(--rule)", padding: "13px 40px", maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>MMXXVI Ledger Study Co.</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>Set in Orbitron, Space Grotesk &amp; Space Mono</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>{today}</span>
         </div>
+
       </footer>
 
     </div>
