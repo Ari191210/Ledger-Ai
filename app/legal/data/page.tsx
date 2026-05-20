@@ -27,7 +27,7 @@ export default function DataCompliancePage() {
             <li>Collect only the personal data necessary to provide the service (data minimisation)</li>
             <li>Obtain explicit consent before processing personal data</li>
             <li>Allow users to access, correct, and erase their data on request</li>
-            <li>Appoint a Data Protection Officer reachable at <A href="mailto:dpo@studyledger.in">dpo@studyledger.in</A></li>
+            <li>Appoint a Data Protection Officer reachable at <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></li>
             <li>Notify affected users within 72 hours of any confirmed data breach</li>
             <li>Do not process personal data of children under 13 without verifiable parental consent</li>
           </ul>
@@ -60,7 +60,7 @@ export default function DataCompliancePage() {
           <H3 style={{ marginTop: 24 }}>International transfers</H3>
           <P>Some processors (Anthropic, Sentry, Resend) are based in the US. Transfers are covered by Standard Contractual Clauses (SCCs) or adequacy decisions where applicable.</P>
           <H3>EEA user rights</H3>
-          <P>You have rights to access, rectification, erasure, restriction, portability, and to object to processing. You may also lodge a complaint with your national data protection authority. Contact <A href="mailto:gdpr@studyledger.in">gdpr@studyledger.in</A> to exercise these rights.</P>
+          <P>You have rights to access, rectification, erasure, restriction, portability, and to object to processing. You may also lodge a complaint with your national data protection authority. Contact <A href="mailto:hello@studyledger.in">hello@studyledger.in</A> to exercise these rights.</P>
         </Section>
 
         <Section title="What We Store & Where">
@@ -112,7 +112,7 @@ export default function DataCompliancePage() {
             <li>We will notify relevant supervisory authorities as required by law</li>
             <li>We will publish a post-incident report within 30 days</li>
           </ul>
-          <P>To report a security vulnerability: <A href="mailto:security@studyledger.in">security@studyledger.in</A></P>
+          <P>To report a security vulnerability: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
         </Section>
 
         <Section title="Data Portability & Deletion">

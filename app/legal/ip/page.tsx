@@ -70,7 +70,7 @@ export default function IPPage() {
         </Section>
 
         <Section title="Reporting Copyright Infringement">
-          <P>If you believe that content on Ledger infringes your copyright, send a notice to <A href="mailto:ip@studyledger.in">ip@studyledger.in</A> with the following information:</P>
+          <P>If you believe that content on Ledger infringes your copyright, send a notice to <A href="mailto:hello@studyledger.in">hello@studyledger.in</A> with the following information:</P>
           <ol style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>Your full name and contact information</li>
             <li>A description of the copyrighted work you claim has been infringed</li>
@@ -83,7 +83,7 @@ export default function IPPage() {
         </Section>
 
         <Section title="Counter-Notice">
-          <P>If you believe your content was removed incorrectly, you may send a counter-notice to <A href="mailto:ip@studyledger.in">ip@studyledger.in</A> including:</P>
+          <P>If you believe your content was removed incorrectly, you may send a counter-notice to <A href="mailto:hello@studyledger.in">hello@studyledger.in</A> including:</P>
           <ol style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>Your full name and contact information</li>
             <li>Identification of the content that was removed and where it appeared</li>
@@ -103,7 +103,7 @@ export default function IPPage() {
         </Section>
 
         <Section title="Contact">
-          <P>For all IP and copyright matters: <A href="mailto:ip@studyledger.in">ip@studyledger.in</A></P>
+          <P>For all IP and copyright matters: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
           <P>We aim to respond to all IP queries within 5 business days.</P>
         </Section>
 

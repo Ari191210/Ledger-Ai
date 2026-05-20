@@ -31,7 +31,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="Your Account">
-          <P>You are responsible for keeping your login credentials secure. You must not share your account with others. Notify us immediately at <A href="mailto:support@studyledger.in">support@studyledger.in</A> if you suspect unauthorised access.</P>
+          <P>You are responsible for keeping your login credentials secure. You must not share your account with others. Notify us immediately at <A href="mailto:hello@studyledger.in">hello@studyledger.in</A> if you suspect unauthorised access.</P>
           <P>We may suspend or terminate accounts that violate these terms, engage in abuse, or remain inactive for more than 24 months.</P>
         </Section>
 
@@ -95,7 +95,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="Contact">
-          <P>For questions about these terms: <A href="mailto:legal@studyledger.in">legal@studyledger.in</A></P>
+          <P>For questions about these terms: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
         </Section>
 
         <div style={{ borderTop: "1px solid var(--rule)", marginTop: 48, paddingTop: 24, display: "flex", gap: 24, flexWrap: "wrap" }}>

@@ -23,7 +23,7 @@ export default function PrivacyPage() {
 
         <Section title="Who We Are">
           <P>Ledger is operated by Ledger Study Co. (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), an independent student-education platform at studyledger.in. We build AI-powered study tools for students aged 14–18 preparing for JEE, NEET, CBSE, IB, and other curricula.</P>
-          <P>Questions about this policy: <A href="mailto:privacy@studyledger.in">privacy@studyledger.in</A></P>
+          <P>Questions about this policy: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
         </Section>
 
         <Section title="Data We Collect">
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
         <Section title="Minors (Under 18)">
           <P>Ledger is designed for students aged 14–18. If you are under 18, your parent or guardian must consent to your use of this service. By creating an account, you confirm that either (a) you are 18 or older, or (b) your parent or guardian has reviewed and agreed to this policy on your behalf.</P>
-          <P>We do not knowingly collect data from children under 13. If you believe a child under 13 has created an account, contact us at <A href="mailto:privacy@studyledger.in">privacy@studyledger.in</A> and we will delete the account immediately.</P>
+          <P>We do not knowingly collect data from children under 13. If you believe a child under 13 has created an account, contact us at <A href="mailto:hello@studyledger.in">hello@studyledger.in</A> and we will delete the account immediately.</P>
         </Section>
 
         <Section title="Your Rights">
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             <li><strong>Portability</strong> — export your study data as JSON from the dashboard</li>
             <li><strong>Withdraw consent</strong> — stop using the service at any time; your data is deleted on request</li>
           </ul>
-          <P>To exercise any right, email <A href="mailto:privacy@studyledger.in">privacy@studyledger.in</A>. We will respond within 30 days.</P>
+          <P>To exercise any right, email <A href="mailto:hello@studyledger.in">hello@studyledger.in</A>. We will respond within 30 days.</P>
         </Section>
 
         <Section title="Data Retention">
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
 
         <Section title="Security">
           <P>All data is encrypted in transit (TLS 1.3) and at rest. Row-Level Security (RLS) on our database ensures your data is only accessible to your authenticated session. We perform regular security reviews.</P>
-          <P>Despite our efforts, no system is perfectly secure. If you discover a vulnerability, report it to <A href="mailto:security@studyledger.in">security@studyledger.in</A>.</P>
+          <P>Despite our efforts, no system is perfectly secure. If you discover a vulnerability, report it to <A href="mailto:hello@studyledger.in">hello@studyledger.in</A>.</P>
         </Section>
 
         <Section title="Cookies & Local Storage">

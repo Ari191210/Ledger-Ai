@@ -1322,8 +1322,7 @@ export default function Home() {
               ))}
             </ul>
             <div style={{ marginTop: 24, paddingTop: 18, borderTop: "1px solid var(--rule)" }}>
-              <a href="mailto:legal@studyledger.in" style={{ display: "block", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", textDecoration: "none", marginBottom: 7 }}>legal@studyledger.in</a>
-              <a href="mailto:data@studyledger.in" style={{ display: "block", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", textDecoration: "none" }}>data@studyledger.in</a>
+              <a href="mailto:hello@studyledger.in" style={{ display: "block", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", textDecoration: "none" }}>hello@studyledger.in</a>
             </div>
           </div>
 
