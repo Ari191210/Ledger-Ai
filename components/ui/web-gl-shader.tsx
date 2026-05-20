@@ -237,6 +237,7 @@ export function WebGLShader() {
         height: "100%",
         display: "block",
         zIndex: 0,
+        opacity: 0.82,
       }}
     />
   )
