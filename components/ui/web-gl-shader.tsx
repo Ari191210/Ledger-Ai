@@ -28,18 +28,19 @@ const PALETTE_BG_DARK: Record<string, [number, number, number]> = {
 }
 const DEFAULT_BG_DARK: [number, number, number] = [0.031, 0.031, 0.031]  // #080808
 
-// Light-mode bg — matches CSS [data-mode="light"][data-palette="X"] --paper
+// Light-mode bg — mid-tones so additive neon waves are clearly visible.
+// Near-white papers (0.93+) clip wave+paper to white, making waves invisible.
 const PALETTE_BG_LIGHT: Record<string, [number, number, number]> = {
-  porcelain: [0.980, 0.965, 0.933],  // #faf6ee — warm parchment
-  ink:       [0.933, 0.957, 0.980],  // #eef4fa — cool blue-white
-  dusk:      [0.957, 0.941, 0.980],  // #f4f0fa — pale lavender
-  moss:      [0.933, 0.961, 0.933],  // #eef5ee — pale green
-  rose:      [0.980, 0.941, 0.957],  // #faf0f4 — blush
-  storm:     [0.933, 0.941, 0.961],  // #eef0f5 — cool grey
-  ember:     [0.980, 0.957, 0.925],  // #faf4ec — warm cream
-  sand:      [0.973, 0.957, 0.925],  // #f8f4ec — pale sand
+  porcelain: [0.76, 0.68, 0.52],  // warm parchment tan
+  ink:       [0.48, 0.62, 0.76],  // cool slate blue
+  dusk:      [0.64, 0.54, 0.76],  // muted lavender
+  moss:      [0.48, 0.72, 0.52],  // forest sage
+  rose:      [0.76, 0.56, 0.64],  // dusty rose
+  storm:     [0.54, 0.60, 0.74],  // steel blue-grey
+  ember:     [0.76, 0.60, 0.40],  // warm copper
+  sand:      [0.72, 0.64, 0.48],  // warm sand
 }
-const DEFAULT_BG_LIGHT: [number, number, number] = [0.867, 0.835, 0.784]  // #ddd5c8
+const DEFAULT_BG_LIGHT: [number, number, number] = [0.65, 0.60, 0.55]
 
 export function WebGLShader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -102,11 +103,10 @@ export function WebGLShader() {
         // bgColor is near-black in dark mode, palette paper in light mode.
         // Between waves (r+g+b small): bgColor shows through.
         // At wave centres (r+g+b large): wave colour dominates.
-        // mask*0.2 — background stays 98-99% bright between waves (no visible tint),
-        // drops only near wave centres so the coloured glow is readable.
-        vec3  wave = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
-        float mask = clamp(r + g + b, 0.0, 1.0);
-        gl_FragColor = vec4(wave + bgColor * (1.0 - mask * 0.2), 1.0);
+        // Pure additive: between waves bgColor shows clean, at peaks wave glows on top.
+        // Light-mode bgColors are mid-tones so waves have contrast room above them.
+        vec3 wave = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
+        gl_FragColor = vec4(wave + bgColor, 1.0);
       }
     `
 
