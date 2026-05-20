@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
 import { trackToolVisit, getRecentTools, getFavTools, saveFavTools } from "@/lib/recent-tools";
+import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import FeaturesShowcase from "@/components/features-showcase";
@@ -620,36 +621,85 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Jump back in — recently used, now at the top */}
+      {/* Jump back in — recently used tools, at the top of the dashboard */}
       {recentSlugs.length > 0 && (() => {
         const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
-        const recent = recentSlugs.slice(0, 5).map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
+        const recent = recentSlugs.slice(0, 6)
+          .map(s => allTools.find(t => t.slug === s))
+          .filter(Boolean) as typeof allTools;
         if (!recent.length) return null;
         return (
           <div style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule-2)", paddingBottom: 10, marginBottom: 14 }}>
-              <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--ink-3)" }}>Jump back in</div>
-              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{recent.length} recent</div>
+            {/* Section divider — matches SectionLabel style */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.18em", flexShrink: 0 }}>↩</span>
+              <div style={{ flex: 1, height: 1, background: "var(--rule)" }} />
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase", flexShrink: 0 }}>Jump back in</span>
             </div>
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+
+            {/* Tool cards — editorial grid, no glassmorphism */}
+            <div style={{
+              display:             "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+              gap:                 1,
+              background:          "var(--rule)",
+              border:              "1px solid var(--rule)",
+            }}>
               {recent.map(t => {
-                const cat = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
+                const cat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
+                const catLabel = cat?.label ?? "";
+                const catColor = CAT_COLOR[catLabel as keyof typeof CAT_COLOR] ?? "var(--ink-3)";
                 return (
-                  <Link key={t.slug} href={`/tools/${t.slug}`} onClick={() => trackToolVisit(t.slug)}
-                    style={{ textDecoration: "none", flexShrink: 0, display: "flex", flexDirection: "column", gap: 6,
-                      padding: "16px 20px", borderRadius: 16, minWidth: 180, maxWidth: 220,
-                      border: "1.5px solid var(--rule)",
-                      background: "color-mix(in srgb, var(--ink) 4%, transparent)",
-                      backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-                      transition: "border-color 200ms ease, background 200ms ease",
+                  <Link
+                    key={t.slug}
+                    href={`/tools/${t.slug}`}
+                    onClick={() => trackToolVisit(t.slug)}
+                    style={{
+                      textDecoration: "none",
+                      display:        "flex",
+                      flexDirection:  "column",
+                      gap:            8,
+                      padding:        "18px 20px 16px",
+                      background:     "var(--paper)",
+                      borderLeft:     `3px solid ${catColor}`,
+                      transition:     "background 140ms ease",
                     }}
-                    onMouseOver={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "color-mix(in srgb, var(--ink) 30%, transparent)"; el.style.background = "color-mix(in srgb, var(--ink) 8%, transparent)"; }}
-                    onMouseOut={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.borderColor = "var(--rule)"; el.style.background = "color-mix(in srgb, var(--ink) 4%, transparent)"; }}
+                    onMouseOver={e => { (e.currentTarget as HTMLAnchorElement).style.background = "var(--paper-2)"; }}
+                    onMouseOut={e  => { (e.currentTarget as HTMLAnchorElement).style.background = "var(--paper)"; }}
                   >
-                    {cat && <div className="mono" style={{ fontSize: 7, letterSpacing: "0.16em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>}
-                    <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontStyle: "italic", fontWeight: 500, color: "var(--ink)", lineHeight: 1.2 }}>{t.ttl}</div>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", lineHeight: 1.45, flex: 1 }}>{t.sub}</div>
-                    <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 4 }}>Open →</div>
+                    {/* Category tag */}
+                    <div style={{
+                      fontFamily:    "var(--mono)",
+                      fontSize:      8,
+                      letterSpacing: "0.16em",
+                      textTransform: "uppercase",
+                      color:         catColor,
+                    }}>
+                      {catLabel}
+                    </div>
+
+                    {/* Tool name */}
+                    <div style={{
+                      fontFamily: "var(--serif)",
+                      fontSize:   14,
+                      fontWeight: 600,
+                      color:      "var(--ink)",
+                      lineHeight: 1.25,
+                      flex:       1,
+                    }}>
+                      {t.ttl}
+                    </div>
+
+                    {/* Open arrow */}
+                    <div style={{
+                      fontFamily:    "var(--mono)",
+                      fontSize:      9,
+                      color:         "var(--ink-3)",
+                      letterSpacing: "0.06em",
+                      marginTop:     4,
+                    }}>
+                      Open →
+                    </div>
                   </Link>
                 );
               })}
