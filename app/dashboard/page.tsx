@@ -551,7 +551,7 @@ export default function Dashboard() {
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <main ref={containerRef} id="main-content" tabIndex={-1} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+    <main ref={containerRef} id="main-content" tabIndex={-1} data-page="app" className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
 
       {/* Command Centre header */}
       <div className="dash-header" style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>

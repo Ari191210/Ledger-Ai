@@ -369,7 +369,7 @@
    the body paper (white canvas areas are neutral = paper shows through). */
 [data-mode="light"] .grain::before {
   mix-blend-mode: multiply;    /* grain multiplies onto cream = paper texture */
-  opacity: 0.12;
+  opacity: 0.05;
 }
 [data-mode="light"] .btn {
   --glass-reflex-light: 0.45;
@@ -389,15 +389,15 @@
 
 /* ─── Glass panels ───────────────────────────────────────────────────────────── */
 .gl-pane {
-  background: color-mix(in srgb, var(--paper) 72%, transparent) !important;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: color-mix(in srgb, var(--paper) 88%, transparent) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: background 220ms ease;
 }
 .gl-pane-alt {
-  background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: color-mix(in srgb, var(--paper) 93%, transparent) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: background 220ms ease;
 }
 
@@ -514,7 +514,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   inset: 0;
   pointer-events: none;
   z-index: 1000;
-  opacity: 0.18;
+  opacity: 0.05;
   mix-blend-mode: screen;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.07  0 0 0 0 0.05  0 0 0 0.20 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
@@ -555,6 +555,12 @@ hr.rule-double { border-top: 3px double var(--ink); }
 }
 
 /* ─── Buttons ───────────────────────────────────────────────────────────────── */
+/* ─── Refined: dim WebGL canvas inside tool/dashboard pages ─────────────────── */
+body:has(.tool-split-wrap) canvas,
+body:has([data-page="app"]) canvas {
+  opacity: 0.22 !important;
+}
+
 @keyframes btn-flow {
   0%   { transform: translateX(-120%) skewX(-14deg); }
   100% { transform: translateX(420%) skewX(-14deg); }
@@ -616,11 +622,11 @@ hr.rule-double { border-top: 3px double var(--ink); }
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in srgb, white 28%, transparent) 50%,
+    color-mix(in srgb, white 14%, transparent) 50%,
     transparent
   );
   mix-blend-mode: screen;
-  animation: btn-flow 5s ease-in-out infinite;
+  animation: btn-flow 8s ease-in-out infinite;
   pointer-events: none;
   border-radius: inherit;
 }
