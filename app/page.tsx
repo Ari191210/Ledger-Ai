@@ -1067,20 +1067,52 @@ export default function Home() {
           </div>
 
           {/* Testimonial */}
-          <div ref={testimRef} style={{ border: S.border, borderTop: S.borderInk }}>
-            <div style={{ padding: "32px 36px 28px" }}>
-              <div style={{ ...S.capAccent, fontSize: 9, marginBottom: 18 }}>Dispatch No.{String(testimIdx + 1).padStart(2, "0")}</div>
+          <div ref={testimRef} style={{ border: S.border, borderTop: S.borderInk, position: "relative", overflow: "hidden" }}>
+            {/* Watermark quotation mark */}
+            <div
+              aria-hidden
+              style={{
+                position:      "absolute",
+                top:           -16,
+                right:         32,
+                fontFamily:    "var(--serif)",
+                fontSize:      260,
+                fontWeight:    700,
+                lineHeight:    1,
+                color:         "var(--ink)",
+                opacity:       0.045,
+                userSelect:    "none",
+                pointerEvents: "none",
+              }}
+            >
+              &ldquo;
+            </div>
+
+            <div style={{ padding: "32px 36px 28px", position: "relative" }}>
+              <div style={{ ...S.capAccent, fontSize: 9, marginBottom: 22 }}>Dispatch No.{String(testimIdx + 1).padStart(2, "0")}</div>
+
+              {/* Quote with left annotation border */}
               <blockquote style={{
-                fontFamily: "var(--sans)", fontSize: "clamp(20px,2.8vw,28px)", fontStyle: "italic",
-                lineHeight: 1.42, margin: "0 0 24px", letterSpacing: "-0.01em",
-                maxWidth: 800, color: "var(--ink)", fontWeight: 400,
+                fontFamily:   "var(--serif)",
+                fontSize:     "clamp(19px,2.6vw,26px)",
+                fontStyle:    "italic",
+                lineHeight:   1.52,
+                margin:       "0 0 28px",
+                letterSpacing:"-0.005em",
+                maxWidth:     780,
+                color:        "var(--ink)",
+                fontWeight:   400,
+                borderLeft:   "3px solid var(--ink)",
+                paddingLeft:  24,
               }}>
-                &ldquo;{TESTIMONIALS[testimIdx].q}&rdquo;
+                {TESTIMONIALS[testimIdx].q}
               </blockquote>
+
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", borderTop: S.border, paddingTop: 18, gap: 20 }} className="mob-col lp-dispatch-meta">
                 <div>
                   <div style={S.cap}>Filed by</div>
-                  <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 14, marginTop: 5, color: "var(--ink)" }}>{TESTIMONIALS[testimIdx].by}</div>
+                  {/* Italic serif signature */}
+                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, marginTop: 6, color: "var(--ink)", lineHeight: 1.3 }}>{TESTIMONIALS[testimIdx].by}</div>
                 </div>
                 <div>
                   <div style={S.cap}>Desk</div>
