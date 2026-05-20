@@ -357,19 +357,15 @@
 }
 
 /* ─── Light mode — body atmosphere gradient ────────────────────────────────── */
-/* rgba values hardcoded for reliability — color-mix with vars resolves too faint */
+/* Canvas at 0.90 opacity IS the bg in light mode; body gradient shows through the 10% gap */
 [data-mode="light"] body {
-  background:
-    radial-gradient(ellipse 130% 65% at 50% -15%, rgba(196,32,0,0.30),  transparent 54%),
-    radial-gradient(ellipse  80% 45% at  5% 108%, rgba(196,32,0,0.18),  transparent 52%),
-    radial-gradient(ellipse  50% 35% at 95%  92%, rgba(196,32,0,0.10),  transparent 50%),
-    var(--paper);
+  background: var(--paper);
 }
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
+/* Canvas opacity + clearColor are driven by applyTheme() in web-gl-shader.tsx */
 [data-mode="light"] canvas {
-  opacity: 0.06;   /* near-invisible — body gradient supplies the atmosphere */
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
 }
 [data-mode="light"] .grain::before {
   mix-blend-mode: multiply;    /* grain multiplies onto cream = paper texture */
@@ -482,7 +478,7 @@ a {
   transition: opacity 150ms ease;
 }
 a:hover { opacity: 0.75; }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; font-synthesis: none; }
 
 /* Headings default to serif italic — Newsreader reads best at 400–500 */
 h1, h2, h3, h4, h5 {
@@ -639,6 +635,34 @@ hr.rule-double { border-top: 3px double var(--ink); }
   background: color-mix(in srgb, #2A7A52 30%, transparent);
   color: #7affc0;
   border-color: color-mix(in srgb, #2A7A52 42%, transparent);
+}
+
+/* ─── Global button glass base (overridden by .btn / .ui-btn-* / inline styles) */
+button:not(.btn):not([class*="ui-btn"]) {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  color: var(--ink);
+  border-radius: 8px;
+  font-family: var(--sans);
+  cursor: pointer;
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 52%, transparent),
+    0 2px 8px color-mix(in srgb, black 12%, transparent);
+  transition: background 180ms ease, border-color 180ms ease, transform 200ms cubic-bezier(0.34,1.56,0.64,1);
+}
+button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  border-color: color-mix(in srgb, var(--ink) 22%, transparent);
+  transform: translateY(-1px);
+}
+button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
+  transform: scale(0.96);
+}
+button:not(.btn):not([class*="ui-btn"]):disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ─── Forms ─────────────────────────────────────────────────────────────────── */
