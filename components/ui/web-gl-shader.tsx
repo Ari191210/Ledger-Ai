@@ -45,10 +45,6 @@ export function WebGLShader() {
       void main() { gl_Position = vec4(position, 1.0); }
     `
 
-    // Identical shader in both modes — CSS blend mode handles the inversion:
-    //   dark mode: clearColor=#000000, mix-blend-mode:normal  → bright lines on black
-    //   light mode: clearColor=#ffffff, mix-blend-mode:multiply → colored ink on paper
-    //               (white canvas areas are neutral in multiply, colored lines darken paper)
     const fragmentShader = `
       precision highp float;
       uniform vec2  resolution;
@@ -58,6 +54,7 @@ export function WebGLShader() {
       uniform float distortion;
       uniform vec3  colorMix;
       uniform vec2  mouse;
+      uniform float lightMode;
 
       void main() {
         vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
@@ -75,7 +72,17 @@ export function WebGLShader() {
         float g = 0.05 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
         float b = 0.05 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
 
-        gl_FragColor = vec4(r * colorMix.r, g * colorMix.g, b * colorMix.b, 1.0);
+        // Dark mode: bright palette-coloured waves on black (unchanged)
+        vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
+
+        // Light mode: canvas goes white between waves (white = neutral in CSS multiply),
+        // and blends toward a dark saturated version of the palette accent at wave centres.
+        // Single luminance scalar avoids the complement-colour inversion problem that
+        // per-channel subtraction causes.
+        float lum = clamp((r * colorMix.r + g * colorMix.g + b * colorMix.b) * 0.55, 0.0, 1.0);
+        vec3 lightOut = mix(vec3(1.0), colorMix * 0.52, lum);
+
+        gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
       }
     `
 
@@ -97,6 +104,7 @@ export function WebGLShader() {
       distortion: { value: 0.05 },
       colorMix:   { value: new THREE.Vector3(mr, mg, mb) },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
+      lightMode:  { value: 0.0 },
     }
 
     const positions = new THREE.BufferAttribute(
@@ -154,15 +162,19 @@ export function WebGLShader() {
 
       const isLight = document.documentElement.dataset.mode === "light"
 
+      if (refs.uniforms) {
+        refs.uniforms.lightMode.value = isLight ? 1.0 : 0.0
+      }
+
       if (refs.renderer) {
-        // Light: white clear so multiply blend leaves paper unchanged between waves
-        // Dark: black clear so additive waves glow on black
+        // Light: white clear so multiply-blended canvas is neutral between waves.
+        // Dark: black clear so waves glow on darkness.
         refs.renderer.setClearColor(new THREE.Color(isLight ? 0xffffff : 0x000000))
       }
 
       if (canvasRef.current) {
-        // multiply: colored wave × paper = dark vivid ink line; white × paper = paper
-        // normal:   canvas covers body directly (dark mode)
+        // Light: multiply blend → dark accent × palette paper = vivid ink lines on paper.
+        // Dark: normal blend → canvas is the full background.
         canvasRef.current.style.mixBlendMode = isLight ? "multiply" : "normal"
       }
     }
