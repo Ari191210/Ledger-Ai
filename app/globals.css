@@ -364,10 +364,9 @@
 }
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
-/* Canvas opacity + clearColor are driven by applyTheme() in web-gl-shader.tsx */
-[data-mode="light"] canvas {
-  mix-blend-mode: normal;
-}
+/* Canvas clearColor + mixBlendMode are driven by applyTheme() in web-gl-shader.tsx.
+   Light mode: clearColor=white, mix-blend-mode=multiply so colored waves darken
+   the body paper (white canvas areas are neutral = paper shows through). */
 [data-mode="light"] .grain::before {
   mix-blend-mode: multiply;    /* grain multiplies onto cream = paper texture */
   opacity: 0.12;

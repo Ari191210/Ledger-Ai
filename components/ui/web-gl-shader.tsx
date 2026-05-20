@@ -15,32 +15,6 @@ const PALETTE_COLORS: Record<string, [number, number, number]> = {
 }
 const DEFAULT_MIX: [number, number, number] = [1.0, 0.90, 0.80]
 
-// Matches the per-palette light paper colors in globals.css [data-mode="light"][data-palette="..."]
-const PALETTE_PAPER_LIGHT: Record<string, number> = {
-  porcelain: 0xfaf6ee,
-  ink:       0xeef4fa,
-  dusk:      0xf4f0fa,
-  moss:      0xeef5ee,
-  rose:      0xfaf0f4,
-  storm:     0xeef0f5,
-  ember:     0xfaf4ec,
-  sand:      0xf8f4ec,
-}
-const DEFAULT_PAPER_LIGHT = 0xddd5c8
-
-// GLSL vec3 of each palette's paper colour for the light-mode shader inversion
-const PALETTE_PAPER_VEC: Record<string, [number, number, number]> = {
-  porcelain: [0.98, 0.965, 0.933],
-  ink:       [0.933, 0.957, 0.98],
-  dusk:      [0.957, 0.941, 0.98],
-  moss:      [0.933, 0.961, 0.933],
-  rose:      [0.98, 0.941, 0.957],
-  storm:     [0.933, 0.941, 0.961],
-  ember:     [0.98, 0.957, 0.925],
-  sand:      [0.973, 0.957, 0.925],
-}
-const DEFAULT_PAPER_VEC: [number, number, number] = [0.867, 0.835, 0.784]
-
 export function WebGLShader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sceneRef  = useRef<{
@@ -71,9 +45,10 @@ export function WebGLShader() {
       void main() { gl_Position = vec4(position, 1.0); }
     `
 
-    // lightMode uniform: 0.0 = dark (bright waves on black),
-    //                    1.0 = light (dark waves subtracted from palette paper)
-    // paperColor uniform: the active palette's paper colour in light mode
+    // Identical shader in both modes — CSS blend mode handles the inversion:
+    //   dark mode: clearColor=#000000, mix-blend-mode:normal  → bright lines on black
+    //   light mode: clearColor=#ffffff, mix-blend-mode:multiply → colored ink on paper
+    //               (white canvas areas are neutral in multiply, colored lines darken paper)
     const fragmentShader = `
       precision highp float;
       uniform vec2  resolution;
@@ -83,8 +58,6 @@ export function WebGLShader() {
       uniform float distortion;
       uniform vec3  colorMix;
       uniform vec2  mouse;
-      uniform float lightMode;
-      uniform vec3  paperColor;
 
       void main() {
         vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
@@ -102,21 +75,7 @@ export function WebGLShader() {
         float g = 0.05 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
         float b = 0.05 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
 
-        vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
-
-        // Light mode: same 3-line wave drama as dark, just on paper.
-        // Pre-weight by colorMix so each palette tints correctly,
-        // then blend paper → dark palette accent. At wave centre t→0.88:
-        //   porcelain → vivid amber-brown  (delta ~0.53 on parchment)
-        //   ink       → deep cyan          (delta ~0.80 on blue-white)
-        //   dusk      → deep purple
-        float rCl = clamp(r * colorMix.r, 0.0, 1.0);
-        float gCl = clamp(g * colorMix.g, 0.0, 1.0);
-        float bCl = clamp(b * colorMix.b, 0.0, 1.0);
-        float t   = clamp((rCl + gCl + bCl) * 0.45, 0.0, 0.88);
-        vec3 lightOut = mix(paperColor, colorMix * 0.38, t);
-
-        gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
+        gl_FragColor = vec4(r * colorMix.r, g * colorMix.g, b * colorMix.b, 1.0);
       }
     `
 
@@ -130,7 +89,6 @@ export function WebGLShader() {
     const [mr, mg, mb]   = PALETTE_COLORS[initialPalette] ?? DEFAULT_MIX
     refs.target.set(mr, mg, mb)
 
-    const [pr, pg, pb] = DEFAULT_PAPER_VEC
     refs.uniforms = {
       resolution: { value: [window.innerWidth, window.innerHeight] },
       time:       { value: 0.0 },
@@ -139,8 +97,6 @@ export function WebGLShader() {
       distortion: { value: 0.05 },
       colorMix:   { value: new THREE.Vector3(mr, mg, mb) },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
-      lightMode:  { value: 0.0 },
-      paperColor: { value: new THREE.Vector3(pr, pg, pb) },
     }
 
     const positions = new THREE.BufferAttribute(
@@ -198,28 +154,16 @@ export function WebGLShader() {
 
       const isLight = document.documentElement.dataset.mode === "light"
 
-      if (refs.uniforms) {
-        refs.uniforms.lightMode.value = isLight ? 1.0 : 0.0
-
-        if (isLight) {
-          const [pr, pg, pb] = PALETTE_PAPER_VEC[p] ?? DEFAULT_PAPER_VEC
-          const pv = refs.uniforms.paperColor.value as THREE.Vector3
-          pv.set(pr, pg, pb)
-        }
-      }
-
       if (refs.renderer) {
-        refs.renderer.setClearColor(
-          new THREE.Color(isLight
-            ? (PALETTE_PAPER_LIGHT[p] ?? DEFAULT_PAPER_LIGHT)
-            : 0x000000
-          )
-        )
+        // Light: white clear so multiply blend leaves paper unchanged between waves
+        // Dark: black clear so additive waves glow on black
+        refs.renderer.setClearColor(new THREE.Color(isLight ? 0xffffff : 0x000000))
       }
 
       if (canvasRef.current) {
-        // Full opacity in both modes — canvas IS the background; no dark body bleed-through
-        canvasRef.current.style.opacity = "1"
+        // multiply: colored wave × paper = dark vivid ink line; white × paper = paper
+        // normal:   canvas covers body directly (dark mode)
+        canvasRef.current.style.mixBlendMode = isLight ? "multiply" : "normal"
       }
     }
 
