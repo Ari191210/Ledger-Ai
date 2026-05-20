@@ -1485,6 +1485,9 @@ main {
     border-top:     1px solid var(--rule);
     z-index:        200;
   }
+  /* Dashboard score widget stacks vertically on mobile */
+  .dash-score-body { flex-direction: column !important; }
+  .dash-score-body > *:first-child { border-right: none !important; border-bottom: 1px solid var(--rule) !important; }
   /* Hero grid collapses to single column on mobile */
   .hero-grid {
     grid-template-columns: 1fr !important;

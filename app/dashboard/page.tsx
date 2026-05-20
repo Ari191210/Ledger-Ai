@@ -432,29 +432,45 @@ function LedgerScoreWidget() {
   }, []);
   if (!score) return null;
   const tier = scoreTier(score.total);
-  const pct = (score.total / 1000) * 100;
+  const pillars = [
+    { label: "PYQ",      val: score.pqaScore,        max: 400 },
+    { label: "Syllabus", val: score.syllabusScore,    max: 250 },
+    { label: "Mistakes", val: score.mistakeScore,     max: 200 },
+    { label: "Streak",   val: score.consistencyScore, max: 150 },
+  ];
   return (
-    <Link href="/tools/score" className="gl-pane-alt" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--rule)", padding: "28px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
-        <div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 6 }}>Ledger Score™</div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-            <span style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.04em", lineHeight: 1, color: "var(--ink)" }}>{score.total}</span>
-            <span className="mono" style={{ color: "var(--ink-3)" }}>/ 1000 · {tier.label}</span>
-          </div>
-        </div>
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ height: 6, background: "var(--paper)", border: "1px solid var(--rule)", marginBottom: 10 }}>
-            <div style={{ height: "100%", width: `${pct}%`, background: "var(--ink)", transition: "width 800ms" }} />
-          </div>
-          {score.actions[0] && (
-            <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", lineHeight: 1.5 }}>
-              Next: {score.actions[0]}
-            </div>
-          )}
-        </div>
-        <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, flexShrink: 0 }}>View breakdown →</div>
+    <Link href="/tools/score" style={{ textDecoration: "none", display: "block", marginBottom: 40, border: "1px solid var(--rule)", color: "inherit" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+        <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.16em", textTransform: "uppercase" as const }}>Ledger Score™</span>
+        <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em" }}>View breakdown →</span>
       </div>
+      {/* Body: score + 4 pillar rows */}
+      <div className="dash-score-body" style={{ display: "flex", background: "var(--paper)" }}>
+        <div style={{ padding: "24px 28px", borderRight: "1px solid var(--rule)", flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 52, fontWeight: 800, color: "var(--ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>{score.total}</div>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const, marginTop: 8 }}>{tier.label} · /1000</div>
+        </div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "18px 22px", gap: 11 }}>
+          {pillars.map(p => (
+            <div key={p.label} style={{ display: "grid", gridTemplateColumns: "72px 42px 1fr", gap: 10, alignItems: "center" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>{p.label}</span>
+              <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 13, fontWeight: 700, color: "var(--ink)", textAlign: "right" as const }}>
+                {p.val}<span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", fontWeight: 400 }}>/{p.max}</span>
+              </span>
+              <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
+                <div style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--ink)", transition: "width 800ms ease" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Action */}
+      {score.actions[0] && (
+        <div style={{ padding: "9px 20px", borderTop: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.06em" }}>↳ {score.actions[0]}</span>
+        </div>
+      )}
     </Link>
   );
 }
