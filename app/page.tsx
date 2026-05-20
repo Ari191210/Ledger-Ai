@@ -62,7 +62,7 @@ const FEATS = [
   { tag: "α", ttl: "Cognitive Debt Meter",      body: "Unfinished chapters accrue interest. The meter shows your academic APR — and the minimum daily payment to stay solvent before exams.", extra: "The debt meter recalculates every time you log a session or skip one. It uses your exam dates to reverse-engineer the daily cost of procrastination in marks." },
   { tag: "β", ttl: "Circadian Study Window",     body: "We map your chronotype from sleep times and place the hardest subject inside your personal peak — not a generic morning/evening default.", extra: "Students who studied their hardest subject during their computed peak window scored 11% higher on mock papers in our pilot cohort." },
   { tag: "γ", ttl: "Forgetting-Curve Revision", body: "Past-paper questions resurface on Ebbinghaus intervals. Not by topic. Not by date. By the precise moment before you would have forgotten.", extra: "Each correct answer pushes the next review interval forward. Each wrong answer resets the curve. The algorithm is the same one used by the world's top medical schools." },
-  { tag: "δ", ttl: "Peer Heatmap",              body: "Anonymous map of which chapters students in your board, grade, and week are struggling with right now. You are not alone on Conic Sections.", extra: "Powered by aggregated weak-topic data across all Ledger users on your board. Updated hourly. Only shown when a topic has 50+ struggling students this week." },
+  { tag: "δ", ttl: "Peer Heatmap",              body: "A map of which chapters students on your board find hardest. You are not alone on Conic Sections.", extra: "Based on representative struggle data across boards. Live aggregation from Ledger users is coming — the heatmap will update in real time once enough students are on your board." },
   { tag: "ε", ttl: "Syllabus Parser",           body: "Upload your school's PDF syllabus. We read it and build the full plan — not a template you then edit for an hour.", extra: "Handles handwritten notes, scanned PDFs, and messy Word docs. The AI extracts chapter structure, topic lists, and exam schedules even when the formatting is inconsistent." },
   { tag: "ζ", ttl: "Accountability Pact",       body: "Lock a session with a friend. If either of you bails, both streaks reset. The only social feature that works by being uncomfortable.", extra: "The pact mechanic has a 94% completion rate vs 71% for solo sessions. The discomfort of letting someone else down is more motivating than personal discipline." },
   { tag: "η", ttl: "Marks->College Simulator",  body: "A live feedback loop: score X on this week's test and these colleges move in or out of reach. Based on actual historic cutoffs.", extra: "Cutoff data from the last 6 years across 340 colleges. Updated annually. Shows rolling percentile not just rank — so you know if you are in the margin or safely inside." },
@@ -83,7 +83,7 @@ const STATS = [
 ] as const;
 
 const TICKER = [
-  "Figures updated hourly",
+  "Fifty-one tools. One score.",
   "14,382 timetables generated this week",
   "Average user recovered 7.4 hours per week",
   "Chemistry is the most-feared subject in CBSE Class 12",

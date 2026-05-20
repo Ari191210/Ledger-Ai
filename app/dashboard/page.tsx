@@ -90,7 +90,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "marks",          ttl: "Marks Predictor",   sub: "The math of your report card.",    tier: "Free", desc: "Weighted GPA, CBSE grade, and the score you need in remaining subjects." },
       { slug: "coach",          ttl: "AI Study Coach",    sub: "Daily briefing + personal chat.",  tier: "Pro",  desc: "Your personal AI. Morning briefing, streak coaching, and free-form study chat." },
       { slug: "rooms",          ttl: "Study Rooms",       sub: "Silent accountability.",           tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
-      { slug: "peer-heatmap",   ttl: "Peer Heatmap",      sub: "See what your board is struggling with.", tier: "Free", desc: "Anonymous heatmap of which topics students on your board are stuck on — updated hourly." },
+      { slug: "peer-heatmap",   ttl: "Peer Heatmap",      sub: "See what your board is struggling with.", tier: "Free", desc: "Heatmap of the most common struggle topics across your board, by subject." },
       { slug: "compare",        ttl: "Comparison Chart",  sub: "Any concepts, side by side.",      tier: "Free", desc: "Compare 2-4 items across 6-8 criteria. Similarities, differences, and verdict." },
       { slug: "source",      ttl: "Text Analyst",  sub: "Analyse sources or annotate any passage.", tier: "Free", desc: "Source mode gives full OPCVL breakdown; Passage mode annotates any text with tone, themes, devices, and comprehension questions." },
       { slug: "case-study",  ttl: "Case Study Pro", sub: "Business analysis in seconds.",    tier: "Free", desc: "SWOT, Porter's, PESTLE and more. Stakeholders, analysis, recommendations, verdict." },

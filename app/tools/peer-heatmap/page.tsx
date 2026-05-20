@@ -192,7 +192,7 @@ export default function PeerHeatmapPage() {
           ))}
         </div>
 
-        <div className="mono cin" style={{ marginBottom: 12 }}>Top 5 — most students struggling right now</div>
+        <div className="mono cin" style={{ marginBottom: 12 }}>Top 5 — most common struggle topics</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--ink)", marginBottom: 36 }} className="mob-col">
           {trending.map((t, i) => (
             <div key={i} style={{ padding: "16px 14px", background: heatBg(t.count) }}>
