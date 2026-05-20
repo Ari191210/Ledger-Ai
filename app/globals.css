@@ -1458,4 +1458,48 @@ main {
 
   /* Marks GPA row: wrap */
   .mob-gpa-row { flex-wrap: wrap !important; gap: 16px !important; }
+
+  /* iOS auto-zoom fix — any input/textarea with font-size < 16px triggers
+     the browser to zoom in on focus. One rule fixes all tool pages globally. */
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Tool content: extra bottom clearance for the mobile tab bar + breathing room */
+  .mob-p { padding: 20px 16px calc(80px + env(safe-area-inset-bottom, 0px)) !important; }
+
+  /* Desktop dock: hide on mobile */
+  .desk-dock { display: none !important; }
+
+  /* Mobile tab bar: shown */
+  .mob-tab-bar {
+    display:        flex !important;
+    position:       fixed;
+    bottom:         0;
+    left:           0;
+    right:          0;
+    height:         calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background:     var(--paper);
+    border-top:     1px solid var(--rule);
+    z-index:        200;
+  }
 }
+
+/* ─── Tool split wrap — height with dvh for mobile address-bar safety ─────── */
+/* 100dvh updates as the mobile browser address bar shows/hides, preventing   */
+/* the tool area from being clipped or overflowing.                            */
+/* Nav height corrected to 52px (was 49px — 3px off-by-one).                  */
+.tool-split-wrap {
+  display:  flex;
+  overflow: hidden;
+  height: calc(100vh - 52px);    /* fallback: browsers without dvh support */
+  height: calc(100dvh - 52px);  /* preferred: dynamic viewport height      */
+}
+
+/* ─── Desktop dock: visible above mobile breakpoint ─────────────────────────── */
+.desk-dock { display: block; }
+
+/* ─── Mobile tab bar: hidden on desktop ─────────────────────────────────────── */
+.mob-tab-bar { display: none; }

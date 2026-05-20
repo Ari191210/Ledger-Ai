@@ -89,7 +89,9 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
   // If we swapped to <>{children}</> when splitSlug is null, React would unmount/remount
   // the main tool on every split toggle, destroying all generated results.
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 49px)", overflow: "hidden" }}>
+    // tool-split-wrap: uses 100dvh so mobile browser address-bar changes don't overflow.
+    // nav is 52px; 49px was a long-standing off-by-one.
+    <div className="tool-split-wrap">
 
       {/* Main panel — always mounted, state always preserved */}
       <div ref={mainRef} style={{
@@ -99,9 +101,9 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      {/* Split panel — conditionally shown, isolated in iframe so it never shares state */}
+      {/* Split panel — hidden on mobile (mob-hide), isolated via iframe on desktop */}
       {splitSlug && (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <div className="mob-hide" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 36, borderBottom: "1px solid var(--ink)", background: "var(--paper-2)", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span className="mono" style={{ fontSize: 9, color: "#1a6091" }}>⊞ SPLIT</span>
