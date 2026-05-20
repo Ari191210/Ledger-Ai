@@ -15,31 +15,44 @@ const PALETTE_COLORS: Record<string, [number, number, number]> = {
 }
 const DEFAULT_MIX: [number, number, number] = [1.0, 0.90, 0.80]
 
-// Per-palette paper colour for light mode — matches CSS [data-mode="light"][data-palette="X"] --paper
-const PALETTE_PAPER_LIGHT: Record<string, [number, number, number]> = {
-  porcelain: [0.980, 0.965, 0.933],  // #faf6ee
-  ink:       [0.933, 0.957, 0.980],  // #eef4fa
-  dusk:      [0.957, 0.941, 0.980],  // #f4f0fa
-  moss:      [0.933, 0.961, 0.933],  // #eef5ee
-  rose:      [0.980, 0.941, 0.957],  // #faf0f4
-  storm:     [0.933, 0.941, 0.961],  // #eef0f5
-  ember:     [0.980, 0.957, 0.925],  // #faf4ec
-  sand:      [0.973, 0.957, 0.925],  // #f8f4ec
+// Dark-mode bg — palette near-blacks from lib/palette PALETTE_META.paper
+const PALETTE_BG_DARK: Record<string, [number, number, number]> = {
+  porcelain: [0.055, 0.047, 0.031],  // #0e0c08 — warm near-black
+  ink:       [0.020, 0.039, 0.063],  // #050a10 — blue near-black
+  dusk:      [0.031, 0.020, 0.063],  // #080510 — purple near-black
+  moss:      [0.020, 0.055, 0.024],  // #050e06 — green near-black
+  rose:      [0.063, 0.024, 0.035],  // #100609 — pink near-black
+  storm:     [0.031, 0.039, 0.055],  // #080a0e — steel near-black
+  ember:     [0.055, 0.031, 0.000],  // #0e0800 — amber near-black
+  sand:      [0.047, 0.039, 0.024],  // #0c0a06 — sand near-black
 }
-const DEFAULT_PAPER_LIGHT: [number, number, number] = [0.867, 0.835, 0.784] // #ddd5c8
+const DEFAULT_BG_DARK: [number, number, number] = [0.031, 0.031, 0.031]  // #080808
+
+// Light-mode bg — matches CSS [data-mode="light"][data-palette="X"] --paper
+const PALETTE_BG_LIGHT: Record<string, [number, number, number]> = {
+  porcelain: [0.980, 0.965, 0.933],  // #faf6ee — warm parchment
+  ink:       [0.933, 0.957, 0.980],  // #eef4fa — cool blue-white
+  dusk:      [0.957, 0.941, 0.980],  // #f4f0fa — pale lavender
+  moss:      [0.933, 0.961, 0.933],  // #eef5ee — pale green
+  rose:      [0.980, 0.941, 0.957],  // #faf0f4 — blush
+  storm:     [0.933, 0.941, 0.961],  // #eef0f5 — cool grey
+  ember:     [0.980, 0.957, 0.925],  // #faf4ec — warm cream
+  sand:      [0.973, 0.957, 0.925],  // #f8f4ec — pale sand
+}
+const DEFAULT_BG_LIGHT: [number, number, number] = [0.867, 0.835, 0.784]  // #ddd5c8
 
 export function WebGLShader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sceneRef  = useRef<{
-    scene:      THREE.Scene | null
-    camera:     THREE.OrthographicCamera | null
-    renderer:   THREE.WebGLRenderer | null
-    mesh:       THREE.Mesh | null
-    uniforms:   Record<string, { value: unknown }> | null
+    scene:       THREE.Scene | null
+    camera:      THREE.OrthographicCamera | null
+    renderer:    THREE.WebGLRenderer | null
+    mesh:        THREE.Mesh | null
+    uniforms:    Record<string, { value: unknown }> | null
     animationId: number | null
-    target:     THREE.Vector3
-    mouse:      THREE.Vector2
-    mouseTgt:   THREE.Vector2
+    target:      THREE.Vector3
+    mouse:       THREE.Vector2
+    mouseTgt:    THREE.Vector2
   }>({
     scene: null, camera: null, renderer: null, mesh: null,
     uniforms: null, animationId: null,
@@ -67,8 +80,7 @@ export function WebGLShader() {
       uniform float distortion;
       uniform vec3  colorMix;
       uniform vec2  mouse;
-      uniform float lightMode;
-      uniform vec3  paperColor;
+      uniform vec3  bgColor;
 
       void main() {
         vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
@@ -86,33 +98,31 @@ export function WebGLShader() {
         float g = 0.05 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
         float b = 0.05 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
 
-        // Dark mode: bright palette-coloured waves on black (unchanged)
-        vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
-
-        // Light mode: dark ink strokes drawn directly against the paper colour.
-        // smoothstep gives clean wave edges — background stays paper-white between waves.
-        // Single waveSum scalar avoids the complement-colour inversion that per-channel
-        // subtraction produces.
-        float waveSum = r * colorMix.r + g * colorMix.g + b * colorMix.b;
-        float ws      = smoothstep(0.0, 1.2, waveSum);
-        vec3  inkTone = colorMix * 0.38;
-        vec3  lightOut = mix(paperColor, inkTone, ws);
-
-        gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
+        // Identical wave formula in both light and dark mode.
+        // bgColor is near-black in dark mode, palette paper in light mode.
+        // Between waves (r+g+b small): bgColor shows through.
+        // At wave centres (r+g+b large): wave colour dominates.
+        vec3  wave = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
+        float mask = clamp(r + g + b, 0.0, 1.0);
+        gl_FragColor = vec4(wave + bgColor * (1.0 - mask), 1.0);
       }
     `
 
     refs.scene    = new THREE.Scene()
     refs.renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
     refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    refs.renderer.setClearColor(new THREE.Color(0x000000))
     refs.camera   = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1)
 
     const initialPalette = document.documentElement.dataset.palette ?? ""
     const [mr, mg, mb]   = PALETTE_COLORS[initialPalette] ?? DEFAULT_MIX
     refs.target.set(mr, mg, mb)
 
-    const [pr, pg, pb] = PALETTE_PAPER_LIGHT[initialPalette] ?? DEFAULT_PAPER_LIGHT
+    const isLightInit = document.documentElement.dataset.mode === "light"
+    const [ibr, ibg, ibb] = isLightInit
+      ? (PALETTE_BG_LIGHT[initialPalette] ?? DEFAULT_BG_LIGHT)
+      : (PALETTE_BG_DARK[initialPalette]  ?? DEFAULT_BG_DARK)
+
+    refs.renderer.setClearColor(new THREE.Color(ibr, ibg, ibb))
 
     refs.uniforms = {
       resolution: { value: [window.innerWidth, window.innerHeight] },
@@ -122,8 +132,7 @@ export function WebGLShader() {
       distortion: { value: 0.05 },
       colorMix:   { value: new THREE.Vector3(mr, mg, mb) },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
-      lightMode:  { value: 0.0 },
-      paperColor: { value: new THREE.Vector3(pr, pg, pb) },
+      bgColor:    { value: new THREE.Vector3(ibr, ibg, ibb) },
     }
 
     const positions = new THREE.BufferAttribute(
@@ -175,28 +184,19 @@ export function WebGLShader() {
     }
 
     const applyTheme = () => {
-      const p = document.documentElement.dataset.palette ?? ""
+      const p       = document.documentElement.dataset.palette ?? ""
       const [r, g, b] = PALETTE_COLORS[p] ?? DEFAULT_MIX
       refs.target.set(r, g, b)
 
-      const isLight = document.documentElement.dataset.mode === "light"
+      const isLight   = document.documentElement.dataset.mode === "light"
+      const [br, bgR, bb] = isLight
+        ? (PALETTE_BG_LIGHT[p] ?? DEFAULT_BG_LIGHT)
+        : (PALETTE_BG_DARK[p]  ?? DEFAULT_BG_DARK)
 
       if (refs.uniforms) {
-        refs.uniforms.lightMode.value = isLight ? 1.0 : 0.0
-
-        if (isLight) {
-          const [pr, pg, pb] = PALETTE_PAPER_LIGHT[p] ?? DEFAULT_PAPER_LIGHT
-          ;(refs.uniforms.paperColor.value as THREE.Vector3).set(pr, pg, pb)
-          refs.renderer?.setClearColor(new THREE.Color(pr, pg, pb))
-        } else {
-          refs.renderer?.setClearColor(new THREE.Color(0x000000))
-        }
+        (refs.uniforms.bgColor.value as THREE.Vector3).set(br, bgR, bb)
       }
-
-      // Canvas is always normal blend — shader handles full background in both modes
-      if (canvasRef.current) {
-        canvasRef.current.style.mixBlendMode = "normal"
-      }
+      refs.renderer?.setClearColor(new THREE.Color(br, bgR, bb))
     }
 
     const observer = new MutationObserver(applyTheme)
