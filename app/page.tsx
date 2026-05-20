@@ -792,16 +792,19 @@ export default function Home() {
       </section>
 
       {/* ─── 04 / All 51 Tools ─── */}
-      <section id="tools" className="gl-pane-alt" style={{ borderBottom: S.border }}>
+      <section id="tools" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="04" label="All 51 Tools" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
+              {filteredTools.length} tool{filteredTools.length !== 1 ? "s" : ""} · {activeCategory === "ALL" ? "all categories" : activeCategory.toLowerCase()}
+            </span>
           </div>
 
           {/* Category filter tabs */}
-          <div className="cat-tabs" style={{ display: "flex", gap: 0, flexWrap: "wrap", borderBottom: S.border, marginBottom: 0 }}>
+          <div className="cat-tabs" style={{ display: "flex", gap: 0, flexWrap: "wrap", borderBottom: "1px solid var(--rule)", marginBottom: 0 }}>
             {CATEGORIES.map(cat => {
               const active = activeCategory === cat;
               const color  = cat === "ALL" ? "var(--cinnabar-ink)" : CAT_COLOR[cat] ?? "var(--ink)";
@@ -813,11 +816,11 @@ export default function Home() {
                   style={{
                     fontFamily: "var(--mono)", fontSize: 9, fontWeight: 500,
                     letterSpacing: "0.14em", textTransform: "uppercase",
-                    padding: "10px 16px", border: "none", cursor: "pointer",
-                    background: active ? "var(--ink)" : "transparent",
-                    color: active ? "var(--paper)" : "var(--ink-3)",
+                    padding: "10px 18px", border: "none", cursor: "pointer",
+                    background: active ? "var(--paper)" : "transparent",
+                    color: active ? "var(--ink)" : "var(--ink-3)",
                     borderBottom: active ? `2px solid ${color}` : "2px solid transparent",
-                    transition: "background 150ms, color 150ms",
+                    transition: "color 150ms, border-color 150ms",
                   }}
                 >{cat}</button>
               );
@@ -837,50 +840,52 @@ export default function Home() {
                     onClick={() => setSelectedTool(i)}
                     onMouseEnter={() => setSelectedTool(i)}
                     style={{
-                      width: "100%", padding: "13px 20px",
-                      background: active ? "var(--ink)" : "transparent",
-                      color: active ? "var(--paper)" : "var(--ink)",
+                      width: "100%", padding: "12px 18px",
+                      background: active ? "var(--paper-2)" : "transparent",
+                      color: "var(--ink)",
                       border: "none",
-                      borderBottom: i < filteredTools.length - 1 ? `1px solid var(--rule)` : "none",
+                      borderBottom: i < filteredTools.length - 1 ? "1px solid var(--rule)" : "none",
                       borderLeft: active ? `3px solid ${catColor}` : "3px solid transparent",
                       cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 14,
                       transition: "background 120ms, border-left-color 120ms",
                     }}
                   >
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, opacity: 0.4, flexShrink: 0, width: 18, letterSpacing: "0.04em" }}>{t.n}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", flexShrink: 0, width: 18, letterSpacing: "0.04em" }}>{t.n}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.ttl}</div>
-                      <div style={{ fontFamily: "var(--sans)", fontSize: 10, opacity: 0.55, marginTop: 2 }}>{t.sub}</div>
+                      <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--ink)" }}>{t.ttl}</div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: catColor, marginTop: 3, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t.cat}</div>
                     </div>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, opacity: active ? 0.5 : 0, transition: "opacity 120ms", flexShrink: 0, color: catColor }}>→</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, opacity: active ? 1 : 0, transition: "opacity 120ms", flexShrink: 0, color: catColor }}>→</span>
                   </button>
                 );
               })}
             </div>
 
             {/* Tool detail */}
-            <div style={{ padding: "36px 36px 32px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380, background: "var(--paper)" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", color: CAT_COLOR[tool.cat] ?? "var(--cinnabar-ink)", textTransform: "uppercase", fontWeight: 600 }}>{tool.cat}</span>
-                  <span style={{ width: 1, height: 10, background: "var(--rule)", display: "inline-block" }} />
-                  <span style={{ ...S.cap, fontSize: 9 }}>/tools/{tool.slug}</span>
-                </div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(22px,2.8vw,32px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.03em", lineHeight: 1.15, color: "var(--ink)", marginBottom: 8 }}>{tool.ttl}</div>
-                <div style={{ ...S.capAccent, marginBottom: 16 }}>{tool.sub}</div>
-                <p style={{ ...S.body, fontSize: 13, lineHeight: 1.72 }}>{tool.desc}</p>
-                <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9 }}>
-                  {tool.gets.map((g, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <span style={{ color: CAT_COLOR[tool.cat] ?? "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 10, marginTop: 1, flexShrink: 0 }}>+</span>
-                      <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>{g}</span>
-                    </div>
-                  ))}
-                </div>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380, background: "var(--paper)" }}>
+              {/* Detail header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: CAT_COLOR[tool.cat] ?? "var(--cinnabar-ink)", letterSpacing: "0.12em", textTransform: "uppercase" as const, fontWeight: 600 }}>{tool.cat}</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em" }}>{tool.n} · /tools/{tool.slug}</span>
               </div>
-              <div style={{ marginTop: 28, paddingTop: 20, borderTop: S.border, display: "flex", gap: 10 }}>
-                <Link href={`/tools/${tool.slug}`} className="btn" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>Open tool →</Link>
-                <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 51 tools</Link>
+              <div style={{ padding: "28px 32px 24px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(22px,2.8vw,32px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.03em", lineHeight: 1.15, color: "var(--ink)", marginBottom: 8 }}>{tool.ttl}</div>
+                  <div style={{ ...S.capAccent, marginBottom: 16 }}>{tool.sub}</div>
+                  <p style={{ ...S.body, fontSize: 13, lineHeight: 1.72 }}>{tool.desc}</p>
+                  <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9 }}>
+                    {tool.gets.map((g, gi) => (
+                      <div key={gi} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                        <span style={{ color: CAT_COLOR[tool.cat] ?? "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 10, marginTop: 2, flexShrink: 0 }}>—</span>
+                        <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>{g}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ marginTop: 28, paddingTop: 20, borderTop: S.border, display: "flex", gap: 10 }}>
+                  <Link href={`/tools/${tool.slug}`} className="btn" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>Open tool →</Link>
+                  <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 51 tools</Link>
+                </div>
               </div>
             </div>
           </div>
