@@ -1101,14 +1101,73 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: S.border, borderTop: "none" }} className="mob-2col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", borderTop: S.border }} className="mob-2col">
             {STATS.map(({ big, suffix, sm }, i) => (
-              <div className="stat-card" key={i} style={{ background: "var(--paper)", padding: "24px 22px" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "normal", fontWeight: 700, lineHeight: 1, letterSpacing: "0.02em", color: "var(--ink)", display: "flex", alignItems: "baseline", gap: 4 }}>
-                  <span className="count-up" data-target={big} data-decimals={big.includes(".") ? "1" : "0"}>{big}</span>
-                  <span style={{ fontSize: 22 }}>{suffix}</span>
+              <div
+                className="stat-card"
+                key={i}
+                style={{
+                  padding:     "40px 28px 36px",
+                  borderRight:  i < STATS.length - 1 ? S.border : "none",
+                  borderTop:    "3px solid var(--cinnabar-ink)",
+                  position:     "relative",
+                }}
+              >
+                {/* Mono index — marginal note style */}
+                <div style={{
+                  fontFamily:    "var(--mono)",
+                  fontSize:      9,
+                  letterSpacing: "0.14em",
+                  color:         "var(--cinnabar-ink)",
+                  opacity:       0.55,
+                  marginBottom:  16,
+                  textTransform: "uppercase",
+                }}>
+                  {String(i + 1).padStart(2, "0")}
                 </div>
-                <div style={{ ...S.cap, fontSize: 10, marginTop: 10 }}>{sm}</div>
+
+                {/* Headline number */}
+                <div style={{
+                  fontFamily:    "var(--serif)",
+                  fontSize:      "clamp(52px, 5.5vw, 72px)",
+                  fontStyle:     "normal",
+                  fontWeight:    700,
+                  lineHeight:    1,
+                  letterSpacing: "-0.01em",
+                  color:         "var(--ink)",
+                  display:       "flex",
+                  alignItems:    "baseline",
+                  gap:           6,
+                }}>
+                  <span
+                    className="count-up"
+                    data-target={big}
+                    data-decimals={big.includes(".") ? "1" : "0"}
+                  >
+                    {big}
+                  </span>
+                  <span style={{
+                    fontSize:   "clamp(22px, 2.2vw, 30px)",
+                    fontWeight: 400,
+                    color:      "var(--ink-2)",
+                  }}>
+                    {suffix}
+                  </span>
+                </div>
+
+                {/* Label */}
+                <div style={{
+                  fontFamily:    "var(--mono)",
+                  fontSize:      10,
+                  fontWeight:    500,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color:         "var(--ink-3)",
+                  marginTop:     18,
+                  lineHeight:    1.55,
+                }}>
+                  {sm}
+                </div>
               </div>
             ))}
           </div>
