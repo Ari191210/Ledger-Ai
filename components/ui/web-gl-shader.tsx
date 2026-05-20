@@ -104,14 +104,13 @@ export function WebGLShader() {
 
         vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
 
-        // Clamp before light subtraction so near-wave-center never goes pitch black
-        float rc = clamp(r, 0.0, 0.65);
-        float gc = clamp(g, 0.0, 0.65);
-        float bc = clamp(b, 0.0, 0.65);
-        vec3 lightOut = clamp(
-          paperColor - vec3(rc * colorMix.r * 0.22, gc * colorMix.g * 0.22, bc * colorMix.b * 0.22),
-          0.0, 1.0
-        );
+        // Light mode: blend paper → palette accent colour where waves are strong.
+        // t accumulates wave energy per channel, clamped so it never fully saturates.
+        float rCl = clamp(r, 0.0, 0.8);
+        float gCl = clamp(g, 0.0, 0.8);
+        float bCl = clamp(b, 0.0, 0.8);
+        float t = clamp((rCl * colorMix.r + gCl * colorMix.g + bCl * colorMix.b) * 0.28, 0.0, 0.48);
+        vec3 lightOut = mix(paperColor, colorMix * 0.52, t);
 
         gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
       }
