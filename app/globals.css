@@ -555,6 +555,11 @@ hr.rule-double { border-top: 3px double var(--ink); }
 }
 
 /* ─── Buttons ───────────────────────────────────────────────────────────────── */
+@keyframes btn-flow {
+  0%   { transform: translateX(-120%) skewX(-14deg); }
+  100% { transform: translateX(420%) skewX(-14deg); }
+}
+
 .btn {
   --glass-reflex-light: 1;
   --glass-reflex-dark: 1;
@@ -576,6 +581,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   text-decoration: none;
   position: relative;
   isolation: isolate;
+  overflow: hidden;
   user-select: none;
   white-space: nowrap;
   -webkit-appearance: none;
@@ -602,6 +608,23 @@ hr.rule-double { border-top: 3px double var(--ink); }
               background-color 200ms ease,
               border-color 200ms ease;
 }
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 42%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, white 28%, transparent) 50%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: btn-flow 5s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
 .btn:hover:not(:disabled) {
   transform: translateY(-2px) scale(1.01);
   background: color-mix(in srgb, var(--ink) 20%, transparent);
@@ -613,7 +636,9 @@ hr.rule-double { border-top: 3px double var(--ink); }
     inset 0px 3px 6px -2px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 20%), transparent),
     inset 0 -1px 0 0 color-mix(in srgb, black calc(var(--glass-reflex-dark) * 24%), transparent),
     0px 4px 14px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 22%), transparent),
-    0px 16px 38px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 16%), transparent);
+    0px 16px 38px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 16%), transparent),
+    0 0 26px color-mix(in srgb, var(--ink) 9%, transparent),
+    0 0 48px color-mix(in srgb, var(--ink) 5%, transparent);
 }
 .btn:active:not(:disabled) {
   transform: scale(0.96);
