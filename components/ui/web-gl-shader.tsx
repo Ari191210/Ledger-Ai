@@ -104,13 +104,17 @@ export function WebGLShader() {
 
         vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
 
-        // Light mode: blend paper → palette accent colour where waves are strong.
-        // t accumulates wave energy per channel, clamped so it never fully saturates.
-        float rCl = clamp(r, 0.0, 0.8);
-        float gCl = clamp(g, 0.0, 0.8);
-        float bCl = clamp(b, 0.0, 0.8);
-        float t = clamp((rCl * colorMix.r + gCl * colorMix.g + bCl * colorMix.b) * 0.28, 0.0, 0.48);
-        vec3 lightOut = mix(paperColor, colorMix * 0.52, t);
+        // Light mode: same 3-line wave drama as dark, just on paper.
+        // Pre-weight by colorMix so each palette tints correctly,
+        // then blend paper → dark palette accent. At wave centre t→0.88:
+        //   porcelain → vivid amber-brown  (delta ~0.53 on parchment)
+        //   ink       → deep cyan          (delta ~0.80 on blue-white)
+        //   dusk      → deep purple
+        float rCl = clamp(r * colorMix.r, 0.0, 1.0);
+        float gCl = clamp(g * colorMix.g, 0.0, 1.0);
+        float bCl = clamp(b * colorMix.b, 0.0, 1.0);
+        float t   = clamp((rCl + gCl + bCl) * 0.45, 0.0, 0.88);
+        vec3 lightOut = mix(paperColor, colorMix * 0.38, t);
 
         gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
       }
