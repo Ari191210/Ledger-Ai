@@ -15,6 +15,32 @@ const PALETTE_COLORS: Record<string, [number, number, number]> = {
 }
 const DEFAULT_MIX: [number, number, number] = [1.0, 0.90, 0.80]
 
+// Matches the per-palette light paper colors in globals.css [data-mode="light"][data-palette="..."]
+const PALETTE_PAPER_LIGHT: Record<string, number> = {
+  porcelain: 0xfaf6ee,
+  ink:       0xeef4fa,
+  dusk:      0xf4f0fa,
+  moss:      0xeef5ee,
+  rose:      0xfaf0f4,
+  storm:     0xeef0f5,
+  ember:     0xfaf4ec,
+  sand:      0xf8f4ec,
+}
+const DEFAULT_PAPER_LIGHT = 0xddd5c8
+
+// GLSL vec3 of each palette's paper colour for the light-mode shader inversion
+const PALETTE_PAPER_VEC: Record<string, [number, number, number]> = {
+  porcelain: [0.98, 0.965, 0.933],
+  ink:       [0.933, 0.957, 0.98],
+  dusk:      [0.957, 0.941, 0.98],
+  moss:      [0.933, 0.961, 0.933],
+  rose:      [0.98, 0.941, 0.957],
+  storm:     [0.933, 0.941, 0.961],
+  ember:     [0.98, 0.957, 0.925],
+  sand:      [0.973, 0.957, 0.925],
+}
+const DEFAULT_PAPER_VEC: [number, number, number] = [0.867, 0.835, 0.784]
+
 export function WebGLShader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sceneRef  = useRef<{
@@ -46,7 +72,8 @@ export function WebGLShader() {
     `
 
     // lightMode uniform: 0.0 = dark (bright waves on black),
-    //                    1.0 = light (dark waves subtracted from cream paper)
+    //                    1.0 = light (dark waves subtracted from palette paper)
+    // paperColor uniform: the active palette's paper colour in light mode
     const fragmentShader = `
       precision highp float;
       uniform vec2  resolution;
@@ -57,6 +84,7 @@ export function WebGLShader() {
       uniform vec3  colorMix;
       uniform vec2  mouse;
       uniform float lightMode;
+      uniform vec3  paperColor;
 
       void main() {
         vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
@@ -75,8 +103,7 @@ export function WebGLShader() {
         float b = 0.05 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
 
         vec3 darkOut  = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
-        vec3 paper    = vec3(0.87, 0.84, 0.78);
-        vec3 lightOut = paper - vec3(r, g, b) * vec3(colorMix.r * 0.55, colorMix.g * 0.55, colorMix.b * 0.55);
+        vec3 lightOut = paperColor - vec3(r, g, b) * vec3(colorMix.r * 0.50, colorMix.g * 0.50, colorMix.b * 0.50);
 
         gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
       }
@@ -92,6 +119,7 @@ export function WebGLShader() {
     const [mr, mg, mb]   = PALETTE_COLORS[initialPalette] ?? DEFAULT_MIX
     refs.target.set(mr, mg, mb)
 
+    const [pr, pg, pb] = DEFAULT_PAPER_VEC
     refs.uniforms = {
       resolution: { value: [window.innerWidth, window.innerHeight] },
       time:       { value: 0.0 },
@@ -101,6 +129,7 @@ export function WebGLShader() {
       colorMix:   { value: new THREE.Vector3(mr, mg, mb) },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
       lightMode:  { value: 0.0 },
+      paperColor: { value: new THREE.Vector3(pr, pg, pb) },
     }
 
     const positions = new THREE.BufferAttribute(
@@ -160,16 +189,25 @@ export function WebGLShader() {
 
       if (refs.uniforms) {
         refs.uniforms.lightMode.value = isLight ? 1.0 : 0.0
+
+        if (isLight) {
+          const [pr, pg, pb] = PALETTE_PAPER_VEC[p] ?? DEFAULT_PAPER_VEC
+          const pv = refs.uniforms.paperColor.value as THREE.Vector3
+          pv.set(pr, pg, pb)
+        }
       }
 
       if (refs.renderer) {
         refs.renderer.setClearColor(
-          new THREE.Color(isLight ? 0xddd5c8 : 0x000000)
+          new THREE.Color(isLight
+            ? (PALETTE_PAPER_LIGHT[p] ?? DEFAULT_PAPER_LIGHT)
+            : 0x000000
+          )
         )
       }
 
       if (canvasRef.current) {
-        canvasRef.current.style.opacity = isLight ? "0.90" : "1"
+        canvasRef.current.style.opacity = isLight ? "0.88" : "1"
       }
     }
 

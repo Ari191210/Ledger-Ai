@@ -357,9 +357,13 @@
 }
 
 /* ─── Light mode — body atmosphere gradient ────────────────────────────────── */
-/* Canvas at 0.90 opacity IS the bg in light mode; body gradient shows through the 10% gap */
+/* Canvas is 0.88 opacity; the 12% gap + glass panel gaps show this gradient.
+   Uses CSS vars so it auto-adapts to each palette's cinnabar colour. */
 [data-mode="light"] body {
-  background: var(--paper);
+  background:
+    radial-gradient(ellipse 110% 55% at 50% -8%,  color-mix(in srgb, var(--cinnabar) 14%, transparent), transparent 52%),
+    radial-gradient(ellipse  70% 40% at  8% 105%, color-mix(in srgb, var(--cinnabar)  8%, transparent), transparent 50%),
+    var(--paper);
 }
 
 /* ─── Light mode surface overrides ──────────────────────────────────────────── */
@@ -372,8 +376,16 @@
   opacity: 0.12;
 }
 [data-mode="light"] .btn {
-  --glass-reflex-light: 0.30;
-  --glass-reflex-dark:  1.6;
+  --glass-reflex-light: 0.45;
+  --glass-reflex-dark:  0.8;
+}
+[data-mode="light"] .gl-pane {
+  background: color-mix(in srgb, var(--paper) 60%, transparent) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6) !important;
+}
+[data-mode="light"] .gl-pane-alt {
+  background: color-mix(in srgb, var(--paper) 70%, transparent) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5) !important;
 }
 [data-mode="light"] .dash-tool:hover {
   box-shadow: 0 20px 52px rgba(0,0,0,0.10), 0 4px 14px rgba(0,0,0,0.06) !important;
