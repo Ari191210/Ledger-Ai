@@ -102,9 +102,8 @@ export function WebGLShader() {
         // bgColor is near-black in dark mode, palette paper in light mode.
         // Between waves (r+g+b small): bgColor shows through.
         // At wave centres (r+g+b large): wave colour dominates.
-        vec3  wave = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
-        float mask = clamp(r + g + b, 0.0, 1.0);
-        gl_FragColor = vec4(wave + bgColor * (1.0 - mask), 1.0);
+        vec3 wave = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
+        gl_FragColor = vec4(wave + bgColor, 1.0);
       }
     `
 
