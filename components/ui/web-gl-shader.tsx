@@ -15,6 +15,19 @@ const PALETTE_COLORS: Record<string, [number, number, number]> = {
 }
 const DEFAULT_MIX: [number, number, number] = [1.0, 0.90, 0.80]
 
+// Per-palette paper colour for light mode — matches CSS [data-mode="light"][data-palette="X"] --paper
+const PALETTE_PAPER_LIGHT: Record<string, [number, number, number]> = {
+  porcelain: [0.980, 0.965, 0.933],  // #faf6ee
+  ink:       [0.933, 0.957, 0.980],  // #eef4fa
+  dusk:      [0.957, 0.941, 0.980],  // #f4f0fa
+  moss:      [0.933, 0.961, 0.933],  // #eef5ee
+  rose:      [0.980, 0.941, 0.957],  // #faf0f4
+  storm:     [0.933, 0.941, 0.961],  // #eef0f5
+  ember:     [0.980, 0.957, 0.925],  // #faf4ec
+  sand:      [0.973, 0.957, 0.925],  // #f8f4ec
+}
+const DEFAULT_PAPER_LIGHT: [number, number, number] = [0.867, 0.835, 0.784] // #ddd5c8
+
 export function WebGLShader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sceneRef  = useRef<{
@@ -55,6 +68,7 @@ export function WebGLShader() {
       uniform vec3  colorMix;
       uniform vec2  mouse;
       uniform float lightMode;
+      uniform vec3  paperColor;
 
       void main() {
         vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
@@ -75,12 +89,14 @@ export function WebGLShader() {
         // Dark mode: bright palette-coloured waves on black (unchanged)
         vec3 darkOut = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
 
-        // Light mode: canvas goes white between waves (white = neutral in CSS multiply),
-        // and blends toward a dark saturated version of the palette accent at wave centres.
-        // Single luminance scalar avoids the complement-colour inversion problem that
-        // per-channel subtraction causes.
-        float lum = clamp((r * colorMix.r + g * colorMix.g + b * colorMix.b) * 0.55, 0.0, 1.0);
-        vec3 lightOut = mix(vec3(1.0), colorMix * 0.52, lum);
+        // Light mode: dark ink strokes drawn directly against the paper colour.
+        // smoothstep gives clean wave edges — background stays paper-white between waves.
+        // Single waveSum scalar avoids the complement-colour inversion that per-channel
+        // subtraction produces.
+        float waveSum = r * colorMix.r + g * colorMix.g + b * colorMix.b;
+        float ws      = smoothstep(0.0, 1.2, waveSum);
+        vec3  inkTone = colorMix * 0.38;
+        vec3  lightOut = mix(paperColor, inkTone, ws);
 
         gl_FragColor = vec4(mix(darkOut, lightOut, lightMode), 1.0);
       }
@@ -96,6 +112,8 @@ export function WebGLShader() {
     const [mr, mg, mb]   = PALETTE_COLORS[initialPalette] ?? DEFAULT_MIX
     refs.target.set(mr, mg, mb)
 
+    const [pr, pg, pb] = PALETTE_PAPER_LIGHT[initialPalette] ?? DEFAULT_PAPER_LIGHT
+
     refs.uniforms = {
       resolution: { value: [window.innerWidth, window.innerHeight] },
       time:       { value: 0.0 },
@@ -105,6 +123,7 @@ export function WebGLShader() {
       colorMix:   { value: new THREE.Vector3(mr, mg, mb) },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
       lightMode:  { value: 0.0 },
+      paperColor: { value: new THREE.Vector3(pr, pg, pb) },
     }
 
     const positions = new THREE.BufferAttribute(
@@ -164,18 +183,19 @@ export function WebGLShader() {
 
       if (refs.uniforms) {
         refs.uniforms.lightMode.value = isLight ? 1.0 : 0.0
+
+        if (isLight) {
+          const [pr, pg, pb] = PALETTE_PAPER_LIGHT[p] ?? DEFAULT_PAPER_LIGHT
+          ;(refs.uniforms.paperColor.value as THREE.Vector3).set(pr, pg, pb)
+          refs.renderer?.setClearColor(new THREE.Color(pr, pg, pb))
+        } else {
+          refs.renderer?.setClearColor(new THREE.Color(0x000000))
+        }
       }
 
-      if (refs.renderer) {
-        // Light: white clear so multiply-blended canvas is neutral between waves.
-        // Dark: black clear so waves glow on darkness.
-        refs.renderer.setClearColor(new THREE.Color(isLight ? 0xffffff : 0x000000))
-      }
-
+      // Canvas is always normal blend — shader handles full background in both modes
       if (canvasRef.current) {
-        // Light: multiply blend → dark accent × palette paper = vivid ink lines on paper.
-        // Dark: normal blend → canvas is the full background.
-        canvasRef.current.style.mixBlendMode = isLight ? "multiply" : "normal"
+        canvasRef.current.style.mixBlendMode = "normal"
       }
     }
 
