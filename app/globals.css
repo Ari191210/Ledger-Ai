@@ -698,6 +698,27 @@ button:not(.btn):not([class*="ui-btn"]):disabled {
   cursor: not-allowed;
 }
 
+/* ─── Skeleton shimmer ───────────────────────────────────────────────────────── */
+@keyframes sk-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+.skel {
+  background: linear-gradient(
+    90deg,
+    var(--paper-2) 0%,
+    color-mix(in srgb, var(--ink) 5%, var(--paper-2)) 40%,
+    color-mix(in srgb, var(--ink) 5%, var(--paper-2)) 60%,
+    var(--paper-2) 100%
+  );
+  background-size: 600px 100%;
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; background: var(--paper-2); }
+}
+
 /* ─── Nav + tab-bar buttons: strip glass (they carry structural inline styles) ── */
 nav button,
 .mob-tab-bar button {

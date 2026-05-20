@@ -9,6 +9,7 @@ import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import FeaturesShowcase from "@/components/features-showcase";
+import DashboardSkeleton from "@/components/dashboard-skeleton";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -476,7 +477,7 @@ function LedgerScoreWidget() {
 }
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const containerRef = useRef<HTMLElement>(null);
 
@@ -549,6 +550,8 @@ export default function Dashboard() {
   const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+
+  if (authLoading) return <DashboardSkeleton />;
 
   return (
     <main ref={containerRef} id="main-content" tabIndex={-1} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
