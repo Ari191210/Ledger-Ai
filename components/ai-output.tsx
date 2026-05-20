@@ -26,7 +26,7 @@ function renderMarkdown(text: string): React.ReactNode {
 
     if (first.startsWith("## ")) {
       return (
-        <div key={pIdx} style={{ fontFamily: "var(--serif)", fontSize: 16, fontWeight: 700, lineHeight: 1.35, margin: "20px 0 6px", color: "var(--ink)", letterSpacing: "-0.01em" }}>
+        <div key={pIdx} style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, lineHeight: 1.3, margin: "26px 0 8px", color: "var(--ink)", letterSpacing: "-0.015em" }}>
           {renderInline(first.slice(3))}
         </div>
       );
@@ -34,7 +34,7 @@ function renderMarkdown(text: string): React.ReactNode {
 
     if (first.startsWith("### ")) {
       return (
-        <div key={pIdx} style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", margin: "18px 0 4px", color: "var(--cinnabar-ink)" }}>
+        <div key={pIdx} style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.09em", margin: "22px 0 6px", color: "var(--cinnabar-ink)" }}>
           {first.slice(4)}
         </div>
       );
@@ -43,10 +43,10 @@ function renderMarkdown(text: string): React.ReactNode {
     const isBulletList = lines.length > 0 && lines.every(l => /^[-•*] /.test(l.trim()));
     if (isBulletList) {
       return (
-        <ul key={pIdx} style={{ paddingLeft: 0, margin: "6px 0 10px", listStyle: "none" }}>
+        <ul key={pIdx} style={{ paddingLeft: 0, margin: "8px 0 14px", listStyle: "none" }}>
           {lines.map((l, i) => (
-            <li key={i} style={{ display: "flex", gap: 10, marginBottom: 5, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
-              <span style={{ color: "var(--cinnabar-ink)", flexShrink: 0, userSelect: "none" }}>—</span>
+            <li key={i} style={{ display: "flex", gap: 12, marginBottom: 8, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
+              <span style={{ color: "var(--cinnabar-ink)", flexShrink: 0, userSelect: "none", marginTop: "0.12em" }}>—</span>
               <span>{renderInline(l.trim().replace(/^[-•*] /, ""))}</span>
             </li>
           ))}
@@ -57,12 +57,12 @@ function renderMarkdown(text: string): React.ReactNode {
     const isNumberedList = lines.length > 0 && lines.every(l => /^\d+[.)]\s/.test(l.trim()));
     if (isNumberedList) {
       return (
-        <ol key={pIdx} style={{ paddingLeft: 0, margin: "6px 0 10px", listStyle: "none" }}>
+        <ol key={pIdx} style={{ paddingLeft: 0, margin: "8px 0 14px", listStyle: "none" }}>
           {lines.map((l, i) => {
             const match = l.trim().match(/^\d+[.)]\s+(.*)/);
             return (
-              <li key={i} style={{ display: "flex", gap: 12, marginBottom: 6, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", flexShrink: 0, width: 20, paddingTop: 4 }}>
+              <li key={i} style={{ display: "flex", gap: 14, marginBottom: 10, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", flexShrink: 0, width: 22, paddingTop: "0.3em" }}>
                   {String(i + 1).padStart(2, "0")}.
                 </span>
                 <span>{match ? renderInline(match[1]) : renderInline(l.trim().replace(/^\d+[.)]\s+/, ""))}</span>
@@ -74,7 +74,7 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     return (
-      <p key={pIdx} style={{ margin: "0 0 10px", fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
+      <p key={pIdx} style={{ margin: "0 0 14px", fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
         {lines.map((line, lIdx) => (
           <React.Fragment key={lIdx}>
             {lIdx > 0 && <br />}
@@ -183,7 +183,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false, onRegenera
 
   const borderStyle: React.CSSProperties = noBorder ? {} : {
     borderLeft: "3px solid var(--cinnabar)",
-    paddingLeft: 16,
+    paddingLeft: 20,
   };
 
   if (variant === "principle") {
