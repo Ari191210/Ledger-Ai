@@ -1,23 +1,36 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAI, callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { AIErrorDisplay } from "@/components/ai-error";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// ── Shared essay types ────────────────────────────────────────────────────────
 
-type Issue = { type: string; original: string; suggestion: string; explanation: string };
+type Section      = { title: string; purpose: string; points: string[]; wordCount: number; openWith: string };
+type Blueprint    = { title: string; thesis: string; totalWords: number; sections: Section[]; dos: string[]; donts: string[]; keyTerms: string[] };
+type Point        = { point: string; evidence: string; explain: string; link: string };
+type ArgumentPlan = { thesis: string; intro: string; points: Point[]; counter: { argument: string; rebuttal: string }; conclusion: string; keyPhrases: string[]; examTip: string };
+type Criterion    = { name: string; score: number; max: number; feedback: string };
+type Grade        = { overall: string; band: string; totalScore: number; maxScore: number; criteria: Criterion[]; strengths: string[]; improvements: string[]; summary: string };
+
+// ── Writing Polish types ──────────────────────────────────────────────────────
+
+type Issue         = { type: string; original: string; suggestion: string; explanation: string };
 type GrammarResult = { overallScore: number; band: string; issues: Issue[]; strengths: string[]; rewrite: string; academicPhrases: string[]; examTip: string };
-type PSFeedback = { score: number; hook: string; structure: string[]; paragraphNotes: string[]; tone: string; suggestions: string[]; rewrite: string };
+type PSFeedback    = { score: number; hook: string; structure: string[]; paragraphNotes: string[]; tone: string; suggestions: string[]; rewrite: string };
+type SourceType    = "book" | "journal" | "website" | "newspaper" | "video";
 
-type SourceType = "book" | "journal" | "website" | "newspaper" | "video";
+// ── Constants ─────────────────────────────────────────────────────────────────
 
-// ── Constants ──────────────────────────────────────────────────────────────
-
-const PURPOSES    = ["Essay", "Report", "Personal Statement", "Dissertation", "Email"];
+const SUBJECTS    = ["Economics","History","English Literature","English Language","Biology","Geography","Psychology","Sociology","Philosophy","Political Science","Business","ToK"];
+const LEVELS      = ["GCSE","IGCSE","A-Level","IB HL","IB SL","AP","University"];
+const ESSAY_TYPES = [["analytical","Analytical"],["argumentative","Argumentative"],["comparative","Comparative"],["narrative","Narrative"]];
+const GRADE_TYPES = ["Argumentative","Analytical","Narrative","Descriptive","Comparative","Research"];
+const PURPOSES    = ["Essay","Report","Personal Statement","Dissertation","Email"];
 const WORD_LIMITS = [250, 500, 650, 700, 1000];
-const STYLES      = ["APA 7", "MLA 9", "Chicago 17", "Harvard", "Vancouver"];
+const STYLES      = ["APA 7","MLA 9","Chicago 17","Harvard","Vancouver"];
 
 const TYPE_COLORS: Record<string, string> = {
   Grammar: "var(--cinnabar-ink)", Style: "#1a6091",
@@ -32,7 +45,7 @@ const SOURCE_FIELDS: Record<SourceType, { key: string; label: string; placeholde
   video:     [{ key:"authors",label:"Creator / Channel",placeholder:"Name, F. or Channel Name" },{ key:"year",label:"Year",placeholder:"2023" },{ key:"title",label:"Video title",placeholder:"Video title" },{ key:"url",label:"URL",placeholder:"https://youtube.com/..." },{ key:"accessed",label:"Date accessed",placeholder:"5 Jan 2024" }],
 };
 
-// ── Citation helper ────────────────────────────────────────────────────────
+// ── Citation formatter (no AI) ─────────────────────────────────────────────────
 
 function formatCitation(type: SourceType, style: string, f: Record<string, string>): string {
   const authors  = f.authors || "Unknown Author";
@@ -61,19 +74,370 @@ function formatCitation(type: SourceType, style: string, f: Record<string, strin
   }
   if (style === "Harvard") {
     if (type === "book")    return `${authors} (${year}) *${title}*. ${pub}.`;
-    if (type === "journal") return `${authors} (${year}) &apos;${title}&apos;, *${pub}*, ${vol || ""}${iss ? `(${iss})` : ""}, pp. ${pp || ""}. ${doi ? `doi: ${doi}` : ""}`;
+    if (type === "journal") return `${authors} (${year}) '${title}', *${pub}*, ${vol || ""}${iss ? `(${iss})` : ""}, pp. ${pp || ""}. ${doi ? `doi: ${doi}` : ""}`;
     if (type === "website") return `${authors} (${year}) *${title}* [Online]. Available at: ${url} (Accessed: ${accessed}).`;
     return `${authors} (${year}) ${title}. ${pub}.`;
   }
   return `${authors} (${year}). ${title}. ${pub}.`;
 }
 
-// ── Tab: Writing Polish ────────────────────────────────────────────────────
+// ── Tab type ──────────────────────────────────────────────────────────────────
+
+type Tab = "blueprint" | "argue" | "grade" | "polish" | "citation";
+const TABS: [Tab, string][] = [
+  ["blueprint", "Essay Blueprint"],
+  ["argue",     "Argument Builder"],
+  ["grade",     "Essay Grader"],
+  ["polish",    "Writing Polish"],
+  ["citation",  "Citation"],
+];
+
+// ── Tab: Essay Blueprint ──────────────────────────────────────────────────────
+
+function EssayBlueprintTab({ subject, level, onArgue }: { subject: string; level: string; onArgue: (claim: string) => void }) {
+  const [prompt,      setPrompt]      = useState("");
+  const [words,       setWords]       = useState("1000");
+  const [essayType,   setEssayType]   = useState("analytical");
+  const [blueprint,   setBlueprint]   = useState<Blueprint | null>(null);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState<AIError | string | null>(null);
+
+  async function generate() {
+    if (!prompt.trim()) { setError("Enter your essay question."); return; }
+    setLoading(true); setError(null);
+    try {
+      const data = await callAIOrThrow<Blueprint>({ tool: "essay_blueprint", subject, level, prompt, words, type: essayType });
+      if (!data.sections) { setError("Could not generate blueprint. Please try again."); return; }
+      setBlueprint(data);
+    } catch (err) { setError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
+    finally { setLoading(false); }
+  }
+
+  if (!blueprint) return (
+    <div style={{ maxWidth: 800 }}>
+      <div style={{ marginBottom: 16 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay type</div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {ESSAY_TYPES.map(([v, l]) => (
+            <button key={v} onClick={() => setEssayType(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${essayType === v ? "var(--ink)" : "var(--rule)"}`, background: essayType === v ? "var(--ink)" : "var(--paper)", color: essayType === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom: 16 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay question / prompt</div>
+        <textarea value={prompt} onChange={e => setPrompt(e.target.value)} rows={3} placeholder="Paste your exact essay question here…"
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical" }} />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Word limit: {words}</div>
+        <input type="range" min="400" max="3000" step="100" value={words} onChange={e => setWords(e.target.value)} style={{ width: "100%", accentColor: "var(--cinnabar-ink)" }} />
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>400</span>
+          <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>3000 words</span>
+        </div>
+      </div>
+      {error && <AIErrorDisplay error={error} onRetry={generate} inline />}
+      <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
+        {loading ? "Building blueprint…" : "Build my essay blueprint →"}
+      </button>
+      {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 800 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <div>
+          <div className="mono" style={{ color: "var(--ink-3)" }}>Blueprint · {subject} · {level}</div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>{blueprint.totalWords} words total</div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn ghost" onClick={() => onArgue(blueprint.thesis)}>Argue from thesis →</button>
+          <button className="btn ghost" onClick={() => setBlueprint(null)}>New blueprint</button>
+        </div>
+      </div>
+      <div style={{ border: "2px solid var(--ink)", padding: "20px 24px", marginBottom: 28 }}>
+        <div className="mono cin" style={{ marginBottom: 8 }}>Thesis statement</div>
+        <AIOutput text={blueprint.thesis} variant="principle" />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
+        {blueprint.sections.map((s, i) => (
+          <div key={i} style={{ border: "1px solid var(--rule)", padding: "18px 22px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <div>
+                <span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9, marginRight: 8 }}>{String(i+1).padStart(2,"0")}</span>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 14, fontWeight: 700 }}>{s.title}</span>
+              </div>
+              <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>~{s.wordCount} words</span>
+            </div>
+            <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 10, fontStyle: "italic" }}>{s.purpose}</div>
+            {s.points.map((p, j) => (
+              <div key={j} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+                <span style={{ color: "var(--rule)", fontFamily: "var(--mono)", fontSize: 10 }}>·</span>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{p}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: 10, padding: "8px 12px", background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
+              <span className="mono" style={{ fontSize: 9, color: "#1a6091" }}>OPEN WITH · </span>
+              <span style={{ fontFamily: "var(--serif)", fontSize: 12, fontStyle: "italic", color: "var(--ink-2)" }}>{s.openWith}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+        <div style={{ border: "1px solid #2d7a3c", padding: "16px" }}>
+          <div className="mono" style={{ color: "#2d7a3c", marginBottom: 10 }}>Do</div>
+          {blueprint.dos.map((d, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 6, lineHeight: 1.5 }}>✓ {d}</div>)}
+        </div>
+        <div style={{ border: "1px solid var(--cinnabar-ink)", padding: "16px" }}>
+          <div className="mono" style={{ color: "var(--cinnabar-ink)", marginBottom: 10 }}>Avoid</div>
+          {blueprint.donts.map((d, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 6, lineHeight: 1.5 }}>✗ {d}</div>)}
+        </div>
+      </div>
+      <div style={{ padding: "14px 18px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>KEY TERMS TO USE</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {blueprint.keyTerms.map((t, i) => <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "3px 8px", border: "1px solid var(--rule)", color: "var(--ink)" }}>{t}</span>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tab: Argument Builder ─────────────────────────────────────────────────────
+
+function ArgumentBuilderTab({ subject, level, initialClaim }: { subject: string; level: string; initialClaim: string }) {
+  const [claim,      setClaim]      = useState(initialClaim);
+  const [evidence,   setEvidence]   = useState("");
+  const [argPlan,    setArgPlan]    = useState<ArgumentPlan | null>(null);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState<AIError | string | null>(null);
+  const [copied,     setCopied]     = useState(false);
+
+  async function generate() {
+    if (!claim.trim()) { setError("Enter a claim or essay question."); return; }
+    setLoading(true); setError(null);
+    try {
+      const data = await callAIOrThrow<ArgumentPlan>({ tool: "argument", claim, subject, level, evidence });
+      if (!data.points) { setError("Could not build argument. Please try again."); return; }
+      setArgPlan(data);
+    } catch (err) { setError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
+    finally { setLoading(false); }
+  }
+
+  function copyPlan() {
+    if (!argPlan) return;
+    const t = [`THESIS: ${argPlan.thesis}`, `\nINTRODUCTION:\n${argPlan.intro}`, ...argPlan.points.map((p, i) => `\nPOINT ${i+1}:\nP: ${p.point}\nE: ${p.evidence}\nE: ${p.explain}\nL: ${p.link}`), `\nCOUNTER:\n${argPlan.counter.argument}`, `REBUTTAL: ${argPlan.counter.rebuttal}`, `\nCONCLUSION:\n${argPlan.conclusion}`].join("\n");
+    navigator.clipboard.writeText(t).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  }
+
+  if (!argPlan) return (
+    <div style={{ maxWidth: 820 }}>
+      <div className="mono cin" style={{ marginBottom: 8 }}>Point. Evidence. Explain. Link.</div>
+      <h2 style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 500, fontStyle: "italic", margin: "0 0 28px" }}>Build a full P-E-E-L argument from any claim.</h2>
+      <div style={{ marginBottom: 14 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Claim, thesis, or essay question <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
+        <textarea value={claim} onChange={e => setClaim(e.target.value)} rows={3}
+          placeholder="e.g. 'To what extent was nationalism the primary cause of WWI?'"
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Key evidence you have (optional)</div>
+        <input value={evidence} onChange={e => setEvidence(e.target.value)} placeholder="e.g. Treaty of Versailles, economic data, specific quotes…"
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+      </div>
+      {error && <AIErrorDisplay error={error} onRetry={generate} inline />}
+      <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
+        {loading ? "Building argument…" : "Build my argument →"}
+      </button>
+      {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 820 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Argument · {subject}</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn ghost" onClick={copyPlan}>{copied ? "Copied!" : "Copy plan"}</button>
+          <button className="btn ghost" onClick={() => setArgPlan(null)}>New argument</button>
+        </div>
+      </div>
+      <div style={{ border: "2px solid var(--ink)", padding: "18px 22px", marginBottom: 20 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 8, letterSpacing: "0.08em" }}>THESIS STATEMENT</div>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 16, lineHeight: 1.7, fontStyle: "italic" }}>{argPlan.thesis}</div>
+      </div>
+      <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", marginBottom: 20 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>INTRODUCTION</div>
+        <AIOutput text={argPlan.intro} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+        {argPlan.points.map((p, i) => (
+          <div key={i} style={{ border: "1px solid var(--rule)", padding: "16px 20px" }}>
+            <div className="mono cin" style={{ marginBottom: 12 }}>Point {i + 1}</div>
+            {([["P — POINT", p.point, "var(--cinnabar-ink)"], ["E — EVIDENCE", p.evidence, "#1a6091"], ["E — EXPLAIN", p.explain, "var(--ink-3)"], ["L — LINK", p.link, "#2d7a3c"]] as [string, string, string][]).map(([label, text, color]) => (
+              <div key={label} style={{ marginBottom: 10 }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color, marginBottom: 4 }}>{label}</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{text}</div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", marginBottom: 20 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 12 }}>COUNTER-ARGUMENT &amp; REBUTTAL</div>
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 4 }}>COUNTER</div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{argPlan.counter.argument}</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#2d7a3c", marginBottom: 4 }}>REBUTTAL</div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{argPlan.counter.rebuttal}</div>
+        </div>
+      </div>
+      <div style={{ border: "1px solid var(--rule)", padding: "16px 20px", marginBottom: 20 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>CONCLUSION</div>
+        <AIOutput text={argPlan.conclusion} />
+      </div>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>KEY PHRASES TO USE</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {argPlan.keyPhrases.map((phrase, i) => <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: "1px solid var(--rule)", color: "var(--ink-2)" }}>{phrase}</span>)}
+          </div>
+        </div>
+        <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 8 }}>EXAM TIP</div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{argPlan.examTip}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tab: Essay Grader ─────────────────────────────────────────────────────────
+
+function EssayGraderTab({ subject, level }: { subject: string; level: string }) {
+  const [essay,        setEssay]        = useState("");
+  const [gradePrompt,  setGradePrompt]  = useState("");
+  const [gradeType,    setGradeType]    = useState("Argumentative");
+  const [grade,        setGrade]        = useState<Grade | null>(null);
+  const [loading,      setLoading]      = useState(false);
+  const [error,        setError]        = useState<AIError | string | null>(null);
+
+  const wc = essay.trim().split(/\s+/).filter(Boolean).length;
+
+  async function gradeEssay() {
+    if (essay.trim().length < 100) { setError("Essay must be at least 100 characters."); return; }
+    setLoading(true); setError(null); setGrade(null);
+    try {
+      const data = await callAIOrThrow<Grade>({ tool: "essay_grade", essay, subject, level, type: gradeType, prompt: gradePrompt });
+      if (!data.criteria) { setError("Could not grade — try again."); return; }
+      setGrade(data);
+    } catch (err) { setError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
+    finally { setLoading(false); }
+  }
+
+  if (!grade) return (
+    <div style={{ maxWidth: 800 }}>
+      <div className="mono cin" style={{ marginBottom: 8 }}>Grade my essay</div>
+      <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>Paste your essay. Get a real grade.</h2>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+        <div>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay type</div>
+          <select value={gradeType} onChange={e => setGradeType(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
+            {GRADE_TYPES.map(t => <option key={t}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay prompt / question (optional)</div>
+          <input value={gradePrompt} onChange={e => setGradePrompt(e.target.value)} placeholder="Paste the question or title…"
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+        </div>
+      </div>
+      <div style={{ marginBottom: 6 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Your essay *</div>
+        <textarea value={essay} onChange={e => setEssay(e.target.value)} rows={16} placeholder="Paste your full essay here…"
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+      </div>
+      <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 14, textAlign: "right" }}>{wc} words</div>
+      {error && <AIErrorDisplay error={error} onRetry={gradeEssay} inline />}
+      <button className="btn" onClick={gradeEssay} disabled={loading || essay.trim().length < 100} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
+        {loading ? "Grading essay…" : "Grade my essay →"}
+      </button>
+      {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 1100 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <div className="mono" style={{ color: "var(--ink-3)" }}>Essay Graded · {subject} · {level}</div>
+        <button className="btn ghost" onClick={() => setGrade(null)}>Grade another →</button>
+      </div>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 32 }}>
+        <div>
+          <div style={{ border: "2px solid var(--ink)", padding: "28px 32px", marginBottom: 24, display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap" }}>
+            <div>
+              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>OVERALL GRADE</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 700, lineHeight: 1, color: "var(--cinnabar-ink)" }}>{grade.overall}</div>
+              <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>{grade.band}</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 6 }}>TOTAL SCORE</div>
+              <div style={{ height: 8, background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
+                <div style={{ height: "100%", width: `${(grade.totalScore / grade.maxScore) * 100}%`, background: "var(--cinnabar)" }} />
+              </div>
+              <div className="mono" style={{ marginTop: 4 }}>{grade.totalScore} / {grade.maxScore}</div>
+            </div>
+          </div>
+          <div style={{ border: "1px solid var(--ink)", marginBottom: 24 }}>
+            <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}><div className="mono cin">Marking criteria</div></div>
+            {grade.criteria.map((c, i) => (
+              <div key={i} style={{ padding: "14px 18px", borderBottom: i < grade.criteria.length - 1 ? "1px solid var(--rule)" : "none" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>{c.name}</div>
+                  <span className="mono" style={{ color: "var(--cinnabar-ink)" }}>{c.score}/{c.max}</span>
+                </div>
+                <div style={{ height: 3, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 6 }}>
+                  <div style={{ height: "100%", width: `${(c.score / c.max) * 100}%`, background: c.score / c.max > 0.75 ? "#2d7a3c" : c.score / c.max > 0.5 ? "#c97a1a" : "#c44b2a" }} />
+                </div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5 }}>{c.feedback}</div>
+              </div>
+            ))}
+          </div>
+          <AIOutput text={grade.summary} variant="principle" />
+        </div>
+        <div>
+          <div style={{ border: "1px solid var(--ink)", padding: "18px", marginBottom: 16 }}>
+            <div className="mono cin" style={{ marginBottom: 10 }}>Strengths</div>
+            {grade.strengths.map((s, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                <span style={{ color: "#2d7a3c", fontFamily: "var(--mono)", fontSize: 11 }}>✓</span>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{s}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ border: "1px solid var(--ink)", padding: "18px" }}>
+            <div className="mono cin" style={{ marginBottom: 10 }}>Improvements</div>
+            {grade.improvements.map((s, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                <span style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 11 }}>{String(i+1).padStart(2,"0")}</span>
+                <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tab: Writing Polish ────────────────────────────────────────────────────────
 
 function WritingPolishTab() {
   const [mode, setMode] = useState<"grammar" | "ps">("grammar");
 
-  // Grammar state
   const [text,        setText]        = useState("");
   const [purpose,     setPurpose]     = useState("Essay");
   const [result,      setResult]      = useState<GrammarResult | null>(null);
@@ -81,7 +445,6 @@ function WritingPolishTab() {
   const [grError,     setGrError]     = useState("");
   const [showRewrite, setShowRewrite] = useState(false);
 
-  // Personal Statement state
   const [ps,        setPs]        = useState("");
   const [psLimit,   setPsLimit]   = useState(650);
   const [uni,       setUni]       = useState("");
@@ -126,13 +489,11 @@ function WritingPolishTab() {
 
   return (
     <div>
-      {/* Sub-mode switcher */}
       <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 28, width: "fit-content" }}>
         <button style={subTabStyle(mode === "grammar")} onClick={() => { setMode("grammar"); setResult(null); setFeedback(null); }}>Grammar Coach</button>
         <button style={{ ...subTabStyle(mode === "ps"), borderRight: "none" }} onClick={() => { setMode("ps"); setResult(null); setFeedback(null); }}>Personal Statement</button>
       </div>
 
-      {/* ── GRAMMAR COACH: input ── */}
       {mode === "grammar" && !result && (
         <div style={{ maxWidth: 640 }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Write like an examiner expects.</div>
@@ -148,7 +509,7 @@ function WritingPolishTab() {
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Your text <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
             <textarea value={text} onChange={e => setText(e.target.value)} rows={8}
-              placeholder="Paste a paragraph or more of your writing. The tool checks grammar, style, vocabulary, and academic register."
+              placeholder="Paste a paragraph or more of your writing."
               style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
           </div>
           {grError && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{grError}</div>}
@@ -159,7 +520,6 @@ function WritingPolishTab() {
         </div>
       )}
 
-      {/* ── GRAMMAR COACH: results ── */}
       {mode === "grammar" && result && (
         <div style={{ maxWidth: 860 }}>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
@@ -224,7 +584,6 @@ function WritingPolishTab() {
         </div>
       )}
 
-      {/* ── PERSONAL STATEMENT: input ── */}
       {mode === "ps" && !feedback && (
         <div style={{ maxWidth: 1100 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 8 }}>
@@ -265,7 +624,6 @@ function WritingPolishTab() {
         </div>
       )}
 
-      {/* ── PERSONAL STATEMENT: feedback ── */}
       {mode === "ps" && feedback && (
         <div style={{ maxWidth: 1100 }}>
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
@@ -328,7 +686,7 @@ function WritingPolishTab() {
   );
 }
 
-// ── Tab: Citation Generator ────────────────────────────────────────────────
+// ── Tab: Citation Generator ────────────────────────────────────────────────────
 
 function CitationTab() {
   const [sourceType, setSourceType] = useState<SourceType>("journal");
@@ -401,33 +759,62 @@ function CitationTab() {
   );
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────
-
-type Tab = "polish" | "citation";
-const TABS: [Tab, string][] = [["polish", "Writing Polish"], ["citation", "Citation Generator"]];
+// ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function WritingToolsPage() {
-  const [tab, setTab] = useState<Tab>("polish");
+  const [tab, setTab]       = useState<Tab>("blueprint");
+  const [subject, setSubject] = useState("History");
+  const [level, setLevel]   = useState("A-Level");
+  const [argueClaim, setArgueClaim] = useState("");
+
+  function goToArgue(claim: string) {
+    setArgueClaim(claim);
+    setTab("argue");
+  }
+
+  const isEssayTab = tab === "blueprint" || tab === "argue" || tab === "grade";
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)", color: "var(--ink)" }}>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Writing Tools</div>
-          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Grammar, style, citations.</div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Essays, grammar, arguments, citations.</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", flexWrap: "wrap" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+              style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
               {l}
             </button>
           ))}
         </div>
         <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>&larr; Dashboard</Link>
       </header>
+
+      {isEssayTab && (
+        <div style={{ borderBottom: "1px solid var(--rule)", padding: "10px 44px", background: "var(--paper-2)", display: "flex", gap: 20, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center" }}>
+            <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginRight: 4 }}>Subject</span>
+            {SUBJECTS.map(s => (
+              <button key={s} onClick={() => setSubject(s)} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 7px", border: `1px solid ${subject === s ? "var(--ink)" : "var(--rule)"}`, background: subject === s ? "var(--ink)" : "transparent", color: subject === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{s}</button>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+            <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginRight: 4 }}>Level</span>
+            {LEVELS.map(l => (
+              <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 7px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "transparent", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        {tab === "polish" && <WritingPolishTab />}
-        {tab === "citation" && <CitationTab />}
+        {tab === "blueprint" && <EssayBlueprintTab subject={subject} level={level} onArgue={goToArgue} />}
+        {tab === "argue"     && <ArgumentBuilderTab subject={subject} level={level} initialClaim={argueClaim} />}
+        {tab === "grade"     && <EssayGraderTab subject={subject} level={level} />}
+        {tab === "polish"    && <WritingPolishTab />}
+        {tab === "citation"  && <CitationTab />}
       </main>
     </div>
   );

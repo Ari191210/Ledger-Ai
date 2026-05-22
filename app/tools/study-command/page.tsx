@@ -4,6 +4,9 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
+import { callAI } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
 
 // ── Planner shared constants ───────────────────────────────────────────────────
 
@@ -823,10 +826,182 @@ function HabitsTab() {
   );
 }
 
+// ── Coach shared helpers ──────────────────────────────────────────────────────
+
+type CoachMessage  = { role: "user" | "assistant"; text: string };
+type CoachBriefing = { greeting: string; priorities: { task: string; why: string }[]; insight: string; focus: string; warning: string | null };
+
+function gatherCoachContext() {
+  const habits = (() => {
+    try {
+      const list = JSON.parse(localStorage.getItem("ledger-habits-list") || "[]");
+      const log  = JSON.parse(localStorage.getItem("ledger-habits-log")  || "{}");
+      const today = new Date().toISOString().slice(0, 10);
+      return (list as { name: string }[]).slice(0, 8).map(h => ({ name: h.name, doneToday: !!(log[today] && log[today][h.name]) }));
+    } catch { return []; }
+  })();
+  const streak = (() => { try { return parseInt(localStorage.getItem("ledger-focus-streak") || "0"); } catch { return 0; } })();
+  const weakTopics = (() => { try { return JSON.parse(localStorage.getItem("ledger-weak-topics") || "[]"); } catch { return []; } })();
+  const deadlines = (() => {
+    try {
+      const all = JSON.parse(localStorage.getItem("ledger-deadlines") || "[]");
+      const today = new Date();
+      return (all as { done: boolean; date: string; title: string; category: string }[])
+        .filter(d => !d.done)
+        .map(d => ({ title: d.title, daysLeft: Math.ceil((new Date(d.date).getTime() - today.getTime()) / 86400000), category: d.category }))
+        .sort((a, b) => a.daysLeft - b.daysLeft)
+        .slice(0, 5);
+    } catch { return []; }
+  })();
+  const recentSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-notes-history") || "[]").slice(0, 5); } catch { return []; } })();
+  return { habits, streak, weakTopics, deadlines, recentSubjects, date: new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) };
+}
+
+// ── Tab: Coach ────────────────────────────────────────────────────────────────
+
+function CoachTab() {
+  const [briefing, setBriefing]       = useState<CoachBriefing | null>(null);
+  const [loading, setLoading]         = useState(false);
+  const [messages, setMessages]       = useState<CoachMessage[]>([]);
+  const [input, setInput]             = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [error, setError]             = useState("");
+  const [ctx, setCtx]                 = useState<ReturnType<typeof gatherCoachContext> | null>(null);
+  const bottomRef                     = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const c = gatherCoachContext();
+    setCtx(c);
+    fetchBriefing(c);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  async function fetchBriefing(c: ReturnType<typeof gatherCoachContext>) {
+    setLoading(true); setError("");
+    try {
+      const res  = await callAI({ tool: "coach_briefing", context: c });
+      const data = await res.json();
+      if (!res.ok || !data.greeting) { setError("Couldn't load briefing."); return; }
+      setBriefing(data);
+    } catch { setError("Network error."); }
+    finally { setLoading(false); }
+  }
+
+  async function sendChat() {
+    if (!input.trim()) return;
+    const msg = input.trim(); setInput("");
+    setMessages(prev => [...prev, { role: "user", text: msg }]);
+    setChatLoading(true);
+    try {
+      const res  = await callAI({ tool: "coach_chat", message: msg, context: ctx, history: messages.slice(-6).map(m => `${m.role === "user" ? "Student" : "Coach"}: ${m.text}`).join("\n") });
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: "assistant", text: data.reply || data.raw || "Try again." }]);
+    } catch { setMessages(prev => [...prev, { role: "assistant", text: "Network error." }]); }
+    finally { setChatLoading(false); }
+  }
+
+  const COACH_SUGGESTIONS = ["What should I study today?", "How do I improve my weak topics?", "Give me a revision plan for next week."];
+
+  return (
+    <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", minHeight: 560 }}>
+      {/* Briefing panel */}
+      <div style={{ borderRight: "1px solid var(--rule)", padding: "28px 32px", overflowY: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div className="mono cin">Today&apos;s Briefing</div>
+          <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 13, color: "var(--ink-2)" }}>{ctx?.date || ""}</div>
+        </div>
+        {loading && <AIThinking />}
+        {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error} <button className="btn ghost" style={{ marginLeft: 8 }} onClick={() => ctx && fetchBriefing(ctx)}>Retry</button></div>}
+
+        {briefing && !loading && (
+          <>
+            <div style={{ marginBottom: 20 }}><AIOutput text={briefing.greeting} variant="principle" /></div>
+            <div style={{ marginBottom: 16 }}>
+              <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8, letterSpacing: "0.08em" }}>TODAY&apos;S PRIORITIES</div>
+              {briefing.priorities.map((p, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, padding: "10px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+                  <span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 10, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>{p.task}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 2 }}>{p.why}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "12px 14px", border: "2px solid var(--ink)", marginBottom: 10 }}>
+              <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>INSIGHT</div>
+              <AIOutput text={briefing.insight} variant="principle" />
+            </div>
+            <div style={{ padding: "10px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", marginBottom: briefing.warning ? 10 : 0 }}>
+              <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 4 }}>FOCUS RECOMMENDATION</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13 }}>{briefing.focus}</div>
+            </div>
+            {briefing.warning && (
+              <div style={{ padding: "10px 12px", border: "1px solid var(--cinnabar-ink)", background: "rgba(196,75,42,0.05)" }}>
+                <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 4 }}>⚠ HEADS UP</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13 }}>{briefing.warning}</div>
+              </div>
+            )}
+            {ctx && ctx.weakTopics.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>WEAK AREAS TO REVISIT</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {(ctx.weakTopics as string[]).slice(0, 6).map((t, i) => (
+                    <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "3px 8px", border: "1px solid var(--cinnabar-ink)", color: "var(--cinnabar-ink)" }}>{t}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Chat panel */}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>ASK YOUR COACH · Studies, schedule, strategy, anything</div>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: 10, minHeight: 280 }}>
+          {messages.length === 0 && (
+            <div style={{ color: "var(--ink-3)", fontFamily: "var(--sans)", fontSize: 13, textAlign: "center", paddingTop: 32 }}>
+              Your coach is ready.
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 6 }}>
+                {COACH_SUGGESTIONS.map((s, i) => (
+                  <button key={i} onClick={() => setInput(s)} style={{ fontFamily: "var(--sans)", fontSize: 12, padding: "7px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", color: "var(--ink-2)", cursor: "pointer", textAlign: "left" }}>{s}</button>
+                ))}
+              </div>
+            </div>
+          )}
+          {messages.map((m, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+              <div style={{ maxWidth: "80%", padding: "9px 13px", background: m.role === "user" ? "var(--ink)" : "var(--paper-2)", color: m.role === "user" ? "var(--paper)" : "var(--ink)", border: m.role === "assistant" ? "1px solid var(--rule)" : "none", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+          {chatLoading && (
+            <div style={{ display: "flex", justifyContent: "flex-start" }}>
+              <div style={{ padding: "9px 13px", border: "1px solid var(--rule)", background: "var(--paper-2)", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>Thinking…</div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+        <div style={{ borderTop: "1px solid var(--rule)", padding: "12px 14px", display: "flex", gap: 8 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }} placeholder="Ask your coach…"
+            style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 11px", color: "var(--ink)", outline: "none" }} />
+          <button className="btn" onClick={sendChat} disabled={chatLoading || !input.trim()}>Send</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page shell ────────────────────────────────────────────────────────────────
 
-type Tab = "planner" | "deadlines" | "habits";
-const TABS: [Tab, string][] = [["planner", "Planner"], ["deadlines", "Deadlines"], ["habits", "Habits"]];
+type Tab = "planner" | "deadlines" | "habits" | "coach";
+const TABS: [Tab, string][] = [["planner", "Planner"], ["deadlines", "Deadlines"], ["habits", "Habits"], ["coach", "AI Coach"]];
 
 export default function StudyCommandPage() {
   const [tab, setTab] = useState<Tab>("planner");
@@ -848,9 +1023,10 @@ export default function StudyCommandPage() {
         <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        {tab === "planner" && <PlannerTab />}
+        {tab === "planner"   && <PlannerTab />}
         {tab === "deadlines" && <DeadlinesTab />}
-        {tab === "habits" && <HabitsTab />}
+        {tab === "habits"    && <HabitsTab />}
+        {tab === "coach"     && <CoachTab />}
       </main>
     </div>
   );
