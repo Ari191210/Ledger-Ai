@@ -545,7 +545,7 @@ export default function Home() {
 
             {/* Sub */}
             <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.5vw,16px)", color: "var(--ink-3)", maxWidth: 480, margin: "0 0 36px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
-              19 AI-powered tools. One streak. One score. One syllabus.
+              30 AI-powered tools. One streak. One score. One syllabus.
             </p>
 
             {/* CTAs */}
@@ -568,7 +568,7 @@ export default function Home() {
 
             {/* Stats: vertical stack */}
             <div className="hero-stats" style={{ display: "flex", flexDirection: "column", border: "1px solid var(--rule)" }}>
-              {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "19", l: "AI tools" }].map((s, i) => (
+              {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "30", l: "AI tools" }].map((s, i) => (
                 <div key={i} style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid var(--rule)" : "none" }}>
                   <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px,2vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
@@ -650,7 +650,7 @@ export default function Home() {
               {/* Three meta facts */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "var(--rule)", border: S.border }}>
                 {[
-                  { n: "19", l: "AI Tools" },
+                  { n: "30", l: "AI Tools" },
                   { n: "6+", l: "Exam Boards" },
                   { n: "8w", l: "To see results" },
                 ].map((m, i) => (
@@ -693,7 +693,7 @@ export default function Home() {
               },
               {
                 n: "02", icon: "◎",
-                title: "Study with 19 AI tools",
+                title: "Study with 30 AI tools",
                 body: "Every tool knows your syllabus. Flashcards pull from your topics. The planner knows your exam dates. Each session feeds the next.",
               },
               {
@@ -791,10 +791,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 04 / All 19 Tools ─── */}
+      {/* ─── 04 / All 30 Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="04" label="All 19 Tools" />
+          <SectionLabel num="04" label="All 30 Tools" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
@@ -884,7 +884,7 @@ export default function Home() {
                 </div>
                 <div style={{ marginTop: 28, paddingTop: 20, borderTop: S.border, display: "flex", gap: 10 }}>
                   <Link href={`/tools/${tool.slug}`} className="btn" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>Open tool →</Link>
-                  <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 19 tools</Link>
+                  <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 30 tools</Link>
                 </div>
               </div>
             </div>
@@ -1295,7 +1295,7 @@ export default function Home() {
               ))}
               <li style={{ marginTop: 16 }}>
                 <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
-                  → All 19 tools
+                  → All 30 tools
                 </Link>
               </li>
             </ul>

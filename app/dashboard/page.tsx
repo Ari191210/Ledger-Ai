@@ -22,9 +22,11 @@ const TOOL_CATEGORIES: DashCat[] = [
   {
     label: "PLAN",
     tools: [
-      { slug: "planner", ttl: "Smart Study Planner",    sub: "Subjects in. Timetable out.",         tier: "Free", desc: "14-day reactive plan built around your exam dates and daily hours." },
-      { slug: "focus",   ttl: "Focus Dashboard",        sub: "Pomodoro, streaks, tasks.",           tier: "Free", desc: "25-min timer that runs in the background across every tool." },
-      { slug: "habits",  ttl: "Habit Tracker",          sub: "Build study habits that stick.",      tier: "Free", desc: "Track daily study habits with a 14-day heatmap, streak counter, and weekly score." },
+      { slug: "planner",         ttl: "Smart Study Planner",    sub: "Subjects in. Timetable out.",         tier: "Free", desc: "14-day reactive plan built around your exam dates and daily hours." },
+      { slug: "focus",           ttl: "Focus Dashboard",        sub: "Pomodoro, streaks, tasks.",           tier: "Free", desc: "25-min timer that runs in the background across every tool." },
+      { slug: "habits",          ttl: "Habit Tracker",          sub: "Build study habits that stick.",      tier: "Free", desc: "Track daily study habits with a 14-day heatmap, streak counter, and weekly score." },
+      { slug: "deadlines",       ttl: "Deadline Hub",           sub: "Every deadline. Never miss one.",     tier: "Free", desc: "Add exams, assignments, and applications with priority levels. Countdown timers." },
+      { slug: "circuit-breaker", ttl: "Circuit Breaker",        sub: "Can't start? Break the block.",       tier: "Free", desc: "Tell us what you're avoiding. Get one 2-minute micro-task to break inertia. Timer included." },
     ],
   },
   {
@@ -38,18 +40,24 @@ const TOOL_CATEGORIES: DashCat[] = [
   {
     label: "WRITE",
     tools: [
-      { slug: "essay-blueprint", ttl: "Essay Workshop",  sub: "Plan, argue, or grade any essay.",            tier: "Free", desc: "Three modes: build an essay blueprint, construct a P-E-E-L argument, or grade your written work with detailed criteria." },
-      { slug: "research",        ttl: "Research Hub",    sub: "Deep research or plan your assignment.",       tier: "Pro",  desc: "Full research briefing with arguments, statistics, and essay angles — or turn a brief into a structured assignment plan." },
-      { slug: "grammar",         ttl: "Writing Polish",  sub: "Polish writing or score your personal statement.", tier: "Free", desc: "Fix grammar and improve academic style — or get paragraph-by-paragraph feedback on your personal statement." },
+      { slug: "essay-blueprint", ttl: "Essay Workshop",       sub: "Plan, argue, or grade any essay.",         tier: "Free", desc: "Three modes: build an essay blueprint, construct a P-E-E-L argument, or grade your written work with detailed criteria." },
+      { slug: "research",        ttl: "Research Hub",         sub: "Deep research or plan your assignment.",    tier: "Pro",  desc: "Full research briefing with arguments, statistics, and essay angles — or turn a brief into a structured assignment plan." },
+      { slug: "grammar",         ttl: "Writing Polish",       sub: "Polish writing or score your personal statement.", tier: "Free", desc: "Fix grammar and improve academic style — or get paragraph-by-paragraph feedback on your personal statement." },
+      { slug: "presentation",    ttl: "Presentation Planner", sub: "Topic → full slide deck.",                 tier: "Pro",  desc: "AI builds a complete slide deck with speaker notes calibrated to your audience." },
+      { slug: "debate",          ttl: "Debate Coach",         sub: "Any motion. Arguments both ways.",         tier: "Pro",  desc: "For and against arguments, evidence, rebuttals, and practice questions." },
+      { slug: "model-answer",    ttl: "Model Answer Factory", sub: "See what full marks looks like.",          tier: "Free", desc: "Perfect model answer for any exam question with marking points and structure guide." },
     ],
   },
   {
     label: "PRACTISE",
     tools: [
-      { slug: "exam-practice", ttl: "Exam Practice Hub",  sub: "Papers, triage, crunch, formula.",           tier: "Pro",  desc: "Six tools: Past Papers (47 papers, 900+ questions), Paper Panic Triage, 48h Crunch Plan, Question Decoder, Formula Sheet, and Formula Recall." },
-      { slug: "recall-studio", ttl: "Recall Studio",      sub: "Flashcards + formula recall drills.",         tier: "Free", desc: "AI generates flashcards from notes or any topic. Formula Recall drills formulas with active recall — beats re-reading by 4×." },
-      { slug: "exam-planner",  ttl: "Revision Planner",   sub: "Plan your season or track spaced review.",    tier: "Free", desc: "AI builds a revision schedule around your exam dates — or manage your spaced-repetition review queue with Ebbinghaus intervals." },
-      { slug: "exam-triage",   ttl: "Exam Triage",        sub: "48-hour crunch + syllabus cremator.",         tier: "Free", desc: "48-Hour Crunch builds a rescue plan from your topics and time left. Syllabus Cremator ranks every chapter by examiner obsession with DO NOW / SKIP tiers." },
+      { slug: "exam-practice",  ttl: "Exam Practice Hub",     sub: "Papers, triage, crunch, formula.",         tier: "Pro",  desc: "Six tools: Past Papers (47 papers, 900+ questions), Paper Panic Triage, 48h Crunch Plan, Question Decoder, Formula Sheet, and Formula Recall." },
+      { slug: "recall-studio",  ttl: "Recall Studio",         sub: "Flashcards + formula recall drills.",       tier: "Free", desc: "AI generates flashcards from notes or any topic. Formula Recall drills formulas with active recall — beats re-reading by 4×." },
+      { slug: "exam-planner",   ttl: "Revision Planner",      sub: "Plan your season or track spaced review.",  tier: "Free", desc: "AI builds a revision schedule around your exam dates — or manage your spaced-repetition review queue with Ebbinghaus intervals." },
+      { slug: "exam-triage",    ttl: "Exam Triage",           sub: "48-hour crunch + syllabus cremator.",       tier: "Free", desc: "48-Hour Crunch builds a rescue plan from your topics and time left. Syllabus Cremator ranks every chapter by examiner obsession with DO NOW / SKIP tiers." },
+      { slug: "practice",       ttl: "Practice Suite",        sub: "Practice problems or full mock exam.",      tier: "Free", desc: "Generate graded practice problems with worked solutions — or sit a full timed mock MCQ exam with flag-for-review and results breakdown." },
+      { slug: "post-exam",      ttl: "Post-Exam Analysis",    sub: "Mistake DNA + exam debrief.",              tier: "Free", desc: "Mistake DNA maps your error fingerprint by category and subject. Exam Debrief gives you a personalised AI coaching note after every test." },
+      { slug: "revision-intel", ttl: "Revision Intelligence", sub: "Decay map + question predictor.",          tier: "Free", desc: "Topic Half-Life shows Ebbinghaus decay across your chapters. Question Predictor uses past-paper trends to surface the 6–8 most likely exam questions." },
     ],
   },
   {
@@ -58,14 +66,17 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "uni-match",  ttl: "Future Finder",     sub: "Match unis, pick subjects, find your career path.", tier: "Free", desc: "Three tabs: find matching universities, get subject combination recommendations, or take a career quiz for your 5-year roadmap." },
       { slug: "admissions", ttl: "Admissions Engine", sub: "Your real odds. 60 universities.",                  tier: "Pro",  desc: "GPA, scores, activities → modelled chances for 60 top universities + essay angles." },
       { slug: "interview",  ttl: "Interview Coach",   sub: "Practice. Get scored. Improve.",                    tier: "Pro",  desc: "Answer AI questions, get scored on each response with a model answer and coaching tip." },
+      { slug: "resume",     ttl: "Resume Builder",    sub: "For applications, not LinkedIn.",                   tier: "Pro+", desc: "Internships, summer programs, college essays — one polished document." },
     ],
   },
   {
     label: "TRACK",
     tools: [
-      { slug: "marks", ttl: "Marks Predictor", sub: "The math of your report card.",    tier: "Free", desc: "Weighted GPA, CBSE grade, and the score you need in remaining subjects." },
-      { slug: "coach", ttl: "AI Study Coach",  sub: "Daily briefing + personal chat.",  tier: "Pro",  desc: "Your personal AI. Morning briefing, streak coaching, and free-form study chat." },
-      { slug: "rooms", ttl: "Study Rooms",     sub: "Silent accountability.",           tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
+      { slug: "marks",       ttl: "Marks Predictor",   sub: "The math of your report card.",          tier: "Free", desc: "Weighted GPA, CBSE grade, and the score you need in remaining subjects." },
+      { slug: "coach",       ttl: "AI Study Coach",    sub: "Daily briefing + personal chat.",        tier: "Pro",  desc: "Your personal AI. Morning briefing, streak coaching, and free-form study chat." },
+      { slug: "rooms",       ttl: "Study Rooms",       sub: "Silent accountability.",                 tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed." },
+      { slug: "score",       ttl: "Ledger Score™",     sub: "Your real-time exam readiness.",         tier: "Free", desc: "A 0–1000 score built from PYQ accuracy, syllabus coverage, and consistency." },
+      { slug: "compare",     ttl: "Comparison Chart",  sub: "Any concepts, side by side.",            tier: "Free", desc: "Compare 2-4 items across 6-8 criteria. Similarities, differences, and verdict." },
     ],
   },
 ];
@@ -797,7 +808,7 @@ export default function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid var(--rule)", paddingBottom: 14, marginBottom: 20 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 500 }}>The Archive</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>19 tools · click to open</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>30 tools · click to open</div>
         </div>
 
         {/* Tool search */}
@@ -807,7 +818,7 @@ export default function Dashboard() {
             type="search"
             value={toolQuery}
             onChange={e => setToolQuery(e.target.value)}
-            placeholder="Search 19 tools…"
+            placeholder="Search 30 tools…"
             aria-label="Search tools"
             aria-controls="tools-grid"
             style={{
