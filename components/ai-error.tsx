@@ -43,7 +43,7 @@ export function AIErrorDisplay({ error, onRetry, inline = false }: AIErrorProps)
         }}
       >
         {message}
-        {onRetry && (
+        {onRetry && code !== "moderation" && (
           <button
             onClick={onRetry}
             style={{
@@ -107,7 +107,7 @@ export function AIErrorDisplay({ error, onRetry, inline = false }: AIErrorProps)
               marginBottom: 6,
             }}
           >
-            AI unavailable
+            {code === "moderation" ? "Request blocked" : code === "rate_limit" ? "Daily limit reached" : "AI unavailable"}
           </div>
           <div
             style={{
@@ -135,7 +135,7 @@ export function AIErrorDisplay({ error, onRetry, inline = false }: AIErrorProps)
         </div>
       </div>
 
-      {onRetry && (
+      {onRetry && code !== "moderation" && (
         <div style={{ paddingTop: 16, borderTop: "1px solid var(--rule-2)" }}>
           <button
             onClick={onRetry}

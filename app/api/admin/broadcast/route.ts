@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase-server";
+import { checkAdminKey } from "@/lib/admin-auth";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -18,10 +19,7 @@ export async function GET() {
 
 // Admin POST — publish a new announcement
 export async function POST(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const key = searchParams.get("key") ?? "";
-  const stored = process.env.ADMIN_KEY ?? "";
-  if (!stored || key !== stored) {
+  if (!(await checkAdminKey(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

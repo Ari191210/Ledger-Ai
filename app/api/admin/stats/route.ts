@@ -1,13 +1,11 @@
 import { supabaseServer } from "@/lib/supabase-server";
+import { checkAdminKey } from "@/lib/admin-auth";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const submitted = searchParams.get("key") ?? "";
-  const stored    = process.env.ADMIN_KEY ?? "";
-  if (!stored || submitted !== stored) {
+  if (!(await checkAdminKey(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

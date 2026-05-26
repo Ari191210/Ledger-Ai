@@ -38,6 +38,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (_e === "SIGNED_IN" && session?.user) {
         // Pull cloud data to localStorage when signing in on a new device
         pullFromCloud(session.user.id).catch(() => {});
+
+        // Send welcome email on first-ever signin; server sets app_metadata.welcomeSent to prevent repeats
+        if (!session.user.app_metadata?.welcomeSent) {
+          const u = session.user;
+          const displayName =
+            u.user_metadata?.full_name ||
+            u.user_metadata?.name ||
+            u.email?.split("@")[0] ||
+            "there";
+          fetch("/api/welcome", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: u.id, name: displayName }),
+          }).catch(() => {});
+        }
       }
       if (_e === "SIGNED_OUT") {
         // Push any last changes before clearing session

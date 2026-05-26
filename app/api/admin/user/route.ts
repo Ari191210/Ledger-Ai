@@ -1,17 +1,16 @@
 import { supabaseServer } from "@/lib/supabase-server";
+import { checkAdminKey } from "@/lib/admin-auth";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const key   = searchParams.get("key") ?? "";
-  const email = searchParams.get("email")?.trim().toLowerCase() ?? "";
-
-  const stored = process.env.ADMIN_KEY ?? "";
-  if (!stored || key !== stored) {
+  if (!(await checkAdminKey(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get("email")?.trim().toLowerCase() ?? "";
   if (!email) {
     return NextResponse.json({ error: "Email required" }, { status: 400 });
   }

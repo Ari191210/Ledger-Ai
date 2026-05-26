@@ -85,7 +85,7 @@ function LoginScreen({ onAuth }: { onAuth: (key: string) => void }) {
   async function attempt(k: string) {
     if (!k.trim()) return;
     setBusy(true); setError("");
-    const res = await fetch(`/api/admin/stats?key=${encodeURIComponent(k)}`);
+    const res = await fetch("/api/admin/stats", { headers: { Authorization: `Bearer ${k}` } });
     if (res.ok) { onAuth(k); } else { setError("Wrong key."); }
     setBusy(false);
   }
@@ -297,7 +297,7 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
   const poll = useCallback(async () => {
     setCountdown(10);
     try {
-      const res = await fetch(`/api/admin/stats?key=${encodeURIComponent(adminKey)}`);
+      const res = await fetch("/api/admin/stats", { headers: { Authorization: `Bearer ${adminKey}` } });
       if (res.ok) { setStats(await res.json()); setLastMs(Date.now()); setFetchErr(""); }
       else if (res.status === 401) { onLock(); }
       else { setFetchErr("Server error — check Vercel logs."); }
@@ -319,7 +319,7 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
   async function lookupUser() {
     if (!userEmail.trim()) return;
     setUserLoading(true); setUserErr(""); setUserResult(null);
-    const res = await fetch(`/api/admin/user?key=${encodeURIComponent(adminKey)}&email=${encodeURIComponent(userEmail.trim())}`);
+    const res = await fetch(`/api/admin/user?email=${encodeURIComponent(userEmail.trim())}`, { headers: { Authorization: `Bearer ${adminKey}` } });
     if (res.ok) { setUserResult(await res.json()); }
     else { const d = await res.json(); setUserErr(d.error || "Lookup failed."); }
     setUserLoading(false);
@@ -328,9 +328,9 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
   async function publishBroadcast() {
     if (!broadcastMsg.trim()) return;
     setBroadcastBusy(true); setBroadcastStatus("");
-    const res = await fetch(`/api/admin/broadcast?key=${encodeURIComponent(adminKey)}`, {
+    const res = await fetch("/api/admin/broadcast", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${adminKey}` },
       body: JSON.stringify({ message: broadcastMsg, style: broadcastStyle, active: true }),
     });
     if (res.ok) { setBroadcastStatus("Published."); setBroadcastMsg(""); poll(); }
@@ -340,9 +340,9 @@ function Dashboard({ adminKey, onLock }: { adminKey: string; onLock: () => void 
 
   async function clearBroadcast() {
     setBroadcastBusy(true); setBroadcastStatus("");
-    await fetch(`/api/admin/broadcast?key=${encodeURIComponent(adminKey)}`, {
+    await fetch("/api/admin/broadcast", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${adminKey}` },
       body: JSON.stringify({ active: false }),
     });
     setBroadcastStatus("Cleared.");
