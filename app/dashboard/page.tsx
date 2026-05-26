@@ -645,13 +645,11 @@ export default function Dashboard() {
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase", flexShrink: 0 }}>Jump back in</span>
             </div>
 
-            {/* Tool cards — editorial grid, no glassmorphism */}
+            {/* Tool cards — rounded bubbly grid */}
             <div style={{
               display:             "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-              gap:                 1,
-              background:          "var(--rule)",
-              border:              "1px solid var(--rule)",
+              gap:                 12,
             }}>
               {recent.map(t => {
                 const cat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
@@ -669,11 +667,23 @@ export default function Dashboard() {
                       gap:            8,
                       padding:        "18px 20px 16px",
                       background:     "var(--paper)",
-                      borderLeft:     `3px solid ${catColor}`,
-                      transition:     "background 140ms ease",
+                      borderRadius:   14,
+                      border:         `1.5px solid color-mix(in srgb, ${catColor} 30%, var(--rule))`,
+                      boxShadow:      "0 2px 8px rgba(0,0,0,0.10)",
+                      transition:     "transform 280ms cubic-bezier(0.34,1.4,0.64,1), box-shadow 240ms ease, background 160ms ease",
                     }}
-                    onMouseOver={e => { (e.currentTarget as HTMLAnchorElement).style.background = "var(--paper-2)"; }}
-                    onMouseOut={e  => { (e.currentTarget as HTMLAnchorElement).style.background = "var(--paper)"; }}
+                    onMouseOver={e => {
+                      const el = e.currentTarget as HTMLAnchorElement;
+                      el.style.background  = "var(--paper-2)";
+                      el.style.transform   = "translateY(-6px) scale(1.03)";
+                      el.style.boxShadow   = `0 0 0 1.5px ${catColor}, 0 18px 44px rgba(0,0,0,0.32), 0 0 36px color-mix(in srgb, ${catColor} 14%, transparent)`;
+                    }}
+                    onMouseOut={e => {
+                      const el = e.currentTarget as HTMLAnchorElement;
+                      el.style.background  = "var(--paper)";
+                      el.style.transform   = "";
+                      el.style.boxShadow   = "0 2px 8px rgba(0,0,0,0.10)";
+                    }}
                   >
                     {/* Category tag */}
                     <div style={{
@@ -702,7 +712,7 @@ export default function Dashboard() {
                     <div style={{
                       fontFamily:    "var(--mono)",
                       fontSize:      9,
-                      color:         "var(--ink-3)",
+                      color:         catColor,
                       letterSpacing: "0.06em",
                       marginTop:     4,
                     }}>
@@ -794,13 +804,20 @@ export default function Dashboard() {
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>★ Favourites</div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{favs.length} pinned</div>
             </div>
-            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
-              {favs.map((t, ti) => (
+            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+              {favs.map((t, ti) => {
+                const favCat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
+                const favCatColor = CAT_COLOR[(favCat?.label ?? "") as keyof typeof CAT_COLOR] ?? "var(--cinnabar-ink)";
+                return (
                 <Link key={t.slug} href={`/tools/${t.slug}`} className="dash-tool gl-pane"
                   onClick={() => trackToolVisit(t.slug)}
-                  style={{ textDecoration: "none", padding: "18px 20px 14px", display: "flex", flexDirection: "column", color: "var(--ink)", minHeight: 120 }}>
+                  style={{
+                    textDecoration: "none", padding: "18px 20px 14px",
+                    display: "flex", flexDirection: "column", color: "var(--ink)", minHeight: 120,
+                    "--cat-color": favCatColor,
+                  } as React.CSSProperties}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                    <div className="mono" style={{ fontSize: 7, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>★</div>
+                    <div className="mono" style={{ fontSize: 7, letterSpacing: "0.14em", color: favCatColor }}>★</div>
                     <button onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFav(t.slug); }} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", padding: 0 }}>✕</button>
                   </div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 500, fontStyle: "italic", color: "var(--ink)", flex: 1 }}>{t.ttl}</div>
@@ -809,7 +826,8 @@ export default function Dashboard() {
                     <span className="dash-tool-arrow mono" style={{ fontSize: 11 }}>↗</span>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
@@ -883,8 +901,10 @@ export default function Dashboard() {
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{cat.tools.length} tools</div>
             </div>
-            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }}>
-              {cat.tools.map((t, ti) => (
+            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+              {cat.tools.map((t, ti) => {
+                const catColor = CAT_COLOR[cat.label as keyof typeof CAT_COLOR] ?? "var(--cinnabar-ink)";
+                return (
                 <Link
                   key={t.slug}
                   href={`/tools/${t.slug}`}
@@ -896,7 +916,8 @@ export default function Dashboard() {
                     padding: "22px 20px 18px",
                     display: "flex", flexDirection: "column",
                     color: "var(--ink)", minHeight: 188,
-                  }}
+                    "--cat-color": catColor,
+                  } as React.CSSProperties}
                 >
                   {/* Card header: category label + fav star + tier badge */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -940,7 +961,8 @@ export default function Dashboard() {
                     <span className="dash-tool-arrow mono" style={{ fontSize: 13 }} aria-hidden="true">↗</span>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}

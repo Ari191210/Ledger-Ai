@@ -384,7 +384,11 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5) !important;
 }
 [data-mode="light"] .dash-tool:hover {
-  box-shadow: 0 20px 52px rgba(0,0,0,0.10), 0 4px 14px rgba(0,0,0,0.06) !important;
+  box-shadow:
+    0 0 0 1.5px var(--cat-color, var(--cinnabar-ink)),
+    0 22px 54px rgba(0,0,0,0.12),
+    0 8px 20px rgba(0,0,0,0.07),
+    0 0 48px color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 10%, transparent) !important;
 }
 
 /* ─── Glass panels ───────────────────────────────────────────────────────────── */
@@ -401,33 +405,42 @@
   transition: background 220ms ease;
 }
 
-/* Dashboard tool card — premium hover */
+/* Dashboard tool card — bubbly rounded hover */
 .dash-tool {
-  border-left: 3px solid transparent;
   position: relative;
   z-index: 1;
   opacity: 1 !important;
+  border-radius: 18px !important;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 10%, transparent) !important;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.10),
+    0 0 0 0 transparent;
   transition:
-    border-left-color 200ms ease,
-    transform 260ms cubic-bezier(0.34, 1.2, 0.64, 1),
-    box-shadow 220ms ease,
+    transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 280ms ease,
+    border-color 220ms ease,
     background 180ms ease !important;
 }
 .dash-tool:hover {
-  border-left-color: var(--cinnabar-ink) !important;
-  transform: translateY(-5px) !important;
-  box-shadow: 0 20px 52px rgba(0,0,0,0.32), 0 4px 14px rgba(0,0,0,0.18) !important;
+  transform: translateY(-9px) scale(1.025) !important;
+  box-shadow:
+    0 0 0 1.5px var(--cat-color, var(--cinnabar-ink)),
+    0 22px 54px rgba(0,0,0,0.38),
+    0 8px 20px rgba(0,0,0,0.20),
+    0 0 48px color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 14%, transparent) !important;
+  border-color: var(--cat-color, var(--cinnabar-ink)) !important;
   z-index: 2;
   opacity: 1 !important;
+  background: color-mix(in srgb, var(--paper-2) 60%, transparent) !important;
 }
 .dash-tool-arrow {
   display: inline-block;
-  transition: color 200ms ease, transform 200ms cubic-bezier(0.34, 1.2, 0.64, 1);
+  transition: color 220ms ease, transform 260ms cubic-bezier(0.34, 1.4, 0.64, 1);
   color: var(--ink-3);
 }
 .dash-tool:hover .dash-tool-arrow {
-  color: var(--cinnabar-ink);
-  transform: translate(4px, -4px);
+  color: var(--cat-color, var(--cinnabar-ink));
+  transform: translate(5px, -5px);
 }
 
 /* ─── Custom cursor ─────────────────────────────────────────────────────────── */
