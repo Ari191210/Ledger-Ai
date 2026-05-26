@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
@@ -105,15 +105,15 @@ function ResearchTab() {
   const subTabStyle = (active: boolean): React.CSSProperties => ({
     flex: 1, padding: "13px 20px", fontFamily: "var(--mono)", fontSize: 11,
     letterSpacing: "0.06em", textTransform: "uppercase" as const,
-    background: active ? "var(--ink)" : "var(--paper)",
-    color: active ? "var(--paper)" : "var(--ink-2)", border: "none", cursor: "pointer",
+    background: active ? "var(--ink)" : "transparent",
+    color: active ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, cursor: "pointer", transition: "background 160ms, color 160ms",
   });
 
   return (
     <div>
       {/* Sub-mode switcher */}
-      <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 28, width: "fit-content" }}>
-        <button onClick={() => setMode("research")} style={{ ...subTabStyle(mode === "research"), borderRight: "1px solid var(--rule)" }}>Research</button>
+      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 28, width: "fit-content" }}>
+        <button onClick={() => setMode("research")} style={subTabStyle(mode === "research")}>Research</button>
         <button onClick={() => setMode("plan")}     style={subTabStyle(mode === "plan")}>Plan Assignment</button>
       </div>
 
@@ -176,10 +176,10 @@ function ResearchTab() {
           </div>
           <div style={{ marginBottom: 32, padding: "16px 20px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}><AIOutput text={data.summary} /></div>
 
-          <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", marginBottom: 28, width: "fit-content" }}>
+          <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 28, width: "fit-content" }}>
             {([["overview","Overview"],["arguments","Arguments"],["stats","Stats & Evidence"],["angles","Essay Angles"]] as [typeof resTab, string][]).map(([t, label]) => (
               <button key={t} onClick={() => setResTab(t)}
-                style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, background: resTab === t ? "var(--ink)" : "var(--paper)", color: resTab === t ? "var(--paper)" : "var(--ink)", border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
+                style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, background: resTab === t ? "var(--ink)" : "var(--paper)", color: resTab === t ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
                 {label}
               </button>
             ))}
@@ -389,8 +389,8 @@ function DebateTab() {
         &ldquo;{output.motion}&rdquo;
       </div>
 
-      <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", marginBottom: 24, width: "fit-content" }}>
-        <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "#2d7a3c" : "var(--paper)", color: view === "for" ? "var(--paper)" : "#2d7a3c", border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
+      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 24, width: "fit-content" }}>
+        <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "#2d7a3c" : "var(--paper)", color: view === "for" ? "var(--paper)" : "#2d7a3c", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
         <button onClick={() => setView("against")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "against" ? "#c44b2a" : "var(--paper)", color: view === "against" ? "var(--paper)" : "#c44b2a", border: "none", cursor: "pointer", letterSpacing: "0.06em" }}>AGAINST THE MOTION</button>
       </div>
 
@@ -612,10 +612,10 @@ export default function ResearchSuitePage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Research Suite</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Research, debate, and present.</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>
               {l}
             </button>
           ))}

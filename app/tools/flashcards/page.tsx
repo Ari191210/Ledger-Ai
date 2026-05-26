@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -83,10 +83,10 @@ export default function FlashcardsPage() {
         ) : (
           <>
             {/* Mode toggle */}
-            <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", marginBottom: 28, width: "fit-content" }}>
+            <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 28, width: "fit-content" }}>
               {[["all", `All cards (${cards.length})`], ["unknown", `Still learning (${unknown.size})`]] .map(([v, l], i) => (
                 <button key={v} onClick={() => { setMode(v as "all"|"unknown"); setIdx(0); setFlipped(false); }}
-                  style={{ padding: "9px 18px", fontFamily: "var(--mono)", fontSize: 10, background: mode === v ? "var(--ink)" : "var(--paper)", color: mode === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i === 0 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+                  style={{ padding: "9px 18px", fontFamily: "var(--mono)", fontSize: 10, background: mode === v ? "var(--ink)" : "var(--paper)", color: mode === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>
                   {l}
                 </button>
               ))}

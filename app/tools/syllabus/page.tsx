@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -132,10 +132,10 @@ export default function SyllabusPage() {
           {/* Input panel */}
           <div>
             {/* Mode toggle */}
-            <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 20 }}>
-              {(["upload", "text"] as const).map((m, i) => (
+            <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 20 }}>
+              {(["upload", "text"] as const).map((m) => (
                 <button key={m} onClick={() => { setMode(m); setFile(null); setError(""); }}
-                  style={{ flex: 1, padding: "10px 0", background: mode === m ? "var(--ink)" : "transparent", color: mode === m ? "var(--paper)" : "var(--ink-2)", border: "none", borderRight: i === 0 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  style={{ flex: 1, padding: "10px 0", background: mode === m ? "var(--ink)" : "transparent", color: mode === m ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                   {m === "upload" ? "Upload file" : "Paste text"}
                 </button>
               ))}

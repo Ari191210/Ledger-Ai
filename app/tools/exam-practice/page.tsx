@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import TierGate from "@/components/tier-gate";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
@@ -661,7 +661,7 @@ type Criterion = { name: string; achieved: string; missed: string; marks: string
 type Grade     = { marks: number; totalMarks: number; grade: string; band: string; summary: string; criteria: Criterion[]; strengths: string[]; improvements: string[]; modelAnswer: string };
 const MARKSCHEME_BOARDS    = ["CBSE","ICSE","IB","A-Level","IGCSE","AP"];
 const MARKSCHEME_SUBJECTS  = ["Economics","History","Biology","Chemistry","Physics","Mathematics","English","Geography","Psychology","Business"];
-const MARKSCHEME_TAB_STYLE = (active: boolean): React.CSSProperties => ({ padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10, background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink)", border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.05em" });
+const MARKSCHEME_TAB_STYLE = (active: boolean): React.CSSProperties => ({ padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10, background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" });
 
 function MarkSchemeTab() {
   const [tab,     setTab]     = useState<MarkSchemeTabType>("decode");
@@ -713,9 +713,9 @@ function MarkSchemeTab() {
     <div>
       <div className="mob-hp" style={{ padding: "16px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Question Decoder</div>
-        <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
           <button style={MARKSCHEME_TAB_STYLE(tab === "decode")} onClick={() => switchTab("decode")}>Decode Question</button>
-          <button style={{ ...MARKSCHEME_TAB_STYLE(tab === "grade"), borderRight: "none" }} onClick={() => switchTab("grade")}>Grade My Answer</button>
+          <button style={MARKSCHEME_TAB_STYLE(tab === "grade")} onClick={() => switchTab("grade")}>Grade My Answer</button>
         </div>
       </div>
       <div style={{ padding: "12px 44px", borderBottom: "1px solid var(--rule)", display: "flex", gap: 24, flexWrap: "wrap", alignItems: "center" }}>
@@ -1284,9 +1284,9 @@ export default function ExamPracticePage() {
     <div style={{ minHeight: "100vh", background: "var(--paper)", color: "var(--ink)" }}>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Exam Practice</div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", overflowX: "auto" }}>
           {TABS.map(([v, l], i) => (
-            <button key={v} onClick={() => setTab(v)} style={{ padding: "10px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "var(--paper)", color: tab === v ? "var(--paper)" : "var(--ink)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{l}</button>
+            <button key={v} onClick={() => setTab(v)} style={{ padding: "10px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "var(--paper)", color: tab === v ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>{l}</button>
           ))}
         </div>
       </header>

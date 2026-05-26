@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -35,7 +35,7 @@ function FocusTab() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "1px solid var(--ink)", marginTop: 14 }}>
             {(["work", "break", "longbreak"] as FocusMode[]).map((m, i) => (
               <button key={m} onClick={() => switchMode(m)}
-                style={{ padding: "12px 10px", background: mode === m ? "var(--ink)" : "var(--paper)", color: mode === m ? "var(--paper)" : "var(--ink)", border: "none", borderRight: i < 2 ? "1px solid var(--ink)" : "none", cursor: "pointer", fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>
+                style={{ padding: "12px 10px", background: mode === m ? "var(--ink)" : "var(--paper)", color: mode === m ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>
                 {MODE_LABELS[m]}
               </button>
             ))}
@@ -64,7 +64,7 @@ function FocusTab() {
               ["Sessions today", String(sessions)],
               ["Streak", `${streak} day${streak !== 1 ? "s" : ""}`],
             ].map(([label, val], i) => (
-              <div key={i} style={{ padding: "16px 20px", borderRight: i === 0 ? "1px solid var(--ink)" : "none" }}>
+              <div key={i} style={{ padding: "16px 20px", borderRadius: 8, transition: "background 160ms, color 160ms" }}>
                 <div className="mono" style={{ color: "var(--ink-3)" }}>{label}</div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{val}</div>
               </div>
@@ -592,10 +592,10 @@ export default function FocusLabPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Focus Lab</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Pomodoro timer and block-breaking in one place.</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
-          {TABS.map(([v, l], i) => (
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+          {TABS.map(([v, l]) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.05em", transition: "background 160ms, color 160ms" }}>
               {l}
             </button>
           ))}

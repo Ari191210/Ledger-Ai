@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI, callAIOrThrow, AIError } from "@/lib/ai-fetch";
@@ -484,14 +484,14 @@ function WritingPolishTab() {
   const subTabStyle = (active: boolean): React.CSSProperties => ({
     padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10,
     background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink)",
-    border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.05em",
+    border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em",
   });
 
   return (
     <div>
-      <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 28, width: "fit-content" }}>
+      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 28, width: "fit-content" }}>
         <button style={subTabStyle(mode === "grammar")} onClick={() => { setMode("grammar"); setResult(null); setFeedback(null); }}>Grammar Coach</button>
-        <button style={{ ...subTabStyle(mode === "ps"), borderRight: "none" }} onClick={() => { setMode("ps"); setResult(null); setFeedback(null); }}>Personal Statement</button>
+        <button style={subTabStyle(mode === "ps")} onClick={() => { setMode("ps"); setResult(null); setFeedback(null); }}>Personal Statement</button>
       </div>
 
       {mode === "grammar" && !result && (
@@ -713,10 +713,10 @@ function CitationTab() {
       <div className="mono cin" style={{ marginBottom: 8 }}>Format a citation</div>
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>APA, MLA, Chicago, Harvard &mdash; instantly.</h2>
 
-      <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", marginBottom: 20, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 20, flexWrap: "wrap" }}>
         {(["book","journal","website","newspaper","video"] as SourceType[]).map((t, i, arr) => (
           <button key={t} onClick={() => { setSourceType(t); setFields({}); setCitations([]); }}
-            style={{ flex: 1, minWidth: 80, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, background: sourceType === t ? "var(--ink)" : "var(--paper)", color: sourceType === t ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < arr.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            style={{ flex: 1, minWidth: 80, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, background: sourceType === t ? "var(--ink)" : "var(--paper)", color: sourceType === t ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             {t}
           </button>
         ))}
@@ -781,10 +781,10 @@ export default function WritingToolsPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Writing Tools</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Essays, grammar, arguments, citations.</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", flexWrap: "wrap" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+              style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>
               {l}
             </button>
           ))}

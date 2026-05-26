@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -23,7 +23,7 @@ const DIFF     = ["Mixed", "Easy", "Medium", "Hard"];
 const TAB_STYLE = (active: boolean): React.CSSProperties => ({
   padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10,
   background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink)",
-  border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.05em",
+  border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em",
 });
 
 export default function PracticeSuitePage() {
@@ -123,9 +123,9 @@ export default function PracticeSuitePage() {
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Practice Suite</div>
         {phase === "setup" && (
-          <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
+          <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
             <button style={TAB_STYLE(mode === "practice")} onClick={() => { setMode("practice"); setSet(null); }}>Practice Problems</button>
-            <button style={{ ...TAB_STYLE(mode === "mock"), borderRight: "none" }} onClick={() => { setMode("mock"); setSet(null); }}>Mock Exam</button>
+            <button style={TAB_STYLE(mode === "mock")} onClick={() => { setMode("mock"); setSet(null); }}>Mock Exam</button>
           </div>
         )}
         {phase === "exam" && examData && (

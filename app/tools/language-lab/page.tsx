@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -248,8 +248,8 @@ function VocabTab() {
         <div className="mono" style={{ color: "var(--ink-3)" }}>Vocabulary Vault &middot; {vault.theme}</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span className="mono" style={{ fontSize: 11, color: "#2d7a3c" }}>{knownCount}/{total} known</span>
-          <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
-            <button onClick={() => setMode("cards")} style={{ padding: "6px 14px", fontFamily: "var(--mono)", fontSize: 10, background: mode === "cards" ? "var(--ink)" : "var(--paper)", color: mode === "cards" ? "var(--paper)" : "var(--ink)", border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer" }}>Cards</button>
+          <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+            <button onClick={() => setMode("cards")} style={{ padding: "6px 14px", fontFamily: "var(--mono)", fontSize: 10, background: mode === "cards" ? "var(--ink)" : "var(--paper)", color: mode === "cards" ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer" }}>Cards</button>
             <button onClick={() => setMode("list")}  style={{ padding: "6px 14px", fontFamily: "var(--mono)", fontSize: 10, background: mode === "list"  ? "var(--ink)" : "var(--paper)", color: mode === "list"  ? "var(--paper)" : "var(--ink)", border: "none", cursor: "pointer" }}>List</button>
           </div>
           <button className="btn ghost" onClick={() => setVault(null)} style={{ cursor: "pointer" }}>New topic</button>
@@ -360,10 +360,10 @@ export default function LanguageLabPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Language Lab</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Analyse texts and build vocabulary for any subject.</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>
               {l}
             </button>
           ))}

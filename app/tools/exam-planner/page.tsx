@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -73,7 +73,7 @@ const typeColor = (t: string) => t === "EXAM DAY" ? "#c44b2a" : t.includes("Past
 const TAB_STYLE = (active: boolean): React.CSSProperties => ({
   padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10,
   background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink)",
-  border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.05em",
+  border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em",
 });
 
 // ── Tab: Topic Half-Life ──────────────────────────────────────────────────────
@@ -378,10 +378,9 @@ export default function RevisionPlannerPage() {
             <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginTop: 2 }}>{dueToday.length} topic{dueToday.length > 1 ? "s" : ""} due today</div>
           )}
         </div>
-        <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
-          {([["plan","Exam Season Plan"],["review","Spaced Review"],["halflife","Topic Half-Life"],["predict","Q Predictor"]] as [TabType,string][]).map(([v,l],i) => (
-            <button key={v} onClick={() => setTab(v)}
-              style={{ ...TAB_STYLE(tab === v), borderRight: i < 3 ? "1px solid var(--ink)" : "none" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+          {([["plan","Exam Season Plan"],["review","Spaced Review"],["halflife","Topic Half-Life"],["predict","Q Predictor"]] as [TabType,string][]).map(([v,l]) => (
+            <button key={v} onClick={() => setTab(v)} style={TAB_STYLE(tab === v)}>
               {l}
             </button>
           ))}
@@ -493,7 +492,7 @@ export default function RevisionPlannerPage() {
               { label: "Due this week",    value: dueThisWeek.length, color: "var(--ink)" },
               { label: "Mastered (≥30d)",  value: mastered.length,    color: "#2d7a3c" },
             ].map((s, i) => (
-              <div key={i} style={{ padding: "20px", borderRight: i < 2 ? "1px solid var(--rule)" : "none" }}>
+              <div key={i} style={{ padding: "20px", borderRadius: 8, transition: "background 160ms, color 160ms" }}>
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>{s.label}</div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 48, fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.03em", color: s.color, lineHeight: 1 }}>{s.value}</div>
               </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
@@ -541,7 +541,7 @@ export default function RoomsPage() {
                       flex: 1, padding: "10px 0",
                       background: duration === d ? "var(--ink)" : "transparent",
                       color: duration === d ? "var(--paper)" : "var(--ink-2)",
-                      border: "none", borderRight: i < 2 ? "1px solid var(--rule)" : "none",
+                      border: "none", borderRadius: 8,
                       cursor: "pointer", fontFamily: "var(--sans)", fontWeight: 600, fontSize: 13,
                       transition: "background 180ms, color 180ms",
                     }}>{d} min</button>

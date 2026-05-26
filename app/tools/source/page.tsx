@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -36,7 +36,7 @@ const ValueBox = ({ label, text, accent }: { label: string; text: string; accent
 const TAB_STYLE = (active: boolean): React.CSSProperties => ({
   padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10,
   background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink)",
-  border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.05em",
+  border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em",
 });
 
 export default function TextAnalystPage() {
@@ -88,9 +88,9 @@ export default function TextAnalystPage() {
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Text Analyst</div>
-        <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
           <button style={TAB_STYLE(mode === "source")} onClick={() => { setMode("source"); setAnalysis(null); setReading(null); }}>Source Analysis</button>
-          <button style={{ ...TAB_STYLE(mode === "reading"), borderRight: "none" }} onClick={() => { setMode("reading"); setAnalysis(null); setReading(null); }}>Passage Analysis</button>
+          <button style={TAB_STYLE(mode === "reading")} onClick={() => { setMode("reading"); setAnalysis(null); setReading(null); }}>Passage Analysis</button>
         </div>
       </header>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -195,7 +195,7 @@ function DayRow({ day, idx }: { day: PlanDay; idx: number }) {
         <div style={{ display: "flex", height: 20, border: "1px solid var(--ink)" }}>
           {Object.entries(totals).map(([id, mins], i) => {
             const subj = day.slots.find((x) => x.subject.id === id)!.subject;
-            return <div key={id} title={subj.name} style={{ flex: mins / totalMins, background: subj.color, borderRight: i < Object.keys(totals).length - 1 ? "1px solid var(--ink)" : "none" }} />;
+            return <div key={id} title={subj.name} style={{ flex: mins / totalMins, background: subj.color, borderRadius: 8, transition: "background 160ms, color 160ms" }} />;
           })}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
@@ -439,7 +439,7 @@ function PlannerTab() {
             <div className="mono cin">β · Circadian Window</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "1px solid var(--ink)", marginTop: 10 }}>
               {(["morning", "midday", "evening"] as const).map((v, i) => (
-                <button key={v} onClick={() => setChronotype(v)} style={{ padding: "12px 10px", background: chronotype === v ? "var(--ink)" : "var(--paper)", color: chronotype === v ? "var(--paper)" : "var(--ink)", border: "none", borderRight: i < 2 ? "1px solid var(--ink)" : "none", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)" }}>
+                <button key={v} onClick={() => setChronotype(v)} style={{ padding: "12px 10px", background: chronotype === v ? "var(--ink)" : "var(--paper)", color: chronotype === v ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)" }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{v.charAt(0).toUpperCase() + v.slice(1)}</div>
                   <div className="mono" style={{ marginTop: 4, opacity: 0.7, fontSize: 9 }}>{v === "morning" ? "5–10 AM" : v === "midday" ? "10 AM–3 PM" : "3–10 PM"}</div>
                 </button>
@@ -1012,10 +1012,10 @@ export default function StudyCommandPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Study Command</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Planner, deadlines, and habits in one place.</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em" }}>
+              style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>
               {l}
             </button>
           ))}

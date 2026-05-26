@@ -243,7 +243,7 @@ const IB_ALL        = ["English A Lit","English A Lang&Lit","Hindi A","French B"
 const ALEVELS_LIST  = ["Mathematics","Further Mathematics","Physics","Chemistry","Biology","Economics","Business","History","Geography","English Literature","Psychology","Computer Science","Law","Sociology","Political Science","French","Spanish","Art & Design","Music"];
 const CAREERS_LIST  = ["Medicine","Engineering","Law","Finance & Banking","Computer Science","Architecture","Business","Research / Academia","Journalism","Education","Arts & Design","Psychology","International Relations","Entrepreneurship"];
 
-const ffTabStyle = (active: boolean): React.CSSProperties => ({ padding:"10px 20px", fontFamily:"var(--mono)", fontSize:10, background:active?"var(--ink)":"var(--paper)", color:active?"var(--paper)":"var(--ink)", border:"none", borderRight:"1px solid var(--ink)", cursor:"pointer", letterSpacing:"0.05em" });
+const ffTabStyle = (active: boolean): React.CSSProperties => ({ padding:"10px 20px", fontFamily:"var(--mono)", fontSize:10, background:active?"var(--ink)":"var(--paper)", color:active?"var(--paper)":"var(--ink)", border:"none", borderRadius:8, cursor:"pointer", letterSpacing:"0.05em", transition:"background 160ms, color 160ms" });
 const reachColor = (r: string) => r==="safety"?"#2d7a3c":r==="match"?"#c97a1a":"#c44b2a";
 const reachLabel = (r: string) => r==="safety"?"Likely":r==="match"?"Good chance":"Reach";
 const diffColor  = (d: string) => d==="manageable"?"#2d7a3c":d==="challenging"?"#c97a1a":"#c44b2a";
@@ -671,9 +671,9 @@ export default function AdmissionsPage() {
   const tabHeader = (
     <header className="mob-hp" style={{padding:"14px 44px",borderBottom:"1px solid var(--ink)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
       <div className="mono" style={{color:"var(--ink-3)"}}>University Hub</div>
-      <div style={{display:"flex",border:"1px solid var(--ink)"}}>
-        {([["chances","Chance Engine"],["finder","Future Finder"],["prep","Uni Prep"],["apply","Apply"]] as [UniversityTab,string][]).map(([v,l],i)=>(
-          <button key={v} onClick={()=>setUniversityTab(v)} style={{padding:"10px 20px",fontFamily:"var(--mono)",fontSize:10,background:universityTab===v?"var(--ink)":"var(--paper)",color:universityTab===v?"var(--paper)":"var(--ink)",border:"none",borderRight:i<3?"1px solid var(--ink)":"none",cursor:"pointer",letterSpacing:"0.05em"}}>{l}</button>
+      <div style={{display:"flex",gap:4,background:"color-mix(in srgb, var(--ink) 7%, transparent)",borderRadius:12,padding:"4px"}}>
+        {([["chances","Chance Engine"],["finder","Future Finder"],["prep","Uni Prep"],["apply","Apply"]] as [UniversityTab,string][]).map(([v,l])=>(
+          <button key={v} onClick={()=>setUniversityTab(v)} style={{padding:"10px 20px",fontFamily:"var(--mono)",fontSize:10,background:universityTab===v?"var(--ink)":"transparent",color:universityTab===v?"var(--paper)":"var(--ink)",border:"none",borderRadius:8,cursor:"pointer",letterSpacing:"0.05em",transition:"background 160ms, color 160ms"}}>{l}</button>
         ))}
       </div>
     </header>
@@ -713,10 +713,10 @@ export default function AdmissionsPage() {
                   style={{ width:"100%", fontFamily:"var(--sans)", fontSize:20, border:"1px solid var(--ink)", background:"var(--paper)", padding:"12px 14px", color:"var(--ink)", boxSizing:"border-box" }} />
               </div>
 
-              <div style={{ border:"1px solid var(--ink)", display:"flex", marginBottom:16 }}>
-                {(["sat","act","none"] as const).map((opt,i)=>(
+              <div style={{ display:"flex", gap:4, background:"color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius:12, padding:"4px", marginBottom:16 }}>
+                {(["sat","act","none"] as const).map((opt)=>(
                   <button key={opt} onClick={()=>set("testChoice",opt)}
-                    style={{ flex:1, padding:"11px", fontFamily:"var(--mono)", fontSize:10, background:profile.testChoice===opt?"var(--ink)":"var(--paper)", color:profile.testChoice===opt?"var(--paper)":"var(--ink)", border:"none", borderRight:i<2?"1px solid var(--ink)":"none", cursor:"pointer", textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                    style={{ flex:1, padding:"11px", fontFamily:"var(--mono)", fontSize:10, background:profile.testChoice===opt?"var(--ink)":"transparent", color:profile.testChoice===opt?"var(--paper)":"var(--ink)", border:"none", borderRadius:8, cursor:"pointer", textTransform:"uppercase", letterSpacing:"0.06em", transition:"background 160ms, color 160ms" }}>
                     {opt==="none"?"Not submitting":opt.toUpperCase()}
                   </button>
                 ))}

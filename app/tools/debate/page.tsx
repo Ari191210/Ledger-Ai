@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -38,8 +38,8 @@ export default function DebatePage() {
           &ldquo;{output.motion}&rdquo;
         </div>
 
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", marginBottom: 24, width: "fit-content" }}>
-          <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "#2d7a3c" : "var(--paper)", color: view === "for" ? "var(--paper)" : "#2d7a3c", border: "none", borderRight: "1px solid var(--ink)", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 24, width: "fit-content" }}>
+          <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "#2d7a3c" : "var(--paper)", color: view === "for" ? "var(--paper)" : "#2d7a3c", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
           <button onClick={() => setView("against")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "against" ? "#c44b2a" : "var(--paper)", color: view === "against" ? "var(--paper)" : "#c44b2a", border: "none", cursor: "pointer", letterSpacing: "0.06em" }}>AGAINST THE MOTION</button>
         </div>
 

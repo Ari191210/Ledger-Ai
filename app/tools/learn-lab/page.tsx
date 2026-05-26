@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -605,9 +605,9 @@ function NotesTab() {
 
   return (
     <div>
-      <div style={{ display: "flex", border: "1px solid var(--ink)", marginBottom: 24, width: "fit-content" }}>
-        <button onClick={() => setMode("simplify")} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", background: mode === "simplify" ? "var(--ink)" : "var(--paper)", color: mode === "simplify" ? "var(--paper)" : "var(--ink-2)", border: "none", borderRight: "1px solid var(--rule)", cursor: "pointer" }}>Simplify Notes</button>
-        <button onClick={() => setMode("learn")} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", background: mode === "learn" ? "var(--ink)" : "var(--paper)", color: mode === "learn" ? "var(--paper)" : "var(--ink-2)", border: "none", cursor: "pointer" }}>Learn Topic</button>
+      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 24, width: "fit-content" }}>
+        <button onClick={() => setMode("simplify")} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", background: mode === "simplify" ? "var(--ink)" : "transparent", color: mode === "simplify" ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, cursor: "pointer", transition: "background 160ms, color 160ms" }}>Simplify Notes</button>
+        <button onClick={() => setMode("learn")} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", background: mode === "learn" ? "var(--ink)" : "transparent", color: mode === "learn" ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, cursor: "pointer", transition: "background 160ms, color 160ms" }}>Learn Topic</button>
       </div>
       {mode === "simplify" && (
         <>
@@ -648,9 +648,9 @@ function NotesTab() {
             </div>
             {notesLoading && (
               <div>
-                <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
-                  {["Explanation","Summary","Flashcards","Quiz"].map((label, i, arr) => (
-                    <div key={label} style={{ flex: 1, padding: "12px 8px", background: "var(--paper)", borderRight: i < arr.length - 1 ? "1px solid var(--rule)" : "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", textAlign: "center" }}>{label}</div>
+                <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+                  {["Explanation","Summary","Flashcards","Quiz"].map((label) => (
+                    <div key={label} style={{ flex: 1, padding: "12px 8px", background: "transparent", borderRadius: 8, fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", textAlign: "center" }}>{label}</div>
                   ))}
                 </div>
                 <div style={{ border: "1px solid var(--ink)", borderTop: "none", padding: "24px 20px" }}><AIThinking /></div>
@@ -658,10 +658,10 @@ function NotesTab() {
             )}
             {notesOut && !notesLoading && (
               <div>
-                <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
-                  {NOTES_TABS_LIST.map((t, i) => (
+                <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+                  {NOTES_TABS_LIST.map((t) => (
                     <button key={t.id} onClick={() => setNotesTab(t.id)}
-                      style={{ flex: 1, padding: "12px 8px", background: notesTab === t.id ? "var(--ink)" : "var(--paper)", color: notesTab === t.id ? "var(--paper)" : "var(--ink-2)", border: "none", borderRight: i < NOTES_TABS_LIST.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                      style={{ flex: 1, padding: "12px 8px", background: notesTab === t.id ? "var(--ink)" : "transparent", color: notesTab === t.id ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                       {t.label}
                     </button>
                   ))}
@@ -703,7 +703,7 @@ function NotesTab() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 24 }}>
               {NOTES_SUBJECTS.map((s, i) => (
                 <button key={s} onClick={() => setSubject(s)}
-                  style={{ padding: "10px 14px", background: subject === s ? "var(--ink)" : "transparent", color: subject === s ? "var(--paper)" : "var(--ink-2)", border: "none", borderRight: i % 2 === 0 ? "1px solid var(--rule)" : "none", borderBottom: i < NOTES_SUBJECTS.length - 2 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.05em", textAlign: "left", textTransform: "uppercase" }}>
+                  style={{ padding: "10px 14px", background: subject === s ? "var(--ink)" : "transparent", color: subject === s ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", borderBottom: i < NOTES_SUBJECTS.length - 2 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.05em", textAlign: "left", textTransform: "uppercase" }}>
                   {s}
                 </button>
               ))}
@@ -725,10 +725,10 @@ function NotesTab() {
                 <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2 }}>{lesson.title}</div>
                 <div className="mono" style={{ color: "var(--ink-3)", marginTop: 6 }}>{subject} · {learnProfile.grade || "Class 10"}</div>
               </div>
-              <div style={{ display: "flex", border: "1px solid var(--ink)" }}>
-                {LESSON_TABS_LIST.map((t, i) => (
+              <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+                {LESSON_TABS_LIST.map((t) => (
                   <button key={t.id} onClick={() => setLessonTab(t.id)}
-                    style={{ flex: 1, padding: "12px 8px", background: lessonTab === t.id ? "var(--ink)" : "var(--paper)", color: lessonTab === t.id ? "var(--paper)" : "var(--ink-2)", border: "none", borderRight: i < LESSON_TABS_LIST.length - 1 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    style={{ flex: 1, padding: "12px 8px", background: lessonTab === t.id ? "var(--ink)" : "transparent", color: lessonTab === t.id ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                     {t.label}
                   </button>
                 ))}
@@ -950,10 +950,10 @@ export default function LearnLabPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Learn Lab</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Doubt · Feynman · Study Engine · Mind Map · Concept Connect</div>
         </div>
-        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)", overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", overflowX: "auto" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
-              style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRight: i < TABS.length - 1 ? "1px solid var(--ink)" : "none", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
+              style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>
               {l}
             </button>
           ))}
