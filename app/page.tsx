@@ -884,7 +884,7 @@ export default function Home() {
                 </div>
                 <div style={{ marginTop: 28, paddingTop: 20, borderTop: S.border, display: "flex", gap: 10 }}>
                   <Link href={`/tools/${tool.slug}`} className="btn" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>Open tool →</Link>
-                  <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 51 tools</Link>
+                  <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 44 tools</Link>
                 </div>
               </div>
             </div>
@@ -1295,7 +1295,7 @@ export default function Home() {
               ))}
               <li style={{ marginTop: 16 }}>
                 <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
-                  → All 51 tools
+                  → All 44 tools
                 </Link>
               </li>
             </ul>
