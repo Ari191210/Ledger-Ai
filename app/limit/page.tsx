@@ -40,7 +40,7 @@ export default function LimitPage() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", color: "var(--ink)" }}>
-          You've queried the ledger 20 times today.
+          You&apos;ve queried the ledger 20 times today.
         </div>
         <div style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--ink-2)", fontStyle: "italic" }}>
           It resets at midnight.
