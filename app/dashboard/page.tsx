@@ -841,7 +841,7 @@ export default function Dashboard() {
         </div>
 
         {/* Tool search */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, border: "1px solid var(--rule)", background: "var(--paper-2)", padding: "0 14px", marginBottom: 28, height: 42 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, border: "none", borderRadius: 12, background: "color-mix(in srgb, var(--ink) 7%, transparent)", padding: "0 14px", marginBottom: 28, height: 42, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 14, color: "var(--ink-3)", flexShrink: 0 }}>⌕</span>
           <input
             type="search"
@@ -870,7 +870,7 @@ export default function Dashboard() {
                 onClick={() => setToolQuery("")}
                 aria-label="Clear search"
                 style={{
-                  background: "none", border: "1px solid var(--rule)",
+                  background: "color-mix(in srgb, var(--ink) 8%, transparent)", border: "none",
                   color: "var(--ink-3)", cursor: "pointer",
                   padding: "2px 8px", fontFamily: "var(--mono)", fontSize: 10,
                   flexShrink: 0,

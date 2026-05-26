@@ -925,11 +925,13 @@ export default function Home() {
                 onClick={() => setHasSyllabus(v => !v)}
                 style={{
                   display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", marginTop: 20,
-                  border: `1px solid ${hasSyllabus ? "var(--cinnabar-ink)" : "var(--rule)"}`,
-                  background: hasSyllabus ? "color-mix(in srgb, var(--cinnabar-ink) 10%, var(--paper))" : "transparent",
+                  border: "none",
+                  borderRadius: 10,
+                  background: hasSyllabus ? "color-mix(in srgb, var(--cinnabar-ink) 16%, var(--paper))" : "color-mix(in srgb, var(--ink) 8%, transparent)",
+                  boxShadow: hasSyllabus ? `0 0 0 1.5px var(--cinnabar-ink), 0 4px 14px color-mix(in srgb, var(--cinnabar-ink) 18%, transparent)` : "none",
                   color: "var(--ink)", cursor: "pointer", width: "100%",
                   fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500,
-                  transition: "all 180ms",
+                  transition: "all 200ms",
                 }}
               >
                 <div style={{
