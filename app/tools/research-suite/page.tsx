@@ -127,16 +127,16 @@ function ResearchTab() {
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Research question or topic *</div>
               <input value={query} onChange={e => setQuery(e.target.value)}
                 placeholder="e.g. Does social media harm teenage mental health? &middot; The causes of World War I&hellip;"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject area</div>
               <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Psychology, History&hellip;"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Purpose</div>
-              <select value={purpose} onChange={e => setPurpose(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+              <select value={purpose} onChange={e => setPurpose(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
                 <option value="essay">Essay / coursework</option>
                 <option value="debate">Debate preparation</option>
                 <option value="presentation">Presentation</option>
@@ -146,7 +146,7 @@ function ResearchTab() {
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Depth</div>
-              <select value={depth} onChange={e => setDepth(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+              <select value={depth} onChange={e => setDepth(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
                 <option value="overview">Quick overview</option>
                 <option value="standard">Standard depth</option>
                 <option value="deep">Deep dive</option>
@@ -167,7 +167,7 @@ function ResearchTab() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, gap: 20 }}>
             <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontWeight: 700, fontStyle: "italic", lineHeight: 1.3 }}>{data.title}</div>
             <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-              <button onClick={copyAll} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "7px 14px", border: "1px solid var(--ink)", background: copied ? "#2d7a3c" : "var(--paper)", color: copied ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+              <button onClick={copyAll} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "7px 14px", border: "none", background: copied ? "#2d7a3c" : "var(--paper)", color: copied ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
                 {copied ? "Copied ✓" : "Copy all"}
               </button>
               <button className="btn ghost" onClick={() => window.print()} style={{ cursor: "pointer" }}>Print ↗</button>
@@ -189,7 +189,7 @@ function ResearchTab() {
             <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 24 }}>
               <div>
                 {data.sections.map((s, i) => (
-                  <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < data.sections.length - 1 ? "none" : "1px solid var(--ink)", padding: "20px 22px" }}>
+                  <div key={i} style={{ border: "none", borderBottom: i < data.sections.length - 1 ? "none" : "1px solid var(--ink)", padding: "20px 22px" }}>
                     <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{s.heading}</div>
                     <div style={{ marginBottom: 12 }}><AIOutput text={s.content} /></div>
                     {s.keyPoints.length > 0 && (
@@ -204,7 +204,7 @@ function ResearchTab() {
                 ))}
               </div>
               {data.furtherReading.length > 0 && (
-                <div style={{ border: "1px solid var(--ink)", padding: "16px" }}>
+                <div style={{ border: "none", padding: "16px" }}>
                   <div className="mono cin" style={{ marginBottom: 12 }}>Further reading</div>
                   {data.furtherReading.map((r, i) => (
                     <div key={i} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: i < data.furtherReading.length - 1 ? "1px solid var(--rule)" : "none" }}>
@@ -242,7 +242,7 @@ function ResearchTab() {
           )}
 
           {resTab === "stats" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--ink)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "none" }}>
               {data.statistics.length === 0 ? (
                 <div style={{ padding: "40px", textAlign: "center", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)" }}>No statistics generated for this topic.</div>
               ) : data.statistics.map((s, i) => (
@@ -262,7 +262,7 @@ function ResearchTab() {
               <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", marginBottom: 20, lineHeight: 1.6 }}>
                 Use these angles as essay thesis statements or presentation hooks. Each represents a distinct perspective on your topic.
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "1px solid var(--ink)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 0, border: "none" }}>
                 {data.essayAngles.map((a, i) => (
                   <div key={i} style={{ padding: "20px 22px", borderBottom: i < data.essayAngles.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 16, alignItems: "flex-start" }}>
                     <span className="mono" style={{ color: "var(--cinnabar-ink)", flexShrink: 0, marginTop: 4, fontSize: 12 }}>#{i+1}</span>
@@ -298,7 +298,7 @@ function ResearchTab() {
                 <textarea value={brief} onChange={e => setBrief(e.target.value)}
                   placeholder={"Paste or type your assignment brief.\n\nExamples:\n— Analyse the causes and consequences of the French Revolution.\n— Compare and contrast two economic models of development.\n— Evaluate the impact of social media on teenage mental health."}
                   rows={12}
-                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }}
+                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "none", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }}
                 />
                 <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
                   <button className="btn" onClick={generatePlan} disabled={planLoading || !brief.trim()} style={{ opacity: planLoading || !brief.trim() ? 0.5 : 1, cursor: "pointer" }}>
@@ -312,11 +312,11 @@ function ResearchTab() {
               {planLoading && !planOutput && <div style={{ paddingTop: 40 }}><AIThinking /></div>}
               {planOutput && (
                 <div>
-                  <div style={{ padding: "20px 20px 16px", border: "1px solid var(--ink)", borderBottom: "none", background: "var(--paper-2)" }}>
+                  <div style={{ padding: "20px 20px 16px", border: "none", borderBottom: "none", background: "var(--paper-2)" }}>
                     <div className="mono cin" style={{ marginBottom: 8 }}>Suggested title</div>
                     <div style={{ fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic", fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1.25 }}>{planOutput.title}</div>
                   </div>
-                  <div style={{ border: "1px solid var(--ink)", borderBottom: "none" }}>
+                  <div style={{ border: "none", borderBottom: "none" }}>
                     <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}><div className="mono cin">Outline</div></div>
                     {planOutput.outline.map((sec, i) => (
                       <div key={i} style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}>
@@ -329,7 +329,7 @@ function ResearchTab() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ border: "1px solid var(--ink)", borderBottom: "none" }}>
+                  <div style={{ border: "none", borderBottom: "none" }}>
                     <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}><div className="mono cin">Argument angles</div></div>
                     {planOutput.arguments.map((arg, i) => (
                       <div key={i} style={{ padding: "12px 20px", borderBottom: "1px solid var(--rule)", display: "flex", gap: 12 }}>
@@ -338,7 +338,7 @@ function ResearchTab() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ border: "1px solid var(--ink)" }}>
+                  <div style={{ border: "none" }}>
                     <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}><div className="mono cin">Research directions</div></div>
                     {planOutput.research.map((r, i) => (
                       <div key={i} style={{ padding: "12px 20px", borderBottom: i < planOutput.research.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 12 }}>
@@ -385,7 +385,7 @@ function DebateTab() {
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
         <button className="btn ghost" onClick={() => setOutput(null)} style={{ cursor: "pointer" }}>New motion</button>
       </div>
-      <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 600, marginBottom: 28, padding: "16px 20px", border: "2px solid var(--ink)", lineHeight: 1.3 }}>
+      <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 600, marginBottom: 28, padding: "16px 20px", border: "none", lineHeight: 1.3 }}>
         &ldquo;{output.motion}&rdquo;
       </div>
 
@@ -397,7 +397,7 @@ function DebateTab() {
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 28 }}>
         <div>
           {(view === "for" ? output.for : output.against).map((arg, i) => (
-            <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < 2 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
+            <div key={i} style={{ border: "none", borderBottom: i < 2 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
               <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
                 <span className="mono" style={{ color: view === "for" ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2 }}>ARG {String(i+1).padStart(2,"0")}</span>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 600, lineHeight: 1.4 }}>{arg.argument}</div>
@@ -418,7 +418,7 @@ function DebateTab() {
 
         <div>
           {output.keyTerms.length > 0 && (
-            <div style={{ border: "1px solid var(--ink)", padding: "16px", marginBottom: 14 }}>
+            <div style={{ border: "none", padding: "16px", marginBottom: 14 }}>
               <div className="mono cin" style={{ marginBottom: 10 }}>Key terms</div>
               {output.keyTerms.map((t, i) => (
                 <div key={i} style={{ marginBottom: 10 }}>
@@ -429,7 +429,7 @@ function DebateTab() {
             </div>
           )}
           {output.practiceQs.length > 0 && (
-            <div style={{ border: "1px solid var(--ink)", padding: "16px" }}>
+            <div style={{ border: "none", padding: "16px" }}>
               <div className="mono cin" style={{ marginBottom: 10 }}>Practice questions</div>
               {output.practiceQs.map((q, i) => (
                 <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, marginBottom: 8, color: "var(--ink-2)" }}>{String(i+1).padStart(2,"0")}. {q}</div>
@@ -449,12 +449,12 @@ function DebateTab() {
       <div style={{ marginBottom: 16 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Debate motion *</div>
         <input value={motion} onChange={e => setMotion(e.target.value)} placeholder="e.g. This house believes AI will do more harm than good &middot; Social media should be banned for under-16s&hellip;"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Prepare</div>
-          <select value={side} onChange={e => setSide(e.target.value as "both"|"for"|"against")} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={side} onChange={e => setSide(e.target.value as "both"|"for"|"against")} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             <option value="both">Both sides</option>
             <option value="for">For the motion only</option>
             <option value="against">Against only</option>
@@ -462,7 +462,7 @@ function DebateTab() {
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
-          <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             {["GCSE","A-Level","IB","University","General"].map(l => <option key={l}>{l}</option>)}
           </select>
         </div>
@@ -509,7 +509,7 @@ function PresentationTab() {
           <button className="btn ghost" onClick={() => setDeck(null)} style={{ cursor: "pointer" }}>New deck</button>
         </div>
       </div>
-      <div style={{ display: "flex", height: 600, border: "1px solid var(--ink)", overflow: "hidden" }}>
+      <div style={{ display: "flex", height: 600, border: "none", overflow: "hidden" }}>
         {/* Slide list */}
         <div style={{ width: 220, borderRight: "1px solid var(--ink)", overflowY: "auto", flexShrink: 0 }}>
           {deck.slides.map((s, i) => (
@@ -524,7 +524,7 @@ function PresentationTab() {
         {/* Slide detail */}
         <div style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
-            <div style={{ border: "2px solid var(--ink)", padding: "48px 56px", marginBottom: 24, minHeight: 300, background: "var(--paper)", aspectRatio: "16/9", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ border: "none", padding: "48px 56px", marginBottom: 24, minHeight: 300, background: "var(--paper)", aspectRatio: "16/9", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 700, fontStyle: "italic", marginBottom: 24, letterSpacing: "-0.02em" }}>{deck.slides[selected].title}</div>
               <ul style={{ margin: 0, paddingLeft: 20 }}>
                 {deck.slides[selected].bullets.map((b, i) => (
@@ -537,8 +537,8 @@ function PresentationTab() {
               <AIOutput text={deck.slides[selected].speakerNote} />
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setSelected(s => Math.max(0, s-1))} disabled={selected === 0} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: selected === 0 ? 0.3 : 1 }}>&larr; Prev</button>
-              <button onClick={() => setSelected(s => Math.min(deck.slides.length-1, s+1))} disabled={selected === deck.slides.length-1} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: selected === deck.slides.length-1 ? 0.3 : 1 }}>Next &rarr;</button>
+              <button onClick={() => setSelected(s => Math.max(0, s-1))} disabled={selected === 0} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: selected === 0 ? 0.3 : 1 }}>&larr; Prev</button>
+              <button onClick={() => setSelected(s => Math.min(deck.slides.length-1, s+1))} disabled={selected === deck.slides.length-1} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: selected === deck.slides.length-1 ? 0.3 : 1 }}>Next &rarr;</button>
             </div>
             {deck.advice && (
               <div style={{ marginTop: 24, border: "1px solid var(--rule)", padding: "14px 18px" }}>
@@ -560,12 +560,12 @@ function PresentationTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic *</div>
         <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Climate Change and Food Security, Quantum Computing, Shakespeare&apos;s use of tragedy&hellip;"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Audience</div>
-          <select value={audience} onChange={e => setAudience(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={audience} onChange={e => setAudience(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             <option value="class">Classmates</option>
             <option value="teacher">Teacher / examiner</option>
             <option value="university">University panel</option>
@@ -575,13 +575,13 @@ function PresentationTab() {
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration (min)</div>
-          <select value={duration} onChange={e => setDuration(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={duration} onChange={e => setDuration(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             {["5","7","10","15","20","30"].map(d => <option key={d} value={d}>{d} minutes</option>)}
           </select>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Style</div>
-          <select value={style} onChange={e => setStyle(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={style} onChange={e => setStyle(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             <option value="academic">Academic</option>
             <option value="persuasive">Persuasive</option>
             <option value="informative">Informative</option>

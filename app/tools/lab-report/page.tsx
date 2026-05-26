@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -123,7 +123,7 @@ export default function LabReportPage() {
         <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Experiment name / title</div>
           <input value={experiment} onChange={e => setExp(e.target.value)} placeholder="e.g. Effect of temperature on enzyme activity"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
 
         <div style={{ marginBottom: 14 }}>

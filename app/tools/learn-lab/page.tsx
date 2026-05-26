@@ -55,7 +55,7 @@ type Connection = { conceptA: string; conceptB: string; links: { type: string; d
 function FlashcardView({ cards }: { cards: Flashcard[] }) {
   const [flip, setFlip] = useState<Record<number, boolean>>({});
   return (
-    <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)" }}>
+    <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none" }}>
       {cards.map((c, i) => (
         <div key={i} onClick={() => setFlip((p) => ({ ...p, [i]: !p[i] }))}
           style={{ padding: "20px 18px", minHeight: 100, cursor: "pointer", borderRight: i % 2 === 0 ? "1px solid var(--ink)" : "none", borderBottom: i < cards.length - 2 ? "1px solid var(--ink)" : "none", background: flip[i] ? "var(--ink)" : "var(--paper-2)", color: flip[i] ? "var(--paper)" : "var(--ink)", transition: "background 200ms, color 200ms" }}>
@@ -95,7 +95,7 @@ function QuizView({ items }: { items: QuizItem[] }) {
           </div>
         );
       })}
-      {done && <div style={{ padding: "16px 18px", border: "1px solid var(--ink)", background: "var(--paper-2)", marginTop: 4 }}><div className="mono cin">Score</div><div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{score}/{items.length}</div></div>}
+      {done && <div style={{ padding: "16px 18px", border: "none", background: "var(--paper-2)", marginTop: 4 }}><div className="mono cin">Score</div><div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{score}/{items.length}</div></div>}
     </div>
   );
 }
@@ -127,7 +127,7 @@ function PracticeView({ items }: { items: NotesPracticeQ[] }) {
           </div>
         );
       })}
-      {done && <div style={{ padding: "16px 18px", border: "1px solid var(--ink)", background: "var(--paper-2)", marginTop: 4 }}><div className="mono cin">Practice Score</div><div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{score}/{items.length}</div><div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>{score === items.length ? "Perfect — you've got this topic." : score >= items.length / 2 ? "Good start — review the concept once more." : "Revisit the concept section above."}</div></div>}
+      {done && <div style={{ padding: "16px 18px", border: "none", background: "var(--paper-2)", marginTop: 4 }}><div className="mono cin">Practice Score</div><div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{score}/{items.length}</div><div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>{score === items.length ? "Perfect — you've got this topic." : score >= items.length / 2 ? "Good start — review the concept once more." : "Revisit the concept section above."}</div></div>}
     </div>
   );
 }
@@ -239,10 +239,10 @@ function DoubtTab() {
             <textarea value={question} onChange={(e) => setQuestion(e.target.value)}
               placeholder={"Describe the problem clearly — or upload a photo of it below.\n\nExamples:\n— A ball is thrown at 30° with 20 m/s. Find max height.\n— Explain why noble gases are unreactive.\n— Differentiate f(x) = 3x² + 2x − 5"}
               rows={8}
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "none", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
             <div style={{ marginTop: 12 }}>
               {image ? (
-                <div style={{ border: "1px solid var(--ink)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, background: "var(--paper-2)" }}>
+                <div style={{ border: "none", padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, background: "var(--paper-2)" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={image} alt="uploaded" style={{ width: 56, height: 56, objectFit: "cover", border: "1px solid var(--rule)" }} />
                   <div style={{ flex: 1 }}>
@@ -268,7 +268,7 @@ function DoubtTab() {
           {loading && <AIThinking />}
           {output && !loading && (
             <div>
-              <div style={{ border: "1px solid var(--ink)" }}>
+              <div style={{ border: "none" }}>
                 <div style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--ink)" }}>
                   <div className="mono cin" style={{ marginBottom: 12 }}>Worked solution</div>
                   <AIOutput text={output.solution} />
@@ -315,7 +315,7 @@ function DoubtTab() {
                         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>Tests: {q.targetsConcept}</div>
                         <textarea value={crossAnswers[i]} onChange={e => setCrossAnswers(a => { const n = [...a]; n[i] = e.target.value; return n; })}
                           placeholder="Write your answer here…" rows={3} disabled={crossPhase === "evaluating"}
-                          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", opacity: crossPhase === "evaluating" ? 0.6 : 1 }} />
+                          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", opacity: crossPhase === "evaluating" ? 0.6 : 1 }} />
                       </div>
                     ))}
                     {crossError && <AIErrorDisplay error={crossError} inline />}
@@ -425,7 +425,7 @@ function FeynmanTab() {
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Concept to explain</div>
         <input value={concept} onChange={e => setConcept(e.target.value)} placeholder="e.g. Photosynthesis, Integration by parts, Keynesian economics…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <button className="btn" onClick={() => { if (concept.trim()) setPhase("explaining"); }} disabled={!concept.trim()} style={{ width: "100%", opacity: !concept.trim() ? 0.4 : 1 }}>Start explaining →</button>
     </div>
@@ -437,7 +437,7 @@ function FeynmanTab() {
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 24, fontWeight: 500, fontStyle: "italic", margin: "0 0 8px" }}>Explain {concept} as if teaching a 12-year-old.</h2>
       <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6, margin: "0 0 20px" }}>Write freely — don&apos;t look anything up. Use simple language. If you find yourself stuck, that&apos;s the point.</p>
       <textarea value={explanation} onChange={e => setExplanation(e.target.value)} placeholder={`Explain ${concept} simply. What is it? How does it work? Why does it matter?`} rows={12}
-        style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7, border: "1px solid var(--ink)", background: "var(--paper)", padding: "16px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", marginBottom: 12 }} />
+        style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7, border: "none", background: "var(--paper)", padding: "16px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", marginBottom: 12 }} />
       {error && <div style={{ marginBottom: 12 }}><AIErrorDisplay error={error} onRetry={submitExplanation} inline /></div>}
       <div style={{ display: "flex", gap: 10 }}>
         <button className="btn ghost" onClick={() => setPhase("setup")}>← Back</button>
@@ -473,7 +473,7 @@ function FeynmanTab() {
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 10 }}>This tests: {q.gap}</div>
           <textarea value={probeAnswers[i]} onChange={e => { setProbeAnswers(a => { const n = [...a]; n[i] = e.target.value; return n; }); if (phase === "probing") setPhase("answering"); }}
             placeholder="Answer simply…" rows={3} disabled={phase === "evaluating"}
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", opacity: phase === "evaluating" ? 0.6 : 1 }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", opacity: phase === "evaluating" ? 0.6 : 1 }} />
         </div>
       ))}
       {error && <div style={{ marginBottom: 12 }}><AIErrorDisplay error={error} onRetry={submitAnswers} inline /></div>}
@@ -490,7 +490,7 @@ function FeynmanTab() {
         <div className="mono cin">Your knowledge map — {concept}</div>
         <button className="btn ghost" onClick={restart} style={{ fontSize: 11 }}>New concept</button>
       </div>
-      <div style={{ display: "flex", gap: 24, marginBottom: 32, padding: "24px 28px", border: "2px solid var(--ink)" }} className="mob-col">
+      <div style={{ display: "flex", gap: 24, marginBottom: 32, padding: "24px 28px", border: "none" }} className="mob-col">
         <div style={{ textAlign: "center", flexShrink: 0 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 56, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{evalData.score}/{evalData.outOf}</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 4 }}>Feynman score</div>
@@ -514,7 +514,7 @@ function FeynmanTab() {
       <div className="mono cin" style={{ marginBottom: 14 }}>Question breakdown</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 32 }}>
         {evalData.answers.map((a, i) => (
-          <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < evalData.answers.length - 1 ? "none" : "1px solid var(--ink)", padding: "16px 20px" }}>
+          <div key={i} style={{ border: "none", borderBottom: i < evalData.answers.length - 1 ? "none" : "1px solid var(--ink)", padding: "16px 20px" }}>
             <div style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "flex-start" }}>
               <span className="mono" style={{ fontSize: 10, color: verdictColor(a.verdict), flexShrink: 0, fontWeight: 700 }}>{a.verdict === "correct" ? "✓" : a.verdict === "partial" ? "◑" : "✗"} Q{i + 1}</span>
               <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontStyle: "italic", color: "var(--ink)", lineHeight: 1.5 }}>&ldquo;{a.q}&rdquo;</div>
@@ -612,9 +612,9 @@ function NotesTab() {
       {mode === "simplify" && (
         <>
           {showHistory && history.length > 0 && (
-            <div style={{ marginBottom: 24, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "20px" }}>
+            <div style={{ marginBottom: 24, border: "none", background: "var(--paper-2)", padding: "20px" }}>
               <div className="mono cin" style={{ marginBottom: 12 }}>Recent notes · {history.length} saved</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 0, border: "1px solid var(--ink)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 0, border: "none" }}>
                 {history.map((h, i) => (
                   <div key={h.id} style={{ padding: "14px 16px", borderRight: "1px solid var(--rule)", borderBottom: i < history.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                     <button onClick={() => loadFromHistory(h)} style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", flex: 1, padding: 0 }}>
@@ -639,7 +639,7 @@ function NotesTab() {
               )}
               <div className="mono cin" style={{ marginBottom: 14 }}>Paste your notes or chapter</div>
               <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Paste your textbook excerpt, lecture notes, or any study material here. The longer and denser, the better." rows={notesOut ? 16 : 20}
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "none", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
               <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
                 <button className="btn" onClick={simplify} disabled={notesLoading || !input.trim()} style={{ opacity: notesLoading || !input.trim() ? 0.5 : 1 }}>{notesLoading ? "Analysing…" : "Simplify →"}</button>
                 {notesOut && <button className="btn ghost" onClick={() => { setNotesOut(null); setInput(""); }}>Clear</button>}
@@ -653,7 +653,7 @@ function NotesTab() {
                     <div key={label} style={{ flex: 1, padding: "12px 8px", background: "transparent", borderRadius: 8, fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", textAlign: "center" }}>{label}</div>
                   ))}
                 </div>
-                <div style={{ border: "1px solid var(--ink)", borderTop: "none", padding: "24px 20px" }}><AIThinking /></div>
+                <div style={{ border: "none", padding: "24px 20px" }}><AIThinking /></div>
               </div>
             )}
             {notesOut && !notesLoading && (
@@ -666,7 +666,7 @@ function NotesTab() {
                     </button>
                   ))}
                 </div>
-                <div style={{ border: "1px solid var(--ink)", borderTop: "none", padding: "24px 20px" }}>
+                <div style={{ border: "none", padding: "24px 20px" }}>
                   {notesTab === "explanation" && <AIOutput text={notesOut.explanation} />}
                   {notesTab === "summary" && (
                     <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none" }}>
@@ -700,7 +700,7 @@ function NotesTab() {
               </div>
             )}
             <div className="mono cin" style={{ marginBottom: 14 }}>01 · Choose a subject</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 24 }}>
               {NOTES_SUBJECTS.map((s, i) => (
                 <button key={s} onClick={() => setSubject(s)}
                   style={{ padding: "10px 14px", background: subject === s ? "var(--ink)" : "transparent", color: subject === s ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", borderBottom: i < NOTES_SUBJECTS.length - 2 ? "1px solid var(--rule)" : "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.05em", textAlign: "left", textTransform: "uppercase" }}>
@@ -711,7 +711,7 @@ function NotesTab() {
             <div className="mono cin" style={{ marginBottom: 14 }}>02 · Enter a topic</div>
             <input value={topic} onChange={(e) => setTopic(e.target.value)} onKeyDown={(e) => e.key === "Enter" && learn()}
               placeholder={subject ? `e.g. ${subject === "Mathematics" ? "Integration by parts" : subject === "Physics" ? "Photoelectric effect" : "Enter a specific topic…"}` : "Select a subject first…"}
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", outline: "none", boxSizing: "border-box", marginBottom: 14 }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", outline: "none", boxSizing: "border-box", marginBottom: 14 }} />
             <button className="btn" onClick={learn} disabled={learnLoading || !subject || !topic.trim()} style={{ opacity: learnLoading || !subject || !topic.trim() ? 0.5 : 1 }}>
               {learnLoading ? "Generating lesson…" : "Teach me →"}
             </button>
@@ -733,7 +733,7 @@ function NotesTab() {
                   </button>
                 ))}
               </div>
-              <div style={{ border: "1px solid var(--ink)", borderTop: "none", padding: "24px 20px" }}>
+              <div style={{ border: "none", padding: "24px 20px" }}>
                 {lessonTab === "concept" && (
                   <div>
                     <AIOutput text={lesson.concept} noBorder />
@@ -811,8 +811,8 @@ function MindMapTab() {
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>Any topic. Full concept breakdown.</h2>
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, marginBottom: 20 }}>
         <input value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && generate()} placeholder="e.g. Photosynthesis, French Revolution, Machine Learning, Supply and Demand…"
-          style={{ fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
-        <select value={detail} onChange={e => setDetail(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 10px", color: "var(--ink)" }}>
+          style={{ fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
+        <select value={detail} onChange={e => setDetail(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "12px 10px", color: "var(--ink)" }}>
           <option value="brief">Overview (3 branches)</option>
           <option value="medium">Standard (5 branches)</option>
           <option value="deep">Deep dive (7+ branches)</option>
@@ -873,9 +873,9 @@ function ConceptConnectTab() {
         <button className="btn ghost" onClick={() => setResult(null)}>New connection</button>
       </div>
       <div style={{ display: "flex", gap: 12, marginBottom: 24, alignItems: "center" }}>
-        <div style={{ flex: 1, border: "2px solid var(--ink)", padding: "14px 18px", textAlign: "center" }}><div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptA}</div></div>
+        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}><div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptA}</div></div>
         <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 20, flexShrink: 0 }}>↔</div>
-        <div style={{ flex: 1, border: "2px solid var(--ink)", padding: "14px 18px", textAlign: "center" }}><div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptB}</div></div>
+        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}><div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptB}</div></div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
         {result.links.map((l, i) => (
@@ -886,7 +886,7 @@ function ConceptConnectTab() {
           </div>
         ))}
       </div>
-      <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
+      <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Deep Insight</div>
         <AIOutput text={result.deepInsight} variant="principle" />
       </div>
@@ -912,12 +912,12 @@ function ConceptConnectTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>First concept <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={conceptA} onChange={e => setConceptA(e.target.value)} placeholder="e.g. Natural Selection, Supply and Demand, WW1…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Second concept <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={conceptB} onChange={e => setConceptB(e.target.value)} placeholder="e.g. Capitalism, Entropy, Nationalism…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 20, padding: "12px 16px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Try cross-subject pairs for surprising insights. E.g.: &quot;Mitosis&quot; + &quot;Industrial Revolution&quot; or &quot;Keynesian Economics&quot; + &quot;WW2&quot;</div>

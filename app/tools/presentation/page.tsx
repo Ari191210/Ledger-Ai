@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -55,7 +55,7 @@ export default function PresentationPage() {
         <div style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
             {/* Slide preview */}
-            <div style={{ border: "2px solid var(--ink)", padding: "48px 56px", marginBottom: 24, minHeight: 300, background: "var(--paper)", aspectRatio: "16/9", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ border: "none", padding: "48px 56px", marginBottom: 24, minHeight: 300, background: "var(--paper)", aspectRatio: "16/9", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 700, fontStyle: "italic", marginBottom: 24, letterSpacing: "-0.02em" }}>{deck.slides[selected].title}</div>
               <ul style={{ margin: 0, paddingLeft: 20 }}>
                 {deck.slides[selected].bullets.map((b, i) => (
@@ -71,8 +71,8 @@ export default function PresentationPage() {
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setSelected(s => Math.max(0, s-1))} disabled={selected === 0} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: selected === 0 ? 0.3 : 1 }}>← Prev</button>
-              <button onClick={() => setSelected(s => Math.min(deck.slides.length-1, s+1))} disabled={selected === deck.slides.length-1} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: selected === deck.slides.length-1 ? 0.3 : 1 }}>Next →</button>
+              <button onClick={() => setSelected(s => Math.max(0, s-1))} disabled={selected === 0} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: selected === 0 ? 0.3 : 1 }}>← Prev</button>
+              <button onClick={() => setSelected(s => Math.min(deck.slides.length-1, s+1))} disabled={selected === deck.slides.length-1} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: selected === deck.slides.length-1 ? 0.3 : 1 }}>Next →</button>
             </div>
 
             {deck.advice && (
@@ -99,12 +99,12 @@ export default function PresentationPage() {
         <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic *</div>
           <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Climate Change and Food Security, Quantum Computing, Shakespeare's use of tragedy…"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
           <div>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Audience</div>
-            <select value={audience} onChange={e => setAudience(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
+            <select value={audience} onChange={e => setAudience(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
               <option value="class">Classmates</option>
               <option value="teacher">Teacher / examiner</option>
               <option value="university">University panel</option>
@@ -114,13 +114,13 @@ export default function PresentationPage() {
           </div>
           <div>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration (min)</div>
-            <select value={duration} onChange={e => setDuration(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
+            <select value={duration} onChange={e => setDuration(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
               {["5","7","10","15","20","30"].map(d => <option key={d} value={d}>{d} minutes</option>)}
             </select>
           </div>
           <div>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Style</div>
-            <select value={style} onChange={e => setStyle(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
+            <select value={style} onChange={e => setStyle(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
               <option value="academic">Academic</option>
               <option value="persuasive">Persuasive</option>
               <option value="informative">Informative</option>

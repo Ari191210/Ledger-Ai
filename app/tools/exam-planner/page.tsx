@@ -118,19 +118,19 @@ function HalfLifeTab() {
           <span style={{ color: "var(--ink-2)" }}>Chapter name | weeks ago | mastery 1–5</span>
         </div>
         <textarea value={chaptersLog} onChange={e => setChaptersLog(e.target.value)} placeholder={HL_PLACEHOLDER} rows={10}
-          style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--mono)", fontSize: 11, lineHeight: 1.75, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", outline: "none", resize: "vertical" }} />
+          style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--mono)", fontSize: 11, lineHeight: 1.75, border: "none", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", outline: "none", resize: "vertical" }} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 16 }}>
           <div>
             <div className="mono cin" style={{ marginBottom: 8, fontSize: 9 }}>02 · Exam</div>
             <select value={exam} onChange={e => setExam(e.target.value)}
-              style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "10px 12px", color: "var(--ink)", outline: "none" }}>
+              style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper-2)", padding: "10px 12px", color: "var(--ink)", outline: "none" }}>
               {HL_EXAM_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
           </div>
           <div>
             <div className="mono cin" style={{ marginBottom: 8, fontSize: 9 }}>03 · Subject</div>
             <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Physics, Chemistry…"
-              style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "10px 12px", color: "var(--ink)", outline: "none" }} />
+              style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper-2)", padding: "10px 12px", color: "var(--ink)", outline: "none" }} />
           </div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -294,7 +294,7 @@ function PredictTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic or chapter <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. The Cold War, Organic Chemistry, Calculus…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject (optional)</div>
@@ -392,7 +392,7 @@ export default function RevisionPlannerPage() {
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Spaced repetition, automatically</div>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 500, fontStyle: "italic", margin: "0 0 28px" }}>Add your exams. Get your plan.</h2>
-          <div style={{ border: "1px solid var(--ink)", padding: "20px", marginBottom: 24 }}>
+          <div style={{ border: "none", padding: "20px", marginBottom: 24 }}>
             <div style={{ marginBottom: 12 }}>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject / paper name</div>
               <input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="e.g. Economics Paper 1"
@@ -486,7 +486,7 @@ export default function RevisionPlannerPage() {
       {/* ── SPACED REVIEW ── */}
       {tab === "review" && (
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 960, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "1px solid var(--ink)", marginBottom: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "none", marginBottom: 32 }}>
             {[
               { label: "Due today",        value: dueToday.length,    color: dueToday.length > 0 ? "var(--cinnabar-ink)" : "var(--ink)" },
               { label: "Due this week",    value: dueThisWeek.length, color: "var(--ink)" },
@@ -502,7 +502,7 @@ export default function RevisionPlannerPage() {
           {dueToday.length > 0 && (
             <>
               <div className="mono cin" style={{ marginBottom: 12 }}>Due today — review these now</div>
-              <div style={{ border: "1px solid var(--ink)", marginBottom: 28 }}>
+              <div style={{ border: "none", marginBottom: 28 }}>
                 {dueToday.map((item, i) => (
                   <div key={item.id}>
                     <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -559,10 +559,10 @@ export default function RevisionPlannerPage() {
           <div className="mono cin" style={{ marginBottom: 12 }}>Track a new topic</div>
           <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <input value={newSubject} onChange={e => setNewSubject(e.target.value)} placeholder="Subject"
-              style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
+              style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
             <input value={newTopic} onChange={e => setNewTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && addReviewItem()}
               placeholder="Topic you got wrong (e.g. Organic mechanisms)"
-              style={{ flex: 2, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
+              style={{ flex: 2, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
             <button className="btn" onClick={addReviewItem} disabled={!newSubject.trim() || !newTopic.trim()} style={{ opacity: newSubject.trim() && newTopic.trim() ? 1 : 0.4 }}>Track</button>
           </div>
           <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 36 }}>

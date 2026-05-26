@@ -34,7 +34,7 @@ export default function DebatePage() {
         <button className="btn ghost" onClick={() => setOutput(null)}>New motion</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 600, marginBottom: 28, padding: "16px 20px", border: "2px solid var(--ink)", lineHeight: 1.3 }}>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 600, marginBottom: 28, padding: "16px 20px", border: "none", lineHeight: 1.3 }}>
           &ldquo;{output.motion}&rdquo;
         </div>
 
@@ -46,7 +46,7 @@ export default function DebatePage() {
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 28 }}>
           <div>
             {(view === "for" ? output.for : output.against).map((arg, i) => (
-              <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < 2 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
+              <div key={i} style={{ border: "none", borderBottom: i < 2 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
                 <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
                   <span className="mono" style={{ color: view === "for" ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2 }}>ARG {String(i+1).padStart(2,"0")}</span>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 600, lineHeight: 1.4 }}>{arg.argument}</div>
@@ -67,7 +67,7 @@ export default function DebatePage() {
 
           <div>
             {output.keyTerms.length > 0 && (
-              <div style={{ border: "1px solid var(--ink)", padding: "16px", marginBottom: 14 }}>
+              <div style={{ border: "none", padding: "16px", marginBottom: 14 }}>
                 <div className="mono cin" style={{ marginBottom: 10 }}>Key terms</div>
                 {output.keyTerms.map((t, i) => (
                   <div key={i} style={{ marginBottom: 10 }}>
@@ -78,7 +78,7 @@ export default function DebatePage() {
               </div>
             )}
             {output.practiceQs.length > 0 && (
-              <div style={{ border: "1px solid var(--ink)", padding: "16px" }}>
+              <div style={{ border: "none", padding: "16px" }}>
                 <div className="mono cin" style={{ marginBottom: 10 }}>Practice questions</div>
                 {output.practiceQs.map((q, i) => (
                   <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, marginBottom: 8, color: "var(--ink-2)" }}>{String(i+1).padStart(2,"0")}. {q}</div>
@@ -108,12 +108,12 @@ export default function DebatePage() {
         <div style={{ marginBottom: 16 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Debate motion *</div>
           <input value={motion} onChange={e => setMotion(e.target.value)} placeholder="e.g. This house believes AI will do more harm than good · Social media should be banned for under-16s…"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
           <div>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Prepare</div>
-            <select value={side} onChange={e => setSide(e.target.value as "both"|"for"|"against")} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
+            <select value={side} onChange={e => setSide(e.target.value as "both"|"for"|"against")} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
               <option value="both">Both sides</option>
               <option value="for">For the motion only</option>
               <option value="against">Against only</option>
@@ -121,7 +121,7 @@ export default function DebatePage() {
           </div>
           <div>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
-            <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
+            <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
               {["GCSE","A-Level","IB","University","General"].map(l => <option key={l}>{l}</option>)}
             </select>
           </div>

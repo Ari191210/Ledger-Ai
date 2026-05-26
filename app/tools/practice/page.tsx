@@ -107,7 +107,7 @@ export default function PracticeSuitePage() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic {mode === "practice" ? <span style={{ color: "var(--cinnabar-ink)" }}>*</span> : "(optional)"}</div>
         <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Integration by parts, Circular motion…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
@@ -209,7 +209,7 @@ export default function PracticeSuitePage() {
                   </div>
                 )}
                 {revealed[p.number] && (
-                  <div style={{ marginTop: 12, padding: "16px 18px", border: "2px solid var(--ink)", background: "var(--paper-2)" }}>
+                  <div style={{ marginTop: 12, padding: "16px 18px", border: "none", background: "var(--paper-2)" }}>
                     <div className="mono cin" style={{ marginBottom: 10 }}>Worked solution</div>
                     <AIOutput text={p.solution} />
                   </div>
@@ -231,7 +231,7 @@ export default function PracticeSuitePage() {
           <SharedSetup />
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Questions</div>
-            <select value={mockCount} onChange={e => setMockCount(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
+            <select value={mockCount} onChange={e => setMockCount(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
               {["5","10","15","20"].map(n => <option key={n} value={n}>{n} questions</option>)}
             </select>
           </div>
@@ -288,9 +288,9 @@ export default function PracticeSuitePage() {
                   })}
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => setCurrent(c => Math.max(0, c - 1))} disabled={current === 0} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: current === 0 ? 0.3 : 1 }}>← Prev</button>
+                  <button onClick={() => setCurrent(c => Math.max(0, c - 1))} disabled={current === 0} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: current === 0 ? 0.3 : 1 }}>← Prev</button>
                   {current < totalQ - 1
-                    ? <button onClick={() => setCurrent(c => c + 1)} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer" }}>Next →</button>
+                    ? <button onClick={() => setCurrent(c => c + 1)} style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>Next →</button>
                     : <button onClick={submitMock} className="btn" style={{ flex: 1 }}>Submit exam →</button>
                   }
                 </div>
@@ -305,7 +305,7 @@ export default function PracticeSuitePage() {
         const gradeColor = pct >= 70 ? "#2d7a3c" : pct >= 50 ? "#c97a1a" : "#c44b2a";
         return (
           <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 900, margin: "0 auto" }}>
-            <div style={{ display: "flex", gap: 24, marginBottom: 36, padding: "28px 32px", border: "2px solid var(--ink)" }} className="mob-col">
+            <div style={{ display: "flex", gap: 24, marginBottom: 36, padding: "28px 32px", border: "none" }} className="mob-col">
               <div style={{ textAlign: "center", flexShrink: 0 }}>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 700, color: gradeColor, lineHeight: 1 }}>{grade}</div>
                 <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginTop: 4 }}>{pct}% · {score}/{totalQ} correct</div>
@@ -328,7 +328,7 @@ export default function PracticeSuitePage() {
                 const correct    = userAns === q.answer;
                 const unanswered = userAns === null;
                 return (
-                  <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < totalQ - 1 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
+                  <div key={i} style={{ border: "none", borderBottom: i < totalQ - 1 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
                     <div style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-start" }}>
                       <span className="mono" style={{ fontSize: 10, color: unanswered ? "var(--ink-3)" : correct ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2, fontWeight: 700 }}>
                         {unanswered ? "—" : correct ? "✓" : "✗"} Q{i + 1}

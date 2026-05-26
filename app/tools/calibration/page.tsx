@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
@@ -152,7 +152,7 @@ export default function CalibrationPage() {
           <div style={{ marginBottom: 14 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic or chapter</div>
             <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Integration, Organic Chemistry, World War II…"
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
           </div>
 
           <div style={{ marginBottom: 28 }}>
@@ -245,7 +245,7 @@ export default function CalibrationPage() {
       {phase === "result" && (
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 900, margin: "0 auto" }}>
           {/* Summary banner */}
-          <div style={{ display: "flex", gap: 24, marginBottom: 36, padding: "28px 32px", border: "2px solid var(--ink)" }} className="mob-col">
+          <div style={{ display: "flex", gap: 24, marginBottom: 36, padding: "28px 32px", border: "none" }} className="mob-col">
             <div style={{ textAlign: "center", flexShrink: 0 }}>
               <div style={{ fontFamily: "var(--serif)", fontSize: 56, fontWeight: 700, color: calColor, lineHeight: 1 }}>{calibrationScore}%</div>
               <div className="mono" style={{ color: calColor, fontSize: 9, marginTop: 4 }}>{calLabel}</div>
@@ -268,7 +268,7 @@ export default function CalibrationPage() {
               const tc = t.calibration === "overconfident" ? "#c44b2a" : t.calibration === "underconfident" ? "#1a6091" : "#2d7a3c";
               const tl = t.calibration === "overconfident" ? "⚠ Overconfident" : t.calibration === "underconfident" ? "↑ Underconfident" : t.calibration === "accurate" ? "✓ Accurate" : "≈ Calibrated";
               return (
-                <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < topicResults.length - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px", display: "flex", gap: 16, alignItems: "center" }}>
+                <div key={i} style={{ border: "none", borderBottom: i < topicResults.length - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px", display: "flex", gap: 16, alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{t.subtopic}</div>
                     <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>
@@ -291,7 +291,7 @@ export default function CalibrationPage() {
               const confIdx = Math.round(conf * 4);
               const mismatch = (correct && conf < 0.5) || (!correct && conf >= 0.75);
               return (
-                <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < total - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px" }}>
+                <div key={i} style={{ border: "none", borderBottom: i < total - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
                     <span className="mono" style={{ fontSize: 10, color: correct ? "#2d7a3c" : "#c44b2a", flexShrink: 0, fontWeight: 700 }}>{correct ? "✓" : "✗"} Q{i + 1}</span>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 13, flex: 1 }}>{q.q}</div>

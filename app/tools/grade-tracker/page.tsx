@@ -211,7 +211,7 @@ function MarksTab() {
         </div>
         <div>
           <div className="mono cin">Output · Your results</div>
-          <div style={{ marginTop: 14, border: "1px solid var(--ink)", padding: 28 }}>
+          <div style={{ marginTop: 14, border: "none", padding: 28 }}>
             <div style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 20, marginBottom: 20 }}>
               <div className="mono" style={{ color: "var(--ink-3)" }}>Current weighted average</div>
               <div className="mob-n96" style={{ fontFamily: "var(--serif)", fontSize: 96, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.9, marginTop: 6 }}>{currentPct.toFixed(1)}<span style={{ fontSize: 32 }}>%</span></div>
@@ -294,11 +294,11 @@ function ScoreTab() {
           <div className="mono" style={{ marginTop: 10, color: "var(--ink-3)" }}>out of 1000</div>
         </div>
         <div style={{ flex: 1, minWidth: 240 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, border: "1px solid var(--ink)", padding: "6px 14px", marginBottom: 16 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, border: "none", padding: "6px 14px", marginBottom: 16 }}>
             <span style={{ fontFamily: "var(--serif)", fontSize: 16, fontStyle: "italic", fontWeight: 600 }}>{tier.label}</span>
             {tier.nextAt < 1000 && <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{tier.nextAt - score.total} pts to {tier.next}</span>}
           </div>
-          <div style={{ height: 12, background: "var(--paper-2)", border: "1px solid var(--ink)", position: "relative", overflow: "hidden" }}>
+          <div style={{ height: 12, background: "var(--paper-2)", border: "none", position: "relative", overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${(score.total / 1000) * 100}%`, background: "var(--ink)", transition: "width 1s cubic-bezier(0.4,0,0.2,1)" }} />
             {[200, 400, 600, 800].map(t => <div key={t} style={{ position: "absolute", top: 0, bottom: 0, left: `${t / 10}%`, width: 1, background: "var(--paper)", opacity: 0.3 }} />)}
           </div>
@@ -334,7 +334,7 @@ function ScoreTab() {
         </div>
         <div>
           {score.actions.length > 0 && (
-            <div style={{ border: "1px solid var(--ink)", marginBottom: 32 }}>
+            <div style={{ border: "none", marginBottom: 32 }}>
               <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)", background: "var(--ink)" }}><div className="mono" style={{ color: "var(--paper)", letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 9 }}>Top actions to gain points today</div></div>
               {score.actions.map((action, i) => <div key={i} style={{ padding: "16px 20px", borderBottom: i < score.actions.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 14, alignItems: "flex-start" }}><span className="mono" style={{ color: "var(--cinnabar-ink)", flexShrink: 0, marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span><span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{action}</span></div>)}
             </div>
@@ -383,7 +383,7 @@ function PeerHeatmapTab() {
         ))}
       </div>
       <div className="mono cin" style={{ marginBottom: 12 }}>Top 5 — most common struggle topics</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--ink)", marginBottom: 36 }} className="mob-col">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1, background: "var(--rule)", border: "none", marginBottom: 36 }} className="mob-col">
         {trending.map((t, i) => (
           <div key={i} style={{ padding: "16px 14px", background: heatBg(t.count) }}>
             <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginBottom: 4 }}>#{i + 1}</div>

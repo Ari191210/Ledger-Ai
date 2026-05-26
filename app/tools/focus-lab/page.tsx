@@ -32,7 +32,7 @@ function FocusTab() {
         <div>
           <div className="mono cin">α · Focus Timer</div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "1px solid var(--ink)", marginTop: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "none", marginTop: 14 }}>
             {(["work", "break", "longbreak"] as FocusMode[]).map((m, i) => (
               <button key={m} onClick={() => switchMode(m)}
                 style={{ padding: "12px 10px", background: mode === m ? "var(--ink)" : "var(--paper)", color: mode === m ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>
@@ -41,7 +41,7 @@ function FocusTab() {
             ))}
           </div>
 
-          <div style={{ textAlign: "center", padding: "48px 0 24px", border: "1px solid var(--ink)", borderTop: "none", background: "var(--paper-2)" }}>
+          <div style={{ textAlign: "center", padding: "48px 0 24px", border: "none", background: "var(--paper-2)" }}>
             <div className="mob-timer" style={{ fontFamily: "var(--serif)", fontSize: 112, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 1, color: mode === "work" ? "var(--ink)" : "var(--cinnabar-ink)" }}>
               {mm}:{ss}
             </div>
@@ -59,7 +59,7 @@ function FocusTab() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", borderTop: "none" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none" }}>
             {[
               ["Sessions today", String(sessions)],
               ["Streak", `${streak} day${streak !== 1 ? "s" : ""}`],
@@ -76,7 +76,7 @@ function FocusTab() {
         <div>
           <div className="mono cin" style={{ marginBottom: 14 }}>Tasks · This session</div>
 
-          <div style={{ border: "1px solid var(--ink)" }}>
+          <div style={{ border: "none" }}>
             {tasks.map((t, i) => (
               <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderBottom: i < tasks.length - 1 ? "1px solid var(--rule)" : "none", background: t.done ? "var(--paper-2)" : "var(--paper)" }}>
                 <input type="checkbox" checked={t.done}
@@ -272,7 +272,7 @@ function CircuitBreakerTab() {
           onChange={e => setSubject(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") breakCircuit(); }}
           placeholder="e.g. Organic Chemistry, Chapter 3"
-          style={{ width: "100%", padding: "14px 16px", border: "1px solid var(--ink)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 15, outline: "none", boxSizing: "border-box" }}
+          style={{ width: "100%", padding: "14px 16px", border: "none", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 15, outline: "none", boxSizing: "border-box" }}
         />
       </div>
 
@@ -363,7 +363,7 @@ function DebtMeterTab() {
     <div>
       <div className="mono" style={{ color: aptColor, marginBottom: 24 }}>{apt} debt level</div>
 
-      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 32 }}>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 32 }}>
         <div style={{ padding: "32px 28px", borderRight: "1px solid var(--rule)" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Academic Debt Score</div>
           <div style={{ fontFamily: "var(--serif)", fontSize: 96, fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.04em", lineHeight: 0.9, color: aptColor, marginBottom: 8, transition: "color 300ms" }}>
@@ -395,7 +395,7 @@ function DebtMeterTab() {
       </div>
 
       <div className="mono cin" style={{ marginBottom: 12 }}>Subject Ledger</div>
-      <div style={{ border: "1px solid var(--ink)", marginBottom: 24 }}>
+      <div style={{ border: "none", marginBottom: 24 }}>
         {subjects.map((s, i) => (
           <div key={s.id} style={{ padding: "18px 20px", borderBottom: i < subjects.length - 1 ? "1px solid var(--rule)" : "none" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
@@ -434,7 +434,7 @@ function DebtMeterTab() {
       <div style={{ display: "flex", gap: 8, marginBottom: 48 }}>
         <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === "Enter" && addSubject()}
           placeholder="Add a subject…"
-          style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
+          style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
         <button className="btn" onClick={addSubject} disabled={!newName.trim()} style={{ opacity: newName.trim() ? 1 : 0.4, cursor: "pointer" }}>Add</button>
       </div>
 
@@ -512,7 +512,7 @@ function CircadianTab() {
     <div>
       <div className="mono" style={{ color: "var(--cinnabar-ink)", marginBottom: 24 }}>{result.type} Type</div>
 
-      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 32 }}>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, border: "none", marginBottom: 32 }}>
         <div style={{ padding: "24px 20px", borderRight: "1px solid var(--rule)" }}>
           <div className="mono cin" style={{ marginBottom: 10 }}>Sleep time</div>
           <input type="time" value={sleepTime} onChange={e => setSleepTime(e.target.value)}
@@ -534,7 +534,7 @@ function CircadianTab() {
         </div>
       </div>
 
-      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 32 }}>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 0, border: "none", marginBottom: 32 }}>
         <div style={{ padding: "28px 24px", borderRight: "1px solid var(--rule)" }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 8 }}>Your chronotype</div>
           <div style={{ fontFamily: "var(--serif)", fontSize: 44, fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--cinnabar-ink)", marginBottom: 16 }}>

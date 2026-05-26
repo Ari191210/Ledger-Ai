@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -37,7 +37,7 @@ export default function StudyGuidePage() {
         <button className="btn ghost" onClick={() => setGuide(null)}>New guide</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 820, margin: "0 auto" }}>
-        <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 20 }}>
+        <div style={{ border: "none", padding: "16px 20px", marginBottom: 20 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>OVERVIEW</div>
           <AIOutput text={guide.overview} />
         </div>
@@ -61,7 +61,7 @@ export default function StudyGuidePage() {
         ))}
 
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16, marginBottom: 12 }}>
-          <div style={{ border: "2px solid var(--ink)", padding: "14px 16px" }}>
+          <div style={{ border: "none", padding: "14px 16px" }}>
             <div className="mono cin" style={{ marginBottom: 8 }}>Must Know</div>
             {guide.mustKnow.map((m, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 5 }}>· {m}</div>)}
           </div>
@@ -98,7 +98,7 @@ export default function StudyGuidePage() {
         <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic or chapter <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
           <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Photosynthesis, Keynesian Economics, The French Revolution…"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
         <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject (optional)</div>

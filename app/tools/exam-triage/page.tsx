@@ -245,10 +245,10 @@ function CrunchTab() {
       <div>
         <div className="mono cin" style={{ marginBottom: 14 }}>01 · Exam name</div>
         <input value={examName} onChange={e => setExamName(e.target.value)} placeholder="e.g. Physics Board Exam, JEE Main Paper 1"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", outline: "none", boxSizing: "border-box", marginBottom: 28 }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", outline: "none", boxSizing: "border-box", marginBottom: 28 }} />
 
         <div className="mono cin" style={{ marginBottom: 14 }}>02 · Hours until exam</div>
-        <div style={{ border: "1px solid var(--ink)", padding: "20px", marginBottom: 28 }}>
+        <div style={{ border: "none", padding: "20px", marginBottom: 28 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <span style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1 }}>{hoursLeft}</span>
             <span className="mono" style={{ color: "var(--ink-3)" }}>hours left</span>
@@ -265,12 +265,12 @@ function CrunchTab() {
         <div style={{ display: "flex", gap: 0, marginBottom: topics.length > 0 ? 0 : 20 }}>
           <input value={topicInput} onChange={e => setTopicInput(e.target.value)} onKeyDown={e => e.key === "Enter" && addTopic()}
             placeholder="Type a topic, press Enter"
-            style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", borderRight: "none", background: "var(--paper-2)", padding: "12px 14px", color: "var(--ink)", outline: "none" }} />
+            style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", borderRight: "none", background: "var(--paper-2)", padding: "12px 14px", color: "var(--ink)", outline: "none" }} />
           <button onClick={addTopic} className="btn" style={{ borderRadius: 0, flexShrink: 0, padding: "0 20px" }}>+ Add</button>
         </div>
 
         {topics.length > 0 && (
-          <div style={{ border: "1px solid var(--ink)", borderTop: "none", marginBottom: 20 }}>
+          <div style={{ border: "none", marginBottom: 20 }}>
             {topics.map((t, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", borderBottom: i < topics.length - 1 ? "1px solid var(--rule)" : "none" }}>
                 <button onClick={() => setTopics(prev => prev.map((x, idx) => idx === i ? { ...x, status: STATUS_NEXT[x.status] } : x))}
@@ -296,11 +296,11 @@ function CrunchTab() {
       {loading && !plan && <div style={{ paddingTop: 40 }}><AIThinking /></div>}
       {plan && (
         <div>
-          <div style={{ border: "1px solid var(--ink)", padding: "24px", marginBottom: 24 }}>
+          <div style={{ border: "none", padding: "24px", marginBottom: 24 }}>
             <div className="mono cin" style={{ marginBottom: 8 }}>Reality Check</div>
             <AIOutput text={plan.verdict} variant="principle" />
           </div>
-          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 24 }}>
+          <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 24 }}>
             <div style={{ padding: "20px", borderRight: "1px solid var(--rule)" }}>
               <div className="mono cin" style={{ marginBottom: 12 }}>Skip entirely</div>
               {plan.skip.length === 0
@@ -325,7 +325,7 @@ function CrunchTab() {
               ))}
             </div>
           </div>
-          <div style={{ border: "1px solid var(--ink)", marginBottom: 24 }}>
+          <div style={{ border: "none", marginBottom: 24 }}>
             <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}><div className="mono cin">Hour-by-Hour Schedule</div></div>
             {plan.schedule.map((s, i) => (
               <div key={i} style={{ display: "flex", borderBottom: i < plan.schedule.length - 1 ? "1px solid var(--rule)" : "none" }}>
@@ -339,7 +339,7 @@ function CrunchTab() {
               </div>
             ))}
           </div>
-          <div style={{ border: "1px solid var(--ink)", padding: "20px 24px" }}>
+          <div style={{ border: "none", padding: "20px 24px" }}>
             <div className="mono cin" style={{ marginBottom: 8 }}>Exam Day Tip</div>
             <AIOutput text={plan.advice} variant="principle" />
           </div>
@@ -386,7 +386,7 @@ function CrematorTab() {
         </div>
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ border: "2px solid var(--ink)", padding: "18px 16px" }}>
+            <div style={{ border: "none", padding: "18px 16px" }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Time Budget</div>
               <div style={{ fontFamily: "var(--mono)", fontSize: 28, fontWeight: 700, color: "var(--ink)", lineHeight: 1, marginBottom: 4 }}>{Math.round(time_budget_summary.total_minutes_available / 60)}h</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginBottom: 12 }}>across {days} day{days !== 1 ? "s" : ""}</div>
@@ -442,14 +442,14 @@ function CrematorTab() {
         <div>
           <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Exam Board</label>
           <select value={form.examBoard} onChange={e => setForm(f => ({ ...f, examBoard: e.target.value }))}
-            style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--ink)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
+            style={{ width: "100%", padding: "10px 12px", border: "none", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
             {EXAM_BOARDS.map(b => <option key={b} value={b}>{b}</option>)}
           </select>
         </div>
         <div>
           <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Exam Date</label>
           <input type="date" value={form.examDate} onChange={e => setForm(f => ({ ...f, examDate: e.target.value }))}
-            style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--ink)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--mono)", fontSize: 13, boxSizing: "border-box" }} />
+            style={{ width: "100%", padding: "10px 12px", border: "none", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--mono)", fontSize: 13, boxSizing: "border-box" }} />
         </div>
       </div>
       <div style={{ marginBottom: 20 }}>
@@ -464,7 +464,7 @@ function CrematorTab() {
         <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Syllabus / chapters to cover</label>
         <textarea value={form.syllabusText} onChange={e => setForm(f => ({ ...f, syllabusText: e.target.value }))} rows={7}
           placeholder="Paste chapters or syllabus — e.g. Ch1: Motion, Ch2: Laws of Motion…"
-          style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--ink)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--mono)", fontSize: 12, lineHeight: 1.7, resize: "vertical", boxSizing: "border-box" }} />
+          style={{ width: "100%", padding: "10px 12px", border: "none", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--mono)", fontSize: 12, lineHeight: 1.7, resize: "vertical", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 24 }}>
         <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Topics already revised (optional)</label>

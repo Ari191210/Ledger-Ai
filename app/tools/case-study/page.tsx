@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -36,7 +36,7 @@ export default function CaseStudyPage() {
         <button className="btn ghost" onClick={() => setResult(null)}>New case</button>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 860, margin: "0 auto" }}>
-        <div style={{ border: "2px solid var(--ink)", padding: "18px 22px", marginBottom: 20 }}>
+        <div style={{ border: "none", padding: "18px 22px", marginBottom: 20 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>SUMMARY</div>
           <AIOutput text={result.summary} />
         </div>
@@ -71,7 +71,7 @@ export default function CaseStudyPage() {
           {result.recommendations.map((r, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 8, lineHeight: 1.5 }}>{i + 1}. {r}</div>)}
         </div>
 
-        <div style={{ border: "1px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
+        <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>CONCLUSION</div>
           <AIOutput text={result.conclusion} variant="principle" />
         </div>
@@ -100,7 +100,7 @@ export default function CaseStudyPage() {
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Case study text or scenario <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
           <textarea value={caseText} onChange={e => setCaseText(e.target.value)} rows={6}
             placeholder="Paste the case study text, or describe the scenario: 'A UK supermarket chain is losing market share to discount retailers…'"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
         </div>
         <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam question (optional)</div>

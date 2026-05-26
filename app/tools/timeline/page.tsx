@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -97,7 +97,7 @@ export default function TimelinePage() {
         <div style={{ marginBottom: 20 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic or period <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
           <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. The Cold War 1945-1991, Industrial Revolution, DNA discovery…"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
         {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error}</div>}
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>

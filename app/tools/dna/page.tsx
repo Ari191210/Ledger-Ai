@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -73,7 +73,7 @@ export default function DNAPage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
 
         {/* Biggest Leak + Breakdown */}
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 32 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 32 }}>
           <div style={{ padding: "28px 24px", borderRight: "1px solid var(--rule)" }}>
             <div className="mono cin" style={{ marginBottom: 8 }}>Biggest Leak</div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 34, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 10 }}>
@@ -104,7 +104,7 @@ export default function DNAPage() {
         </div>
 
         {/* Subjects + Topics */}
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 32 }}>
+        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 32 }}>
           <div style={{ borderRight: "1px solid var(--rule)" }}>
             <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}>
               <div className="mono cin">By Subject</div>
@@ -130,7 +130,7 @@ export default function DNAPage() {
         </div>
 
         {/* Recent log */}
-        <div style={{ border: "1px solid var(--ink)", marginBottom: 40 }}>
+        <div style={{ border: "none", marginBottom: 40 }}>
           <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div className="mono cin">Recent Mistakes</div>
             <button onClick={clearAll} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", fontSize: 9 }}>Clear all</button>

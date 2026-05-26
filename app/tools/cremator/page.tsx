@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -396,7 +396,7 @@ export default function CrematorPage() {
               fontFamily: "var(--mono)",
               fontSize: 11,
               padding: "6px 14px",
-              border: "1px solid var(--ink)",
+              border: "none",
               background: "transparent",
               color: "var(--ink)",
               cursor: "pointer",
@@ -430,7 +430,7 @@ export default function CrematorPage() {
             {/* Time budget card */}
             <div
               style={{
-                border: "2px solid var(--ink)",
+                border: "none",
                 padding: "18px 16px",
                 background: "var(--paper)",
               }}
@@ -879,7 +879,7 @@ export default function CrematorPage() {
               style={{
                 width: "100%",
                 padding: "10px 12px",
-                border: "1px solid var(--ink)",
+                border: "none",
                 background: "var(--paper)",
                 color: "var(--ink)",
                 fontFamily: "var(--sans)",
@@ -917,7 +917,7 @@ export default function CrematorPage() {
               style={{
                 width: "100%",
                 padding: "10px 12px",
-                border: "1px solid var(--ink)",
+                border: "none",
                 background: "var(--paper)",
                 color: "var(--ink)",
                 fontFamily: "var(--mono)",
@@ -1004,7 +1004,7 @@ export default function CrematorPage() {
             style={{
               width: "100%",
               padding: "10px 12px",
-              border: "1px solid var(--ink)",
+              border: "none",
               background: "var(--paper)",
               color: "var(--ink)",
               fontFamily: "var(--mono)",

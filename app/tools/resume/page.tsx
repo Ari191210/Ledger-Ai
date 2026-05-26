@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -122,7 +122,7 @@ export default function ResumePage() {
             {/* Preview */}
             <div id="resume-preview">
               <div className="mono cin" style={{ marginBottom: 14 }}>Preview</div>
-              <div style={{ border: "1px solid var(--ink)", padding: "32px 28px", background: "var(--paper)", fontFamily: "var(--serif)" }}>
+              <div style={{ border: "none", padding: "32px 28px", background: "var(--paper)", fontFamily: "var(--serif)" }}>
                 <div style={{ borderBottom: "3px double var(--ink)", paddingBottom: 16, marginBottom: 20 }}>
                   <h1 style={{ fontSize: 36, fontWeight: 700, fontStyle: "italic", letterSpacing: "-0.02em", margin: 0 }}>{name || "Your Name"}</h1>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 6 }}>
@@ -176,7 +176,7 @@ export default function ResumePage() {
                     <div className="mono cin" style={{ marginBottom: 8 }}>Skills</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {skills.map((s) => (
-                        <span key={s.id} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "3px 8px", border: "1px solid var(--ink)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                        <span key={s.id} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "3px 8px", border: "none", letterSpacing: "0.06em", textTransform: "uppercase" }}>
                           {s.name} · {s.level}
                         </span>
                       ))}

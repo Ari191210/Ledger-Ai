@@ -126,7 +126,7 @@ function EssayBlueprintTab({ subject, level, onArgue }: { subject: string; level
       <div style={{ marginBottom: 16 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay question / prompt</div>
         <textarea value={prompt} onChange={e => setPrompt(e.target.value)} rows={3} placeholder="Paste your exact essay question here…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical" }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Word limit: {words}</div>
@@ -156,7 +156,7 @@ function EssayBlueprintTab({ subject, level, onArgue }: { subject: string; level
           <button className="btn ghost" onClick={() => setBlueprint(null)}>New blueprint</button>
         </div>
       </div>
-      <div style={{ border: "2px solid var(--ink)", padding: "20px 24px", marginBottom: 28 }}>
+      <div style={{ border: "none", padding: "20px 24px", marginBottom: 28 }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Thesis statement</div>
         <AIOutput text={blueprint.thesis} variant="principle" />
       </div>
@@ -239,7 +239,7 @@ function ArgumentBuilderTab({ subject, level, initialClaim }: { subject: string;
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Claim, thesis, or essay question <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <textarea value={claim} onChange={e => setClaim(e.target.value)} rows={3}
           placeholder="e.g. 'To what extent was nationalism the primary cause of WWI?'"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Key evidence you have (optional)</div>
@@ -263,7 +263,7 @@ function ArgumentBuilderTab({ subject, level, initialClaim }: { subject: string;
           <button className="btn ghost" onClick={() => setArgPlan(null)}>New argument</button>
         </div>
       </div>
-      <div style={{ border: "2px solid var(--ink)", padding: "18px 22px", marginBottom: 20 }}>
+      <div style={{ border: "none", padding: "18px 22px", marginBottom: 20 }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 8, letterSpacing: "0.08em" }}>THESIS STATEMENT</div>
         <div style={{ fontFamily: "var(--serif)", fontSize: 16, lineHeight: 1.7, fontStyle: "italic" }}>{argPlan.thesis}</div>
       </div>
@@ -345,20 +345,20 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay type</div>
-          <select value={gradeType} onChange={e => setGradeType(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
+          <select value={gradeType} onChange={e => setGradeType(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
             {GRADE_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay prompt / question (optional)</div>
           <input value={gradePrompt} onChange={e => setGradePrompt(e.target.value)} placeholder="Paste the question or title…"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
       </div>
       <div style={{ marginBottom: 6 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Your essay *</div>
         <textarea value={essay} onChange={e => setEssay(e.target.value)} rows={16} placeholder="Paste your full essay here…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
       </div>
       <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 14, textAlign: "right" }}>{wc} words</div>
       {error && <AIErrorDisplay error={error} onRetry={gradeEssay} inline />}
@@ -377,7 +377,7 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
       </div>
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 32 }}>
         <div>
-          <div style={{ border: "2px solid var(--ink)", padding: "28px 32px", marginBottom: 24, display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ border: "none", padding: "28px 32px", marginBottom: 24, display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap" }}>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>OVERALL GRADE</div>
               <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 700, lineHeight: 1, color: "var(--cinnabar-ink)" }}>{grade.overall}</div>
@@ -391,7 +391,7 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
               <div className="mono" style={{ marginTop: 4 }}>{grade.totalScore} / {grade.maxScore}</div>
             </div>
           </div>
-          <div style={{ border: "1px solid var(--ink)", marginBottom: 24 }}>
+          <div style={{ border: "none", marginBottom: 24 }}>
             <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}><div className="mono cin">Marking criteria</div></div>
             {grade.criteria.map((c, i) => (
               <div key={i} style={{ padding: "14px 18px", borderBottom: i < grade.criteria.length - 1 ? "1px solid var(--rule)" : "none" }}>
@@ -409,7 +409,7 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
           <AIOutput text={grade.summary} variant="principle" />
         </div>
         <div>
-          <div style={{ border: "1px solid var(--ink)", padding: "18px", marginBottom: 16 }}>
+          <div style={{ border: "none", padding: "18px", marginBottom: 16 }}>
             <div className="mono cin" style={{ marginBottom: 10 }}>Strengths</div>
             {grade.strengths.map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -418,7 +418,7 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
               </div>
             ))}
           </div>
-          <div style={{ border: "1px solid var(--ink)", padding: "18px" }}>
+          <div style={{ border: "none", padding: "18px" }}>
             <div className="mono cin" style={{ marginBottom: 10 }}>Improvements</div>
             {grade.improvements.map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -510,7 +510,7 @@ function WritingPolishTab() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Your text <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
             <textarea value={text} onChange={e => setText(e.target.value)} rows={8}
               placeholder="Paste a paragraph or more of your writing."
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
           </div>
           {grError && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{grError}</div>}
           <button className="btn" onClick={checkGrammar} disabled={grLoading} style={{ width: "100%", opacity: grLoading ? 0.5 : 1 }}>
@@ -526,7 +526,7 @@ function WritingPolishTab() {
             <button className="btn ghost" onClick={() => setResult(null)}>Check new text</button>
           </div>
           <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
-            <div style={{ border: "2px solid var(--ink)", padding: "18px 24px", flexShrink: 0 }}>
+            <div style={{ border: "none", padding: "18px 24px", flexShrink: 0 }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>WRITING SCORE</div>
               <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, lineHeight: 1, color: result.overallScore >= 80 ? "#2d7a3c" : result.overallScore >= 60 ? "var(--ink)" : "var(--cinnabar-ink)" }}>{result.overallScore}</div>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 4 }}>/ 100 &middot; {result.band}</div>
@@ -568,7 +568,7 @@ function WritingPolishTab() {
               {result.academicPhrases.map((p, i) => <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: "1px solid var(--rule)", color: "var(--ink-2)" }}>{p}</span>)}
             </div>
           </div>
-          <div style={{ border: "1px solid var(--ink)", padding: "16px 18px", marginBottom: 12 }}>
+          <div style={{ border: "none", padding: "16px 18px", marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: showRewrite ? 12 : 0 }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>IMPROVED REWRITE</div>
               <button onClick={() => setShowRewrite(!showRewrite)} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--rule)", background: "none", cursor: "pointer", color: "var(--ink-3)" }}>
@@ -597,16 +597,16 @@ function WritingPolishTab() {
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>University / programme</div>
               <input value={uni} onChange={e => setUni(e.target.value)} placeholder="Oxford, UCL, Common App…"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject / course</div>
               <input value={course} onChange={e => setCourse(e.target.value)} placeholder="Computer Science, Medicine…"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Word limit</div>
-              <select value={psLimit} onChange={e => setPsLimit(Number(e.target.value))} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
+              <select value={psLimit} onChange={e => setPsLimit(Number(e.target.value))} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
                 {WORD_LIMITS.map(l => <option key={l} value={l}>{l} words</option>)}
               </select>
             </div>
@@ -615,7 +615,7 @@ function WritingPolishTab() {
             <div style={{ height: "100%", width: `${pct}%`, background: wcColor, transition: "width 200ms" }} />
           </div>
           <textarea value={ps} onChange={e => setPs(e.target.value)} rows={20} placeholder="Start writing your personal statement here…"
-            style={{ width: "100%", fontFamily: "Georgia, serif", fontSize: 15, border: "1px solid var(--ink)", background: "var(--paper)", padding: "16px 18px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.8, marginBottom: 16 }} />
+            style={{ width: "100%", fontFamily: "Georgia, serif", fontSize: 15, border: "none", background: "var(--paper)", padding: "16px 18px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.8, marginBottom: 16 }} />
           {psError && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{psError}</div>}
           <button className="btn" onClick={analysePS} disabled={psLoading || wc < 50} style={{ width: "100%", opacity: psLoading ? 0.5 : 1 }}>
             {psLoading ? "Analysing…" : "Get feedback →"}
@@ -628,7 +628,7 @@ function WritingPolishTab() {
         <div style={{ maxWidth: 1100 }}>
           <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
             <div>
-              <div style={{ border: "2px solid var(--ink)", padding: "20px 28px", marginBottom: 20, display: "flex", gap: 24, alignItems: "center" }}>
+              <div style={{ border: "none", padding: "20px 28px", marginBottom: 20, display: "flex", gap: 24, alignItems: "center" }}>
                 <div>
                   <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>OVERALL SCORE</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 52, fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>{feedback.score}<span style={{ fontSize: 20, color: "var(--ink-3)" }}>/10</span></div>
@@ -638,7 +638,7 @@ function WritingPolishTab() {
                   <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, color: "var(--ink-2)", fontStyle: "italic" }}>&ldquo;{feedback.hook}&rdquo;</div>
                 </div>
               </div>
-              <div style={{ border: "1px solid var(--ink)", marginBottom: 20 }}>
+              <div style={{ border: "none", marginBottom: 20 }}>
                 <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}><div className="mono cin">Structure analysis</div></div>
                 {feedback.structure.map((s, i) => (
                   <div key={i} style={{ padding: "10px 18px", borderBottom: i < feedback.structure.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 10 }}>
@@ -647,7 +647,7 @@ function WritingPolishTab() {
                   </div>
                 ))}
               </div>
-              <div style={{ border: "1px solid var(--ink)", marginBottom: 20 }}>
+              <div style={{ border: "none", marginBottom: 20 }}>
                 <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}><div className="mono cin">Paragraph-by-paragraph notes</div></div>
                 {feedback.paragraphNotes.map((n, i) => (
                   <div key={i} style={{ padding: "10px 18px", borderBottom: i < feedback.paragraphNotes.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 10 }}>
@@ -664,11 +664,11 @@ function WritingPolishTab() {
               )}
             </div>
             <div>
-              <div style={{ border: "1px solid var(--ink)", padding: "18px", marginBottom: 14 }}>
+              <div style={{ border: "none", padding: "18px", marginBottom: 14 }}>
                 <div className="mono cin" style={{ marginBottom: 10 }}>Tone &amp; voice</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, color: "var(--ink-2)" }}>{feedback.tone}</div>
               </div>
-              <div style={{ border: "1px solid var(--ink)", padding: "18px", marginBottom: 14 }}>
+              <div style={{ border: "none", padding: "18px", marginBottom: 14 }}>
                 <div className="mono cin" style={{ marginBottom: 10 }}>Priority improvements</div>
                 {feedback.suggestions.map((s, i) => (
                   <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10 }}>
@@ -727,20 +727,20 @@ function CitationTab() {
           <div key={f.key} style={{ gridColumn: ["title","doi","url"].includes(f.key) ? "1/-1" : "auto" }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 5, fontSize: 10 }}>{f.label}</div>
             <input value={fields[f.key] || ""} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder}
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
           </div>
         ))}
       </div>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
-        <select value={style} onChange={e => setStyle(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", cursor: "pointer" }}>
+        <select value={style} onChange={e => setStyle(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", cursor: "pointer" }}>
           {[...STYLES, "All styles"].map(s => <option key={s}>{s}</option>)}
         </select>
         <button className="btn" onClick={generate} style={{ flex: 1, cursor: "pointer" }}>Generate citation &rarr;</button>
       </div>
 
       {citations.length > 0 && (
-        <div style={{ border: "1px solid var(--ink)" }}>
+        <div style={{ border: "none" }}>
           <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
             <div className="mono cin">Your citation{citations.length > 1 ? "s" : ""}</div>
           </div>

@@ -170,7 +170,7 @@ export default function SyllabusPage() {
                 value={pastedText} onChange={e => setPastedText(e.target.value)}
                 placeholder={"Paste your syllabus here. It can be messy — chapter lists, unit breakdowns, exam schedules, anything.\n\nExample:\nMathematics\n1. Relations and Functions\n   - Composition of functions\n   - Invertible functions\n2. Inverse Trigonometric Functions\n..."}
                 rows={14}
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "1px solid var(--ink)", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box", marginBottom: 12 }}
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, border: "none", background: "var(--paper-2)", padding: "16px", color: "var(--ink)", resize: "vertical", outline: "none", boxSizing: "border-box", marginBottom: 12 }}
               />
             )}
 
@@ -211,7 +211,7 @@ export default function SyllabusPage() {
           {syllabus && !loading && (
             <div>
               {/* Meta row */}
-              <div style={{ border: "1px solid var(--ink)", padding: "20px 24px", marginBottom: 20, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+              <div style={{ border: "none", padding: "20px 24px", marginBottom: 20, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
                 <div>
                   <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 3 }}>Grade</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 700 }}>{syllabus.grade ?? "—"}</div>
@@ -234,7 +234,7 @@ export default function SyllabusPage() {
               </div>
 
               {/* Subjects */}
-              <div style={{ border: "1px solid var(--ink)", marginBottom: 20 }}>
+              <div style={{ border: "none", marginBottom: 20 }}>
                 <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div className="mono cin">Subjects & Chapters</div>
                   <button onClick={() => setExpanded(syllabus.subjects.reduce((a, _, i) => ({ ...a, [i]: true }), {}))}
@@ -283,7 +283,7 @@ export default function SyllabusPage() {
 
               {/* Exams (if any) */}
               {syllabus.exams.length > 0 && (
-                <div style={{ border: "1px solid var(--ink)", marginBottom: 20 }}>
+                <div style={{ border: "none", marginBottom: 20 }}>
                   <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}>
                     <div className="mono cin">Exam Schedule</div>
                   </div>

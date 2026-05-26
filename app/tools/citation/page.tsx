@@ -91,20 +91,20 @@ export default function CitationPage() {
             <div key={f.key} style={{ gridColumn: ["title","doi","url"].includes(f.key) ? "1/-1" : "auto" }}>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 5, fontSize: 10 }}>{f.label}</div>
               <input value={fields[f.key] || ""} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder}
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
           ))}
         </div>
 
         <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
-          <select value={style} onChange={e => setStyle(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }}>
+          <select value={style} onChange={e => setStyle(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }}>
             {[...STYLES, "All styles"].map(s => <option key={s}>{s}</option>)}
           </select>
           <button className="btn" onClick={generate} style={{ flex: 1 }}>Generate citation →</button>
         </div>
 
         {citations.length > 0 && (
-          <div style={{ border: "1px solid var(--ink)" }}>
+          <div style={{ border: "none" }}>
             <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
               <div className="mono cin">Your citation{citations.length > 1 ? "s" : ""}</div>
             </div>

@@ -74,8 +74,8 @@ function MindMapTab() {
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>Any topic. Full concept breakdown.</h2>
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, marginBottom: 20 }}>
         <input value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && generate()} placeholder="e.g. Photosynthesis, French Revolution, Machine Learning, Supply and Demand&hellip;"
-          style={{ fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
-        <select value={detail} onChange={e => setDetail(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 10px", color: "var(--ink)", cursor: "pointer" }}>
+          style={{ fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
+        <select value={detail} onChange={e => setDetail(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "12px 10px", color: "var(--ink)", cursor: "pointer" }}>
           <option value="brief">Overview (3 branches)</option>
           <option value="medium">Standard (5 branches)</option>
           <option value="deep">Deep dive (7+ branches)</option>
@@ -216,7 +216,7 @@ function FormulaTab() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject</div>
             <input list="subj-list" value={subject} onChange={e => setSubject(e.target.value)}
               placeholder="Physics, Mathematics…"
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             <datalist id="subj-list">{SUBJECTS.map(s => <option key={s} value={s} />)}</datalist>
           </div>
 
@@ -225,21 +225,21 @@ function FormulaTab() {
             <input value={chapter} onChange={e => setChapter(e.target.value)}
               placeholder="Laws of Motion, Integration…"
               onKeyDown={e => e.key === "Enter" && generate()}
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Board</div>
               <select value={board} onChange={e => setBoard(e.target.value)}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }}>
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }}>
                 {BOARDS.map(b => <option key={b}>{b}</option>)}
               </select>
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Grade</div>
               <select value={grade} onChange={e => setGrade(e.target.value)}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }}>
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }}>
                 {GRADES.map(g => <option key={g}>{g}</option>)}
               </select>
             </div>
@@ -326,7 +326,7 @@ function FormulaTab() {
               </div>
 
               {/* Sheet header */}
-              <div style={{ border: "1px solid var(--ink)", padding: "20px 24px", marginBottom: 16, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap", background: "var(--ink)", color: "var(--paper)" }}>
+              <div style={{ border: "none", padding: "20px 24px", marginBottom: 16, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap", background: "var(--ink)", color: "var(--paper)" }}>
                 <div>
                   <div className="mono" style={{ opacity: 0.5, fontSize: 9 }}>Subject</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 700, marginTop: 2 }}>{sheet.subject}</div>
@@ -350,7 +350,7 @@ function FormulaTab() {
 
               {/* Formula sections */}
               {(sheet.sections || []).map((section, si) => (
-                <div key={si} style={{ marginBottom: 16, border: "1px solid var(--ink)" }}>
+                <div key={si} style={{ marginBottom: 16, border: "none" }}>
                   <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                     <div className="mono cin">{section.title}</div>
                   </div>
@@ -371,7 +371,7 @@ function FormulaTab() {
 
               {/* Key concepts */}
               {(sheet.keyConcepts || []).length > 0 && (
-                <div style={{ marginBottom: 16, border: "1px solid var(--ink)" }}>
+                <div style={{ marginBottom: 16, border: "none" }}>
                   <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                     <div className="mono cin">Key Concepts</div>
                   </div>
@@ -385,7 +385,7 @@ function FormulaTab() {
 
               {/* Units & dimensions */}
               {(sheet.units || []).length > 0 && (
-                <div style={{ marginBottom: 16, border: "1px solid var(--ink)" }}>
+                <div style={{ marginBottom: 16, border: "none" }}>
                   <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
                     <div className="mono cin">Units &amp; Dimensions</div>
                   </div>
@@ -412,7 +412,7 @@ function FormulaTab() {
 
               {/* Exam tips */}
               {(sheet.examTips || []).length > 0 && (
-                <div style={{ border: "1px solid var(--ink)" }}>
+                <div style={{ border: "none" }}>
                   <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--rule)", background: "var(--ink)", color: "var(--paper)" }}>
                     <div className="mono" style={{ letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 9 }}>Exam tips for this chapter</div>
                   </div>
@@ -458,11 +458,11 @@ function ConceptConnectTab() {
   if (result) return (
     <div style={{ maxWidth: 820, margin: "0 auto" }}>
       <div style={{ display: "flex", gap: 12, marginBottom: 24, alignItems: "center" }}>
-        <div style={{ flex: 1, border: "2px solid var(--ink)", padding: "14px 18px", textAlign: "center" }}>
+        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptA}</div>
         </div>
         <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 20, flexShrink: 0 }}>&#8596;</div>
-        <div style={{ flex: 1, border: "2px solid var(--ink)", padding: "14px 18px", textAlign: "center" }}>
+        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptB}</div>
         </div>
       </div>
@@ -477,7 +477,7 @@ function ConceptConnectTab() {
         ))}
       </div>
 
-      <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
+      <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Deep Insight</div>
         <AIOutput text={result.deepInsight} variant="principle" />
       </div>
@@ -508,12 +508,12 @@ function ConceptConnectTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>First concept <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={conceptA} onChange={e => setConceptA(e.target.value)} placeholder="e.g. Natural Selection, Supply and Demand, WW1…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Second concept <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={conceptB} onChange={e => setConceptB(e.target.value)} placeholder="e.g. Capitalism, Entropy, Nationalism…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 20, padding: "12px 16px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Try cross-subject pairs for surprising insights. E.g.: &quot;Mitosis&quot; + &quot;Industrial Revolution&quot; or &quot;Keynesian Economics&quot; + &quot;WW2&quot;</div>

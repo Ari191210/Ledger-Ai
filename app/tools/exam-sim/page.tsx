@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
@@ -118,7 +118,7 @@ export default function ExamSimPage() {
               value={topic}
               onChange={e => setTopic(e.target.value)}
               placeholder="e.g. Integration, Organic Chemistry, World War II…"
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }}
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }}
             />
           </div>
 
@@ -227,12 +227,12 @@ export default function ExamSimPage() {
 
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setCurrent(c => Math.max(0, c - 1))} disabled={current === 0}
-                    style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: current === 0 ? 0.3 : 1 }}>
+                    style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: current === 0 ? 0.3 : 1 }}>
                     ← Prev
                   </button>
                   {current < totalQ - 1
                     ? <button onClick={() => setCurrent(c => c + 1)}
-                        style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer" }}>
+                        style={{ flex: 1, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>
                         Next →
                       </button>
                     : <button onClick={submit} className="btn" style={{ flex: 1 }}>Submit exam →</button>
@@ -257,7 +257,7 @@ export default function ExamSimPage() {
         return (
           <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 900, margin: "0 auto" }}>
             {/* Score summary */}
-            <div style={{ display: "flex", gap: 24, marginBottom: 36, padding: "28px 32px", border: "2px solid var(--ink)" }} className="mob-col">
+            <div style={{ display: "flex", gap: 24, marginBottom: 36, padding: "28px 32px", border: "none" }} className="mob-col">
               <div style={{ textAlign: "center", flexShrink: 0 }}>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 700, color: gradeColor, lineHeight: 1 }}>{grade}</div>
                 <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginTop: 4 }}>{pct}% · {score}/{totalQ} correct</div>
@@ -282,7 +282,7 @@ export default function ExamSimPage() {
                 const correct    = userAns === q.answer;
                 const unanswered = userAns === null;
                 return (
-                  <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < totalQ - 1 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
+                  <div key={i} style={{ border: "none", borderBottom: i < totalQ - 1 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
                     <div style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-start" }}>
                       <span className="mono" style={{ fontSize: 10, color: unanswered ? "var(--ink-3)" : correct ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2, fontWeight: 700 }}>
                         {unanswered ? "—" : correct ? "✓" : "✗"} Q{i + 1}

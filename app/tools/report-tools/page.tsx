@@ -132,7 +132,7 @@ function LabReportTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Experiment name / title</div>
         <input value={experiment} onChange={e => setExp(e.target.value)} placeholder="e.g. Effect of temperature on enzyme activity"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
 
       <div style={{ marginBottom: 14 }}>
@@ -206,7 +206,7 @@ function ModelAnswerTab() {
         <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.6, fontStyle: "italic" }}>{result.question}</div>
       </div>
 
-      <div style={{ border: "2px solid var(--ink)", padding: "20px 24px", marginBottom: 20 }}>
+      <div style={{ border: "none", padding: "20px 24px", marginBottom: 20 }}>
         <div className="mono cin" style={{ marginBottom: 12 }}>Model Answer</div>
         <AIOutput text={result.modelAnswer} />
       </div>
@@ -248,7 +248,7 @@ function ModelAnswerTab() {
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam question <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <textarea value={question} onChange={e => setQuestion(e.target.value)} rows={3}
           placeholder="e.g. &apos;Evaluate the causes of WWI.&apos; or &apos;Explain how enzymes work. [6 marks]&apos;"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject (optional)</div>

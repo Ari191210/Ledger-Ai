@@ -121,7 +121,7 @@ function CompareTab() {
         </div>
       </div>
 
-      <div style={{ border: "2px solid var(--ink)", padding: "16px 20px" }}>
+      <div style={{ border: "none", padding: "16px 20px" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Verdict</div>
         <AIOutput text={chart.verdict} variant="principle" />
       </div>
@@ -138,7 +138,7 @@ function CompareTab() {
         {items.map((item, i) => (
           <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <input value={item} onChange={e => setItem(i, e.target.value)} placeholder={`Item ${i + 1} — e.g. Mitosis`}
-              style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             {items.length > 2 && <button onClick={() => removeItem(i)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "0 10px", border: "1px solid var(--rule)", background: "none", cursor: "pointer", color: "var(--ink-3)" }}>✕</button>}
           </div>
         ))}
@@ -243,7 +243,7 @@ function SourceTab() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Source text or description <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
             <textarea value={sourceText} onChange={e => setSourceText(e.target.value)} rows={6}
               placeholder="Paste the source text, or describe it: &apos;A photograph taken by a German soldier in 1942 showing…&apos;"
-              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
           </div>
           <div style={{ marginBottom: 14 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Origin details (optional but recommended)</div>
@@ -268,7 +268,7 @@ function SourceTab() {
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
             <button className="btn ghost" onClick={() => setAnalysis(null)}>New source</button>
           </div>
-          <div style={{ border: "2px solid var(--ink)", padding: "20px 24px", marginBottom: 20 }}>
+          <div style={{ border: "none", padding: "20px 24px", marginBottom: 20 }}>
             <div className="mono cin" style={{ marginBottom: 12 }}>Origin</div>
             <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
               {[["WHO", analysis.origin.who], ["WHAT", analysis.origin.what], ["WHEN", analysis.origin.when], ["CONTEXT", analysis.origin.context]].map(([label, val]) => (
@@ -337,7 +337,7 @@ function SourceTab() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Passage <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
             <textarea value={passage} onChange={e => setPassage(e.target.value)} rows={7}
               placeholder="Paste the text you want to analyse — a poem, prose extract, article, speech, or source document."
-              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
           </div>
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam question or focus (optional)</div>
@@ -445,7 +445,7 @@ function CaseTab() {
         <div className="mono" style={{ color: "var(--ink-3)" }}>Case Study Pro · {result.title}</div>
         <button className="btn ghost" onClick={() => setResult(null)}>New case</button>
       </div>
-      <div style={{ border: "2px solid var(--ink)", padding: "18px 22px", marginBottom: 20 }}>
+      <div style={{ border: "none", padding: "18px 22px", marginBottom: 20 }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>SUMMARY</div>
         <AIOutput text={result.summary} />
       </div>
@@ -480,7 +480,7 @@ function CaseTab() {
         {result.recommendations.map((r, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 8, lineHeight: 1.5 }}>{i + 1}. {r}</div>)}
       </div>
 
-      <div style={{ border: "1px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
+      <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>CONCLUSION</div>
         <AIOutput text={result.conclusion} variant="principle" />
       </div>
@@ -500,7 +500,7 @@ function CaseTab() {
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Case study text or scenario <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <textarea value={caseText} onChange={e => setCaseText(e.target.value)} rows={6}
           placeholder="Paste the case study text, or describe the scenario: &apos;A UK supermarket chain is losing market share to discount retailers…&apos;"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam question (optional)</div>
@@ -600,7 +600,7 @@ function TimelineTab() {
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic or period <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. The Cold War 1945-1991, Industrial Revolution, DNA discovery…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error}</div>}
       <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>

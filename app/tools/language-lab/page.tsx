@@ -49,7 +49,7 @@ function LangAnalyzerTab() {
 
       <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
         {analysis.tone.map((t, i) => (
-          <div key={i} style={{ padding: "8px 14px", border: "1px solid var(--ink)", background: i === 0 ? "var(--ink)" : "var(--paper)", color: i === 0 ? "var(--paper)" : "var(--ink)" }}>
+          <div key={i} style={{ padding: "8px 14px", border: "none", background: i === 0 ? "var(--ink)" : "var(--paper)", color: i === 0 ? "var(--paper)" : "var(--ink)" }}>
             <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700 }}>{t.label}</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 11, opacity: 0.7, marginTop: 2 }}>{t.explanation}</div>
           </div>
@@ -104,7 +104,7 @@ function LangAnalyzerTab() {
             <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>TOP-BAND POINTS TO HIT</div>
             {analysis.grade9Points.map((p, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 4 }}>&middot; {p}</div>)}
           </div>
-          <div style={{ border: "2px solid var(--ink)", padding: "20px 24px" }}>
+          <div style={{ border: "none", padding: "20px 24px" }}>
             <div className="mono cin" style={{ marginBottom: 12 }}>Model paragraph</div>
             <AIOutput text={analysis.exampleAnswer} />
           </div>
@@ -143,7 +143,7 @@ function LangAnalyzerTab() {
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Text to analyse</div>
         <textarea value={text} onChange={e => setText(e.target.value)} rows={10}
           placeholder="Paste your poem, extract, article, or passage here…"
-          style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.8 }} />
+          style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.8 }} />
       </div>
 
       {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error}</div>}
@@ -205,11 +205,11 @@ function VocabTab() {
         <div style={{ gridColumn: "1/-1" }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic / subject *</div>
           <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Biology cell biology, Shakespeare, Economics, Law…"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Context</div>
-          <select value={context} onChange={e => setContext(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={context} onChange={e => setContext(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             <option value="academic">Academic writing</option>
             <option value="subject">Subject-specific</option>
             <option value="general">General English</option>
@@ -219,13 +219,13 @@ function VocabTab() {
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
-          <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             {["GCSE","A-Level","IB","University","Advanced"].map(l => <option key={l}>{l}</option>)}
           </select>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Words</div>
-          <select value={count} onChange={e => setCount(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+          <select value={count} onChange={e => setCount(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
             {["8","10","15","20"].map(n => <option key={n} value={n}>{n} words</option>)}
           </select>
         </div>
@@ -265,7 +265,7 @@ function VocabTab() {
         <>
           {/* Card */}
           <div onClick={() => setCardState(s => s === "front" ? "back" : "front")}
-            style={{ border: "2px solid var(--ink)", padding: "40px 48px", minHeight: 320, cursor: "pointer", marginBottom: 24, position: "relative", background: known.has(idx) ? "#2d7a3c08" : "var(--paper)" }}>
+            style={{ border: "none", padding: "40px 48px", minHeight: 320, cursor: "pointer", marginBottom: 24, position: "relative", background: known.has(idx) ? "#2d7a3c08" : "var(--paper)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
               <div>
                 <span style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 700, letterSpacing: "-0.02em" }}>{w.word}</span>
@@ -309,10 +309,10 @@ function VocabTab() {
 
           {/* Controls */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            <button onClick={() => { setIdx(i => Math.max(0, i - 1)); setCardState("front"); }} disabled={idx === 0} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: idx === 0 ? 0.3 : 1 }}>&larr; Back</button>
+            <button onClick={() => { setIdx(i => Math.max(0, i - 1)); setCardState("front"); }} disabled={idx === 0} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: idx === 0 ? 0.3 : 1 }}>&larr; Back</button>
             <button onClick={markStudy} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #c44b2a", background: "var(--paper)", color: "#c44b2a", cursor: "pointer" }}>Still learning</button>
             <button onClick={markKnown} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #2d7a3c", background: "#2d7a3c", color: "var(--paper)", cursor: "pointer" }}>Got it ✓</button>
-            <button onClick={() => { setIdx(i => Math.min(total - 1, i + 1)); setCardState("front"); }} disabled={idx === total - 1} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer", opacity: idx === total - 1 ? 0.3 : 1 }}>Next &rarr;</button>
+            <button onClick={() => { setIdx(i => Math.min(total - 1, i + 1)); setCardState("front"); }} disabled={idx === total - 1} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: idx === total - 1 ? 0.3 : 1 }}>Next &rarr;</button>
           </div>
 
           {/* Word dots */}
@@ -324,7 +324,7 @@ function VocabTab() {
           </div>
         </>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 1, border: "1px solid var(--ink)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 1, border: "none" }}>
           {vault.words.map((word, i) => (
             <div key={i} style={{ padding: "16px 18px", borderRight: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)", background: known.has(i) ? "#2d7a3c08" : "var(--paper)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>

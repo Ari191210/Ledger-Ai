@@ -109,7 +109,7 @@ export default function TextAnalystPage() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Source text or description <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
             <textarea value={sourceText} onChange={e => setSourceText(e.target.value)} rows={6}
               placeholder="Paste the source text, or describe it: 'A photograph taken by a German soldier in 1942 showing…'"
-              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
           </div>
           <div style={{ marginBottom: 14 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Origin details (optional but recommended)</div>
@@ -137,7 +137,7 @@ export default function TextAnalystPage() {
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
             <button className="btn ghost" onClick={() => setAnalysis(null)}>New source</button>
           </div>
-          <div style={{ border: "2px solid var(--ink)", padding: "20px 24px", marginBottom: 20 }}>
+          <div style={{ border: "none", padding: "20px 24px", marginBottom: 20 }}>
             <div className="mono cin" style={{ marginBottom: 12 }}>Origin</div>
             <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
               {[["WHO", analysis.origin.who], ["WHAT", analysis.origin.what], ["WHEN", analysis.origin.when], ["CONTEXT", analysis.origin.context]].map(([label, val]) => (
@@ -209,7 +209,7 @@ export default function TextAnalystPage() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Passage <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
             <textarea value={passage} onChange={e => setPassage(e.target.value)} rows={7}
               placeholder="Paste the text you want to analyse — a poem, prose extract, article, speech, or source document."
-              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
+              style={{ width: "100%", fontFamily: "var(--serif)", fontSize: 13, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.7 }} />
           </div>
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam question or focus (optional)</div>

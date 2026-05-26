@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -177,7 +177,7 @@ export default function ForgettingForecastPage() {
                 <div className="mono" style={{ fontSize: 9, color: group.color, marginBottom: 10 }}>{group.label.toUpperCase()}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                   {group.items.map((t, i) => (
-                    <div key={t.id} style={{ border: "1px solid var(--ink)", borderBottom: i < group.items.length - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px", display: "flex", gap: 16, alignItems: "center" }}>
+                    <div key={t.id} style={{ border: "none", borderBottom: i < group.items.length - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px", display: "flex", gap: 16, alignItems: "center" }}>
                       {/* Retention bar */}
                       <div style={{ width: 48, flexShrink: 0, textAlign: "center" }}>
                         <div style={{ fontFamily: "var(--mono)", fontSize: 14, fontWeight: 700, color: STATUS_COLOR[t.status] }}>{Math.round(t.retention * 100)}%</div>
@@ -220,26 +220,26 @@ export default function ForgettingForecastPage() {
 
         {/* Add topic form */}
         {showForm ? (
-          <div style={{ border: "1px solid var(--ink)", padding: "24px", marginBottom: 24 }}>
+          <div style={{ border: "none", padding: "24px", marginBottom: 24 }}>
             <div className="mono cin" style={{ marginBottom: 16 }}>Log a topic</div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }} className="mob-col">
               <div>
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic name</div>
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Integration by parts"
-                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
               </div>
               <div>
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject (optional)</div>
                 <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Mathematics"
-                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
               </div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Date studied</div>
               <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                style={{ fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }} />
+                style={{ fontFamily: "var(--mono)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }} />
             </div>
 
             <div style={{ marginBottom: 20 }}>

@@ -81,12 +81,12 @@ function FlashcardsTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject / topic</div>
         <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Organic Chemistry, World War II…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Paste your notes (optional)</div>
         <textarea value={input} onChange={e => setInput(e.target.value)} rows={7} placeholder="Paste chapter notes, definitions, or any study material here…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical" }} />
       </div>
       {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
       <button className="btn" onClick={generate} disabled={loading || (!input.trim() && !subject.trim())} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
@@ -111,17 +111,17 @@ function FlashcardsTab() {
         : <>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 12, textAlign: "center" }}>{idx + 1} / {deck.length}</div>
             <div onClick={() => setFlipped(f => !f)}
-              style={{ border: "2px solid var(--ink)", padding: "60px 40px", textAlign: "center", cursor: "pointer", minHeight: 220, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: flipped ? "var(--ink)" : "var(--paper)", transition: "background 200ms", marginBottom: 20, userSelect: "none" }}>
+              style={{ border: "none", padding: "60px 40px", textAlign: "center", cursor: "pointer", minHeight: 220, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: flipped ? "var(--ink)" : "var(--paper)", transition: "background 200ms", marginBottom: 20, userSelect: "none" }}>
               <div className="mono" style={{ color: flipped ? "rgba(255,255,255,0.4)" : "var(--ink-3)", fontSize: 9, marginBottom: 16, letterSpacing: "0.1em" }}>{flipped ? "ANSWER" : "QUESTION — click to reveal"}</div>
               <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: flipped ? "var(--paper)" : "var(--ink)", lineHeight: 1.5, maxWidth: 520 }}>{flipped ? cur.a : cur.q}</div>
             </div>
             <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-              <button onClick={prev} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer" }}>← Prev</button>
+              <button onClick={prev} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>← Prev</button>
               {flipped && <>
                 <button onClick={markUnknown} style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #c44b2a", background: "var(--paper)", color: "#c44b2a", cursor: "pointer" }}>✕ Still learning</button>
                 <button onClick={markKnown}   style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #2d7a3c", background: "var(--paper)", color: "#2d7a3c", cursor: "pointer" }}>✓ Got it</button>
               </>}
-              <button onClick={next} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--ink)", background: "var(--paper)", cursor: "pointer" }}>Next →</button>
+              <button onClick={next} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>Next →</button>
             </div>
             <button className="btn ghost" onClick={() => setCards([])} style={{ width: "100%" }}>Generate new set</button>
           </>
@@ -221,7 +221,7 @@ function FormulaTab() {
           <input ref={inputRef} autoFocus value={attempt} onChange={e => setAttempt(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && attempt.trim()) checkAnswer(); }}
             placeholder="e.g. F = ma"
-            style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 18, padding: "14px 16px", border: "1px solid var(--ink)", background: "var(--paper)", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 18, padding: "14px 16px", border: "none", background: "var(--paper)", color: "var(--ink)", outline: "none", boxSizing: "border-box" }} />
           <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
             <button className="btn" onClick={checkAnswer} disabled={!attempt.trim()} style={{ flex: 2 }}>Check →</button>
             <button className="btn ghost" onClick={reveal} style={{ flex: 1, fontSize: 11 }}>Show answer</button>

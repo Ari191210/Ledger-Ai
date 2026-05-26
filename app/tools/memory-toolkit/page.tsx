@@ -76,7 +76,7 @@ function MemoryPalaceTab() {
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Items to memorise <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <textarea value={items} onChange={e => setItems(e.target.value)} rows={5}
           placeholder={"Enter each item on a new line:\nMitosis stages: Prophase, Metaphase, Anaphase, Telophase\nOr: French Revolution causes, Newton's laws, dates…"}
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.6 }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic label (optional)</div>
@@ -154,7 +154,7 @@ function AnalogyTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Concept to explain <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={concept} onChange={e => setConcept(e.target.value)} placeholder="e.g. Quantum entanglement, Supply elasticity, Oxidative phosphorylation…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject (optional)</div>

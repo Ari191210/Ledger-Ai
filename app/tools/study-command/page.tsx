@@ -142,7 +142,7 @@ function DebtMeterWidget({ subjects, today }: { subjects: PlannerSubject[]; toda
   }, [subjects, today]);
 
   return (
-    <div style={{ border: "1px solid var(--ink)", padding: 24 }}>
+    <div style={{ border: "none", padding: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <div className="mono cin">α · Cognitive Debt Meter</div>
         <div className="mono" style={{ color: "var(--ink-3)" }}>live</div>
@@ -180,7 +180,7 @@ function DayRow({ day, idx }: { day: PlanDay; idx: number }) {
         {day.slots.map((sl, k) => (
           <div key={k} className="mob-slot-row" style={{ display: "grid", gridTemplateColumns: "100px 10px 1fr auto", gap: 10, alignItems: "center", padding: "6px 0", borderBottom: k < day.slots.length - 1 ? "1px solid var(--rule-2)" : "none" }}>
             <div className="mono" style={{ color: "var(--ink-3)" }}>{fmtTime(sl.startMin)}–{fmtTime(sl.endMin)}</div>
-            <div style={{ width: 10, height: 10, background: sl.subject.color, border: "1px solid var(--ink)", flexShrink: 0 }} />
+            <div style={{ width: 10, height: 10, background: sl.subject.color, border: "none", flexShrink: 0 }} />
             <div style={{ fontFamily: "var(--sans)", fontSize: 13 }}>
               <span style={{ fontWeight: 600 }}>{sl.subject.name}</span>
               <span style={{ color: "var(--ink-3)", margin: "0 6px" }}>·</span>
@@ -192,7 +192,7 @@ function DayRow({ day, idx }: { day: PlanDay; idx: number }) {
       </div>
       <div>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject mix</div>
-        <div style={{ display: "flex", height: 20, border: "1px solid var(--ink)" }}>
+        <div style={{ display: "flex", height: 20, border: "none" }}>
           {Object.entries(totals).map(([id, mins], i) => {
             const subj = day.slots.find((x) => x.subject.id === id)!.subject;
             return <div key={id} title={subj.name} style={{ flex: mins / totalMins, background: subj.color, borderRadius: 8, transition: "background 160ms, color 160ms" }} />;
@@ -339,7 +339,7 @@ function PlannerTab() {
                 {subjects.map((s, i) => (
                   <tr key={s.id} style={{ borderBottom: "1px solid var(--rule)" }}>
                     <td style={{ padding: "10px 8px 10px 0" }}>
-                      <div style={{ width: 12, height: 12, background: s.color, border: "1px solid var(--ink)" }} />
+                      <div style={{ width: 12, height: 12, background: s.color, border: "none" }} />
                     </td>
                     <td style={{ padding: "10px 8px 10px 0", fontFamily: "var(--serif)", fontSize: 15, fontWeight: 600, whiteSpace: "nowrap" }}>{s.name}</td>
                     <td style={{ padding: "10px 8px 10px 0" }}>
@@ -390,7 +390,7 @@ function PlannerTab() {
                   onBlur={() => setTimeout(() => setSuggestions([]), 150)}
                   style={{ fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "6px 8px", color: "var(--ink)", width: "100%" }} />
                 {suggestions.length > 0 && (
-                  <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "var(--paper)", border: "1px solid var(--ink)", borderTop: "none", zIndex: 50 }}>
+                  <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "var(--paper)", border: "none", zIndex: 50 }}>
                     {suggestions.map((s) => (
                       <button key={s} onMouseDown={() => { setNewSubj((p) => ({ ...p, name: s })); setSuggestions([]); }}
                         style={{ display: "block", width: "100%", padding: "8px 10px", background: "none", border: "none", borderBottom: "1px solid var(--rule)", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink)" }}>
@@ -437,7 +437,7 @@ function PlannerTab() {
 
           <div>
             <div className="mono cin">β · Circadian Window</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "1px solid var(--ink)", marginTop: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", border: "none", marginTop: 10 }}>
               {(["morning", "midday", "evening"] as const).map((v, i) => (
                 <button key={v} onClick={() => setChronotype(v)} style={{ padding: "12px 10px", background: chronotype === v ? "var(--ink)" : "var(--paper)", color: chronotype === v ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", textAlign: "left", fontFamily: "var(--sans)" }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{v.charAt(0).toUpperCase() + v.slice(1)}</div>
@@ -577,35 +577,35 @@ function DeadlinesTab() {
       </div>
 
       {adding && (
-        <div style={{ border: "2px solid var(--ink)", padding: "24px", marginBottom: 32 }}>
+        <div style={{ border: "none", padding: "24px", marginBottom: 32 }}>
           <div className="mono cin" style={{ marginBottom: 16 }}>New deadline</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
             <div style={{ gridColumn: "1/-1" }}>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Title *</div>
               <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Chemistry exam, History essay…"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Date *</div>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 12, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }} />
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 12, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Time</div>
               <input type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 12, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }} />
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 12, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }} />
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Category</div>
               <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as DeadlineCategory }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
                 {(Object.keys(CAT_LABELS) as DeadlineCategory[]).map(c => <option key={c} value={c}>{CAT_LABELS[c]}</option>)}
               </select>
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Priority</div>
               <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as DeadlinePriority }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
+                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
@@ -614,7 +614,7 @@ function DeadlinesTab() {
             <div style={{ gridColumn: "1/-1" }}>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Notes (optional)</div>
               <input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Any additional notes…"
-                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -627,7 +627,7 @@ function DeadlinesTab() {
       <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
         {(["upcoming", "all", "done"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "6px 14px", border: "1px solid var(--ink)", background: filter === f ? "var(--ink)" : "var(--paper)", color: filter === f ? "var(--paper)" : "var(--ink)", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "6px 14px", border: "none", background: filter === f ? "var(--ink)" : "var(--paper)", color: filter === f ? "var(--paper)" : "var(--ink)", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
             {f}
           </button>
         ))}
@@ -651,7 +651,7 @@ function DeadlinesTab() {
             const urg  = urgencyLabel(days);
             const color = CAT_COLORS[d.category];
             return (
-              <div key={d.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px", border: "1px solid var(--ink)", borderBottom: i < visible.length - 1 ? "none" : "1px solid var(--ink)", background: d.done ? "var(--paper-2)" : "var(--paper)", opacity: d.done ? 0.6 : 1 }}>
+              <div key={d.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px", border: "none", borderBottom: i < visible.length - 1 ? "none" : "1px solid var(--ink)", background: d.done ? "var(--paper-2)" : "var(--paper)", opacity: d.done ? 0.6 : 1 }}>
                 <button onClick={() => toggle(d.id)} style={{ width: 20, height: 20, border: `2px solid ${d.done ? "#2d7a3c" : "var(--ink)"}`, background: d.done ? "#2d7a3c" : "transparent", cursor: "pointer", flexShrink: 0, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 11 }}>
                   {d.done ? "✓" : ""}
                 </button>
@@ -808,9 +808,9 @@ function HabitsTab() {
 
       <div className="mono cin" style={{ marginBottom: 10 }}>Add a habit</div>
       <div style={{ display: "flex", gap: 8 }}>
-        <input value={newEmoji} onChange={e => setNewEmoji(e.target.value)} style={{ width: 50, fontFamily: "var(--sans)", fontSize: 18, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)", textAlign: "center" }} />
+        <input value={newEmoji} onChange={e => setNewEmoji(e.target.value)} style={{ width: 50, fontFamily: "var(--sans)", fontSize: 18, border: "none", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)", textAlign: "center" }} />
         <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === "Enter" && addHabit()} placeholder="Habit name…"
-          style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
+          style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
         <button className="btn" onClick={addHabit} disabled={!newName.trim()} style={{ opacity: newName.trim() ? 1 : 0.4, cursor: "pointer" }}>Add</button>
       </div>
       {habits.length > DEFAULT_HABITS.length && (
@@ -905,7 +905,7 @@ function CoachTab() {
   const COACH_SUGGESTIONS = ["What should I study today?", "How do I improve my weak topics?", "Give me a revision plan for next week."];
 
   return (
-    <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", minHeight: 560 }}>
+    <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", minHeight: 560 }}>
       {/* Briefing panel */}
       <div style={{ borderRight: "1px solid var(--rule)", padding: "28px 32px", overflowY: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -930,7 +930,7 @@ function CoachTab() {
                 </div>
               ))}
             </div>
-            <div style={{ padding: "12px 14px", border: "2px solid var(--ink)", marginBottom: 10 }}>
+            <div style={{ padding: "12px 14px", border: "none", marginBottom: 10 }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>INSIGHT</div>
               <AIOutput text={briefing.insight} variant="principle" />
             </div>
@@ -990,7 +990,7 @@ function CoachTab() {
         </div>
         <div style={{ borderTop: "1px solid var(--rule)", padding: "12px 14px", display: "flex", gap: 8 }}>
           <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }} placeholder="Ask your coach…"
-            style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "9px 11px", color: "var(--ink)", outline: "none" }} />
+            style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "9px 11px", color: "var(--ink)", outline: "none" }} />
           <button className="btn" onClick={sendChat} disabled={chatLoading || !input.trim()}>Send</button>
         </div>
       </div>

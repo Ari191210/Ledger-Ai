@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -158,7 +158,7 @@ export default function GpaSimPage() {
           <div>
             <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", marginBottom: 4 }}>Subject</div>
             <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Mathematics, Physics…"
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
           </div>
           <div>
             <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", marginBottom: 4 }}>{cfg.targetScale.label}</div>
@@ -192,7 +192,7 @@ export default function GpaSimPage() {
 
         {/* Components table */}
         <div className="mono cin" style={{ marginBottom: 12 }}>Assessment components</div>
-        <div style={{ border: "1px solid var(--ink)", marginBottom: 16 }}>
+        <div style={{ border: "none", marginBottom: 16 }}>
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 60px 80px 100px 32px", padding: "8px 12px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)", gap: 8 }}>
             {["Component", "Weight%", "Max score", "Your score", ""].map((h, i) => (

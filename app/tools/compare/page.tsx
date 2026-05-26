@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAI } from "@/lib/ai-fetch";
@@ -79,7 +79,7 @@ export default function ComparePage() {
           </div>
         </div>
 
-        <div style={{ border: "2px solid var(--ink)", padding: "16px 20px" }}>
+        <div style={{ border: "none", padding: "16px 20px" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Verdict</div>
           <AIOutput text={chart.verdict} variant="principle" />
         </div>
@@ -105,7 +105,7 @@ export default function ComparePage() {
           {items.map((item, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               <input value={item} onChange={e => setItem(i, e.target.value)} placeholder={`Item ${i + 1} — e.g. Mitosis`}
-                style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+                style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
               {items.length > 2 && <button onClick={() => removeItem(i)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "0 10px", border: "1px solid var(--rule)", background: "none", cursor: "pointer", color: "var(--ink-3)" }}>✕</button>}
             </div>
           ))}

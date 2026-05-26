@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
@@ -129,7 +129,7 @@ export default function PaperPatternPage() {
           <div style={{ marginBottom: 28 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Focus area <span style={{ color: "var(--ink-3)", fontWeight: 400 }}>(optional — leave blank for full paper analysis)</span></div>
             <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Integration, Organic Chemistry, World War II…"
-              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+              style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
           </div>
 
           {error && <div style={{ marginBottom: 14 }}><AIErrorDisplay error={error} onRetry={analyse} inline /></div>}
@@ -166,7 +166,7 @@ export default function PaperPatternPage() {
 
           {/* Topic frequency table */}
           <div className="mono cin" style={{ marginBottom: 16 }}>Topic frequency · Last 10 years</div>
-          <div style={{ marginBottom: 36, border: "1px solid var(--ink)" }}>
+          <div style={{ marginBottom: 36, border: "none" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px 80px 80px", borderBottom: "1px solid var(--ink)", padding: "10px 16px", background: "var(--paper-2)" }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>TOPIC</div>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", textAlign: "center" }}>FREQUENCY</div>
@@ -211,7 +211,7 @@ export default function PaperPatternPage() {
           <div className="mono cin" style={{ marginBottom: 14 }}>Predicted questions for this year</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 36 }}>
             {data.predictedQuestions.map((pq, i) => (
-              <div key={i} style={{ border: "1px solid var(--ink)", borderBottom: i < data.predictedQuestions.length - 1 ? "none" : "1px solid var(--ink)", padding: "16px 20px" }}>
+              <div key={i} style={{ border: "none", borderBottom: i < data.predictedQuestions.length - 1 ? "none" : "1px solid var(--ink)", padding: "16px 20px" }}>
                 <div style={{ display: "flex", gap: 12, marginBottom: 8, alignItems: "flex-start" }}>
                   <span className="mono cin" style={{ flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 16, fontWeight: 500, color: "var(--ink)", lineHeight: 1.5, flex: 1 }}>{pq.q}</div>

@@ -66,7 +66,7 @@ function DNATab() {
 
   return (
     <div>
-      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 28 }}>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 28 }}>
         <div style={{ padding: "28px 24px", borderRight: "1px solid var(--rule)" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Biggest Leak</div>
           <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 10 }}>{topCat[0]}</div>
@@ -89,7 +89,7 @@ function DNATab() {
         </div>
       </div>
 
-      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "1px solid var(--ink)", marginBottom: 28 }}>
+      <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 28 }}>
         <div style={{ borderRight: "1px solid var(--rule)" }}>
           <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--rule)" }}><div className="mono cin">By Subject</div></div>
           {topSubjects.map(([subj, cnt], i) => (
@@ -110,7 +110,7 @@ function DNATab() {
         </div>
       </div>
 
-      <div style={{ border: "1px solid var(--ink)" }}>
+      <div style={{ border: "none" }}>
         <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div className="mono cin">Recent Mistakes</div>
           <button onClick={() => { localStorage.removeItem("ledger-mistakes"); setMistakes([]); }} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", fontSize: 9 }}>Clear all</button>
@@ -220,12 +220,12 @@ function DebriefTab() {
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Exam name</div>
           <input value={form.examName} onChange={e => setForm(f => ({ ...f, examName: e.target.value }))} placeholder="e.g. CBSE Physics Paper 1"
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Exam Board</div>
           <select value={form.examBoard} onChange={e => setForm(f => ({ ...f, examBoard: e.target.value }))}
-            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }}>
+            style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }}>
             {BOARDS.map(b => <option key={b} value={b}>{b}</option>)}
           </select>
         </div>
@@ -234,7 +234,7 @@ function DebriefTab() {
       <div style={{ marginBottom: 18 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Score (%)</div>
         <input type="number" min={0} max={100} value={form.scorePercent} onChange={e => setForm(f => ({ ...f, scorePercent: e.target.value }))} placeholder="e.g. 74"
-          style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 22, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: scoreNum > 0 ? scoreColor : "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 22, border: "none", background: "var(--paper)", padding: "10px 12px", color: scoreNum > 0 ? scoreColor : "var(--ink)", boxSizing: "border-box" }} />
       </div>
 
       <div style={{ marginBottom: 18 }}>
@@ -322,7 +322,7 @@ function ExamStrategyTab() {
           </div>
         ))}
       </div>
-      <div style={{ border: "2px solid var(--ink)", padding: "16px 20px", marginBottom: 12 }}>
+      <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Time Management</div>
         <AIOutput text={result.timeManagement} />
       </div>
@@ -359,7 +359,7 @@ function ExamStrategyTab() {
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>
         <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. A-Level History Paper 2, JEE Maths…"
-          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--ink)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+          style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration: {duration} minutes</div>
