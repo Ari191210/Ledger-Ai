@@ -48,14 +48,23 @@ export async function callAIOrThrow<T = unknown>(
 
   if (!res.ok) {
     if (res.status === 429) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/limit";
+      }
       throw new AIError(
         (data.error as string) || "You've reached your daily AI limit. It resets at midnight.",
         "rate_limit",
       );
     }
-    if (res.status === 400 && typeof data.error === "string" && data.error.includes("off_topic")) {
+    if (res.status === 403) {
       throw new AIError(
-        "This topic isn't something Ledger can help with. Please keep questions related to your studies.",
+        (data.error as string) || "Your AI access has been suspended.",
+        "moderation",
+      );
+    }
+    if (res.status === 400) {
+      throw new AIError(
+        (data.error as string) || "This topic isn't something Ledger can help with.",
         "moderation",
       );
     }
