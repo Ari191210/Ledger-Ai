@@ -1616,8 +1616,18 @@ main {
 }
 
 /* ─── Hide scrollbar on pill tab bars while keeping scroll behavior ───────────── */
-[style*="overflowX"]::-webkit-scrollbar { display: none; }
-[style*="overflowX"] { scrollbar-width: none; }
+/* React serialises overflowX → overflow-x in the DOM, so match the hyphenated form */
+[style*="overflow-x: auto"]::-webkit-scrollbar { display: none; }
+[style*="overflow-x: auto"] { scrollbar-width: none; }
+
+/* ─── Mobile: tool page headers ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Title block stretches to fill the row; prevents subtitle from truncating prematurely */
+  .mob-hp > div:first-child { flex: 1; min-width: 0; }
+
+  /* Pill tab bar fills full width when it wraps below the title */
+  .mob-hp [style*="overflow-x: auto"] { width: 100% !important; }
+}
 
 /* ─── Mobile: top nav bar ─────────────────────────────────────────────────────── */
 /* Default: show signout label, hide icon */

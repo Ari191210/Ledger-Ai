@@ -26,7 +26,7 @@ export default function DNAPage() {
   if (mistakes.length === 0) {
     return (
       <div>
-        <header style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Mistake DNA</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>No data yet.</div>
         </header>

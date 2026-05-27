@@ -360,6 +360,7 @@ export default function CrematorPage() {
       <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
         {/* Header */}
         <header
+          className="mob-hp"
           style={{
             padding: "20px 32px",
             borderBottom: "1px solid var(--ink)",
@@ -769,6 +770,7 @@ export default function CrematorPage() {
     <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
       {/* Header */}
       <header
+        className="mob-hp"
         style={{
           padding: "20px 32px",
           borderBottom: "1px solid var(--ink)",
