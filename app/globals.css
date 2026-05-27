@@ -1620,6 +1620,50 @@ main {
 [style*="overflow-x: auto"]::-webkit-scrollbar { display: none; }
 [style*="overflow-x: auto"] { scrollbar-width: none; }
 
+/* ─── Tool page header: humanise tool name + subtitle (no component edits needed) */
+/*
+  Two structural patterns exist across the 40+ tool headers:
+    A) <mob-hp> → <div> → <.mono>Name</> + <.mono>Subtitle</>   (recall-studio, learn-lab, etc.)
+    B) <mob-hp> → <.mono>Name</>  [+ <.mono>Desc</>]            (case-study, practice, syllabus, etc.)
+  CSS `>` (direct child) + :first-child / :not(:first-child) handles both without touching any file.
+*/
+
+/* Pattern A — tool name (first .mono inside the wrapper div) */
+.mob-hp > div:first-child > .mono:first-child {
+  font-family: var(--sans) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  letter-spacing: 0 !important;
+}
+/* Pattern A — subtitle (any subsequent .mono inside the wrapper) */
+.mob-hp > div:first-child > .mono:not(:first-child) {
+  font-family: var(--sans) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--ink-2) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.5 !important;
+}
+
+/* Pattern B/C — tool name (.mono that is first direct child of mob-hp) */
+.mob-hp > .mono:first-child {
+  font-family: var(--sans) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  letter-spacing: 0 !important;
+}
+/* Pattern B/C — subtitle/description (subsequent .mono direct children) */
+.mob-hp > .mono:not(:first-child) {
+  font-family: var(--sans) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--ink-2) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.5 !important;
+}
+
 /* ─── Mobile: tool page headers ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Title block stretches to fill the row; prevents subtitle from truncating prematurely */
