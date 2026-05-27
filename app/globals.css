@@ -1700,3 +1700,17 @@ main {
   /* Focus-lab timer: shrink the huge serif number */
   .mob-timer    { font-size: 72px !important; letter-spacing: -0.04em !important; }
 }
+
+/* ─── Mobile: inputs / textareas / selects ───────────────────────────────────── */
+/*
+  iOS Safari zooms the viewport when a focused field has font-size < 16px.
+  !important overrides every inline fontSize: 13/14/11 across all 40+ tool pages.
+  type="range", checkbox, radio excluded — they have no text entry.
+*/
+@media (max-width: 768px) {
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
