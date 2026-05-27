@@ -1627,6 +1627,10 @@ main {
   /* Pill tab buttons in tool headers: reduce side padding so more fit before scroll */
   .mob-hp button { padding-left: 12px !important; padding-right: 12px !important; }
 
+  /* Saved outputs: tighter row side padding + action buttons can wrap */
+  .saved-item-row { padding: 12px 12px !important; }
+  .saved-actions  { flex-wrap: wrap !important; }
+
   /* Profile page: @username heading — 32px is too large in stacked column view */
   .profile-username { font-size: 22px !important; letter-spacing: -0.01em !important; }
 

@@ -90,6 +90,7 @@ export default function SavedOutputsPage() {
                       >
                         {/* Row header */}
                         <div
+                          className="saved-item-row"
                           style={{
                             padding: "14px 18px",
                             display: "flex",
@@ -157,7 +158,7 @@ export default function SavedOutputsPage() {
                             }}
                           >
                             <AIOutput text={entry.outputText} />
-                            <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
+                            <div className="saved-actions" style={{ marginTop: 16, display: "flex", gap: 10 }}>
                               <Link
                                 href={`/tools/${entry.toolSlug}`}
                                 className="btn ghost"
