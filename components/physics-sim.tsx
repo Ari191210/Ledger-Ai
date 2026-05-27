@@ -465,9 +465,9 @@ function drawTitration(ctx: CanvasRenderingContext2D, W: number, H: number, t: n
   const xC = (v: number) => pL + (v/2)*gW;
   const yC = (pH: number) => pT + gH - (pH/14)*gH;
 
-  // Shaded regions
-  ctx.fillStyle = C.primary+"0a"; ctx.fillRect(pL,pT,gW/2,gH);
-  ctx.fillStyle = C.blue+"0a";    ctx.fillRect(pL+gW/2,pT,gW/2,gH);
+  // Shaded regions — acidic vs basic sides
+  ctx.fillStyle = C.primary+"18"; ctx.fillRect(pL,pT,gW/2,gH);
+  ctx.fillStyle = C.blue+"18";    ctx.fillRect(pL+gW/2,pT,gW/2,gH);
 
   // Axes
   ctx.strokeStyle = C.secondary; ctx.lineWidth = 1.5;
@@ -483,7 +483,7 @@ function drawTitration(ctx: CanvasRenderingContext2D, W: number, H: number, t: n
   lbl(ctx,"Volume base added →",pL+gW/2,pT+gH+28,"center");
 
   // pH curve
-  ctx.strokeStyle = C.cyan; ctx.lineWidth = 2.5; ctx.beginPath();
+  ctx.strokeStyle = C.cyan; ctx.lineWidth = 3.5; ctx.beginPath();
   let first=true;
   for (let i=1; i<=500; i++) {
     const v=(i/500)*2;
@@ -516,7 +516,11 @@ function drawTitration(ctx: CanvasRenderingContext2D, W: number, H: number, t: n
   else { const ex=(v-1)/Math.max(v,0.001); pH_now=14+Math.log10(Math.max(ex*0.1,1e-14)); }
   pH_now=Math.max(0,Math.min(14,pH_now));
 
-  ctx.beginPath(); ctx.arc(xC(v),yC(pH_now),6,0,Math.PI*2);
+  // Pulsing marker
+  const mPulse=(t*1.2)%1;
+  ctx.beginPath(); ctx.arc(xC(v),yC(pH_now),8+mPulse*14,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(34,211,238,${(1-mPulse)*0.4})`; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(xC(v),yC(pH_now),7,0,Math.PI*2);
   ctx.fillStyle=C.cyan; ctx.fill();
   ctx.strokeStyle=C.white; ctx.lineWidth=1.5; ctx.stroke();
 
@@ -827,49 +831,70 @@ function updateOsmosis(particles: OsmosisParticle[], W: number, H: number, cL: n
   }
 }
 
-function drawOsmosis(ctx: CanvasRenderingContext2D, W: number, H: number, particles: OsmosisParticle[], s: Record<string,number>) {
-  const mid=W/2, cL=s.conc_left??1, cR=s.conc_right??5;
-  // Membrane
-  ctx.fillStyle=C.secondary+"aa";
-  ctx.fillRect(mid-4,12,8,H-24);
-  for(let y=14;y<H-14;y+=12) {
-    ctx.fillStyle=C.dim; ctx.fillRect(mid-3,y,6,6);
+function drawOsmosis(ctx: CanvasRenderingContext2D, W: number, H: number, t: number, particles: OsmosisParticle[], s: Record<string,number>) {
+  const mid=W/2, cL=s.conc_left??1, cR=s.conc_right??5, pad=14;
+
+  // Side concentration shading
+  ctx.fillStyle=`rgba(68,136,255,${0.04+0.07*(cL/10)})`; ctx.fillRect(0,0,mid,H);
+  ctx.fillStyle=`rgba(255,107,53,${0.04+0.07*(cR/10)})`; ctx.fillRect(mid,0,mid,H);
+
+  // Membrane glow
+  const mg=ctx.createLinearGradient(mid-10,0,mid+10,0);
+  mg.addColorStop(0,"rgba(42,106,58,0)"); mg.addColorStop(0.35,"rgba(82,217,104,0.7)");
+  mg.addColorStop(0.65,"rgba(82,217,104,0.7)"); mg.addColorStop(1,"rgba(42,106,58,0)");
+  ctx.fillStyle=mg; ctx.fillRect(mid-10,pad,20,H-pad*2);
+
+  // Animated pores — pulse open/closed
+  for(let y=pad+10;y<H-pad;y+=16) {
+    const open=0.5+0.5*Math.sin(t*2.2+y*0.25);
+    ctx.beginPath(); ctx.arc(mid,y,2.5,0,Math.PI*2);
+    ctx.fillStyle="rgba(11,26,14,0.9)"; ctx.fill();
+    ctx.strokeStyle=`rgba(82,217,104,${0.3+open*0.7})`; ctx.lineWidth=1; ctx.stroke();
   }
-  // Particles
+
+  // Particles with depth ring
   for (const p of particles) {
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.type==="solute"?5:3.5,0,Math.PI*2);
-    ctx.fillStyle=p.type==="solute"?C.accent:C.blue; ctx.fill();
+    const r=p.type==="solute"?5:3.5, col=p.type==="solute"?C.accent:C.blue;
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.strokeStyle=col+"66"; ctx.lineWidth=1.5; ctx.stroke();
   }
-  // Labels
-  lbl(ctx,`[S] = ${cL.toFixed(1)} M`,mid*0.5,18,"center");
-  lbl(ctx,`[S] = ${cR.toFixed(1)} M`,mid+mid*0.5,18,"center");
-  lbl(ctx,"Low solute",mid*0.5,H-10,"center");
-  lbl(ctx,"High solute",mid+mid*0.5,H-10,"center");
-  // Net flow arrow
-  if (Math.abs(cL-cR)>0.4) {
-    const dir=cR>cL?1:-1;
-    ctx.strokeStyle=C.blue; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(mid-dir*22,H/2); ctx.lineTo(mid+dir*22,H/2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(mid+dir*22,H/2-6); ctx.lineTo(mid+dir*22+dir*8,H/2); ctx.lineTo(mid+dir*22,H/2+6); ctx.fill();
-    lbl(ctx,"H₂O →",mid+dir*34,H/2+4,dir>0?"left":"right");
+
+  lbl(ctx,`[S] = ${cL.toFixed(1)} M`,mid*0.5,20,"center");
+  lbl(ctx,`[S] = ${cR.toFixed(1)} M`,mid+mid*0.5,20,"center");
+  lbl(ctx,cL<cR?"low conc":"high conc",mid*0.5,H-10,"center");
+  lbl(ctx,cR>cL?"high conc":"low conc",mid+mid*0.5,H-10,"center");
+
+  // Animated net flow arrow
+  if (Math.abs(cL-cR)>0.3) {
+    const dir=cR>cL?1:-1, pulse=0.5+0.5*Math.sin(t*3);
+    ctx.strokeStyle=`rgba(68,136,255,${0.5+pulse*0.5})`; ctx.lineWidth=1.5+pulse;
+    ctx.beginPath(); ctx.moveTo(mid-dir*30,H/2); ctx.lineTo(mid+dir*30,H/2); ctx.stroke();
+    ctx.fillStyle=C.blue;
+    ctx.beginPath(); ctx.moveTo(mid+dir*30,H/2-6); ctx.lineTo(mid+dir*40,H/2); ctx.lineTo(mid+dir*30,H/2+6); ctx.closePath(); ctx.fill();
+    lbl(ctx,"H₂O",mid+dir*48,H/2+4,dir>0?"left":"right");
   }
-  const legend=["● Solute","● H₂O"];
-  for(const [i,t] of legend.entries()) {
-    ctx.fillStyle=i===0?C.accent:C.blue; ctx.font="9px 'Space Mono',monospace"; ctx.textAlign="left";
-    ctx.fillText(t,10,H-10-i*14);
+
+  const leg:[string,string][]=[[C.accent,"● Solute"],[C.blue,"● H₂O"]];
+  for(const [i,le] of leg.entries()) {
+    ctx.fillStyle=le[0]; ctx.font="9px 'Space Mono',monospace"; ctx.textAlign="left";
+    ctx.fillText(le[1],10,H-12-i*14);
   }
 }
 
 // ── Mitosis ───────────────────────────────────────────────────────────────────
 function drawChromosome(ctx: CanvasRenderingContext2D, x: number, y: number, angle: number, color: string, scale=1) {
   ctx.save(); ctx.translate(x,y); ctx.rotate(angle); ctx.scale(scale,scale);
-  ctx.fillStyle=color; ctx.strokeStyle=color+"cc"; ctx.lineWidth=1;
-  // Two arms
-  const arm=14, w=5;
-  ctx.beginPath(); ctx.roundRect(-w/2,-arm,w,arm*2,3); ctx.fill();
-  // Centromere
-  ctx.fillStyle=color+"aa";
-  ctx.beginPath(); ctx.arc(0,0,w*0.7,0,Math.PI*2); ctx.fill();
+  // Sister chromatids
+  ctx.fillStyle=color; ctx.strokeStyle=color+"88"; ctx.lineWidth=0.5;
+  ctx.beginPath(); ctx.roundRect(-6,-13,5,26,3); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(1,-13,5,26,3); ctx.fill(); ctx.stroke();
+  // Centromere constriction
+  ctx.fillStyle=color+"66";
+  ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fill();
+  // Kinetochore highlight
+  ctx.fillStyle=C.highlight+"ee";
+  ctx.beginPath(); ctx.arc(0,0,2,0,Math.PI*2); ctx.fill();
   ctx.restore();
 }
 
@@ -914,16 +939,23 @@ function drawMitosis(ctx: CanvasRenderingContext2D, W: number, H: number, t: num
     ctx.strokeStyle=C.primary; ctx.lineWidth=2; ctx.stroke();
     // Metaphase plate
     ctx.strokeStyle=C.dim; ctx.lineWidth=1; ctx.setLineDash([3,3]);
-    ctx.beginPath(); ctx.moveTo(cx2,cy2-cellR*0.8); ctx.lineTo(cx2,cy2+cellR*0.8); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(cx2,cy2-cellR*0.85); ctx.lineTo(cx2,cy2+cellR*0.85); ctx.stroke(); ctx.setLineDash([]);
     const offsets=[-1.2,-0.4,0.4,1.2];
     for(const [i,dy] of offsets.entries()) {
       drawChromosome(ctx,cx2,cy2+dy*22,Math.PI/2,i%2===0?C.accent:C.pink);
     }
     // Spindle fibers
-    ctx.strokeStyle=C.highlight+"44"; ctx.lineWidth=0.8;
+    const poleL=cx2-cellR*0.85, poleR=cx2+cellR*0.85;
+    ctx.strokeStyle=C.highlight+"55"; ctx.lineWidth=1;
     for(const dy of offsets) {
-      ctx.beginPath(); ctx.moveTo(cx2-cellR*0.85,cy2); ctx.lineTo(cx2,cy2+dy*22); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx2+cellR*0.85,cy2); ctx.lineTo(cx2,cy2+dy*22); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(poleL,cy2); ctx.lineTo(cx2,cy2+dy*22); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(poleR,cy2); ctx.lineTo(cx2,cy2+dy*22); ctx.stroke();
+    }
+    // Centrosomes at poles
+    for(const px of [poleL,poleR]) {
+      ctx.beginPath(); ctx.arc(px,cy2,5,0,Math.PI*2);
+      ctx.fillStyle=C.highlight; ctx.fill();
+      ctx.strokeStyle=C.bg; ctx.lineWidth=1; ctx.stroke();
     }
   } else if (phaseIdx===3) {
     // Anaphase: chromosomes pulling apart
@@ -940,14 +972,19 @@ function drawMitosis(ctx: CanvasRenderingContext2D, W: number, H: number, t: num
   } else {
     // Telophase: two daughter cells forming
     const sep=phaseP*cellR*0.55+cellR*0.45;
-    const r2=cellR*(0.55+phaseP*0.1);
+    const r2=cellR*0.7;
     ctx.strokeStyle=C.primary; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.arc(cx2-sep,cy2,r2*0.7,0,Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(cx2+sep,cy2,r2*0.7,0,Math.PI*2); ctx.stroke();
-    // Small nuclei inside
+    ctx.beginPath(); ctx.arc(cx2-sep,cy2,r2,0,Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx2+sep,cy2,r2,0,Math.PI*2); ctx.stroke();
+    // Nuclei inside daughter cells
     ctx.strokeStyle=C.blue; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(cx2-sep,cy2,r2*0.3,0,Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(cx2+sep,cy2,r2*0.3,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle=C.blue+"18";
+    ctx.beginPath(); ctx.arc(cx2-sep,cy2,r2*0.38,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx2+sep,cy2,r2*0.38,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Cleavage furrow (pinch line between cells)
+    const furrowDepth=phaseP*r2*0.5;
+    ctx.strokeStyle=C.primary+"88"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx2,cy2-furrowDepth); ctx.lineTo(cx2,cy2+furrowDepth); ctx.stroke();
   }
 
   // Phase label + progress bar
@@ -1052,10 +1089,28 @@ function drawPopulation(ctx: CanvasRenderingContext2D, W: number, H: number, t: 
   ctx.beginPath(); ctx.moveTo(pL,yC(K)); ctx.lineTo(pL+gW,yC(K)); ctx.stroke(); ctx.setLineDash([]);
   lbl(ctx,`K=${K}`,pL+4,yC(K)-5);
 
+  // Fill under curve
+  ctx.beginPath();
+  for(let i=0;i<=200;i++) { const ti=(i/200)*tMax, ni=N(ti); i===0?ctx.moveTo(xC(ti),yC(ni)):ctx.lineTo(xC(ti),yC(ni)); }
+  ctx.lineTo(pL+gW,pT+gH); ctx.lineTo(pL,pT+gH); ctx.closePath();
+  const fillGrad=ctx.createLinearGradient(0,pT,0,pT+gH);
+  fillGrad.addColorStop(0,C.cyan+"30"); fillGrad.addColorStop(1,C.cyan+"06");
+  ctx.fillStyle=fillGrad; ctx.fill();
+
   // Full logistic curve
   ctx.strokeStyle=C.cyan; ctx.lineWidth=2.5; ctx.beginPath();
   for(let i=0;i<=200;i++) { const ti=(i/200)*tMax, ni=N(ti); i===0?ctx.moveTo(xC(ti),yC(ni)):ctx.lineTo(xC(ti),yC(ni)); }
   ctx.stroke();
+
+  // Inflection point (max growth rate at N = K/2)
+  if (N0<K/2) {
+    const tInfl=Math.log((K-N0)/Math.max(N0,0.01))/Math.max(r,0.001);
+    if (tInfl>0 && tInfl<tMax) {
+      ctx.strokeStyle=C.highlight+"55"; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(xC(tInfl),pT); ctx.lineTo(xC(tInfl),pT+gH); ctx.stroke(); ctx.setLineDash([]);
+      lbl(ctx,"K/2",xC(tInfl)+3,yC(K/2)-6);
+    }
+  }
 
   // Animated marker
   const tNow=(t*0.8)%tMax;
@@ -1101,6 +1156,11 @@ function drawActionPotential(ctx: CanvasRenderingContext2D, W: number, H: number
     return -70; // resting
   };
 
+  // Phase background shading
+  const depol_frac=0.15, repol_frac=0.35;
+  ctx.fillStyle="rgba(255,107,53,0.08)"; ctx.fillRect(pL,pT,gW*depol_frac,gH);
+  ctx.fillStyle="rgba(68,136,255,0.08)"; ctx.fillRect(pL+gW*depol_frac,pT,gW*(repol_frac-depol_frac),gH);
+
   // Axes
   ctx.strokeStyle=C.secondary; ctx.lineWidth=1.5;
   ctx.beginPath(); ctx.moveTo(pL,pT); ctx.lineTo(pL,pT+gH); ctx.lineTo(pL+gW,pT+gH); ctx.stroke();
@@ -1141,6 +1201,19 @@ function drawActionPotential(ctx: CanvasRenderingContext2D, W: number, H: number
 
   const vNow=apV(curPhase);
   lbl(ctx,`V = ${vNow.toFixed(0)} mV`,pL+4,pT+28);
+
+  // Channel state bars
+  const naOpen=curPhase<0.08?curPhase/0.08:curPhase<0.12?(0.12-curPhase)/0.04:0;
+  const kOpen=curPhase>0.12&&curPhase<0.45?Math.min(1,(curPhase-0.12)/0.08):curPhase>0.45&&curPhase<0.7?(0.7-curPhase)/0.25:0;
+  const barY=pT+gH-12, bW=60, bH=5;
+  ctx.fillStyle=`rgba(255,107,53,${0.2+naOpen*0.7})`; ctx.fillRect(pL+4,barY,bW*naOpen,bH);
+  ctx.strokeStyle=C.accent+"66"; ctx.lineWidth=1; ctx.strokeRect(pL+4,barY,bW,bH);
+  ctx.font="8px 'Space Mono',monospace"; ctx.fillStyle=C.accent; ctx.textAlign="left";
+  ctx.fillText("Na⁺",pL+bW+8,barY+5);
+  ctx.fillStyle=`rgba(68,136,255,${0.2+kOpen*0.7})`; ctx.fillRect(pL+4,barY+8,bW*kOpen,bH);
+  ctx.strokeStyle=C.blue+"66"; ctx.lineWidth=1; ctx.strokeRect(pL+4,barY+8,bW,bH);
+  ctx.fillStyle=C.blue; ctx.fillText("K⁺",pL+bW+8,barY+13);
+
   lbl(ctx,"Membrane Voltage (mV)",pL-44,pT+gH/2,"right");
   lbl(ctx,"Time →",pL+gW/2,pT+gH+28,"center");
 
@@ -1257,7 +1330,7 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
           case "reaction_energy": drawReactionEnergy(ctx,W,H,t,s); break;
           case "equilibrium":     drawEquilibrium(ctx,W,H,t,s); break;
           case "atomic_model":    drawAtomicModel(ctx,W,H,t,s); break;
-          case "osmosis":         drawOsmosis(ctx,W,H,particlesRef.current as OsmosisParticle[],s); break;
+          case "osmosis":         drawOsmosis(ctx,W,H,t,particlesRef.current as OsmosisParticle[],s); break;
           case "mitosis":         drawMitosis(ctx,W,H,t,s);     break;
           case "enzyme":          drawEnzyme(ctx,W,H,t,s);        break;
           case "population":      drawPopulation(ctx,W,H,t,s);  break;
