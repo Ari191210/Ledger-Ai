@@ -12,6 +12,7 @@ export default function AuthCallbackPage() {
     const code = params.get("code");
     const state = params.get("state");
 
+    const type = params.get("type");
     if (!code) { router.replace("/auth?error=oauth"); return; }
 
     const storedState = sessionStorage.getItem("google_oauth_state");
@@ -64,6 +65,9 @@ export default function AuthCallbackPage() {
     async function handleSupabaseCallback(authCode: string) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
       if (error) { router.replace("/auth?error=oauth"); return; }
+
+      // Recovery flow: redirect to password reset page
+      if (type === "recovery") { router.replace("/auth/reset"); return; }
 
       const u = data.session?.user;
       if (u && !u.app_metadata?.welcomeSent) {

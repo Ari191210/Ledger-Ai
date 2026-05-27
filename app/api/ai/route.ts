@@ -270,9 +270,9 @@ ${params.content}`,
         userText: `Solve this problem and respond with exactly this JSON shape:
 {"solution":"step-by-step worked solution with each step on a new line","principle":"the underlying theorem or concept in 1-2 sentences","practice":["similar problem 1","similar problem 2","similar problem 3"],"sim":{"type":"none","label":"","params":{}}}
 
-For the "sim" field: if this is a physics problem, pick the most relevant simulation type and set realistic params extracted from the problem where given, else use sensible defaults. For non-physics questions, use type "none".
+For the "sim" field: if this is a physics, chemistry, or biology problem, pick the most relevant simulation type and set realistic params extracted from the problem where given, else use sensible defaults. For maths, history, literature, or other non-science questions, use type "none".
 
-Simulation types and their param keys:
+PHYSICS simulation types:
 - "projectile": angle(launch angle in degrees, e.g.45), v0(initial speed m/s, e.g.20), gravity(m/s², default 9.8)
 - "pendulum": length(metres, e.g.1), amplitude(max angle degrees, e.g.30), gravity(m/s², default 9.8)
 - "wave": amp1(0.1-1), freq1(Hz), amp2(0.1-1), freq2(Hz) — use for sound, EM, interference, beats
@@ -281,10 +281,25 @@ Simulation types and their param keys:
 - "orbital": ecc(eccentricity 0-0.9), speed(multiplier 0.3-2) — use for Kepler, gravity, satellites
 - "optics": angle(incidence degrees), n1(refractive index), n2(refractive index) — use for Snell's law, lenses, TIR
 - "gas": temp(Kelvin), particles(integer 10-60) — use for kinetic theory, thermodynamics, pressure, Boyle's law
-- "none": for non-physics or topics not matching any above
 
-Set "label" to a short descriptive string like "Interactive · Projectile Motion" or "Interactive · Snell's Law".
-Extract numeric values from the problem text wherever possible (e.g. if problem says "30°", use angle:30).
+CHEMISTRY simulation types:
+- "titration": pKa(acid pKa e.g.4.76), conc_base(M e.g.0.1) — use for acid-base, pH, buffers, Henderson-Hasselbalch
+- "molecular": bond_pairs(2-4), lone_pairs(0-3) — use for VSEPR, molecular geometry, Lewis structures, bond angles
+- "reaction_energy": Ea(activation energy kJ, e.g.80), dH(enthalpy kJ, e.g.-40) — use for energy profiles, catalysts, exo/endothermic
+- "equilibrium": Kc(equilibrium constant, e.g.1), temp_eq(temperature K, e.g.500) — use for Le Chatelier, Kc/Kp, equilibrium
+- "atomic_model": protons(Z 1-20), excited(0=ground, 1=excited) — use for Bohr model, electron shells, emission spectra
+
+BIOLOGY simulation types:
+- "osmosis": conc_left(solute M left side, e.g.1), conc_right(solute M right side, e.g.5) — use for osmosis, water potential, diffusion
+- "mitosis": speed(0.3-3, default 1) — use for cell division, mitosis/meiosis phases, chromosomes
+- "enzyme": Km(mM, e.g.2), Vmax(e.g.100), substrate(mM, e.g.5) — use for enzyme kinetics, Michaelis-Menten, inhibitors
+- "population": growth_rate(r 0.1-2), carrying_cap(K 50-1000), initial_pop(N0 5-100) — use for logistic growth, ecology
+- "action_potential": frequency(Hz 0.3-4), threshold(mV -70 to -40) — use for nerve impulse, Na+/K+ channels, neurons
+
+- "none": for non-science topics (maths proofs, history, literature, etc.)
+
+Set "label" to a descriptive string like "Interactive · Snell's Law" or "Interactive · Enzyme Kinetics" or "Interactive · Titration Curve".
+Extract numeric values from the problem text wherever possible (e.g. if problem says "pKa = 4.76", use pKa:4.76).
 
 Problem:
 ${params.question || "See the image above."}`,
