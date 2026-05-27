@@ -208,7 +208,7 @@ export default function OnboardPage() {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "56px 24px 80px" }}>
+      <div className="onboard-outer" style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "56px 24px 80px" }}>
         <div ref={contentRef} style={{ width: "100%", maxWidth: 520 }}>
 
           {/* Step 0: Welcome */}
@@ -217,7 +217,7 @@ export default function OnboardPage() {
               <div style={{ fontFamily: "var(--serif)", fontSize: 13, fontStyle: "italic", color: "var(--cinnabar-ink)", marginBottom: 20, letterSpacing: "0.02em" }}>
                 Welcome to Ledger
               </div>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 16 }}>
+              <div className="onboard-hello" style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 16 }}>
                 Hello, {displayName}<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
               </div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.65, marginBottom: 40, maxWidth: 400, margin: "0 auto 40px" }}>
@@ -290,7 +290,7 @@ export default function OnboardPage() {
                 Which subjects interest you?
               </div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>Pick at least 2. The AI learns what to focus on.</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div className="onboard-interests" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 {INTERESTS.map(s => (
                   <OptionPill key={s} label={s} selected={interests.includes(s)} onClick={() => toggleInterest(s)} />
                 ))}
