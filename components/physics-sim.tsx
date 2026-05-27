@@ -1154,7 +1154,7 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
     if (!el) return;
     const ro = new ResizeObserver(([e]) => {
       const w = Math.floor(e.contentRect.width);
-      const h = Math.floor(w * 0.44);
+      const h = Math.floor(w * 0.52);
       sizeRef.current = { w, h };
     });
     ro.observe(el);
@@ -1248,54 +1248,60 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
   }
 
   const hint = SIM_HINTS[sim.type as Exclude<SimType,"none">];
+  const cat = simCategory(sim.type);
+  const labelText = sim.label && sim.label !== "" ? sim.label : `Interactive · ${sim.type.replace(/_/g," ")}`;
 
   return (
-    <div style={{ border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
-      {/* Header */}
-      <div style={{ padding: "11px 16px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" as const }}>
+    <div style={{ background: C.bg, border: `1px solid ${C.secondary}` }}>
+      {/* Header — dark-themed to match canvas */}
+      <div style={{ padding: "12px 18px", borderBottom: `1px solid ${C.secondary}`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" as const }}>
         <div>
-          <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.1em" }}>{simCategory(sim.type)}</div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)", marginTop: 2 }}>
-            {sim.label || `Interactive · ${sim.type}`}
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: C.primary, letterSpacing: "0.12em", textTransform: "uppercase" }}>{cat}</div>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: C.white, marginTop: 3, fontWeight: 500 }}>
+            {labelText}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn ghost" onClick={() => setPaused(p => !p)} style={{ fontSize: 10, padding: "5px 12px" }}>
-            {paused ? "▶ Resume" : "⏸ Pause"}
+          <button
+            onClick={() => setPaused(p => !p)}
+            style={{ background: "transparent", border: `1px solid ${C.dim}`, color: C.white, padding: "5px 14px", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em" }}>
+            {paused ? "▶ RESUME" : "⏸ PAUSE"}
           </button>
-          <button className="btn ghost" onClick={() => { tRef.current = 0; }} style={{ fontSize: 10, padding: "5px 12px" }}>
-            ↺ Reset
+          <button
+            onClick={() => { tRef.current = 0; }}
+            style={{ background: "transparent", border: `1px solid ${C.dim}`, color: C.dim, padding: "5px 14px", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em" }}>
+            ↺ RESET
           </button>
         </div>
       </div>
 
-      {/* Canvas */}
-      <div ref={containerRef} style={{ width: "100%", background: C.bg, lineHeight: 0 }}>
+      {/* Canvas — no gap, bleeds edge to edge */}
+      <div ref={containerRef} style={{ width: "100%", lineHeight: 0 }}>
         <canvas ref={canvasRef} style={{ display: "block", width: "100%" }} />
       </div>
 
-      {/* Controls */}
-      <div style={{ padding: "14px 16px 16px", borderTop: "1px solid var(--rule)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 12, letterSpacing: "0.06em" }}>PARAMETERS — drag to explore the physics</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: "12px 20px" }}>
+      {/* Controls — dark-themed */}
+      <div style={{ padding: "16px 18px 18px", borderTop: `1px solid ${C.secondary}` }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: C.dim, marginBottom: 14, letterSpacing: "0.1em", textTransform: "uppercase" }}>Parameters — drag to explore</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))", gap: "14px 24px" }}>
           {controls.map(ctrl => (
             <div key={ctrl.key}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{ctrl.label}</span>
-                <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: C.dim }}>{ctrl.label}</span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: C.primary, fontWeight: 600 }}>
                   {(sliders[ctrl.key] ?? ctrl.default).toFixed(ctrl.step < 0.1 ? 2 : ctrl.step < 1 ? 1 : 0)}{ctrl.unit}
                 </span>
               </div>
               <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step}
                 value={sliders[ctrl.key] ?? ctrl.default}
                 onChange={e => handleSlider(ctrl.key, parseFloat(e.target.value))}
-                style={{ width: "100%", cursor: "pointer", accentColor: "var(--cinnabar-ink)" }}
+                style={{ width: "100%", cursor: "pointer", accentColor: C.primary }}
               />
             </div>
           ))}
         </div>
         {hint && (
-          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 12, lineHeight: 1.6, borderTop: "1px solid var(--rule)", paddingTop: 10 }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: C.dim, marginTop: 14, lineHeight: 1.7, borderTop: `1px solid ${C.secondary}`, paddingTop: 12 }}>
             {hint}
           </div>
         )}
