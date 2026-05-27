@@ -1605,11 +1605,27 @@ main {
   /* Stat bento: tighter cells */
   .dash-stat { padding: 14px 12px !important; }
 
+  /* Stat value numbers: 36px is too large in the 3-col mobile layout */
+  .dash-stat > div:not(.mono) {
+    font-size: 22px !important;
+    letter-spacing: -0.01em !important;
+    margin-top: 4px !important;
+  }
+
+  /* Dashboard "Command Centre · DATE" line: compress on narrow screens */
+  .dash-header > div:first-child > div:first-child > .mono:first-child {
+    font-size: 9px !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  /* Tool cards: hide verbose description on mobile — title + subtitle is enough */
+  .dash-tool > div:nth-child(4) { display: none !important; }
+
+  /* Tool cards: tighter padding on mobile */
+  .dash-tool { min-height: auto !important; padding: 14px 14px 12px !important; }
+
   /* Pill tab buttons in tool headers: reduce side padding so more fit before scroll */
   .mob-hp button { padding-left: 12px !important; padding-right: 12px !important; }
-
-  /* Tool cards: prevent subtitle overflow */
-  .dash-tool { min-height: auto !important; }
 
   /* Ensure all images don't overflow */
   img, video, canvas { max-width: 100%; }
