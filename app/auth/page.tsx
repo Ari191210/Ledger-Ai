@@ -103,8 +103,8 @@ export default function AuthPage() {
         <div className="mono mob-hide" style={{ color: "var(--ink-3)" }}>The Student&apos;s Operating System</div>
       </div>
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-        <div ref={formRef} className="gl-pane-alt" style={{ width: "100%", maxWidth: 420, padding: "36px 32px", border: "1px solid var(--rule)" }}>
+      <div className="auth-outer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+        <div ref={formRef} className="auth-card gl-pane-alt" style={{ width: "100%", maxWidth: 420, padding: "36px 32px", border: "1px solid var(--rule)" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", border: "1px solid var(--ink)", marginBottom: 32 }}>
             {(["signin", "signup"] as const).map((m, i) => (
               <button key={m} onClick={() => { setMode(m); setError(""); }}
@@ -114,7 +114,7 @@ export default function AuthPage() {
             ))}
           </div>
 
-          <div style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 24 }}>
+          <div className="auth-heading" style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 24 }}>
             {mode === "signin" ? "Welcome back." : "Start your ledger."}
           </div>
 
