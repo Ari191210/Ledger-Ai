@@ -10,9 +10,11 @@ import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
 import SaveOutputButton from "@/components/save-output-button";
+import { PhysicsSim, type SimType } from "@/components/physics-sim";
 
 // ─── Doubt Solver types ──────────────────────────────────────────────────────
-type DoubtOutput = { solution: string; principle: string; practice: string[] };
+type DoubtSim = { type: SimType; label?: string; params?: Record<string, number> };
+type DoubtOutput = { solution: string; principle: string; practice: string[]; sim?: DoubtSim };
 type CrossQ = { q: string; targetsConcept: string };
 type CrossResult = { score: number; max: number; verdict: "correct" | "partial" | "wrong"; feedback: string; model: string };
 type CrossEval = { results: CrossResult[]; overallScore: number; overallMax: number; summary: string; nextStep: string };
@@ -266,6 +268,11 @@ function DoubtTab() {
             {error && <AIErrorDisplay error={error} onRetry={solve} inline />}
           </div>
           {loading && <AIThinking />}
+          {output && !loading && output.sim && output.sim.type !== "none" && (
+            <div style={{ gridColumn: "1 / -1" }}>
+              <PhysicsSim sim={output.sim} />
+            </div>
+          )}
           {output && !loading && (
             <div>
               <div style={{ border: "none" }}>

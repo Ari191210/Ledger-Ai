@@ -268,7 +268,23 @@ ${params.content}`,
       return {
         system: `${SAFETY_PREAMBLE}${profileCtx}You are a patient tutor. Always respond with valid JSON only — no markdown fences.`,
         userText: `Solve this problem and respond with exactly this JSON shape:
-{"solution":"step-by-step worked solution with each step on a new line","principle":"the underlying theorem or concept in 1-2 sentences","practice":["similar problem 1","similar problem 2","similar problem 3"]}
+{"solution":"step-by-step worked solution with each step on a new line","principle":"the underlying theorem or concept in 1-2 sentences","practice":["similar problem 1","similar problem 2","similar problem 3"],"sim":{"type":"none","label":"","params":{}}}
+
+For the "sim" field: if this is a physics problem, pick the most relevant simulation type and set realistic params extracted from the problem where given, else use sensible defaults. For non-physics questions, use type "none".
+
+Simulation types and their param keys:
+- "projectile": angle(launch angle in degrees, e.g.45), v0(initial speed m/s, e.g.20), gravity(m/s², default 9.8)
+- "pendulum": length(metres, e.g.1), amplitude(max angle degrees, e.g.30), gravity(m/s², default 9.8)
+- "wave": amp1(0.1-1), freq1(Hz), amp2(0.1-1), freq2(Hz) — use for sound, EM, interference, beats
+- "spring": k(N/m, e.g.10), mass(kg, e.g.1), x0(initial displacement m, e.g.0.3)
+- "electric": q1(signed μC), q2(signed μC) — use for electric fields, Coulomb's law, capacitors
+- "orbital": ecc(eccentricity 0-0.9), speed(multiplier 0.3-2) — use for Kepler, gravity, satellites
+- "optics": angle(incidence degrees), n1(refractive index), n2(refractive index) — use for Snell's law, lenses, TIR
+- "gas": temp(Kelvin), particles(integer 10-60) — use for kinetic theory, thermodynamics, pressure, Boyle's law
+- "none": for non-physics or topics not matching any above
+
+Set "label" to a short descriptive string like "Interactive · Projectile Motion" or "Interactive · Snell's Law".
+Extract numeric values from the problem text wherever possible (e.g. if problem says "30°", use angle:30).
 
 Problem:
 ${params.question || "See the image above."}`,
