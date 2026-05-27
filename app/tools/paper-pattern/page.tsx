@@ -166,7 +166,7 @@ export default function PaperPatternPage() {
 
           {/* Topic frequency table */}
           <div className="mono cin" style={{ marginBottom: 16 }}>Topic frequency · Last 10 years</div>
-          <div style={{ marginBottom: 36, border: "none" }}>
+          <div className="mob-scroll" style={{ marginBottom: 36, border: "none" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px 80px 80px", borderBottom: "1px solid var(--ink)", padding: "10px 16px", background: "var(--paper-2)" }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>TOPIC</div>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", textAlign: "center" }}>FREQUENCY</div>

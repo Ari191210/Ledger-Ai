@@ -1660,3 +1660,43 @@ main {
   .nav-signout-icon  { display: inline; }
   .nav-signout { padding: 0 10px !important; }
 }
+
+/* ─── Mobile: full-height split panels (exam mode, slide viewer, cremator) ───── */
+@media (max-width: 768px) {
+  /* Outer container: stop being a fixed-height flex/grid, stack vertically */
+  .tool-split {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    grid-template-columns: 1fr !important;
+  }
+  /* Left sidebar / slide list: full width, compact scrollable strip */
+  .tool-split-sidebar {
+    width: 100% !important;
+    max-height: 200px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--rule) !important;
+    overflow-y: auto;
+    flex-shrink: 0 !important;
+  }
+  /* Main content pane: normal flow, tighter padding */
+  .tool-split-main {
+    height: auto !important;
+    overflow-y: visible !important;
+    padding: 24px 16px !important;
+  }
+}
+
+/* ─── Mobile: horizontal-scroll wrapper for wide tables ──────────────────────── */
+.mob-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ─── Mobile: study-command planner grid rows ────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Day row: 4-col (80px 120px 1fr 260px) → single column */
+  .mob-day-row  { grid-template-columns: 1fr !important; gap: 12px !important; padding: 16px 0 !important; }
+  /* Add-subject row: 5-col form → 2-col */
+  .mob-add-subj { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  /* Focus-lab timer: shrink the huge serif number */
+  .mob-timer    { font-size: 72px !important; letter-spacing: -0.04em !important; }
+}

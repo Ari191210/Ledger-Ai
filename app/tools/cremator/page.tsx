@@ -410,6 +410,7 @@ export default function CrematorPage() {
 
         {/* Body — 2-column */}
         <div
+          className="tool-split"
           style={{
             display: "grid",
             gridTemplateColumns: "340px 1fr",
@@ -854,6 +855,7 @@ export default function CrematorPage() {
 
         {/* Exam board + date row */}
         <div
+          className="mob-col"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",

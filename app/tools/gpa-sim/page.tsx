@@ -192,7 +192,7 @@ export default function GpaSimPage() {
 
         {/* Components table */}
         <div className="mono cin" style={{ marginBottom: 12 }}>Assessment components</div>
-        <div style={{ border: "none", marginBottom: 16 }}>
+        <div className="mob-scroll" style={{ border: "none", marginBottom: 16 }}>
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 60px 80px 100px 32px", padding: "8px 12px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)", gap: 8 }}>
             {["Component", "Weight%", "Max score", "Your score", ""].map((h, i) => (

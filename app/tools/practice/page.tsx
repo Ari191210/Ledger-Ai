@@ -249,8 +249,8 @@ export default function PracticeSuitePage() {
       {mode === "mock" && phase === "exam" && examData && (() => {
         const q = examData.questions[current];
         return (
-          <div style={{ display: "flex", height: "calc(100vh - 65px)" }}>
-            <div style={{ width: 180, borderRight: "1px solid var(--ink)", overflowY: "auto", padding: "16px 12px", flexShrink: 0 }}>
+          <div className="tool-split" style={{ display: "flex", height: "calc(100vh - 65px)" }}>
+            <div className="tool-split-sidebar" style={{ width: 180, borderRight: "1px solid var(--ink)", overflowY: "auto", padding: "16px 12px", flexShrink: 0 }}>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 10 }}>QUESTION MAP</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 4 }}>
                 {examData.questions.map((_, i) => {
@@ -266,7 +266,7 @@ export default function PracticeSuitePage() {
                 })}
               </div>
             </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
+            <div className="tool-split-main" style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
               <div style={{ maxWidth: 680, margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                   <span className="mono cin" style={{ fontSize: 11 }}>Question {current + 1}</span>

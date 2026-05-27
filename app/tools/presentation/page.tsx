@@ -39,9 +39,9 @@ export default function PresentationPage() {
           <button className="btn ghost" onClick={() => setDeck(null)}>New deck</button>
         </div>
       </header>
-      <main style={{ display: "flex", height: "calc(100vh - 61px)", overflow: "hidden" }}>
+      <main className="tool-split" style={{ display: "flex", height: "calc(100vh - 61px)", overflow: "hidden" }}>
         {/* Slide list */}
-        <div style={{ width: 220, borderRight: "1px solid var(--ink)", overflowY: "auto", flexShrink: 0 }}>
+        <div className="tool-split-sidebar" style={{ width: 220, borderRight: "1px solid var(--ink)", overflowY: "auto", flexShrink: 0 }}>
           {deck.slides.map((s, i) => (
             <div key={i} onClick={() => setSelected(i)}
               style={{ padding: "12px 16px", borderBottom: "1px solid var(--rule)", cursor: "pointer", background: selected === i ? "var(--ink)" : "var(--paper)", color: selected === i ? "var(--paper)" : "var(--ink)" }}>
@@ -52,7 +52,7 @@ export default function PresentationPage() {
         </div>
 
         {/* Slide detail */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
+        <div className="tool-split-main" style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
             {/* Slide preview */}
             <div style={{ border: "none", padding: "48px 56px", marginBottom: 24, minHeight: 300, background: "var(--paper)", aspectRatio: "16/9", display: "flex", flexDirection: "column", justifyContent: "center" }}>
