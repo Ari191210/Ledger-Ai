@@ -124,14 +124,17 @@ const SIM_HINTS: Record<Exclude<SimType,"none">, string> = {
   action_potential: "Depolarization: Na⁺ rushes in. Repolarization: K⁺ flows out. The threshold is the critical voltage for an all-or-nothing spike.",
 };
 
+// Graph sims have their own axes — skip the background grid for these
+const GRAPH_SIMS = new Set(["titration","reaction_energy","equilibrium","enzyme","population","action_potential"]);
+
 function grid(ctx: CanvasRenderingContext2D, W: number, H: number) {
   ctx.strokeStyle = C.grid; ctx.lineWidth = 0.5;
-  for (let x = 0; x <= W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for (let y = 0; y <= H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  for (let x = 0; x <= W; x += 60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y <= H; y += 60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 }
 
 function lbl(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, align: CanvasTextAlign = "left") {
-  ctx.font = "10px 'Space Mono', monospace"; ctx.fillStyle = C.dim; ctx.textAlign = align; ctx.fillText(text, x, y);
+  ctx.font = "11px 'Space Mono', monospace"; ctx.fillStyle = C.dim; ctx.textAlign = align; ctx.fillText(text, x, y);
 }
 
 // ── Projectile ─────────────────────────────────────────────────────────────────
@@ -957,52 +960,77 @@ function drawMitosis(ctx: CanvasRenderingContext2D, W: number, H: number, t: num
 }
 
 // ── Enzyme Kinetics (Michaelis-Menten) ────────────────────────────────────────
-function drawEnzyme(ctx: CanvasRenderingContext2D, W: number, H: number, s: Record<string,number>) {
+function drawEnzyme(ctx: CanvasRenderingContext2D, W: number, H: number, t: number, s: Record<string,number>) {
   const Km=s.Km??2, Vmax=s.Vmax??100, subst=s.substrate??5;
-  const pL=56, pR=20, pT=24, pB=44;
+  const pL=60, pR=20, pT=28, pB=48;
   const gW=W-pL-pR, gH=H-pT-pB;
-  const maxS=s.substrate!==undefined?Math.max(subst*2,5):20;
+  const maxS=Math.max(subst*2.2, Km*4, 5);
   const xC=(sv: number)=>pL+(sv/maxS)*gW;
   const yC=(v: number)=>pT+gH-(v/Vmax)*gH;
 
+  // Fill under MM curve
+  ctx.beginPath();
+  for(let i=0;i<=200;i++) { const sv=(i/200)*maxS, v=Vmax*sv/(Km+sv); i===0?ctx.moveTo(xC(sv),yC(v)):ctx.lineTo(xC(sv),yC(v)); }
+  ctx.lineTo(pL+gW,pT+gH); ctx.lineTo(pL,pT+gH); ctx.closePath();
+  ctx.fillStyle=C.cyan+"18"; ctx.fill();
+
   // Axes
-  ctx.strokeStyle=C.secondary; ctx.lineWidth=1.5;
+  ctx.strokeStyle=C.secondary; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(pL,pT); ctx.lineTo(pL,pT+gH); ctx.lineTo(pL+gW,pT+gH); ctx.stroke();
 
+  // Vmax line
+  ctx.strokeStyle=C.primary+"66"; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(pL,yC(Vmax)); ctx.lineTo(pL+gW,yC(Vmax)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font="bold 11px 'Space Mono',monospace"; ctx.fillStyle=C.primary; ctx.textAlign="left";
+  ctx.fillText(`Vmax = ${Vmax}`,pL+4,yC(Vmax)-6);
+
+  // Vmax/2 horizontal
+  ctx.strokeStyle=C.dim+"88"; ctx.lineWidth=1; ctx.setLineDash([3,5]);
+  ctx.beginPath(); ctx.moveTo(pL,yC(Vmax/2)); ctx.lineTo(xC(Km),yC(Vmax/2)); ctx.stroke(); ctx.setLineDash([]);
+  lbl(ctx,"½Vmax",pL-4,yC(Vmax/2)+4,"right");
+
+  // Km vertical
+  ctx.strokeStyle=C.accent+"66"; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(xC(Km),yC(Vmax/2)); ctx.lineTo(xC(Km),pT+gH); ctx.stroke(); ctx.setLineDash([]);
+  lbl(ctx,`Km=${Km}`,xC(Km)+4,pT+gH+16);
+
   // MM curve
-  ctx.strokeStyle=C.cyan; ctx.lineWidth=2.5; ctx.beginPath();
+  ctx.strokeStyle=C.cyan; ctx.lineWidth=3; ctx.beginPath();
   for(let i=0;i<=200;i++) {
     const sv=(i/200)*maxS, v=Vmax*sv/(Km+sv);
     i===0?ctx.moveTo(xC(sv),yC(v)):ctx.lineTo(xC(sv),yC(v));
   }
   ctx.stroke();
 
-  // Vmax line
-  ctx.strokeStyle=C.primary+"55"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(pL,yC(Vmax)); ctx.lineTo(pL+gW,yC(Vmax)); ctx.stroke(); ctx.setLineDash([]);
-  lbl(ctx,`Vmax=${Vmax}`,pL+4,yC(Vmax)-5);
-
-  // Km vertical
-  ctx.strokeStyle=C.accent+"55"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(xC(Km),pT); ctx.lineTo(xC(Km),pT+gH); ctx.stroke(); ctx.setLineDash([]);
-  lbl(ctx,`Km=${Km}`,xC(Km)+3,pT+gH+14);
-
-  // Vmax/2 half-mark
-  ctx.strokeStyle=C.dim; ctx.lineWidth=0.8; ctx.setLineDash([2,4]);
-  ctx.beginPath(); ctx.moveTo(pL,yC(Vmax/2)); ctx.lineTo(xC(Km),yC(Vmax/2)); ctx.stroke(); ctx.setLineDash([]);
-  lbl(ctx,"Vmax/2",pL-2,yC(Vmax/2)+4,"right");
-
-  // Current [S] point
+  // Animated crosshair guides to current [S] point
   const vNow=Vmax*subst/(Km+subst);
-  ctx.beginPath(); ctx.arc(xC(subst),yC(vNow),6,0,Math.PI*2);
-  ctx.fillStyle=C.accent; ctx.fill(); ctx.strokeStyle=C.white; ctx.lineWidth=1.5; ctx.stroke();
-  lbl(ctx,`v=${vNow.toFixed(1)}`,xC(subst)+8,yC(vNow)-6);
+  const px=xC(subst), py=yC(vNow);
+  ctx.strokeStyle=C.accent+"55"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pL,py); ctx.lineTo(px,py); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px,pT+gH); ctx.lineTo(px,py); ctx.stroke();
+  ctx.setLineDash([]);
 
-  // Axis labels
-  lbl(ctx,"[S] substrate →",pL+gW/2,pT+gH+28,"center");
-  lbl(ctx,"Velocity (v)",pL-44,pT+gH/2,"right");
-  ctx.font="bold 11px 'Space Mono',monospace"; ctx.fillStyle=C.primary; ctx.textAlign="left";
-  ctx.fillText(`v = ${vNow.toFixed(1)}`,pL+4,pT+14);
+  // Pulsing ring
+  const pulse=(t*1.5)%1;
+  ctx.beginPath(); ctx.arc(px,py,8+pulse*18,0,Math.PI*2);
+  ctx.strokeStyle=`rgba(255,107,53,${(1-pulse)*0.5})`; ctx.lineWidth=2; ctx.stroke();
+
+  // Operating point dot
+  ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+  ctx.fillStyle=C.accent; ctx.fill(); ctx.strokeStyle=C.white; ctx.lineWidth=2; ctx.stroke();
+
+  // Live readout
+  ctx.font="bold 13px 'Space Mono',monospace"; ctx.fillStyle=C.accent; ctx.textAlign="left";
+  ctx.fillText(`v = ${vNow.toFixed(1)}`,pL+4,pT+18);
+  lbl(ctx,`[S] = ${subst} mM`,pL+4,pT+34);
+
+  lbl(ctx,"[S] substrate →",pL+gW/2,pT+gH+32,"center");
+  lbl(ctx,"Reaction velocity",pL-48,pT+gH/2,"right");
+
+  // y-axis ticks
+  for(const v of [0,Vmax*0.25,Vmax*0.5,Vmax*0.75,Vmax]) {
+    lbl(ctx,String(Math.round(v)),pL-4,yC(v)+4,"right");
+  }
 }
 
 // ── Population (Logistic Growth) ───────────────────────────────────────────────
@@ -1213,7 +1241,7 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
         }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
-        grid(ctx, W, H);
+        if (!GRAPH_SIMS.has(sim.type)) grid(ctx, W, H);
         const s = slidersRef.current, t = tRef.current;
         switch (sim.type) {
           case "projectile":      drawProjectile(ctx,W,H,t,s); break;
@@ -1231,7 +1259,7 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
           case "atomic_model":    drawAtomicModel(ctx,W,H,t,s); break;
           case "osmosis":         drawOsmosis(ctx,W,H,particlesRef.current as OsmosisParticle[],s); break;
           case "mitosis":         drawMitosis(ctx,W,H,t,s);     break;
-          case "enzyme":          drawEnzyme(ctx,W,H,s);         break;
+          case "enzyme":          drawEnzyme(ctx,W,H,t,s);        break;
           case "population":      drawPopulation(ctx,W,H,t,s);  break;
           case "action_potential":drawActionPotential(ctx,W,H,t,s); break;
         }
