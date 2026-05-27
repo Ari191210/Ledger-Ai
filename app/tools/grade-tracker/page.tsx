@@ -377,7 +377,7 @@ function PeerHeatmapTab() {
   return (
     <div>
       <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 24 }}>Sample data · Most-struggled topics by board</div>
-      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 32, overflow: "hidden" }}>
+      <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 32, overflow: "hidden" }}>
         {(["CBSE", "JEE", "NEET", "IB", "IGCSE"] as HeatBoard[]).map((b, i, arr) => (
           <button key={b} onClick={() => setBoard(b)} style={{ flex: 1, padding: "10px 0", border: "none", borderRadius: 8, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink-2)", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", cursor: "pointer", transition: "background 160ms, color 160ms" }}>{b}</button>
         ))}
@@ -562,7 +562,7 @@ export default function GradeTrackerPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Grade Tracker</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Marks, Ledger Score, peer data, and exam debrief in one place.</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>

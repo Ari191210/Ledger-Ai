@@ -804,7 +804,7 @@ export default function Dashboard() {
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>★ Favourites</div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{favs.length} pinned</div>
             </div>
-            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+            <div className="dash-grid mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
               {favs.map((t, ti) => {
                 const favCat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
                 const favCatColor = CAT_COLOR[(favCat?.label ?? "") as keyof typeof CAT_COLOR] ?? "var(--cinnabar-ink)";
@@ -901,7 +901,7 @@ export default function Dashboard() {
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{cat.tools.length} tools</div>
             </div>
-            <div className="mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+            <div className="dash-grid mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
               {cat.tools.map((t, ti) => {
                 const catColor = CAT_COLOR[cat.label as keyof typeof CAT_COLOR] ?? "var(--cinnabar-ink)";
                 return (
@@ -944,12 +944,12 @@ export default function Dashboard() {
                   </div>
 
                   {/* Subtitle */}
-                  <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.12em", lineHeight: 1.4 }}>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4, fontWeight: 500 }}>
                     {t.sub}
                   </div>
 
                   {/* Description */}
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.65, marginTop: 10, flex: 1 }}>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.65, marginTop: 8, flex: 1, opacity: 0.75 }}>
                     {t.desc}
                   </div>
 

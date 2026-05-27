@@ -132,7 +132,7 @@ export default function SyllabusPage() {
           {/* Input panel */}
           <div>
             {/* Mode toggle */}
-            <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 20 }}>
+            <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 20 }}>
               {(["upload", "text"] as const).map((m) => (
                 <button key={m} onClick={() => { setMode(m); setFile(null); setError(""); }}
                   style={{ flex: 1, padding: "10px 0", background: mode === m ? "var(--ink)" : "transparent", color: mode === m ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>

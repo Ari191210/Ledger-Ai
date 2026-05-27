@@ -489,7 +489,7 @@ function WritingPolishTab() {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 28, width: "fit-content" }}>
+      <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 28, width: "fit-content" }}>
         <button style={subTabStyle(mode === "grammar")} onClick={() => { setMode("grammar"); setResult(null); setFeedback(null); }}>Grammar Coach</button>
         <button style={subTabStyle(mode === "ps")} onClick={() => { setMode("ps"); setResult(null); setFeedback(null); }}>Personal Statement</button>
       </div>
@@ -713,7 +713,7 @@ function CitationTab() {
       <div className="mono cin" style={{ marginBottom: 8 }}>Format a citation</div>
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>APA, MLA, Chicago, Harvard &mdash; instantly.</h2>
 
-      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 20, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 20, flexWrap: "wrap" }}>
         {(["book","journal","website","newspaper","video"] as SourceType[]).map((t, i, arr) => (
           <button key={t} onClick={() => { setSourceType(t); setFields({}); setCitations([]); }}
             style={{ flex: 1, minWidth: 80, padding: "10px", fontFamily: "var(--mono)", fontSize: 10, background: sourceType === t ? "var(--ink)" : "var(--paper)", color: sourceType === t ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -781,7 +781,7 @@ export default function WritingToolsPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Writing Tools</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Essays, grammar, arguments, citations.</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, flexWrap: "wrap" }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>

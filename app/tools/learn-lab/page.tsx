@@ -605,7 +605,7 @@ function NotesTab() {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 24, width: "fit-content" }}>
+      <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 24, width: "fit-content" }}>
         <button onClick={() => setMode("simplify")} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", background: mode === "simplify" ? "var(--ink)" : "transparent", color: mode === "simplify" ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, cursor: "pointer", transition: "background 160ms, color 160ms" }}>Simplify Notes</button>
         <button onClick={() => setMode("learn")} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", background: mode === "learn" ? "var(--ink)" : "transparent", color: mode === "learn" ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, cursor: "pointer", transition: "background 160ms, color 160ms" }}>Learn Topic</button>
       </div>
@@ -648,7 +648,7 @@ function NotesTab() {
             </div>
             {notesLoading && (
               <div>
-                <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+                <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
                   {["Explanation","Summary","Flashcards","Quiz"].map((label) => (
                     <div key={label} style={{ flex: 1, padding: "12px 8px", background: "transparent", borderRadius: 8, fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", textAlign: "center" }}>{label}</div>
                   ))}
@@ -658,7 +658,7 @@ function NotesTab() {
             )}
             {notesOut && !notesLoading && (
               <div>
-                <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+                <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
                   {NOTES_TABS_LIST.map((t) => (
                     <button key={t.id} onClick={() => setNotesTab(t.id)}
                       style={{ flex: 1, padding: "12px 8px", background: notesTab === t.id ? "var(--ink)" : "transparent", color: notesTab === t.id ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase" }}>
@@ -725,7 +725,7 @@ function NotesTab() {
                 <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2 }}>{lesson.title}</div>
                 <div className="mono" style={{ color: "var(--ink-3)", marginTop: 6 }}>{subject} · {learnProfile.grade || "Class 10"}</div>
               </div>
-              <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+              <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
                 {LESSON_TABS_LIST.map((t) => (
                   <button key={t.id} onClick={() => setLessonTab(t.id)}
                     style={{ flex: 1, padding: "12px 8px", background: lessonTab === t.id ? "var(--ink)" : "transparent", color: lessonTab === t.id ? "var(--paper)" : "var(--ink-2)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>
@@ -950,7 +950,7 @@ export default function LearnLabPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Learn Lab</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Doubt · Feynman · Study Engine · Mind Map · Concept Connect</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>

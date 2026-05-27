@@ -714,7 +714,7 @@ export default function ExamTriagePage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Exam Triage</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Last-minute strategy. Make every hour count.</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {([["crunch", "48-Hour Crunch"], ["cremator", "Syllabus Cremator"], ["lastnight", "Last Night"]] as [Tab, string][]).map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>

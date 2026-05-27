@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -671,7 +671,7 @@ export default function AdmissionsPage() {
   const tabHeader = (
     <header className="mob-hp" style={{padding:"14px 44px",borderBottom:"1px solid var(--ink)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
       <div className="mono" style={{color:"var(--ink-3)"}}>University Hub</div>
-      <div style={{display:"flex",gap:4,background:"color-mix(in srgb, var(--ink) 7%, transparent)",borderRadius:12,padding:"4px"}}>
+      <div style={{display:"flex",gap:8,background:"color-mix(in srgb, var(--ink) 7%, transparent)",borderRadius:12,padding:"6px",overflowX:"auto"}}>
         {([["chances","Chance Engine"],["finder","Future Finder"],["prep","Uni Prep"],["apply","Apply"]] as [UniversityTab,string][]).map(([v,l])=>(
           <button key={v} onClick={()=>setUniversityTab(v)} style={{padding:"10px 20px",fontFamily:"var(--mono)",fontSize:10,background:universityTab===v?"var(--ink)":"transparent",color:universityTab===v?"var(--paper)":"var(--ink)",border:"none",borderRadius:8,cursor:"pointer",letterSpacing:"0.05em",transition:"background 160ms, color 160ms"}}>{l}</button>
         ))}

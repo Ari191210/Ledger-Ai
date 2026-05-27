@@ -123,7 +123,7 @@ export default function PracticeSuitePage() {
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Practice Suite</div>
         {phase === "setup" && (
-          <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+          <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
             <button style={TAB_STYLE(mode === "practice")} onClick={() => { setMode("practice"); setSet(null); }}>Practice Problems</button>
             <button style={TAB_STYLE(mode === "mock")} onClick={() => { setMode("mock"); setSet(null); }}>Mock Exam</button>
           </div>

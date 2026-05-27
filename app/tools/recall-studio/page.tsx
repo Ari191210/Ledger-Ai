@@ -98,7 +98,7 @@ function FlashcardsTab() {
 
   return (
     <>
-      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 24, width: "fit-content" }}>
+      <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 24, width: "fit-content" }}>
         {([["all", `All (${cards.length})`], ["unknown", `Still learning (${unknown.size})`]] as [string, string][]).map(([v, l], i) => (
           <button key={v} onClick={() => { setMode(v as "all" | "unknown"); setIdx(0); setFlipped(false); }}
             style={{ padding: "8px 16px", fontFamily: "var(--mono)", fontSize: 10, background: mode === v ? "var(--ink)" : "var(--paper)", color: mode === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>
@@ -290,7 +290,7 @@ export default function RecallStudioPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Recall Studio</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Flashcards and formula drills. Active recall beats re-reading.</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {([["flashcards", "AI Flashcards"], ["formula", "Formula Recall"]] as [Tab, string][]).map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>

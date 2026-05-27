@@ -592,7 +592,7 @@ export default function FocusLabPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Focus Lab</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Pomodoro timer and block-breaking in one place.</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {TABS.map(([v, l]) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, cursor: "pointer", letterSpacing: "0.05em", transition: "background 160ms, color 160ms" }}>

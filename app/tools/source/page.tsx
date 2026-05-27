@@ -88,7 +88,7 @@ export default function TextAnalystPage() {
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Text Analyst</div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           <button style={TAB_STYLE(mode === "source")} onClick={() => { setMode("source"); setAnalysis(null); setReading(null); }}>Source Analysis</button>
           <button style={TAB_STYLE(mode === "reading")} onClick={() => { setMode("reading"); setAnalysis(null); setReading(null); }}>Passage Analysis</button>
         </div>

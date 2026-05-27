@@ -223,7 +223,7 @@ function SourceTab() {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px", marginBottom: 32, width: "fit-content" }}>
+      <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 32, width: "fit-content" }}>
         <button style={tabStyle(mode === "source")} onClick={() => { setMode("source"); setAnalysis(null); setReading(null); }}>Source Analysis</button>
         <button style={{ ...tabStyle(mode === "reading"), borderRight: "none" }} onClick={() => { setMode("reading"); setAnalysis(null); setReading(null); }}>Passage Analysis</button>
       </div>
@@ -625,7 +625,7 @@ export default function AnalysisHubPage() {
           <div className="mono" style={{ color: "var(--ink-3)" }}>Analysis Hub</div>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 2 }}>Compare, source, case study, and timeline tools in one place.</div>
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {TABS.map(([v, l], i) => (
             <button key={v} onClick={() => setTab(v)}
               style={{ padding: "8px 18px", fontFamily: "var(--mono)", fontSize: 10, background: tab === v ? "var(--ink)" : "transparent", color: tab === v ? "var(--paper)" : "var(--ink-3)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em" }}>

@@ -378,7 +378,7 @@ export default function RevisionPlannerPage() {
             <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginTop: 2 }}>{dueToday.length} topic{dueToday.length > 1 ? "s" : ""} due today</div>
           )}
         </div>
-        <div style={{ display: "flex", gap: 4, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "4px" }}>
+        <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
           {([["plan","Exam Season Plan"],["review","Spaced Review"],["halflife","Topic Half-Life"],["predict","Q Predictor"]] as [TabType,string][]).map(([v,l]) => (
             <button key={v} onClick={() => setTab(v)} style={TAB_STYLE(tab === v)}>
               {l}
