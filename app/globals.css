@@ -1618,3 +1618,35 @@ main {
 /* ─── Hide scrollbar on pill tab bars while keeping scroll behavior ───────────── */
 [style*="overflowX"]::-webkit-scrollbar { display: none; }
 [style*="overflowX"] { scrollbar-width: none; }
+
+/* ─── Mobile: top nav bar ─────────────────────────────────────────────────────── */
+/* Default: show signout label, hide icon */
+.nav-signout-icon { display: none; }
+
+@media (max-width: 768px) {
+  /* Hide @username text — avatar initial stays */
+  .nav-username { display: none !important; }
+
+  /* Tighten logo */
+  .nav-logo { padding: 0 14px !important; }
+
+  /* Tighten ⌘K */
+  .nav-cmd { padding: 0 10px !important; }
+
+  /* Profile link: gap 8 → 0 since username hidden */
+  .nav-profile-link { padding: 0 10px !important; gap: 0 !important; }
+
+  /* Signout: tighten padding */
+  .nav-signout { padding: 0 12px !important; }
+}
+
+@media (max-width: 480px) {
+  /* Very small phones: hide ⌘K, trim Tools to icon only */
+  .nav-cmd { display: none !important; }
+  .nav-tools-label { display: none !important; }
+
+  /* Signout: icon only */
+  .nav-signout-label { display: none; }
+  .nav-signout-icon  { display: inline; }
+  .nav-signout { padding: 0 10px !important; }
+}

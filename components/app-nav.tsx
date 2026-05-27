@@ -193,7 +193,7 @@ export default function AppNav() {
         borderBottom: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
       }}>
-        <Link href="/" aria-label="Ledger — home" style={{
+        <Link href="/" aria-label="Ledger — home" className="nav-logo" style={{
           textDecoration: "none", display: "flex", alignItems: "center", padding: "0 20px",
           borderRight: "1px solid var(--rule)", flexShrink: 0,
         }}>
@@ -230,7 +230,7 @@ export default function AppNav() {
             textTransform: "uppercase", color: "var(--ink)", flexShrink: 0, whiteSpace: "nowrap",
           }}
         >
-          <span aria-hidden="true" style={{ fontSize: 12 }}>⊞</span><span>Tools</span>
+          <span aria-hidden="true" style={{ fontSize: 12 }}>⊞</span><span className="nav-tools-label">Tools</span>
         </button>
 
         {splitSlug && (
@@ -246,6 +246,7 @@ export default function AppNav() {
           onClick={openPalette}
           aria-label="Open command palette (Ctrl+K)"
           title="Command palette — Ctrl+K / ⌘K"
+          className="nav-cmd"
           style={{
             display: "flex", alignItems: "center", gap: 5,
             height: "100%", padding: "0 14px",
@@ -262,7 +263,7 @@ export default function AppNav() {
 
         {user && (
           <div style={{ display: "flex", alignItems: "center", borderLeft: "1px solid var(--rule)", flexShrink: 0 }}>
-            <Link href="/dashboard/profile" style={{
+            <Link href="/dashboard/profile" className="nav-profile-link" style={{
               textDecoration: "none", height: "100%", display: "flex", alignItems: "center",
               padding: "0 14px", gap: 8,
               background: isProfile ? "var(--paper-2)" : "transparent",
@@ -273,12 +274,13 @@ export default function AppNav() {
               </div>
               <span className="mono nav-username" style={{ color: "var(--ink-3)", fontSize: 9, whiteSpace: "nowrap" }}>@{short}</span>
             </Link>
-            <button onClick={handleSignOut} aria-label="Sign out" style={{
+            <button onClick={handleSignOut} aria-label="Sign out" className="nav-signout" style={{
               height: "100%", padding: "0 16px", background: "none", border: "none", cursor: "pointer",
               fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
               textTransform: "uppercase", color: "var(--ink-3)", whiteSpace: "nowrap",
             }}>
-              Out
+              <span className="nav-signout-label">Out</span>
+              <span className="nav-signout-icon" aria-hidden="true">↵</span>
             </button>
           </div>
         )}
