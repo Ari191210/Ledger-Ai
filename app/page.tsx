@@ -479,7 +479,7 @@ export default function Home() {
       }} />
 
       {/* ─── Sticky header ─── */}
-      <header className="gl-pane" style={{
+      <header className="gl-pane lp-header" style={{
         position: "sticky", top: 0, zIndex: 50,
         borderBottom: S.border,
         display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -623,7 +623,7 @@ export default function Home() {
 
       {/* ─── 01 / The Brief ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="01" label="The Brief" />
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 64, alignItems: "start" }} className="mob-col">
@@ -676,7 +676,7 @@ export default function Home() {
 
       {/* ─── 02 / How It Works ─── */}
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="02" label="How It Works" />
 
           <h2 className="reveal-up" style={{ ...S.h2, marginBottom: 64 }}>Three steps to a system that works.</h2>
@@ -732,7 +732,7 @@ export default function Home() {
 
       {/* ─── 03 / The System ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="03" label="The Quantified Mind" />
 
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
@@ -793,7 +793,7 @@ export default function Home() {
 
       {/* ─── 04 / All 41 Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="04" label="All 41 Tools" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
@@ -894,7 +894,7 @@ export default function Home() {
 
       {/* ─── 05 / Ledger Score ─── */}
       <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="05" label="Ledger Score" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
@@ -1001,7 +1001,7 @@ export default function Home() {
 
       {/* ─── 06 / Key Features ─── */}
       <section id="features" className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="06" label="Key Features" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 40 }}>
@@ -1084,7 +1084,7 @@ export default function Home() {
 
       {/* ─── 07 / Field Reports ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <SectionLabel num="07" label="Field Reports" />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
@@ -1242,7 +1242,7 @@ export default function Home() {
 
       {/* ─── 08 / Final CTA ─── */}
       <section className="cta-section gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 40px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 40px" }}>
           <div className="cta-content" style={{ textAlign: "center", maxWidth: 680, margin: "0 auto" }}>
             <div style={{ ...S.capAccent, marginBottom: 28 }}>Start today — free, no credit card</div>
             <h2 style={{
@@ -1331,7 +1331,7 @@ export default function Home() {
         </div>
 
         {/* Colophon */}
-        <div style={{ borderTop: "1px solid var(--rule)", padding: "13px 40px", maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <div className="lp-inner" style={{ borderTop: "1px solid var(--rule)", padding: "13px 40px", maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>MMXXVI Ledger Study Co.</span>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>Set in Orbitron, Space Grotesk &amp; Space Mono</span>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>{today}</span>

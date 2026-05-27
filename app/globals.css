@@ -1627,6 +1627,27 @@ main {
   /* Pill tab buttons in tool headers: reduce side padding so more fit before scroll */
   .mob-hp button { padding-left: 12px !important; padding-right: 12px !important; }
 
+  /* Landing page: sticky header — tighter side padding */
+  .lp-header { padding-left: 20px !important; padding-right: 20px !important; }
+
+  /* Landing page: all section inner wrappers — 40px sides → 20px on mobile */
+  .lp-inner { padding-left: 20px !important; padding-right: 20px !important; }
+
+  /* Sections with 80px top/bottom → reduce on mobile */
+  .lp-inner[style*="80px"] { padding-top: 56px !important; padding-bottom: 48px !important; }
+
+  /* CTA section 96px → reduce on mobile */
+  .lp-inner[style*="96px"] { padding-top: 60px !important; padding-bottom: 60px !important; }
+
+  /* How It Works: hide horizontal connector line when steps stack vertically */
+  .hiw-line { display: none !important; }
+
+  /* Tool browser: cap list height on mobile so the detail panel is reachable without scrolling forever */
+  [style*="max-height: 580px"] { max-height: 300px !important; }
+
+  /* Footer columns: 36px inner padding is too wide at 2-col mobile width */
+  .footer-col { padding: 28px 20px !important; }
+
   /* Auth: switch to flex-start so the form scrolls on short phones instead of being clipped */
   .auth-outer { align-items: flex-start !important; padding: 24px 16px 48px !important; }
   /* Auth card: 32px sides → 20px on mobile (card is only ~343px wide — 64px padding is too much) */
