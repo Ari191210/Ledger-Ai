@@ -83,7 +83,7 @@ export default function ProfilePage() {
             <span style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, color: "var(--paper)", lineHeight: 1 }}>{initial}</span>
           </div>
           <div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
+            <div className="profile-username" style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
               @{loaded ? username : "…"}
             </div>
             <div className="mono" style={{ color: "var(--ink-3)", marginTop: 8 }}>{user?.email}</div>
@@ -145,7 +145,7 @@ export default function ProfilePage() {
             { label: "User ID", value: user?.id?.slice(0, 8) + "…" || "—" },
             { label: "Member since", value: joinedDate },
           ].map((row, i, arr) => (
-            <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "12px 18px", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}>
+            <div key={row.label} className="profile-detail-row" style={{ display: "flex", justifyContent: "space-between", padding: "12px 18px", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}>
               <div className="mono" style={{ color: "var(--ink-3)" }}>{row.label}</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{row.value}</div>
             </div>

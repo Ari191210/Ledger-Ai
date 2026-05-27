@@ -1627,6 +1627,13 @@ main {
   /* Pill tab buttons in tool headers: reduce side padding so more fit before scroll */
   .mob-hp button { padding-left: 12px !important; padding-right: 12px !important; }
 
+  /* Profile page: @username heading — 32px is too large in stacked column view */
+  .profile-username { font-size: 22px !important; letter-spacing: -0.01em !important; }
+
+  /* Profile page account detail rows: stack label + value when narrow (email can overflow) */
+  .profile-detail-row { flex-direction: column !important; gap: 4px !important; padding: 10px 14px !important; }
+  .profile-detail-row > div:last-child { word-break: break-all !important; }
+
   /* Ensure all images don't overflow */
   img, video, canvas { max-width: 100%; }
 }
