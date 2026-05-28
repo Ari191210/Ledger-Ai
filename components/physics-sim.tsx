@@ -16,10 +16,29 @@ function simCategory(type: SimType) {
 }
 
 const C = {
-  bg: "#0b1a0e", grid: "#13221a", primary: "#52d968", secondary: "#2a6a3a",
-  accent: "#ff6b35", highlight: "#ffe066", white: "#dff5e3", dim: "#3d6b47", surface: "#0e2014",
-  blue: "#4488ff", purple: "#a855f7", cyan: "#22d3ee", pink: "#ec4899",
+  bg: "#080808", grid: "#ffffff10", primary: "#ff6848", secondary: "#ffffff18",
+  accent: "#d4a840", highlight: "#d4a840", white: "#f2f2ef", dim: "#686864", surface: "#111111",
+  blue: "#5a9ed4", purple: "#a888d4", cyan: "#44aaaa", pink: "#ec4899",
 };
+
+function buildC() {
+  if (typeof window === "undefined") return;
+  const s = getComputedStyle(document.documentElement);
+  const v = (n: string) => s.getPropertyValue(n).trim();
+  const isLight = document.documentElement.dataset.mode === "light";
+  C.bg        = v("--paper")        || C.bg;
+  C.surface   = v("--paper-2")      || C.surface;
+  C.primary   = v("--cinnabar-ink") || C.primary;
+  C.accent    = v("--ochre")        || C.accent;
+  C.highlight = v("--ochre")        || C.highlight;
+  C.white     = v("--ink")          || C.white;
+  C.dim       = v("--ink-3")        || C.dim;
+  C.blue      = v("--slate")        || C.blue;
+  C.purple    = v("--plum")         || C.purple;
+  C.cyan      = v("--teal")         || C.cyan;
+  C.secondary = isLight ? "#00000018" : "#ffffff18";
+  C.grid      = isLight ? "#00000010" : "#ffffff0d";
+}
 
 const CONTROLS: Record<Exclude<SimType,"none">, { key: string; label: string; min: number; max: number; step: number; unit: string; default: number }[]> = {
   projectile: [
@@ -1313,6 +1332,7 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
           canvas.style.height = `${H}px`;
         }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        buildC();
         ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
         if (!GRAPH_SIMS.has(sim.type)) grid(ctx, W, H);
         const s = slidersRef.current, t = tRef.current;
