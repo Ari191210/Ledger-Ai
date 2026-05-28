@@ -65,6 +65,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "dna",                ttl: "Mistake DNA",            sub: "Your error fingerprint.",                tier: "Free", desc: "Categorise mistakes by type: conceptual, calculation, recall, or careless. Your error pattern tells you exactly how to fix it." },
       { slug: "cremator",           ttl: "Syllabus Cremator",      sub: "Kill the filler. Keep the core.",        tier: "Free", desc: "Ranks every chapter by examiner obsession score. Tells you what to DO NOW, skim, or skip entirely — in order of priority." },
       { slug: "paper-pattern",      ttl: "Paper Pattern Analyser", sub: "Decode what examiners want.",            tier: "Free", desc: "Analyse past paper patterns to surface which topics, question types, and mark allocations appear most frequently." },
+      { slug: "paper-autopsy",      ttl: "Paper Autopsy",          sub: "Dissect every mark you lost.",              tier: "Free", desc: "Upload your answer sheet and get a full breakdown: every error type, every weak subtopic, and a personalised drill plan to fix them before the next paper." },
     ],
   },
   {
