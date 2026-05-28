@@ -56,11 +56,19 @@ export default function AuthPage() {
   async function sendReset() {
     if (!email.trim()) return;
     setLoading(true); setError("");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
-    });
+    try {
+      const res = await fetch("/api/auth/send-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (!res.ok) throw new Error("Failed to send.");
+    } catch {
+      setError("Could not send reset email. Try again.");
+      setLoading(false);
+      return;
+    }
     setLoading(false);
-    if (error) { setError(error.message); return; }
     setResetSent(true);
   }
 
