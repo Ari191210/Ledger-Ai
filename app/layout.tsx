@@ -12,6 +12,7 @@ import ErrorLogger from "@/components/error-logger";
 import ButtonClickEffect from "@/components/ui/button-click-effect";
 import PostHogProvider from "@/components/posthog-provider";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
+import RankWhisper from "@/components/rank-whisper";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -144,6 +145,7 @@ export default function RootLayout({
             {children}
           </ErrorBoundary>
           <PaletteToggle />
+          <RankWhisper />
         </AuthProvider>
       </body>
     </html>
