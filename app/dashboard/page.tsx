@@ -10,6 +10,7 @@ import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import FeaturesShowcase from "@/components/features-showcase";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
+import EmptyChair from "@/components/empty-chair";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -487,6 +488,22 @@ export default function Dashboard() {
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");
   const [showProfileBanner, setShowProfileBanner] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
+
+  const [showChair,     setShowChair]     = useState(false);
+  const [chairDaysSince, setChairDaysSince] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const raw = localStorage.getItem("ledger:lastVisit");
+      const now = Date.now();
+      if (raw) {
+        const daysSince = (now - parseInt(raw, 10)) / 86400000;
+        if (daysSince >= 9) { setChairDaysSince(daysSince); setShowChair(true); }
+      }
+      localStorage.setItem("ledger:lastVisit", String(now));
+    } catch { /* ignore */ }
+  }, [user]);
   const [dashLayout, setDashLayout] = useState<DashLayout>(DASH_DEFAULTS);
   useEffect(() => { setDashLayout(getDashLayout()); }, []);
   const greeting = getGreeting();
@@ -542,6 +559,7 @@ export default function Dashboard() {
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   if (authLoading) return <DashboardSkeleton />;
+  if (showChair)   return <EmptyChair daysSince={chairDaysSince} onDismiss={() => setShowChair(false)} />;
 
   return (
     <main ref={containerRef} id="main-content" tabIndex={-1} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
