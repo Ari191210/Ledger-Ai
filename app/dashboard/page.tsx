@@ -90,6 +90,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "timeline",       ttl: "Timeline Builder",        sub: "Build any historical timeline.",       tier: "Free", desc: "Generate a structured chronological timeline for any topic, event sequence, or historical period." },
       { slug: "study-guide",    ttl: "Study Guide Generator",   sub: "One topic. One clean guide.",          tier: "Free", desc: "Turn any topic, chapter, or set of notes into a structured study guide with key points, definitions, and practice questions." },
       { slug: "analysis-hub",   ttl: "Analysis Hub",            sub: "Analyse anything deeply.",             tier: "Free", desc: "Deep analytical breakdown of any text, data, event, or concept — structured and ready for academic use." },
+      { slug: "silent-topics",   ttl: "Silent Topic Finder",     sub: "Find what you've been avoiding.",      tier: "Free", desc: "Paste 14 days of study notes. AI maps your full syllabus, colours avoided chapters in cinnabar, and builds a 3-day reentry plan for the one you've been dodging longest." },
       { slug: "personalise",    ttl: "Personalise",             sub: "Your study profile.",                  tier: "Free", desc: "Set your grade level, board, subjects, and learning preferences so every tool is tailored specifically to you." },
     ],
   },

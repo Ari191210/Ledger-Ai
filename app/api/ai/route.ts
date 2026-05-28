@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -1740,6 +1740,39 @@ File the coroner's report. Return exactly this JSON:
   "preventionProtocol": ["imperative, terse, specific — what must change. verb-first. under 12 words.", "second protocol item", "third protocol item"]
 }`,
       };
+
+    case "silent_topic_audit":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an academic analyst specialising in diagnosing avoidance patterns in student study behaviour. You have deep knowledge of complete chapter lists and mark-weightage distributions for JEE Mains, JEE Advanced, NEET, CBSE Class 11-12, IB, IGCSE, and A-Level syllabi. You are clinical, precise, and direct — you name patterns, not feelings. Return ONLY valid JSON, no markdown fences.`,
+        userText: `Analyse this student's study log to build a full silence map of their ${params.exam} ${params.subject} syllabus.
+
+Exam: ${params.exam}
+Subject: ${params.subject}
+
+Study log (last 14 days, freeform):
+${params.studyLog}
+
+Instructions:
+1. From the official ${params.exam} ${params.subject} syllabus, list EVERY chapter (typically 15–30). Use canonical chapter names for this exam board.
+2. For each chapter, check whether it appears in the log, how recently, and how substantively.
+3. engagement: "none" (never mentioned), "minimal" (1–2 passing mentions), "moderate" (3–5 mentions or one substantive session), "good" (regular work, multiple sessions)
+4. last_seen: brief phrase from the log indicating when it last appeared, or "never in log"
+5. weightage: "high" (chapter typically carries ≥12% of paper marks), "medium" (5–12%), "low" (<5%)
+6. avoidance_score 0–100: combines engagement_level with weightage.
+   - never + high → 85–100; never + medium → 65–80; never + low → 40–60
+   - minimal + high → 60–80; minimal + medium/low → 30–50
+   - moderate/good → 0–35 (regardless of weightage)
+7. Sort chapters by avoidance_score descending in the output array.
+8. reckoning_note: ONE sentence. Name the pattern — not the topics — clinically. E.g. "You have revised the same four chapters eleven times while six high-weightage chapters have not appeared in your log once."
+9. reentry_plan: 3-day specific plan for the single highest-avoidance-score chapter. Day 1 = 20–30 minutes, ONE named concept only. Day 2 = expand to one more concept. Day 3 = attempt 5 practice problems on both. No motivation — logistics only. 100–180 words.
+
+Return exactly this JSON:
+{
+  "chapters": [{"chapter": "string", "weightage": "high|medium|low", "engagement": "none|minimal|moderate|good", "last_seen": "string", "avoidance_score": number}],
+  "reckoning_note": "string",
+  "reentry_plan": "string"
+}`,
+      };
   }
 }
 
@@ -1760,7 +1793,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
