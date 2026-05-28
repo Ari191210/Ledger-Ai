@@ -148,6 +148,26 @@ const S = {
   borderInk: "1px solid var(--ink)",
 };
 
+/* ── Hero variant system ── */
+type HeroVariant = "morning" | "day" | "evening" | "late" | "dead";
+
+function getVariant(): HeroVariant {
+  const h = new Date().getHours();
+  if (h >= 5  && h < 10) return "morning";
+  if (h >= 10 && h < 17) return "day";
+  if (h >= 17 && h < 22) return "evening";
+  if (h >= 22 || h < 2 ) return "late";
+  return "dead";
+}
+
+const HERO_COPY: Record<HeroVariant, { line1: string; line2: string; sub: string }> = {
+  morning: { line1: "Before the day",              line2: "decides what you'll be.",          sub: "Ledger. For the hours that compound." },
+  day:     { line1: "School is for sitting.",       line2: "This is for thinking.",            sub: "Ledger. A second brain for the syllabus." },
+  evening: { line1: "The hours after coaching",     line2: "are the ones that matter.",        sub: "Ledger. Built for the second shift." },
+  late:    { line1: "",                             line2: "You're still here.",               sub: "So are we. Ledger is the only study OS designed for the hours nobody photographs." },
+  dead:    { line1: "Sleep.",                       line2: "We'll be here tomorrow.",          sub: "Ledger. The only edtech that will tell you to stop." },
+};
+
 /* ── Section label row ── */
 function SectionLabel({ num, label }: { num: string; label: string }) {
   return (
@@ -169,6 +189,38 @@ export default function Home() {
   const [hasSyllabus,    setHasSyllabus]    = useState(false);
   const [mistakesPerWeek,setMistakesPerWeek]= useState(8);
   const [streak,         setStreak]         = useState(5);
+
+  const [variant,      setVariant]      = useState<HeroVariant>("day");
+  const [clockTime,    setClockTime]    = useState("");
+  const [city,         setCity]         = useState<string | null>(null);
+  const [awakeCount,   setAwakeCount]   = useState<number | null>(null);
+  const [bookmarkHint, setBookmarkHint] = useState(false);
+
+  // Clock + variant — ticks every second
+  useEffect(() => {
+    const tick = () => {
+      setVariant(getVariant());
+      setClockTime(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // City detection (Vercel header, only on deploy)
+  useEffect(() => {
+    fetch("/api/city").then(r => r.json()).then(d => { if (d.city) setCity(d.city); }).catch(() => {});
+  }, []);
+
+  // Late-night awake count — poll every 30 s only during the late variant
+  useEffect(() => {
+    if (variant !== "late") { setAwakeCount(null); return; }
+    const poll = () => fetch("/api/awake-count?stream=jee").then(r => r.json())
+      .then(d => setAwakeCount(d.inWindow ? d.awakeCount : null)).catch(() => {});
+    poll();
+    const id = setInterval(poll, 30_000);
+    return () => clearInterval(id);
+  }, [variant]);
 
   const containerRef  = useRef<HTMLDivElement>(null);
   const testimRef     = useRef<HTMLDivElement>(null);
@@ -533,33 +585,59 @@ export default function Home() {
               <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
             </div>
 
-            {/* Headline */}
+            {/* Headline — variant-aware */}
             <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1.0, margin: "0 0 24px" }}>
-              <div className="hero-word-1" style={{ display: "block", fontSize: "clamp(48px,7vw,96px)", color: "var(--ink-2)", letterSpacing: "0.06em" }}>
-                The Student&apos;s
+              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(60px,9vw,120px)" : "clamp(48px,7vw,96px)", color: "var(--ink-2)", letterSpacing: "0.06em" }}>
+                {variant === "late"
+                  ? <>It&apos;s <span style={{ color: "var(--cinnabar-ink)" }}>{clockTime}</span>{city ? <> in {city}</> : null}.</>
+                  : HERO_COPY[variant].line1}
               </div>
-              <div className="hero-word-2" style={{ display: "block", fontSize: "clamp(48px,7vw,96px)", color: "var(--ink)", letterSpacing: "0.04em" }}>
-                Operating System.
+              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(48px,7vw,96px)" : "clamp(48px,7vw,96px)", color: "var(--ink)", letterSpacing: "0.04em" }}>
+                {HERO_COPY[variant].line2}
               </div>
             </h1>
 
-            {/* Sub */}
+            {/* Sub — variant-aware */}
             <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.5vw,16px)", color: "var(--ink-3)", maxWidth: 480, margin: "0 0 36px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
-              41 AI-powered tools. One streak. One score. One syllabus.
+              {HERO_COPY[variant].sub}
             </p>
 
-            {/* CTAs */}
-            <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-              <Link href="/dashboard" style={{ textDecoration: "none" }}>
-                <GetStartedButton />
-              </Link>
-              <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
-                Explore tools
-              </a>
-              <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
-                Sign in
-              </Link>
-            </div>
+            {/* CTAs — variant-aware */}
+            {variant === "dead" ? (
+              <div className="hero-ctas" style={{ display: "flex", gap: 16, flexWrap: "wrap" as const, alignItems: "center" }}>
+                <button
+                  className="btn"
+                  onClick={() => { setBookmarkHint(true); }}
+                  style={{ cursor: "pointer" }}
+                >
+                  Bookmark for tomorrow →
+                </button>
+                {bookmarkHint && (
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em" }}>
+                    Press {typeof navigator !== "undefined" && navigator.platform.includes("Mac") ? "Cmd" : "Ctrl"}+D
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap" as const, alignItems: "center" }}>
+                <Link href="/dashboard" style={{ textDecoration: "none" }}>
+                  <GetStartedButton />
+                </Link>
+                <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
+                  Explore tools
+                </a>
+                <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
+                  Sign in
+                </Link>
+              </div>
+            )}
+
+            {/* Late-night: awake count ticker */}
+            {variant === "late" && awakeCount !== null && (
+              <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.04em" }}>
+                {awakeCount.toLocaleString("en-IN")} students studying right now
+              </div>
+            )}
 
           </div>
 
