@@ -21,21 +21,42 @@ const C = {
   blue: "#5a9ed4", purple: "#a888d4", cyan: "#44aaaa", pink: "#ec4899",
 };
 
+// Probe element used to convert OKLCH CSS variables → canvas-compatible rgb() values.
+// Canvas fillStyle/strokeStyle reject raw OKLCH strings; reading via getComputedStyle()
+// forces the browser to serialise the color as rgb(r,g,b) regardless of source format.
+let _cProbe: HTMLSpanElement | null = null;
+let _cThemeKey = "";
+
+function probeColor(cssVar: string, fallback: string): string {
+  if (!_cProbe) {
+    _cProbe = document.createElement("span");
+    _cProbe.style.display = "none";
+    document.body.appendChild(_cProbe);
+  }
+  _cProbe.style.color = `var(${cssVar})`;
+  const rgb = getComputedStyle(_cProbe).color;
+  return rgb && rgb !== "rgba(0, 0, 0, 0)" ? rgb : fallback;
+}
+
 function buildC() {
   if (typeof window === "undefined") return;
-  const s = getComputedStyle(document.documentElement);
-  const v = (n: string) => s.getPropertyValue(n).trim();
-  const isLight = document.documentElement.dataset.mode === "light";
-  C.bg        = v("--paper")        || C.bg;
-  C.surface   = v("--paper-2")      || C.surface;
-  C.primary   = v("--cinnabar-ink") || C.primary;
-  C.accent    = v("--ochre")        || C.accent;
-  C.highlight = v("--ochre")        || C.highlight;
-  C.white     = v("--ink")          || C.white;
-  C.dim       = v("--ink-3")        || C.dim;
-  C.blue      = v("--slate")        || C.blue;
-  C.purple    = v("--plum")         || C.purple;
-  C.cyan      = v("--teal")         || C.cyan;
+  const el = document.documentElement;
+  // Cache key: rebuild only when mode or palette attributes change
+  const themeKey = `${el.dataset.mode ?? ""}|${el.dataset.palette ?? ""}|${el.className}`;
+  if (themeKey === _cThemeKey) return;
+  _cThemeKey = themeKey;
+
+  const isLight = el.dataset.mode === "light";
+  C.bg        = probeColor("--paper",        C.bg);
+  C.surface   = probeColor("--paper-2",      C.surface);
+  C.primary   = probeColor("--cinnabar-ink", C.primary);
+  C.accent    = probeColor("--ochre",        C.accent);
+  C.highlight = C.accent;
+  C.white     = probeColor("--ink",          C.white);
+  C.dim       = probeColor("--ink-3",        C.dim);
+  C.blue      = probeColor("--slate",        C.blue);
+  C.purple    = probeColor("--plum",         C.purple);
+  C.cyan      = probeColor("--teal",         C.cyan);
   C.secondary = isLight ? "#00000018" : "#ffffff18";
   C.grid      = isLight ? "#00000010" : "#ffffff0d";
 }
@@ -44,6 +65,8 @@ const CONTROLS: Record<Exclude<SimType,"none">, { key: string; label: string; mi
   projectile: [
     { key:"angle",   label:"Launch angle",   min:5,   max:85,  step:1,    unit:"°",    default:45   },
     { key:"v0",      label:"Initial speed",  min:5,   max:50,  step:1,    unit:"m/s",  default:20   },
+    { key:"h0",      label:"Launch height",  min:0,   max:100, step:1,    unit:"m",    default:0    },
+    { key:"hf",      label:"Landing height", min:0,   max:100, step:1,    unit:"m",    default:0    },
     { key:"gravity", label:"Gravity",        min:1,   max:20,  step:0.5,  unit:"m/s²", default:9.8  },
   ],
   pendulum: [
@@ -123,7 +146,7 @@ const CONTROLS: Record<Exclude<SimType,"none">, { key: string; label: string; mi
 };
 
 const SIM_HINTS: Record<Exclude<SimType,"none">, string> = {
-  projectile:       "Drag sliders to adjust launch — see how angle and speed change the range and max height.",
+  projectile:       "Drag sliders to explore the trajectory. Launch/landing height model towers or cliffs. The apex and range update in real time.",
   pendulum:         "Period only depends on length and gravity — not amplitude (for small angles). Try it.",
   wave:             "When both frequencies are close, you see beats — a slow amplitude oscillation.",
   spring:           "The orange arrow shows the restoring force. Heavier mass → slower oscillation.",
@@ -159,46 +182,87 @@ function lbl(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, 
 // ── Projectile ─────────────────────────────────────────────────────────────────
 function drawProjectile(ctx: CanvasRenderingContext2D, W: number, H: number, t: number, s: Record<string,number>) {
   const ang = (s.angle??45)*Math.PI/180, v0 = s.v0??20, g = s.gravity??9.8;
+  const h0 = s.h0??0, hf = s.hf??0;
   const vx = v0*Math.cos(ang), vy = v0*Math.sin(ang);
-  const tFlight = 2*vy/g, range = vx*tFlight, maxH = vy*vy/(2*g);
+
+  // Time of flight accounting for launch/landing height difference
+  const disc = vy*vy + 2*g*(h0-hf);
+  const tFlight = disc >= 0 ? (vy + Math.sqrt(disc)) / g : 2*vy/g;
+  const range = vx * tFlight;
+  // Highest point reached above ground
+  const apexY = h0 + vy*vy/(2*g);
+  const yMax = Math.max(apexY, h0, hf) * 1.25 + 2;
+
   const pad = 44;
-  const sx = (W-pad*2)/range, sy = (H-pad*2)/(maxH*1.3);
-  const cx = (x: number) => pad+x*sx, cy = (y: number) => H-pad-y*sy;
+  const gW = W - pad*2, gH = H - pad*2;
+  const cx = (x: number) => pad + (range > 0 ? x/range*gW : gW/2);
+  const cy = (y: number) => H - pad - y/yMax*gH;
+  const groundY = cy(0);
 
+  // Ground line
   ctx.strokeStyle = C.secondary; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-pad,H-pad); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(pad,pad); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad, groundY); ctx.lineTo(W-pad, groundY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad, groundY); ctx.lineTo(pad, pad); ctx.stroke();
 
+  // Draw towers if h0 or hf > 0
+  const towerW = 14;
+  if (h0 > 0) {
+    ctx.fillStyle = C.secondary;
+    ctx.fillRect(cx(0)-towerW/2, cy(h0), towerW, groundY-cy(h0));
+    ctx.strokeStyle = C.dim; ctx.lineWidth = 1;
+    ctx.strokeRect(cx(0)-towerW/2, cy(h0), towerW, groundY-cy(h0));
+    lbl(ctx, `${h0}m`, cx(0), cy(h0)-6, "center");
+  }
+  if (hf > 0) {
+    ctx.fillStyle = C.secondary;
+    ctx.fillRect(cx(range)-towerW/2, cy(hf), towerW, groundY-cy(hf));
+    ctx.strokeStyle = C.dim; ctx.lineWidth = 1;
+    ctx.strokeRect(cx(range)-towerW/2, cy(hf), towerW, groundY-cy(hf));
+    lbl(ctx, `${hf}m`, cx(range), cy(hf)-6, "center");
+  }
+
+  // Full trajectory (dashed guide)
   ctx.strokeStyle = C.dim; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
   ctx.beginPath();
-  for (let i=0;i<=100;i++) { const ti=(i/100)*tFlight, xi=vx*ti, yi=vy*ti-0.5*g*ti*ti; i===0?ctx.moveTo(cx(xi),cy(yi)):ctx.lineTo(cx(xi),cy(yi)); }
+  for (let i=0;i<=120;i++) {
+    const ti=(i/120)*tFlight, xi=vx*ti, yi=h0+vy*ti-0.5*g*ti*ti;
+    i===0 ? ctx.moveTo(cx(xi),cy(yi)) : ctx.lineTo(cx(xi),cy(yi));
+  }
   ctx.stroke(); ctx.setLineDash([]);
 
-  const tNow = t%(tFlight+0.6), tc = Math.min(tNow, tFlight);
-  const xc = vx*tc, yc = Math.max(0, vy*tc-0.5*g*tc*tc);
+  // Animated ball
+  const pause = 0.5;
+  const tNow = t%(tFlight+pause), tc = Math.min(tNow, tFlight);
+  const xc = vx*tc, yc = h0+vy*tc-0.5*g*tc*tc;
   const active = tNow <= tFlight;
 
-  ctx.strokeStyle = C.primary+"66"; ctx.lineWidth = 2.5;
+  // Trail
+  ctx.strokeStyle = C.primary+"55"; ctx.lineWidth = 2.5;
   ctx.beginPath();
-  for (let i=0;i<=60;i++) { const ti=(i/60)*tc, xi=vx*ti, yi=Math.max(0,vy*ti-0.5*g*ti*ti); i===0?ctx.moveTo(cx(xi),cy(yi)):ctx.lineTo(cx(xi),cy(yi)); }
+  for (let i=0;i<=60;i++) {
+    const ti=(i/60)*tc, xi=vx*ti, yi=h0+vy*ti-0.5*g*ti*ti;
+    i===0 ? ctx.moveTo(cx(xi),cy(yi)) : ctx.lineTo(cx(xi),cy(yi));
+  }
   ctx.stroke();
 
   ctx.beginPath(); ctx.arc(cx(xc),cy(yc),7,0,Math.PI*2);
   ctx.fillStyle = active ? C.primary : C.accent; ctx.fill();
 
-  const al = 30;
+  // Launch angle arrow
+  const al = 28;
   ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(cx(0),cy(0)); ctx.lineTo(cx(0)+al*Math.cos(ang),cy(0)-al*Math.sin(ang)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx(0),cy(h0)); ctx.lineTo(cx(0)+al*Math.cos(ang),cy(h0)-al*Math.sin(ang)); ctx.stroke();
 
-  if (active && yc > 0.5) {
+  // Height indicator while in flight
+  if (active && yc > h0+0.5) {
     ctx.strokeStyle = C.highlight+"44"; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
-    ctx.beginPath(); ctx.moveTo(cx(xc),cy(yc)); ctx.lineTo(cx(xc),cy(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx(xc),cy(yc)); ctx.lineTo(cx(xc),groundY); ctx.stroke();
     ctx.setLineDash([]);
     lbl(ctx, `h=${yc.toFixed(1)}m`, cx(xc)+6, cy(yc)-6);
   }
 
   lbl(ctx, `Range: ${range.toFixed(1)} m`, pad, H-pad+16);
-  lbl(ctx, `H_max: ${maxH.toFixed(1)} m`, pad, pad-10);
+  lbl(ctx, `H_apex: ${apexY.toFixed(1)} m`, pad, pad-10);
   lbl(ctx, `T: ${tFlight.toFixed(2)} s`, W-pad, pad-10, "right");
 }
 

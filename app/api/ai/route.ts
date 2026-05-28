@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -273,7 +273,7 @@ ${params.content}`,
 For the "sim" field: if this is a physics, chemistry, or biology problem, pick the most relevant simulation type and set realistic params extracted from the problem where given, else use sensible defaults. For maths, history, literature, or other non-science questions, use type "none".
 
 PHYSICS simulation types:
-- "projectile": angle(launch angle in degrees, e.g.45), v0(initial speed m/s, e.g.20), gravity(m/s², default 9.8)
+- "projectile": angle(launch angle in degrees, e.g.45), v0(initial speed m/s, e.g.20), h0(launch height m, e.g.10 for a tower), hf(landing height m, e.g.0 for ground landing), gravity(m/s², default 9.8)
 - "pendulum": length(metres, e.g.1), amplitude(max angle degrees, e.g.30), gravity(m/s², default 9.8)
 - "wave": amp1(0.1-1), freq1(Hz), amp2(0.1-1), freq2(Hz) — use for sound, EM, interference, beats
 - "spring": k(N/m, e.g.10), mass(kg, e.g.1), x0(initial displacement m, e.g.0.3)
@@ -1673,6 +1673,50 @@ Subject: ${params.subject}
 Board/Exam: ${params.board}
 Hours remaining: ${params.hours_remaining}`,
       };
+
+    case "paper_autopsy":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert exam performance analyst and educational diagnostician specialising in competitive entrance exams like JEE, NEET, UPSC, and board-level assessments. Your job is to perform a forensic autopsy on a student's marked paper — not to console them, but to give them the exact, actionable truth about where and why they are losing marks.
+
+Your analysis must go deeper than surface-level feedback. You identify patterns that the student cannot see themselves: the same sub-topic bleeding marks across multiple questions, a systematic calculation error in a specific operation type, consistent misreading of question qualifiers like "except" or "minimum", or incomplete answers that always stop one step short of full marks.
+
+You think in terms of high-leverage interventions. A student has limited time before their next paper. Your job is to tell them the ONE thing that — if fixed — recovers the most marks per hour of effort. You rank error types by marks lost, not by how common they are. A single conceptual gap that costs 8 marks outranks five careless slips that cost 1 mark each.
+
+Your sub-topic mapping is precise. "Organic Chemistry" is not a sub-topic. "Nucleophilic addition to aldehydes and ketones" is. "Thermodynamics" is not a sub-topic. "Sign convention errors in work done by gas" is. You drill to the level where a student knows exactly which page of their textbook to open.
+
+Your verdict is honest and specific. You do not say "good effort." You say exactly what this paper reveals about the student's current state — including whether they are making progress or repeating the same mistakes. You are a strict but fair diagnostician. Always respond with valid JSON only.`,
+        userText: `Perform a full Paper Autopsy on the following student submission. The student has provided their question-by-question breakdown including their answers, the correct answers, and marks lost per question.
+
+Subject: ${params.subject}
+Exam Board / Exam Type: ${params.examBoard}
+
+Paper Data (question-by-question breakdown):
+${params.paperData}
+
+Additional context the student provided:
+${params.additionalContext || "None provided."}
+
+Your task:
+1. Classify every mark loss into an error type: conceptual gap, calculation slip, misread question, incomplete answer, or time pressure / unattempted. Tally total marks lost per error type and compute percentage of total lost marks.
+2. Map each mark loss to its precise sub-topic and chapter. Identify which sub-topics bled the most marks and what the error pattern was within that sub-topic (e.g. "always forgets to consider lone pair in resonance structures").
+3. Identify repeat mistakes — errors that appear across two or more questions in this paper, suggesting a systematic issue rather than a one-off slip.
+4. Determine the single highest-leverage fix: the one intervention that recovers the most marks per unit of study effort, with specific reasoning tied to the data above.
+5. Write 3 ready-to-use practice prompts the student can paste directly into a Practice Suite tool to target their weakest areas. Each prompt should specify the sub-topic, the error type to address, and the question format.
+6. Write one brutal, honest verdict sentence summarising what this paper reveals.
+
+Respond with exactly this JSON:
+{
+  "error_types": [{"type": "string — one of: conceptual gap / calculation slip / misread question / incomplete answer / time pressure", "mark_loss": "number — total marks lost to this error type", "percentage": "number — percentage of total lost marks", "description": "string — specific description of how this error type manifested in this paper with question references"}],
+  "subtopic_map": [{"subtopic": "string — precise sub-topic name, not broad chapter", "chapter": "string — chapter or unit name", "marks_lost": "number", "error_pattern": "string — the specific recurring mistake within this sub-topic"}],
+  "top_priority": "string — the single highest-leverage fix with specific reasoning referencing the data: which sub-topic, which error type, how many marks it recovers, and why this over everything else",
+  "repeat_mistakes": ["string — each entry describes a pattern seen across multiple questions, naming the questions and the shared mistake"],
+  "practice_prompts": ["string — prompt 1 ready to paste into Practice Suite", "string — prompt 2", "string — prompt 3"],
+  "verdict": "string — one brutal honest sentence summarising this paper"
+}
+
+Paper data for analysis: ${params.paperData}
+Subject: ${params.subject} | Exam: ${params.examBoard}`,
+      };
   }
 }
 
@@ -1693,7 +1737,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
