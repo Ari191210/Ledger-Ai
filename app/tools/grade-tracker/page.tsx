@@ -55,41 +55,38 @@ const PILLARS = [
 // ── Peer Heatmap types & data ──────────────────────────────────────────────
 
 type HeatBoard = "CBSE" | "JEE" | "NEET" | "IB" | "IGCSE";
-type HeatTrend = "up" | "down" | "stable";
-type HeatTopic = { name: string; count: number; trend: HeatTrend };
+type HeatTopic = { name: string; count: number };
 type HeatSubject = { subject: string; topics: HeatTopic[] };
 
 const HEAT_DATA: Record<HeatBoard, HeatSubject[]> = {
   CBSE: [
-    { subject: "Mathematics", topics: [{ name: "Conic Sections", count: 847, trend: "up" }, { name: "Integrals", count: 634, trend: "up" }, { name: "Probability", count: 521, trend: "stable" }, { name: "Matrices & Determinants", count: 489, trend: "down" }, { name: "Differential Equations", count: 412, trend: "up" }, { name: "Vector Algebra", count: 287, trend: "stable" }] },
-    { subject: "Physics", topics: [{ name: "Electromagnetic Induction", count: 723, trend: "up" }, { name: "Optics", count: 598, trend: "stable" }, { name: "Semiconductor Devices", count: 445, trend: "up" }, { name: "Alternating Current", count: 412, trend: "down" }, { name: "Dual Nature of Matter", count: 334, trend: "stable" }, { name: "Atoms & Nuclei", count: 298, trend: "up" }] },
-    { subject: "Chemistry", topics: [{ name: "Organic Mechanisms", count: 812, trend: "up" }, { name: "Coordination Compounds", count: 687, trend: "up" }, { name: "Electrochemistry", count: 534, trend: "stable" }, { name: "p-Block Elements", count: 478, trend: "down" }, { name: "Polymers", count: 356, trend: "stable" }, { name: "Biomolecules", count: 289, trend: "up" }] },
+    { subject: "Mathematics", topics: [{ name: "Conic Sections", count: 847 }, { name: "Integrals", count: 634 }, { name: "Probability", count: 521 }, { name: "Matrices & Determinants", count: 489 }, { name: "Differential Equations", count: 412 }, { name: "Vector Algebra", count: 287 }] },
+    { subject: "Physics", topics: [{ name: "Electromagnetic Induction", count: 723 }, { name: "Optics", count: 598 }, { name: "Semiconductor Devices", count: 445 }, { name: "Alternating Current", count: 412 }, { name: "Dual Nature of Matter", count: 334 }, { name: "Atoms & Nuclei", count: 298 }] },
+    { subject: "Chemistry", topics: [{ name: "Organic Mechanisms", count: 812 }, { name: "Coordination Compounds", count: 687 }, { name: "Electrochemistry", count: 534 }, { name: "p-Block Elements", count: 478 }, { name: "Polymers", count: 356 }, { name: "Biomolecules", count: 289 }] },
   ],
   JEE: [
-    { subject: "Mathematics", topics: [{ name: "Complex Numbers", count: 1284, trend: "up" }, { name: "Quadratic Equations", count: 967, trend: "stable" }, { name: "Sequences & Series", count: 834, trend: "up" }, { name: "Circle Geometry", count: 712, trend: "up" }, { name: "Permutations & Combinations", count: 645, trend: "down" }, { name: "3D Geometry", count: 589, trend: "stable" }] },
-    { subject: "Physics", topics: [{ name: "Rotational Motion", count: 1145, trend: "up" }, { name: "Thermodynamics", count: 987, trend: "up" }, { name: "Electrostatics", count: 823, trend: "stable" }, { name: "SHM & Waves", count: 734, trend: "up" }, { name: "Modern Physics", count: 612, trend: "down" }, { name: "Fluid Mechanics", count: 489, trend: "stable" }] },
-    { subject: "Chemistry", topics: [{ name: "Mole Concept", count: 934, trend: "stable" }, { name: "Chemical Bonding", count: 812, trend: "up" }, { name: "General Organic Chemistry", count: 756, trend: "up" }, { name: "Ionic Equilibrium", count: 678, trend: "up" }, { name: "Thermochemistry", count: 534, trend: "down" }, { name: "d-Block Elements", count: 445, trend: "stable" }] },
+    { subject: "Mathematics", topics: [{ name: "Complex Numbers", count: 1284 }, { name: "Quadratic Equations", count: 967 }, { name: "Sequences & Series", count: 834 }, { name: "Circle Geometry", count: 712 }, { name: "Permutations & Combinations", count: 645 }, { name: "3D Geometry", count: 589 }] },
+    { subject: "Physics", topics: [{ name: "Rotational Motion", count: 1145 }, { name: "Thermodynamics", count: 987 }, { name: "Electrostatics", count: 823 }, { name: "SHM & Waves", count: 734 }, { name: "Modern Physics", count: 612 }, { name: "Fluid Mechanics", count: 489 }] },
+    { subject: "Chemistry", topics: [{ name: "Mole Concept", count: 934 }, { name: "Chemical Bonding", count: 812 }, { name: "General Organic Chemistry", count: 756 }, { name: "Ionic Equilibrium", count: 678 }, { name: "Thermochemistry", count: 534 }, { name: "d-Block Elements", count: 445 }] },
   ],
   NEET: [
-    { subject: "Biology", topics: [{ name: "Genetics & Inheritance", count: 1156, trend: "up" }, { name: "Human Physiology", count: 934, trend: "stable" }, { name: "Reproduction", count: 812, trend: "up" }, { name: "Ecology & Environment", count: 723, trend: "up" }, { name: "Plant Physiology", count: 567, trend: "down" }, { name: "Cell Biology", count: 489, trend: "stable" }] },
-    { subject: "Physics", topics: [{ name: "Laws of Motion", count: 712, trend: "stable" }, { name: "Optics", count: 634, trend: "up" }, { name: "Electricity", count: 578, trend: "up" }, { name: "Work, Energy & Power", count: 489, trend: "down" }, { name: "Magnetism", count: 423, trend: "stable" }, { name: "Thermodynamics", count: 345, trend: "up" }] },
-    { subject: "Chemistry", topics: [{ name: "Organic Reactions", count: 867, trend: "up" }, { name: "Chemical Equilibrium", count: 712, trend: "up" }, { name: "Periodic Table Trends", count: 589, trend: "stable" }, { name: "Biomolecules", count: 512, trend: "up" }, { name: "Coordination Chemistry", count: 445, trend: "down" }, { name: "Solid State", count: 334, trend: "stable" }] },
+    { subject: "Biology", topics: [{ name: "Genetics & Inheritance", count: 1156 }, { name: "Human Physiology", count: 934 }, { name: "Reproduction", count: 812 }, { name: "Ecology & Environment", count: 723 }, { name: "Plant Physiology", count: 567 }, { name: "Cell Biology", count: 489 }] },
+    { subject: "Physics", topics: [{ name: "Laws of Motion", count: 712 }, { name: "Optics", count: 634 }, { name: "Electricity", count: 578 }, { name: "Work, Energy & Power", count: 489 }, { name: "Magnetism", count: 423 }, { name: "Thermodynamics", count: 345 }] },
+    { subject: "Chemistry", topics: [{ name: "Organic Reactions", count: 867 }, { name: "Chemical Equilibrium", count: 712 }, { name: "Periodic Table Trends", count: 589 }, { name: "Biomolecules", count: 512 }, { name: "Coordination Chemistry", count: 445 }, { name: "Solid State", count: 334 }] },
   ],
   IB: [
-    { subject: "Mathematics", topics: [{ name: "Calculus", count: 634, trend: "up" }, { name: "Statistics", count: 512, trend: "up" }, { name: "Vectors", count: 445, trend: "stable" }, { name: "Complex Numbers", count: 389, trend: "up" }, { name: "Proof", count: 312, trend: "down" }, { name: "Differential Eqs", count: 267, trend: "stable" }] },
-    { subject: "Physics", topics: [{ name: "Wave Phenomena", count: 567, trend: "up" }, { name: "Electricity & Mag", count: 489, trend: "stable" }, { name: "Thermal Physics", count: 412, trend: "up" }, { name: "Quantum & Nuclear", count: 378, trend: "up" }, { name: "Fields", count: 334, trend: "down" }, { name: "Mechanics", count: 289, trend: "stable" }] },
-    { subject: "Chemistry", topics: [{ name: "Organic Chemistry", count: 623, trend: "up" }, { name: "Equilibrium", count: 512, trend: "stable" }, { name: "Acid-Base Chemistry", count: 445, trend: "up" }, { name: "Redox Reactions", count: 389, trend: "up" }, { name: "Energetics", count: 334, trend: "down" }, { name: "Bonding Structure", count: 289, trend: "stable" }] },
+    { subject: "Mathematics", topics: [{ name: "Calculus", count: 634 }, { name: "Statistics", count: 512 }, { name: "Vectors", count: 445 }, { name: "Complex Numbers", count: 389 }, { name: "Proof", count: 312 }, { name: "Differential Eqs", count: 267 }] },
+    { subject: "Physics", topics: [{ name: "Wave Phenomena", count: 567 }, { name: "Electricity & Mag", count: 489 }, { name: "Thermal Physics", count: 412 }, { name: "Quantum & Nuclear", count: 378 }, { name: "Fields", count: 334 }, { name: "Mechanics", count: 289 }] },
+    { subject: "Chemistry", topics: [{ name: "Organic Chemistry", count: 623 }, { name: "Equilibrium", count: 512 }, { name: "Acid-Base Chemistry", count: 445 }, { name: "Redox Reactions", count: 389 }, { name: "Energetics", count: 334 }, { name: "Bonding Structure", count: 289 }] },
   ],
   IGCSE: [
-    { subject: "Mathematics", topics: [{ name: "Algebra", count: 534, trend: "up" }, { name: "Trigonometry", count: 445, trend: "up" }, { name: "Geometry & Mensuration", count: 389, trend: "stable" }, { name: "Probability & Stats", count: 334, trend: "up" }, { name: "Functions & Graphs", count: 289, trend: "down" }, { name: "Vectors & Matrices", count: 234, trend: "stable" }] },
-    { subject: "Physics", topics: [{ name: "Forces & Motion", count: 489, trend: "stable" }, { name: "Waves & Optics", count: 412, trend: "up" }, { name: "Electricity", count: 378, trend: "up" }, { name: "Thermal Physics", count: 312, trend: "up" }, { name: "Magnetism", count: 267, trend: "down" }, { name: "Radioactivity", count: 223, trend: "stable" }] },
-    { subject: "Chemistry", topics: [{ name: "Organic Chemistry", count: 523, trend: "up" }, { name: "Acids & Bases", count: 445, trend: "up" }, { name: "Metals & Reactivity", count: 389, trend: "stable" }, { name: "Electrolysis", count: 312, trend: "up" }, { name: "Rates of Reaction", count: 267, trend: "down" }, { name: "The Periodic Table", count: 234, trend: "stable" }] },
+    { subject: "Mathematics", topics: [{ name: "Algebra", count: 534 }, { name: "Trigonometry", count: 445 }, { name: "Geometry & Mensuration", count: 389 }, { name: "Probability & Stats", count: 334 }, { name: "Functions & Graphs", count: 289 }, { name: "Vectors & Matrices", count: 234 }] },
+    { subject: "Physics", topics: [{ name: "Forces & Motion", count: 489 }, { name: "Waves & Optics", count: 412 }, { name: "Electricity", count: 378 }, { name: "Thermal Physics", count: 312 }, { name: "Magnetism", count: 267 }, { name: "Radioactivity", count: 223 }] },
+    { subject: "Chemistry", topics: [{ name: "Organic Chemistry", count: 523 }, { name: "Acids & Bases", count: 445 }, { name: "Metals & Reactivity", count: 389 }, { name: "Electrolysis", count: 312 }, { name: "Rates of Reaction", count: 267 }, { name: "The Periodic Table", count: 234 }] },
   ],
 };
 
 const HEAT_MAX = 1300;
-const HEAT_TREND_SYMBOL: Record<HeatTrend, string> = { up: "↑", down: "↓", stable: "→" };
-const HEAT_TREND_LABEL: Record<HeatTrend, string>  = { up: "rising", down: "cooling", stable: "stable" };
 
 function heatColor(count: number): string {
   if (count >= 900) return "#d62b2b"; if (count >= 600) return "#e07c2a";
@@ -368,32 +365,49 @@ function ScoreTab() {
   );
 }
 
+function heatLabel(count: number): string {
+  if (count >= 900) return "Critical"; if (count >= 600) return "High";
+  if (count >= 400) return "Moderate"; if (count >= 200) return "Low";
+  return "Minimal";
+}
+
 function PeerHeatmapTab() {
   const [board, setBoard] = useState<HeatBoard>("CBSE");
   const data = HEAT_DATA[board];
   const allTopics = data.flatMap(s => s.topics.map(t => ({ ...t, subject: s.subject })));
-  const trending = [...allTopics].sort((a, b) => b.count - a.count).slice(0, 5);
+  const hardest = [...allTopics].sort((a, b) => b.count - a.count).slice(0, 5);
 
   return (
     <div>
-      <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 24 }}>Sample data · Most-struggled topics by board</div>
+      {/* Disclaimer banner */}
+      <div style={{ border: "1px solid var(--rule)", background: "var(--paper-2)", padding: "12px 16px", marginBottom: 24, display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9, flexShrink: 0, marginTop: 1 }}>ⓘ</span>
+        <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.6 }}>
+          <strong>Illustrative data.</strong> This heatmap shows representative difficulty patterns based on common exam topics — not aggregated from real student sessions. Live aggregation will replace this once enough students have completed past-paper sessions.
+        </span>
+      </div>
+
       <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 32, overflow: "hidden" }}>
-        {(["CBSE", "JEE", "NEET", "IB", "IGCSE"] as HeatBoard[]).map((b, i, arr) => (
+        {(["CBSE", "JEE", "NEET", "IB", "IGCSE"] as HeatBoard[]).map((b) => (
           <button key={b} onClick={() => setBoard(b)} style={{ flex: 1, padding: "10px 0", border: "none", borderRadius: 8, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink-2)", fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.06em", cursor: "pointer", transition: "background 160ms, color 160ms" }}>{b}</button>
         ))}
       </div>
-      <div className="mono cin" style={{ marginBottom: 12 }}>Top 5 — most common struggle topics</div>
+
+      <div className="mono cin" style={{ marginBottom: 12 }}>Top 5 — hardest topics for {board}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1, background: "var(--rule)", border: "none", marginBottom: 36 }} className="mob-col">
-        {trending.map((t, i) => (
+        {hardest.map((t, i) => (
           <div key={i} style={{ padding: "16px 14px", background: heatBg(t.count) }}>
             <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginBottom: 4 }}>#{i + 1}</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600, lineHeight: 1.3, marginBottom: 4 }}>{t.name}</div>
             <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginBottom: 10 }}>{t.subject}</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}><span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 26, color: heatColor(t.count), lineHeight: 1 }}>{t.count}</span></div>
-            <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginTop: 2 }}>{HEAT_TREND_SYMBOL[t.trend]} {HEAT_TREND_LABEL[t.trend]} · students struggling</div>
+            <div style={{ height: 3, background: "var(--rule)", marginBottom: 6 }}>
+              <div style={{ height: "100%", width: `${Math.min(100, (t.count / HEAT_MAX) * 100)}%`, background: heatColor(t.count) }} />
+            </div>
+            <div className="mono" style={{ fontSize: 8, color: heatColor(t.count) }}>{heatLabel(t.count)} difficulty</div>
           </div>
         ))}
       </div>
+
       <div className="mono cin" style={{ marginBottom: 16 }}>Full heatmap — {board}</div>
       {data.map(subj => (
         <div key={subj.subject} style={{ marginBottom: 24 }}>
@@ -401,25 +415,25 @@ function PeerHeatmapTab() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)", border: "1px solid var(--rule)" }} className="mob-col">
             {subj.topics.map(t => (
               <div key={t.name} style={{ padding: "14px 16px", background: heatBg(t.count) }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 8 }}>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 13, flex: 1, lineHeight: 1.3 }}>{t.name}</div>
-                  <div className="mono" style={{ fontSize: 10, color: heatColor(t.count), flexShrink: 0, marginTop: 1 }}>{HEAT_TREND_SYMBOL[t.trend]}</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.3, marginBottom: 8 }}>{t.name}</div>
+                <div style={{ height: 3, background: "var(--rule)", marginBottom: 5 }}>
+                  <div style={{ height: "100%", width: `${Math.min(100, (t.count / HEAT_MAX) * 100)}%`, background: heatColor(t.count) }} />
                 </div>
-                <div style={{ height: 3, background: "var(--rule)", marginBottom: 5 }}><div style={{ height: "100%", width: `${Math.min(100, (t.count / HEAT_MAX) * 100)}%`, background: heatColor(t.count) }} /></div>
-                <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{t.count} students · {HEAT_TREND_LABEL[t.trend]}</div>
+                <div className="mono" style={{ fontSize: 8, color: heatColor(t.count) }}>{heatLabel(t.count)} difficulty</div>
               </div>
             ))}
           </div>
         </div>
       ))}
-      <div style={{ display: "flex", gap: 16, alignItems: "center", marginTop: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Struggle intensity:</div>
-        {[{ label: "Low (<200)", color: "#3a7a5a" }, { label: "Moderate (200–400)", color: "#c4a520" }, { label: "High (400–600)", color: "#e07c2a" }, { label: "Critical (600+)", color: "#d62b2b" }].map(l => (
-          <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}><div style={{ width: 8, height: 8, background: l.color, borderRadius: 1, flexShrink: 0 }} /><div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{l.label}</div></div>
+
+      <div style={{ display: "flex", gap: 16, alignItems: "center", marginTop: 8, marginBottom: 8, flexWrap: "wrap" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Difficulty scale:</div>
+        {[{ label: "Minimal", color: "var(--ink-3)" }, { label: "Low", color: "#3a7a5a" }, { label: "Moderate", color: "#c4a520" }, { label: "High", color: "#e07c2a" }, { label: "Critical", color: "#d62b2b" }].map(l => (
+          <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, background: l.color, borderRadius: 1, flexShrink: 0 }} />
+            <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{l.label}</div>
+          </div>
         ))}
-      </div>
-      <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 16 }}>
-        <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.7, maxWidth: 640 }}>Sample data · Representative distribution of common struggle topics across boards. When live aggregation is available, this will reflect real student data from your board.</div>
       </div>
     </div>
   );
