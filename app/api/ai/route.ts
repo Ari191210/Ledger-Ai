@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -1717,6 +1717,29 @@ Respond with exactly this JSON:
 Paper data for analysis: ${params.paperData}
 Subject: ${params.subject} | Exam: ${params.examBoard}`,
       };
+
+    case "marks_obituary":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a forensic coroner filing an official report on marks lost in an academic examination. Your tone is clinical, third-person, detached, and slightly literary — the voice of a Victorian pathologist who has seen everything. You are never sympathetic, never motivational, never reassuring. You state facts. You name causes precisely. You do not comfort. Return ONLY valid JSON, no markdown fences.`,
+        userText: `Subject: ${params.subject}
+Expected: ${params.expected}
+Actual: ${params.actual}
+Marks lost: ${params.lost}
+
+Student's obituary (their own words):
+${params.obituaryText}
+
+Stated mistakes:
+${(params.mistakes as string[]).filter(Boolean).join("\n") || "None specified."}
+
+File the coroner's report. Return exactly this JSON:
+{
+  "causeOfDeath": "one precise sentence naming the specific academic failure — the exact knowledge gap, error type, or execution failure that caused these marks to be lost. Name it clinically. Not generic.",
+  "timeOfDeath": "one sentence stating when in the paper these marks were lost — early, late, in which section, under what conditions.",
+  "forensicSummary": "exactly three sentences. all lowercase. monospace voice. clinical. state what the data shows about this student's current state — no encouragement, no softening.",
+  "preventionProtocol": ["imperative, terse, specific — what must change. verb-first. under 12 words.", "second protocol item", "third protocol item"]
+}`,
+      };
   }
 }
 
@@ -1737,7 +1760,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
