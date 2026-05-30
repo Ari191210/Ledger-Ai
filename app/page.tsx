@@ -581,24 +581,24 @@ export default function Home() {
               </span>
               <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
               <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-2)" }}>Academic OS</span>
-              <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
-              <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
+              <span className="mob-hide" style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
+              <span className="mob-hide" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
             </div>
 
             {/* Headline — variant-aware */}
-            <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1.0, margin: "0 0 24px" }}>
-              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(60px,9vw,120px)" : "clamp(48px,7vw,96px)", color: "var(--ink-2)", letterSpacing: "0.06em" }}>
+            <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1.08, margin: "0 0 24px" }}>
+              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(52px,9vw,120px)" : "clamp(32px,7vw,96px)", color: "var(--ink-2)", letterSpacing: "0.06em" }}>
                 {variant === "late"
                   ? <>It&apos;s <span style={{ color: "var(--cinnabar-ink)" }}>{clockTime}</span>{city ? <> in {city}</> : null}.</>
                   : HERO_COPY[variant].line1}
               </div>
-              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(48px,7vw,96px)" : "clamp(48px,7vw,96px)", color: "var(--ink)", letterSpacing: "0.04em" }}>
+              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(32px,7vw,96px)" : "clamp(32px,7vw,96px)", color: "var(--ink)", letterSpacing: "0.04em" }}>
                 {HERO_COPY[variant].line2}
               </div>
             </h1>
 
             {/* Sub — variant-aware */}
-            <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.5vw,16px)", color: "var(--ink-3)", maxWidth: 480, margin: "0 0 36px", lineHeight: 1.65, letterSpacing: "0.01em" }}>
+            <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(13px,1.5vw,16px)", color: "var(--ink-3)", maxWidth: 480, margin: "0 0 28px", lineHeight: 1.7, letterSpacing: "0.01em" }}>
               {HERO_COPY[variant].sub}
             </p>
 
