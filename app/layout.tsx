@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Orbitron, Inter, Space_Mono } from "next/font/google";
+import { Orbitron, DM_Sans, Space_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
@@ -22,10 +22,10 @@ const orbitron = Orbitron({
   display: "swap",
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-inter",
+  variable: "--font-inter",   // reuse existing var — no other files need changing
   display: "swap",
 });
 
@@ -91,7 +91,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} ${inter.variable} ${spaceMono.variable}`}
+      className={`${orbitron.variable} ${dmSans.variable} ${spaceMono.variable}`}
     >
       <head>
         {/* Anti-flash: apply saved palette before first paint */}

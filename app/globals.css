@@ -41,6 +41,15 @@
   animation: tools-drift-b 44s ease-in-out infinite;
 }
 
+/* ─── Border-radius scale ───────────────────────────────────────────────────── */
+:root {
+  --radius-xs:  4px;
+  --radius-sm:  8px;
+  --radius:    12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+}
+
 /* ─── Reading density ───────────────────────────────────────────────────────── */
 :root                       { --density-prose: 15px; --density-line: 1.72; }
 [data-density="compact"]    { --density-prose: 13px; --density-line: 1.55; }
@@ -396,12 +405,14 @@
   background: color-mix(in srgb, var(--paper) 72%, transparent) !important;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
+  border-radius: var(--radius);
   transition: background 220ms ease;
 }
 .gl-pane-alt {
   background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
+  border-radius: var(--radius);
   transition: background 220ms ease;
 }
 
@@ -581,7 +592,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   align-items: center;
   gap: 8px;
   padding: 12px 26px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   border: none;
   background: color-mix(in srgb, var(--ink) 13%, transparent);
   color: var(--ink);
@@ -685,7 +696,7 @@ button:not(.btn):not([class*="ui-btn"]) {
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   border: none;
   color: var(--ink);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-family: var(--sans);
   cursor: pointer;
   backdrop-filter: blur(8px) saturate(160%);
@@ -722,7 +733,7 @@ button:not(.btn):not([class*="ui-btn"]):disabled {
   );
   background-size: 600px 100%;
   animation: sk-shimmer 1.4s ease-in-out infinite;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 @media (prefers-reduced-motion: reduce) {
   .skel { animation: none; background: var(--paper-2); }
@@ -756,7 +767,7 @@ textarea {
   background: color-mix(in srgb, var(--paper-2) 88%, transparent);
   border: 1px solid var(--rule);
   color: var(--ink);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-family: var(--sans);
   font-size: 13px;
   transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
@@ -783,7 +794,7 @@ select {
   background: color-mix(in srgb, var(--paper-2) 88%, transparent);
   border: 1px solid var(--rule);
   color: var(--ink);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding-right: 28px;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'><path d='M1 1l4 4 4-4' stroke='%23a0a0a0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat: no-repeat;
