@@ -449,7 +449,6 @@
     background 180ms ease !important;
 }
 .dash-tool:hover {
-  transform: translateY(-9px) scale(1.025) !important;
   box-shadow:
     0 0 0 1.5px var(--cat-color, var(--cinnabar-ink)),
     0 22px 54px rgba(0,0,0,0.38),

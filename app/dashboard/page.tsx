@@ -491,30 +491,40 @@ export default function Dashboard() {
     const cleanup: (() => void)[] = [];
 
     cards.forEach(card => {
+      const onEnter = () => {
+        gsap.to(card, {
+          y: -9, scale: 1.025,
+          transformPerspective: 900,
+          duration: 0.32, ease: "power2.out",
+          overwrite: "auto",
+        });
+      };
       const onMove = (e: MouseEvent) => {
         const r = card.getBoundingClientRect();
         const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;  // -1..1
         const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
         gsap.to(card, {
-          rotationY:   x * 12,
+          rotationY:   x * 14,
           rotationX:  -y * 10,
           transformPerspective: 900,
-          duration: 0.35,
+          duration: 0.25,
           ease: "power2.out",
           overwrite: "auto",
         });
       };
       const onLeave = () => {
         gsap.to(card, {
-          rotationY: 0, rotationX: 0,
+          y: 0, scale: 1, rotationY: 0, rotationX: 0,
           duration: 0.55, ease: "elastic.out(1, 0.6)",
           overwrite: "auto",
         });
       };
-      card.addEventListener("mousemove", onMove);
+      card.addEventListener("mouseenter", onEnter);
+      card.addEventListener("mousemove",  onMove);
       card.addEventListener("mouseleave", onLeave);
       cleanup.push(() => {
-        card.removeEventListener("mousemove", onMove);
+        card.removeEventListener("mouseenter", onEnter);
+        card.removeEventListener("mousemove",  onMove);
         card.removeEventListener("mouseleave", onLeave);
       });
     });
