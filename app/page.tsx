@@ -469,6 +469,42 @@ export default function Home() {
         );
       }
 
+      /* ── Body paragraphs ── */
+      ScrollTrigger.batch(".reveal-body", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, y: 18 },
+          { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power2.out", clearProps: "opacity,transform,visibility" }
+        ),
+        start: "top 92%", once: true,
+      });
+
+      /* ── Pull quote slide in from left ── */
+      gsap.utils.toArray<HTMLElement>(".reveal-quote").forEach(el => {
+        gsap.fromTo(el,
+          { autoAlpha: 0, x: -28 },
+          { autoAlpha: 1, x: 0, duration: 0.9, ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 88%", once: true } }
+        );
+      });
+
+      /* ── Meta stat items — pop up staggered ── */
+      ScrollTrigger.batch(".reveal-stat", {
+        onEnter: els => gsap.fromTo(els,
+          { autoAlpha: 0, y: 22, scale: 0.9 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.7)", clearProps: "transform,opacity,visibility" }
+        ),
+        start: "top 92%", once: true,
+      });
+
+      /* ── Section inner — subtle scrub parallax so content drifts into view ── */
+      gsap.utils.toArray<HTMLElement>(".lp-inner").forEach(el => {
+        gsap.fromTo(el,
+          { y: 36 },
+          { y: 0, ease: "none",
+            scrollTrigger: { trigger: el.parentElement, start: "top 90%", end: "top 5%", scrub: 1.4 } }
+        );
+      });
+
       /* ── CTA section ── */
       gsap.from(".cta-content > *", {
         autoAlpha: 0, y: 28, duration: 0.7, stagger: 0.12, ease: "power3.out",
@@ -709,17 +745,17 @@ export default function Home() {
               <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(28px,4vw,48px)", marginBottom: 28 }}>
                 Students don&apos;t have an operating system.
               </h2>
-              <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75, marginBottom: 20 }}>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75, marginBottom: 20 }}>
                 They have seven apps that don&apos;t talk to each other, a notes folder they dread opening, a study plan that expired in October, and an exam five weeks away that still feels theoretical.
               </p>
-              <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75 }}>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75 }}>
                 Ledger is the system that was missing. Not a productivity app. Not AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, and 51 instruments calibrated to your board, your grade, and your exam date.
               </p>
             </div>
 
             <div>
               {/* Pull quote */}
-              <div style={{ borderTop: "2px solid var(--ink)", paddingTop: 24, marginBottom: 32 }}>
+              <div className="reveal-quote" style={{ borderTop: "2px solid var(--ink)", paddingTop: 24, marginBottom: 32 }}>
                 <p style={{ fontFamily: "var(--sans)", fontStyle: "italic", fontSize: "clamp(18px,2.2vw,24px)", color: "var(--ink)", lineHeight: 1.5, letterSpacing: "-0.01em", margin: 0 }}>
                   &ldquo;The only student tool built around your syllabus, your board, and your exam — not a generic student somewhere in the world.&rdquo;
                 </p>
@@ -732,7 +768,7 @@ export default function Home() {
                   { n: "6+", l: "Exam Boards" },
                   { n: "8w", l: "To see results" },
                 ].map((m, i) => (
-                  <div key={i} style={{ background: "var(--paper)", padding: "20px 16px" }}>
+                  <div key={i} className="reveal-stat" style={{ background: "var(--paper)", padding: "20px 16px" }}>
                     <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1, letterSpacing: "0.04em" }}>{m.n}</div>
                     <div style={{ ...S.cap, marginTop: 8 }}>{m.l}</div>
                   </div>
@@ -819,7 +855,7 @@ export default function Home() {
                 Every session moves the number.
               </h2>
               <div className="anim-divider" style={{ ...S.rule, margin: "20px 0" }} />
-              <p style={{ ...S.body, fontStyle: "italic" }}>
+              <p className="reveal-body" style={{ ...S.body, fontStyle: "italic" }}>
                 Your Ledger Score accounts for past paper accuracy, syllabus coverage, mistake velocity, and daily consistency — updated in real time.
               </p>
             </div>
