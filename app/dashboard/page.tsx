@@ -485,6 +485,41 @@ export default function Dashboard() {
       }),
       start: "top 88%", once: true,
     });
+
+    // ── 3D card tilt on mouse move ──────────────────────────────────────────
+    const cards = gsap.utils.toArray<HTMLElement>(".dash-tool");
+    const cleanup: (() => void)[] = [];
+
+    cards.forEach(card => {
+      const onMove = (e: MouseEvent) => {
+        const r = card.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;  // -1..1
+        const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+        gsap.to(card, {
+          rotationY:   x * 12,
+          rotationX:  -y * 10,
+          transformPerspective: 900,
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      };
+      const onLeave = () => {
+        gsap.to(card, {
+          rotationY: 0, rotationX: 0,
+          duration: 0.55, ease: "elastic.out(1, 0.6)",
+          overwrite: "auto",
+        });
+      };
+      card.addEventListener("mousemove", onMove);
+      card.addEventListener("mouseleave", onLeave);
+      cleanup.push(() => {
+        card.removeEventListener("mousemove", onMove);
+        card.removeEventListener("mouseleave", onLeave);
+      });
+    });
+
+    return () => cleanup.forEach(fn => fn());
   }, { scope: containerRef });
 
   const [name, setName] = useState(user?.email?.split("@")[0] ?? "student");

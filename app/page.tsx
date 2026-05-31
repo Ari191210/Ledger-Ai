@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { GetStartedButton } from "@/components/ui/get-started-button";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
+
+const Hero3D = dynamic(() => import("@/components/hero-3d"), { ssr: false });
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
@@ -641,8 +644,13 @@ export default function Home() {
 
           </div>
 
-          {/* RIGHT: stats strip + live activity (desktop only) */}
+          {/* RIGHT: 3D scene + stats strip + live activity (desktop only) */}
           <div className="mob-hide" style={{ display: "flex", flexDirection: "column", gap: 20, borderLeft: "1px solid var(--rule)", paddingLeft: 40 }}>
+
+            {/* 3D Crystal scene */}
+            <div style={{ height: 220, position: "relative", overflow: "hidden" }}>
+              <Hero3D />
+            </div>
 
             {/* Stats: vertical stack */}
             <div className="hero-stats" style={{ display: "flex", flexDirection: "column", border: "1px solid var(--rule)" }}>

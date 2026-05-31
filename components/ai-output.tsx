@@ -188,7 +188,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false, onRegenera
 
   if (variant === "principle") {
     return (
-      <div style={borderStyle}>
+      <div key={text.slice(0, 60)} className="ai-3d-reveal" style={borderStyle}>
         <div style={{ fontFamily: "var(--serif)", fontSize: 16, lineHeight: 1.6, fontStyle: "italic", color: "var(--ink-2)" }}>
           {displayed}{cursor}
         </div>
@@ -198,7 +198,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false, onRegenera
   }
 
   return (
-    <div style={borderStyle}>
+    <div key={text.slice(0, 60)} className="ai-3d-reveal" style={borderStyle}>
       {renderMarkdown(displayed)}
       {cursor}
       {toolbar}
