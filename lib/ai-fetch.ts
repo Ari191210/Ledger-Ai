@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import { getLocalProfile } from "./user-data";
 import { sounds } from "./sounds";
+import { track } from "./posthog";
 
 // ── Typed AI error ────────────────────────────────────────────────────────────
 export class AIError extends Error {
@@ -34,10 +35,16 @@ export async function callAI(body: Record<string, unknown>): Promise<Response> {
 export async function callAIOrThrow<T = unknown>(
   body: Record<string, unknown>,
 ): Promise<T> {
+  const tool = (body.tool as string) ?? "unknown";
+  const t0 = Date.now();
+
+  track.aiCall(tool);
+
   let res: Response;
   try {
     res = await callAI(body);
   } catch {
+    track.aiError(tool, "network");
     throw new AIError(
       "Network error — check your connection and try again.",
       "network",
@@ -48,6 +55,8 @@ export async function callAIOrThrow<T = unknown>(
 
   if (!res.ok) {
     if (res.status === 429) {
+      track.aiError(tool, "rate_limit");
+      track.rateLimitHit(tool);
       if (typeof window !== "undefined") {
         window.location.href = "/limit";
       }
@@ -57,22 +66,26 @@ export async function callAIOrThrow<T = unknown>(
       );
     }
     if (res.status === 403) {
+      track.aiError(tool, "moderation");
       throw new AIError(
         (data.error as string) || "Your AI access has been suspended.",
         "moderation",
       );
     }
     if (res.status === 400) {
+      track.aiError(tool, "moderation");
       throw new AIError(
         (data.error as string) || "This topic isn't something Ledger can help with.",
         "moderation",
       );
     }
+    track.aiError(tool, res.status >= 500 ? "server" : "unknown");
     throw new AIError(
       (data.error as string) || "Something went wrong. Please try again.",
       res.status >= 500 ? "server" : "unknown",
     );
   }
 
+  track.aiComplete(tool, Date.now() - t0);
   return data as T;
 }
