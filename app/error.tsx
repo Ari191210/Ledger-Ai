@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 export default function Error({
   error,
   reset,
@@ -7,6 +9,36 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    // ChunkLoadError = stale browser cache after a new deploy.
+    // Auto-reload once; sessionStorage flag prevents an infinite loop.
+    if (
+      error?.name === "ChunkLoadError" ||
+      error?.message?.includes("Failed to load chunk") ||
+      error?.message?.includes("Loading chunk")
+    ) {
+      const key = "ledger_chunk_reload";
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        window.location.reload();
+      }
+    }
+  }, [error]);
+
+  const isChunkError =
+    error?.name === "ChunkLoadError" ||
+    error?.message?.includes("Failed to load chunk") ||
+    error?.message?.includes("Loading chunk");
+
+  const handleRetry = () => {
+    if (isChunkError) {
+      sessionStorage.removeItem("ledger_chunk_reload");
+      window.location.reload();
+    } else {
+      reset();
+    }
+  };
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper, #f7f4ee)", padding: "0 24px" }}>
       <div style={{ maxWidth: 560, width: "100%", border: "2px solid #222", padding: "40px 36px" }}>
@@ -21,7 +53,7 @@ export default function Error({
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <button
-            onClick={reset}
+            onClick={handleRetry}
             style={{ fontFamily: "monospace", fontSize: 11, padding: "10px 20px", background: "#222", color: "#f7f4ee", border: "none", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase" }}
           >
             Try again
