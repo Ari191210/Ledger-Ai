@@ -12,7 +12,7 @@ const CSP = [
   [
     "connect-src 'self'",
     "https://*.supabase.co wss://*.supabase.co",  // Supabase REST + Realtime
-    "https://app.posthog.com",                     // PostHog analytics
+    "https://us.i.posthog.com https://us-assets.i.posthog.com", // PostHog analytics
     "https://*.ingest.sentry.io",                  // Sentry error ingestion
     "https://prod.spline.design",                  // Spline scene files
   ].join(" "),
