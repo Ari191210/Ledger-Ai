@@ -144,7 +144,7 @@ const S = {
   h2:        { fontFamily: "var(--serif)", fontSize: "clamp(26px,3.5vw,40px)", fontStyle: "normal" as const, fontWeight: 700, color: "var(--ink)", letterSpacing: "0.04em", lineHeight: 1.1 },
   body:      { fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", lineHeight: 1.7 },
   rule:      { height: 1, background: "var(--rule)", width: "100%" },
-  border:    "1px solid var(--rule)",
+  border:    "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
   borderInk: "1px solid var(--ink)",
 };
 
@@ -322,26 +322,22 @@ export default function Home() {
     mm.add({ reduceMotion: "(prefers-reduced-motion: reduce)" }, (ctx) => {
       const reduceMotion = ctx.conditions?.reduceMotion ?? false;
 
-      /* ── Hero entrance ── */
-      if (reduceMotion) {
-        gsap.set(
-          [".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
-           ".hero-sub", ".hero-stats > *", ".hero-ctas > *", ".hero-scroll", ".hero-activity"],
-          { autoAlpha: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" }
-        );
-      } else {
-        gsap.timeline({ defaults: { ease: "power3.out" } })
-          .fromTo(".hero-badge",
-            { clipPath: "inset(0 100% 0 0)", autoAlpha: 0 },
-            { clipPath: "inset(0 0% 0 0)", autoAlpha: 1, duration: 0.7, ease: "power2.inOut" })
-          .from(".hero-word-1",   { autoAlpha: 0, y: 36, duration: 0.85, stagger: 0.12 }, "-=0.25")
-          .from(".hero-word-2",   { autoAlpha: 0, y: 36, duration: 0.85 }, "-=0.5")
-          .from(".hero-divider",  { scaleX: 0, transformOrigin: "left", duration: 0.6, ease: "power2.inOut" }, "-=0.45")
-          .from(".hero-sub",      { autoAlpha: 0, y: 16, duration: 0.55 }, "-=0.35")
-          .from(".hero-stats > *",{ autoAlpha: 0, y: 14, duration: 0.45, stagger: 0.07 }, "-=0.35")
-          .from(".hero-ctas > *", { autoAlpha: 0, y: 12, scale: 0.97, duration: 0.45, stagger: 0.07 }, "-=0.3")
-          .from(".hero-scroll",   { autoAlpha: 0, duration: 0.4 }, "-=0.15")
-          .from(".hero-activity", { autoAlpha: 0, x: -20, duration: 0.55, ease: "power2.out" }, "-=0.4");
+      /* ── PRE-HIDE: set all scroll-animated elements invisible BEFORE anything fires ── */
+      if (!reduceMotion) {
+        gsap.set(".reveal-up",    { autoAlpha: 0, y: 60,  filter: "blur(8px)" });
+        gsap.set(".reveal-body",  { autoAlpha: 0, y: 40 });
+        gsap.set(".reveal-quote", { autoAlpha: 0, x: -50 });
+        gsap.set(".reveal-stat",  { autoAlpha: 0, y: 40, scale: 0.85 });
+        gsap.set(".bento-card",   { autoAlpha: 0, y: 64,  scale: 0.88, filter: "blur(6px)" });
+        gsap.set(".feat-card",    { autoAlpha: 0, y: 56,  scale: 0.9 });
+        gsap.set(".stat-card",    { autoAlpha: 0, y: 48,  scale: 0.88 });
+        gsap.set(".hiw-step",     { autoAlpha: 0, y: 50 });
+        gsap.set(".cat-tab",      { autoAlpha: 0, y: 20 });
+        gsap.set(".tool-item",    { autoAlpha: 0, x: -32 });
+        gsap.set(".footer-col",   { autoAlpha: 0, y: 44 });
+        gsap.set(".anim-divider", { scaleX: 0, transformOrigin: "left center" });
+        gsap.set(".hiw-line",     { scaleX: 0, transformOrigin: "left center" });
+        gsap.set(".cta-content > *", { autoAlpha: 0, y: 40 });
       }
 
       /* ── ScrollToPlugin: smooth scroll all #anchor links ── */
@@ -352,91 +348,166 @@ export default function Home() {
         const target = document.querySelector(hash);
         if (!target) return;
         e.preventDefault();
-        gsap.to(window, { scrollTo: { y: target, offsetY: 60 }, duration: reduceMotion ? 0 : 1.0, ease: "power3.inOut" });
+        gsap.to(window, { scrollTo: { y: target, offsetY: 60 }, duration: reduceMotion ? 0 : 1.1, ease: "power3.inOut" });
       };
       const anchors = containerRef.current?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [];
       anchors.forEach(a => a.addEventListener("click", handleAnchorClick));
+
+      /* ── Hero entrance ── */
+      if (reduceMotion) {
+        gsap.set(
+          [".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
+           ".hero-sub", ".hero-stats", ".hero-ctas > *", ".hero-scroll", ".hero-activity"],
+          { autoAlpha: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" }
+        );
+      } else {
+        gsap.timeline({ defaults: { ease: "power3.out" } })
+          .fromTo(".hero-badge",
+            { clipPath: "inset(0 100% 0 0)", autoAlpha: 0 },
+            { clipPath: "inset(0 0% 0 0)", autoAlpha: 1, duration: 0.8, ease: "power2.inOut" })
+          .fromTo(".hero-word-1",
+            { autoAlpha: 0, y: 70, filter: "blur(8px)" },
+            { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 1.0, stagger: 0.15, ease: "power3.out" }, "-=0.3")
+          .fromTo(".hero-word-2",
+            { autoAlpha: 0, y: 60, filter: "blur(6px)" },
+            { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.95 }, "-=0.55")
+          .fromTo(".hero-divider",
+            { scaleX: 0, transformOrigin: "left" },
+            { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, "-=0.5")
+          .fromTo(".hero-sub",
+            { autoAlpha: 0, y: 24 },
+            { autoAlpha: 1, y: 0, duration: 0.65 }, "-=0.4")
+          .fromTo(".hero-stats",
+            { autoAlpha: 0, x: 30, scale: 0.93 },
+            { autoAlpha: 1, x: 0, scale: 1, duration: 0.7, ease: "power3.out" }, "-=0.5")
+          .fromTo(".hero-ctas > *",
+            { autoAlpha: 0, y: 20, scale: 0.94 },
+            { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1 }, "-=0.45")
+          .fromTo(".hero-scroll",
+            { autoAlpha: 0, y: 10 },
+            { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.2")
+          .fromTo(".hero-activity",
+            { autoAlpha: 0, x: -30, filter: "blur(6px)" },
+            { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.65, ease: "power2.out" }, "-=0.5");
+      }
 
       if (reduceMotion) {
         return () => anchors.forEach(a => a.removeEventListener("click", handleAnchorClick));
       }
 
-      /* ── Section headings reveal ── */
-      gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
-        gsap.fromTo(el,
-          { autoAlpha: 0, y: 28, filter: "blur(1px)" },
-          { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.75, ease: "power3.out",
-            scrollTrigger: { trigger: el, start: "top 88%", once: true } }
-        );
-      });
-
       /* ── Hero h1 parallax on mouse ── */
       const heroEl = containerRef.current?.querySelector(".hero-section");
       const onHeroMove = (e: Event) => {
         const { clientX, clientY } = e as MouseEvent;
-        const x = (clientX / window.innerWidth  - 0.5) * 12;
-        const y = (clientY / window.innerHeight - 0.5) * 7;
-        gsap.to(".hero-h1", { x, y, duration: 1.8, ease: "power2.out", overwrite: "auto" });
+        const x = (clientX / window.innerWidth  - 0.5) * 18;
+        const y = (clientY / window.innerHeight - 0.5) * 10;
+        gsap.to(".hero-h1", { x, y, duration: 2.0, ease: "power2.out", overwrite: "auto" });
       };
-      const onHeroLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1.4, ease: "power3.out" });
+      const onHeroLeave = () => gsap.to(".hero-h1", { x: 0, y: 0, duration: 1.6, ease: "power3.out" });
       heroEl?.addEventListener("mousemove", onHeroMove);
       heroEl?.addEventListener("mouseleave", onHeroLeave);
 
       /* ── Hero content parallax on scroll ── */
       gsap.to(".hero-content", {
-        y: -60, ease: "none",
-        scrollTrigger: { trigger: ".hero-section", start: "top top", end: "+=700", scrub: 1.8 },
+        y: -90, ease: "none",
+        scrollTrigger: { trigger: ".hero-section", start: "top top", end: "+=800", scrub: 2 },
       });
 
-      /* ── Dividers draw ── */
+      /* ── Section dividers draw in ── */
       gsap.utils.toArray<HTMLElement>(".anim-divider").forEach(el => {
-        gsap.fromTo(el,
-          { scaleX: 0 },
-          { scaleX: 1, transformOrigin: "left center", duration: 1.0, ease: "power2.inOut",
-            scrollTrigger: { trigger: el, start: "top 93%", once: true } }
-        );
+        gsap.to(el, {
+          scaleX: 1, duration: 1.2, ease: "power2.inOut",
+          scrollTrigger: { trigger: el, start: "top 94%", once: true },
+        });
       });
 
-      /* ── Bento cards stagger ── */
-      ScrollTrigger.batch(".bento-card", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, y: 32, scale: 0.97 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: "power3.out", clearProps: "transform,opacity,visibility" }
-        ),
-        start: "top 86%", once: true,
+      /* ── Section headings: large Y + blur reveal ── */
+      gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+        });
+      });
+
+      /* ── Body paragraphs ── */
+      gsap.utils.toArray<HTMLElement>(".reveal-body").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out", delay: i * 0.06,
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
+        });
+      });
+
+      /* ── Pull quotes slide from left ── */
+      gsap.utils.toArray<HTMLElement>(".reveal-quote").forEach(el => {
+        gsap.to(el, {
+          autoAlpha: 1, x: 0, duration: 1.1, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+        });
+      });
+
+      /* ── Meta stat pops — back.out spring ── */
+      gsap.utils.toArray<HTMLElement>(".reveal-stat").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.8)", delay: i * 0.1,
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
+        });
+      });
+
+      /* ── Bento cards: large Y + scale + blur ── */
+      gsap.utils.toArray<HTMLElement>(".bento-card").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "power3.out",
+          delay: i * 0.12,
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          clearProps: "filter,transform,opacity,visibility",
+        });
+      });
+
+      /* ── Feature cards: staggered wave ── */
+      gsap.utils.toArray<HTMLElement>(".feat-card").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, scale: 1, duration: 0.85, ease: "power3.out", delay: i * 0.1,
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          clearProps: "transform,opacity,visibility",
+        });
+      });
+
+      /* ── Stat cards ── */
+      gsap.utils.toArray<HTMLElement>(".stat-card").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.4)", delay: i * 0.12,
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          clearProps: "transform,opacity,visibility",
+        });
+      });
+
+      /* ── How It Works connecting line ── */
+      gsap.to(".hiw-line", {
+        scaleX: 1, duration: 1.4, ease: "power2.inOut",
+        scrollTrigger: { trigger: ".hiw-line", start: "top 87%", once: true },
+      });
+
+      /* ── How It Works steps — cascade ── */
+      gsap.utils.toArray<HTMLElement>(".hiw-step").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", delay: i * 0.18,
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
       });
 
       /* ── Category tabs ── */
-      gsap.from(".cat-tab", {
-        autoAlpha: 0, y: 10, duration: 0.4, stagger: 0.05, ease: "power2.out",
-        scrollTrigger: { trigger: ".cat-tabs", start: "top 88%", once: true },
+      gsap.to(".cat-tab", {
+        autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.07, ease: "power2.out",
+        scrollTrigger: { trigger: ".cat-tabs", start: "top 90%", once: true },
       });
 
-      /* ── Tool list rows — scattered random-order reveal ── */
-      ScrollTrigger.batch(".tool-item", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, x: -24 },
-          { autoAlpha: 1, x: 0, duration: 0.5, stagger: { each: 0.022, from: "random" }, ease: "power2.out", clearProps: "opacity,transform,visibility" }
-        ),
-        start: "top 91%", once: true,
-      });
-
-      /* ── Feature cards — wave Y offset via function-based values ── */
-      ScrollTrigger.batch(".feat-card", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, y: (i: number) => 16 + i * 8, scale: 0.98 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.07, ease: "power3.out", clearProps: "transform,opacity,visibility" }
-        ),
-        start: "top 86%", once: true,
-      });
-
-      /* ── Stat cards slide in ── */
-      ScrollTrigger.batch(".stat-card", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, y: 24, scale: 0.95 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.08, ease: "power3.out", clearProps: "transform,opacity,visibility" }
-        ),
-        start: "top 86%", once: true,
+      /* ── Tool list rows — scattered random-order slide ── */
+      gsap.to(".tool-item", {
+        autoAlpha: 1, x: 0, duration: 0.6,
+        stagger: { each: 0.025, from: "random" },
+        ease: "power2.out",
+        scrollTrigger: { trigger: ".cat-tabs", start: "top 80%", once: true },
+        clearProps: "opacity,transform,visibility",
       });
 
       /* ── Count-up numbers ── */
@@ -446,8 +517,8 @@ export default function Home() {
         const decimals = parseInt(el.dataset.decimals   ?? "0", 10);
         const obj = { val: 0 };
         gsap.to(obj, {
-          val: target, duration: 2.2, ease: "power2.out",
-          scrollTrigger: { trigger: el, start: "top 86%", once: true },
+          val: target, duration: 2.8, ease: "power2.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
           onUpdate() {
             el.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix;
           },
@@ -458,87 +529,43 @@ export default function Home() {
       gsap.utils.toArray<HTMLElement>(".progress-bar").forEach(el => {
         const finalW = el.style.width;
         gsap.fromTo(el, { width: 0 }, {
-          width: finalW, duration: 1.6, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          width: finalW, duration: 1.8, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
         });
       });
 
-      /* ── Footer columns ── */
-      ScrollTrigger.batch(".footer-col", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, y: 28 },
-          { autoAlpha: 1, y: 0, duration: 0.65, stagger: 0.1, ease: "power2.out", clearProps: "opacity,transform,visibility" }
-        ),
-        start: "top 92%", once: true,
-      });
-
-      /* ── How It Works steps ── */
-      const hiwSteps = gsap.utils.toArray<HTMLElement>(".hiw-step");
-      if (hiwSteps.length) {
-        gsap.fromTo(".hiw-line",
-          { scaleX: 0, transformOrigin: "left center" },
-          { scaleX: 1, duration: 1.2, ease: "power2.inOut",
-            scrollTrigger: { trigger: ".hiw-line", start: "top 85%", once: true } }
-        );
-        hiwSteps.forEach((el, i) =>
-          gsap.fromTo(el,
-            { autoAlpha: 0, y: 28 },
-            { autoAlpha: 1, y: 0, duration: 0.65, delay: i * 0.14, ease: "power3.out",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true } }
-          )
-        );
-      }
-
-      /* ── Body paragraphs ── */
-      ScrollTrigger.batch(".reveal-body", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, y: 18 },
-          { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power2.out", clearProps: "opacity,transform,visibility" }
-        ),
-        start: "top 92%", once: true,
-      });
-
-      /* ── Pull quote slide in from left ── */
-      gsap.utils.toArray<HTMLElement>(".reveal-quote").forEach(el => {
-        gsap.fromTo(el,
-          { autoAlpha: 0, x: -28 },
-          { autoAlpha: 1, x: 0, duration: 0.9, ease: "power3.out",
-            scrollTrigger: { trigger: el, start: "top 88%", once: true } }
-        );
-      });
-
-      /* ── Meta stat items — pop up staggered ── */
-      ScrollTrigger.batch(".reveal-stat", {
-        onEnter: els => gsap.fromTo(els,
-          { autoAlpha: 0, y: 22, scale: 0.9 },
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.7)", clearProps: "transform,opacity,visibility" }
-        ),
-        start: "top 92%", once: true,
-      });
-
-      /* ── Section inner — subtle scrub parallax so content drifts into view ── */
+      /* ── Section inner scrub parallax ── */
       gsap.utils.toArray<HTMLElement>(".lp-inner").forEach(el => {
         gsap.fromTo(el,
-          { y: 36 },
+          { y: 50 },
           { y: 0, ease: "none",
-            scrollTrigger: { trigger: el.parentElement, start: "top 90%", end: "top 5%", scrub: 1.4 } }
+            scrollTrigger: { trigger: el.parentElement, start: "top 95%", end: "top 0%", scrub: 2 } }
         );
+      });
+
+      /* ── Footer columns ── */
+      gsap.utils.toArray<HTMLElement>(".footer-col").forEach((el, i) => {
+        gsap.to(el, {
+          autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", delay: i * 0.12,
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
+          clearProps: "opacity,transform,visibility",
+        });
       });
 
       /* ── CTA section ── */
-      gsap.from(".cta-content > *", {
-        autoAlpha: 0, y: 28, duration: 0.7, stagger: 0.12, ease: "power3.out",
-        scrollTrigger: { trigger: ".cta-section", start: "top 80%", once: true },
+      gsap.to(".cta-content > *", {
+        autoAlpha: 1, y: 0, duration: 0.85, stagger: 0.14, ease: "power3.out",
+        scrollTrigger: { trigger: ".cta-section", start: "top 82%", once: true },
       });
 
-      /* ── Hero glow CSS variable fade on scroll exit ── */
+      /* ── Hero glow fade on scroll exit ── */
       gsap.to(".hero-section", {
         "--hero-glow-opacity": 0,
         ease: "power1.in",
         scrollTrigger: { trigger: ".hero-section", start: "center top", end: "bottom top", scrub: 1.5 },
       });
 
-      /* ── Hover micro-interactions (bento + feat cards) ── */
+      /* ── Hover micro-interactions ── */
       const hoverListeners: Array<() => void> = [];
       const addHover = (el: HTMLElement, enterVars: gsap.TweenVars, leaveVars: gsap.TweenVars) => {
         const onEnter = () => gsap.to(el, { ...enterVars, overwrite: "auto" });
@@ -552,16 +579,19 @@ export default function Home() {
       };
       gsap.utils.toArray<HTMLElement>(".bento-card").forEach(el =>
         addHover(el,
-          { y: -3, scale: 1.012, duration: 0.25, ease: "power2.out" },
-          { y: 0,  scale: 1,     duration: 0.45, ease: "power3.out" }
+          { y: -6, scale: 1.02, duration: 0.28, ease: "power2.out" },
+          { y:  0, scale: 1,    duration: 0.5,  ease: "power3.out" }
         )
       );
       gsap.utils.toArray<HTMLElement>(".feat-card").forEach(el =>
         addHover(el,
-          { y: -2, duration: 0.22, ease: "power2.out" },
-          { y: 0,  duration: 0.4,  ease: "power3.out" }
+          { y: -5, scale: 1.015, duration: 0.25, ease: "power2.out" },
+          { y:  0, scale: 1,     duration: 0.45, ease: "power3.out" }
         )
       );
+
+      /* ── Force ScrollTrigger to recalculate positions after fonts/images settle ── */
+      ScrollTrigger.refresh();
 
       return () => {
         heroEl?.removeEventListener("mousemove", onHeroMove);
