@@ -2163,3 +2163,356 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
   .tool-item       { transition: background 50ms ease !important; padding-left: inherit !important; }
   .tool-item:hover { padding-left: 16px !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MICRO-INTERACTIONS — hover / focus / active transitions
+   OKLCH CSS variables only — no rgba(). No framer-motion. No JS deps.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Glass-card hover lift ──────────────────────────────────────────────────── */
+/* Augments existing .glass-card definition (line ~27) with transition + lift   */
+.glass-card {
+  transition: transform 280ms cubic-bezier(0.34, 1.4, 0.64, 1),
+              box-shadow 280ms ease,
+              border-color 200ms ease;
+}
+.glass-card:not(.no-hover):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px color-mix(in srgb, var(--ink) 18%, transparent),
+              0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+/* ─── Link hover — non-button anchors with a class (supplements no-class rule) */
+/* The existing a:not(.btn):not([class]) rule handles bare links.               */
+/* This catches links that have a class but aren't buttons or dash-tool links.  */
+a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]) {
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+/* ─── Nav logo: scale + letter-spacing on hover ──────────────────────────────── */
+.nav-logo {
+  transition: opacity 160ms ease;
+}
+.nav-logo:hover {
+  opacity: 1 !important; /* override the global a:hover opacity: 0.75 */
+}
+.nav-logo:hover span {
+  letter-spacing: 0.16em;
+  transition: letter-spacing 220ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.nav-logo span {
+  display: inline-block;
+  transition: letter-spacing 220ms ease;
+}
+
+/* ─── Nav links: active bottom-glow border + hover translateY ────────────────── */
+.nav-link-active-glow {
+  box-shadow: inset 0 -2px 0 0 var(--cinnabar-ink);
+}
+
+/* ─── Dashboard tool arrow: pop on hover (augments existing rule) ────────────── */
+/* Existing .dash-tool:hover .dash-tool-arrow already sets translate(5px,-5px).  */
+/* Add scale(1.2) and color via the cat-color variable:                           */
+.dash-tool:hover .dash-tool-arrow {
+  transform: translate(5px, -5px) scale(1.2);
+  color: var(--cat-color, var(--cinnabar-ink));
+}
+
+/* ─── Tool-page tab buttons ──────────────────────────────────────────────────── */
+.tool-tab {
+  transition: background 160ms ease,
+              color 160ms ease,
+              border-color 160ms ease,
+              transform 200ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.tool-tab:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.tool-tab:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+/* ─── Divider shimmer on hover ───────────────────────────────────────────────── */
+@keyframes divider-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: 0 0; }
+}
+.anim-divider-row:hover .anim-divider {
+  background: linear-gradient(
+    90deg,
+    var(--cinnabar-ink),
+    var(--rule),
+    var(--cinnabar-ink)
+  );
+  background-size: 200% 100%;
+  animation: divider-shimmer 1s ease;
+}
+
+/* ─── Ticker: pause on hover ─────────────────────────────────────────────────── */
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+/* ─── Scroll-bounce: more dramatic travel ────────────────────────────────────── */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0)    rotate(45deg); opacity: 0.4; }
+  50%       { transform: translateY(10px) rotate(45deg); opacity: 1;   }
+}
+
+/* ─── Nav cmd button: subtle hover glow ─────────────────────────────────────── */
+.nav-cmd:hover span {
+  border-color: color-mix(in srgb, var(--cinnabar-ink) 50%, var(--rule));
+  color: var(--ink-2);
+  transition: border-color 160ms ease, color 160ms ease;
+}
+.nav-cmd span {
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+/* ─── Profile link: warm background on hover ─────────────────────────────────── */
+.nav-profile-link {
+  transition: background 160ms ease;
+}
+.nav-profile-link:hover {
+  background: color-mix(in srgb, var(--cinnabar-ink) 6%, var(--paper-2)) !important;
+}
+
+/* ─── Output well: gentle glow on hover ─────────────────────────────────────── */
+.output-well {
+  transition: box-shadow 220ms ease;
+}
+.output-well:hover {
+  box-shadow: inset 0 2px 8px color-mix(in srgb, var(--ink) 8%, transparent),
+              inset 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent),
+              0 0 0 1px color-mix(in srgb, var(--cinnabar-ink) 10%, transparent);
+}
+
+/* ─── Reduced motion: disable new micro-interactions ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card          { transition: none !important; }
+  .glass-card:hover    { transform: none !important; }
+  .nav-logo span       { transition: none !important; }
+  .tool-tab            { transition: none !important; }
+  .tool-tab:hover      { transform: none !important; }
+  .ticker:hover .ticker-track { animation-play-state: running; }
+  .nav-cmd span        { transition: none !important; }
+  .nav-profile-link    { transition: none !important; }
+  .dash-tool:hover .dash-tool-arrow { transform: translate(5px, -5px); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ADDITIONAL MICRO-INTERACTIONS — everything interactive gets feedback
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Inputs / textarea / select: focus ring ────────────────────────────── */
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  transition: border-color 180ms ease,
+              box-shadow 200ms ease,
+              background 160ms ease !important;
+}
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  border-color: color-mix(in srgb, var(--cinnabar) 55%, transparent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cinnabar) 14%, transparent) !important;
+  outline: none !important;
+}
+
+/* ─── Nav top-bar links: subtle lift on hover ───────────────────────────── */
+.nav-link-item {
+  transition: background 160ms ease, color 160ms ease, transform 200ms cubic-bezier(0.34,1.4,0.64,1);
+}
+.nav-link-item:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--ink) 6%, transparent) !important;
+  color: var(--ink) !important;
+}
+
+/* ─── Sign out button: cinnabar fade on hover ───────────────────────────── */
+.nav-signout {
+  transition: background 160ms ease, color 160ms ease !important;
+}
+.nav-signout:hover {
+  background: color-mix(in srgb, var(--cinnabar) 8%, transparent) !important;
+  color: var(--cinnabar-ink) !important;
+}
+
+/* ─── Dashboard stat cells: lift on hover ───────────────────────────────── */
+.dash-stat {
+  transition: transform 240ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 220ms ease !important;
+}
+.dash-stat:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--ink) 16%, transparent) !important;
+}
+
+/* ─── Bento cards on landing: scale + glow on hover ────────────────────── */
+/* (GSAP also handles this in JS; CSS is the fallback)                        */
+.bento-card {
+  transition: transform 300ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 280ms ease,
+              border-color 200ms ease !important;
+}
+
+/* ─── Cat tabs: lift + color flash on hover ─────────────────────────────── */
+.cat-tab {
+  transition: background 140ms ease, color 140ms ease, transform 200ms cubic-bezier(0.34,1.4,0.64,1) !important;
+}
+.cat-tab:hover {
+  transform: translateY(-2px) !important;
+  background: color-mix(in srgb, var(--ink) 7%, transparent) !important;
+}
+
+/* ─── Testimonial nav arrows: slide on hover ────────────────────────────── */
+.testim-prev, .testim-next {
+  transition: transform 220ms cubic-bezier(0.34,1.4,0.64,1),
+              border-color 180ms ease,
+              color 160ms ease !important;
+}
+.testim-prev:hover { transform: translateX(-4px) scale(1.08) !important; }
+.testim-next:hover { transform: translateX(4px)  scale(1.08) !important; }
+
+/* ─── Feat card Greek letters: scale on parent hover ───────────────────── */
+.feat-card {
+  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 260ms ease !important;
+}
+.feat-card .feat-tag {
+  display: inline-block;
+  transition: transform 280ms cubic-bezier(0.34,1.56,0.64,1),
+              color 200ms ease;
+}
+.feat-card:hover .feat-tag {
+  transform: scale(1.18) translateY(-3px);
+  color: var(--cinnabar-ink);
+}
+
+/* ─── Stat cards on landing: spring lift ───────────────────────────────── */
+.stat-card {
+  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 260ms ease !important;
+}
+.stat-card:hover {
+  transform: translateY(-5px) scale(1.02) !important;
+  box-shadow: 0 14px 40px color-mix(in srgb, var(--ink) 20%, transparent) !important;
+}
+
+/* ─── Ledger Score widget: glow on hover ────────────────────────────────── */
+.score-widget {
+  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 260ms ease !important;
+}
+.score-widget:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 44px color-mix(in srgb, var(--cinnabar) 18%, transparent),
+              0 0 0 1px color-mix(in srgb, var(--cinnabar) 20%, transparent) !important;
+}
+
+/* ─── Share panel URL boxes: cursor + border on hover ──────────────────── */
+.share-url-box {
+  transition: border-color 160ms ease, background 160ms ease !important;
+  cursor: text;
+}
+.share-url-box:hover {
+  border-color: color-mix(in srgb, var(--ink) 20%, transparent) !important;
+  background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
+}
+
+/* ─── Exam table rows: highlight on hover ───────────────────────────────── */
+.exam-row {
+  transition: background 140ms ease !important;
+}
+.exam-row:hover td {
+  background: color-mix(in srgb, var(--cinnabar) 4%, transparent) !important;
+}
+
+/* ─── Quick-launch pill links (dashboard) ───────────────────────────────── */
+.quick-launch {
+  transition: transform 220ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 200ms ease,
+              color 160ms ease !important;
+}
+.quick-launch:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 14%, transparent) !important;
+  color: var(--ink) !important;
+}
+
+/* ─── AI output copy/regenerate toolbar buttons ─────────────────────────── */
+.ai-toolbar-btn {
+  transition: background 140ms ease, color 140ms ease,
+              border-color 140ms ease, transform 180ms ease !important;
+}
+.ai-toolbar-btn:hover {
+  transform: translateY(-1px) !important;
+  color: var(--ink) !important;
+  border-color: color-mix(in srgb, var(--ink) 30%, transparent) !important;
+}
+.ai-toolbar-btn:active {
+  transform: scale(0.95) !important;
+  transition-duration: 60ms !important;
+}
+
+/* ─── Tool page section tabs (common pattern in tool pages) ─────────────── */
+.tab-btn {
+  transition: background 140ms ease, color 140ms ease,
+              border-color 140ms ease, transform 200ms cubic-bezier(0.34,1.4,0.64,1) !important;
+}
+.tab-btn:hover:not([data-active="true"]) {
+  transform: translateY(-2px) !important;
+  color: var(--ink) !important;
+}
+.tab-btn:active {
+  transform: scale(0.97) !important;
+  transition-duration: 80ms !important;
+}
+
+/* ─── Floating timer (tool pages) ───────────────────────────────────────── */
+.floating-timer {
+  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+              box-shadow 260ms ease !important;
+}
+.floating-timer:hover {
+  transform: scale(1.04) translateY(-2px) !important;
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--ink) 20%, transparent) !important;
+}
+
+/* ─── HiW step icons: rotate on hover ───────────────────────────────────── */
+.hiw-step:hover .hiw-icon {
+  transform: scale(1.12) rotate(8deg);
+  transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.hiw-step .hiw-icon {
+  transition: transform 300ms ease;
+}
+
+/* ─── Scroll progress bar: glow pulse ───────────────────────────────────── */
+#lp-scroll-bar {
+  transition: box-shadow 300ms ease !important;
+}
+
+/* ─── Hero badge: subtle pulse on idle ──────────────────────────────────── */
+@keyframes badge-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cinnabar) 0%, transparent); }
+  50%       { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--cinnabar) 12%, transparent); }
+}
+.hero-badge {
+  animation: badge-breathe 4s ease-in-out infinite;
+}
+
+/* ─── Reduced motion: disable all new transitions ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .dash-stat, .bento-card, .feat-card, .stat-card, .cat-tab,
+  .testim-prev, .testim-next, .score-widget, .quick-launch,
+  .ai-toolbar-btn, .tab-btn, .floating-timer, .share-url-box,
+  .exam-row, .nav-link-item, .nav-signout {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .hero-badge { animation: none !important; }
+}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useFocus, DURATIONS, MODE_LABELS } from "@/lib/focus-context";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 // ── Tab: Focus Timer ───────────────────────────────────────────────────────────
@@ -176,7 +176,7 @@ function CircuitBreakerTab() {
     setLoading(true);
     setError("");
     try {
-      const res = await callAI({ tool: "circuit_breaker", subject: subject.trim(), context: context.trim() }) as unknown as BreakResult;
+      const res = await callAIOrThrow<BreakResult>({ tool: "circuit_breaker", subject: subject.trim(), context: context.trim() });
       if (!res?.micro_task) { setError("Try again."); return; }
       setResult(res);
       setPhase("task");

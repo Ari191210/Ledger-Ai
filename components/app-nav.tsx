@@ -166,18 +166,31 @@ export default function AppNav() {
   const isProfile = path === "/dashboard/profile";
   const initial   = (displayName || "?")[0].toUpperCase();
 
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [logoHovered, setLogoHovered] = useState(false);
+
   const navLink = (href: string, label: string, extra?: React.ReactNode, mobileHide?: boolean) => {
     const active = path === href;
+    const hovered = hoveredNav === href;
     return (
-      <Link href={href} className={mobileHide ? "mob-hide" : undefined} style={{
-        textDecoration: "none", display: "flex", alignItems: "center", gap: 6, padding: "0 16px",
-        borderRight: "1px solid var(--rule)",
-        background: active ? "var(--paper-2)" : "transparent",
-        color: active ? "var(--ink)" : "var(--ink-2)",
-        fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
-        letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
-        height: "100%", transition: "background 160ms ease, color 160ms ease",
-      }}>
+      <Link
+        href={href}
+        className={mobileHide ? "mob-hide" : undefined}
+        onMouseEnter={() => setHoveredNav(href)}
+        onMouseLeave={() => setHoveredNav(null)}
+        style={{
+          textDecoration: "none", display: "flex", alignItems: "center", gap: 6, padding: "0 16px",
+          borderRight: "1px solid var(--rule)",
+          background: active ? "var(--paper-2)" : hovered ? "color-mix(in srgb, var(--ink) 5%, transparent)" : "transparent",
+          color: active ? "var(--ink)" : hovered ? "var(--ink)" : "var(--ink-2)",
+          fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
+          letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
+          height: "100%", transition: "background 160ms ease, color 160ms ease",
+          position: "relative",
+          boxShadow: active ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
+          transform: hovered && !active ? "translateY(-1px)" : undefined,
+        }}
+      >
         {extra}{label}
       </Link>
     );
@@ -193,11 +206,27 @@ export default function AppNav() {
         borderBottom: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
       }}>
-        <Link href="/" aria-label="Ledger — home" className="nav-logo" style={{
-          textDecoration: "none", display: "flex", alignItems: "center", padding: "0 20px",
-          borderRight: "1px solid var(--rule)", flexShrink: 0,
-        }}>
-          <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16, color: "var(--ink)", letterSpacing: "0.1em" }}>
+        <Link
+          href="/"
+          aria-label="Ledger — home"
+          className="nav-logo"
+          onMouseEnter={() => setLogoHovered(true)}
+          onMouseLeave={() => setLogoHovered(false)}
+          style={{
+            textDecoration: "none", display: "flex", alignItems: "center", padding: "0 20px",
+            borderRight: "1px solid var(--rule)", flexShrink: 0,
+            transition: "background 160ms ease",
+            background: logoHovered ? "color-mix(in srgb, var(--cinnabar-ink) 5%, transparent)" : "transparent",
+          }}
+        >
+          <span style={{
+            fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16,
+            color: "var(--ink)",
+            letterSpacing: logoHovered ? "0.16em" : "0.1em",
+            transform: logoHovered ? "scale(1.05)" : "scale(1)",
+            display: "inline-block",
+            transition: "letter-spacing 220ms cubic-bezier(0.34,1.4,0.64,1), transform 220ms cubic-bezier(0.34,1.4,0.64,1)",
+          }}>
             LEDGER
           </span>
         </Link>
@@ -205,15 +234,24 @@ export default function AppNav() {
         {navLink("/dashboard", "Dashboard", undefined, true)}
         {navLink("/tools/personalise", "Themes", undefined, true)}
 
-        <Link href="/tools/score" className="mob-hide" style={{
-          textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 14px",
-          borderRight: "1px solid var(--rule)",
-          background: path === "/tools/score" ? "var(--paper-2)" : "transparent",
-          color: path === "/tools/score" ? "var(--ink)" : "var(--cinnabar-ink)",
-          fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
-          letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
-          height: "100%",
-        }}>
+        <Link
+          href="/tools/score"
+          className="mob-hide"
+          onMouseEnter={() => setHoveredNav("/tools/score")}
+          onMouseLeave={() => setHoveredNav(null)}
+          style={{
+            textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 14px",
+            borderRight: "1px solid var(--rule)",
+            background: path === "/tools/score" ? "var(--paper-2)" : hoveredNav === "/tools/score" ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent",
+            color: "var(--cinnabar-ink)",
+            fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
+            letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
+            height: "100%",
+            transition: "background 160ms ease, transform 160ms ease",
+            transform: hoveredNav === "/tools/score" && path !== "/tools/score" ? "translateY(-1px)" : undefined,
+            boxShadow: path === "/tools/score" ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
+          }}
+        >
           <span>★</span><span>Score</span>
         </Link>
 

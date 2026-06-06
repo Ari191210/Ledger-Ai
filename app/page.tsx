@@ -522,6 +522,11 @@ export default function Home() {
           onUpdate() {
             el.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix;
           },
+          onComplete() {
+            /* Subtle bounce on the parent stat-card when count finishes */
+            const card = el.closest<HTMLElement>(".stat-card");
+            if (card) gsap.fromTo(card, { scale: 1.04 }, { scale: 1, duration: 0.45, ease: "back.out(2.5)" });
+          },
         });
       });
 
@@ -577,18 +582,160 @@ export default function Home() {
           el.removeEventListener("mouseleave", onLeave);
         });
       };
+
+      /* Bento cards */
       gsap.utils.toArray<HTMLElement>(".bento-card").forEach(el =>
         addHover(el,
           { y: -6, scale: 1.02, duration: 0.28, ease: "power2.out" },
           { y:  0, scale: 1,    duration: 0.5,  ease: "power3.out" }
         )
       );
-      gsap.utils.toArray<HTMLElement>(".feat-card").forEach(el =>
+
+      /* Feature cards — lift + Greek letter scale */
+      gsap.utils.toArray<HTMLElement>(".feat-card").forEach(el => {
+        const letter = el.querySelector<HTMLElement>(".feat-letter");
+        const onEnter = () => {
+          gsap.to(el, { y: -6, scale: 1.02, duration: 0.28, ease: "power2.out", overwrite: "auto" });
+          if (letter) gsap.to(letter, { scale: 1.15, color: "var(--cinnabar-ink)", duration: 0.22, ease: "power2.out", overwrite: "auto" });
+        };
+        const onLeave = () => {
+          gsap.to(el, { y: 0, scale: 1, duration: 0.45, ease: "power3.out", overwrite: "auto" });
+          if (letter) gsap.to(letter, { scale: 1, color: "var(--cinnabar-ink)", duration: 0.35, ease: "power3.out", overwrite: "auto" });
+        };
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mouseleave", onLeave);
+        });
+      });
+
+      /* Nav links — y lift */
+      gsap.utils.toArray<HTMLElement>(".lp-nav-link").forEach(el =>
         addHover(el,
-          { y: -5, scale: 1.015, duration: 0.25, ease: "power2.out" },
-          { y:  0, scale: 1,     duration: 0.45, ease: "power3.out" }
+          { y: -2, duration: 0.2, ease: "power2.out" },
+          { y:  0, duration: 0.3, ease: "power3.out" }
         )
       );
+
+      /* Hero CTA buttons */
+      gsap.utils.toArray<HTMLElement>(".hero-cta-btn").forEach(el => {
+        const onEnter = () => gsap.to(el, { y: -3, scale: 1.04, duration: 0.25, ease: "power2.out", overwrite: "auto" });
+        const onLeave = () => gsap.to(el, { y:  0, scale: 1,    duration: 0.4,  ease: "power3.out", overwrite: "auto" });
+        const onDown  = () => gsap.to(el, { scale: 0.97, duration: 0.1, ease: "power2.in", overwrite: "auto" });
+        const onUp    = () => gsap.to(el, { scale: 1.04, duration: 0.15, ease: "power2.out", overwrite: "auto" });
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
+        el.addEventListener("mousedown",  onDown);
+        el.addEventListener("mouseup",    onUp);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mouseleave", onLeave);
+          el.removeEventListener("mousedown",  onDown);
+          el.removeEventListener("mouseup",    onUp);
+        });
+      });
+
+      /* Hero stat rows */
+      gsap.utils.toArray<HTMLElement>(".hero-stat-row").forEach(el =>
+        addHover(el,
+          { y: -2, background: "color-mix(in srgb, var(--ink) 5%, transparent)", duration: 0.2, ease: "power2.out" },
+          { y:  0, background: "transparent", duration: 0.35, ease: "power3.out" }
+        )
+      );
+
+      /* Category tabs — scale flash */
+      gsap.utils.toArray<HTMLElement>(".cat-tab").forEach(el =>
+        addHover(el,
+          { scale: 1.03, duration: 0.18, ease: "power2.out" },
+          { scale: 1,    duration: 0.3,  ease: "power3.out" }
+        )
+      );
+
+      /* Tool list rows — x slide */
+      gsap.utils.toArray<HTMLElement>(".tool-item").forEach(el => {
+        const arrow = el.querySelector<HTMLElement>(".tool-arrow");
+        const onEnter = () => {
+          gsap.to(el, { x: 5, duration: 0.2, ease: "power2.out", overwrite: "auto" });
+          if (arrow) gsap.fromTo(arrow, { x: -8, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.22, ease: "power2.out" });
+        };
+        const onLeave = () => {
+          gsap.to(el, { x: 0, duration: 0.3, ease: "power3.out", overwrite: "auto" });
+          if (arrow) gsap.to(arrow, { x: -8, autoAlpha: 0, duration: 0.18, ease: "power2.in" });
+        };
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mouseleave", onLeave);
+        });
+      });
+
+      /* Testimonial nav arrows */
+      gsap.utils.toArray<HTMLElement>(".testim-arrow-prev").forEach(el =>
+        addHover(el,
+          { x: -4, scale: 1.1, duration: 0.2, ease: "power2.out" },
+          { x:  0, scale: 1,   duration: 0.3, ease: "power3.out" }
+        )
+      );
+      gsap.utils.toArray<HTMLElement>(".testim-arrow-next").forEach(el =>
+        addHover(el,
+          { x:  4, scale: 1.1, duration: 0.2, ease: "power2.out" },
+          { x:  0, scale: 1,   duration: 0.3, ease: "power3.out" }
+        )
+      );
+
+      /* Stat cards — lift on hover */
+      gsap.utils.toArray<HTMLElement>(".stat-card").forEach(el =>
+        addHover(el,
+          { y: -4, scale: 1.02, duration: 0.25, ease: "power2.out" },
+          { y:  0, scale: 1,    duration: 0.4,  ease: "power3.out" }
+        )
+      );
+
+      /* CTA section buttons */
+      gsap.utils.toArray<HTMLElement>(".cta-btn").forEach(el => {
+        const onEnter = () => gsap.to(el, { scale: 1.04, y: -2, duration: 0.25, ease: "power2.out", overwrite: "auto" });
+        const onLeave = () => gsap.to(el, { scale: 1,    y:  0, duration: 0.4,  ease: "power3.out", overwrite: "auto" });
+        const onDown  = () => gsap.to(el, { scale: 0.97, duration: 0.1, ease: "power2.in", overwrite: "auto" });
+        const onUp    = () => gsap.to(el, { scale: 1.04, duration: 0.15, ease: "power2.out", overwrite: "auto" });
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
+        el.addEventListener("mousedown",  onDown);
+        el.addEventListener("mouseup",    onUp);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mouseleave", onLeave);
+          el.removeEventListener("mousedown",  onDown);
+          el.removeEventListener("mouseup",    onUp);
+        });
+      });
+
+      /* Section divider shimmer on scroll enter */
+      gsap.utils.toArray<HTMLElement>(".anim-divider").forEach(el => {
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 90%",
+          once: true,
+          onEnter: () => {
+            gsap.fromTo(el,
+              { opacity: 0.3 },
+              { opacity: 1, duration: 0.6, ease: "power2.out",
+                yoyo: false }
+            );
+          },
+        });
+      });
+
+      /* Live activity toast — scale pulse on each new item */
+      const activityEl = activityRef.current;
+      if (activityEl) {
+        const observer = new MutationObserver(() => {
+          gsap.fromTo(activityEl, { scale: 0.96 }, { scale: 1, duration: 0.35, ease: "back.out(2)" });
+        });
+        observer.observe(activityEl, { childList: true, subtree: true, characterData: true });
+        hoverListeners.push(() => observer.disconnect());
+      }
 
       /* ── Force ScrollTrigger to recalculate positions after fonts/images settle ── */
       ScrollTrigger.refresh();
@@ -627,7 +774,7 @@ export default function Home() {
           <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16, color: "var(--ink)", letterSpacing: "0.1em" }}>LEDGER</span>
           <nav style={{ display: "flex", gap: 28 }} className="mob-hide">
             {[["#tools", "Tools"], ["#features", "Features"], ["#score", "Score"]].map(([href, label]) => (
-              <a key={href} href={href} style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 500, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 180ms" }}
+              <a key={href} href={href} className="lp-nav-link" style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 500, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 180ms", display: "inline-block" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "var(--ink)")}
                 onMouseLeave={e => (e.currentTarget.style.color = "var(--ink-3)")}
               >{label}</a>
@@ -717,13 +864,13 @@ export default function Home() {
               </div>
             ) : (
               <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap" as const, alignItems: "center" }}>
-                <Link href="/dashboard" style={{ textDecoration: "none" }}>
+                <Link href="/dashboard" style={{ textDecoration: "none" }} className="hero-cta-btn" >
                   <GetStartedButton />
                 </Link>
-                <a href="#tools" style={{ textDecoration: "none", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
+                <a href="#tools" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
                   Explore tools
                 </a>
-                <Link href="/auth" style={{ textDecoration: "none", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
+                <Link href="/auth" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
                   Sign in
                 </Link>
               </div>
@@ -744,7 +891,7 @@ export default function Home() {
             {/* Stats: vertical stack */}
             <div className="hero-stats glass-card" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
               {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "41", l: "AI tools" }].map((s, i) => (
-                <div key={i} style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>
+                <div key={i} className="hero-stat-row" style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>
                   <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px,2vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
                 </div>
@@ -1042,7 +1189,7 @@ export default function Home() {
                       <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--ink)" }}>{t.ttl}</div>
                       <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: catColor, marginTop: 3, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t.cat}</div>
                     </div>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, opacity: active ? 1 : 0, transition: "opacity 120ms", flexShrink: 0, color: catColor }}>→</span>
+                    <span className="tool-arrow" style={{ fontFamily: "var(--mono)", fontSize: 9, opacity: active ? 1 : 0, transition: "opacity 120ms", flexShrink: 0, color: catColor }}>→</span>
                   </button>
                 );
               })}
@@ -1206,7 +1353,7 @@ export default function Home() {
               }}>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
-                    <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 44, color: "var(--cinnabar-ink)", fontWeight: 700, lineHeight: 1, letterSpacing: "0.04em" }}>{f.tag}</span>
+                    <span className="feat-letter" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 44, color: "var(--cinnabar-ink)", fontWeight: 700, lineHeight: 1, letterSpacing: "0.04em", display: "inline-block" }}>{f.tag}</span>
                     <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", marginTop: 8 }}>0{i + 1} · 03</span>
                   </div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 700, color: "var(--ink)", marginBottom: 14, letterSpacing: "0.03em", lineHeight: 1.2 }}>{f.ttl}</div>
@@ -1239,7 +1386,7 @@ export default function Home() {
                 onClick={() => setExpandedFeat(expandedFeat === i + 3 ? null : i + 3)}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 6 }}>
-                  <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 24, color: "var(--cinnabar-ink)", fontWeight: 700, letterSpacing: "0.04em" }}>{f.tag}</span>
+                  <span className="feat-letter" style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 24, color: "var(--cinnabar-ink)", fontWeight: 700, letterSpacing: "0.04em", display: "inline-block" }}>{f.tag}</span>
                   <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: expandedFeat === i + 3 ? "var(--cinnabar-ink)" : "var(--ink-3)", marginTop: 6, letterSpacing: "0.06em" }}>
                     {expandedFeat === i + 3 ? "[ − ]" : "[ + ]"}
                   </span>
@@ -1278,10 +1425,10 @@ export default function Home() {
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ ...S.cap, fontSize: 9 }}>n=11,482 · Self-reported · Apr &apos;26</div>
               <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms" }}>←</button>
-                <button onClick={() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length)}
-                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms" }}>→</button>
+                <button className="testim-arrow-prev" onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>←</button>
+                <button className="testim-arrow-next" onClick={() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length)}
+                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>→</button>
               </div>
             </div>
           </div>
@@ -1442,10 +1589,10 @@ export default function Home() {
               Build the system that closes the gap. Fifty-one tools. One score. One streak. Everything calibrated to your board and your exam date.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px" }}>
+              <Link href="/dashboard" className="btn cta-btn" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px", display: "inline-block" }}>
                 Open the Ledger →
               </Link>
-              <Link href="/auth" className="btn ghost" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px" }}>
+              <Link href="/auth" className="btn ghost cta-btn" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px", display: "inline-block" }}>
                 Sign in
               </Link>
             </div>

@@ -22,7 +22,7 @@ export default function ToolsBackground() {
             "linear-gradient(90deg, var(--rule-2) 1px, transparent 1px)",
           ].join(", "),
           backgroundSize: "48px 48px",
-          opacity: 0.6,
+          opacity: 0.4,
         }}
       />
 

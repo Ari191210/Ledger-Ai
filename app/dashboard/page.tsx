@@ -307,7 +307,10 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
               {upcoming.map((e, i) => {
                 const d = daysUntil(e.date);
                 return (
-                  <tr key={i}>
+                  <tr key={i} className="exam-row"
+                    onMouseEnter={ev => gsap.to(ev.currentTarget, { backgroundColor: "color-mix(in srgb, var(--ink) 4%, transparent)", duration: 0.2, ease: "power1.out" })}
+                    onMouseLeave={ev => gsap.to(ev.currentTarget, { backgroundColor: "transparent", duration: 0.25, ease: "power1.out" })}
+                  >
                     <td style={{ padding: "10px 14px", fontFamily: "var(--serif)", fontSize: 14, fontStyle: "italic", fontWeight: 500, borderBottom: i < upcoming.length - 1 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>{e.name}</td>
                     <td className="mob-exam-hide" style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", borderBottom: i < upcoming.length - 1 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>{e.subject}</td>
                     <td className="mob-exam-hide" style={{ padding: "10px 14px", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", borderBottom: i < upcoming.length - 1 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>{e.board}</td>
@@ -383,14 +386,17 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
   }
 
   return (
-    <div className="mob-share" style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+    <div className="mob-share share-panel" style={{ marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
       <div className="glass-card" style={{ padding: "20px" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Share with parent</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
           Your parent gets a live read-only view of your progress — streak, exams, marks, weak topics.
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "text", transition: "background 200ms" }}
+            onMouseEnter={ev => gsap.to(ev.currentTarget, { background: "color-mix(in srgb, var(--paper) 80%, transparent)", duration: 0.2 })}
+            onMouseLeave={ev => gsap.to(ev.currentTarget, { background: "var(--paper-2)", duration: 0.25 })}
+          >
             {parentCode ? `${siteBase}/parent/${parentCode}` : "Generating…"}
           </div>
           <button className="btn ghost" onClick={() => copy(`${siteBase}/parent/${parentCode}`, "parent")} disabled={!parentCode}
@@ -406,7 +412,10 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
           Share your referral link. When they sign up, both of you get 1 month Pro free once billing is live.
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "text", transition: "background 200ms" }}
+            onMouseEnter={ev => gsap.to(ev.currentTarget, { background: "color-mix(in srgb, var(--paper) 80%, transparent)", duration: 0.2 })}
+            onMouseLeave={ev => gsap.to(ev.currentTarget, { background: "var(--paper-2)", duration: 0.25 })}
+          >
             {siteBase}/?ref={referralCode}
           </div>
           <button className="btn ghost" onClick={() => copy(`${siteBase}/?ref=${referralCode}`, "ref")}
@@ -432,8 +441,32 @@ function LedgerScoreWidget() {
     { label: "Mistakes", val: score.mistakeScore,     max: 200 },
     { label: "Streak",   val: score.consistencyScore, max: 150 },
   ];
+  const scoreRef = useRef<HTMLAnchorElement>(null);
+
+  function handleScoreEnter() {
+    if (!scoreRef.current) return;
+    gsap.to(scoreRef.current, { y: -3, scale: 1.01, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+    // Pillar bar pulse: collapse then re-expand
+    const bars = scoreRef.current.querySelectorAll<HTMLElement>(".pillar-bar-fill");
+    bars.forEach((bar, i) => {
+      const realW = bar.style.width;
+      gsap.timeline()
+        .to(bar, { width: "0%", duration: 0.22, ease: "power2.in", delay: i * 0.04 })
+        .to(bar, { width: realW,   duration: 0.55, ease: "power3.out" });
+    });
+  }
+
+  function handleScoreLeave() {
+    if (!scoreRef.current) return;
+    gsap.to(scoreRef.current, { y: 0, scale: 1, duration: 0.4, ease: "power2.out", overwrite: "auto" });
+  }
+
   return (
-    <Link href="/tools/score" className="glass-card" style={{ textDecoration: "none", display: "block", marginBottom: 40, color: "inherit", overflow: "hidden" }}>
+    <Link ref={scoreRef} href="/tools/score" className="glass-card score-widget"
+      style={{ textDecoration: "none", display: "block", marginBottom: 40, color: "inherit", overflow: "hidden" }}
+      onMouseEnter={handleScoreEnter}
+      onMouseLeave={handleScoreLeave}
+    >
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 20px", borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", background: "color-mix(in srgb, var(--paper) 30%, transparent)" }}>
         <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.16em", textTransform: "uppercase" as const }}>Ledger Score™</span>
@@ -453,7 +486,7 @@ function LedgerScoreWidget() {
                 {p.val}<span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", fontWeight: 400 }}>/{p.max}</span>
               </span>
               <div style={{ height: 4, background: "color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 2 }}>
-                <div style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--ink)", transition: "width 800ms ease", borderRadius: 2 }} />
+                <div className="pillar-bar-fill" style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--ink)", transition: "width 800ms ease", borderRadius: 2 }} />
               </div>
             </div>
           ))}
@@ -482,6 +515,54 @@ export default function Dashboard() {
       onEnter: els => gsap.from(els, {
         opacity: 0, y: 24, scale: 0.97, duration: 0.55, stagger: 0.04,
         ease: "power2.out", clearProps: "opacity,transform",
+      }),
+      start: "top 88%", once: true,
+    });
+
+    // ── Scroll reveal: pre-hide elements ───────────────────────────────────
+    gsap.set(".score-widget",      { autoAlpha: 0, y: 60, scale: 0.95 });
+    gsap.set(".exam-row",          { autoAlpha: 0, x: -30 });
+    gsap.set(".share-panel",       { autoAlpha: 0, y: 40 });
+    gsap.set(".weak-strip",        { autoAlpha: 0, x: -20 });
+    gsap.set(".recommend-strip",   { autoAlpha: 0, y: 30 });
+    gsap.set(".section-label",     { autoAlpha: 0, x: -20 });
+
+    // Score widget reveal
+    gsap.to(".score-widget", {
+      autoAlpha: 1, y: 0, scale: 1, duration: 0.75, ease: "power3.out",
+      scrollTrigger: { trigger: ".score-widget", start: "top 88%", once: true },
+    });
+
+    // Exam rows — staggered slide in
+    ScrollTrigger.batch(".exam-row", {
+      onEnter: els => gsap.to(els, {
+        autoAlpha: 1, x: 0, duration: 0.5, stagger: 0.06, ease: "power2.out",
+      }),
+      start: "top 88%", once: true,
+    });
+
+    // Share panel reveal
+    gsap.to(".share-panel", {
+      autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out",
+      scrollTrigger: { trigger: ".share-panel", start: "top 88%", once: true },
+    });
+
+    // Weak topics strip
+    gsap.to(".weak-strip", {
+      autoAlpha: 1, x: 0, duration: 0.55, ease: "power2.out",
+      scrollTrigger: { trigger: ".weak-strip", start: "top 88%", once: true },
+    });
+
+    // Recommendation strip
+    gsap.to(".recommend-strip", {
+      autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out",
+      scrollTrigger: { trigger: ".recommend-strip", start: "top 88%", once: true },
+    });
+
+    // Section labels
+    ScrollTrigger.batch(".section-label", {
+      onEnter: els => gsap.to(els, {
+        autoAlpha: 1, x: 0, duration: 0.45, stagger: 0.05, ease: "power2.out",
       }),
       start: "top 88%", once: true,
     });
@@ -528,6 +609,49 @@ export default function Dashboard() {
         card.removeEventListener("mouseleave", onLeave);
       });
     });
+
+    // ── Stat cell hover ─────────────────────────────────────────────────────
+    const statCells = gsap.utils.toArray<HTMLElement>(".dash-stat");
+    statCells.forEach(cell => {
+      const onEnter = () => gsap.to(cell, {
+        y: -4, scale: 1.03,
+        boxShadow: "0 8px 24px color-mix(in srgb, var(--ink) 15%, transparent)",
+        duration: 0.28, ease: "power2.out", overwrite: "auto",
+      });
+      const onLeave = () => gsap.to(cell, {
+        y: 0, scale: 1, boxShadow: "none",
+        duration: 0.38, ease: "power2.out", overwrite: "auto",
+      });
+      cell.addEventListener("mouseenter", onEnter);
+      cell.addEventListener("mouseleave", onLeave);
+      cleanup.push(() => {
+        cell.removeEventListener("mouseenter", onEnter);
+        cell.removeEventListener("mouseleave", onLeave);
+      });
+    });
+
+    // ── Search input focus glow ──────────────────────────────────────────────
+    const searchWrap = document.querySelector<HTMLElement>(".tool-search-wrap");
+    if (searchWrap) {
+      const inp = searchWrap.querySelector("input");
+      const onFocus = () => gsap.to(searchWrap, {
+        scale: 1.01,
+        boxShadow: "0 0 0 2px color-mix(in srgb, var(--cinnabar) 30%, transparent)",
+        duration: 0.25, ease: "power2.out", overwrite: "auto",
+      });
+      const onBlur = () => gsap.to(searchWrap, {
+        scale: 1, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)",
+        duration: 0.25, ease: "power2.out", overwrite: "auto",
+      });
+      if (inp) {
+        inp.addEventListener("focus", onFocus);
+        inp.addEventListener("blur",  onBlur);
+        cleanup.push(() => {
+          inp.removeEventListener("focus", onFocus);
+          inp.removeEventListener("blur",  onBlur);
+        });
+      }
+    }
 
     return () => cleanup.forEach(fn => fn());
   }, { scope: containerRef });
@@ -660,15 +784,30 @@ export default function Dashboard() {
             { label: "Grade Tracker", slug: "grade-tracker" },
           ].map(item => (
             <Link key={item.slug} href={`/tools/${item.slug}`} onClick={() => trackToolVisit(item.slug)}
-              className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}>
+              className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}
+              onMouseEnter={ev => gsap.to(ev.currentTarget, { y: -3, scale: 1.05, duration: 0.22, ease: "power2.out", overwrite: "auto" })}
+              onMouseLeave={ev => gsap.to(ev.currentTarget, { y: 0, scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" })}
+              onMouseDown={ev => gsap.to(ev.currentTarget, { scale: 0.96, duration: 0.1, overwrite: "auto" })}
+              onMouseUp={ev => gsap.to(ev.currentTarget, { scale: 1.05, duration: 0.15, overwrite: "auto" })}
+            >
               {item.label}
             </Link>
           ))}
-          <Link href="/dashboard/saved" className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}>
+          <Link href="/dashboard/saved" className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}
+            onMouseEnter={ev => gsap.to(ev.currentTarget, { y: -3, scale: 1.05, duration: 0.22, ease: "power2.out", overwrite: "auto" })}
+            onMouseLeave={ev => gsap.to(ev.currentTarget, { y: 0, scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" })}
+            onMouseDown={ev => gsap.to(ev.currentTarget, { scale: 0.96, duration: 0.1, overwrite: "auto" })}
+            onMouseUp={ev => gsap.to(ev.currentTarget, { scale: 1.05, duration: 0.15, overwrite: "auto" })}
+          >
             Saved →
           </Link>
           <button className="btn ghost" style={{ padding: "7px 16px", fontSize: 11 }}
-            onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }); document.dispatchEvent(e); }}>
+            onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }); document.dispatchEvent(e); }}
+            onMouseEnter={ev => gsap.to(ev.currentTarget, { y: -3, scale: 1.05, duration: 0.22, ease: "power2.out", overwrite: "auto" })}
+            onMouseLeave={ev => gsap.to(ev.currentTarget, { y: 0, scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" })}
+            onMouseDown={ev => gsap.to(ev.currentTarget, { scale: 0.96, duration: 0.1, overwrite: "auto" })}
+            onMouseUp={ev => gsap.to(ev.currentTarget, { scale: 1.05, duration: 0.15, overwrite: "auto" })}
+          >
             ⌘K Search
           </button>
         </div>
@@ -829,7 +968,7 @@ export default function Dashboard() {
 
       {/* Weak topics strip */}
       {weakTopics.length > 0 && (
-        <div className="glass-card" style={{ marginBottom: 32, padding: "16px 20px", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+        <div className="glass-card weak-strip" style={{ marginBottom: 32, padding: "16px 20px", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           <div className="mono cin" style={{ flexShrink: 0 }}>Weak topics</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", flex: 1 }}>
             {weakTopics.map((wt, i) => (
@@ -845,7 +984,7 @@ export default function Dashboard() {
 
       {/* Daily recommendation */}
       {dashLayout.recommendation && weakTopics.length > 0 && (
-        <div style={{ marginBottom: 32, border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap", borderRadius: 14, background: "color-mix(in srgb, var(--cinnabar) 5%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+        <div className="recommend-strip" style={{ marginBottom: 32, border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap", borderRadius: 14, background: "color-mix(in srgb, var(--cinnabar) 5%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
           <div>
             <div className="mono cin" style={{ fontSize: 9, letterSpacing: "0.16em", marginBottom: 6 }}>Recommended now</div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontStyle: "italic", color: "var(--ink)", lineHeight: 1.4 }}>
@@ -925,7 +1064,7 @@ export default function Dashboard() {
         </div>
 
         {/* Tool search */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, border: "none", borderRadius: 12, background: "color-mix(in srgb, var(--ink) 7%, transparent)", padding: "0 14px", marginBottom: 28, height: 42, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)" }}>
+        <div className="tool-search-wrap" style={{ display: "flex", alignItems: "center", gap: 10, border: "none", borderRadius: 12, background: "color-mix(in srgb, var(--ink) 7%, transparent)", padding: "0 14px", marginBottom: 28, height: 42, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 14, color: "var(--ink-3)", flexShrink: 0 }}>⌕</span>
           <input
             type="search"
@@ -981,7 +1120,7 @@ export default function Dashboard() {
         <div id="tools-grid">
         {filteredCategories.map(cat => (
           <div key={cat.label} style={{ marginBottom: 40 }}>
-            <div style={{ marginBottom: 12, display: "flex", alignItems: "baseline", gap: 12, paddingBottom: 10, borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" }}>
+            <div className="section-label" style={{ marginBottom: 12, display: "flex", alignItems: "baseline", gap: 12, paddingBottom: 10, borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" }}>
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--cinnabar-ink)" }}>{cat.label}</div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{cat.tools.length} tools</div>
             </div>
