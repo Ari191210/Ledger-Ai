@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "How Ledger collects, uses, and protects your data.",
 };
 
-const UPDATED = "19 May 2026";
+const UPDATED = "6 June 2026";
 
 export default function PrivacyPage() {
   return (
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
         <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
 
         <Section title="Who We Are">
-          <P>Ledger is operated by Ledger Study Co. (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), an independent student-education platform at studyledger.in. We build AI-powered study tools for students aged 14–18 preparing for JEE, NEET, CBSE, IB, and other curricula.</P>
+          <P>Ledger is operated by Aryamman Ojha (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), an independent student-education platform at studyledger.in. We build AI-powered study tools for students aged 14–18 preparing for JEE, NEET, CBSE, IB, and other curricula.</P>
           <P>Questions about this policy: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
         </Section>
 
@@ -35,6 +35,8 @@ export default function PrivacyPage() {
           <P>When you use an AI tool while signed in, we store the tool name, a short excerpt of your input (first 300 characters), and the AI response. This powers your history view and lets us improve tool quality.</P>
           <H3>Usage events</H3>
           <P>Page visits, tool opens, and session identifiers — collected via PostHog (analytics) with autocapture disabled. We record what you do, not how you do it.</P>
+          <H3>Session recordings</H3>
+          <P>We use PostHog Session Replay to record anonymised screen activity (mouse movement, clicks, scrolls) to understand how students use the tools and fix usability problems. All form inputs and text fields are masked — we never record what you type. You can opt out by emailing <A href="mailto:hello@studyledger.in">hello@studyledger.in</A>.</P>
           <H3>Error reports</H3>
           <P>If something breaks, Sentry captures the error, browser context, and a stack trace. Email addresses are stripped before any error is sent.</P>
           <H3>What we do NOT collect</H3>
@@ -65,7 +67,7 @@ export default function PrivacyPage() {
               {[
                 ["Supabase", "Database, authentication, file storage", "US / EU"],
                 ["Anthropic", "AI responses (Claude)", "US"],
-                ["PostHog", "Product analytics", "EU (EU cloud)"],
+                ["PostHog", "Product analytics + session replay", "US"],
                 ["Sentry", "Error monitoring", "US"],
                 ["Resend", "Transactional email", "US"],
               ].map(([p, pu, l]) => (

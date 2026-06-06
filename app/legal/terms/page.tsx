@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "The terms governing your use of Ledger.",
 };
 
-const UPDATED = "19 May 2026";
+const UPDATED = "6 June 2026";
 
 export default function TermsPage() {
   return (
@@ -22,7 +22,7 @@ export default function TermsPage() {
         <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
 
         <Section title="Agreement">
-          <P>By accessing or using Ledger at studyledger.in, you agree to be bound by these Terms of Use. If you do not agree, do not use the service. These terms constitute a binding agreement between you and Ledger Study Co. (&ldquo;Ledger&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;).</P>
+          <P>By accessing or using Ledger at studyledger.in, you agree to be bound by these Terms of Use. If you do not agree, do not use the service. These terms constitute a binding agreement between you and Aryamman Ojha (&ldquo;Ledger&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;).</P>
         </Section>
 
         <Section title="Eligibility">
@@ -66,7 +66,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="Intellectual Property">
-          <P>The Ledger name, logo, interface design, tool prompts, and all original software are owned by Ledger Study Co. and protected under Indian intellectual property law. You may not copy, modify, or redistribute them without written permission.</P>
+          <P>The Ledger name, logo, interface design, tool prompts, and all original software are owned by Aryamman Ojha and protected under Indian intellectual property law. You may not copy, modify, or redistribute them without written permission.</P>
           <P>The fonts, third-party libraries, and open-source components used in Ledger remain the property of their respective owners and are used under their respective licences.</P>
         </Section>
 
@@ -76,7 +76,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="Limitation of Liability">
-          <P>Ledger is provided &ldquo;as is&rdquo;. To the maximum extent permitted by law, Ledger Study Co. is not liable for:</P>
+          <P>Ledger is provided &ldquo;as is&rdquo;. To the maximum extent permitted by law, Aryamman Ojha is not liable for:</P>
           <ul style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>Errors or inaccuracies in AI-generated content</li>
             <li>Loss of study data due to technical failure (though we maintain backups)</li>
