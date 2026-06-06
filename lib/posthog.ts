@@ -7,7 +7,7 @@ export function initPostHog() {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   if (!key) return;
   posthog.init(key, {
-    api_host:           process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://app.posthog.com",
+    api_host:           process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
     capture_pageview:   false, // we fire manually for SPA routing
     capture_pageleave:  true,
     autocapture:        false, // manual events only — keeps data clean
