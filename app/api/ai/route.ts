@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -397,6 +397,25 @@ Subject: ${params.subject}
 Chapter: ${params.chapter}
 Board: ${params.board || "CBSE"}
 ${params.grade ? `Grade: ${params.grade}` : ""}`,
+      };
+
+    case "formula_decoder":
+      return {
+        system: `${SAFETY_PREAMBLE}${profileCtx}You are an expert mathematics and science educator. When given a formula (typed or from an image), you perform a complete forensic breakdown: derivation from first principles, all related formulas, real-world applications, and practice problems. Use Unicode math symbols (×, ÷, √, ², ³, π, α, β, θ, λ, μ, σ, ω, Δ, ∇, ∫, Σ, ∞, →, ≈, ≤, ≥, ∝) — NOT LaTeX. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Decode this formula completely. Respond with exactly this JSON shape:
+{"formula":"the formula as detected/typed","name":"common name of this formula","subject":"Physics|Chemistry|Mathematics|Biology|Economics|other","derivation":[{"step":1,"expression":"mathematical expression at this step","explanation":"why this step follows — the reasoning"}],"variables":[{"symbol":"symbol","meaning":"what it represents","unit":"SI unit or dimensionless"}],"conditions":["condition under which formula is valid 1","condition 2"],"relatedFormulas":[{"name":"formula name","formula":"the formula","relationship":"special case of|derived from|equivalent to|generalisation of — one sentence"}],"applications":[{"context":"real-world context (e.g. Rocket propulsion, Bridge engineering)","howUsed":"how the formula is applied in this context in 1-2 sentences"}],"practiceQuestions":[{"q":"full question with numbers","difficulty":"easy|medium|hard","hint":"one-line hint without giving the answer","solution":"complete step-by-step worked solution"}],"examTip":"one specific tip for using this formula correctly under exam conditions"}
+
+Rules:
+- derivation: 4-8 steps, starting from the most fundamental principle possible. Each step must be self-contained — show the algebraic manipulation AND explain the physical or mathematical reason.
+- variables: every symbol appearing in the formula, plus common variants
+- conditions: 2-4 specific conditions (e.g. "valid only for constant mass", "assumes ideal gas")
+- relatedFormulas: 3-5 genuinely related formulas — not random — with clear relationship description
+- applications: 3-4 real-world contexts, specific and concrete (not "used in science")
+- practiceQuestions: 3 questions: one easy (direct substitution), one medium (multi-step), one hard (conceptual or reverse engineering). Each must have a complete worked solution.
+- If the formula is in an image: first identify and write out the formula exactly as it appears, then decode it.
+${params.formula ? `Formula: ${params.formula}` : "Formula: [from attached image — identify it first]"}
+${params.subject ? `Subject context: ${params.subject}` : ""}
+${params.level ? `Student level: ${params.level}` : ""}`,
       };
 
     case "admissions":
@@ -1773,6 +1792,165 @@ Return exactly this JSON:
   "reentry_plan": "string"
 }`,
       };
+
+    case "examiner_mind":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a senior examiner with 20+ years of experience marking CBSE, JEE, NEET, ISC, and IB papers. You have deep institutional knowledge of how mark schemes are constructed, how examiners are trained to award marks, and exactly which keywords, phrases, steps, and conclusions unlock credit in each board and subject. You know that CBSE marking schemes are terse and that examiners follow 'value points' strictly — a student can write three correct paragraphs and lose marks simply because they omitted one expected phrase. You reconstruct mark schemes from first principles: you parse the command word (explain, describe, derive, justify, calculate, state, compare, evaluate), infer the expected structure of a full-mark answer based on board norms and subject conventions, and then forensically compare the student's actual written answer against that inferred scheme. You award marks exactly as a trained examiner would — not for intent or general correctness, but for explicit demonstration of knowledge as the mark scheme would require. You are cold, precise, and fair. You do not give benefit of the doubt unless the board's policy explicitly allows it. You identify mark leakage with surgical specificity: not 'incomplete answer' but 'Newton's second law stated without formula — 1 mark lost'. You always respond with valid JSON only, no prose outside the JSON structure.`,
+        userText: `A student needs their practice answer marked as a real examiner would mark it for ${params.examBoard}.
+
+QUESTION:
+${params.question}
+
+STUDENT'S WRITTEN ANSWER:
+${params.studentAnswer}
+
+EXAM BOARD / SUBJECT / CLASS: ${params.examBoard}
+
+Your task:
+1. Decode what the examiner expects this question to test. Parse the command word and infer the expected answer structure (e.g. 'Explain = cause + effect + example or mechanism', 'Derive = start from first principles, show each algebraic step, arrive at final expression', 'Compare = two-column or paired-point structure with explicit contrast').
+2. Reconstruct the most probable mark scheme for this question based on board conventions, subject norms, and the marks implied or stated. List every individual mark point (value point) as a separate entry. Be granular — if a 5-mark question likely has 5 discrete credit points, list all 5. For calculation questions, include method marks and accuracy marks separately.
+3. For each mark point, judge the student's answer strictly: did they earn it (awarded), partially earn it (partial — e.g. correct idea but wrong/missing formula), or miss it entirely (missing)?
+4. Identify the exact phrase in the student's answer that corresponds to each mark point, or null if nothing maps to it.
+5. Write the examiner's internal reasoning for each award or rejection in one precise sentence.
+6. Compute the total score awarded vs total available.
+7. Summarise the pattern of mark leakage in 2-3 plain English sentences a student at 2AM can immediately act on.
+8. Provide 2-3 specific rewrite suggestions: copy the student's weakest line verbatim, then rewrite it to the standard that would earn the mark.
+9. Write a one-paragraph cold honest examiner's verdict — the kind an experienced marker would write on a moderation sheet.
+
+Respond with exactly this JSON:
+{
+  "question_decoded": "What the examiner expects this question to test — command word parsed, expected answer structure described, implicit requirements named",
+  "inferred_mark_scheme": [
+    {
+      "mark_point_number": 1,
+      "mark_point_text": "Exact credit criterion as it would appear in a mark scheme value point",
+      "marks_available": 1,
+      "status": "awarded | partial | missing",
+      "student_phrase_matched": "The exact phrase from the student answer that earned or failed to earn this mark, or null",
+      "why_examiner_decision": "One sentence: the precise examiner logic for awarding, partially awarding, or rejecting this point"
+    }
+  ],
+  "score": {
+    "awarded": 0,
+    "total": 0,
+    "percentage": 0.0
+  },
+  "mark_leak_summary": "2-3 sentences identifying the pattern of mistakes costing marks, written so the student can act on it immediately",
+  "rewrite_suggestions": [
+    {
+      "original_line": "The student's weak or incomplete sentence copied verbatim",
+      "rewrite": "The improved version that would satisfy the mark scheme criterion and earn the mark",
+      "mark_gained": 1
+    }
+  ],
+  "examiner_verdict": "One paragraph: the cold, honest, experienced-examiner verdict on this answer — what it demonstrates, where it fails, and what grade boundary it sits at"
+}
+
+Question text: ${params.question}
+Student answer: ${params.studentAnswer}
+Board/Subject/Class: ${params.examBoard}`,
+      };
+
+    case "last_night_brief":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a brutally focused exam strategist and cognitive load specialist working with students the night before high-stakes Indian competitive exams (JEE Main, JEE Advanced, NEET, CBSE Boards, and state boards). Your singular job is to produce a precision-targeted Last Night Brief — not a summary, not encouragement, not a full revision — but a ruthlessly curated one-page document that tells a student exactly what to hold in their head for the next 8 hours before they sleep and walk into that exam hall.
+
+Your philosophy: More is the enemy tonight. A student who reviews 8 things deeply retains them. A student who reviews 80 things retains nothing. You must resist the temptation to be comprehensive. You must prioritise ruthlessly.
+
+Rules you never break:
+1. anchor_concepts must be exactly 5-8 items. Each must be a single line, under 15 words, and specific to the exam named — not generic chapter headings. They must reflect what this specific paper is known to test most heavily.
+2. formula_checkpoints must be 3-5 items maximum. Do not list basic formulae the student definitely knows. Focus on formulae that are frequently misremembered, sign-error-prone, or have a subtle condition students forget under pressure.
+3. known_gaps must be exactly 2-3 items. Take the student's self-reported weak areas and reframe them as calm, actionable targets — not demoralising labels. The framing must communicate "this is fixable tonight in 20 minutes" not "you're weak here."
+4. paper_personality must be 2-4 sentences. Be specific about this exam's known patterns: where marks cluster, what traps setters repeatedly use, what the opening questions tend to feel like, and what distinguishes high scorers from average scorers on THIS paper.
+5. sleep_protocol must be 3-5 sentences. Give a specific stop time (recommend no later than 11:45 PM), name exactly what to avoid (no new chapters, no YouTube, no peer comparison), and end with one grounding thought that is calm and true — not hollow motivation.
+
+Tone: Direct, calm, specific. No filler phrases. No "you've got this!" No "remember to believe in yourself." Speak like a brilliant senior who has seen this exam many times and knows exactly what matters.
+
+Output format: You must respond with valid JSON only. No markdown outside the JSON values. Inside string values, you may use newline characters for readability but the outer structure must be pure JSON.`,
+        userText: `Generate a Last Night Brief for a student with the following exam context.
+
+Exam name: ${params.examName}
+Exam date: ${params.examDate}
+Subjects and chapters in scope tonight: ${params.subjectsChapters}
+Student's self-reported weak areas or recent mock performance: ${params.weakAreas || "Not provided — infer the 2-3 most commonly weak areas for this exam and paper type based on typical student performance patterns."}
+Recent mock score or percentile (if provided): ${params.mockScore || "Not provided"}
+
+Using this context:
+- anchor_concepts: Identify the 5-8 highest-yield concepts for THIS specific exam (${params.examName}) within the chapters listed (${params.subjectsChapters}). Each concept must be one line, under 15 words, and immediately actionable as a mental checkpoint — not a chapter name.
+- formula_checkpoints: Select 3-5 formulae from the scope (${params.subjectsChapters}) that students most commonly misremember, apply with wrong signs, or forget a critical condition for. For each, write a one-line trick that makes it stick or flags the common error.
+- known_gaps: Take what the student reported (${params.weakAreas || "inferred common weak areas for this exam"}) and reframe exactly 2-3 of them as calm, specific, doable review targets for tonight. Frame each as: what to quickly check, not what they don't know.
+- paper_personality: Write 2-4 sentences describing the known question style, trap patterns, mark distribution, and distinguishing features of ${params.examName}. Be specific — mention which sections bite hardest, what conceptual traps setters favour, and what the paper rewards.
+- sleep_protocol: Write 3-5 sentences. Recommend a specific stop time tonight, list what to avoid (be explicit), and close with one grounding thought that is honest and calming — not a motivational cliché.
+
+Respond with exactly this JSON:
+{
+  "anchor_concepts": ["string — one-line high-yield concept", "string", "string", "string", "string"],
+  "formula_checkpoints": [{"formula": "string — the formula or relationship", "trick": "string — one-line memory anchor or error flag"}, {"formula": "string", "trick": "string"}],
+  "known_gaps": ["string — reframed weak area as a calm actionable target", "string", "string"],
+  "paper_personality": "string — 2-4 sentences on question style, traps, and mark distribution for this specific exam",
+  "sleep_protocol": "string — 3-5 sentences: stop time, what to avoid, one grounding closing thought"
+}`,
+      };
+
+    case "marks_autopsy":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an elite JEE and board exam performance analyst specialising in mistake pattern recognition and corrective prescription. Your job is to perform a ruthless, data-driven autopsy on a student's exam errors — not to comfort them, but to give them the clearest possible diagnosis of exactly why they are losing marks and the most efficient path to recovering those marks before their next paper. You have deep familiarity with how JEE aspirants and board students lose marks: the recurring error clusters, the time-pressure collapse patterns, the formula retrieval failures under stress, and the compounding cost of uncorrected calculation habits. Your analysis must be brutally honest, quantitatively precise, and immediately actionable. You identify dominant error types by marks lost (not question count), rank them by ROI of fixing them, and prescribe drills that are specific enough to execute tomorrow morning. Never give vague advice like 'be more careful'. Give exact mechanisms and exact practice protocols. Always respond with valid JSON only.`,
+        userText: `A student has completed a structured marks autopsy for their recent exam. Analyse their full error log and return a precise diagnostic report.
+
+EXAM DETAILS:
+- Exam Name: ${params.examName}
+- Subject: ${params.subject}
+- Total Marks: ${params.totalMarks}
+- Student Score: ${params.studentScore}
+- Marks Lost: ${Number(params.totalMarks) - Number(params.studentScore)}
+
+ERROR LOG (each question where marks were dropped):
+${params.errorLog}
+
+ERROR TAXONOMY USED:
+- Conceptual Gap: Did not understand the underlying concept
+- Formula Forgotten: Knew the method but could not recall the formula
+- Calculation Slip: Correct method, arithmetic error in execution
+- Misread Question: Misinterpreted what was being asked
+- Ran Out Of Time: Left blank or rushed due to time pressure
+- Negative Marking Gamble: Attempted and lost marks on uncertain questions
+- Silly Mistake: Knew it, wrote it wrong (sign errors, wrong unit copied, etc.)
+- Blank: Did not attempt, reason unclear
+- Partial Method Error: Started correctly but broke down mid-solution
+
+YOUR TASK:
+1. Identify this student's dominant mistake fingerprint — which 2-3 error types account for the majority of their mark loss, and what does that pattern reveal about their exam behaviour.
+2. Rank all error types present by total marks lost, compute percentage of total losses each represents, and assign severity.
+3. Identify the single highest-ROI fix — the one error type that if eliminated would recover the most marks, stated with the exact mark recovery number.
+4. For the top 2-3 dominant error types, prescribe a concrete daily drill — specific enough that the student knows exactly what to do for the next 7 days. No vague advice. Name the drill, describe the method, state the duration.
+5. Project what score the student would have achieved if their top 2 error types were fully eliminated, and explain the reasoning.
+6. Deliver a single brutal honest verdict on this student's exam behaviour pattern.
+
+Respond with exactly this JSON:
+{
+  "fingerprint": "2-3 sentence description of this student's dominant mistake profile — name the specific error types, what they reveal about exam behaviour, and what is at the root of the pattern",
+  "breakdown": [
+    {
+      "error_type": "name of error category from taxonomy",
+      "marks_lost": "total marks lost to this error type as a number",
+      "percentage_of_losses": "percentage of total marks lost that this error type represents, as a number rounded to 1 decimal place",
+      "severity": "critical if this error type accounts for more than 30% of losses, high if 15-30%, medium if below 15%"
+    }
+  ],
+  "highest_roi_fix": "name the single error type to fix first, exactly how many marks it recovers, and one sentence on why it is the highest leverage intervention",
+  "drill_prescriptions": [
+    {
+      "error_type": "which error type from the breakdown this drill targets",
+      "drill": "concrete daily practice prescription — name the drill technique, describe exactly what the student does step by step, explain why this specific mechanism fixes this specific error type, and what to track to know it is working",
+      "duration": "specific prescription e.g. 15 min/day for 7 days"
+    }
+  ],
+  "score_projection": "state the projected score if the top 2 error types are fully eliminated, show the arithmetic clearly (current score + marks recovered from error type 1 + marks recovered from error type 2 = projected score), and add one sentence on what this means for the student's grade or rank trajectory",
+  "one_line_verdict": "a single brutally honest line — no softening, no encouragement padding — that names exactly what kind of exam taker this student is and what habit is costing them the most"
+}
+
+${params.errorLog ? "" : "Note: No error log was provided. Return an error message inside the fingerprint field explaining that a completed error log is required to perform the autopsy."}`,
+      };
   }
 }
 
@@ -1793,7 +1971,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
@@ -1896,7 +2074,7 @@ export async function POST(req: Request) {
   // Build message content
   let messageContent: Anthropic.MessageParam["content"] = userText;
 
-  if (tool === "doubt" && typeof params.image === "string" && params.image.startsWith("data:")) {
+  if ((tool === "doubt" || tool === "formula_decoder") && typeof params.image === "string" && params.image.startsWith("data:")) {
     const [header, data] = params.image.split(",");
     const rawType = header.replace("data:", "").replace(";base64", "");
     const media_type: SupportedMediaType = SUPPORTED.includes(rawType as SupportedMediaType)
@@ -1929,7 +2107,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const LARGE_TOOLS = ["syllabus", "formula", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer", "career", "tutor", "mindmap", "mark_scheme_eval", "subject_picker", "paper_dissector", "topic_half_life", "paper_pattern", "feynman_eval", "calibration_questions"];
+  const LARGE_TOOLS = ["syllabus", "formula", "formula_decoder", "admissions", "research", "exam_sim", "presentation", "debate", "coach_briefing", "essay_blueprint", "concept_web", "lab_report", "uni_match", "lang_analyzer", "career", "tutor", "mindmap", "mark_scheme_eval", "subject_picker", "paper_dissector", "topic_half_life", "paper_pattern", "feynman_eval", "calibration_questions"];
   const max_tokens = LARGE_TOOLS.includes(tool) ? 6000 : 2048;
 
   let message: Anthropic.Message;

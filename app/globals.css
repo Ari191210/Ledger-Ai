@@ -1846,3 +1846,274 @@ main {
     font-size: 16px !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM LAYER — depth, warmth, micro-interactions
+   All additions use existing CSS variables — no new color strings.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Elevation tokens ──────────────────────────────────────────────────────── */
+:root {
+  --elev-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --elev-2: 0 4px 12px rgba(0,0,0,0.14), 0 2px 4px rgba(0,0,0,0.08);
+  --elev-3: 0 12px 32px rgba(0,0,0,0.20), 0 4px 8px rgba(0,0,0,0.10);
+  --elev-4: 0 24px 56px rgba(0,0,0,0.28), 0 8px 16px rgba(0,0,0,0.12);
+  --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-soft: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* ─── Typography refinements ────────────────────────────────────────────────── */
+/* Serif headings: tighter tracking for premium feel */
+h1, h2 { letter-spacing: -0.01em; }
+h3, h4  { letter-spacing: 0; }
+
+/* Body copy: fractionally more comfortable */
+body { line-height: 1.68; }
+
+/* Prose on tool pages: optical spacing */
+p { margin: 0; }
+p + p  { margin-top: 0.75em; }
+
+/* Stronger text rendering for headings */
+h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+
+/* ─── Selection — palette-aware warm highlight ──────────────────────────────── */
+::selection {
+  background: color-mix(in srgb, var(--cinnabar-ink) 22%, transparent);
+  color: var(--ink);
+}
+
+/* ─── Scrollbar — premium minimal ──────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 3px;
+  transition: background 200ms;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+/* ─── Output panels — recessed depth ───────────────────────────────────────── */
+/* Applies to AI output containers — gives them a recessed "well" feel */
+.output-well {
+  background: var(--paper);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(0,0,0,0.06);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+
+/* ─── Premium stat cards ────────────────────────────────────────────────────── */
+/* Dashboard stats: number has a subtle glow at rest */
+.dash-stat {
+  transition: background 180ms ease, box-shadow 180ms ease !important;
+}
+.dash-stat:hover {
+  background: color-mix(in srgb, var(--paper-2) 80%, transparent) !important;
+  box-shadow: var(--elev-1) !important;
+}
+
+/* ─── Tool cards: warmer inner gradient on hover ───────────────────────────── */
+/* Augments the existing dash-tool hover shadow with a warm inner glow */
+.dash-tool::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 70% 60% at 30% 20%,
+    color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 7%, transparent),
+    transparent 65%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.dash-tool:hover::after { opacity: 1; }
+
+/* ─── Focus ring — elegant glow ─────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--cinnabar-ink);
+  outline-offset: 3px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--cinnabar-ink) 12%, transparent);
+  transition: box-shadow 120ms ease, outline-offset 120ms ease;
+}
+/* Clear focus ring on mouse click (keyboard nav only) */
+:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+
+/* ─── Input fields: premium focus state ─────────────────────────────────────── */
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):focus,
+textarea:focus {
+  background: color-mix(in srgb, var(--paper-2) 97%, var(--cinnabar-ink)) !important;
+  box-shadow:
+    0 0 0 1px var(--cinnabar-ink),
+    0 0 0 4px color-mix(in srgb, var(--cinnabar-ink) 14%, transparent),
+    inset 0 1px 3px rgba(0,0,0,0.08) !important;
+}
+
+/* ─── Links: elegant underline animation ────────────────────────────────────── */
+a:not(.btn):not([class]) {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0% 100%;
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  transition: background-size 200ms ease, opacity 150ms ease;
+}
+a:not(.btn):not([class]):hover {
+  background-size: 100% 1px;
+  opacity: 1;
+}
+
+/* ─── Card entrance — stagger on first paint ─────────────────────────────────── */
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.card-rise {
+  animation: card-rise 380ms var(--ease-out-expo) both;
+}
+.card-rise:nth-child(2) { animation-delay: 40ms; }
+.card-rise:nth-child(3) { animation-delay: 80ms; }
+.card-rise:nth-child(4) { animation-delay: 120ms; }
+.card-rise:nth-child(5) { animation-delay: 160ms; }
+.card-rise:nth-child(6) { animation-delay: 200ms; }
+
+/* ─── Premium table styling ──────────────────────────────────────────────────── */
+.prem-table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 13px; }
+.prem-table th {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 8px 14px;
+  border-bottom: 2px solid var(--ink);
+  text-align: left;
+  font-weight: 400;
+}
+.prem-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.prem-table tr:last-child td { border-bottom: none; }
+.prem-table tr:hover td {
+  background: color-mix(in srgb, var(--paper-2) 70%, transparent);
+  color: var(--ink);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+/* ─── Category chips — premium pill labels ───────────────────────────────────── */
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* ─── AI output section — subtle inner depth ─────────────────────────────────── */
+/* Wraps the derivation/related/applications tabs in formula lab etc. */
+.section-panel {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--elev-1);
+  transition: box-shadow 220ms ease;
+}
+.section-panel:hover { box-shadow: var(--elev-2); }
+
+/* ─── Subtle warm ambient on glass panels ────────────────────────────────────── */
+/* Adds a barely-visible radial warm spot to glass panels */
+.gl-pane::after,
+.gl-pane-alt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 80% 50% at 20% 0%,
+    color-mix(in srgb, var(--cinnabar-ink) 4%, transparent),
+    transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Page-in animation: refined easing ─────────────────────────────────────── */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+main { animation: page-in 280ms var(--ease-out-expo) both; }
+
+/* ─── Bento hover glow ──────────────────────────────────────────────────────── */
+.bento-card:hover {
+  box-shadow: var(--elev-2);
+  border-color: color-mix(in srgb, var(--ink) 22%, transparent) !important;
+}
+
+/* ─── Tool item hover — warmer background ───────────────────────────────────── */
+.tool-item {
+  transition: background 140ms ease, color 140ms ease, padding-left 120ms ease !important;
+}
+.tool-item:hover {
+  background: color-mix(in srgb, var(--cinnabar-ink) 6%, var(--paper-2)) !important;
+  padding-left: 22px !important;
+}
+
+/* ─── Smooth button press feedback ──────────────────────────────────────────── */
+.btn:active:not(:disabled) {
+  transform: scale(0.965) !important;
+  transition-duration: 80ms !important;
+}
+
+/* ─── Ghost button: cinnabar tint on hover ───────────────────────────────────── */
+.btn.ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper-2)) !important;
+  color: var(--cinnabar-ink) !important;
+}
+
+/* ─── Sidebar nav links: animated left bar ───────────────────────────────────── */
+.nav-tool-link {
+  position: relative;
+  transition: color 140ms ease, padding-left 140ms var(--ease-out-spring);
+}
+.nav-tool-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 2px;
+  height: 60%;
+  background: var(--cinnabar-ink);
+  border-radius: 1px;
+  transition: transform 180ms var(--ease-out-spring);
+}
+.nav-tool-link:hover::before,
+.nav-tool-link[aria-current="page"]::before { transform: translateY(-50%) scaleY(1); }
+
+/* ─── Light mode elevation adjustments ──────────────────────────────────────── */
+[data-mode="light"] {
+  --elev-1: 0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --elev-2: 0 4px 14px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --elev-3: 0 12px 32px rgba(0,0,0,0.13), 0 4px 8px rgba(0,0,0,0.07);
+  --elev-4: 0 24px 56px rgba(0,0,0,0.16), 0 8px 16px rgba(0,0,0,0.08);
+}
+
+/* ─── Reduced motion: collapse premium animations ───────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card-rise       { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .nav-tool-link   { transition: color 50ms !important; }
+  .tool-item       { transition: background 50ms ease !important; padding-left: inherit !important; }
+  .tool-item:hover { padding-left: 16px !important; }
+}

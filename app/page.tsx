@@ -207,9 +207,29 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  // City detection (Vercel header, only on deploy)
+  // City detection — browser geolocation (precise to neighbourhood) → IP fallback
   useEffect(() => {
-    fetch("/api/city").then(r => r.json()).then(d => { if (d.city) setCity(d.city); }).catch(() => {});
+    function setFromIP() {
+      fetch("/api/city").then(r => r.json()).then(d => { if (d.city) setCity(d.city); }).catch(() => {});
+    }
+    if (!navigator.geolocation) { setFromIP(); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`, {
+          headers: { "Accept-Language": "en" },
+        })
+          .then(r => r.json())
+          .then((d: { address?: Record<string, string> }) => {
+            const a = d.address ?? {};
+            const name = a.suburb ?? a.neighbourhood ?? a.city_district ?? a.town ?? a.city ?? null;
+            if (name) setCity(name); else setFromIP();
+          })
+          .catch(setFromIP);
+      },
+      setFromIP,
+      { timeout: 5000, maximumAge: 3_600_000 },
+    );
   }, []);
 
   // Late-night awake count — poll every 30 s only during the late variant
