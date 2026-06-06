@@ -76,6 +76,7 @@
   --serif: var(--font-orbitron), "Orbitron", system-ui, sans-serif;
   --sans:  var(--font-inter), "Inter", system-ui, sans-serif;
   --mono:  var(--font-space-mono), "Space Mono", ui-monospace, monospace;
+  --prose: var(--font-lora), "Lora", Georgia, serif;
 
   /* Dark default — matches the WebGL shader hero */
   --paper:        #080808;

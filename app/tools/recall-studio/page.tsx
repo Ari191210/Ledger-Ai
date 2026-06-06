@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 type Tab = "flashcards" | "formula";
@@ -150,7 +150,7 @@ function FormulaTab() {
   async function generate() {
     setLoading(true); setError(""); setFormulas([]); setScores([]); setCurrent(0); setAttempt(""); setCardState("prompt"); setDone(false);
     try {
-      const res = await callAI({ tool: "formula_recall", subject, topic }) as unknown as { formulas: Formula[] };
+      const res = await callAIOrThrow<{ formulas: Formula[] }>({ tool: "formula_recall", subject, topic });
       if (!res?.formulas?.length) { setError("Could not generate formulas. Try again."); return; }
       setFormulas(res.formulas);
     } catch { setError("Network error."); }

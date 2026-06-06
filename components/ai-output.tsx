@@ -45,7 +45,7 @@ function renderMarkdown(text: string): React.ReactNode {
       return (
         <ul key={pIdx} style={{ paddingLeft: 0, margin: "8px 0 14px", listStyle: "none" }}>
           {lines.map((l, i) => (
-            <li key={i} style={{ display: "flex", gap: 12, marginBottom: 8, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
+            <li key={i} style={{ display: "flex", gap: 12, marginBottom: 8, fontFamily: "var(--prose)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
               <span style={{ color: "var(--cinnabar-ink)", flexShrink: 0, userSelect: "none", marginTop: "0.12em" }}>—</span>
               <span>{renderInline(l.trim().replace(/^[-•*] /, ""))}</span>
             </li>
@@ -61,7 +61,7 @@ function renderMarkdown(text: string): React.ReactNode {
           {lines.map((l, i) => {
             const match = l.trim().match(/^\d+[.)]\s+(.*)/);
             return (
-              <li key={i} style={{ display: "flex", gap: 14, marginBottom: 10, fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
+              <li key={i} style={{ display: "flex", gap: 14, marginBottom: 10, fontFamily: "var(--prose)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
                 <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", flexShrink: 0, width: 22, paddingTop: "0.3em" }}>
                   {String(i + 1).padStart(2, "0")}.
                 </span>
@@ -74,7 +74,7 @@ function renderMarkdown(text: string): React.ReactNode {
     }
 
     return (
-      <p key={pIdx} style={{ margin: "0 0 14px", fontFamily: "var(--sans)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
+      <p key={pIdx} style={{ margin: "0 0 14px", fontFamily: "var(--prose)", fontSize: "var(--density-prose)", lineHeight: "var(--density-line)", color: "var(--ink-2)" }}>
         {lines.map((line, lIdx) => (
           <React.Fragment key={lIdx}>
             {lIdx > 0 && <br />}
@@ -189,7 +189,7 @@ export function AIOutput({ text, variant = "prose", noBorder = false, onRegenera
   if (variant === "principle") {
     return (
       <div key={text.slice(0, 60)} className="ai-3d-reveal" style={borderStyle}>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 16, lineHeight: 1.6, fontStyle: "italic", color: "var(--ink-2)" }}>
+        <div style={{ fontFamily: "var(--prose)", fontSize: 17, lineHeight: 1.7, fontStyle: "italic", color: "var(--ink-2)" }}>
           {displayed}{cursor}
         </div>
         {toolbar}

@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -146,7 +146,7 @@ function DebriefTab() {
     if (!form.examName.trim() || !form.scorePercent) { setError("Add the exam name and your score first."); return; }
     setLoading(true); setError("");
     try {
-      const res = await callAI({ tool: "exam_debrief", examName: form.examName, scorePercent: parseFloat(form.scorePercent), hardTopics: form.hardTopics, sleepHours: parseFloat(form.sleepHours), anxietyLevel: form.anxietyLevel, examBoard: form.examBoard }) as unknown as DebriefResult;
+      const res = await callAIOrThrow<DebriefResult>({ tool: "exam_debrief", examName: form.examName, scorePercent: parseFloat(form.scorePercent), hardTopics: form.hardTopics, sleepHours: parseFloat(form.sleepHours), anxietyLevel: form.anxietyLevel, examBoard: form.examBoard });
       if (!res?.immediate_focus) { setError("Could not generate debrief. Try again."); return; }
       setResult(res);
       const entry: DebriefEntry = { id: Date.now().toString(), date: new Date().toISOString(), examName: form.examName, scorePercent: parseFloat(form.scorePercent), hardTopics: form.hardTopics, sleepHours: parseFloat(form.sleepHours), anxietyLevel: form.anxietyLevel, examBoard: form.examBoard, result: res };

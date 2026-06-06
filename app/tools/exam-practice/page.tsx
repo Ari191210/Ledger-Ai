@@ -4,7 +4,7 @@ import TierGate from "@/components/tier-gate";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
 import { useAuth } from "@/components/auth-provider";
-import { callAI } from "@/lib/ai-fetch";
+import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -104,7 +104,7 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
                         onClick={async () => {
                           setExplains(p => ({ ...p, [i]: { loading: true, result: null } }));
                           try {
-                            const r = await callAI({ tool: "papers_explain", question: q2.q, correct: q2.opts[q2.ans], topic: q2.topic }) as unknown as ExplainResult;
+                            const r = await callAIOrThrow<ExplainResult>({ tool: "papers_explain", question: q2.q, correct: q2.opts[q2.ans], topic: q2.topic });
                             setExplains(p => ({ ...p, [i]: { loading: false, result: r } }));
                           } catch { setExplains(p => ({ ...p, [i]: { loading: false, result: null } })); }
                         }}>Explain →</button>
@@ -1141,7 +1141,7 @@ function FormulaRecallTab() {
   async function generate() {
     setLoading(true); setError(""); setFormulas([]); setScores([]); setCurrent(0); setAttempt(""); setCardState("prompt"); setDone(false);
     try {
-      const res = await callAI({ tool: "formula_recall", subject, topic }) as unknown as RecallDrillResult;
+      const res = await callAIOrThrow<RecallDrillResult>({ tool: "formula_recall", subject, topic });
       if (!res?.formulas?.length) { setError("Could not generate formulas. Try again."); return; }
       setFormulas(res.formulas);
     } catch { setError("Network error."); }

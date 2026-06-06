@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIOutput } from "@/components/ai-output";
 
@@ -368,7 +368,7 @@ function CrematorTab() {
     setLoading(true); setError("");
     try {
       const days = daysRemaining();
-      const res = await callAI({ tool: "cremator", syllabusText: form.syllabusText, examBoard: form.examBoard, daysRemaining: days, hoursPerDay: parseFloat(form.hoursPerDay) || 6, alreadyRevisedTopics: form.revisedTopics }) as unknown as CremResult;
+      const res = await callAIOrThrow<CremResult>({ tool: "cremator", syllabusText: form.syllabusText, examBoard: form.examBoard, daysRemaining: days, hoursPerDay: parseFloat(form.hoursPerDay) || 6, alreadyRevisedTopics: form.revisedTopics });
       if (!res?.ranked_topics) { setError("Could not generate priority list. Please try again."); return; }
       setResult(res);
     } catch { setError("Network error. Please try again."); }
@@ -548,7 +548,7 @@ function LastNightTab() {
     const now = new Date();
     setStartTimeMinutes(now.getHours() * 60 + now.getMinutes());
     try {
-      const result = await callAI({ tool: "last_night_triage", exam_type: exam, hours_remaining: hoursRemaining, chapter_states: chapters.map(c => ({ chapter: c.name, status: c.state })) }) as unknown as TriagePlan;
+      const result = await callAIOrThrow<TriagePlan>({ tool: "last_night_triage", exam_type: exam, hours_remaining: hoursRemaining, chapter_states: chapters.map(c => ({ chapter: c.name, status: c.state })) });
       if (!result || !result.sessions) { setError("AI returned an unexpected response. Please try again."); return; }
       setPlan(result);
       setSessions(result.sessions.map(s => ({ ...s, done: false })));

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Orbitron, DM_Sans, Space_Mono } from "next/font/google";
+import { Orbitron, DM_Sans, Space_Mono, Lora } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
@@ -33,6 +33,14 @@ const spaceMono = Space_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-space-mono",
+  display: "swap",
+});
+
+const lora = Lora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-lora",
   display: "swap",
 });
 
@@ -91,7 +99,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} ${dmSans.variable} ${spaceMono.variable}`}
+      className={`${orbitron.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable}`}
     >
       <head>
         {/* Anti-flash: apply saved palette before first paint */}

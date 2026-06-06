@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
-import { callAI } from "@/lib/ai-fetch";
+import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -493,7 +493,7 @@ function UniPrepTab() {
     e.preventDefault();
     if (!institution.trim()||!course.trim()) return;
     setLoading(true); setError(""); setResult(null);
-    try { const data=await callAI({tool:"uni_prep",institution,course,cycle,profile,grades}); setResult(data as unknown as UniPrepResult); }
+    try { const data=await callAIOrThrow<UniPrepResult>({tool:"uni_prep",institution,course,cycle,profile,grades}); setResult(data); }
     catch { setError("Failed to generate readiness report. Try again."); } finally { setLoading(false); }
   }
 
@@ -552,7 +552,7 @@ function ApplicationsTab() {
     e.preventDefault();
     if (!institution.trim()||!course.trim()) return;
     setLoading(true); setError(""); setResult(null);
-    try { const data=await callAI({tool:"application_plan",institution,course,deadline,profile,grades}); setResult(data as unknown as AppPlanResult); }
+    try { const data=await callAIOrThrow<AppPlanResult>({tool:"application_plan",institution,course,deadline,profile,grades}); setResult(data); }
     catch { setError("Failed to generate plan. Try again."); } finally { setLoading(false); }
   }
 
