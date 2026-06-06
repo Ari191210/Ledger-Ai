@@ -1,76 +1,74 @@
 "use client";
-import { useState, useEffect } from "react";
-import Link from "next/link";
 
-function getMidnightCountdown(): string {
-  const now  = new Date();
-  const midnight = new Date(now);
-  midnight.setUTCHours(24, 0, 0, 0);
-  const ms = midnight.getTime() - now.getTime();
-  const h  = Math.floor(ms / 3_600_000);
-  const m  = Math.floor((ms % 3_600_000) / 60_000);
-  const s  = Math.floor((ms % 60_000) / 1_000);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function LimitPage() {
-  const [countdown, setCountdown] = useState(getMidnightCountdown);
+  const [hoursLeft, setHoursLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setCountdown(getMidnightCountdown()), 1_000);
-    return () => clearInterval(id);
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setUTCHours(24, 0, 0, 0);
+    setHoursLeft(Math.ceil((midnight.getTime() - now.getTime()) / 3_600_000));
   }, []);
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "var(--paper)",
-      color: "var(--ink)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "0 24px",
-      textAlign: "center",
-      gap: 32,
-    }}>
-      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 40, letterSpacing: "-0.02em" }}>
-        Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
-      </div>
+    <main style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ maxWidth: 480, padding: "40px 24px", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 20 }}>
+          Daily limit reached
+        </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", color: "var(--ink)" }}>
+        <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontWeight: 900, letterSpacing: "0.04em", lineHeight: 0.9, color: "var(--ink)", marginBottom: 24 }}>
+          20
+        </div>
+
+        <p style={{ fontFamily: "var(--prose)", fontSize: 16, lineHeight: 1.7, color: "var(--ink-2)", marginBottom: 8 }}>
           You&apos;ve queried the ledger 20 times today.
-        </div>
-        <div style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--ink-2)", fontStyle: "italic" }}>
-          It resets at midnight.
-        </div>
-      </div>
+        </p>
+        <p style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.06em", marginBottom: 40 }}>
+          Resets at midnight
+          {hoursLeft !== null ? ` · ${hoursLeft}h away` : ""}
+        </p>
 
-      <div style={{
-        border: "1px solid var(--ink)",
-        padding: "20px 48px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 8,
-      }}>
-        <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.1em" }}>RESETS IN</div>
-        <div className="mono" style={{ fontSize: 36, letterSpacing: "0.05em", color: "var(--ink)" }}>{countdown}</div>
-      </div>
+        <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
+          <p style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 8 }}>
+            In the meantime
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            {[
+              ["Dashboard", "/dashboard"],
+              ["Study Rooms", "/tools/rooms"],
+              ["Your Notes", "/tools/notes"],
+            ].map(([label, href]) => (
+              <Link
+                key={label}
+                href={href}
+                style={{
+                  fontFamily: "var(--mono)",
+                  fontSize: 10,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--cinnabar-ink)",
+                  textDecoration: "none",
+                  border: "1px solid var(--cinnabar-ink)",
+                  padding: "8px 16px",
+                }}
+              >
+                {label} →
+              </Link>
+            ))}
+          </div>
+        </div>
 
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-        <Link href="/tools" className="mono" style={{
-          fontSize: 11,
-          color: "var(--ink-3)",
-          letterSpacing: "0.08em",
-          textDecoration: "none",
-          borderBottom: "1px solid var(--ink-3)",
-          paddingBottom: 2,
-        }}>
-          ← back to tools
-        </Link>
+        <div style={{ marginTop: 48, padding: "20px 24px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+          <p style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 6 }}>Coming October 2026</p>
+          <p style={{ fontFamily: "var(--prose)", fontSize: 14, lineHeight: 1.6, color: "var(--ink-2)", margin: 0 }}>
+            Pro plans with unlimited AI queries. Free tier stays at 20/day.
+          </p>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
