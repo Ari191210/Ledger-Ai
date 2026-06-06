@@ -616,6 +616,13 @@ export default function Home() {
       {/* ─── Hero ─── */}
       <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
 
+        {/* Floating atmosphere orbs */}
+        <div aria-hidden style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+          <div style={{ position: "absolute", top: "15%", left: "8%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--cinnabar) 18%, transparent) 0%, transparent 70%)", filter: "blur(60px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
+          <div style={{ position: "absolute", top: "50%", right: "5%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--plum) 12%, transparent) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 18s ease-in-out infinite reverse", willChange: "transform" }} />
+          <div style={{ position: "absolute", bottom: "10%", left: "30%", width: 260, height: 260, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--slate) 10%, transparent) 0%, transparent 70%)", filter: "blur(40px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
+        </div>
+
         {/* 2-col editorial layout: headline left, stats + activity right */}
         <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1200, margin: "0 auto", padding: "0 48px", display: "grid", gridTemplateColumns: "1fr 260px", gap: 56, alignItems: "center" }}>
 
@@ -625,8 +632,12 @@ export default function Home() {
             {/* Badge */}
             <div className="hero-badge" style={{
               display: "inline-flex", alignItems: "center", gap: 16,
-              border: "1px solid var(--rule)", padding: "6px 22px", marginBottom: 44,
-              background: "var(--paper)",
+              border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
+              padding: "6px 22px", marginBottom: 44,
+              background: "color-mix(in srgb, var(--paper) 60%, transparent)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              borderRadius: 999,
             }}>
               <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <span style={{ position: "relative", width: 8, height: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -698,12 +709,12 @@ export default function Home() {
           </div>
 
           {/* RIGHT: stats strip + live activity (desktop only) */}
-          <div className="mob-hide" style={{ display: "flex", flexDirection: "column", gap: 20, borderLeft: "1px solid var(--rule)", paddingLeft: 40 }}>
+          <div className="mob-hide" style={{ display: "flex", flexDirection: "column", gap: 20, paddingLeft: 40 }}>
 
             {/* Stats: vertical stack */}
-            <div className="hero-stats" style={{ display: "flex", flexDirection: "column", border: "1px solid var(--rule)" }}>
+            <div className="hero-stats glass-card" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
               {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "41", l: "AI tools" }].map((s, i) => (
-                <div key={i} style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid var(--rule)" : "none" }}>
+                <div key={i} style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>
                   <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px,2vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
                 </div>
@@ -714,8 +725,12 @@ export default function Home() {
             <div className="hero-activity">
               <div ref={activityRef} style={{
                 display: "flex", alignItems: "flex-start", gap: 12,
-                background: "var(--paper)", border: "1px solid var(--rule)",
+                background: "color-mix(in srgb, var(--paper) 55%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--ink) 10%, transparent)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
                 padding: "12px 16px",
+                borderRadius: 12,
               }}>
                 <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0, marginTop: 4 }}>
                   <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.35, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
@@ -736,8 +751,13 @@ export default function Home() {
         </div>
 
         {/* Scroll hint */}
-        <div className="hero-scroll" style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.35 }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
+        <div className="hero-scroll" style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase", opacity: 0.4 }}>Scroll</span>
+          <div className="scroll-cue">
+            <span />
+            <span />
+            <span />
+          </div>
         </div>
 
       </section>
@@ -782,13 +802,13 @@ export default function Home() {
               </div>
 
               {/* Three meta facts */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "var(--rule)", border: S.border }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                 {[
                   { n: "41", l: "AI Tools" },
                   { n: "6+", l: "Exam Boards" },
                   { n: "8w", l: "To see results" },
                 ].map((m, i) => (
-                  <div key={i} className="reveal-stat" style={{ background: "var(--paper)", padding: "20px 16px" }}>
+                  <div key={i} className="reveal-stat glass-card" style={{ padding: "20px 16px" }}>
                     <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1, letterSpacing: "0.04em" }}>{m.n}</div>
                     <div style={{ ...S.cap, marginTop: 8 }}>{m.l}</div>
                   </div>
@@ -839,9 +859,12 @@ export default function Home() {
               <div key={step.n} className="hiw-step" style={{ padding: "0 0 0 0", position: "relative", zIndex: 1 }}>
                 <div style={{
                   width: 56, height: 56,
-                  border: "1px solid var(--rule)",
+                  border: "1px solid color-mix(in srgb, var(--cinnabar-ink) 30%, transparent)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  marginBottom: 32, background: "var(--paper)",
+                  marginBottom: 32,
+                  background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: 14,
                   fontFamily: "var(--serif)", fontSize: 22, color: "var(--cinnabar-ink)",
                 }}>
                   {step.icon}
@@ -880,9 +903,9 @@ export default function Home() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)", border: S.border }} className="mob-col">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }} className="mob-col">
               {/* Score */}
-              <div className="bento-card" style={{ background: "var(--paper)", padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.capAccent}>Ledger Score</span>
                 <div>
                   <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>0</div>
@@ -894,7 +917,7 @@ export default function Home() {
               </div>
 
               {/* Toolkit */}
-              <div className="bento-card" style={{ background: "var(--paper)", padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Toolkit</span>
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>51</div>
@@ -907,7 +930,7 @@ export default function Home() {
               </div>
 
               {/* Streak */}
-              <div className="bento-card" style={{ background: "var(--paper)", padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Focus Streak</span>
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>
@@ -961,7 +984,7 @@ export default function Home() {
             })}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 1, background: "var(--rule)", border: S.border, borderTop: "none" }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 0, borderRadius: 12, overflow: "hidden", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" }} className="mob-col">
             {/* Tool list */}
             <div style={{ maxHeight: 580, overflowY: "auto", background: "var(--paper)" }}>
               {filteredTools.map((t, i) => {
@@ -1036,9 +1059,9 @@ export default function Home() {
             <div style={{ ...S.cap, fontSize: 9 }}>Tool — · Live preview</div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 1, background: "var(--rule)", border: S.border }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 12 }} className="mob-col">
             {/* Sliders */}
-            <div style={{ padding: "32px 32px", background: "var(--paper)" }}>
+            <div className="glass-card" style={{ padding: "32px 32px" }}>
               <div style={S.capAccent}>Adjust your activity</div>
 
               {[
@@ -1081,7 +1104,7 @@ export default function Home() {
             </div>
 
             {/* Score display */}
-            <div style={{ padding: "32px 32px", display: "flex", flexDirection: "column", justifyContent: "center", background: "var(--paper)" }}>
+            <div className="glass-card" style={{ padding: "32px 32px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <div style={S.cap}>Estimated Ledger Score</div>
               <div ref={scoreNumRef} style={{ fontFamily: "var(--serif)", fontSize: "clamp(72px,10vw,100px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.02em", lineHeight: 1, marginTop: 8, color: "var(--ink)", transition: "color 300ms" }}>
                 {scorePreview}
@@ -1109,17 +1132,17 @@ export default function Home() {
               {/* Improvement tips */}
               <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 6 }}>
                 {!hasSyllabus && (
-                  <div style={{ padding: "8px 12px", background: "var(--paper-2)", border: S.border, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
+                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
                     <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+250 pts</span> — Upload your syllabus
                   </div>
                 )}
                 {papers < 5 && (
-                  <div style={{ padding: "8px 12px", background: "var(--paper-2)", border: S.border, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
+                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
                     <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((5 - papers) * 18)} pts</span> — Do {5 - papers} more past paper sessions
                   </div>
                 )}
                 {streak < 7 && (
-                  <div style={{ padding: "8px 12px", background: "var(--paper-2)", border: S.border, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
+                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
                     <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((7 - streak) * 7.5)} pts</span> — Build a 7-day streak
                   </div>
                 )}
@@ -1144,10 +1167,10 @@ export default function Home() {
           </div>
 
           {/* Top 3 — signature cards with left cinnabar accent */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)", border: S.border, marginBottom: 1 }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 12 }} className="mob-col">
             {FEATS.slice(0, 3).map((f, i) => (
-              <div className="feat-card" key={f.tag} style={{
-                background: "var(--paper)", padding: "36px 28px",
+              <div className="feat-card glass-card" key={f.tag} style={{
+                padding: "36px 28px",
                 borderLeft: "3px solid var(--cinnabar-ink)",
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
               }}>
@@ -1172,16 +1195,15 @@ export default function Home() {
           </div>
 
           {/* Bottom 4 — compact, expand on click */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", border: S.border, borderTop: "none" }} className="mob-2col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="mob-2col">
             {FEATS.slice(3).map((f, i) => (
               <div
-                className="feat-card"
+                className="feat-card glass-card"
                 key={f.tag}
                 style={{
-                  background: "var(--paper-2)",
                   borderLeft: expandedFeat === i + 3 ? "3px solid var(--cinnabar-ink)" : "3px solid transparent",
                   cursor: "pointer",
-                  transition: "border-color 150ms ease",
+                  transition: "border-color 150ms ease, background 150ms ease",
                   padding: "22px 20px",
                 }}
                 onClick={() => setExpandedFeat(expandedFeat === i + 3 ? null : i + 3)}
@@ -1202,7 +1224,7 @@ export default function Home() {
               </div>
             ))}
             {/* Coming soon */}
-            <div style={{ background: "color-mix(in srgb, var(--ink) 4%, var(--paper-2))", padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderLeft: "3px solid var(--rule)" }}>
+            <div className="glass-card" style={{ padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderLeft: "3px solid var(--rule)" }}>
               <div>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 10 }}>Q3 2026</div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 8, lineHeight: 1.3 }}>Exam-Day Mode</div>
@@ -1227,15 +1249,15 @@ export default function Home() {
               <div style={{ ...S.cap, fontSize: 9 }}>n=11,482 · Self-reported · Apr &apos;26</div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-                  style={{ padding: "7px 14px", background: "none", border: S.border, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms" }}>←</button>
+                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms" }}>←</button>
                 <button onClick={() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length)}
-                  style={{ padding: "7px 14px", background: "none", border: S.border, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms" }}>→</button>
+                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms" }}>→</button>
               </div>
             </div>
           </div>
 
           {/* Testimonial */}
-          <div ref={testimRef} style={{ border: S.border, borderTop: S.borderInk, position: "relative", overflow: "hidden" }}>
+          <div ref={testimRef} style={{ border: "1px solid color-mix(in srgb, var(--ink) 14%, transparent)", borderTop: "2px solid color-mix(in srgb, var(--ink) 60%, transparent)", position: "relative", overflow: "hidden", borderRadius: 16, background: "color-mix(in srgb, var(--paper) 55%, transparent)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
             {/* Watermark quotation mark */}
             <div
               aria-hidden
@@ -1301,16 +1323,16 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", borderTop: S.border }} className="mob-2col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginTop: 16 }} className="mob-2col">
             {STATS.map(({ big, suffix, sm }, i) => (
               <div
-                className="stat-card"
+                className="stat-card glass-card"
                 key={i}
                 style={{
-                  padding:     "40px 28px 36px",
-                  borderRight:  i < STATS.length - 1 ? S.border : "none",
-                  borderTop:    "3px solid var(--cinnabar-ink)",
-                  position:     "relative",
+                  padding:     "32px 24px 28px",
+                  borderTop:   "2px solid var(--cinnabar-ink)",
+                  position:    "relative",
+                  borderRadius: 14,
                 }}
               >
                 {/* Mono index — marginal note style */}
