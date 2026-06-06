@@ -37,6 +37,22 @@ export default function ToolsBackground() {
         className="tools-bg-blob-b"
         style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none" }}
       />
+
+      {/* Atmospheric orbs — subtle cinnabar + plum drift */}
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{
+          position: "absolute", width: 600, height: 600, borderRadius: "50%",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--cinnabar) 9%, transparent) 0%, transparent 70%)",
+          filter: "blur(80px)", top: "-10%", right: "5%",
+          animation: "hero-orb-drift 20s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", width: 500, height: 500, borderRadius: "50%",
+          background: "radial-gradient(circle, color-mix(in srgb, oklch(0.55 0.18 300) 7%, transparent) 0%, transparent 70%)",
+          filter: "blur(90px)", bottom: "5%", left: "-5%",
+          animation: "float-orb 26s ease-in-out infinite reverse",
+        }} />
+      </div>
     </>
   )
 }

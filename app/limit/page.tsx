@@ -32,7 +32,7 @@ export default function LimitPage() {
           {hoursLeft !== null ? ` · ${hoursLeft}h away` : ""}
         </p>
 
-        <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ borderTop: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", paddingTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
           <p style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 8 }}>
             In the meantime
           </p>
@@ -52,8 +52,11 @@ export default function LimitPage() {
                   textTransform: "uppercase",
                   color: "var(--cinnabar-ink)",
                   textDecoration: "none",
-                  border: "1px solid var(--cinnabar-ink)",
+                  border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)",
                   padding: "8px 16px",
+                  borderRadius: 8,
+                  background: "color-mix(in srgb, var(--cinnabar) 5%, transparent)",
+                  backdropFilter: "blur(12px)",
                 }}
               >
                 {label} →
@@ -62,7 +65,7 @@ export default function LimitPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: 48, padding: "20px 24px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+        <div className="glass-card" style={{ marginTop: 48, padding: "20px 24px" }}>
           <p style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 6 }}>Coming October 2026</p>
           <p style={{ fontFamily: "var(--prose)", fontSize: 14, lineHeight: 1.6, color: "var(--ink-2)", margin: 0 }}>
             Pro plans with unlimited AI queries. Free tier stays at 20/day.
