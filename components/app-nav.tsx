@@ -131,6 +131,8 @@ export default function AppNav() {
   const [displayName, setDisplayName] = useState("");
   const [embedded, setEmbedded]       = useState(false);
   const [open, setOpen]               = useState(false);
+  const [hoveredNav, setHoveredNav]   = useState<string | null>(null);
+  const [logoHovered, setLogoHovered] = useState(false);
 
   useEffect(() => {
     try { setEmbedded(window.self !== window.top); } catch { setEmbedded(true); }
@@ -165,9 +167,6 @@ export default function AppNav() {
   const short     = displayName.length > 14 ? displayName.slice(0, 12) + "…" : displayName;
   const isProfile = path === "/dashboard/profile";
   const initial   = (displayName || "?")[0].toUpperCase();
-
-  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
-  const [logoHovered, setLogoHovered] = useState(false);
 
   const navLink = (href: string, label: string, extra?: React.ReactNode, mobileHide?: boolean) => {
     const active = path === href;
