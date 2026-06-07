@@ -32,20 +32,11 @@ export default function Cursor() {
       }
     }
 
-    const MAGNETIC = ".btn, .hero-cta-btn"
-    let magnetEl: Element | null = null
-    let magnetStrength = 0
-
     const onOver = (e: MouseEvent) => {
       const el = (e.target as Element).closest(INTERACTIVE)
       if (el) {
         dot.dataset.hover  = "1"
         ring.dataset.hover = "1"
-      }
-      const mag = (e.target as Element).closest(MAGNETIC)
-      if (mag) {
-        magnetEl = mag
-        mag.classList.add("mag-active")
       }
     }
 
@@ -54,31 +45,6 @@ export default function Cursor() {
       if (el) {
         delete dot.dataset.hover
         delete ring.dataset.hover
-      }
-      if (magnetEl) {
-        magnetEl.classList.remove("mag-active");
-        (magnetEl as HTMLElement).style.transform = ""
-        magnetEl = null
-        magnetStrength = 0
-      }
-    }
-
-    const onMove2 = (e: MouseEvent) => {
-      if (!magnetEl) return
-      const r = magnetEl.getBoundingClientRect()
-      const cx = r.left + r.width  / 2
-      const cy = r.top  + r.height / 2
-      const dx = e.clientX - cx
-      const dy = e.clientY - cy
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      const radius = Math.max(r.width, r.height) * 0.9
-      if (dist < radius) {
-        magnetStrength = 1 - dist / radius;
-        (magnetEl as HTMLElement).style.transform =
-          `translate(${dx * 0.35 * magnetStrength}px, ${dy * 0.35 * magnetStrength}px)`
-      } else {
-        (magnetEl as HTMLElement).style.transform = ""
-        magnetStrength = 0
       }
     }
 
@@ -93,17 +59,15 @@ export default function Cursor() {
       rafId = requestAnimationFrame(tick)
     }
 
-    document.addEventListener("mousemove",  onMove,  { passive: true })
-    document.addEventListener("mousemove",  onMove2, { passive: true })
-    document.addEventListener("mouseover",  onOver,  { passive: true })
-    document.addEventListener("mouseout",   onOut,   { passive: true })
-    document.addEventListener("mousedown",  onDown,  { passive: true })
-    document.addEventListener("mouseup",    onUp,    { passive: true })
+    document.addEventListener("mousemove",  onMove, { passive: true })
+    document.addEventListener("mouseover",  onOver, { passive: true })
+    document.addEventListener("mouseout",   onOut,  { passive: true })
+    document.addEventListener("mousedown",  onDown, { passive: true })
+    document.addEventListener("mouseup",    onUp,   { passive: true })
     rafId = requestAnimationFrame(tick)
 
     return () => {
       document.removeEventListener("mousemove",  onMove)
-      document.removeEventListener("mousemove",  onMove2)
       document.removeEventListener("mouseover",  onOver)
       document.removeEventListener("mouseout",   onOut)
       document.removeEventListener("mousedown",  onDown)

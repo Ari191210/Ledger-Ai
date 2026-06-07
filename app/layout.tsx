@@ -13,7 +13,6 @@ import ButtonClickEffect from "@/components/ui/button-click-effect";
 import PostHogProvider from "@/components/posthog-provider";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import RankWhisper from "@/components/rank-whisper";
-import SmoothScroll from "@/components/smooth-scroll";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -144,20 +143,18 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">Skip to main content</a>
         <Cursor />
         <WebGLShader />
-        <SmoothScroll>
-          <AuthProvider>
-            <PostHogProvider />
-            <ErrorLogger />
-            <PageGradient />
-            <Tracker />
-            <SyncManager />
-            <ErrorBoundary>
-              {children}
-            </ErrorBoundary>
-            <PaletteToggle />
-            <RankWhisper />
-          </AuthProvider>
-        </SmoothScroll>
+        <AuthProvider>
+          <PostHogProvider />
+          <ErrorLogger />
+          <PageGradient />
+          <Tracker />
+          <SyncManager />
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+          <PaletteToggle />
+          <RankWhisper />
+        </AuthProvider>
       </body>
     </html>
   );

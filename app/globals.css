@@ -2516,33 +2516,3 @@ select:focus {
   }
   .hero-badge { animation: none !important; }
 }
-
-/* ════════════════════════════════════════════════════════════════════════════
-   MAGNETIC BUTTONS + GRAIN OVERLAY
-   ════════════════════════════════════════════════════════════════════════════ */
-
-/* Smooth magnetic transform */
-.btn, .hero-cta-btn {
-  transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
-              box-shadow 300ms ease !important;
-}
-.btn.mag-active, .hero-cta-btn.mag-active {
-  transition: transform 100ms linear !important;
-}
-
-/* Film grain overlay — gives atmospheric depth to the whole site */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.028;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 180px 180px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn, .hero-cta-btn { transition: none !important; }
-}
