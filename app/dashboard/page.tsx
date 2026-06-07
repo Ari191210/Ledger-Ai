@@ -68,6 +68,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "paper-pattern",      ttl: "Paper Pattern Analyser", sub: "Decode what examiners want.",            tier: "Free", desc: "Analyse past paper patterns to surface which topics, question types, and mark allocations appear most frequently." },
       { slug: "paper-autopsy",      ttl: "Paper Autopsy",          sub: "Dissect every mark you lost.",              tier: "Free", desc: "Upload your answer sheet and get a full breakdown: every error type, every weak subtopic, and a personalised drill plan to fix them before the next paper." },
       { slug: "marks-obituary",     ttl: "Marks Obituary",         sub: "Write the obituary. Get the autopsy.",      tier: "Free", desc: "Write a 60-word obituary for the marks you should have got. The AI files a forensic coroner's report: cause of death, time of death, and a prevention protocol." },
+      { slug: "panic-triage", ttl: "Paper Panic Triage", sub: "2AM before the exam — tell me exactly what to do in the", tier: "Free", desc: "At 11PM the night before a JEE/NEET/Board paper, a student has 6 hours left and 14 chapters half-revised. They open 4 Yo" },
     ],
   },
   {
@@ -430,6 +431,7 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
 
 function LedgerScoreWidget() {
   const [score, setScore] = useState<ScoreBreakdown | null>(null);
+  const scoreRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     try { setScore(computeLedgerScore()); } catch { setScore({ total: 0, pqaScore: 0, syllabusScore: 0, mistakeScore: 0, consistencyScore: 0, pqaAccuracy: 0, papersCount: 0, syllabusUploaded: false, subjectsCovered: 0, subjectsTotal: 0, recentMistakes: 0, streak: 0, actions: ["Upload your syllabus — this alone unlocks up to 250 score points"], subjectAccuracy: [] }); }
   }, []);
@@ -441,7 +443,6 @@ function LedgerScoreWidget() {
     { label: "Mistakes", val: score.mistakeScore,     max: 200 },
     { label: "Streak",   val: score.consistencyScore, max: 150 },
   ];
-  const scoreRef = useRef<HTMLAnchorElement>(null);
 
   function handleScoreEnter() {
     if (!scoreRef.current) return;
