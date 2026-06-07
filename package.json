@@ -18,6 +18,7 @@
     "@sentry/nextjs": "^10.53.1",
     "@splinetool/react-spline": "^4.1.0",
     "@splinetool/runtime": "^1.12.94",
+    "@studio-freight/lenis": "^1.0.42",
     "@supabase/supabase-js": "^2.104.1",
     "@types/three": "^0.184.0",
     "@vercel/analytics": "^2.0.1",
