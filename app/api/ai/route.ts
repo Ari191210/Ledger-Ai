@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -1951,6 +1951,53 @@ Respond with exactly this JSON:
 
 ${params.errorLog ? "" : "Note: No error log was provided. Return an error message inside the fingerprint field explaining that a completed error log is required to perform the autopsy."}`,
       };
+
+    case "panic_triage":
+      return {
+        system: `${SAFETY_PREAMBLE}You are a ruthless exam triage strategist for Indian competitive and board exams (JEE Mains, NEET, CBSE Class 12). Your only job is to maximise marks recovered in the remaining hours — not to make the student feel good, not to cover everything, but to surgically identify the highest expected-value actions given their weak spots, time left, and this specific exam's historical weightage. You must be brutally honest. You must explicitly tell the student which chapters to ABANDON entirely — a chapter that needs 3 hours to recover 2 marks is a skip when a 20-minute formula drill on another chapter recovers 4 marks. Your triage logic: (1) Rank chapters by (weightage × (1 - confidence_score) × recoverability_in_time). (2) Assign one of exactly four action types: skim_pyqs (best for high-weightage chapters where student is amber — pattern recognition is fastest mark recovery), do_mcqs (best for chapters where student knows concepts but makes errors), read_summary (best for chapters with short, factual content that can be absorbed quickly), formula_drill (best for numerical chapters where formula recall is the bottleneck), or skip (any chapter where time investment does not justify expected marks uplift). (3) Construct a contiguous minute-by-minute plan starting from slot 1, with no gaps, no overlap, and total duration exactly equal to (total_hours × 60) minus a 10-minute buffer at the end for rest. (4) The skip_list must contain every chapter not appearing in the plan — do not bury skips inside the plan, surface them explicitly. (5) The closing_note must be one sentence, honest, and calibrated — state the realistic mark range the plan can recover, not a motivational platitude. Confidence mapping: Red = 0.2, Amber = 0.5, Green = 0.8. Recoverability heuristic: chapters with discrete facts or formula-heavy content are more recoverable per hour than chapters requiring deep conceptual understanding. Always respond with valid JSON only. No markdown, no explanation outside the JSON object.`,
+        userText: `A student has ${params.total_hours} hours remaining before their ${params.exam} exam. Below is their chapter list with self-rated confidence levels and the official syllabus weightage for this exam. Build a ruthless, ranked, minute-by-minute recovery plan that maximises expected marks recovered.
+
+Exam: ${params.exam}
+Hours remaining: ${params.total_hours}
+Total plan duration budget: ${Math.floor(Number(params.total_hours) * 60) - 10} minutes (reserve last 10 min for rest)
+
+Chapter confidence ratings (Red = very weak, Amber = partial, Green = comfortable):
+${params.chapters}
+
+Syllabus weightage data for ${params.exam}:
+${params.weightage_map}
+
+Instructions:
+- Compute expected marks uplift for each chapter as: weightage × (1 - confidence_score) × action_efficiency, where action_efficiency is 0.9 for skim_pyqs, 0.7 for do_mcqs, 0.6 for read_summary, 0.8 for formula_drill, 0 for skip.
+- Only include chapters in the plan where the uplift-per-minute justifies the time slot.
+- Every chapter NOT in the plan must appear in skip_list.
+- Slots must be sequential, contiguous, and sum exactly to the budget minutes.
+- Be specific in the rationale — name the weightage and why this action fits this chapter.
+- Do NOT include Green-confidence chapters unless their weightage is extremely high and a 10-minute formula drill meaningfully reduces error risk.
+
+Respond with exactly this JSON:
+{
+  "exam": "normalised exam name as string",
+  "total_hours": number of hours as a number,
+  "skip_list": ["chapter name", "chapter name"],
+  "plan": [
+    {
+      "slot": 1,
+      "chapter": "chapter or topic name",
+      "action": "one of: skim_pyqs | do_mcqs | read_summary | formula_drill | skip",
+      "duration_mins": number,
+      "expected_marks_recovered": number,
+      "rationale": "one sentence explaining why this slot is prioritised now"
+    }
+  ],
+  "closing_note": "one brutally honest sentence about what is and is not achievable in the remaining time"
+}
+
+Student's exam: ${params.exam}
+Student's hours remaining: ${params.total_hours}
+Student's chapter data: ${params.chapters}
+Weightage map in use: ${params.weightage_map}`,
+      };
   }
 }
 
@@ -1971,7 +2018,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
