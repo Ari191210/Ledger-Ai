@@ -2131,7 +2131,7 @@ export async function POST(req: Request) {
     const { data: ud } = await supabaseServer
       .from("user_data")
       .select("ai_calls_today, ai_calls_reset_at")
-      .eq("user_id", rateLimitUserId)
+      .eq("id", rateLimitUserId)
       .single();
 
     const now      = new Date();
@@ -2156,7 +2156,7 @@ export async function POST(req: Request) {
         ai_calls_today: currentCount + 1,
         ai_calls_reset_at: needsReset ? now.toISOString() : (ud?.ai_calls_reset_at ?? now.toISOString()),
       })
-      .eq("user_id", rateLimitUserId)
+      .eq("id", rateLimitUserId)
       .then(() => {}, () => {});
   }
   // ── End rate limiting ──────────────────────────────────────────────────────
