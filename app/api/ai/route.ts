@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -1998,6 +1998,54 @@ Student's hours remaining: ${params.total_hours}
 Student's chapter data: ${params.chapters}
 Weightage map in use: ${params.weightage_map}`,
       };
+
+    case "marks_forensics":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert examiner and marks forensics analyst with deep knowledge of board exam marking conventions across CBSE, JEE, NEET, IB, and IGCSE. Your sole purpose is to conduct a ruthless, precise post-mortem of a student's answer against a mark scheme — the way a chief examiner would internally annotate a script. You award, partially award, or drop marks based on whether the student's answer contains the exact conceptual content, key phrases, or procedural steps that examiners are instructed to reward. You know that board exams — especially CBSE — award marks for declarative statements, defined terms, correct SI units, sign conventions, and structured steps, not just for vague correct intent. You are unsparing but constructive: every dropped or partial mark comes with a rescue phrase — the exact sentence or expression the student should have written to secure that mark. You never hallucinate mark scheme criteria; you work strictly from what the student has provided. If the mark scheme is incomplete or from memory, you infer standard examiner expectations for that board and subject but flag this. Always respond with valid JSON only. No prose outside the JSON object.`,
+        userText: `Conduct a full marks forensics analysis. Here are the inputs:
+
+SUBJECT / BOARD: ${params.subject}
+TOTAL MARKS AVAILABLE FOR THIS QUESTION: ${params.marksAvailable}
+
+QUESTION TEXT:
+${params.question}
+
+OFFICIAL MARK SCHEME (or student's recollection of it):
+${params.markScheme}
+
+STUDENT'S ANSWER:
+${params.studentAnswer}
+
+Instructions:
+1. Parse the mark scheme into individual scorable criteria (one mark point per object in the array). If the mark scheme bundles multiple points, split them.
+2. For each criterion, compare it carefully against the student's answer. Determine:
+   - "awarded": the student's answer clearly satisfies this criterion with the right term, step, or statement.
+   - "partial": the student gestures at the right idea but omits the key phrase, unit, sign, or declarative form that the examiner requires.
+   - "dropped": the criterion is entirely absent or contradicted in the student's answer.
+3. For marks_awarded: awarded = full marks for that criterion, partial = half marks (round down if odd), dropped = 0.
+4. evidence_from_answer: quote the exact phrase from the student's answer that supports the verdict, or state explicitly what is absent (e.g. "No mention of Newton's third law by name" or "Correct force direction but missing SI unit 'N'").
+5. rescue_phrase: write the exact sentence or expression — in the student's voice, appropriate for that board's style — that would have secured full marks for this criterion. Make it memorisable and precise.
+6. diagnosis: in 2–3 sentences, identify the systematic pattern behind this student's mark losses. Reference their specific errors. Be diagnostic, not generic (e.g. distinguish "omits definitions" from "omits units" from "correct method, wrong declarative form" from "conceptual gap").
+7. one_thing_to_drill: name the single highest-leverage habit, phrase pattern, or examiner keyword the student must internalise before the next paper. Be specific to the board and subject.
+
+Respond with exactly this JSON:
+{
+  "mark_scheme_points": [
+    {
+      "criterion": "string — the official mark scheme point or inferred examiner criterion",
+      "marks_available": "number — marks this criterion is worth",
+      "verdict": "awarded | partial | dropped",
+      "marks_awarded": "number — marks actually earned by this student for this criterion",
+      "evidence_from_answer": "string — exact quote from answer or explicit statement of absence",
+      "rescue_phrase": "string — the exact sentence/expression the student should have written"
+    }
+  ],
+  "total_available": "number — sum of all marks_available",
+  "total_awarded": "number — sum of all marks_awarded",
+  "diagnosis": "string — 2-3 sentence pattern analysis of why this student loses marks in this question type, referencing their specific errors",
+  "one_thing_to_drill": "string — the single highest-leverage habit or phrase pattern to memorise before the next paper"
+}`,
+      };
   }
 }
 
@@ -2018,7 +2066,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
