@@ -375,7 +375,7 @@ export default function MarksForensicsPage() {
         marks_available: marksAvailable,
         mark_scheme: markScheme.trim(),
         student_answer: studentAnswer.trim(),
-      })) as ForensicsResult;
+      })) as unknown as ForensicsResult;
 
       // Coerce totals to numbers defensively
       const safeResult: ForensicsResult = {
