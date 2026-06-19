@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map";
 
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
@@ -2046,6 +2046,40 @@ Respond with exactly this JSON:
   "one_thing_to_drill": "string — the single highest-leverage habit or phrase pattern to memorise before the next paper"
 }`,
       };
+
+    case "paper_trauma_map":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an elite JEE/NEET performance analyst and cognitive error specialist who has reviewed thousands of mock test papers. Your singular skill is identifying the hidden 'trauma signature' — the recurring structural failure pattern that a student repeats across multiple papers without realising it. You do not see individual mistakes; you see the cognitive fingerprint underneath them. You look for: sign errors that cluster in specific operation types, misreading of qualifier words (except, not, always, only), formula recall vs. application breakdown, last-step arithmetic collapses, assumption errors in multi-concept problems, and working-memory overload in multi-step chains. You are brutally honest, pattern-obsessed, and your entire output is oriented toward: naming the pattern precisely, proving it with evidence clusters, predicting where it will strike next, and giving the student 3 drills they can do in 48 hours to patch it. You write like a topper who has zero patience for vague advice. Always respond with valid JSON only.`,
+        userText: `A student has pasted their mock paper results across multiple tests. Analyse ALL the errors carefully and identify the single most dominant recurring trauma pattern — the one cognitive failure that is silently costing them marks across papers.
+
+Mock paper results data:
+${params.mockResults}
+
+${params.studentNotes ? `Student's own notes on why they got questions wrong:\n${params.studentNotes}\n` : ""}
+
+Instructions for analysis:
+1. TRAUMA SIGNATURE: Find the single most dominant recurring failure. Do not describe symptoms — describe the root cognitive mechanism. Name it memorably (e.g. 'The Almost-Right Trap', 'Last-Step Collapse', 'Qualifier Blindness', 'Setup-Perfect-Execute-Wrong'). Write exactly 2 sentences: sentence 1 names and defines the cognitive failure mechanism, sentence 2 explains why this specific student's brain falls into it at this specific moment in problem-solving.
+
+2. SEVERITY: Rate as 'low' (pattern appears 2-3 times, under 12 marks lost), 'medium' (appears 3-4 times, 12-24 marks lost), or 'high' (appears 4+ times, 24+ marks lost, or appears in high-weightage topics).
+
+3. EVIDENCE CLUSTERS: Group 3-5 specific question instances from the data that share the same underlying failure mechanism. For each cluster, name the exact papers and question numbers, describe precisely how the pattern manifested in that cluster, and count marks lost. Make pattern_in_this_cluster specific — not 'made a mistake' but 'correctly set up the integral then dropped the negative sign during substitution of limits'.
+
+4. GHOST QUESTIONS: Based on the trauma pattern identified, list 4-6 question TYPE descriptions that are statistically likely to trigger this same failure in tomorrow's paper. Be specific about topic, question structure, and the exact moment the trap will appear. These are warnings, not generic advice.
+
+5. PATCH PROTOCOL: Design exactly 3 micro-drills. Each must be: (a) completable in under 60 minutes, (b) targeting the exact failure mechanism not the broad topic, (c) have a specific method — not 'revise integration' but 'take 10 definite integral problems, solve fully, then go back and re-check only the substitution step by writing limits explicitly each time'. Name each drill, state time required in minutes, and write the exact method in 2-3 sentences.
+
+6. ONE LINE VERDICT: Write the single sentence a brutally honest topper would say to this student about their pattern. Not motivational. Not cruel. Diagnostic and precise — the sentence that makes the student say 'oh god, that's exactly it'.
+
+Respond with exactly this JSON:
+{
+  "trauma_signature": "Named pattern label followed by colon followed by 2-sentence causal explanation",
+  "severity": "low | medium | high — based on frequency and marks lost",
+  "evidence_clusters": [{"papers": ["Mock X QY", "Mock A QB"], "pattern_in_this_cluster": "specific description of how the failure manifested", "marks_lost": 0}],
+  "ghost_questions": ["specific question type description with topic, structure, and trap location"],
+  "patch_protocol": [{"drill_name": "name", "time_required": "X minutes", "exact_method": "precise step-by-step method"}],
+  "one_line_verdict": "single blunt diagnostic sentence"
+}`,
+      };
   }
 }
 
@@ -2066,7 +2100,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

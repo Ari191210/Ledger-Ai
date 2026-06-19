@@ -1,0 +1,45 @@
+/*
+  Severity tier CSS variables for Paper Trauma Map (and any future severity UI).
+  Import this file in globals.css or app/layout.tsx if not already present.
+
+  These replace the hardcoded hex colours that were in severityConfig.
+*/
+
+:root {
+  /* Low severity — amber */
+  --severity-low-color:   oklch(0.45 0.13 72);
+  --severity-low-bg:      oklch(0.97 0.04 90);
+  --severity-low-border:  oklch(0.65 0.13 72);
+
+  /* Medium severity — orange */
+  --severity-medium-color: oklch(0.45 0.18 42);
+  --severity-medium-bg:    oklch(0.97 0.05 60);
+  --severity-medium-border: oklch(0.60 0.18 42);
+
+  /* High severity — red (maps to cinnabar family) */
+  --severity-high-color:   oklch(0.38 0.18 25);
+  --severity-high-bg:      oklch(0.96 0.05 25);
+  --severity-high-border:  oklch(0.58 0.18 25);
+
+  /* Success (copied state) */
+  --severity-success-color: oklch(0.45 0.15 145);
+}
+
+/* Dark-mode overrides if the project has a dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --severity-low-color:    oklch(0.75 0.13 72);
+    --severity-low-bg:       oklch(0.22 0.04 90);
+    --severity-low-border:   oklch(0.50 0.13 72);
+
+    --severity-medium-color: oklch(0.75 0.18 42);
+    --severity-medium-bg:    oklch(0.20 0.05 60);
+    --severity-medium-border: oklch(0.50 0.18 42);
+
+    --severity-high-color:   oklch(0.75 0.18 25);
+    --severity-high-bg:      oklch(0.20 0.05 25);
+    --severity-high-border:  oklch(0.55 0.18 25);
+
+    --severity-success-color: oklch(0.72 0.15 145);
+  }
+}

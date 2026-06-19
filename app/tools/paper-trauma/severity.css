@@ -1,0 +1,28 @@
+/*
+  Severity tier tokens — scoped to the paper-trauma tool route.
+  Imported by layout.tsx or page.tsx via a <style> tag is not needed here;
+  these vars are declared globally in app/globals.css via the import below.
+
+  If you prefer scoping, keep this file and import it in the tool's layout.
+  If you prefer global tokens, move the :root block into app/globals.css.
+*/
+
+:root {
+  /* Low severity — amber */
+  --severity-low-color:    oklch(0.45 0.13 72);
+  --severity-low-bg:       oklch(0.97 0.04 90);
+  --severity-low-border:   oklch(0.65 0.13 72);
+
+  /* Medium severity — orange */
+  --severity-medium-color:  oklch(0.45 0.18 42);
+  --severity-medium-bg:     oklch(0.97 0.05 60);
+  --severity-medium-border: oklch(0.60 0.18 42);
+
+  /* High severity — red */
+  --severity-high-color:   oklch(0.38 0.18 25);
+  --severity-high-bg:      oklch(0.96 0.05 25);
+  --severity-high-border:  oklch(0.58 0.18 25);
+
+  /* Success state */
+  --severity-success-color: oklch(0.45 0.15 145);
+}

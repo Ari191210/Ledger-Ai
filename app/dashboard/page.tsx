@@ -70,6 +70,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "marks-obituary",     ttl: "Marks Obituary",         sub: "Write the obituary. Get the autopsy.",      tier: "Free", desc: "Write a 60-word obituary for the marks you should have got. The AI files a forensic coroner's report: cause of death, time of death, and a prevention protocol." },
       { slug: "panic-triage", ttl: "Paper Panic Triage", sub: "2AM before the exam — tell me exactly what to do in the", tier: "Free", desc: "At 11PM the night before a JEE/NEET/Board paper, a student has 6 hours left and 14 chapters half-revised. They open 4 Yo" },
       { slug: "marks-forensics", ttl: "Marks Forensics", sub: "Paste your answer. Know exactly which line lost you mar", tier: "Free", desc: "After every board exam or test, students get a number back — 34/50, 67/100 — and have no idea why. They lost 16 marks so" },
+      { slug: "paper-trauma", ttl: "Paper Trauma Map", sub: "Find the exact questions that broke you — and why you'l", tier: "Free", desc: "At 2AM before a JEE/NEET paper, students stare at their last 3 mock results and cannot answer one question: which specif" },
     ],
   },
   {
