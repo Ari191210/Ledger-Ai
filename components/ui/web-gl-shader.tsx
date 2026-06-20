@@ -3,42 +3,29 @@
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
 
-const PALETTE_COLORS: Record<string, [number, number, number]> = {
-  porcelain: [1.0,  0.65, 0.10],
-  ink:       [0.05, 0.80, 1.00],
-  dusk:      [0.80, 0.10, 1.00],
-  moss:      [0.15, 1.00, 0.20],
-  rose:      [1.0,  0.10, 0.50],
-  storm:     [0.30, 0.55, 0.90],
-  ember:     [1.0,  0.42, 0.05],
-  sand:      [0.85, 0.65, 0.20],
-}
-const DEFAULT_MIX: [number, number, number] = [1.0, 0.90, 0.80]
-
-// Dark-mode bg — palette near-blacks from lib/palette PALETTE_META.paper
+// Dark-mode bg — palette near-blacks
 const PALETTE_BG_DARK: Record<string, [number, number, number]> = {
-  porcelain: [0.055, 0.047, 0.031],  // #0e0c08 — warm near-black
-  ink:       [0.020, 0.039, 0.063],  // #050a10 — blue near-black
-  dusk:      [0.031, 0.020, 0.063],  // #080510 — purple near-black
-  moss:      [0.020, 0.055, 0.024],  // #050e06 — green near-black
-  rose:      [0.063, 0.024, 0.035],  // #100609 — pink near-black
-  storm:     [0.031, 0.039, 0.055],  // #080a0e — steel near-black
-  ember:     [0.055, 0.031, 0.000],  // #0e0800 — amber near-black
-  sand:      [0.047, 0.039, 0.024],  // #0c0a06 — sand near-black
+  porcelain: [0.055, 0.047, 0.031],
+  ink:       [0.020, 0.039, 0.063],
+  dusk:      [0.031, 0.020, 0.063],
+  moss:      [0.020, 0.055, 0.024],
+  rose:      [0.063, 0.024, 0.035],
+  storm:     [0.031, 0.039, 0.055],
+  ember:     [0.055, 0.031, 0.000],
+  sand:      [0.047, 0.039, 0.024],
 }
-const DEFAULT_BG_DARK: [number, number, number] = [0.031, 0.031, 0.031]  // #080808
+const DEFAULT_BG_DARK: [number, number, number] = [0.031, 0.031, 0.031]
 
-// Light-mode bg — mid-tones so additive neon waves are clearly visible.
-// Near-white papers (0.93+) clip wave+paper to white, making waves invisible.
+// Light-mode bg — mid-tones so waves have contrast room
 const PALETTE_BG_LIGHT: Record<string, [number, number, number]> = {
-  porcelain: [0.76, 0.68, 0.52],  // warm parchment tan
-  ink:       [0.48, 0.62, 0.76],  // cool slate blue
-  dusk:      [0.64, 0.54, 0.76],  // muted lavender
-  moss:      [0.48, 0.72, 0.52],  // forest sage
-  rose:      [0.76, 0.56, 0.64],  // dusty rose
-  storm:     [0.54, 0.60, 0.74],  // steel blue-grey
-  ember:     [0.76, 0.60, 0.40],  // warm copper
-  sand:      [0.72, 0.64, 0.48],  // warm sand
+  porcelain: [0.76, 0.68, 0.52],
+  ink:       [0.48, 0.62, 0.76],
+  dusk:      [0.64, 0.54, 0.76],
+  moss:      [0.48, 0.72, 0.52],
+  rose:      [0.76, 0.56, 0.64],
+  storm:     [0.54, 0.60, 0.74],
+  ember:     [0.76, 0.60, 0.40],
+  sand:      [0.72, 0.64, 0.48],
 }
 const DEFAULT_BG_LIGHT: [number, number, number] = [0.65, 0.60, 0.55]
 
@@ -51,13 +38,11 @@ export function WebGLShader() {
     mesh:        THREE.Mesh | null
     uniforms:    Record<string, { value: unknown }> | null
     animationId: number | null
-    target:      THREE.Vector3
     mouse:       THREE.Vector2
     mouseTgt:    THREE.Vector2
   }>({
     scene: null, camera: null, renderer: null, mesh: null,
     uniforms: null, animationId: null,
-    target:   new THREE.Vector3(...DEFAULT_MIX),
     mouse:    new THREE.Vector2(0.5, 0.5),
     mouseTgt: new THREE.Vector2(0.5, 0.5),
   })
@@ -78,34 +63,31 @@ export function WebGLShader() {
       uniform float time;
       uniform float xScale;
       uniform float yScale;
-      uniform float distortion;
-      uniform vec3  colorMix;
       uniform vec2  mouse;
+      uniform float distortion;
       uniform vec3  bgColor;
 
       void main() {
         vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
 
-        float mx = (mouse.x - 0.5) * 0.5;
-        float my = (mouse.y - 0.5) * 0.35;
+        float mx = (mouse.x - 0.5) * 0.8;
+        float my = (mouse.y - 0.5) * 0.6;
 
-        float d = length(p - vec2(mx, -my)) * distortion;
+        float t = time;
 
-        float rx = (p.x - mx * 1.1) * (1.0 + d * 1.3);
-        float gx = (p.x - mx);
-        float bx = (p.x - mx * 0.9) * (1.0 - d);
+        float w1 = 0.06 / abs(p.y + my        + sin((p.x - mx * 1.1 + t * 1.0       ) * xScale * 1.0) * yScale);
+        float w2 = 0.05 / abs(p.y + my * 0.7  + sin((p.x - mx * 0.9 + t * 0.8 + 1.2) * xScale * 1.3) * yScale * 0.9);
+        float w3 = 0.07 / abs(p.y + my * 1.2  + sin((p.x - mx       + t * 1.2 + 2.4) * xScale * 0.7) * yScale * 1.1);
+        float w4 = 0.04 / abs(p.y + my * 0.5  + sin((p.x - mx * 1.2 + t * 0.6 + 3.6) * xScale * 1.6) * yScale * 0.7);
+        float w5 = 0.05 / abs(p.y + my * 1.4  + sin((p.x - mx * 0.8 + t * 1.4 + 0.8) * xScale * 0.9) * yScale * 0.8);
 
-        float r = 0.07 / abs(p.y + my        + sin((rx + time) * xScale) * yScale);
-        float g = 0.07 / abs(p.y + my * 0.85 + sin((gx + time) * xScale) * yScale);
-        float b = 0.07 / abs(p.y + my * 1.15 + sin((bx + time) * xScale) * yScale);
+        vec3 c1 = vec3(1.00, 0.30, 0.15) * w1;
+        vec3 c2 = vec3(1.00, 0.72, 0.08) * w2;
+        vec3 c3 = vec3(0.58, 0.12, 1.00) * w3;
+        vec3 c4 = vec3(0.08, 0.88, 0.62) * w4;
+        vec3 c5 = vec3(1.00, 0.18, 0.62) * w5;
 
-        // Identical wave formula in both light and dark mode.
-        // bgColor is near-black in dark mode, palette paper in light mode.
-        // Between waves (r+g+b small): bgColor shows through.
-        // At wave centres (r+g+b large): wave colour dominates.
-        // Pure additive: between waves bgColor shows clean, at peaks wave glows on top.
-        // Light-mode bgColors are mid-tones so waves have contrast room above them.
-        vec3 wave = vec3(r * colorMix.r, g * colorMix.g, b * colorMix.b);
+        vec3 wave = c1 + c2 + c3 + c4 + c5;
         gl_FragColor = vec4(wave + bgColor, 1.0);
       }
     `
@@ -116,10 +98,7 @@ export function WebGLShader() {
     refs.camera   = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1)
 
     const initialPalette = document.documentElement.dataset.palette ?? ""
-    const [mr, mg, mb]   = PALETTE_COLORS[initialPalette] ?? DEFAULT_MIX
-    refs.target.set(mr, mg, mb)
-
-    const isLightInit = document.documentElement.dataset.mode === "light"
+    const isLightInit    = document.documentElement.dataset.mode === "light"
     const [ibr, ibg, ibb] = isLightInit
       ? (PALETTE_BG_LIGHT[initialPalette] ?? DEFAULT_BG_LIGHT)
       : (PALETTE_BG_DARK[initialPalette]  ?? DEFAULT_BG_DARK)
@@ -129,10 +108,9 @@ export function WebGLShader() {
     refs.uniforms = {
       resolution: { value: [window.innerWidth, window.innerHeight] },
       time:       { value: 0.0 },
-      xScale:     { value: 1.0 },
-      yScale:     { value: 0.5 },
-      distortion: { value: 0.05 },
-      colorMix:   { value: new THREE.Vector3(mr, mg, mb) },
+      xScale:     { value: 1.2 },
+      yScale:     { value: 0.8 },
+      distortion: { value: 0.12 },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
       bgColor:    { value: new THREE.Vector3(ibr, ibg, ibb) },
     }
@@ -167,12 +145,7 @@ export function WebGLShader() {
 
     const animate = () => {
       if (refs.uniforms) {
-        refs.uniforms.time.value = (refs.uniforms.time.value as number) + 0.006
-
-        const mix = refs.uniforms.colorMix.value as THREE.Vector3
-        mix.x += (refs.target.x - mix.x) * 0.03
-        mix.y += (refs.target.y - mix.y) * 0.03
-        mix.z += (refs.target.z - mix.z) * 0.03
+        refs.uniforms.time.value = (refs.uniforms.time.value as number) + 0.012
 
         const m = refs.uniforms.mouse.value as THREE.Vector2
         m.x += (refs.mouseTgt.x - m.x) * 0.05
@@ -187,10 +160,7 @@ export function WebGLShader() {
 
     const applyTheme = () => {
       const p       = document.documentElement.dataset.palette ?? ""
-      const [r, g, b] = PALETTE_COLORS[p] ?? DEFAULT_MIX
-      refs.target.set(r, g, b)
-
-      const isLight   = document.documentElement.dataset.mode === "light"
+      const isLight = document.documentElement.dataset.mode === "light"
       const [br, bgR, bb] = isLight
         ? (PALETTE_BG_LIGHT[p] ?? DEFAULT_BG_LIGHT)
         : (PALETTE_BG_DARK[p]  ?? DEFAULT_BG_DARK)
@@ -237,7 +207,7 @@ export function WebGLShader() {
         height: "100%",
         display: "block",
         zIndex: 0,
-        opacity: 0.82,
+        opacity: 1.0,
       }}
     />
   )
