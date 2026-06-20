@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
+import { supabase } from "@/lib/supabase";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -51,6 +52,17 @@ const severityConfig: Record<
   high:   { label: "HIGH RISK",   color: "var(--severity-high-color)",   bg: "var(--severity-high-bg)"   },
 };
 
+type HistoryEntry = {
+  id: string;
+  result: TraumaMapResult;
+  created_at: string;
+};
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
 export default function PaperTraumaPage() {
   const [mockData, setMockData] = useState("");
   const [whyNotes, setWhyNotes] = useState("");
@@ -64,6 +76,20 @@ export default function PaperTraumaPage() {
     patch: false,
   });
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<HistoryEntry[] | null>(null);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("ai_history")
+      .select("id, result, created_at")
+      .eq("tool", "paper_trauma_map")
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        setHistory((data as HistoryEntry[]) ?? []);
+      });
+  }, []);
 
   const toggleSection = (key: string) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -896,21 +922,173 @@ export default function PaperTraumaPage() {
               </button>
             </div>
 
-            {/* Tier gate hint */}
-            <p
-              style={{
-                fontFamily: "var(--sans)",
-                fontSize: "0.78rem",
-                color: "var(--ink-3)",
-                textAlign: "center",
-                margin: "0.5rem 0 0",
-                fontStyle: "italic",
-              }}
-            >
-              History tracking coming soon.
-            </p>
           </div>
         )}
+
+        {/* Past Trauma Maps history panel */}
+        <div style={{ marginTop: "3rem", borderTop: "1px solid var(--rule)", paddingTop: "2rem" }}>
+          <div
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: "0.72rem",
+              color: "var(--ink-3)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              marginBottom: "1rem",
+            }}
+          >
+            Past Trauma Maps
+          </div>
+
+          {history === null && (
+            <p style={{ fontFamily: "var(--mono)", fontSize: "0.8rem", color: "var(--ink-3)" }}>
+              Loading history…
+            </p>
+          )}
+
+          {history !== null && history.length === 0 && (
+            <p style={{ fontFamily: "var(--sans)", fontSize: "0.88rem", color: "var(--ink-3)", fontStyle: "italic" }}>
+              No past analyses yet.
+            </p>
+          )}
+
+          {history !== null && history.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {history.map((entry) => {
+                const s = severityConfig[entry.result?.severity ?? "low"];
+                const isExpanded = expandedHistoryId === entry.id;
+                return (
+                  <div key={entry.id} style={{ borderBottom: "1px solid var(--rule)" }}>
+                    <button
+                      onClick={() => setExpandedHistoryId(isExpanded ? null : entry.id)}
+                      style={{
+                        width: "100%",
+                        background: "none",
+                        border: "none",
+                        padding: "12px 0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                        gap: "1rem",
+                        textAlign: "left",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flex: 1, minWidth: 0 }}>
+                        <span
+                          style={{
+                            background: s.bg,
+                            color: s.color,
+                            border: `1px solid ${s.color}`,
+                            borderRadius: "4px",
+                            padding: "0.1rem 0.45rem",
+                            fontFamily: "var(--mono)",
+                            fontSize: "0.62rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.06em",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {s.label}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: "var(--sans)",
+                            fontSize: "0.88rem",
+                            color: "var(--ink-2)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {entry.result?.trauma_signature?.split("—")[0]?.trim() ?? "Trauma analysis"}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", color: "var(--ink-3)" }}>
+                          {formatDate(entry.created_at)}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: "var(--mono)",
+                            fontSize: "0.8rem",
+                            color: "var(--ink-3)",
+                            display: "inline-block",
+                            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                            transition: "transform 0.2s",
+                          }}
+                        >
+                          ▾
+                        </span>
+                      </div>
+                    </button>
+
+                    {isExpanded && entry.result && (
+                      <div
+                        style={{
+                          paddingBottom: "1.25rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.75rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: "var(--paper-2)",
+                            border: "1px solid var(--rule)",
+                            borderRadius: "8px",
+                            padding: "1rem 1.25rem",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontFamily: "var(--serif)",
+                              fontSize: "1.1rem",
+                              fontWeight: 700,
+                              color: "var(--cinnabar)",
+                              marginBottom: "0.5rem",
+                            }}
+                          >
+                            &ldquo;{entry.result.trauma_signature.split("—")[0]?.trim() ?? entry.result.trauma_signature}&rdquo;
+                          </div>
+                          <p style={{ fontFamily: "var(--sans)", fontSize: "0.88rem", color: "var(--ink-2)", lineHeight: 1.65, margin: 0 }}>
+                            {entry.result.one_line_verdict}
+                          </p>
+                        </div>
+
+                        {entry.result.patch_protocol?.map((drill, i) => (
+                          <div key={i} style={{ borderLeft: "3px solid var(--cinnabar)", paddingLeft: "1rem" }}>
+                            <div style={{ fontFamily: "var(--sans)", fontSize: "0.88rem", fontWeight: 700, color: "var(--ink)", marginBottom: "0.3rem" }}>
+                              {i + 1}. {drill.drill_name}
+                              <span
+                                style={{
+                                  marginLeft: "0.5rem",
+                                  background: "var(--paper-2)",
+                                  border: "1px solid var(--rule)",
+                                  borderRadius: "4px",
+                                  padding: "0.1rem 0.45rem",
+                                  fontFamily: "var(--mono)",
+                                  fontSize: "0.68rem",
+                                  color: "var(--ink-3)",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                {drill.time_required}
+                              </span>
+                            </div>
+                            <p style={{ fontFamily: "var(--sans)", fontSize: "0.84rem", color: "var(--ink-2)", lineHeight: 1.6, margin: 0 }}>
+                              {drill.exact_method}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );
