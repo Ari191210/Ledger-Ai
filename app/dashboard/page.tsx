@@ -607,9 +607,9 @@ function LedgerScoreWidget() {
       </div>
       {/* Body: score + 4 pillar rows */}
       <div className="dash-score-body" style={{ display: "flex", background: "transparent" }}>
-        <div style={{ padding: "24px 28px", borderRight: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", flexShrink: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 52, fontWeight: 800, color: "var(--ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>{score.total}</div>
-          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const, marginTop: 8 }}>{tier.label} · /1000</div>
+        <div style={{ padding: "24px 28px", borderRight: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <ScoreRing score={score.total} size={148} />
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>{tier.label}</div>
         </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "18px 22px", gap: 11 }}>
           {pillars.map(p => (
@@ -1210,6 +1210,43 @@ export default function Dashboard() {
           <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>41 tools · click to open</div>
         </div>
 
+        {/* Your top tools — personalised by usage */}
+        {Object.keys(toolFreq).length > 0 && (() => {
+          const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
+          const topSlugs = Object.entries(toolFreq).sort(([,a],[,b]) => b - a).slice(0, 4).map(([slug]) => slug);
+          const topTools = topSlugs.map(s => allTools.find(t => t.slug === s)).filter(Boolean) as typeof allTools;
+          if (!topTools.length) return null;
+          return (
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12, borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", paddingBottom: 10, marginBottom: 14 }}>
+                <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--cinnabar-ink)" }}>Your Favourites</div>
+                <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>based on your usage</div>
+              </div>
+              <div className="dash-grid mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+                {topTools.map((t, ti) => {
+                  const cat = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
+                  const catColor = CAT_COLOR[(cat?.label ?? "") as keyof typeof CAT_COLOR] ?? "var(--cinnabar-ink)";
+                  return (
+                    <Link key={t.slug} href={`/tools/${t.slug}`} className="dash-tool glass-card"
+                      aria-label={`Open ${t.ttl}`} onClick={() => trackToolVisit(t.slug)}
+                      style={{ textDecoration: "none", padding: "22px 20px 18px", display: "flex", flexDirection: "column", color: "var(--ink)", minHeight: 160, "--cat-color": catColor } as React.CSSProperties}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+                        <div className="mono" style={{ fontSize: 7, letterSpacing: "0.2em", color: catColor }}>{cat?.label}</div>
+                        <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>Used {toolFreq[t.slug]}×</div>
+                      </div>
+                      <div style={{ fontFamily: "var(--serif)", fontSize: 16, fontWeight: 500, fontStyle: "italic", lineHeight: 1.15, color: "var(--ink)", flex: 1 }}>{t.ttl}</div>
+                      <div style={{ borderTop: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", marginTop: 12, paddingTop: 10, display: "flex", justifyContent: "space-between" }}>
+                        <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{String(ti + 1).padStart(2, "0")}</div>
+                        <span className="dash-tool-arrow mono" style={{ fontSize: 13 }} aria-hidden="true">↗</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Tool search */}
         <div className="tool-search-wrap" style={{ display: "flex", alignItems: "center", gap: 10, border: "none", borderRadius: 12, background: "color-mix(in srgb, var(--ink) 7%, transparent)", padding: "0 14px", marginBottom: 28, height: 42, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 14, color: "var(--ink-3)", flexShrink: 0 }}>⌕</span>
@@ -1285,7 +1322,9 @@ export default function Dashboard() {
                     textDecoration: "none",
                     padding: "22px 20px 18px",
                     display: "flex", flexDirection: "column",
-                    color: "var(--ink)", minHeight: 188,
+                    color: "var(--ink)",
+                    minHeight: (ti < 2 || (ti >= 6 && ti < 8)) ? 200 : 188,
+                    gridColumn: (ti < 2 || (ti >= 6 && ti < 8)) ? "span 2" : undefined,
                     "--cat-color": catColor,
                   } as React.CSSProperties}
                 >
