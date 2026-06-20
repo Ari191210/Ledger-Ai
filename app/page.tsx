@@ -806,11 +806,16 @@ export default function Home() {
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
 
+            {/* Warm tagline above badge */}
+            <div className="hero-badge-pre" style={{ fontFamily: "var(--sans)", fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.15, marginBottom: 18 }}>
+              Your personal AI<br /><span style={{ color: "var(--cinnabar-ink)" }}>study partner.</span>
+            </div>
+
             {/* Badge */}
             <div className="hero-badge" style={{
               display: "inline-flex", alignItems: "center", gap: 16,
               border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
-              padding: "6px 22px", marginBottom: 44,
+              padding: "6px 22px", marginBottom: 28,
               background: "color-mix(in srgb, var(--paper) 60%, transparent)",
               backdropFilter: "blur(16px)",
               WebkitBackdropFilter: "blur(16px)",
@@ -876,9 +881,20 @@ export default function Home() {
               </div>
             )}
 
+            {/* Social proof badge */}
+            <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+              <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
+                <strong style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--mono)" }}>3,204</strong> on the Exam-Day Mode waitlist
+              </span>
+              <span style={{ color: "var(--rule)", fontSize: 13 }}>·</span>
+              <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}><strong style={{ color: "var(--ink-2)" }}>Free</strong> to start</span>
+              <span style={{ color: "var(--rule)", fontSize: 13 }}>·</span>
+              <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>No card needed</span>
+            </div>
+
             {/* Late-night: awake count ticker */}
             {variant === "late" && awakeCount !== null && (
-              <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.04em" }}>
+              <div style={{ marginTop: 12, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.04em" }}>
                 {awakeCount.toLocaleString("en-IN")} students studying right now
               </div>
             )}
@@ -890,7 +906,7 @@ export default function Home() {
 
             {/* Stats: vertical stack */}
             <div className="hero-stats glass-card" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "41", l: "AI tools" }].map((s, i) => (
+              {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "55", l: "AI tools" }].map((s, i) => (
                 <div key={i} className="hero-stat-row" style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>
                   <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px,2vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
                   <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
@@ -952,6 +968,67 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ─── Stats Bar ─── */}
+      <div style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 60%, transparent)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+          {[
+            { n: "55", label: "AI Tools" },
+            { n: "3,204", label: "Waitlist — Exam-Day Mode" },
+            { n: "Free", label: "To start · No card needed" },
+          ].map((s, i) => (
+            <div key={i} style={{ textAlign: "center", padding: "0 24px", borderRight: i < 2 ? S.border : "none" }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 48, fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", marginTop: 8, letterSpacing: "0.02em" }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── Tool Categories Bento ─── */}
+      <section style={{ borderBottom: S.border }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 24px 80px" }}>
+          <SectionLabel num="00" label="What&apos;s inside" />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }} className="mob-2col">
+            {([
+              { cat: "Maths & Science",      tools: ["Doubt Solver", "Formula Sheet", "Lab Report Writer"],    color: "var(--slate)" },
+              { cat: "English & Writing",    tools: ["Essay Workshop", "Writing Polish", "Citation Generator"], color: "var(--ochre)" },
+              { cat: "Exam Prep",            tools: ["Past Papers", "Practice Suite", "48-Hour Crunch"],       color: "var(--cinnabar-ink)" },
+              { cat: "Research & Analysis",  tools: ["Research Hub", "Text Analyst", "Mind Map Builder"],      color: "var(--teal)" },
+              { cat: "Study Skills",         tools: ["Study Engine", "AI Flashcards", "Memory Palace Builder"], color: "var(--sage)" },
+              { cat: "Future & Career",      tools: ["Admissions Engine", "Future Finder", "GPA Simulator"],   color: "var(--plum)" },
+            ] as const).map((c, i) => (
+              <div key={i} className="bento-card" style={{
+                background: "color-mix(in oklch, var(--paper-2) 55%, transparent)",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
+                border: "1px solid color-mix(in oklch, var(--ink) 10%, transparent)",
+                borderRadius: 20,
+                boxShadow: "0 4px 24px color-mix(in oklch, var(--cinnabar) 8%, transparent)",
+                padding: "24px 24px 22px",
+                cursor: "pointer",
+                transition: "transform 180ms ease-out, box-shadow 180ms ease-out",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.transform = "translateY(-3px) scale(1.01)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 40px color-mix(in oklch, var(--cinnabar) 18%, transparent)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.transform = "";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px color-mix(in oklch, var(--cinnabar) 8%, transparent)";
+              }}
+              >
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.color, marginBottom: 14 }} />
+                <div style={{ fontFamily: "var(--sans)", fontSize: 15, fontWeight: 700, color: "var(--ink)", marginBottom: 12, letterSpacing: "-0.01em" }}>{c.cat}</div>
+                {c.tools.map(t => (
+                  <div key={t} style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginBottom: 4, lineHeight: 1.4 }}>{t}</div>
+                ))}
+                <div style={{ marginTop: 14, fontFamily: "var(--mono)", fontSize: 9, color: c.color, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>+ more →</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── 01 / The Brief ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
@@ -966,7 +1043,7 @@ export default function Home() {
                 They have seven apps that don&apos;t talk to each other, a notes folder they dread opening, a study plan that expired in October, and an exam five weeks away that still feels theoretical.
               </p>
               <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75 }}>
-                Ledger is the system that was missing. Not a productivity app. Not AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, and 51 instruments calibrated to your board, your grade, and your exam date.
+                Ledger is the system that was missing. Not a productivity app. Not AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, and 55 instruments calibrated to your board, your grade, and your exam date.
               </p>
             </div>
 
@@ -981,7 +1058,7 @@ export default function Home() {
               {/* Three meta facts */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                 {[
-                  { n: "41", l: "AI Tools" },
+                  { n: "55", l: "AI Tools" },
                   { n: "6+", l: "Exam Boards" },
                   { n: "8w", l: "To see results" },
                 ].map((m, i) => (
@@ -996,7 +1073,7 @@ export default function Home() {
                 <div className="anim-divider" style={S.rule} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, ...S.cap, fontSize: 9 }}>
                   <span>Est. 2025</span>
-                  <span>51 instruments</span>
+                  <span>55 instruments</span>
                   <span>One operating system</span>
                 </div>
               </div>
@@ -1573,6 +1650,47 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Waitlist ─── */}
+      <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
+          <div style={{ ...S.capAccent, marginBottom: 20 }}>Exam-Day Mode — Join the waitlist</div>
+          <h2 style={{ fontFamily: "var(--sans)", fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.2, marginBottom: 12 }}>
+            <span style={{ fontFamily: "var(--mono)", color: "var(--cinnabar-ink)" }}>3,204</span> students are waiting.
+          </h2>
+          <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 36 }}>
+            Full exam-day simulation: real papers, real time pressure, real board conditions. Launching October 2026.
+          </p>
+          <form style={{ display: "flex", gap: 10, maxWidth: 460, margin: "0 auto", flexWrap: "wrap" as const }} onSubmit={e => e.preventDefault()}>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              style={{
+                flex: 1, minWidth: 200,
+                fontFamily: "var(--sans)", fontSize: 14,
+                background: "color-mix(in oklch, var(--paper-2) 60%, transparent)",
+                border: "1px solid color-mix(in oklch, var(--ink) 15%, transparent)",
+                borderRadius: 12, padding: "13px 18px",
+                color: "var(--ink)", outline: "none",
+                backdropFilter: "blur(8px)",
+              }}
+            />
+            <button type="submit" style={{
+              background: "var(--cinnabar-ink)", color: "#fff",
+              border: "none", borderRadius: 12, padding: "13px 28px",
+              fontSize: 14, fontWeight: 700, cursor: "pointer",
+              fontFamily: "var(--sans)", letterSpacing: "0.02em",
+              transition: "transform 150ms ease-out",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
+            onMouseLeave={e => (e.currentTarget.style.transform = "")}
+            >
+              Join waitlist
+            </button>
+          </form>
+          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>No spam · We&apos;ll email you when it launches</div>
+        </div>
+      </section>
+
       {/* ─── 08 / Final CTA ─── */}
       <section className="cta-section gl-pane-alt" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 40px" }}>
@@ -1586,7 +1704,7 @@ export default function Home() {
               Your exam is closer than it feels.
             </h2>
             <p style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 40, maxWidth: 480, margin: "0 auto 40px" }}>
-              Build the system that closes the gap. Fifty-one tools. One score. One streak. Everything calibrated to your board and your exam date.
+              Build the system that closes the gap. 55 tools. One score. One streak. Everything calibrated to your board and your exam date.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <Link href="/dashboard" className="btn cta-btn" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px", display: "inline-block" }}>
@@ -1630,7 +1748,7 @@ export default function Home() {
               ))}
               <li style={{ marginTop: 16 }}>
                 <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
-                  → All 41 tools
+                  → All 55 tools
                 </Link>
               </li>
             </ul>

@@ -490,16 +490,16 @@
 
 /* ─── Glass panels ───────────────────────────────────────────────────────────── */
 .gl-pane {
-  background: color-mix(in srgb, var(--paper) 72%, transparent) !important;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: color-mix(in srgb, var(--paper) 58%, transparent) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius);
   transition: background 220ms ease;
 }
 .gl-pane-alt {
-  background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: color-mix(in srgb, var(--paper) 65%, transparent) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius);
   transition: background 220ms ease;
 }
@@ -2558,6 +2558,12 @@ select:focus {
 }
 .hero-badge {
   animation: badge-breathe 4s ease-in-out infinite;
+}
+
+/* ─── Live activity feed: pulsing green dot ─────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklch, oklch(0.65 0.22 145) 25%, transparent); }
+  50%       { box-shadow: 0 0 0 6px color-mix(in oklch, oklch(0.65 0.22 145) 10%, transparent); }
 }
 
 /* ─── Reduced motion: disable all new transitions ───────────────────────── */
