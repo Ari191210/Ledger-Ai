@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { type UserProfile } from "@/lib/user-data";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -67,9 +67,8 @@ function ResearchTab() {
     if (!query.trim()) return;
     setResLoading(true); setResError(""); setData(null);
     try {
-      const res = await callAI({ tool: "research", query, subject, depth, purpose });
-      const d   = await res.json();
-      if (!res.ok || !d.sections) { setResError("Could not generate — try again."); return; }
+      const d = await callAIOrThrow<ResearchData>({ tool: "research", query, subject, depth, purpose });
+      if (!d.sections) { setResError("Could not generate — try again."); return; }
       setData(d); setResTab("overview");
     } catch { setResError("Network error."); }
     finally { setResLoading(false); }
@@ -94,9 +93,7 @@ function ResearchTab() {
     setPlanLoading(true); setPlanError(""); setPlanOutput(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
-      const res  = await callAI({ tool: "assignment", brief, subject: planSubject, wordLimit, ...profile, syllabusSubjects });
-      const d    = await res.json();
-      if (!res.ok) { setPlanError(d.error || "Something went wrong."); return; }
+      const d = await callAIOrThrow<PlanOutput>({ tool: "assignment", brief, subject: planSubject, wordLimit, ...profile, syllabusSubjects });
       setPlanOutput(d);
     } catch { setPlanError("Network error. Please try again."); }
     finally { setPlanLoading(false); }
@@ -372,9 +369,8 @@ function DebateTab() {
     if (!motion.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res  = await callAI({ tool: "debate", motion, side, level });
-      const data = await res.json();
-      if (!res.ok || !data.for) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<DebateOutput>({ tool: "debate", motion, side, level });
+      if (!data.for) { setError("Could not generate — try again."); return; }
       setOutput(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -492,9 +488,8 @@ function PresentationTab() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setDeck(null);
     try {
-      const res  = await callAI({ tool: "presentation", topic, audience, duration, style });
-      const data = await res.json();
-      if (!res.ok || !data.slides) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<Deck>({ tool: "presentation", topic, audience, duration, style });
+      if (!data.slides) { setError("Could not generate — try again."); return; }
       setDeck(data); setSelected(0);
     } catch { setError("Network error."); }
     finally { setLoading(false); }

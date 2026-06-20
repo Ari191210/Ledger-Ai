@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
-import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 

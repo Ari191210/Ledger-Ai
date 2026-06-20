@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 type Tab = "flashcards" | "formula";
@@ -54,9 +54,7 @@ function FlashcardsTab() {
     if (!input.trim() && !subject.trim()) return;
     setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setUnknown(new Set());
     try {
-      const res  = await callAI({ tool: "flashcards", content: input, subject });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed."); return; }
+      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject });
       if (!Array.isArray(data.cards) || !data.cards.length) { setError("No cards generated — try again."); return; }
       setCards(data.cards);
     } catch { setError("Network error."); }
