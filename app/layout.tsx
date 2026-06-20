@@ -20,6 +20,7 @@ const orbitron = Orbitron({
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-orbitron",
   display: "swap",
+  preload: false,
 });
 
 const dmSans = DM_Sans({
@@ -34,6 +35,7 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
   variable: "--font-space-mono",
   display: "swap",
+  preload: false,
 });
 
 const lora = Lora({
@@ -42,6 +44,7 @@ const lora = Lora({
   style: ["normal", "italic"],
   variable: "--font-lora",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
