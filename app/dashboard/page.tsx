@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData, type Exam } from "@/lib/user-data";
+import { supabase } from "@/lib/supabase";
 import { trackToolVisit, getRecentTools, getFavTools, saveFavTools } from "@/lib/recent-tools";
 import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
@@ -112,6 +113,7 @@ type NextExam = { name: string; days: number };
 
 function useStats() {
   const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
   const [sessionsToday, setSessionsToday] = useState(0);
   const [weakTopics, setWeakTopics] = useState<WeakTopic[]>([]);
   const [nextExam, setNextExam] = useState<NextExam | null>(null);
@@ -122,7 +124,11 @@ function useStats() {
 
   useEffect(() => {
     try {
-      setStreak(parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10));
+      const streakVal = parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10);
+      setStreak(streakVal);
+      const best = Math.max(parseInt(localStorage.getItem("ledger-focus-best-streak") || "0", 10), streakVal);
+      localStorage.setItem("ledger-focus-best-streak", String(best));
+      setBestStreak(best);
 
       const timer = JSON.parse(localStorage.getItem("ledger-focus-timer") || "{}");
       setSessionsToday(timer.n || 0);
@@ -161,7 +167,95 @@ function useStats() {
     });
   }
 
-  return { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav };
+  return { streak, bestStreak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav };
+}
+
+function timeAgo(iso: string) {
+  const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  return `${Math.floor(m / 60)}h ago`;
+}
+
+function useLiveActivity() {
+  const [activeCount, setActiveCount] = useState<number | null>(null);
+  const [feed, setFeed] = useState<{ tool: string; created_at: string }[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const fifteenAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from("ai_history")
+        .select("user_id", { count: "exact", head: true })
+        .gte("created_at", fifteenAgo);
+      setActiveCount(count ?? 0);
+
+      const { data } = await supabase
+        .from("ai_history")
+        .select("tool, created_at")
+        .order("created_at", { ascending: false })
+        .limit(8);
+      setFeed(data ?? []);
+    }
+    load();
+    const t = setInterval(load, 60000);
+    return () => clearInterval(t);
+  }, []);
+
+  return { activeCount, feed };
+}
+
+function usePersonalisedOrder(userId: string | undefined) {
+  const [freq, setFreq] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from("ai_history")
+      .select("tool")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .then(({ data }) => {
+        if (!data) return;
+        const f: Record<string, number> = {};
+        data.forEach(row => { f[row.tool] = (f[row.tool] || 0) + 1; });
+        setFreq(f);
+      });
+  }, [userId]);
+  return freq;
+}
+
+function LiveSection({ activeCount, feed }: { activeCount: number | null; feed: { tool: string; created_at: string }[] }) {
+  const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
+  const label = (slug: string) => allTools.find(t => t.slug === slug)?.ttl ?? slug.replace(/-/g, " ");
+
+  return (
+    <div className="glass-card" style={{ marginBottom: 32, padding: "20px 24px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "oklch(0.65 0.22 145)", display: "inline-block", boxShadow: "0 0 0 3px color-mix(in oklch, oklch(0.65 0.22 145) 25%, transparent)", animation: "pulse-dot 2s ease-in-out infinite" }} />
+        <span className="mono" style={{ fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Live</span>
+        {activeCount !== null && (
+          <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)", marginLeft: 4 }}>
+            <strong style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18 }}>{activeCount}</strong>
+            <span style={{ color: "var(--ink-2)", marginLeft: 6 }}>students studying right now</span>
+          </span>
+        )}
+      </div>
+      {feed.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {feed.slice(0, 6).map((row, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.65 0.22 145)", flexShrink: 0 }} />
+              <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)" }}>
+                Someone just used <strong style={{ color: "var(--ink)" }}>{label(row.tool)}</strong>
+              </span>
+              <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginLeft: "auto", flexShrink: 0 }}>{timeAgo(row.created_at)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const BOARDS = ["CBSE", "ICSE", "IB", "State Board", "JEE", "NEET", "Other"];
@@ -428,6 +522,42 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
         </div>
       </div>
     </div>
+  );
+}
+
+function ScoreRing({ score, size = 160 }: { score: number; size?: number }) {
+  const ringRef = useRef<SVGCircleElement>(null);
+  const r = (size / 2) - 12;
+  const circumference = 2 * Math.PI * r;
+  const pct = Math.min(score, 1000) / 1000;
+  useEffect(() => {
+    if (!ringRef.current) return;
+    gsap.fromTo(ringRef.current,
+      { strokeDashoffset: circumference },
+      { strokeDashoffset: circumference * (1 - pct), duration: 1.4, ease: "power2.out", delay: 0.3 }
+    );
+  }, [circumference, pct]);
+  return (
+    <svg width={size} height={size} style={{ overflow: "visible" }}>
+      <defs>
+        <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="var(--cinnabar)" />
+          <stop offset="50%" stopColor="oklch(0.65 0.22 290)" />
+          <stop offset="100%" stopColor="oklch(0.75 0.18 180)" />
+        </linearGradient>
+      </defs>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="color-mix(in oklch, var(--ink) 8%, transparent)" strokeWidth={10} />
+      <circle ref={ringRef} cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke="url(#ring-grad)" strokeWidth={10}
+        strokeDasharray={circumference} strokeDashoffset={circumference}
+        strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ filter: "drop-shadow(0 0 8px var(--cinnabar))" }}
+      />
+      <text x={size / 2} y={size / 2 - 6} textAnchor="middle"
+        style={{ fontFamily: "var(--serif)", fontSize: 32, fontWeight: 700, fill: "var(--ink)" }}>{score}</text>
+      <text x={size / 2} y={size / 2 + 18} textAnchor="middle"
+        style={{ fontFamily: "var(--mono)", fontSize: 9, fill: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.1em" }}>/1000</text>
+    </svg>
   );
 }
 
@@ -728,7 +858,9 @@ export default function Dashboard() {
       })
       .catch(() => {});
   }, [user]);
-  const { streak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
+  const { streak, bestStreak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
+  const { activeCount, feed } = useLiveActivity();
+  const toolFreq = usePersonalisedOrder(user?.id);
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
@@ -767,13 +899,22 @@ export default function Dashboard() {
           </div>
           {/* Streak badge */}
           {streak > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, paddingTop: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 9999, border: "1.5px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", background: "color-mix(in srgb, var(--cinnabar) 7%, transparent)", backdropFilter: "blur(8px)" }}>
-                <span style={{ fontSize: 20 }}>🔥</span>
-                <span style={{ fontFamily: "var(--serif)", fontSize: 28, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--cinnabar-ink)", lineHeight: 1 }}>{streak}</span>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, paddingTop: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 20px", borderRadius: 9999, border: "1.5px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", background: "color-mix(in srgb, var(--cinnabar) 7%, transparent)", backdropFilter: "blur(8px)" }}>
+                {/* SVG flame */}
+                <svg width="18" height="22" viewBox="0 0 18 22" fill="none" aria-hidden="true">
+                  <path d="M9 0C9 0 4 5 4 10C4 12.5 5.5 14.5 7 15.5C7 13 8 11 9 10C10 11 11 13 11 15.5C12.5 14.5 14 12.5 14 10C14 5 9 0 9 0Z" fill="var(--cinnabar)" opacity="0.9"/>
+                  <ellipse cx="9" cy="17" rx="4" ry="5" fill="color-mix(in oklch, var(--cinnabar) 60%, oklch(0.75 0.18 60))" opacity="0.8"/>
+                </svg>
+                <span style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--cinnabar-ink)", lineHeight: 1 }}>{streak}</span>
                 <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", opacity: 0.8 }}>day streak</span>
               </div>
-              <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{streak >= 7 ? "On a serious roll" : streak >= 3 ? "Building momentum" : "Keep it going"}</div>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                {bestStreak > streak && (
+                  <span className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>Best: {bestStreak}d</span>
+                )}
+                <span className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{streak >= 7 ? "On a serious roll" : streak >= 3 ? "Building momentum" : "Keep it going"}</span>
+              </div>
             </div>
           )}
         </div>
@@ -968,6 +1109,9 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {/* Live activity section */}
+      <LiveSection activeCount={activeCount} feed={feed} />
 
       {/* Weak topics strip */}
       {weakTopics.length > 0 && (

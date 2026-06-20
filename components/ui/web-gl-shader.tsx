@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
+import gsap from "gsap"
 
 // Dark-mode bg — deep near-blacks so aurora blobs pop hard
 const PALETTE_BG_DARK: Record<string, [number, number, number]> = {
@@ -63,6 +64,7 @@ export function WebGLShader() {
       uniform float time;
       uniform vec2  mouse;
       uniform vec3  bgColor;
+      uniform float brightness;
 
       float gauss(vec2 p, vec2 c, float r) {
         vec2 d = p - c;
@@ -108,6 +110,7 @@ export function WebGLShader() {
         float vig = 1.0 - dot(uv - 0.5, uv - 0.5) * 1.2;
         col *= clamp(vig, 0.0, 1.0);
 
+        col *= brightness;
         vec3 final = bgColor + col;
         gl_FragColor = vec4(clamp(final, 0.0, 1.0), 1.0);
       }
@@ -131,6 +134,7 @@ export function WebGLShader() {
       time:       { value: 0.0 },
       mouse:      { value: new THREE.Vector2(0.5, 0.5) },
       bgColor:    { value: new THREE.Vector3(ibr, ibg, ibb) },
+      brightness: { value: 1.0 },
     }
 
     const positions = new THREE.BufferAttribute(
@@ -196,16 +200,28 @@ export function WebGLShader() {
     })
     applyTheme()
 
+    const handleAIComplete = () => {
+      if (!refs.uniforms) return
+      const u = refs.uniforms.brightness
+      gsap.fromTo(
+        u,
+        { value: 1.0 },
+        { value: 1.8, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" },
+      )
+    }
+
     handleResize()
     animate()
-    window.addEventListener("resize",    handleResize, { passive: true })
-    window.addEventListener("mousemove", handleMouse,  { passive: true })
+    window.addEventListener("resize",      handleResize,    { passive: true })
+    window.addEventListener("mousemove",   handleMouse,     { passive: true })
+    window.addEventListener("ai-complete", handleAIComplete)
 
     return () => {
       if (refs.animationId) cancelAnimationFrame(refs.animationId)
       observer.disconnect()
-      window.removeEventListener("resize",    handleResize)
-      window.removeEventListener("mousemove", handleMouse)
+      window.removeEventListener("resize",      handleResize)
+      window.removeEventListener("mousemove",   handleMouse)
+      window.removeEventListener("ai-complete", handleAIComplete)
       if (refs.mesh) {
         refs.scene?.remove(refs.mesh)
         refs.mesh.geometry.dispose()

@@ -87,5 +87,8 @@ export async function callAIOrThrow<T = unknown>(
   }
 
   track.aiComplete(tool, Date.now() - t0);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("ai-complete"));
+  }
   return data as T;
 }
