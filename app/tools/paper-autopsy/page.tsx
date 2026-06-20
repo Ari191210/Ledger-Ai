@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -189,7 +189,7 @@ export default function PaperAutopsyPage() {
         };
       }
 
-      const res = await callAI({ tool: "paper_autopsy", ...inputPayload }).then(r => r.json()) as PaperAutopsyResult;
+      const res = await callAIOrThrow<PaperAutopsyResult>({ tool: "paper_autopsy", ...inputPayload });
       setResult(res);
       saveToHistory(res);
       setStep(3);
@@ -407,11 +407,11 @@ export default function PaperAutopsyPage() {
   });
 
   const ERROR_COLORS: Record<string, string> = {
-    "conceptual gap": "#e05a2b",
-    "calculation slip": "#2b7de0",
-    "misread question": "#9b59b6",
-    "incomplete answer": "#f39c12",
-    "time pressure": "#27ae60",
+    "conceptual gap": "var(--cinnabar)",
+    "calculation slip": "var(--ink-2)",
+    "misread question": "var(--ink-2)",
+    "incomplete answer": "var(--gold)",
+    "time pressure": "var(--sage)",
   };
 
   const getErrorColor = (type: string): string => {
@@ -713,8 +713,8 @@ export default function PaperAutopsyPage() {
                     <div style={{
                       marginTop: "16px",
                       padding: "12px 14px",
-                      backgroundColor: "#e05a2b18",
-                      border: "1px solid #e05a2b44",
+                      backgroundColor: "var(--cinnabar)18",
+                      border: "1px solid var(--cinnabar)44",
                       borderRadius: "6px",
                       fontSize: "13px",
                       color: "var(--cinnabar)",

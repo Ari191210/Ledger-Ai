@@ -189,7 +189,7 @@ function daysUntil(dateStr: string | null): number | null {
 }
 
 // ── Colors ─────────────────────────────────────────────────────────────────
-const CAT_COLOR: Record<string,string> = { safety:"#2d7a3c", match:"#1a6091", reach:"#c97a1a", "far-reach":"#c44b2a" };
+const CAT_COLOR: Record<string,string> = { safety:"var(--sage)", match:"var(--ink-2)", reach:"var(--gold)", "far-reach":"var(--cinnabar)" };
 const CAT_LABEL: Record<string,string> = { safety:"Safety", match:"Match", reach:"Reach", "far-reach":"Far Reach" };
 
 // ── Empty profile ──────────────────────────────────────────────────────────
@@ -244,9 +244,9 @@ const ALEVELS_LIST  = ["Mathematics","Further Mathematics","Physics","Chemistry"
 const CAREERS_LIST  = ["Medicine","Engineering","Law","Finance & Banking","Computer Science","Architecture","Business","Research / Academia","Journalism","Education","Arts & Design","Psychology","International Relations","Entrepreneurship"];
 
 const ffTabStyle = (active: boolean): React.CSSProperties => ({ padding:"10px 20px", fontFamily:"var(--mono)", fontSize:10, background:active?"var(--ink)":"var(--paper)", color:active?"var(--paper)":"var(--ink)", border:"none", borderRadius:8, cursor:"pointer", letterSpacing:"0.05em", transition:"background 160ms, color 160ms" });
-const reachColor = (r: string) => r==="safety"?"#2d7a3c":r==="match"?"#c97a1a":"#c44b2a";
+const reachColor = (r: string) => r==="safety"?"var(--sage)":r==="match"?"var(--gold)":"var(--cinnabar)";
 const reachLabel = (r: string) => r==="safety"?"Likely":r==="match"?"Good chance":"Reach";
-const diffColor  = (d: string) => d==="manageable"?"#2d7a3c":d==="challenging"?"#c97a1a":"#c44b2a";
+const diffColor  = (d: string) => d==="manageable"?"var(--sage)":d==="challenging"?"var(--gold)":"var(--cinnabar)";
 
 function FutureFinderTab() {
   const [tab,       setTab]       = useState<FutureFindTab>("uni");
@@ -360,7 +360,7 @@ function FutureFinderTab() {
             ))}
           </div>
           {uniResult.gaps.length>0&&(<div style={{border:"1px solid var(--cinnabar-ink)",padding:"16px 20px",marginBottom:20}}><div className="mono" style={{color:"var(--cinnabar-ink)",marginBottom:8}}>Gaps to address before applying</div>{uniResult.gaps.map((g,i)=><div key={i} style={{fontFamily:"var(--sans)",fontSize:13,marginBottom:5}}>· {g}</div>)}</div>)}
-          <div style={{padding:"14px 18px",border:"1px solid var(--rule)",background:"var(--paper-2)"}}><div className="mono" style={{fontSize:9,color:"#1a6091",marginBottom:4}}>APPLICATION ADVICE</div><AIOutput text={uniResult.advice} /></div>
+          <div style={{padding:"14px 18px",border:"1px solid var(--rule)",background:"var(--paper-2)"}}><div className="mono" style={{fontSize:9,color:"var(--ink-2)",marginBottom:4}}>APPLICATION ADVICE</div><AIOutput text={uniResult.advice} /></div>
         </main>
       )}
 
@@ -404,7 +404,7 @@ function FutureFinderTab() {
             ))}
           </div>
           {spResult.avoid.length>0&&(<div style={{border:"1px solid var(--cinnabar-ink)",padding:"16px 20px",marginBottom:20}}><div className="mono" style={{color:"var(--cinnabar-ink)",marginBottom:8}}>Combinations to avoid</div>{spResult.avoid.map((a,i)=><div key={i} style={{fontFamily:"var(--sans)",fontSize:13,marginBottom:4}}>· {a}</div>)}</div>)}
-          <div style={{padding:"14px 18px",border:"1px solid var(--rule)",background:"var(--paper-2)"}}><div className="mono" style={{fontSize:9,color:"#1a6091",marginBottom:4}}>COACH TIP</div><div style={{fontFamily:"var(--sans)",fontSize:13,lineHeight:1.6}}>{spResult.tip}</div></div>
+          <div style={{padding:"14px 18px",border:"1px solid var(--rule)",background:"var(--paper-2)"}}><div className="mono" style={{fontSize:9,color:"var(--ink-2)",marginBottom:4}}>COACH TIP</div><div style={{fontFamily:"var(--sans)",fontSize:13,lineHeight:1.6}}>{spResult.tip}</div></div>
         </main>
       )}
 
@@ -475,7 +475,7 @@ function FutureFinderTab() {
 type UniPrepReq = { requirement: string; studentStatus: "met"|"partial"|"missing" };
 type UniPrepMonth = { month: string; actions: string[] };
 type UniPrepResult = { institution:string; course:string; applicationCycle:string; profileAssessment:string; requirements:UniPrepReq[]; roadmap:UniPrepMonth[]; strengthenAreas:string[]; essayTopics:string[]; redFlags:string[]; advice:string };
-const PREP_STATUS_COLOR: Record<string,string> = { met:"#2d7a3c", partial:"#c97a1a", missing:"var(--cinnabar-ink)" };
+const PREP_STATUS_COLOR: Record<string,string> = { met:"var(--sage)", partial:"var(--gold)", missing:"var(--cinnabar-ink)" };
 const PREP_STATUS_LABEL: Record<string,string> = { met:"Met", partial:"Partial", missing:"Missing" };
 
 function UniPrepTab() {
@@ -522,7 +522,7 @@ function UniPrepTab() {
           {result.redFlags?.length>0&&(<div style={{border:"1px solid var(--cinnabar-ink)",borderTop:"none",padding:"14px 22px",background:"rgba(180,50,30,0.04)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--cinnabar-ink)",marginBottom:8}}>RED FLAGS</div>{result.redFlags.map((f,i)=><div key={i} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--cinnabar-ink)",marginBottom:4}}>⚠ {f}</div>)}</div>)}
           <div style={{border:"1px solid var(--ink)",borderTop:"none",padding:"16px 22px",borderLeft:"4px solid var(--cinnabar-ink)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--ink-3)",marginBottom:6}}>INSIDER ADVICE</div><p style={{fontFamily:"var(--serif)",fontStyle:"italic",fontSize:15,color:"var(--ink)",margin:0,lineHeight:1.7}}>{result.advice}</p></div>
           <div style={{display:"flex",border:"1px solid var(--ink)",borderTop:"none"}}>{(["reqs","roadmap","essays"] as const).map((t,i)=>(<button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"11px 0",background:tab===t?"var(--ink)":"var(--paper)",color:tab===t?"var(--paper)":"var(--ink)",border:"none",borderRight:i<2?"1px solid var(--ink)":"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase"}}>{t==="reqs"?"Requirements":t==="roadmap"?"Roadmap":"Essay Angles"}</button>))}</div>
-          {tab==="reqs"&&(<div style={{border:"1px solid var(--ink)",borderTop:"none"}}>{(result.requirements??[]).map((r,i)=>(<div key={i} style={{display:"grid",gridTemplateColumns:"1fr auto",gap:16,alignItems:"center",padding:"13px 18px",borderBottom:i<result.requirements.length-1?"1px solid var(--rule)":"none"}}><span style={{fontFamily:"var(--sans)",fontSize:14,color:"var(--ink)"}}>{r.requirement}</span><span style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:PREP_STATUS_COLOR[r.studentStatus]??"var(--ink-3)",border:`1px solid ${PREP_STATUS_COLOR[r.studentStatus]??"var(--rule)"}`,padding:"2px 7px",whiteSpace:"nowrap"}}>{PREP_STATUS_LABEL[r.studentStatus]??r.studentStatus}</span></div>))}{result.strengthenAreas?.length>0&&(<div style={{padding:"14px 18px",borderTop:"1px solid var(--rule)",background:"var(--paper-2)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.1em",color:"var(--ink-3)",marginBottom:8}}>AREAS TO STRENGTHEN</div>{result.strengthenAreas.map((a,i)=>(<div key={i} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--ink)",marginBottom:5,display:"flex",gap:8}}><span style={{color:"#c97a1a"}}>→</span><span>{a}</span></div>))}</div>)}</div>)}
+          {tab==="reqs"&&(<div style={{border:"1px solid var(--ink)",borderTop:"none"}}>{(result.requirements??[]).map((r,i)=>(<div key={i} style={{display:"grid",gridTemplateColumns:"1fr auto",gap:16,alignItems:"center",padding:"13px 18px",borderBottom:i<result.requirements.length-1?"1px solid var(--rule)":"none"}}><span style={{fontFamily:"var(--sans)",fontSize:14,color:"var(--ink)"}}>{r.requirement}</span><span style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:PREP_STATUS_COLOR[r.studentStatus]??"var(--ink-3)",border:`1px solid ${PREP_STATUS_COLOR[r.studentStatus]??"var(--rule)"}`,padding:"2px 7px",whiteSpace:"nowrap"}}>{PREP_STATUS_LABEL[r.studentStatus]??r.studentStatus}</span></div>))}{result.strengthenAreas?.length>0&&(<div style={{padding:"14px 18px",borderTop:"1px solid var(--rule)",background:"var(--paper-2)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.1em",color:"var(--ink-3)",marginBottom:8}}>AREAS TO STRENGTHEN</div>{result.strengthenAreas.map((a,i)=>(<div key={i} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--ink)",marginBottom:5,display:"flex",gap:8}}><span style={{color:"var(--gold)"}}>→</span><span>{a}</span></div>))}</div>)}</div>)}
           {tab==="roadmap"&&(<div style={{border:"1px solid var(--ink)",borderTop:"none"}}>{(result.roadmap??[]).map((m,i)=>(<div key={i} style={{display:"grid",gridTemplateColumns:"120px 1fr",gap:0,borderBottom:i<result.roadmap.length-1?"1px solid var(--rule)":"none"}}><div style={{padding:"14px 16px",borderRight:"1px solid var(--rule)",fontFamily:"var(--mono)",fontSize:11,color:"var(--cinnabar-ink)",display:"flex",alignItems:"flex-start",paddingTop:16}}>{m.month}</div><div style={{padding:"14px 18px"}}>{m.actions.map((a,j)=>(<div key={j} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--ink)",marginBottom:j<m.actions.length-1?7:0,display:"flex",gap:8,alignItems:"flex-start"}}><span style={{color:"var(--ink-3)",flexShrink:0}}>·</span><span>{a}</span></div>))}</div></div>))}</div>)}
           {tab==="essays"&&(<div style={{border:"1px solid var(--ink)",borderTop:"none",padding:"20px 22px"}}><div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--ink-3)",letterSpacing:"0.1em",marginBottom:14}}>PERSONAL STATEMENT ANGLES</div>{(result.essayTopics??[]).map((t,i)=>(<div key={i} style={{borderLeft:"3px solid var(--cinnabar)",paddingLeft:16,marginBottom:16}}><p style={{fontFamily:"var(--sans)",fontSize:14,color:"var(--ink)",margin:0,lineHeight:1.65}}>{t}</p></div>))}</div>)}
         </div>
@@ -535,7 +535,7 @@ function UniPrepTab() {
 type AppTask = { task:string; due:string; priority:"high"|"medium"|"low" };
 type AppTimelineItem = { week:number; focus:string };
 type AppPlanResult = { institution:string; course:string; deadline:string; overview:string; requirements:string[]; tasks:AppTask[]; essayPrompts:string[]; strengthsToHighlight:string[]; weaknessesToAddress:string[]; timeline:AppTimelineItem[] };
-const APP_PRIORITY_COLOR: Record<string,string> = { high:"var(--cinnabar-ink)", medium:"#c97a1a", low:"var(--ink-3)" };
+const APP_PRIORITY_COLOR: Record<string,string> = { high:"var(--cinnabar-ink)", medium:"var(--gold)", low:"var(--ink-3)" };
 
 function ApplicationsTab() {
   const [institution, setInstitution] = useState("");
@@ -580,7 +580,7 @@ function ApplicationsTab() {
           <div style={{border:"1px solid var(--ink)",padding:"20px 22px",background:"var(--paper-2)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--cinnabar-ink)",marginBottom:8}}>{result.institution} · {result.course}</div><p style={{fontFamily:"var(--sans)",fontSize:14,color:"var(--ink)",margin:0,lineHeight:1.7}}>{result.overview}</p></div>
           {result.requirements?.length>0&&(<div style={{border:"1px solid var(--ink)",borderTop:"none",padding:"16px 22px"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--ink-3)",marginBottom:10}}>REQUIREMENTS</div><ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:6}}>{result.requirements.map((r,i)=>(<li key={i} style={{fontFamily:"var(--sans)",fontSize:14,color:"var(--ink)",display:"flex",gap:10,alignItems:"flex-start"}}><span style={{color:"var(--cinnabar-ink)",flexShrink:0}}>→</span><span>{r}</span></li>))}</ul></div>)}
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0,border:"1px solid var(--ink)",borderTop:"none"}}>
-            <div style={{padding:"16px 18px",borderRight:"1px solid var(--ink)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--ink-3)",marginBottom:10}}>STRENGTHS TO HIGHLIGHT</div><ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:6}}>{(result.strengthsToHighlight??[]).map((s,i)=>(<li key={i} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--ink)",display:"flex",gap:8,alignItems:"flex-start"}}><span style={{color:"#2d7a3c",flexShrink:0}}>+</span><span>{s}</span></li>))}</ul></div>
+            <div style={{padding:"16px 18px",borderRight:"1px solid var(--ink)"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--ink-3)",marginBottom:10}}>STRENGTHS TO HIGHLIGHT</div><ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:6}}>{(result.strengthsToHighlight??[]).map((s,i)=>(<li key={i} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--ink)",display:"flex",gap:8,alignItems:"flex-start"}}><span style={{color:"var(--sage)",flexShrink:0}}>+</span><span>{s}</span></li>))}</ul></div>
             <div style={{padding:"16px 18px"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.12em",color:"var(--ink-3)",marginBottom:10}}>WEAKNESSES TO ADDRESS</div><ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:6}}>{(result.weaknessesToAddress??[]).map((w,i)=>(<li key={i} style={{fontFamily:"var(--sans)",fontSize:13,color:"var(--ink)",display:"flex",gap:8,alignItems:"flex-start"}}><span style={{color:"var(--cinnabar-ink)",flexShrink:0}}>!</span><span>{w}</span></li>))}</ul></div>
           </div>
           <div style={{display:"flex",border:"1px solid var(--ink)",borderTop:"none"}}>{(["tasks","essays","timeline"] as const).map((t,i)=>(<button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"11px 0",background:tab===t?"var(--ink)":"var(--paper)",color:tab===t?"var(--paper)":"var(--ink)",border:"none",borderRight:i<2?"1px solid var(--ink)":"none",cursor:"pointer",fontFamily:"var(--mono)",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase"}}>{t==="tasks"?"Action List":t==="essays"?"Essay Prompts":"Timeline"}</button>))}</div>
@@ -641,11 +641,11 @@ export default function AdmissionsPage() {
     const reach  = cats.filter(c=>c==="reach").length;
     const far    = cats.filter(c=>c==="far-reach").length;
     if (!shortlist.length) return { label:"No schools added yet", color:"var(--ink-3)" };
-    if (shortlist.length < 4) return { label:"Add more schools for a balanced list", color:"#c97a1a" };
-    if (safety < 1) return { label:"Needs a safety school", color:"#c44b2a" };
-    if (far > 3 && match < 2) return { label:"Too reach-heavy — add more matches", color:"#c44b2a" };
-    if (safety > 4) return { label:"Too conservative — add some reaches", color:"#c97a1a" };
-    return { label:`Well-balanced · ${safety} Safety · ${match} Match · ${reach} Reach · ${far} Far Reach`, color:"#2d7a3c" };
+    if (shortlist.length < 4) return { label:"Add more schools for a balanced list", color:"var(--gold)" };
+    if (safety < 1) return { label:"Needs a safety school", color:"var(--cinnabar)" };
+    if (far > 3 && match < 2) return { label:"Too reach-heavy — add more matches", color:"var(--cinnabar)" };
+    if (safety > 4) return { label:"Too conservative — add some reaches", color:"var(--gold)" };
+    return { label:`Well-balanced · ${safety} Safety · ${match} Match · ${reach} Reach · ${far} Far Reach`, color:"var(--sage)" };
   }, [shortlist, shortlistResults]);
 
   const selectedResult = selected ? results[selected] : null;
@@ -954,7 +954,7 @@ export default function AdmissionsPage() {
                   {selectedCollege.ed_date && (
                     <div style={{ marginTop:10, padding:"8px 10px", background:"var(--paper-2)", border:"1px solid var(--rule)" }}>
                       <div className="mono" style={{ fontSize:9, color:"var(--ink-3)" }}>ED BOOST</div>
-                      <div style={{ fontFamily:"var(--serif)", fontSize:22, fontWeight:700, color:"#2d7a3c" }}>{Math.round(selectedResult!.edChance*100)}%</div>
+                      <div style={{ fontFamily:"var(--serif)", fontSize:22, fontWeight:700, color:"var(--sage)" }}>{Math.round(selectedResult!.edChance*100)}%</div>
                       <div className="mono" style={{ color:"var(--ink-3)", fontSize:9 }}>if you apply Early Decision by {selectedCollege.ed_date}</div>
                     </div>
                   )}
@@ -975,9 +975,9 @@ export default function AdmissionsPage() {
                       <div style={{ fontFamily:"var(--sans)", fontSize:12 }}>{f.label}</div>
                       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                         <div style={{ width:60, height:3, background:"var(--paper-2)", border:"1px solid var(--rule)" }}>
-                          <div style={{ height:"100%", width:`${f.val.score*100}%`, background:f.val.score>0.7?"#2d7a3c":f.val.score>0.45?"#1a6091":"#c44b2a" }} />
+                          <div style={{ height:"100%", width:`${f.val.score*100}%`, background:f.val.score>0.7?"var(--sage)":f.val.score>0.45?"var(--ink-2)":"var(--cinnabar)" }} />
                         </div>
-                        <span style={{ fontFamily:"var(--mono)", fontSize:9, color:f.val.score>0.7?"#2d7a3c":f.val.score>0.45?"#1a6091":"#c44b2a" }}>{f.val.arrow} {f.val.label}</span>
+                        <span style={{ fontFamily:"var(--mono)", fontSize:9, color:f.val.score>0.7?"var(--sage)":f.val.score>0.45?"var(--ink-2)":"var(--cinnabar)" }}>{f.val.arrow} {f.val.label}</span>
                       </div>
                     </div>
                   ))}
@@ -1110,14 +1110,14 @@ export default function AdmissionsPage() {
                                     { l:"ECs", f:r.breakdown.ecs },
                                     { l:"Awards", f:r.breakdown.awards },
                                   ].map(b=>(
-                                    <span key={b.l} style={{ fontFamily:"var(--mono)", fontSize:9, color:b.f.score>0.7?"#2d7a3c":b.f.score>0.45?"#1a6091":"#c44b2a" }}>{b.l} {b.f.arrow}</span>
+                                    <span key={b.l} style={{ fontFamily:"var(--mono)", fontSize:9, color:b.f.score>0.7?"var(--sage)":b.f.score>0.45?"var(--ink-2)":"var(--cinnabar)" }}>{b.l} {b.f.arrow}</span>
                                   ))}
                                 </div>
                               </div>
                               <div style={{ textAlign:"right", flexShrink:0 }}>
                                 <div style={{ fontFamily:"var(--serif)", fontSize:28, fontWeight:700, color:CAT_COLOR[r.category] }}>{Math.round(r.chance*100)}%</div>
                                 {r.college.ed_date && r.edChance > r.chance && (
-                                  <div className="mono" style={{ color:"#2d7a3c", fontSize:9 }}>ED: {Math.round(r.edChance*100)}%</div>
+                                  <div className="mono" style={{ color:"var(--sage)", fontSize:9 }}>ED: {Math.round(r.edChance*100)}%</div>
                                 )}
                                 <div className="mono" style={{ color:"var(--ink-3)", fontSize:9 }}>Admit: {Math.round(r.college.accept*100)}%</div>
                               </div>

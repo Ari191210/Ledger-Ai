@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -216,17 +216,17 @@ const ACTION_LABELS: Record<PlanSlot["action"], string> = {
 };
 
 const ACTION_COLORS: Record<PlanSlot["action"], string> = {
-  skim_pyqs: "#2563eb",
-  do_mcqs: "#7c3aed",
-  read_summary: "#0891b2",
-  formula_drill: "#d97706",
-  skip: "#6b7280",
+  skim_pyqs: "var(--ink-2)",
+  do_mcqs: "var(--ink-2)",
+  read_summary: "var(--ink-2)",
+  formula_drill: "var(--gold)",
+  skip: "var(--ink-3)",
 };
 
 const CONFIDENCE_COLORS: Record<Confidence, string> = {
-  red: "#ef4444",
-  amber: "#f59e0b",
-  green: "#22c55e",
+  red: "var(--cinnabar)",
+  amber: "var(--gold)",
+  green: "var(--sage)",
 };
 
 function formatTime(totalSeconds: number): string {
@@ -315,13 +315,13 @@ export default function PanicTriagePage() {
     );
 
     try {
-      const res = await callAI({
+      const res = await callAIOrThrow<TriageResult>({
         tool: "panic_triage",
         exam: EXAM_SYLLABI[selectedExam].label,
         hours_remaining: hoursRemaining,
         weightage_map: weightageMap,
         confidence_map: confidenceMap,
-      }) as unknown as TriageResult;
+      });
 
       setResult(res);
       setCountdownSeconds(hoursRemaining * 3600);
@@ -700,9 +700,9 @@ export default function PanicTriagePage() {
                     <span
                       key={ch}
                       style={{
-                        backgroundColor: "rgba(239,68,68,0.1)",
+                        backgroundColor: "color-mix(in oklch, var(--cinnabar) 10%, transparent)",
                         color: "var(--cinnabar)",
-                        border: "1px solid rgba(239,68,68,0.3)",
+                        border: "1px solid color-mix(in oklch, var(--cinnabar) 30%, transparent)",
                         borderRadius: "6px",
                         padding: "0.25rem 0.65rem",
                         fontSize: "0.85rem",

@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 type Card = { q: string; a: string };
@@ -25,9 +25,7 @@ export default function FlashcardsPage() {
     if (!input.trim() && !subject.trim()) return;
     setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setKnown(new Set()); setUnknown(new Set());
     try {
-      const res  = await callAI({ tool: "flashcards", content: input, subject });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed."); return; }
+      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject });
       if (!Array.isArray(data.cards) || !data.cards.length) { setError("No cards generated — try again."); return; }
       setCards(data.cards);
     } catch { setError("Network error."); }
@@ -102,7 +100,7 @@ export default function FlashcardsPage() {
 
                 {/* Card */}
                 <div onClick={() => setFlipped(f => !f)} style={{ border: "none", padding: "60px 40px", textAlign: "center", cursor: "pointer", minHeight: 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: flipped ? "var(--ink)" : "var(--paper)", transition: "background 200ms", marginBottom: 20, userSelect: "none" }}>
-                  <div className="mono" style={{ color: flipped ? "rgba(255,255,255,0.4)" : "var(--ink-3)", fontSize: 9, marginBottom: 16, letterSpacing: "0.1em" }}>{flipped ? "ANSWER" : "QUESTION — click to reveal"}</div>
+                  <div className="mono" style={{ color: flipped ? "color-mix(in oklch, var(--paper) 40%, transparent)" : "var(--ink-3)", fontSize: 9, marginBottom: 16, letterSpacing: "0.1em" }}>{flipped ? "ANSWER" : "QUESTION — click to reveal"}</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: flipped ? "var(--paper)" : "var(--ink)", lineHeight: 1.5, maxWidth: 520 }}>
                     {flipped ? cur.a : cur.q}
                   </div>
@@ -111,8 +109,8 @@ export default function FlashcardsPage() {
                 <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                   <button onClick={prev} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>← Prev</button>
                   {flipped && <>
-                    <button onClick={markUnknown} style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #c44b2a", background: "var(--paper)", color: "#c44b2a", cursor: "pointer" }}>✕ Still learning</button>
-                    <button onClick={markKnown}   style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #2d7a3c", background: "var(--paper)", color: "#2d7a3c", cursor: "pointer" }}>✓ Got it</button>
+                    <button onClick={markUnknown} style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--cinnabar)", background: "var(--paper)", color: "var(--cinnabar)", cursor: "pointer" }}>✕ Still learning</button>
+                    <button onClick={markKnown}   style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--sage)", background: "var(--paper)", color: "var(--sage)", cursor: "pointer" }}>✓ Got it</button>
                   </>}
                   <button onClick={next} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>Next →</button>
                 </div>

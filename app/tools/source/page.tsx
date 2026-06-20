@@ -159,11 +159,11 @@ export default function TextAnalystPage() {
             </div>
           </div>
           <div style={{ marginBottom: 12 }}>
-            <div className="mono" style={{ color: "#2d7a3c", fontSize: 9, marginBottom: 10, letterSpacing: "0.08em" }}>VALUE</div>
+            <div className="mono" style={{ color: "var(--sage)", fontSize: 9, marginBottom: 10, letterSpacing: "0.08em" }}>VALUE</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <ValueBox label="VALUE OF ORIGIN" text={analysis.value.origin} accent="#2d7a3c" />
-              <ValueBox label="VALUE OF PURPOSE" text={analysis.value.purpose} accent="#2d7a3c" />
-              <ValueBox label="VALUE OF CONTENT" text={analysis.value.content} accent="#2d7a3c" />
+              <ValueBox label="VALUE OF ORIGIN" text={analysis.value.origin} accent="var(--sage)" />
+              <ValueBox label="VALUE OF PURPOSE" text={analysis.value.purpose} accent="var(--sage)" />
+              <ValueBox label="VALUE OF CONTENT" text={analysis.value.content} accent="var(--sage)" />
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
@@ -184,8 +184,8 @@ export default function TextAnalystPage() {
               <AIOutput text={analysis.utility} />
             </div>
           </div>
-          <div style={{ border: "1px solid #1a6091", padding: "14px 18px", background: "rgba(26,96,145,0.04)" }}>
-            <div className="mono" style={{ color: "#1a6091", fontSize: 9, marginBottom: 6 }}>EXAM TIP</div>
+          <div style={{ border: "1px solid var(--ink-2)", padding: "14px 18px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+            <div className="mono" style={{ color: "var(--ink-2)", fontSize: 9, marginBottom: 6 }}>EXAM TIP</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{analysis.examTip}</div>
           </div>
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
@@ -264,7 +264,7 @@ export default function TextAnalystPage() {
               <div key={i} style={{ border: "1px solid var(--rule)", marginBottom: 6 }}>
                 <button onClick={() => setOpenQ(openQ === i ? null : i)} style={{ width: "100%", padding: "12px 14px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                   <div style={{ textAlign: "left" }}>
-                    <span className="mono" style={{ fontSize: 8, color: q.level === "Analysis" ? "var(--cinnabar-ink)" : q.level === "Evaluation" ? "#6b3fa0" : "#2d7a3c", marginRight: 8 }}>{q.level}</span>
+                    <span className="mono" style={{ fontSize: 8, color: q.level === "Analysis" ? "var(--cinnabar-ink)" : q.level === "Evaluation" ? "var(--ink-2)" : "var(--sage)", marginRight: 8 }}>{q.level}</span>
                     <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{q.q}</span>
                   </div>
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)", flexShrink: 0 }}>{openQ === i ? "▲" : "▼"}</span>
@@ -284,8 +284,8 @@ export default function TextAnalystPage() {
               ))}
             </div>
           </div>
-          <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-            <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+          <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{reading.examTip}</div>
           </div>
           <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>

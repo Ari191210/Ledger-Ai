@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -70,9 +70,7 @@ function CompareTab() {
     if (filled.length < 2) { setError("Enter at least two items to compare."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "compare", items: filled, subject, criteria });
-      const data = await res.json();
-      if (!res.ok || !data.rows) { setError(data.error || "Could not generate comparison."); return; }
+      const data = await callAIOrThrow<Chart>({ tool: "compare", items: filled, subject, criteria });
       setChart(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -112,7 +110,7 @@ function CompareTab() {
 
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
         <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
-          <div className="mono" style={{ color: "#2d7a3c", fontSize: 9, marginBottom: 10 }}>SIMILARITIES</div>
+          <div className="mono" style={{ color: "var(--sage)", fontSize: 9, marginBottom: 10 }}>SIMILARITIES</div>
           {chart.similarities.map((s, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 6 }}>· {s}</div>)}
         </div>
         <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
@@ -194,9 +192,7 @@ function SourceTab() {
     if (sourceText.trim().length < 30) { setSrcError("Paste at least a sentence from the source."); return; }
     setSrcLoading(true); setSrcError("");
     try {
-      const res  = await callAI({ tool: "source", sourceText, origin, subject: srcSubject, question: srcQuestion });
-      const data = await res.json();
-      if (!res.ok || !data.value) { setSrcError(data.error || "Could not analyse source."); return; }
+      const data = await callAIOrThrow<SourceAnalysis>({ tool: "source", sourceText, origin, subject: srcSubject, question: srcQuestion });
       setAnalysis(data);
     } catch { setSrcError("Network error."); }
     finally { setSrcLoading(false); }
@@ -206,9 +202,7 @@ function SourceTab() {
     if (passage.trim().length < 40) { setRdError("Paste at least a paragraph to analyse."); return; }
     setRdLoading(true); setRdError("");
     try {
-      const res  = await callAI({ tool: "reading", passage, subject: rdSubject, question: rdQuestion });
-      const data = await res.json();
-      if (!res.ok || !data.themes) { setRdError(data.error || "Could not analyse passage."); return; }
+      const data = await callAIOrThrow<ReadingResult>({ tool: "reading", passage, subject: rdSubject, question: rdQuestion });
       setReading(data);
     } catch { setRdError("Network error."); }
     finally { setRdLoading(false); }
@@ -290,11 +284,11 @@ function SourceTab() {
             </div>
           </div>
           <div style={{ marginBottom: 12 }}>
-            <div className="mono" style={{ color: "#2d7a3c", fontSize: 9, marginBottom: 10, letterSpacing: "0.08em" }}>VALUE</div>
+            <div className="mono" style={{ color: "var(--sage)", fontSize: 9, marginBottom: 10, letterSpacing: "0.08em" }}>VALUE</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <ValueBox label="VALUE OF ORIGIN" text={analysis.value.origin} accent="#2d7a3c" />
-              <ValueBox label="VALUE OF PURPOSE" text={analysis.value.purpose} accent="#2d7a3c" />
-              <ValueBox label="VALUE OF CONTENT" text={analysis.value.content} accent="#2d7a3c" />
+              <ValueBox label="VALUE OF ORIGIN" text={analysis.value.origin} accent="var(--sage)" />
+              <ValueBox label="VALUE OF PURPOSE" text={analysis.value.purpose} accent="var(--sage)" />
+              <ValueBox label="VALUE OF CONTENT" text={analysis.value.content} accent="var(--sage)" />
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
@@ -315,8 +309,8 @@ function SourceTab() {
               <AIOutput text={analysis.utility} />
             </div>
           </div>
-          <div style={{ border: "1px solid #1a6091", padding: "14px 18px", background: "rgba(26,96,145,0.04)" }}>
-            <div className="mono" style={{ color: "#1a6091", fontSize: 9, marginBottom: 6 }}>EXAM TIP</div>
+          <div style={{ border: "1px solid var(--ink-2)", padding: "14px 18px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+            <div className="mono" style={{ color: "var(--ink-2)", fontSize: 9, marginBottom: 6 }}>EXAM TIP</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{analysis.examTip}</div>
           </div>
         </div>
@@ -389,7 +383,7 @@ function SourceTab() {
               <div key={i} style={{ border: "1px solid var(--rule)", marginBottom: 6 }}>
                 <button onClick={() => setOpenQ(openQ === i ? null : i)} style={{ width: "100%", padding: "12px 14px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                   <div style={{ textAlign: "left" }}>
-                    <span className="mono" style={{ fontSize: 8, color: q.level === "Analysis" ? "var(--cinnabar-ink)" : q.level === "Evaluation" ? "#6b3fa0" : "#2d7a3c", marginRight: 8 }}>{q.level}</span>
+                    <span className="mono" style={{ fontSize: 8, color: q.level === "Analysis" ? "var(--cinnabar-ink)" : q.level === "Evaluation" ? "var(--ink-2)" : "var(--sage)", marginRight: 8 }}>{q.level}</span>
                     <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{q.q}</span>
                   </div>
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)", flexShrink: 0 }}>{openQ === i ? "▲" : "▼"}</span>
@@ -409,8 +403,8 @@ function SourceTab() {
               ))}
             </div>
           </div>
-          <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-            <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+          <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{reading.examTip}</div>
           </div>
         </div>
@@ -431,9 +425,7 @@ function CaseTab() {
     if (caseText.trim().length < 20) { setError("Paste a case study or describe the scenario."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "case_study", caseText, question, framework });
-      const data = await res.json();
-      if (!res.ok || !data.analysis) { setError(data.error || "Could not analyse case study."); return; }
+      const data = await callAIOrThrow<CaseStudy>({ tool: "case_study", caseText, question, framework });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -475,8 +467,8 @@ function CaseTab() {
         </div>
       ))}
 
-      <div style={{ border: "1px solid #2d7a3c", padding: "16px 18px", marginBottom: 20 }}>
-        <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 10 }}>RECOMMENDATIONS</div>
+      <div style={{ border: "1px solid var(--sage)", padding: "16px 18px", marginBottom: 20 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 10 }}>RECOMMENDATIONS</div>
         {result.recommendations.map((r, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 8, lineHeight: 1.5 }}>{i + 1}. {r}</div>)}
       </div>
 
@@ -485,8 +477,8 @@ function CaseTab() {
         <AIOutput text={result.conclusion} variant="principle" />
       </div>
 
-      <div style={{ border: "1px solid #1a6091", padding: "14px 18px", background: "rgba(26,96,145,0.04)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 18px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
       </div>
     </div>
@@ -529,15 +521,13 @@ function TimelineTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
-  const CAT_COLORS: Record<string, string> = { Political: "var(--cinnabar-ink)", Economic: "#2d7a3c", Social: "#1a6091", Military: "#7a5c2d", Scientific: "#6b3fa0", Other: "var(--ink-3)" };
+  const CAT_COLORS: Record<string, string> = { Political: "var(--cinnabar-ink)", Economic: "var(--sage)", Social: "var(--ink-2)", Military: "var(--gold)", Scientific: "var(--ink-2)", Other: "var(--ink-3)" };
 
   async function generate() {
     if (!topic.trim()) { setError("Enter a topic or period."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "timeline", topic, subject });
-      const data = await res.json();
-      if (!res.ok || !data.events) { setError(data.error || "Could not build timeline."); return; }
+      const data = await callAIOrThrow<Timeline>({ tool: "timeline", topic, subject });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -567,7 +557,7 @@ function TimelineTab() {
                 </div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{ev.title}</div>
                 <AIOutput text={ev.description} />
-                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#2d7a3c" }}>SIGNIFICANCE · <span style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "none", letterSpacing: 0, color: "var(--ink-2)" }}>{ev.significance}</span></div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--sage)" }}>SIGNIFICANCE · <span style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "none", letterSpacing: 0, color: "var(--ink-2)" }}>{ev.significance}</span></div>
               </div>
             </div>
           );
@@ -580,8 +570,8 @@ function TimelineTab() {
           {result.themes.map((t, i) => <span key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, padding: "4px 10px", border: "1px solid var(--rule)", color: "var(--ink-2)" }}>{t}</span>)}
         </div>
       </div>
-      <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
       </div>
     </div>

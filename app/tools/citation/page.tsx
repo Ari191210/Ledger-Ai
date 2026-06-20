@@ -112,7 +112,7 @@ export default function CitationPage() {
               <div key={i} style={{ padding: "16px 18px", borderBottom: i < citations.length - 1 ? "1px solid var(--rule)" : "none" }}>
                 {citations.length > 1 && <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9, marginBottom: 6 }}>{c.style}</div>}
                 <div style={{ fontFamily: "Georgia, serif", fontSize: 14, lineHeight: 1.8, color: "var(--ink)", marginBottom: 10 }}>{c.text}</div>
-                <button onClick={() => copy(c.text, c.style)} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "1px solid var(--rule)", padding: "5px 12px", cursor: "pointer", color: copied === c.style ? "#2d7a3c" : "var(--ink-3)" }}>
+                <button onClick={() => copy(c.text, c.style)} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "1px solid var(--rule)", padding: "5px 12px", cursor: "pointer", color: copied === c.style ? "var(--sage)" : "var(--ink-3)" }}>
                   {copied === c.style ? "Copied ✓" : "Copy"}
                 </button>
               </div>

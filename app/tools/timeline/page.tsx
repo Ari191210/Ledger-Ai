@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -17,15 +17,13 @@ export default function TimelinePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
 
-  const CAT_COLORS: Record<string, string> = { Political: "var(--cinnabar-ink)", Economic: "#2d7a3c", Social: "#1a6091", Military: "#7a5c2d", Scientific: "#6b3fa0", Other: "var(--ink-3)" };
+  const CAT_COLORS: Record<string, string> = { Political: "var(--cinnabar-ink)", Economic: "var(--sage)", Social: "var(--ink-2)", Military: "var(--gold)", Scientific: "var(--ink-2)", Other: "var(--ink-3)" };
 
   async function generate() {
     if (!topic.trim()) { setError("Enter a topic or period."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "timeline", topic, subject });
-      const data = await res.json();
-      if (!res.ok || !data.events) { setError(data.error || "Could not build timeline."); return; }
+      const data = await callAIOrThrow<Timeline>({ tool: "timeline", topic, subject });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -56,7 +54,7 @@ export default function TimelinePage() {
                   </div>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{ev.title}</div>
                   <AIOutput text={ev.description} />
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#2d7a3c" }}>SIGNIFICANCE · <span style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "none", letterSpacing: 0, color: "var(--ink-2)" }}>{ev.significance}</span></div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--sage)" }}>SIGNIFICANCE · <span style={{ fontFamily: "var(--sans)", fontSize: 11, textTransform: "none", letterSpacing: 0, color: "var(--ink-2)" }}>{ev.significance}</span></div>
                 </div>
               </div>
             );
@@ -69,8 +67,8 @@ export default function TimelinePage() {
             {result.themes.map((t, i) => <span key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, padding: "4px 10px", border: "1px solid var(--rule)", color: "var(--ink-2)" }}>{t}</span>)}
           </div>
         </div>
-        <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+        <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
         </div>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>

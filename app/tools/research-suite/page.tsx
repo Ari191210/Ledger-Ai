@@ -167,7 +167,7 @@ function ResearchTab() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, gap: 20 }}>
             <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontWeight: 700, fontStyle: "italic", lineHeight: 1.3 }}>{data.title}</div>
             <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-              <button onClick={copyAll} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "7px 14px", border: "none", background: copied ? "#2d7a3c" : "var(--paper)", color: copied ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+              <button onClick={copyAll} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "7px 14px", border: "none", background: copied ? "var(--sage)" : "var(--paper)", color: copied ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
                 {copied ? "Copied ✓" : "Copy all"}
               </button>
               <button className="btn ghost" onClick={() => window.print()} style={{ cursor: "pointer" }}>Print ↗</button>
@@ -220,20 +220,20 @@ function ResearchTab() {
 
           {resTab === "arguments" && (
             <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ border: "1px solid #2d7a3c", padding: "20px" }}>
-                <div className="mono" style={{ color: "#2d7a3c", marginBottom: 14 }}>FOR / Supporting arguments</div>
+              <div style={{ border: "1px solid var(--sage)", padding: "20px" }}>
+                <div className="mono" style={{ color: "var(--sage)", marginBottom: 14 }}>FOR / Supporting arguments</div>
                 {data.keyArguments.map((a, i) => (
                   <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-                    <span className="mono" style={{ color: "#2d7a3c", flexShrink: 0 }}>→</span>
+                    <span className="mono" style={{ color: "var(--sage)", flexShrink: 0 }}>→</span>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{a}</div>
                   </div>
                 ))}
               </div>
-              <div style={{ border: "1px solid #c44b2a", padding: "20px" }}>
-                <div className="mono" style={{ color: "#c44b2a", marginBottom: 14 }}>AGAINST / Counter-arguments</div>
+              <div style={{ border: "1px solid var(--cinnabar)", padding: "20px" }}>
+                <div className="mono" style={{ color: "var(--cinnabar)", marginBottom: 14 }}>AGAINST / Counter-arguments</div>
                 {data.counterArguments.map((a, i) => (
                   <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-                    <span className="mono" style={{ color: "#c44b2a", flexShrink: 0 }}>→</span>
+                    <span className="mono" style={{ color: "var(--cinnabar)", flexShrink: 0 }}>→</span>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{a}</div>
                   </div>
                 ))}
@@ -390,8 +390,8 @@ function DebateTab() {
       </div>
 
       <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 24, width: "fit-content" }}>
-        <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "#2d7a3c" : "var(--paper)", color: view === "for" ? "var(--paper)" : "#2d7a3c", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
-        <button onClick={() => setView("against")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "against" ? "#c44b2a" : "var(--paper)", color: view === "against" ? "var(--paper)" : "#c44b2a", border: "none", cursor: "pointer", letterSpacing: "0.06em" }}>AGAINST THE MOTION</button>
+        <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "var(--sage)" : "var(--paper)", color: view === "for" ? "var(--paper)" : "var(--sage)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
+        <button onClick={() => setView("against")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "against" ? "var(--cinnabar)" : "var(--paper)", color: view === "against" ? "var(--paper)" : "var(--cinnabar)", border: "none", cursor: "pointer", letterSpacing: "0.06em" }}>AGAINST THE MOTION</button>
       </div>
 
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 28 }}>
@@ -399,7 +399,7 @@ function DebateTab() {
           {(view === "for" ? output.for : output.against).map((arg, i) => (
             <div key={i} style={{ border: "none", borderBottom: i < 2 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
               <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
-                <span className="mono" style={{ color: view === "for" ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2 }}>ARG {String(i+1).padStart(2,"0")}</span>
+                <span className="mono" style={{ color: view === "for" ? "var(--sage)" : "var(--cinnabar)", flexShrink: 0, marginTop: 2 }}>ARG {String(i+1).padStart(2,"0")}</span>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 600, lineHeight: 1.4 }}>{arg.argument}</div>
               </div>
               <div style={{ paddingLeft: 44 }}>

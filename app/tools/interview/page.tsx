@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -30,9 +30,7 @@ export default function InterviewPage() {
   async function generateQuestions() {
     setGenLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "interview_questions", type, role });
-      const data = await res.json();
-      if (!res.ok || !data.questions) { setError("Could not generate questions."); return; }
+      const data = await callAIOrThrow<{ questions: Question[] }>({ tool: "interview_questions", type, role });
       setQuestions(data.questions); setPhase("practice"); setQIdx(0); setAnswer(""); setEval(null);
     } catch { setError("Network error."); }
     finally { setGenLoading(false); }
@@ -42,9 +40,7 @@ export default function InterviewPage() {
     if (answer.trim().length < 20) { setError("Write a proper answer first."); return; }
     setLoading(true); setError(""); setEval(null);
     try {
-      const res  = await callAI({ tool: "interview_eval", question: questions[qIdx].q, answer, type });
-      const data = await res.json();
-      if (!res.ok || !data.strengths) { setError("Could not evaluate."); return; }
+      const data = await callAIOrThrow<Evaluation>({ tool: "interview_eval", question: questions[qIdx].q, answer, type });
       setEval(data); setPhase("result");
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -133,14 +129,14 @@ export default function InterviewPage() {
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
           <div>
             <div style={{ border: "none", padding: "20px 24px", marginBottom: 20, display: "flex", gap: 20, alignItems: "center" }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 52, fontWeight: 700, color: evaluation!.score >= 7 ? "#2d7a3c" : evaluation!.score >= 5 ? "#c97a1a" : "#c44b2a", lineHeight: 1 }}>{evaluation!.score}<span style={{ fontSize: 18, color: "var(--ink-3)" }}>/10</span></div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 52, fontWeight: 700, color: evaluation!.score >= 7 ? "var(--sage)" : evaluation!.score >= 5 ? "var(--gold)" : "var(--cinnabar)", lineHeight: 1 }}>{evaluation!.score}<span style={{ fontSize: 18, color: "var(--ink-3)" }}>/10</span></div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontStyle: "italic", color: "var(--ink-2)", lineHeight: 1.5 }}>&ldquo;{cur.q}&rdquo;</div>
               </div>
             </div>
             <div style={{ border: "none", padding: "18px", marginBottom: 14 }}>
               <div className="mono cin" style={{ marginBottom: 10 }}>Strengths</div>
-              {evaluation!.strengths.map((s, i) => <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}><span style={{ color: "#2d7a3c", fontFamily: "var(--mono)" }}>✓</span><span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{s}</span></div>)}
+              {evaluation!.strengths.map((s, i) => <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}><span style={{ color: "var(--sage)", fontFamily: "var(--mono)" }}>✓</span><span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{s}</span></div>)}
             </div>
             <div style={{ border: "none", padding: "18px" }}>
               <div className="mono cin" style={{ marginBottom: 10 }}>Gaps to address</div>

@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 type DebateOutput = { motion: string; for: { argument: string; evidence: string; rebuttal: string }[]; against: { argument: string; evidence: string; rebuttal: string }[]; keyTerms: { term: string; def: string }[]; practiceQs: string[] };
@@ -19,9 +19,7 @@ export default function DebatePage() {
     if (!motion.trim()) return;
     setLoading(true); setError(""); setOutput(null);
     try {
-      const res  = await callAI({ tool: "debate", motion, side, level });
-      const data = await res.json();
-      if (!res.ok || !data.for) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<DebateOutput>({ tool: "debate", motion, side, level });
       setOutput(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -39,8 +37,8 @@ export default function DebatePage() {
         </div>
 
         <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const, marginBottom: 24, width: "fit-content" }}>
-          <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "#2d7a3c" : "var(--paper)", color: view === "for" ? "var(--paper)" : "#2d7a3c", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
-          <button onClick={() => setView("against")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "against" ? "#c44b2a" : "var(--paper)", color: view === "against" ? "var(--paper)" : "#c44b2a", border: "none", cursor: "pointer", letterSpacing: "0.06em" }}>AGAINST THE MOTION</button>
+          <button onClick={() => setView("for")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "for" ? "var(--sage)" : "var(--paper)", color: view === "for" ? "var(--paper)" : "var(--sage)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.06em" }}>FOR THE MOTION</button>
+          <button onClick={() => setView("against")} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, background: view === "against" ? "var(--cinnabar)" : "var(--paper)", color: view === "against" ? "var(--paper)" : "var(--cinnabar)", border: "none", cursor: "pointer", letterSpacing: "0.06em" }}>AGAINST THE MOTION</button>
         </div>
 
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 28 }}>
@@ -48,7 +46,7 @@ export default function DebatePage() {
             {(view === "for" ? output.for : output.against).map((arg, i) => (
               <div key={i} style={{ border: "none", borderBottom: i < 2 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
                 <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
-                  <span className="mono" style={{ color: view === "for" ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2 }}>ARG {String(i+1).padStart(2,"0")}</span>
+                  <span className="mono" style={{ color: view === "for" ? "var(--sage)" : "var(--cinnabar)", flexShrink: 0, marginTop: 2 }}>ARG {String(i+1).padStart(2,"0")}</span>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 600, lineHeight: 1.4 }}>{arg.argument}</div>
                 </div>
                 <div style={{ paddingLeft: 44 }}>

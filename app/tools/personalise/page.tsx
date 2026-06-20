@@ -341,7 +341,7 @@ export default function PersonalisePage() {
                       width: 40, height: 22, borderRadius: 11, flexShrink: 0,
                       background: on ? "var(--cinnabar)" : "var(--rule)",
                       position: "relative", transition: "background 220ms",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      border: "1px solid color-mix(in oklch, var(--paper) 6%, transparent)",
                     }}
                   >
                     <div style={{

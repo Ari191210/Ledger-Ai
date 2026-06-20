@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -21,9 +21,7 @@ export default function CaseStudyPage() {
     if (caseText.trim().length < 20) { setError("Paste a case study or describe the scenario."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "case_study", caseText, question, framework });
-      const data = await res.json();
-      if (!res.ok || !data.analysis) { setError(data.error || "Could not analyse case study."); return; }
+      const data = await callAIOrThrow<CaseStudy>({ tool: "case_study", caseText, question, framework });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -66,8 +64,8 @@ export default function CaseStudyPage() {
           </div>
         ))}
 
-        <div style={{ border: "1px solid #2d7a3c", padding: "16px 18px", marginBottom: 20 }}>
-          <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 10 }}>RECOMMENDATIONS</div>
+        <div style={{ border: "1px solid var(--sage)", padding: "16px 18px", marginBottom: 20 }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 10 }}>RECOMMENDATIONS</div>
           {result.recommendations.map((r, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 8, lineHeight: 1.5 }}>{i + 1}. {r}</div>)}
         </div>
 
@@ -76,8 +74,8 @@ export default function CaseStudyPage() {
           <AIOutput text={result.conclusion} variant="principle" />
         </div>
 
-        <div style={{ border: "1px solid #1a6091", padding: "14px 18px", background: "rgba(26,96,145,0.04)" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+        <div style={{ border: "1px solid var(--ink-2)", padding: "14px 18px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
         </div>
 

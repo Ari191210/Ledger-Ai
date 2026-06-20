@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData } from "@/lib/user-data";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 type Chapter  = { name: string; topics: string[] };
@@ -82,10 +82,8 @@ export default function SyllabusPage() {
         body.text = pastedText;
       }
 
-      const res  = await callAI(body);
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Parsing failed. Try again."); return; }
-      setSyllabus(data as ParsedSyllabus);
+      const data = await callAIOrThrow<ParsedSyllabus>(body);
+      setSyllabus(data);
       setExpanded({});
     } catch {
       setError("Network error. Please try again.");

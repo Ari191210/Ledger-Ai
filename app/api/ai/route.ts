@@ -2191,7 +2191,9 @@ export async function POST(req: Request) {
         ai_calls_reset_at: needsReset ? now.toISOString() : (ud?.ai_calls_reset_at ?? now.toISOString()),
       })
       .eq("id", rateLimitUserId)
-      .then(() => {}, () => {});
+      .then(() => {}, (err) => {
+        Sentry.captureException(err, { tags: { route: "api/ai", phase: "rate_limit_increment", tool } });
+      });
   }
   // ── End rate limiting ──────────────────────────────────────────────────────
 
@@ -2276,7 +2278,9 @@ export async function POST(req: Request) {
           output: parsed,
           grade: (params.grade as string) || null,
           board: (params.board as string) || null,
-        }).then(() => {}, () => {});
+        }).then(() => {}, (err) => {
+          Sentry.captureException(err, { tags: { route: "api/ai", phase: "ai_history_insert", tool } });
+        });
       }
       return NextResponse.json(parsed);
     }

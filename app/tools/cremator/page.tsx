@@ -67,9 +67,9 @@ const EXAM_BOARDS = [
 ];
 
 const URGENCY_COLORS: Record<RankedTopic["urgency_tier"], { bg: string; color: string }> = {
-  "DO NOW":   { bg: "#c0392b", color: "#fff" },
-  "DO TODAY": { bg: "#e67e22", color: "#fff" },
-  "IF TIME":  { bg: "#2980b9", color: "#fff" },
+  "DO NOW":   { bg: "var(--cinnabar)", color: "var(--paper)" },
+  "DO TODAY": { bg: "var(--gold)", color: "var(--paper)" },
+  "IF TIME":  { bg: "var(--ink-2)", color: "var(--paper)" },
   "SKIP":     { bg: "var(--ink-3)", color: "var(--paper)" },
 };
 
@@ -351,10 +351,10 @@ export default function CrematorPage() {
     const { ranked_topics, skip_list, hidden_gem, time_budget_summary, examiner_pattern_note } = result;
     const confidenceColor =
       time_budget_summary.coverage_confidence_percent >= 75
-        ? "#27ae60"
+        ? "var(--sage)"
         : time_budget_summary.coverage_confidence_percent >= 50
-        ? "#e67e22"
-        : "#c0392b";
+        ? "var(--gold)"
+        : "var(--cinnabar)";
 
     return (
       <div style={{ minHeight: "100vh", background: "var(--paper)" }}>
@@ -719,17 +719,17 @@ export default function CrematorPage() {
           >
             Time budget
           </span>
-          <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 2, overflow: "hidden" }}>
+          <div style={{ flex: 1, height: 4, background: "color-mix(in oklch, var(--paper) 15%, transparent)", borderRadius: 2, overflow: "hidden" }}>
             <div
               style={{
                 height: "100%",
                 width: `${Math.min(100, (time_budget_summary.minutes_allocated / time_budget_summary.total_minutes_available) * 100)}%`,
                 background:
                   time_budget_summary.coverage_confidence_percent >= 75
-                    ? "#2ecc71"
+                    ? "var(--sage)"
                     : time_budget_summary.coverage_confidence_percent >= 50
-                    ? "#f39c12"
-                    : "#e74c3c",
+                    ? "var(--gold)"
+                    : "var(--cinnabar)",
                 borderRadius: 2,
               }}
             />
@@ -751,10 +751,10 @@ export default function CrematorPage() {
               fontSize: 11,
               color:
                 time_budget_summary.coverage_confidence_percent >= 75
-                  ? "#2ecc71"
+                  ? "var(--sage)"
                   : time_budget_summary.coverage_confidence_percent >= 50
-                  ? "#f39c12"
-                  : "#e74c3c",
+                  ? "var(--gold)"
+                  : "var(--cinnabar)",
               flexShrink: 0,
             }}
           >
@@ -1061,10 +1061,10 @@ export default function CrematorPage() {
             style={{
               fontFamily: "var(--mono)",
               fontSize: 12,
-              color: "#c0392b",
+              color: "var(--cinnabar)",
               marginBottom: 16,
               padding: "8px 12px",
-              border: "1px solid #c0392b",
+              border: "1px solid var(--cinnabar)",
               background: "oklch(97% 0.02 20)",
             }}
           >

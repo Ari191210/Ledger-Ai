@@ -12,7 +12,7 @@ type MapData = { center: string; branches: MMNode[] };
 
 function Branch({ node, depth = 0 }: { node: MMNode; depth?: number }) {
   const [open, setOpen] = useState(true);
-  const colors = ["var(--cinnabar-ink)", "#1a6091", "#2d7a3c", "#8b5a2b", "#6b3fa0"];
+  const colors = ["var(--cinnabar-ink)", "var(--ink-2)", "var(--sage)", "var(--gold)", "var(--ink-2)"];
   const color  = colors[depth % colors.length];
   return (
     <div style={{ marginLeft: depth === 0 ? 0 : 20 }}>
@@ -331,7 +331,7 @@ function FormulaTab() {
                   <div className="mono" style={{ opacity: 0.5, fontSize: 9 }}>Subject</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 700, marginTop: 2 }}>{sheet.subject}</div>
                 </div>
-                <div style={{ width: 1, height: 36, background: "rgba(255,255,255,0.15)", flexShrink: 0 }} />
+                <div style={{ width: 1, height: 36, background: "color-mix(in oklch, var(--paper) 15%, transparent)", flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
                   <div className="mono" style={{ opacity: 0.5, fontSize: 9 }}>Chapter</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 700, marginTop: 2 }}>{sheet.chapter}</div>
@@ -482,8 +482,8 @@ function ConceptConnectTab() {
         <AIOutput text={result.deepInsight} variant="principle" />
       </div>
 
-      <div style={{ border: "1px solid #2d7a3c", padding: "14px 16px", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
+      <div style={{ border: "1px solid var(--sage)", padding: "14px 16px", marginBottom: 12 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
         <AIOutput text={result.crossSubjectValue} />
       </div>
 
@@ -492,8 +492,8 @@ function ConceptConnectTab() {
         {result.examAngles.map((a, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 5 }}>&middot; {a}</div>)}
       </div>
 
-      <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)", marginBottom: 20 }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)", marginBottom: 20 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
       </div>
 

@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 type TabType = "plan" | "review" | "halflife" | "predict";
@@ -68,7 +68,7 @@ function planDays(exams: Exam[]): DayPlan[] {
   return result;
 }
 
-const typeColor = (t: string) => t === "EXAM DAY" ? "#c44b2a" : t.includes("Past") ? "#1a6091" : t.includes("deep") || t.includes("weak") ? "#7a4fa3" : t.includes("Spaced") ? "#c97a1a" : "var(--ink-2)";
+const typeColor = (t: string) => t === "EXAM DAY" ? "var(--cinnabar)" : t.includes("Past") ? "var(--ink-2)" : t.includes("deep") || t.includes("weak") ? "#7a4fa3" : t.includes("Spaced") ? "var(--gold)" : "var(--ink-2)";
 
 const TAB_STYLE = (active: boolean): React.CSSProperties => ({
   padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10,
@@ -100,9 +100,7 @@ function HalfLifeTab() {
     if (!chaptersLog.trim() || !subject.trim()) return;
     setLoading(true); setError(""); setResult(null);
     try {
-      const res  = await callAI({ tool: "topic_half_life", chaptersLog: chaptersLog.trim(), exam, subject: subject.trim() });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Something went wrong."); return; }
+      const data = await callAIOrThrow<HalfLifeResult>({ tool: "topic_half_life", chaptersLog: chaptersLog.trim(), exam, subject: subject.trim() });
       setResult(data);
       localStorage.setItem(HL_LS_KEY, JSON.stringify({ result: data, inputs: { chaptersLog, exam, subject } }));
     } catch { setError("Network error. Please try again."); }
@@ -238,9 +236,7 @@ function PredictTab() {
     if (!topic.trim()) { setError("Enter a topic or chapter."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "predict", topic, subject, level });
-      const data = await res.json();
-      if (!res.ok || !data.questions) { setError(data.error || "Could not generate predictions."); return; }
+      const data = await callAIOrThrow<Prediction>({ tool: "predict", topic, subject, level });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -267,7 +263,7 @@ function PredictTab() {
             </div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 15, lineHeight: 1.6, marginBottom: 8 }}>{q.q}</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-              <span style={{ color: "#2d7a3c", fontFamily: "var(--mono)", fontSize: 9 }}>WHY LIKELY · </span>{q.why}
+              <span style={{ color: "var(--sage)", fontFamily: "var(--mono)", fontSize: 9 }}>WHY LIKELY · </span>{q.why}
             </div>
           </div>
         ))}
@@ -450,7 +446,7 @@ export default function RevisionPlannerPage() {
             <button className="btn ghost" onClick={() => setPlanView("setup")}>Edit exams</button>
           </div>
           <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
-            {([["Past papers", "#1a6091"], ["Deep dives", "#7a4fa3"], ["Spaced recall", "#c97a1a"], ["EXAM DAY", "#c44b2a"]] as [string,string][]).map(([l, c]) => (
+            {([["Past papers", "var(--ink-2)"], ["Deep dives", "#7a4fa3"], ["Spaced recall", "var(--gold)"], ["EXAM DAY", "var(--cinnabar)"]] as [string,string][]).map(([l, c]) => (
               <div key={l} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <div style={{ width: 10, height: 10, background: c }} />
                 <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{l}</span>
@@ -490,7 +486,7 @@ export default function RevisionPlannerPage() {
             {[
               { label: "Due today",        value: dueToday.length,    color: dueToday.length > 0 ? "var(--cinnabar-ink)" : "var(--ink)" },
               { label: "Due this week",    value: dueThisWeek.length, color: "var(--ink)" },
-              { label: "Mastered (≥30d)",  value: mastered.length,    color: "#2d7a3c" },
+              { label: "Mastered (≥30d)",  value: mastered.length,    color: "var(--sage)" },
             ].map((s, i) => (
               <div key={i} style={{ padding: "20px", borderRadius: 8, transition: "background 160ms, color 160ms" }}>
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>{s.label}</div>
@@ -523,7 +519,7 @@ export default function RevisionPlannerPage() {
                         </div>
                         <div style={{ display: "flex", gap: 8 }}>
                           <button onClick={() => markReview(item.id, true)}
-                            style={{ padding: "8px 20px", background: "#2d7a3c", color: "#fff", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10 }}>
+                            style={{ padding: "8px 20px", background: "var(--sage)", color: "var(--paper)", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10 }}>
                             Yes — next in {nextInterval(item, true)} days
                           </button>
                           <button onClick={() => markReview(item.id, false)}
@@ -580,7 +576,7 @@ export default function RevisionPlannerPage() {
                       <span style={{ fontFamily: "var(--sans)", fontSize: 13 }}>{item.topic}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div className="mono" style={{ fontSize: 8, color: item.interval >= 30 ? "#2d7a3c" : "var(--ink-3)" }}>
+                      <div className="mono" style={{ fontSize: 8, color: item.interval >= 30 ? "var(--sage)" : "var(--ink-3)" }}>
                         {item.interval >= 30 ? "Mastered" : `Next: ${fmtDate(item.nextReview)}`} · {item.interval}d
                       </div>
                       <button onClick={() => saveItems(items.filter(x => x.id !== item.id))} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", fontSize: 9 }}>✕</button>

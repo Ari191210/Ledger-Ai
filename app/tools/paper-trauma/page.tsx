@@ -907,19 +907,7 @@ export default function PaperTraumaPage() {
                 fontStyle: "italic",
               }}
             >
-              Save & track your trauma history across sessions —{" "}
-              <Link
-                href="/dashboard"
-                style={{
-                  color: "var(--cinnabar)",
-                  textDecoration: "none",
-                  fontStyle: "normal",
-                  fontFamily: "var(--mono)",
-                  fontSize: "0.78rem",
-                }}
-              >
-                upgrade to unlock
-              </Link>
+              History tracking coming soon.
             </p>
           </div>
         )}

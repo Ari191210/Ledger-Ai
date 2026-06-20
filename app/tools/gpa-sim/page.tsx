@@ -8,7 +8,7 @@ type Component = { id: string; name: string; weight: number; scored: number | nu
 const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, "id" | "scored" | "done">[]; targetScale: { label: string; options: string[] }; gradeFromPct: (p: number) => string; color: string }> = {
   CBSE: {
     label: "CBSE (Class 9–12)",
-    color: "#1a6091",
+    color: "var(--ink-2)",
     components: [
       { name: "Unit Test 1", weight: 10, maxScore: 100 },
       { name: "Mid-Term / Half Yearly", weight: 30, maxScore: 100 },
@@ -20,7 +20,7 @@ const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, 
   },
   ICSE: {
     label: "ICSE / ISC",
-    color: "#2d7a3c",
+    color: "var(--sage)",
     components: [
       { name: "Internal Assessment", weight: 20, maxScore: 100 },
       { name: "Board Examination", weight: 80, maxScore: 100 },
@@ -30,7 +30,7 @@ const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, 
   },
   IB: {
     label: "IB (MYP / DP)",
-    color: "#8b5a2b",
+    color: "var(--gold)",
     components: [
       { name: "Internal Assessment (IA)", weight: 20, maxScore: 7 },
       { name: "Paper 1", weight: 40, maxScore: 7 },
@@ -41,7 +41,7 @@ const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, 
   },
   "A-Level": {
     label: "A-Level / AS-Level",
-    color: "#6b3fa0",
+    color: "var(--ink-2)",
     components: [
       { name: "Coursework / NEA", weight: 20, maxScore: 100 },
       { name: "Paper 1", weight: 40, maxScore: 100 },
@@ -52,7 +52,7 @@ const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, 
   },
   IGCSE: {
     label: "Cambridge IGCSE",
-    color: "#c44b2a",
+    color: "var(--cinnabar)",
     components: [
       { name: "Coursework (if applicable)", weight: 20, maxScore: 100 },
       { name: "Paper 1 / Theory", weight: 40, maxScore: 100 },
@@ -63,7 +63,7 @@ const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, 
   },
   AP: {
     label: "AP (Advanced Placement)",
-    color: "#c97a1a",
+    color: "var(--gold)",
     components: [
       { name: "Multiple Choice (MCQ)", weight: 50, maxScore: 100 },
       { name: "Free Response (FRQ)", weight: 50, maxScore: 100 },
@@ -73,7 +73,7 @@ const BOARD_CONFIGS: Record<Board, { label: string; components: Omit<Component, 
   },
   State: {
     label: "State Board (India)",
-    color: "#555",
+    color: "var(--ink-2)",
     components: [
       { name: "Internal / Practical", weight: 20, maxScore: 100 },
       { name: "Theory Exam", weight: 80, maxScore: 100 },
@@ -137,7 +137,7 @@ export default function GpaSimPage() {
   }
 
   const needed = neededInRemaining();
-  const scoreColor = needed.feasible ? "#2d7a3c" : "#c44b2a";
+  const scoreColor = needed.feasible ? "var(--sage)" : "var(--cinnabar)";
 
   return (
     <div>
@@ -202,9 +202,9 @@ export default function GpaSimPage() {
           {comps.map((c, idx) => {
             const pct = c.scored !== null ? (c.scored / c.maxScore) * 100 : null;
             return (
-              <div key={c.id} style={{ display: "grid", gridTemplateColumns: "1fr 60px 80px 100px 32px", padding: "10px 12px", borderBottom: idx < comps.length - 1 ? "1px solid var(--rule)" : "none", alignItems: "center", gap: 8, background: c.done ? "#2d7a3c08" : "var(--paper)" }}>
+              <div key={c.id} style={{ display: "grid", gridTemplateColumns: "1fr 60px 80px 100px 32px", padding: "10px 12px", borderBottom: idx < comps.length - 1 ? "1px solid var(--rule)" : "none", alignItems: "center", gap: 8, background: c.done ? "var(--sage)08" : "var(--paper)" }}>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <button onClick={() => toggleDone(c.id)} style={{ width: 16, height: 16, border: `2px solid ${c.done ? "#2d7a3c" : "var(--rule)"}`, background: c.done ? "#2d7a3c" : "transparent", cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 10 }}>
+                  <button onClick={() => toggleDone(c.id)} style={{ width: 16, height: 16, border: `2px solid ${c.done ? "var(--sage)" : "var(--rule)"}`, background: c.done ? "var(--sage)" : "transparent", cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 10 }}>
                     {c.done ? "✓" : ""}
                   </button>
                   <input value={c.name} onChange={e => updateComp(c.id, "name", e.target.value)} style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "transparent", color: "var(--ink)", padding: 0, textDecoration: c.done ? "none" : "none" }} />
@@ -213,7 +213,7 @@ export default function GpaSimPage() {
                 <input type="number" min={1} value={c.maxScore} onChange={e => updateComp(c.id, "maxScore", e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 12, border: "1px solid var(--rule)", background: "var(--paper)", padding: "4px 6px", color: "var(--ink)", width: "100%", boxSizing: "border-box" }} />
                 <div>
                   <input type="number" min={0} max={c.maxScore} value={c.scored ?? ""} onChange={e => setScored(c.id, e.target.value)} placeholder="—"
-                    style={{ fontFamily: "var(--mono)", fontSize: 12, border: `1px solid ${pct !== null ? (pct >= targetPct ? "#2d7a3c" : "#c44b2a") : "var(--rule)"}`, background: "var(--paper)", padding: "4px 6px", color: pct !== null ? (pct >= targetPct ? "#2d7a3c" : "#c44b2a") : "var(--ink)", width: "100%", boxSizing: "border-box" }} />
+                    style={{ fontFamily: "var(--mono)", fontSize: 12, border: `1px solid ${pct !== null ? (pct >= targetPct ? "var(--sage)" : "var(--cinnabar)") : "var(--rule)"}`, background: "var(--paper)", padding: "4px 6px", color: pct !== null ? (pct >= targetPct ? "var(--sage)" : "var(--cinnabar)") : "var(--ink)", width: "100%", boxSizing: "border-box" }} />
                   {pct !== null && <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginTop: 2 }}>{pct.toFixed(1)}%</div>}
                 </div>
                 <button onClick={() => removeComp(c.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", fontSize: 12 }}>✕</button>
@@ -225,7 +225,7 @@ export default function GpaSimPage() {
         <div style={{ display: "flex", gap: 10, marginBottom: 32 }}>
           <button onClick={addComponent} className="btn ghost" style={{ fontSize: 11 }}>+ Add component</button>
           <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", display: "flex", alignItems: "center" }}>
-            Total weight: {totalWeight}% {totalWeight !== 100 && <span style={{ color: "#c97a1a", marginLeft: 6 }}>(should add to 100%)</span>}
+            Total weight: {totalWeight}% {totalWeight !== 100 && <span style={{ color: "var(--gold)", marginLeft: 6 }}>(should add to 100%)</span>}
           </div>
         </div>
 

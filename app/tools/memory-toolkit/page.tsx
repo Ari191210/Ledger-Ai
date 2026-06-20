@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -29,9 +29,7 @@ function MemoryPalaceTab() {
     if (!items.trim()) { setError("Enter the items you want to memorise."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "memory_palace", items, topic });
-      const data = await res.json();
-      if (!res.ok || !data.stations) { setError(data.error || "Could not build palace."); return; }
+      const data = await callAIOrThrow<Palace>({ tool: "memory_palace", items, topic });
       setPalace(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -105,9 +103,7 @@ function AnalogyTab() {
     if (!concept.trim()) { setError("Enter a concept to explain."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "analogy", concept, subject });
-      const data = await res.json();
-      if (!res.ok || !data.analogies) { setError(data.error || "Could not generate analogies."); return; }
+      const data = await callAIOrThrow<AnalogyResult>({ tool: "analogy", concept, subject });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -126,7 +122,7 @@ function AnalogyTab() {
             <div style={{ fontFamily: "var(--serif)", fontSize: 17, fontWeight: 600, marginBottom: 10 }}>{a.title}</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7, marginBottom: 12, color: "var(--ink)" }}>{a.analogy}</div>
             <div style={{ marginBottom: 8 }}>
-              <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 4 }}>HOW IT MAPS</div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 4 }}>HOW IT MAPS</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>{a.breakdown}</div>
             </div>
             <div>

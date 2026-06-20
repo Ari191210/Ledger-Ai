@@ -89,15 +89,15 @@ const HEAT_DATA: Record<HeatBoard, HeatSubject[]> = {
 const HEAT_MAX = 1300;
 
 function heatColor(count: number): string {
-  if (count >= 900) return "#d62b2b"; if (count >= 600) return "#e07c2a";
-  if (count >= 400) return "#c4a520"; if (count >= 200) return "#3a7a5a";
+  if (count >= 900) return "var(--cinnabar)"; if (count >= 600) return "var(--gold)";
+  if (count >= 400) return "var(--gold)"; if (count >= 200) return "var(--sage)";
   return "var(--ink-3)";
 }
 function heatBg(count: number): string {
-  if (count >= 900) return "color-mix(in srgb, #d62b2b 12%, var(--paper-2))";
-  if (count >= 600) return "color-mix(in srgb, #e07c2a 10%, var(--paper-2))";
-  if (count >= 400) return "color-mix(in srgb, #c4a520 10%, var(--paper-2))";
-  if (count >= 200) return "color-mix(in srgb, #3a7a5a 8%, var(--paper-2))";
+  if (count >= 900) return "color-mix(in srgb, var(--cinnabar) 12%, var(--paper-2))";
+  if (count >= 600) return "color-mix(in srgb, var(--gold) 10%, var(--paper-2))";
+  if (count >= 400) return "color-mix(in srgb, var(--gold) 10%, var(--paper-2))";
+  if (count >= 200) return "color-mix(in srgb, var(--sage) 8%, var(--paper-2))";
   return "var(--paper)";
 }
 
@@ -108,7 +108,7 @@ type DebriefEntry  = { id: string; date: string; examName: string; scorePercent:
 
 const DEBRIEF_BOARDS = ["CBSE", "ICSE", "IB", "IGCSE", "JEE", "NEET", "A-Level", "SAT", "Other"];
 const ANXIETY_LABELS: Record<number, string> = { 1: "Calm", 2: "Mildly anxious", 3: "Nervous", 4: "Very anxious", 5: "Overwhelmed" };
-const ANXIETY_COLORS: Record<number, string> = { 1: "#27ae60", 2: "#5aaf6a", 3: "#e67e22", 4: "#d45a22", 5: "var(--cinnabar-ink)" };
+const ANXIETY_COLORS: Record<number, string> = { 1: "var(--sage)", 2: "#5aaf6a", 3: "var(--gold)", 4: "#d45a22", 5: "var(--cinnabar-ink)" };
 
 const DEBRIEF_LS_KEY = "ledger-exam-debriefs";
 function loadDebriefHistory(): DebriefEntry[] { try { return JSON.parse(localStorage.getItem(DEBRIEF_LS_KEY) || "[]"); } catch { return []; } }
@@ -428,7 +428,7 @@ function PeerHeatmapTab() {
 
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginTop: 8, marginBottom: 8, flexWrap: "wrap" }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Difficulty scale:</div>
-        {[{ label: "Minimal", color: "var(--ink-3)" }, { label: "Low", color: "#3a7a5a" }, { label: "Moderate", color: "#c4a520" }, { label: "High", color: "#e07c2a" }, { label: "Critical", color: "#d62b2b" }].map(l => (
+        {[{ label: "Minimal", color: "var(--ink-3)" }, { label: "Low", color: "var(--sage)" }, { label: "Moderate", color: "var(--gold)" }, { label: "High", color: "var(--gold)" }, { label: "Critical", color: "var(--cinnabar)" }].map(l => (
           <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div style={{ width: 8, height: 8, background: l.color, borderRadius: 1, flexShrink: 0 }} />
             <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{l.label}</div>
@@ -467,7 +467,7 @@ function ExamDebriefTab() {
   function newDebrief() { setResult(null); setForm({ examName: "", scorePercent: "", hardTopics: "", sleepHours: "7", anxietyLevel: 3, examBoard: "CBSE" }); setView("form"); }
 
   const scoreNum = parseFloat(form.scorePercent) || 0;
-  const scoreColor = scoreNum >= 80 ? "#27ae60" : scoreNum >= 55 ? "#e67e22" : "var(--cinnabar-ink)";
+  const scoreColor = scoreNum >= 80 ? "var(--sage)" : scoreNum >= 55 ? "var(--gold)" : "var(--cinnabar-ink)";
 
   return (
     <div>
@@ -484,7 +484,7 @@ function ExamDebriefTab() {
             <div key={entry.id} style={{ border: "1px solid var(--rule)", marginBottom: 16, background: "var(--paper-2)" }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div><div style={{ fontFamily: "var(--serif)", fontSize: 16, fontWeight: 600, fontStyle: "italic" }}>{entry.examName}</div><div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 3 }}>{formatDebriefDate(entry.date)} · {entry.examBoard}</div></div>
-                <div style={{ textAlign: "right" }}><div style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 700, lineHeight: 1, color: entry.scorePercent >= 80 ? "#27ae60" : entry.scorePercent >= 55 ? "#e67e22" : "var(--cinnabar-ink)" }}>{entry.scorePercent}%</div><div className="mono" style={{ fontSize: 9, color: ANXIETY_COLORS[entry.anxietyLevel], marginTop: 2 }}>{ANXIETY_LABELS[entry.anxietyLevel]}</div></div>
+                <div style={{ textAlign: "right" }}><div style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 700, lineHeight: 1, color: entry.scorePercent >= 80 ? "var(--sage)" : entry.scorePercent >= 55 ? "var(--gold)" : "var(--cinnabar-ink)" }}>{entry.scorePercent}%</div><div className="mono" style={{ fontSize: 9, color: ANXIETY_COLORS[entry.anxietyLevel], marginTop: 2 }}>{ANXIETY_LABELS[entry.anxietyLevel]}</div></div>
               </div>
               <div style={{ padding: "16px 20px" }}>
                 <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>Immediate focus</div>

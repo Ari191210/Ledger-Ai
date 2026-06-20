@@ -77,7 +77,7 @@ export default function ExamSimPage() {
             <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>
               {examData.title} · Q {current + 1}/{totalQ} · {answered}/{totalQ} answered
             </span>
-            <span className="mono" style={{ fontSize: 14, fontWeight: 700, color: remaining < 120 ? "#c44b2a" : remaining < 300 ? "#c97a1a" : "var(--ink-3)" }}>
+            <span className="mono" style={{ fontSize: 14, fontWeight: 700, color: remaining < 120 ? "var(--cinnabar)" : remaining < 300 ? "var(--gold)" : "var(--ink-3)" }}>
               {pad(Math.floor(remaining / 60))}:{pad(remaining % 60)}
             </span>
             <button className="btn ghost" onClick={submit} style={{ fontSize: 11 }}>Submit exam</button>
@@ -179,7 +179,7 @@ export default function ExamSimPage() {
                   const isCurrent  = i === current;
                   return (
                     <button key={i} onClick={() => setCurrent(i)}
-                      style={{ padding: "6px 2px", fontFamily: "var(--mono)", fontSize: 10, border: `1px solid ${isCurrent ? "var(--cinnabar-ink)" : isAnswered ? "#2d7a3c" : "var(--rule)"}`, background: isCurrent ? "var(--cinnabar-ink)" : isAnswered ? "#2d7a3c18" : "var(--paper)", color: isCurrent ? "var(--paper)" : isAnswered ? "#2d7a3c" : "var(--ink-3)", cursor: "pointer", position: "relative" }}>
+                      style={{ padding: "6px 2px", fontFamily: "var(--mono)", fontSize: 10, border: `1px solid ${isCurrent ? "var(--cinnabar-ink)" : isAnswered ? "var(--sage)" : "var(--rule)"}`, background: isCurrent ? "var(--cinnabar-ink)" : isAnswered ? "var(--sage)18" : "var(--paper)", color: isCurrent ? "var(--paper)" : isAnswered ? "var(--sage)" : "var(--ink-3)", cursor: "pointer", position: "relative" }}>
                       {i + 1}{isFlagged && <span style={{ position: "absolute", top: 1, right: 1, fontSize: 6 }}>🚩</span>}
                     </button>
                   );
@@ -188,7 +188,7 @@ export default function ExamSimPage() {
               <div style={{ marginTop: 16, borderTop: "1px solid var(--rule)", paddingTop: 12 }}>
                 <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>LEGEND</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span className="mono" style={{ fontSize: 9, color: "#2d7a3c" }}>■ Answered</span>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--sage)" }}>■ Answered</span>
                   <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)" }}>■ Current</span>
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>□ Unanswered</span>
                 </div>
@@ -202,7 +202,7 @@ export default function ExamSimPage() {
                   <span className="mono cin" style={{ fontSize: 11 }}>Question {current + 1}</span>
                   <button
                     onClick={() => setFlagged(f => { const n = [...f]; n[current] = !n[current]; return n; })}
-                    style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "1px solid var(--rule)", padding: "4px 10px", cursor: "pointer", color: flagged[current] ? "#c97a1a" : "var(--ink-3)" }}>
+                    style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "1px solid var(--rule)", padding: "4px 10px", cursor: "pointer", color: flagged[current] ? "var(--gold)" : "var(--ink-3)" }}>
                     {flagged[current] ? "🚩 Flagged" : "Flag for review"}
                   </button>
                 </div>
@@ -253,7 +253,7 @@ export default function ExamSimPage() {
       {/* ── Result ── */}
       {phase === "result" && examData && (() => {
         const grade      = pct >= 90 ? "A*" : pct >= 80 ? "A" : pct >= 70 ? "B" : pct >= 60 ? "C" : pct >= 50 ? "D" : "U";
-        const gradeColor = pct >= 70 ? "#2d7a3c" : pct >= 50 ? "#c97a1a" : "#c44b2a";
+        const gradeColor = pct >= 70 ? "var(--sage)" : pct >= 50 ? "var(--gold)" : "var(--cinnabar)";
         return (
           <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 900, margin: "0 auto" }}>
             {/* Score summary */}
@@ -284,7 +284,7 @@ export default function ExamSimPage() {
                 return (
                   <div key={i} style={{ border: "none", borderBottom: i < totalQ - 1 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
                     <div style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-start" }}>
-                      <span className="mono" style={{ fontSize: 10, color: unanswered ? "var(--ink-3)" : correct ? "#2d7a3c" : "#c44b2a", flexShrink: 0, marginTop: 2, fontWeight: 700 }}>
+                      <span className="mono" style={{ fontSize: 10, color: unanswered ? "var(--ink-3)" : correct ? "var(--sage)" : "var(--cinnabar)", flexShrink: 0, marginTop: 2, fontWeight: 700 }}>
                         {unanswered ? "—" : correct ? "✓" : "✗"} Q{i + 1}
                       </span>
                       <div style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.5, fontWeight: 500 }}>{q.q}</div>
@@ -293,9 +293,9 @@ export default function ExamSimPage() {
                       {q.options.map((opt, oi) => {
                         const isCorrect  = oi === q.answer;
                         const isSelected = oi === userAns;
-                        const bg     = isCorrect ? "#2d7a3c18" : isSelected && !isCorrect ? "#c44b2a12" : "transparent";
-                        const border = isCorrect ? "#2d7a3c"   : isSelected && !isCorrect ? "#c44b2a"   : "var(--rule)";
-                        const color  = isCorrect ? "#2d7a3c"   : isSelected && !isCorrect ? "#c44b2a"   : "var(--ink-2)";
+                        const bg     = isCorrect ? "var(--sage)18" : isSelected && !isCorrect ? "var(--cinnabar)12" : "transparent";
+                        const border = isCorrect ? "var(--sage)"   : isSelected && !isCorrect ? "var(--cinnabar)"   : "var(--rule)";
+                        const color  = isCorrect ? "var(--sage)"   : isSelected && !isCorrect ? "var(--cinnabar)"   : "var(--ink-2)";
                         return (
                           <div key={oi} style={{ padding: "8px 12px", border: `1px solid ${border}`, background: bg, color, fontFamily: "var(--sans)", fontSize: 13, display: "flex", gap: 8, alignItems: "center" }}>
                             <span className="mono" style={{ fontSize: 11, flexShrink: 0 }}>{String.fromCharCode(65 + oi)}.</span>

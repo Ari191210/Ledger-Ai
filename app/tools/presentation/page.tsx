@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -22,9 +22,7 @@ export default function PresentationPage() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setDeck(null);
     try {
-      const res  = await callAI({ tool: "presentation", topic, audience, duration, style });
-      const data = await res.json();
-      if (!res.ok || !data.slides) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<Deck>({ tool: "presentation", topic, audience, duration, style });
       setDeck(data); setSelected(0);
     } catch { setError("Network error."); }
     finally { setLoading(false); }

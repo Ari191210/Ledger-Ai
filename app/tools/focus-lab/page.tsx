@@ -357,7 +357,7 @@ function DebtMeterTab() {
   function remove(id: string) { save(subjects.filter(s => s.id !== id)); }
 
   const { total, per, apt, dailyHours } = debtScore(subjects);
-  const aptColor = apt === "Critical" ? "var(--cinnabar-ink)" : apt === "High" ? "#e07c2a" : apt === "Moderate" ? "#c4a520" : "#2d7a3c";
+  const aptColor = apt === "Critical" ? "var(--cinnabar-ink)" : apt === "High" ? "var(--gold)" : apt === "Moderate" ? "var(--gold)" : "var(--sage)";
 
   return (
     <div>

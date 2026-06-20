@@ -33,10 +33,10 @@ const BOARDS   = ["A-Level (AQA)", "A-Level (Edexcel)", "A-Level (OCR)", "IGCSE 
 const LEVELS   = ["GCSE", "A-Level", "IB", "CBSE", "JEE", "SAT"];
 
 const LIKELIHOOD_COLOR: Record<string, string> = {
-  "very likely": "#2d7a3c",
-  "likely":      "#4a8a3c",
-  "possible":    "#c97a1a",
-  "rare":        "#c44b2a",
+  "very likely": "var(--sage)",
+  "likely":      "var(--sage)",
+  "possible":    "var(--gold)",
+  "rare":        "var(--cinnabar)",
 };
 
 const TREND_ICON: Record<string, string> = {
@@ -46,9 +46,9 @@ const TREND_ICON: Record<string, string> = {
 };
 
 const TREND_COLOR: Record<string, string> = {
-  "rising":  "#2d7a3c",
+  "rising":  "var(--sage)",
   "stable":  "var(--ink-3)",
-  "falling": "#c44b2a",
+  "falling": "var(--cinnabar)",
 };
 
 export default function PaperPatternPage() {
@@ -158,7 +158,7 @@ export default function PaperPatternPage() {
               <div className="mono" style={{ color: "var(--paper)", fontSize: 9 }}>🔥 HOT TOPICS THIS YEAR</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {data.hotTopics.map((t, i) => (
-                  <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--paper)", padding: "3px 10px", border: "1px solid rgba(255,255,255,0.4)" }}>{t}</span>
+                  <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--paper)", padding: "3px 10px", border: "1px solid color-mix(in oklch, var(--paper) 40%, transparent)" }}>{t}</span>
                 ))}
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function PaperPatternPage() {
               </div>
               {data.hiddenGems.map((g, i) => (
                 <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: i < data.hiddenGems.length - 1 ? "1px solid var(--rule)" : "none" }}>
-                  <span className="mono" style={{ color: "#2d7a3c", flexShrink: 0 }}>✦</span>
+                  <span className="mono" style={{ color: "var(--sage)", flexShrink: 0 }}>✦</span>
                   <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)", lineHeight: 1.5 }}>{g}</span>
                 </div>
               ))}

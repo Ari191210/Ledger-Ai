@@ -112,14 +112,14 @@ function FlashcardsTab() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 12, textAlign: "center" }}>{idx + 1} / {deck.length}</div>
             <div onClick={() => setFlipped(f => !f)}
               style={{ border: "none", padding: "60px 40px", textAlign: "center", cursor: "pointer", minHeight: 220, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: flipped ? "var(--ink)" : "var(--paper)", transition: "background 200ms", marginBottom: 20, userSelect: "none" }}>
-              <div className="mono" style={{ color: flipped ? "rgba(255,255,255,0.4)" : "var(--ink-3)", fontSize: 9, marginBottom: 16, letterSpacing: "0.1em" }}>{flipped ? "ANSWER" : "QUESTION — click to reveal"}</div>
+              <div className="mono" style={{ color: flipped ? "color-mix(in oklch, var(--paper) 40%, transparent)" : "var(--ink-3)", fontSize: 9, marginBottom: 16, letterSpacing: "0.1em" }}>{flipped ? "ANSWER" : "QUESTION — click to reveal"}</div>
               <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: flipped ? "var(--paper)" : "var(--ink)", lineHeight: 1.5, maxWidth: 520 }}>{flipped ? cur.a : cur.q}</div>
             </div>
             <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
               <button onClick={prev} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>← Prev</button>
               {flipped && <>
-                <button onClick={markUnknown} style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #c44b2a", background: "var(--paper)", color: "#c44b2a", cursor: "pointer" }}>✕ Still learning</button>
-                <button onClick={markKnown}   style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #2d7a3c", background: "var(--paper)", color: "#2d7a3c", cursor: "pointer" }}>✓ Got it</button>
+                <button onClick={markUnknown} style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--cinnabar)", background: "var(--paper)", color: "var(--cinnabar)", cursor: "pointer" }}>✕ Still learning</button>
+                <button onClick={markKnown}   style={{ flex: 2, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--sage)", background: "var(--paper)", color: "var(--sage)", cursor: "pointer" }}>✓ Got it</button>
               </>}
               <button onClick={next} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>Next →</button>
             </div>
@@ -176,7 +176,7 @@ function FormulaTab() {
 
   if (done && formulas.length) {
     const pct = Math.round((correctCount / formulas.length) * 100);
-    const tierColor = pct >= 80 ? "#27ae60" : pct >= 50 ? "#e67e22" : "var(--cinnabar-ink)";
+    const tierColor = pct >= 80 ? "var(--sage)" : pct >= 50 ? "var(--gold)" : "var(--cinnabar-ink)";
     return (
       <div style={{ maxWidth: 520 }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
@@ -187,8 +187,8 @@ function FormulaTab() {
         <div style={{ marginBottom: 28 }}>
           {formulas.map((f, i) => (
             <div key={f.id} style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "14px 0", borderBottom: "1px solid var(--rule)" }}>
-              <div style={{ width: 20, height: 20, borderRadius: "50%", background: scores[i] ? "#27ae60" : "var(--cinnabar-ink)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2 }}>
-                <span style={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>{scores[i] ? "✓" : "✗"}</span>
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: scores[i] ? "var(--sage)" : "var(--cinnabar-ink)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2 }}>
+                <span style={{ color: "var(--paper)", fontSize: 11, fontWeight: 700 }}>{scores[i] ? "✓" : "✗"}</span>
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{f.name}</div>
@@ -230,8 +230,8 @@ function FormulaTab() {
         {(cardState === "answered" || cardState === "revealed") && (
           <div>
             {cardState === "answered" && (
-              <div style={{ padding: "14px 18px", border: `1px solid ${isCorrect ? "#27ae60" : "var(--cinnabar-ink)"}`, background: isCorrect ? "rgba(39,174,96,0.08)" : "rgba(255,80,48,0.06)", marginBottom: 20 }}>
-                <div className="mono" style={{ fontSize: 10, color: isCorrect ? "#27ae60" : "var(--cinnabar-ink)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>{isCorrect ? "Correct ✓" : "Not quite ✗"}</div>
+              <div style={{ padding: "14px 18px", border: `1px solid ${isCorrect ? "var(--sage)" : "var(--cinnabar-ink)"}`, background: isCorrect ? "color-mix(in oklch, var(--sage) 8%, transparent)" : "color-mix(in oklch, var(--cinnabar) 6%, transparent)", marginBottom: 20 }}>
+                <div className="mono" style={{ fontSize: 10, color: isCorrect ? "var(--sage)" : "var(--cinnabar-ink)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>{isCorrect ? "Correct ✓" : "Not quite ✗"}</div>
                 <div className="mono" style={{ fontSize: 14, color: "var(--ink-2)" }}>Your answer: {attempt}</div>
               </div>
             )}

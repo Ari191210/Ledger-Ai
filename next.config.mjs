@@ -2,8 +2,10 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const CSP = [
   "default-src 'self'",
-  // Next.js requires unsafe-inline (anti-flash script, framework chunks) and
-  // unsafe-eval (WebGL shader compilation via Three.js / Spline)
+  // Next.js requires unsafe-inline for anti-flash scripts and framework chunks.
+  // unsafe-eval is required by Three.js/Spline WebGL shader compilation.
+  // ACCEPTED RISK: unsafe-eval weakens XSS protection. Scoped to WebGL use only;
+  // do not add new eval() dependencies. Remove when Spline/Three.js is eliminated.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",

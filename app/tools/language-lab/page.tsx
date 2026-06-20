@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -29,9 +29,7 @@ function LangAnalyzerTab() {
     if (text.trim().length < 50) { setError("Paste at least a paragraph of text."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "lang_analyzer", text, textType, level, focus });
-      const data = await res.json();
-      if (!res.ok || !data.language) { setError("Could not analyse text."); return; }
+      const data = await callAIOrThrow<Analysis>({ tool: "lang_analyzer", text, textType, level, focus });
       setAnalysis(data); setInnerTab("language");
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -178,9 +176,7 @@ function VocabTab() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setVault(null);
     try {
-      const res  = await callAI({ tool: "vocab", topic, context, count, level });
-      const data = await res.json();
-      if (!res.ok || !Array.isArray(data.words)) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<VaultData>({ tool: "vocab", topic, context, count, level });
       setVault(data); setIdx(0); setCardState("front"); setKnown(new Set());
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -195,7 +191,7 @@ function VocabTab() {
     if (vault && idx < vault.words.length - 1) { setIdx(i => i + 1); setCardState("front"); }
   }
 
-  const diffColor = { basic: "#2d7a3c", intermediate: "#c97a1a", advanced: "#c44b2a" };
+  const diffColor = { basic: "var(--sage)", intermediate: "var(--gold)", advanced: "var(--cinnabar)" };
 
   if (!vault) return (
     <div style={{ maxWidth: 680, margin: "0 auto" }}>
@@ -247,7 +243,7 @@ function VocabTab() {
       <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>Vocabulary Vault &middot; {vault.theme}</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span className="mono" style={{ fontSize: 11, color: "#2d7a3c" }}>{knownCount}/{total} known</span>
+          <span className="mono" style={{ fontSize: 11, color: "var(--sage)" }}>{knownCount}/{total} known</span>
           <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
             <button onClick={() => setMode("cards")} style={{ padding: "6px 14px", fontFamily: "var(--mono)", fontSize: 10, background: mode === "cards" ? "var(--ink)" : "var(--paper)", color: mode === "cards" ? "var(--paper)" : "var(--ink)", border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer" }}>Cards</button>
             <button onClick={() => setMode("list")}  style={{ padding: "6px 14px", fontFamily: "var(--mono)", fontSize: 10, background: mode === "list"  ? "var(--ink)" : "var(--paper)", color: mode === "list"  ? "var(--paper)" : "var(--ink)", border: "none", cursor: "pointer" }}>List</button>
@@ -258,14 +254,14 @@ function VocabTab() {
 
       {/* Progress bar */}
       <div style={{ background: "var(--paper-2)", height: 6, marginBottom: 32, borderRadius: 2, overflow: "hidden" }}>
-        <div style={{ width: `${(knownCount / total) * 100}%`, height: "100%", background: "#2d7a3c", transition: "width 0.3s" }} />
+        <div style={{ width: `${(knownCount / total) * 100}%`, height: "100%", background: "var(--sage)", transition: "width 0.3s" }} />
       </div>
 
       {mode === "cards" ? (
         <>
           {/* Card */}
           <div onClick={() => setCardState(s => s === "front" ? "back" : "front")}
-            style={{ border: "none", padding: "40px 48px", minHeight: 320, cursor: "pointer", marginBottom: 24, position: "relative", background: known.has(idx) ? "#2d7a3c08" : "var(--paper)" }}>
+            style={{ border: "none", padding: "40px 48px", minHeight: 320, cursor: "pointer", marginBottom: 24, position: "relative", background: known.has(idx) ? "var(--sage)08" : "var(--paper)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
               <div>
                 <span style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 700, letterSpacing: "-0.02em" }}>{w.word}</span>
@@ -310,8 +306,8 @@ function VocabTab() {
           {/* Controls */}
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
             <button onClick={() => { setIdx(i => Math.max(0, i - 1)); setCardState("front"); }} disabled={idx === 0} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: idx === 0 ? 0.3 : 1 }}>&larr; Back</button>
-            <button onClick={markStudy} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #c44b2a", background: "var(--paper)", color: "#c44b2a", cursor: "pointer" }}>Still learning</button>
-            <button onClick={markKnown} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid #2d7a3c", background: "#2d7a3c", color: "var(--paper)", cursor: "pointer" }}>Got it ✓</button>
+            <button onClick={markStudy} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--cinnabar)", background: "var(--paper)", color: "var(--cinnabar)", cursor: "pointer" }}>Still learning</button>
+            <button onClick={markKnown} style={{ padding: "10px 24px", fontFamily: "var(--mono)", fontSize: 10, border: "1px solid var(--sage)", background: "var(--sage)", color: "var(--paper)", cursor: "pointer" }}>Got it ✓</button>
             <button onClick={() => { setIdx(i => Math.min(total - 1, i + 1)); setCardState("front"); }} disabled={idx === total - 1} style={{ padding: "10px 20px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer", opacity: idx === total - 1 ? 0.3 : 1 }}>Next &rarr;</button>
           </div>
 
@@ -319,14 +315,14 @@ function VocabTab() {
           <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
             {vault.words.map((_, i) => (
               <button key={i} onClick={() => { setIdx(i); setCardState("front"); }}
-                style={{ width: 8, height: 8, borderRadius: "50%", border: "none", cursor: "pointer", background: known.has(i) ? "#2d7a3c" : i === idx ? "var(--ink)" : "var(--rule)" }} />
+                style={{ width: 8, height: 8, borderRadius: "50%", border: "none", cursor: "pointer", background: known.has(i) ? "var(--sage)" : i === idx ? "var(--ink)" : "var(--rule)" }} />
             ))}
           </div>
         </>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 1, border: "none" }}>
           {vault.words.map((word, i) => (
-            <div key={i} style={{ padding: "16px 18px", borderRight: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)", background: known.has(i) ? "#2d7a3c08" : "var(--paper)" }}>
+            <div key={i} style={{ padding: "16px 18px", borderRight: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)", background: known.has(i) ? "var(--sage)08" : "var(--paper)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
                 <span style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700 }}>{word.word}</span>
                 <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: diffColor[word.difficulty] }}>{word.difficulty}</span>
@@ -335,7 +331,7 @@ function VocabTab() {
               <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5, color: "var(--ink-2)", marginBottom: 8 }}>{word.definition}</div>
               {word.memoryTip && <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", fontStyle: "italic" }}>{word.memoryTip}</div>}
               <button onClick={() => setKnown(k => { const n = new Set(k); if (known.has(i)) { n.delete(i); } else { n.add(i); } return n; })}
-                style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: `1px solid ${known.has(i) ? "#2d7a3c" : "var(--rule)"}`, background: known.has(i) ? "#2d7a3c" : "var(--paper)", color: known.has(i) ? "var(--paper)" : "var(--ink-3)", cursor: "pointer" }}>
+                style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: `1px solid ${known.has(i) ? "var(--sage)" : "var(--rule)"}`, background: known.has(i) ? "var(--sage)" : "var(--paper)", color: known.has(i) ? "var(--paper)" : "var(--ink-3)", cursor: "pointer" }}>
                 {known.has(i) ? "✓ known" : "mark known"}
               </button>
             </div>

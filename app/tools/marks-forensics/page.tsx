@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -368,14 +368,14 @@ export default function MarksForensicsPage() {
     setResult(null);
 
     try {
-      const data = (await callAI({
+      const data = await callAIOrThrow<ForensicsResult>({
         tool: "marks_forensics",
         question: question.trim(),
         board,
         marks_available: marksAvailable,
         mark_scheme: markScheme.trim(),
         student_answer: studentAnswer.trim(),
-      })) as unknown as ForensicsResult;
+      });
 
       // Coerce totals to numbers defensively
       const safeResult: ForensicsResult = {

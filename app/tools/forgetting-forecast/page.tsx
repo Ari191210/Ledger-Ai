@@ -49,10 +49,10 @@ function withRetention(entry: TopicEntry): TopicWithRetention {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  fresh:        "#2d7a3c",
-  "review-soon": "#4a8a3c",
-  "review-now":  "#c97a1a",
-  critical:     "#c44b2a",
+  fresh:        "var(--sage)",
+  "review-soon": "var(--sage)",
+  "review-now":  "var(--gold)",
+  critical:     "var(--cinnabar)",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -140,11 +140,11 @@ export default function ForgettingForecastPage() {
             {(critical.length > 0 || reviewNow.length > 0) && (
               <div style={{ marginBottom: 32 }}>
                 {critical.length > 0 && (
-                  <div style={{ padding: "14px 18px", background: "#c44b2a12", border: "1px solid #c44b2a44", marginBottom: 8 }}>
-                    <div className="mono" style={{ fontSize: 9, color: "#c44b2a", marginBottom: 6 }}>⚠ CRITICAL — OVER 65% FORGOTTEN</div>
+                  <div style={{ padding: "14px 18px", background: "var(--cinnabar)12", border: "1px solid var(--cinnabar)44", marginBottom: 8 }}>
+                    <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar)", marginBottom: 6 }}>⚠ CRITICAL — OVER 65% FORGOTTEN</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {critical.map(t => (
-                        <span key={t.id} style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#c44b2a", padding: "3px 10px", border: "1px solid #c44b2a44", background: "var(--paper)" }}>
+                        <span key={t.id} style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar)", padding: "3px 10px", border: "1px solid var(--cinnabar)44", background: "var(--paper)" }}>
                           {t.name} ({Math.round(t.retention * 100)}% left)
                         </span>
                       ))}
@@ -152,11 +152,11 @@ export default function ForgettingForecastPage() {
                   </div>
                 )}
                 {reviewNow.length > 0 && (
-                  <div style={{ padding: "14px 18px", background: "#c97a1a10", border: "1px solid #c97a1a44" }}>
-                    <div className="mono" style={{ fontSize: 9, color: "#c97a1a", marginBottom: 6 }}>REVIEW NOW — APPROACHING 40% FORGOTTEN</div>
+                  <div style={{ padding: "14px 18px", background: "var(--gold)10", border: "1px solid var(--gold)44" }}>
+                    <div className="mono" style={{ fontSize: 9, color: "var(--gold)", marginBottom: 6 }}>REVIEW NOW — APPROACHING 40% FORGOTTEN</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {reviewNow.map(t => (
-                        <span key={t.id} style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#c97a1a", padding: "3px 10px", border: "1px solid #c97a1a44", background: "var(--paper)" }}>
+                        <span key={t.id} style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--gold)", padding: "3px 10px", border: "1px solid var(--gold)44", background: "var(--paper)" }}>
                           {t.name} ({Math.round(t.retention * 100)}% left)
                         </span>
                       ))}
@@ -168,10 +168,10 @@ export default function ForgettingForecastPage() {
 
             {/* All topics */}
             {[
-              { label: "Critical — study immediately", items: critical, color: "#c44b2a" },
-              { label: "Review now", items: reviewNow, color: "#c97a1a" },
-              { label: "Review soon (within 3 days)", items: reviewSoon, color: "#4a8a3c" },
-              { label: "Fresh — you're good", items: fresh, color: "#2d7a3c" },
+              { label: "Critical — study immediately", items: critical, color: "var(--cinnabar)" },
+              { label: "Review now", items: reviewNow, color: "var(--gold)" },
+              { label: "Review soon (within 3 days)", items: reviewSoon, color: "var(--sage)" },
+              { label: "Fresh — you're good", items: fresh, color: "var(--sage)" },
             ].filter(g => g.items.length > 0).map(group => (
               <div key={group.label} style={{ marginBottom: 28 }}>
                 <div className="mono" style={{ fontSize: 9, color: group.color, marginBottom: 10 }}>{group.label.toUpperCase()}</div>

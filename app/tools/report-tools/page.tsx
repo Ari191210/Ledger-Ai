@@ -63,8 +63,8 @@ function LabReportTab() {
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic", margin: "0 0 28px" }}>{report.title}</h2>
 
         {report.ibCriteria && (
-          <div style={{ padding: "12px 16px", border: "1px solid #1a6091", background: "rgba(26,96,145,0.05)", marginBottom: 24 }}>
-            <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 4 }}>IB INTERNAL ASSESSMENT CRITERIA</div>
+          <div style={{ padding: "12px 16px", border: "1px solid var(--ink-2)", background: "color-mix(in oklch, var(--ink-2) 5%, transparent)", marginBottom: 24 }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 4 }}>IB INTERNAL ASSESSMENT CRITERIA</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{report.ibCriteria}</div>
           </div>
         )}
@@ -212,17 +212,17 @@ function ModelAnswerTab() {
       </div>
 
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-        <div style={{ border: "1px solid #2d7a3c", padding: "14px 16px" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 8 }}>MARKING POINTS COVERED</div>
+        <div style={{ border: "1px solid var(--sage)", padding: "14px 16px" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>MARKING POINTS COVERED</div>
           {result.markingPoints.map((p, i) => (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
-              <span style={{ color: "#2d7a3c", fontFamily: "var(--mono)", fontSize: 9 }}>&#10003;</span>
+              <span style={{ color: "var(--sage)", fontFamily: "var(--mono)", fontSize: 9 }}>&#10003;</span>
               <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4 }}>{p}</span>
             </div>
           ))}
         </div>
         <div style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 8 }}>WHAT MAKES IT GOOD</div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 8 }}>WHAT MAKES IT GOOD</div>
           {result.whatMakesItGood.map((w, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 5, color: "var(--ink-2)" }}>&middot; {w}</div>)}
         </div>
       </div>
@@ -232,8 +232,8 @@ function ModelAnswerTab() {
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.structureGuide}</div>
       </div>
 
-      <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
       </div>
     </div>

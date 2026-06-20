@@ -76,8 +76,8 @@ export default function StudyGuidePage() {
           {guide.quickReview.map((q, i) => <div key={i} style={{ fontFamily: "var(--mono)", fontSize: 10, marginBottom: 4, color: "var(--ink-2)" }}>{i + 1}. {q}</div>)}
         </div>
 
-        <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+        <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{guide.examTip}</div>
         </div>
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20 }}>

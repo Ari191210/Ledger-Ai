@@ -13,7 +13,7 @@ const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics",
 const LEVELS   = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE", "SAT"];
 const CONF_LABELS = ["Clueless", "Uncertain", "Maybe", "Fairly sure", "Certain"];
 const CONF_VALUES = [0, 0.25, 0.5, 0.75, 1.0];
-const CONF_COLORS = ["#c44b2a", "#c97a1a", "#9a8a00", "#4a8a3c", "#2d7a3c"];
+const CONF_COLORS = ["var(--cinnabar)", "var(--gold)", "#9a8a00", "var(--sage)", "var(--sage)"];
 
 export default function CalibrationPage() {
   const [subject,  setSubject]  = useState("Mathematics");
@@ -107,7 +107,7 @@ export default function CalibrationPage() {
     return Math.round((1 - avgError) * 100);
   })();
 
-  const calColor = calibrationScore >= 75 ? "#2d7a3c" : calibrationScore >= 50 ? "#c97a1a" : "#c44b2a";
+  const calColor = calibrationScore >= 75 ? "var(--sage)" : calibrationScore >= 50 ? "var(--gold)" : "var(--cinnabar)";
   const calLabel = calibrationScore >= 75 ? "Well-calibrated" : calibrationScore >= 50 ? "Partially calibrated" : "Poorly calibrated";
 
   const q = questions[current];
@@ -188,7 +188,7 @@ export default function CalibrationPage() {
           <div style={{ marginBottom: 24 }}>
             <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
               {questions.map((_, i) => (
-                <div key={i} style={{ flex: 1, height: 3, background: i < current ? "#2d7a3c" : i === current ? "var(--ink)" : "var(--rule)" }} />
+                <div key={i} style={{ flex: 1, height: 3, background: i < current ? "var(--sage)" : i === current ? "var(--ink)" : "var(--rule)" }} />
               ))}
             </div>
             <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{subject} · {topic || "General"} · {level}</div>
@@ -265,7 +265,7 @@ export default function CalibrationPage() {
           <div className="mono cin" style={{ marginBottom: 16 }}>Topic calibration breakdown</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 36 }}>
             {topicResults.map((t, i) => {
-              const tc = t.calibration === "overconfident" ? "#c44b2a" : t.calibration === "underconfident" ? "#1a6091" : "#2d7a3c";
+              const tc = t.calibration === "overconfident" ? "var(--cinnabar)" : t.calibration === "underconfident" ? "var(--ink-2)" : "var(--sage)";
               const tl = t.calibration === "overconfident" ? "⚠ Overconfident" : t.calibration === "underconfident" ? "↑ Underconfident" : t.calibration === "accurate" ? "✓ Accurate" : "≈ Calibrated";
               return (
                 <div key={i} style={{ border: "none", borderBottom: i < topicResults.length - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px", display: "flex", gap: 16, alignItems: "center" }}>
@@ -293,9 +293,9 @@ export default function CalibrationPage() {
               return (
                 <div key={i} style={{ border: "none", borderBottom: i < total - 1 ? "none" : "1px solid var(--ink)", padding: "14px 18px" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
-                    <span className="mono" style={{ fontSize: 10, color: correct ? "#2d7a3c" : "#c44b2a", flexShrink: 0, fontWeight: 700 }}>{correct ? "✓" : "✗"} Q{i + 1}</span>
+                    <span className="mono" style={{ fontSize: 10, color: correct ? "var(--sage)" : "var(--cinnabar)", flexShrink: 0, fontWeight: 700 }}>{correct ? "✓" : "✗"} Q{i + 1}</span>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 13, flex: 1 }}>{q.q}</div>
-                    {mismatch && <span className="mono" style={{ fontSize: 9, color: "#c97a1a", flexShrink: 0 }}>⚠ MISMATCH</span>}
+                    {mismatch && <span className="mono" style={{ fontSize: 9, color: "var(--gold)", flexShrink: 0 }}>⚠ MISMATCH</span>}
                   </div>
                   <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", paddingLeft: 26 }}>
                     Confidence: <span style={{ color: conf >= 0 ? CONF_COLORS[confIdx] : "var(--ink-3)" }}>{conf >= 0 ? CONF_LABELS[confIdx] : "–"}</span>

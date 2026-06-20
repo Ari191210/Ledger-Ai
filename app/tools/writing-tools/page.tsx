@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI, callAIOrThrow, AIError } from "@/lib/ai-fetch";
+import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
@@ -33,8 +33,8 @@ const WORD_LIMITS = [250, 500, 650, 700, 1000];
 const STYLES      = ["APA 7","MLA 9","Chicago 17","Harvard","Vancouver"];
 
 const TYPE_COLORS: Record<string, string> = {
-  Grammar: "var(--cinnabar-ink)", Style: "#1a6091",
-  Vocabulary: "#2d7a3c", Punctuation: "#7a5c2d", Structure: "#6b3fa0",
+  Grammar: "var(--cinnabar-ink)", Style: "var(--ink-2)",
+  Vocabulary: "var(--sage)", Punctuation: "var(--gold)", Structure: "var(--ink-2)",
 };
 
 const SOURCE_FIELDS: Record<SourceType, { key: string; label: string; placeholder: string }[]> = {
@@ -178,15 +178,15 @@ function EssayBlueprintTab({ subject, level, onArgue }: { subject: string; level
               </div>
             ))}
             <div style={{ marginTop: 10, padding: "8px 12px", background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
-              <span className="mono" style={{ fontSize: 9, color: "#1a6091" }}>OPEN WITH · </span>
+              <span className="mono" style={{ fontSize: 9, color: "var(--ink-2)" }}>OPEN WITH · </span>
               <span style={{ fontFamily: "var(--serif)", fontSize: 12, fontStyle: "italic", color: "var(--ink-2)" }}>{s.openWith}</span>
             </div>
           </div>
         ))}
       </div>
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
-        <div style={{ border: "1px solid #2d7a3c", padding: "16px" }}>
-          <div className="mono" style={{ color: "#2d7a3c", marginBottom: 10 }}>Do</div>
+        <div style={{ border: "1px solid var(--sage)", padding: "16px" }}>
+          <div className="mono" style={{ color: "var(--sage)", marginBottom: 10 }}>Do</div>
           {blueprint.dos.map((d, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 6, lineHeight: 1.5 }}>✓ {d}</div>)}
         </div>
         <div style={{ border: "1px solid var(--cinnabar-ink)", padding: "16px" }}>
@@ -275,7 +275,7 @@ function ArgumentBuilderTab({ subject, level, initialClaim }: { subject: string;
         {argPlan.points.map((p, i) => (
           <div key={i} style={{ border: "1px solid var(--rule)", padding: "16px 20px" }}>
             <div className="mono cin" style={{ marginBottom: 12 }}>Point {i + 1}</div>
-            {([["P — POINT", p.point, "var(--cinnabar-ink)"], ["E — EVIDENCE", p.evidence, "#1a6091"], ["E — EXPLAIN", p.explain, "var(--ink-3)"], ["L — LINK", p.link, "#2d7a3c"]] as [string, string, string][]).map(([label, text, color]) => (
+            {([["P — POINT", p.point, "var(--cinnabar-ink)"], ["E — EVIDENCE", p.evidence, "var(--ink-2)"], ["E — EXPLAIN", p.explain, "var(--ink-3)"], ["L — LINK", p.link, "var(--sage)"]] as [string, string, string][]).map(([label, text, color]) => (
               <div key={label} style={{ marginBottom: 10 }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 9, color, marginBottom: 4 }}>{label}</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{text}</div>
@@ -291,7 +291,7 @@ function ArgumentBuilderTab({ subject, level, initialClaim }: { subject: string;
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{argPlan.counter.argument}</div>
         </div>
         <div>
-          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#2d7a3c", marginBottom: 4 }}>REBUTTAL</div>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--sage)", marginBottom: 4 }}>REBUTTAL</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{argPlan.counter.rebuttal}</div>
         </div>
       </div>
@@ -306,8 +306,8 @@ function ArgumentBuilderTab({ subject, level, initialClaim }: { subject: string;
             {argPlan.keyPhrases.map((phrase, i) => <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "3px 8px", border: "1px solid var(--rule)", color: "var(--ink-2)" }}>{phrase}</span>)}
           </div>
         </div>
-        <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 8 }}>EXAM TIP</div>
+        <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 8 }}>EXAM TIP</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{argPlan.examTip}</div>
         </div>
       </div>
@@ -400,7 +400,7 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
                   <span className="mono" style={{ color: "var(--cinnabar-ink)" }}>{c.score}/{c.max}</span>
                 </div>
                 <div style={{ height: 3, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 6 }}>
-                  <div style={{ height: "100%", width: `${(c.score / c.max) * 100}%`, background: c.score / c.max > 0.75 ? "#2d7a3c" : c.score / c.max > 0.5 ? "#c97a1a" : "#c44b2a" }} />
+                  <div style={{ height: "100%", width: `${(c.score / c.max) * 100}%`, background: c.score / c.max > 0.75 ? "var(--sage)" : c.score / c.max > 0.5 ? "var(--gold)" : "var(--cinnabar)" }} />
                 </div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5 }}>{c.feedback}</div>
               </div>
@@ -413,7 +413,7 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
             <div className="mono cin" style={{ marginBottom: 10 }}>Strengths</div>
             {grade.strengths.map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                <span style={{ color: "#2d7a3c", fontFamily: "var(--mono)", fontSize: 11 }}>✓</span>
+                <span style={{ color: "var(--sage)", fontFamily: "var(--mono)", fontSize: 11 }}>✓</span>
                 <span style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{s}</span>
               </div>
             ))}
@@ -455,15 +455,13 @@ function WritingPolishTab() {
 
   const wc  = ps.trim().split(/\s+/).filter(Boolean).length;
   const pct = Math.min(wc / psLimit * 100, 100);
-  const wcColor = wc > psLimit ? "#c44b2a" : wc > psLimit * 0.9 ? "#c97a1a" : "#2d7a3c";
+  const wcColor = wc > psLimit ? "var(--cinnabar)" : wc > psLimit * 0.9 ? "var(--gold)" : "var(--sage)";
 
   async function checkGrammar() {
     if (text.trim().length < 30) { setGrError("Paste at least a paragraph of text."); return; }
     setGrLoading(true); setGrError("");
     try {
-      const res  = await callAI({ tool: "grammar", text, purpose });
-      const data = await res.json();
-      if (!res.ok || !data.issues) { setGrError(data.error || "Could not check grammar."); return; }
+      const data = await callAIOrThrow<GrammarResult>({ tool: "grammar", text, purpose });
       setResult(data);
     } catch { setGrError("Network error."); }
     finally { setGrLoading(false); }
@@ -473,9 +471,7 @@ function WritingPolishTab() {
     if (wc < 50) { setPsError("Write at least 50 words first."); return; }
     setPsLoading(true); setPsError(""); setFeedback(null);
     try {
-      const res  = await callAI({ tool: "personal_statement", ps, limit: psLimit, uni, course });
-      const data = await res.json();
-      if (!res.ok || !data.suggestions) { setPsError(data.error || "Could not analyse — try again."); return; }
+      const data = await callAIOrThrow<PSFeedback>({ tool: "personal_statement", ps, limit: psLimit, uni, course });
       setFeedback(data);
     } catch { setPsError("Network error."); }
     finally { setPsLoading(false); }
@@ -528,11 +524,11 @@ function WritingPolishTab() {
           <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
             <div style={{ border: "none", padding: "18px 24px", flexShrink: 0 }}>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>WRITING SCORE</div>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, lineHeight: 1, color: result.overallScore >= 80 ? "#2d7a3c" : result.overallScore >= 60 ? "var(--ink)" : "var(--cinnabar-ink)" }}>{result.overallScore}</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, lineHeight: 1, color: result.overallScore >= 80 ? "var(--sage)" : result.overallScore >= 60 ? "var(--ink)" : "var(--cinnabar-ink)" }}>{result.overallScore}</div>
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 4 }}>/ 100 &middot; {result.band}</div>
             </div>
             <div style={{ flex: 1, border: "1px solid var(--rule)", padding: "16px 18px" }}>
-              <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 8 }}>STRENGTHS</div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>STRENGTHS</div>
               {result.strengths.map((s, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 5 }}>&middot; {s}</div>)}
             </div>
           </div>
@@ -551,7 +547,7 @@ function WritingPolishTab() {
                           <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", textDecoration: "line-through" }}>{issue.original}</div>
                         </div>
                         <div>
-                          <div className="mono" style={{ fontSize: 8, color: "#2d7a3c", marginBottom: 3 }}>SUGGESTION</div>
+                          <div className="mono" style={{ fontSize: 8, color: "var(--sage)", marginBottom: 3 }}>SUGGESTION</div>
                           <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>{issue.suggestion}</div>
                         </div>
                       </div>
@@ -577,8 +573,8 @@ function WritingPolishTab() {
             </div>
             {showRewrite && <AIOutput text={result.rewrite} />}
           </div>
-          <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-            <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+          <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
           </div>
         </div>
@@ -748,7 +744,7 @@ function CitationTab() {
             <div key={i} style={{ padding: "16px 18px", borderBottom: i < citations.length - 1 ? "1px solid var(--rule)" : "none" }}>
               {citations.length > 1 && <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9, marginBottom: 6 }}>{c.style}</div>}
               <div style={{ fontFamily: "Georgia, serif", fontSize: 14, lineHeight: 1.8, color: "var(--ink)", marginBottom: 10 }}>{c.text}</div>
-              <button onClick={() => copy(c.text, c.style)} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "1px solid var(--rule)", padding: "5px 12px", cursor: "pointer", color: copied === c.style ? "#2d7a3c" : "var(--ink-3)" }}>
+              <button onClick={() => copy(c.text, c.style)} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "1px solid var(--rule)", padding: "5px 12px", cursor: "pointer", color: copied === c.style ? "var(--sage)" : "var(--ink-3)" }}>
                 {copied === c.style ? "Copied ✓" : "Copy"}
               </button>
             </div>

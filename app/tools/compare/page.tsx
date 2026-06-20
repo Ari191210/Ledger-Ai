@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -25,9 +25,7 @@ export default function ComparePage() {
     if (filled.length < 2) { setError("Enter at least two items to compare."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "compare", items: filled, subject, criteria });
-      const data = await res.json();
-      if (!res.ok || !data.rows) { setError(data.error || "Could not generate comparison."); return; }
+      const data = await callAIOrThrow<Chart>({ tool: "compare", items: filled, subject, criteria });
       setChart(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -70,7 +68,7 @@ export default function ComparePage() {
 
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
           <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>
-            <div className="mono" style={{ color: "#2d7a3c", fontSize: 9, marginBottom: 10 }}>SIMILARITIES</div>
+            <div className="mono" style={{ color: "var(--sage)", fontSize: 9, marginBottom: 10 }}>SIMILARITIES</div>
             {chart.similarities.map((s, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 6 }}>· {s}</div>)}
           </div>
           <div style={{ border: "1px solid var(--rule)", padding: "16px 18px" }}>

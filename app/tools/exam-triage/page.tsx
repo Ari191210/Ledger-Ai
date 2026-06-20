@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIOutput } from "@/components/ai-output";
 
@@ -31,9 +31,9 @@ type CremResult  = { ranked_topics: RankedTopic[]; skip_list: SkipTopic[]; hidde
 
 const EXAM_BOARDS = ["CBSE Class 12", "CBSE Class 10", "JEE Main", "JEE Advanced", "NEET", "IB HL", "IB SL", "ICSE", "Other"];
 const URGENCY_COLORS: Record<RankedTopic["urgency_tier"], { bg: string; color: string }> = {
-  "DO NOW":   { bg: "#c0392b", color: "#fff" },
-  "DO TODAY": { bg: "#e67e22", color: "#fff" },
-  "IF TIME":  { bg: "#2980b9", color: "#fff" },
+  "DO NOW":   { bg: "var(--cinnabar)", color: "var(--paper)" },
+  "DO TODAY": { bg: "var(--gold)", color: "var(--paper)" },
+  "IF TIME":  { bg: "var(--ink-2)", color: "var(--paper)" },
   "SKIP":     { bg: "var(--ink-3)", color: "var(--paper)" },
 };
 
@@ -100,12 +100,12 @@ const LN_EXAM_OPTIONS = Object.keys(SYLLABI);
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-function chipColor(s: ChipState) { return s === "confident" ? "#22863a" : s === "shaky" ? "#b08800" : "#c0392b"; }
-function chipBg(s: ChipState)    { return s === "confident" ? "#e6f4ea" : s === "shaky" ? "#fef9e7" : "#fdecea"; }
+function chipColor(s: ChipState) { return s === "confident" ? "var(--sage)" : s === "shaky" ? "var(--gold)" : "var(--cinnabar)"; }
+function chipBg(s: ChipState)    { return s === "confident" ? "color-mix(in oklch, var(--sage) 12%, var(--paper))" : s === "shaky" ? "color-mix(in oklch, var(--gold) 12%, var(--paper))" : "color-mix(in oklch, var(--cinnabar) 8%, var(--paper))"; }
 function chipLabel(s: ChipState) { return s === "confident" ? "✓" : s === "shaky" ? "~" : "✗"; }
 
-function triageColor(s: LNSession["triage_status"]) { return s === "DRILL" ? "var(--cinnabar)" : s === "SKIM" ? "#b08800" : "#555"; }
-function triageBg(s: LNSession["triage_status"])    { return s === "DRILL" ? "#fdecea" : s === "SKIM" ? "#fef9e7" : "var(--paper-2)"; }
+function triageColor(s: LNSession["triage_status"]) { return s === "DRILL" ? "var(--cinnabar)" : s === "SKIM" ? "var(--gold)" : "var(--ink-2)"; }
+function triageBg(s: LNSession["triage_status"])    { return s === "DRILL" ? "color-mix(in oklch, var(--cinnabar) 8%, var(--paper))" : s === "SKIM" ? "color-mix(in oklch, var(--gold) 12%, var(--paper))" : "var(--paper-2)"; }
 function pad(n: number) { return String(n).padStart(2, "0"); }
 
 // ── PriorityTable ─────────────────────────────────────────────────────────────
@@ -154,11 +154,11 @@ function FloatingClock({ totalMinutes, spentMinutes }: { totalMinutes: number; s
   const remaining = Math.max(0, totalMinutes - spentMinutes);
   const pct = totalMinutes > 0 ? Math.min(1, spentMinutes / totalMinutes) : 0;
   return (
-    <div style={{ position: "fixed", bottom: 24, right: 24, background: "var(--ink)", color: "var(--paper)", padding: "14px 20px", fontFamily: "var(--mono)", fontSize: 13, zIndex: 999, minWidth: 120, boxShadow: "0 4px 24px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", gap: 6 }}>
+    <div style={{ position: "fixed", bottom: 24, right: 24, background: "var(--ink)", color: "var(--paper)", padding: "14px 20px", fontFamily: "var(--mono)", fontSize: 13, zIndex: 999, minWidth: 120, boxShadow: "0 4px 24px color-mix(in oklch, var(--ink) 18%, transparent)", display: "flex", flexDirection: "column", gap: 6 }}>
       <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 1, textTransform: "uppercase" }}>Time Left</div>
       <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2 }}>{pad(Math.floor(remaining / 60))}:{pad(remaining % 60)}</div>
       <div style={{ height: 3, background: "var(--paper-2)", overflow: "hidden" }}>
-        <div style={{ width: `${pct * 100}%`, height: "100%", background: pct > 0.75 ? "var(--cinnabar)" : "#22863a", transition: "width 0.4s" }} />
+        <div style={{ width: `${pct * 100}%`, height: "100%", background: pct > 0.75 ? "var(--cinnabar)" : "var(--sage)", transition: "width 0.4s" }} />
       </div>
       <div style={{ fontSize: 9, opacity: 0.5 }}>{Math.floor(spentMinutes / 60)}h {spentMinutes % 60}m used</div>
     </div>
@@ -186,7 +186,7 @@ function SessionBlock({ session, startMinutes, onMarkDone }: { session: LNSessio
           {!session.done && (
             <button onClick={e => { e.stopPropagation(); onMarkDone(); }} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "var(--ink)", color: "var(--paper)", border: "none", padding: "5px 10px", cursor: "pointer" }}>Mark done</button>
           )}
-          {session.done && <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#22863a" }}>✓ done</span>}
+          {session.done && <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--sage)" }}>✓ done</span>}
           <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>{expanded ? "▲" : "▼"}</span>
         </div>
       </div>
@@ -232,9 +232,7 @@ function CrunchTab() {
     if (!examName.trim() || topics.length === 0) return;
     setLoading(true); setError(""); setPlan(null);
     try {
-      const res  = await callAI({ tool: "crunch", examName: examName.trim(), hoursLeft: String(hoursLeft), topics: topics.map(t => `${t.name}: ${t.status}`).join("\n") });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Something went wrong."); return; }
+      const data = await callAIOrThrow<Plan>({ tool: "crunch", examName: examName.trim(), hoursLeft: String(hoursLeft), topics: topics.map(t => `${t.name}: ${t.status}`).join("\n") });
       setPlan(data);
     } catch { setError("Network error. Please try again."); }
     finally { setLoading(false); }
@@ -378,7 +376,7 @@ function CrematorTab() {
   if (result) {
     const { ranked_topics, skip_list, hidden_gem, time_budget_summary, examiner_pattern_note } = result;
     const days = daysRemaining();
-    const confColor = time_budget_summary.coverage_confidence_percent >= 75 ? "#27ae60" : time_budget_summary.coverage_confidence_percent >= 50 ? "#e67e22" : "#c0392b";
+    const confColor = time_budget_summary.coverage_confidence_percent >= 75 ? "var(--sage)" : time_budget_summary.coverage_confidence_percent >= 50 ? "var(--gold)" : "var(--cinnabar)";
     return (
       <div>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>

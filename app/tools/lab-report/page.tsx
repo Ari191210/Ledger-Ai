@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -27,9 +27,7 @@ export default function LabReportPage() {
     if (!experiment.trim()) { setError("Enter your experiment name."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "lab_report", board, subject, experiment, aim, variables, method });
-      const data = await res.json();
-      if (!res.ok || !data.sections) { setError("Could not generate report structure."); return; }
+      const data = await callAIOrThrow<LabReport>({ tool: "lab_report", board, subject, experiment, aim, variables, method });
       setReport(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -54,8 +52,8 @@ export default function LabReportPage() {
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 24, fontStyle: "italic", margin: "0 0 28px" }}>{report.title}</h2>
 
         {report.ibCriteria && (
-          <div style={{ padding: "12px 16px", border: "1px solid #1a6091", background: "rgba(26,96,145,0.05)", marginBottom: 24 }}>
-            <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 4 }}>IB INTERNAL ASSESSMENT CRITERIA</div>
+          <div style={{ padding: "12px 16px", border: "1px solid var(--ink-2)", background: "color-mix(in oklch, var(--ink-2) 5%, transparent)", marginBottom: 24 }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 4 }}>IB INTERNAL ASSESSMENT CRITERIA</div>
             <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{report.ibCriteria}</div>
           </div>
         )}

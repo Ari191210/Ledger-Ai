@@ -5,7 +5,7 @@ import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData, type UserProfile } from "@/lib/user-data";
-import { callAI, callAIOrThrow, AIError } from "@/lib/ai-fetch";
+import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
@@ -137,7 +137,7 @@ function PracticeView({ items }: { items: NotesPracticeQ[] }) {
 // ─── Mind Map sub-component ──────────────────────────────────────────────────
 function Branch({ node, depth = 0 }: { node: MapNode; depth?: number }) {
   const [open, setOpen] = useState(true);
-  const colors = ["var(--cinnabar-ink)", "#1a6091", "#2d7a3c", "#8b5a2b", "#6b3fa0"];
+  const colors = ["var(--cinnabar-ink)", "var(--ink-2)", "var(--sage)", "var(--gold)", "var(--ink-2)"];
   const color  = colors[depth % colors.length];
   return (
     <div style={{ marginLeft: depth === 0 ? 0 : 20 }}>
@@ -221,7 +221,7 @@ function DoubtTab() {
     } catch (err) { setCrossError(err instanceof AIError ? err : "Something went wrong."); setCrossPhase("answering"); }
   }
 
-  const verdictColor = (v: string) => v === "correct" ? "#2d7a3c" : v === "partial" ? "#c97a1a" : "#c44b2a";
+  const verdictColor = (v: string) => v === "correct" ? "var(--sage)" : v === "partial" ? "var(--gold)" : "var(--cinnabar)";
   const verdictLabel = (v: string) => v === "correct" ? "✓ Correct" : v === "partial" ? "◑ Partial" : "✗ Incorrect";
   const canSolve = (question.trim().length > 0 || !!image) && !loading;
 
@@ -305,7 +305,7 @@ function DoubtTab() {
                   </div>
                   {crossPhase === "idle" && <button className="btn ghost" onClick={generateCrossQs} style={{ fontSize: 11 }}>Test my understanding →</button>}
                   {crossPhase === "done" && crossEval && (
-                    <div className="mono" style={{ fontSize: 11, color: crossEval.overallScore >= crossEval.overallMax * 0.7 ? "#2d7a3c" : crossEval.overallScore >= crossEval.overallMax * 0.4 ? "#c97a1a" : "#c44b2a" }}>
+                    <div className="mono" style={{ fontSize: 11, color: crossEval.overallScore >= crossEval.overallMax * 0.7 ? "var(--sage)" : crossEval.overallScore >= crossEval.overallMax * 0.4 ? "var(--gold)" : "var(--cinnabar)" }}>
                       {crossEval.overallScore}/{crossEval.overallMax}
                     </div>
                   )}
@@ -410,8 +410,8 @@ function FeynmanTab() {
     setProbeData(null); setProbeAnswers(["", "", ""]); setEvalData(null); setError(null);
   }
 
-  const verdictColor = (v: string) => v === "correct" ? "#2d7a3c" : v === "partial" ? "#c97a1a" : "#c44b2a";
-  const scoreColor = evalData ? (evalData.score / evalData.outOf >= 0.7 ? "#2d7a3c" : evalData.score / evalData.outOf >= 0.4 ? "#c97a1a" : "#c44b2a") : "var(--ink)";
+  const verdictColor = (v: string) => v === "correct" ? "var(--sage)" : v === "partial" ? "var(--gold)" : "var(--cinnabar)";
+  const scoreColor = evalData ? (evalData.score / evalData.outOf >= 0.7 ? "var(--sage)" : evalData.score / evalData.outOf >= 0.4 ? "var(--gold)" : "var(--cinnabar)") : "var(--ink)";
 
   if (phase === "setup") return (
     <div style={{ maxWidth: 640, margin: "0 auto" }}>
@@ -510,7 +510,7 @@ function FeynmanTab() {
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 32 }} className="mob-col">
-        {[{ label: "Solid", items: evalData.knowledgeMap.solid, color: "#2d7a3c", icon: "✓" }, { label: "Shaky", items: evalData.knowledgeMap.shaky, color: "#c97a1a", icon: "◑" }, { label: "Missing", items: evalData.knowledgeMap.missing, color: "#c44b2a", icon: "✗" }].map(({ label, items, color, icon }) => (
+        {[{ label: "Solid", items: evalData.knowledgeMap.solid, color: "var(--sage)", icon: "✓" }, { label: "Shaky", items: evalData.knowledgeMap.shaky, color: "var(--gold)", icon: "◑" }, { label: "Missing", items: evalData.knowledgeMap.missing, color: "var(--cinnabar)", icon: "✗" }].map(({ label, items, color, icon }) => (
           <div key={label} style={{ border: `1px solid ${color}44`, padding: "16px" }}>
             <div className="mono" style={{ fontSize: 9, color, marginBottom: 10 }}>{icon} {label.toUpperCase()} ({items.length})</div>
             {items.length === 0 ? <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>None identified</div>
@@ -804,9 +804,7 @@ function MindMapTab() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setMap(null);
     try {
-      const res  = await callAI({ tool: "mindmap", topic, detail });
-      const data = await res.json();
-      if (!res.ok || !data.branches) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<MapData>({ tool: "mindmap", topic, detail });
       setMap(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -865,9 +863,7 @@ function ConceptConnectTab() {
     if (!conceptA.trim() || !conceptB.trim()) { setError("Enter both concepts."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "concept_connect", conceptA, conceptB });
-      const data = await res.json();
-      if (!res.ok || !data.links) { setError(data.error || "Could not find connections."); return; }
+      const data = await callAIOrThrow<Connection>({ tool: "concept_connect", conceptA, conceptB });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -897,16 +893,16 @@ function ConceptConnectTab() {
         <div className="mono cin" style={{ marginBottom: 8 }}>Deep Insight</div>
         <AIOutput text={result.deepInsight} variant="principle" />
       </div>
-      <div style={{ border: "1px solid #2d7a3c", padding: "14px 16px", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
+      <div style={{ border: "1px solid var(--sage)", padding: "14px 16px", marginBottom: 12 }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
         <AIOutput text={result.crossSubjectValue} />
       </div>
       <div style={{ border: "1px solid var(--rule)", padding: "14px 16px", marginBottom: 12 }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>EXAM ANGLES THIS UNLOCKS</div>
         {result.examAngles.map((a, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 5 }}>· {a}</div>)}
       </div>
-      <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>EXAM TIP</div>
+      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
       </div>
     </div>

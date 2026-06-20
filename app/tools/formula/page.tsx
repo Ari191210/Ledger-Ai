@@ -44,9 +44,9 @@ const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics",
 
 // ── Difficulty chip ───────────────────────────────────────────────────────────
 function DiffChip({ d }: { d: "easy" | "medium" | "hard" }) {
-  const map = { easy: "#2d6a2d", medium: "#7a5c00", hard: "#8b1a1a" };
+  const map = { easy: "var(--sage)", medium: "var(--gold)", hard: "var(--cinnabar)" };
   return (
-    <span style={{ fontSize: 10, padding: "2px 8px", background: map[d] + "22", color: map[d], border: `1px solid ${map[d]}44`, borderRadius: 4, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+    <span style={{ fontSize: 10, padding: "2px 8px", background: `color-mix(in oklch, ${map[d]} 13%, transparent)`, color: map[d], border: `1px solid color-mix(in oklch, ${map[d]} 40%, transparent)`, borderRadius: 4, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
       {d}
     </span>
   );

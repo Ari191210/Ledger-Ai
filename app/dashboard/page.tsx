@@ -840,7 +840,7 @@ export default function Dashboard() {
 
       {/* Announcement modal */}
       {announcement?.style === "modal" && !modalDismissed && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <div style={{ position: "fixed", inset: 0, background: "color-mix(in oklch, var(--ink) 60%, transparent)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
           <div className="glass-card" style={{ maxWidth: 480, width: "100%", padding: "36px 32px", position: "relative" }}>
             <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 16 }}>Announcement</div>
             <p style={{ fontFamily: "var(--sans)", fontSize: 15, lineHeight: 1.6, color: "var(--ink)", margin: "0 0 28px" }}>{announcement.message}</p>
@@ -895,20 +895,20 @@ export default function Dashboard() {
                       WebkitBackdropFilter: "blur(20px) saturate(180%)",
                       borderRadius:   14,
                       border:         `1.5px solid color-mix(in srgb, ${catColor} 30%, color-mix(in srgb, var(--ink) 8%, transparent))`,
-                      boxShadow:      "0 2px 8px rgba(0,0,0,0.10)",
+                      boxShadow:      "0 2px 8px color-mix(in oklch, var(--ink) 10%, transparent)",
                       transition:     "transform 280ms cubic-bezier(0.34,1.4,0.64,1), box-shadow 240ms ease, background 160ms ease",
                     }}
                     onMouseOver={e => {
                       const el = e.currentTarget as HTMLAnchorElement;
                       el.style.background  = "color-mix(in srgb, var(--paper) 70%, transparent)";
                       el.style.transform   = "translateY(-6px) scale(1.03)";
-                      el.style.boxShadow   = `0 0 0 1.5px ${catColor}, 0 18px 44px rgba(0,0,0,0.32), 0 0 36px color-mix(in srgb, ${catColor} 14%, transparent)`;
+                      el.style.boxShadow   = `0 0 0 1.5px ${catColor}, 0 18px 44px color-mix(in oklch, var(--ink) 32%, transparent), 0 0 36px color-mix(in srgb, ${catColor} 14%, transparent)`;
                     }}
                     onMouseOut={e => {
                       const el = e.currentTarget as HTMLAnchorElement;
                       el.style.background  = "color-mix(in srgb, var(--paper) 55%, transparent)";
                       el.style.transform   = "";
-                      el.style.boxShadow   = "0 2px 8px rgba(0,0,0,0.10)";
+                      el.style.boxShadow   = "0 2px 8px color-mix(in oklch, var(--ink) 10%, transparent)";
                     }}
                   >
                     {/* Category tag */}

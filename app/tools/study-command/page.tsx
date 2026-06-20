@@ -50,12 +50,12 @@ type PlanDay = {
 };
 
 const COLORS = [
-  "#C44B2A",
-  "#2A7A52",
-  "#2A5FAA",
-  "#8A7A20",
-  "#6A2A8A",
-  "#2A7A8A",
+  "var(--cinnabar)",
+  "var(--sage)",
+  "var(--ink-2)",
+  "var(--gold)",
+  "var(--ink-2)",
+  "var(--ink-2)",
 ];
 
 function plannerDaysUntil(isoDate: string, today: Date): number {
@@ -496,11 +496,11 @@ type Deadline = {
 };
 
 const CAT_COLORS: Record<DeadlineCategory, string> = {
-  exam: "#c44b2a",
-  assignment: "#1a6091",
-  application: "#8b5a2b",
-  project: "#2d7a3c",
-  other: "#6b3fa0",
+  exam: "var(--cinnabar)",
+  assignment: "var(--ink-2)",
+  application: "var(--gold)",
+  project: "var(--sage)",
+  other: "var(--ink-2)",
 };
 
 const CAT_LABELS: Record<DeadlineCategory, string> = {
@@ -517,11 +517,11 @@ function deadlineDaysUntil(dateStr: string, timeStr: string): number {
 }
 
 function urgencyLabel(days: number): { label: string; color: string } {
-  if (days < 0)  return { label: "Overdue", color: "#c44b2a" };
-  if (days === 0) return { label: "Due today!", color: "#c44b2a" };
-  if (days === 1) return { label: "Due tomorrow", color: "#c97a1a" };
-  if (days <= 3) return { label: `${days} days`, color: "#c97a1a" };
-  if (days <= 7) return { label: `${days} days`, color: "#2d7a3c" };
+  if (days < 0)  return { label: "Overdue", color: "var(--cinnabar)" };
+  if (days === 0) return { label: "Due today!", color: "var(--cinnabar)" };
+  if (days === 1) return { label: "Due tomorrow", color: "var(--gold)" };
+  if (days <= 3) return { label: `${days} days`, color: "var(--gold)" };
+  if (days <= 7) return { label: `${days} days`, color: "var(--sage)" };
   return { label: `${days} days`, color: "var(--ink-3)" };
 }
 
@@ -571,8 +571,8 @@ function DeadlinesTab() {
   return (
     <div>
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 24 }}>
-        {overdue > 0 && <span className="mono" style={{ color: "#c44b2a", fontSize: 11 }}>{overdue} overdue</span>}
-        {dueThis7 > 0 && <span className="mono" style={{ color: "#c97a1a", fontSize: 11 }}>{dueThis7} this week</span>}
+        {overdue > 0 && <span className="mono" style={{ color: "var(--cinnabar)", fontSize: 11 }}>{overdue} overdue</span>}
+        {dueThis7 > 0 && <span className="mono" style={{ color: "var(--gold)", fontSize: 11 }}>{dueThis7} this week</span>}
         <button className="btn" onClick={() => setAdding(true)} style={{ cursor: "pointer" }}>+ Add deadline</button>
       </div>
 
@@ -652,14 +652,14 @@ function DeadlinesTab() {
             const color = CAT_COLORS[d.category];
             return (
               <div key={d.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px", border: "none", borderBottom: i < visible.length - 1 ? "none" : "1px solid var(--ink)", background: d.done ? "var(--paper-2)" : "var(--paper)", opacity: d.done ? 0.6 : 1 }}>
-                <button onClick={() => toggle(d.id)} style={{ width: 20, height: 20, border: `2px solid ${d.done ? "#2d7a3c" : "var(--ink)"}`, background: d.done ? "#2d7a3c" : "transparent", cursor: "pointer", flexShrink: 0, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 11 }}>
+                <button onClick={() => toggle(d.id)} style={{ width: 20, height: 20, border: `2px solid ${d.done ? "var(--sage)" : "var(--ink)"}`, background: d.done ? "var(--sage)" : "transparent", cursor: "pointer", flexShrink: 0, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 11 }}>
                   {d.done ? "✓" : ""}
                 </button>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
                     <span style={{ fontFamily: "var(--sans)", fontSize: 15, fontWeight: 600, textDecoration: d.done ? "line-through" : "none", color: d.done ? "var(--ink-3)" : "var(--ink)" }}>{d.title}</span>
                     <span style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "2px 6px", background: color + "18", color, border: `1px solid ${color}40` }}>{CAT_LABELS[d.category]}</span>
-                    {d.priority === "high" && <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "#c44b2a" }}>HIGH PRIORITY</span>}
+                    {d.priority === "high" && <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar)" }}>HIGH PRIORITY</span>}
                   </div>
                   <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
                     <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>
@@ -754,7 +754,7 @@ function HabitsTab() {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-        <span className="mono" style={{ color: score >= 70 ? "#2d7a3c" : score >= 40 ? "#c97a1a" : "var(--cinnabar-ink)" }}>This week: {score}%</span>
+        <span className="mono" style={{ color: score >= 70 ? "var(--sage)" : score >= 40 ? "var(--gold)" : "var(--cinnabar-ink)" }}>This week: {score}%</span>
       </div>
 
       <div className="mono cin" style={{ marginBottom: 12 }}>Today — {new Date().toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long" })}</div>
@@ -764,7 +764,7 @@ function HabitsTab() {
           const s    = streak(h.id);
           return (
             <button key={h.id} onClick={() => toggle(h.id, today)}
-              style={{ padding: "20px 16px", border: `2px solid ${done ? "#2d7a3c" : "var(--ink)"}`, background: done ? "#2d7a3c" : "var(--paper)", cursor: "pointer", textAlign: "left", transition: "all 150ms" }}>
+              style={{ padding: "20px 16px", border: `2px solid ${done ? "var(--sage)" : "var(--ink)"}`, background: done ? "var(--sage)" : "var(--paper)", cursor: "pointer", textAlign: "left", transition: "all 150ms" }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>{h.emoji}</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: done ? "var(--paper)" : "var(--ink)", lineHeight: 1.3, marginBottom: 6 }}>{h.name}</div>
               <div className="mono" style={{ fontSize: 9, color: done ? "rgba(255,255,255,0.7)" : "var(--ink-3)" }}>{s > 0 ? `${s} day streak 🔥` : "Not done yet"}</div>
@@ -795,7 +795,7 @@ function HabitsTab() {
                   const done = !!log[h.id]?.[d];
                   return (
                     <td key={d} onClick={() => toggle(h.id, d)} style={{ padding: "4px", textAlign: "center", cursor: "pointer" }}>
-                      <div style={{ width: 20, height: 20, borderRadius: 2, background: done ? "#2d7a3c" : d === today ? "var(--paper-2)" : "var(--paper)", border: `1px solid ${done ? "#2d7a3c" : "var(--rule)"}`, margin: "0 auto" }} />
+                      <div style={{ width: 20, height: 20, borderRadius: 2, background: done ? "var(--sage)" : d === today ? "var(--paper-2)" : "var(--paper)", border: `1px solid ${done ? "var(--sage)" : "var(--rule)"}`, margin: "0 auto" }} />
                     </td>
                   );
                 })}
@@ -935,7 +935,7 @@ function CoachTab() {
               <AIOutput text={briefing.insight} variant="principle" />
             </div>
             <div style={{ padding: "10px 12px", border: "1px solid var(--rule)", background: "var(--paper-2)", marginBottom: briefing.warning ? 10 : 0 }}>
-              <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 4 }}>FOCUS RECOMMENDATION</div>
+              <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 4 }}>FOCUS RECOMMENDATION</div>
               <div style={{ fontFamily: "var(--sans)", fontSize: 13 }}>{briefing.focus}</div>
             </div>
             {briefing.warning && (

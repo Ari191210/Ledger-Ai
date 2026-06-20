@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -26,7 +26,7 @@ type DebriefEntry  = { id: string; date: string; examName: string; scorePercent:
 
 const BOARDS = ["CBSE", "ICSE", "IB", "IGCSE", "JEE", "NEET", "A-Level", "SAT", "Other"];
 const ANXIETY_LABELS: Record<number, string> = { 1: "Calm", 2: "Mildly anxious", 3: "Nervous", 4: "Very anxious", 5: "Overwhelmed" };
-const ANXIETY_COLORS: Record<number, string> = { 1: "#27ae60", 2: "#5aaf6a", 3: "#e67e22", 4: "#d45a22", 5: "var(--cinnabar-ink)" };
+const ANXIETY_COLORS: Record<number, string> = { 1: "var(--sage)", 2: "#5aaf6a", 3: "var(--gold)", 4: "#d45a22", 5: "var(--cinnabar-ink)" };
 
 function formatDate(iso: string) { return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); }
 const LS_KEY = "ledger-exam-debriefs";
@@ -156,7 +156,7 @@ function DebriefTab() {
   }
 
   const scoreNum = parseFloat(form.scorePercent) || 0;
-  const scoreColor = scoreNum >= 80 ? "#27ae60" : scoreNum >= 55 ? "#e67e22" : "var(--cinnabar-ink)";
+  const scoreColor = scoreNum >= 80 ? "var(--sage)" : scoreNum >= 55 ? "var(--gold)" : "var(--cinnabar-ink)";
 
   if (view === "history") return (
     <div style={{ maxWidth: 640 }}>
@@ -175,7 +175,7 @@ function DebriefTab() {
               <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 3 }}>{formatDate(entry.date)} · {entry.examBoard}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontWeight: 700, lineHeight: 1, color: entry.scorePercent >= 80 ? "#27ae60" : entry.scorePercent >= 55 ? "#e67e22" : "var(--cinnabar-ink)" }}>{entry.scorePercent}%</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontWeight: 700, lineHeight: 1, color: entry.scorePercent >= 80 ? "var(--sage)" : entry.scorePercent >= 55 ? "var(--gold)" : "var(--cinnabar-ink)" }}>{entry.scorePercent}%</div>
               <div className="mono" style={{ fontSize: 9, color: ANXIETY_COLORS[entry.anxietyLevel], marginTop: 2 }}>{ANXIETY_LABELS[entry.anxietyLevel]}</div>
             </div>
           </div>
@@ -294,9 +294,7 @@ function ExamStrategyTab() {
     if (!subject.trim()) { setError("Enter your subject."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "exam_strategy", subject, duration, format, concerns });
-      const data = await res.json();
-      if (!res.ok || !data.sections) { setError(data.error || "Could not generate strategy."); return; }
+      const data = await callAIOrThrow<Strategy>({ tool: "exam_strategy", subject, duration, format, concerns });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -327,8 +325,8 @@ function ExamStrategyTab() {
         <AIOutput text={result.timeManagement} />
       </div>
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-        <div style={{ border: "1px solid #2d7a3c", padding: "14px 16px" }}>
-          <div className="mono" style={{ fontSize: 9, color: "#2d7a3c", marginBottom: 8 }}>NERVE CONTROL</div>
+        <div style={{ border: "1px solid var(--sage)", padding: "14px 16px" }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>NERVE CONTROL</div>
           {result.nerveControl.map((n, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 5 }}>· {n}</div>)}
         </div>
         <div style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>
@@ -345,8 +343,8 @@ function ExamStrategyTab() {
           </div>
         ))}
       </div>
-      <div style={{ border: "1px solid #1a6091", padding: "14px 16px", background: "rgba(26,96,145,0.04)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "#1a6091", marginBottom: 6 }}>KEY REMINDER</div>
+      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
+        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>KEY REMINDER</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
       </div>
     </div>

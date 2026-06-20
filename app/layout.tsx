@@ -47,7 +47,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Ledger — The Student's Operating System",
   description:
-    "41 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more — calibrated to your board, grade, and exam date.",
+    "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more — calibrated to your board, grade, and exam date.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://studyledger.in"),
   alternates: {
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ledger — The Student's Operating System",
     description:
-      "41 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more — calibrated to your board, grade, and exam date.",
+      "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more — calibrated to your board, grade, and exam date.",
     url: "https://studyledger.in",
     siteName: "Ledger",
     type: "website",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ledger — The Student's Operating System",
     description:
-      "41 AI-powered tools for students. Calibrated to your board, grade, and exam date.",
+      "55 AI-powered tools for students. Calibrated to your board, grade, and exam date.",
     images: ["/og-image.png"],
   },
   robots: {
