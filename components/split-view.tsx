@@ -208,7 +208,7 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
         <div className="mob-hide" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 36, borderBottom: "1px solid var(--ink)", background: "var(--paper-2)", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="mono" style={{ fontSize: 9, color: "#1a6091" }}>⊞ SPLIT</span>
+              <span className="mono" style={{ fontSize: 9, color: "var(--ink-2)" }}>⊞ SPLIT</span>
               <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600, color: "var(--ink)" }}>
                 {TOOL_NAMES[splitSlug] || splitSlug}
               </span>
