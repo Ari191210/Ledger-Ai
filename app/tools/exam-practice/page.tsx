@@ -4,7 +4,7 @@ import TierGate from "@/components/tier-gate";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
 import { useAuth } from "@/components/auth-provider";
-import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -321,9 +321,7 @@ function PaperTriageTab() {
     if (!exam) { setError("Please select an exam."); return; }
     setError(""); setLoadingTopics(true);
     try {
-      const res = await callAI({ tool: "paper_triage", phase: "topics", exam });
-      const data = await res.json();
-      if (!res.ok || !data.topics) { setError(data.error || "Could not load topics."); return; }
+      const data = await callAIOrThrow<{ topics: string[] }>({ tool: "paper_triage", phase: "topics", exam });
       const topics: string[] = data.topics;
       setTopicList(topics);
       const init: TopicMap = {};
@@ -346,10 +344,7 @@ function PaperTriageTab() {
     try {
       const statusMap: Record<string, string> = {};
       Object.entries(topicStatus).forEach(([t, s]) => { statusMap[t] = s === "green" ? "confident" : s === "amber" ? "shaky" : s === "red" ? "not_touched" : "unrated"; });
-      const res = await callAI({ tool: "paper_triage", phase: "plan", exam, studyWindowMinutes: studyMinutes, topicStatus: statusMap });
-      const data = await res.json();
-      if (!res.ok || !data.schedule) { setError(data.error || "Could not generate plan."); return; }
-      const tp = data as TriagePlan;
+      const tp = await callAIOrThrow<TriagePlan>({ tool: "paper_triage", phase: "plan", exam, studyWindowMinutes: studyMinutes, topicStatus: statusMap });
       setPlan(tp);
       setCountdown(studyMinutes * 60);
       localStorage.setItem(TRIAGE_STORAGE_KEY, JSON.stringify({ plan: tp, windowMinutes: studyMinutes, savedAt: Date.now() }));
@@ -551,9 +546,7 @@ function CrunchTab() {
     if (!examName.trim() || topics.length === 0) return;
     setLoading(true); setError(""); setPlan(null);
     try {
-      const res = await callAI({ tool: "crunch", examName: examName.trim(), hoursLeft: String(hoursLeft), topics: topics.map(t => `${t.name}: ${t.status}`).join("\n") });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Something went wrong."); return; }
+      const data = await callAIOrThrow<CrunchPlan>({ tool: "crunch", examName: examName.trim(), hoursLeft: String(hoursLeft), topics: topics.map(t => `${t.name}: ${t.status}`).join("\n") });
       setPlan(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -684,9 +677,7 @@ function MarkSchemeTab() {
     if (question.trim().length < 10) { setDcError("Paste your exam question."); return; }
     setDcLoading(true); setDcError("");
     try {
-      const res = await callAI({ tool: "paper_dissector", board, subject, question, marks });
-      const data = await res.json();
-      if (!res.ok || !data.commandWord) { setDcError("Could not analyse question."); return; }
+      const data = await callAIOrThrow<Analysis>({ tool: "paper_dissector", board, subject, question, marks });
       setAnalysis(data);
     } catch { setDcError("Network error."); }
     finally { setDcLoading(false); }
@@ -696,9 +687,7 @@ function MarkSchemeTab() {
     if (answer.trim().length < 20) { setGrError("Write at least a sentence."); return; }
     setGrLoading(true); setGrError("");
     try {
-      const res = await callAI({ tool: "mark_scheme_eval", board, subject, question: gradeQuestion, answer, totalMarks });
-      const data = await res.json();
-      if (!res.ok || !data.criteria) { setGrError(data.error || "Could not grade answer."); return; }
+      const data = await callAIOrThrow<Grade>({ tool: "mark_scheme_eval", board, subject, question: gradeQuestion, answer, totalMarks });
       setGrade(data); setGrPhase("result");
     } catch { setGrError("Network error."); }
     finally { setGrLoading(false); }
@@ -946,9 +935,7 @@ function FormulaSheetTab() {
     if (!subject.trim() || !chapter.trim()) return;
     setLoading(true); setError(""); setSaved(false); setSheet(null);
     try {
-      const res = await callAI({ tool: "formula", subject, chapter, board, grade: grade === "Any" ? "" : grade });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to generate."); return; }
+      const data = await callAIOrThrow<FormulaSheet>({ tool: "formula", subject, chapter, board, grade: grade === "Any" ? "" : grade });
       if (!Array.isArray(data.sections) || data.sections.length === 0) { setError("Generation failed — try again."); return; }
       setSheet({ subject: data.subject || subject, chapter: data.chapter || chapter, board: data.board || board, sections: data.sections, keyConcepts: Array.isArray(data.keyConcepts) ? data.keyConcepts : [], units: Array.isArray(data.units) ? data.units : [], examTips: Array.isArray(data.examTips) ? data.examTips : [] });
     } catch { setError("Network error."); }

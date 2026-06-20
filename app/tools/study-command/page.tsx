@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -881,9 +881,7 @@ function CoachTab() {
   async function fetchBriefing(c: ReturnType<typeof gatherCoachContext>) {
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "coach_briefing", context: c });
-      const data = await res.json();
-      if (!res.ok || !data.greeting) { setError("Couldn't load briefing."); return; }
+      const data = await callAIOrThrow<CoachBriefing>({ tool: "coach_briefing", context: c });
       setBriefing(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -895,8 +893,7 @@ function CoachTab() {
     setMessages(prev => [...prev, { role: "user", text: msg }]);
     setChatLoading(true);
     try {
-      const res  = await callAI({ tool: "coach_chat", message: msg, context: ctx, history: messages.slice(-6).map(m => `${m.role === "user" ? "Student" : "Coach"}: ${m.text}`).join("\n") });
-      const data = await res.json();
+      const data = await callAIOrThrow<{ reply?: string; raw?: string }>({ tool: "coach_chat", message: msg, context: ctx, history: messages.slice(-6).map(m => `${m.role === "user" ? "Student" : "Coach"}: ${m.text}`).join("\n") });
       setMessages(prev => [...prev, { role: "assistant", text: data.reply || data.raw || "Try again." }]);
     } catch { setMessages(prev => [...prev, { role: "assistant", text: "Network error." }]); }
     finally { setChatLoading(false); }

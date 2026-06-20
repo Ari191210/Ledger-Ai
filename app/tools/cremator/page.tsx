@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -322,15 +322,15 @@ export default function CrematorPage() {
     setError("");
     try {
       const days = daysRemaining();
-      const res = await callAI({
+      const res = await callAIOrThrow<CrematorResult>({
         tool: "cremator",
         syllabusText: form.syllabusText,
         examBoard: form.examBoard,
         daysRemaining: days,
         hoursPerDay: parseFloat(form.hoursPerDay) || 6,
         alreadyRevisedTopics: form.revisedTopics,
-      }) as unknown as CrematorResult;
-      if (!res || !res.ranked_topics) {
+      });
+      if (!res.ranked_topics) {
         setError("Could not generate priority list. Please try again.");
         return;
       }

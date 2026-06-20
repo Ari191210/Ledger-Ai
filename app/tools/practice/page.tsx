@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -59,9 +59,7 @@ export default function PracticeSuitePage() {
     if (!topic.trim()) { setPrError("Enter a topic."); return; }
     setPrLoading(true); setPrError(""); setRevealed({}); setHinted({});
     try {
-      const res  = await callAI({ tool: "practice", subject, topic, level, difficulty, count });
-      const data = await res.json();
-      if (!res.ok || !data.problems) { setPrError(data.error || "Could not generate problems."); return; }
+      const data = await callAIOrThrow<PracticeSet>({ tool: "practice", subject, topic, level, difficulty, count });
       setSet(data);
     } catch { setPrError("Network error."); }
     finally { setPrLoading(false); }
@@ -71,9 +69,7 @@ export default function PracticeSuitePage() {
     if (!subject.trim()) return;
     setMkLoading(true); setMkError("");
     try {
-      const res  = await callAI({ tool: "exam_sim", subject, topic, count: mockCount, level });
-      const data = await res.json();
-      if (!res.ok || !Array.isArray(data.questions)) { setMkError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<ExamData>({ tool: "exam_sim", subject, topic, count: mockCount, level });
       setExamData(data);
       setAnswers(new Array(data.questions.length).fill(null));
       setFlagged(new Array(data.questions.length).fill(false));

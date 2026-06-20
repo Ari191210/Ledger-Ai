@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -64,9 +64,7 @@ export default function TextAnalystPage() {
     if (sourceText.trim().length < 30) { setSrcError("Paste at least a sentence from the source."); return; }
     setSrcLoading(true); setSrcError("");
     try {
-      const res  = await callAI({ tool: "source", sourceText, origin, subject: srcSubject, question: srcQuestion });
-      const data = await res.json();
-      if (!res.ok || !data.value) { setSrcError(data.error || "Could not analyse source."); return; }
+      const data = await callAIOrThrow<SourceAnalysis>({ tool: "source", sourceText, origin, subject: srcSubject, question: srcQuestion });
       setAnalysis(data);
     } catch { setSrcError("Network error."); }
     finally { setSrcLoading(false); }
@@ -76,9 +74,7 @@ export default function TextAnalystPage() {
     if (passage.trim().length < 40) { setRdError("Paste at least a paragraph to analyse."); return; }
     setRdLoading(true); setRdError("");
     try {
-      const res  = await callAI({ tool: "reading", passage, subject: rdSubject, question: rdQuestion });
-      const data = await res.json();
-      if (!res.ok || !data.themes) { setRdError(data.error || "Could not analyse passage."); return; }
+      const data = await callAIOrThrow<ReadingResult>({ tool: "reading", passage, subject: rdSubject, question: rdQuestion });
       setReading(data);
     } catch { setRdError("Network error."); }
     finally { setRdLoading(false); }

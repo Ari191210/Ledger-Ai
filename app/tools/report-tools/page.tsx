@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -36,9 +36,7 @@ function LabReportTab() {
     if (!experiment.trim()) { setError("Enter your experiment name."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "lab_report", board, subject, experiment, aim, variables, method });
-      const data = await res.json();
-      if (!res.ok || !data.sections) { setError("Could not generate report structure."); return; }
+      const data = await callAIOrThrow<LabReport>({ tool: "lab_report", board, subject, experiment, aim, variables, method });
       setReport(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -178,9 +176,7 @@ function ModelAnswerTab() {
     if (!question.trim()) { setError("Enter an exam question."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "model_answer", question, subject, level, marks });
-      const data = await res.json();
-      if (!res.ok || !data.modelAnswer) { setError(data.error || "Could not generate model answer."); return; }
+      const data = await callAIOrThrow<ModelAnswer>({ tool: "model_answer", question, subject, level, marks });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }

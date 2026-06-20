@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -22,9 +22,7 @@ export default function StudyGuidePage() {
     if (!topic.trim()) { setError("Enter a topic or chapter."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "study_guide", topic, subject, level });
-      const data = await res.json();
-      if (!res.ok || !data.sections) { setError(data.error || "Could not generate study guide."); return; }
+      const data = await callAIOrThrow<Guide>({ tool: "study_guide", topic, subject, level });
       setGuide(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
-import { callAI, callAIOrThrow } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -284,19 +284,19 @@ function FutureFinderTab() {
     if (!grade.trim()) { setUnError("Enter your predicted grades."); return; }
     if (!countries.length) { setUnError("Select at least one country."); return; }
     setUnLoading(true); setUnError("");
-    try { const res=await callAI({tool:"uni_match",board,grade,field,countries,extra}); const data=await res.json(); if(!res.ok||!data.unis){setUnError("Could not generate recommendations.");return;} setUniResult(data); }
+    try { const data=await callAIOrThrow<UniResult>({tool:"uni_match",board,grade,field,countries,extra}); setUniResult(data); }
     catch { setUnError("Network error."); } finally { setUnLoading(false); }
   }
   async function generateSubjects() {
     if (interests.length<2) { setSpError("Select at least 2 subjects."); return; }
     if (!career.length) { setSpError("Select at least 1 career direction."); return; }
     setSpLoading(true); setSpError("");
-    try { const res=await callAI({tool:"subject_picker",board:spBoard,interests,career,extra:spExtra}); const data=await res.json(); if(!res.ok||!data.combos){setSpError("Could not generate recommendations.");return;} setSpResult(data); }
+    try { const data=await callAIOrThrow<SubjectResult>({tool:"subject_picker",board:spBoard,interests,career,extra:spExtra}); setSpResult(data); }
     catch { setSpError("Network error."); } finally { setSpLoading(false); }
   }
   async function generateCareer() {
     setCarLoading(true); setCarError(""); setCarOutput(null);
-    try { const res=await callAI({tool:"career",answers}); const data=await res.json(); if(!res.ok){setCarError(data.error||"Something went wrong.");return;} setCarOutput(data); }
+    try { const data=await callAIOrThrow<CareerOutput>({tool:"career",answers}); setCarOutput(data); }
     catch { setCarError("Network error."); } finally { setCarLoading(false); }
   }
 
@@ -659,9 +659,8 @@ export default function AdmissionsPage() {
     setLoadingAI(true); setAnalysis(null);
     try {
       const top5 = shortlistResults.slice(0,5).map(r=>r.college.name);
-      const res = await callAI({ tool:"admissions", profile, topColleges:top5 });
-      const data = await res.json();
-      if (res.ok && data.strategy) setAnalysis(data);
+      const data = await callAIOrThrow<{strategy:string;gaps:string[];essayAngles:string[];timeline:string[]}>({ tool:"admissions", profile, topColleges:top5 });
+      if (data.strategy) setAnalysis(data);
     } catch {}
     setLoadingAI(false);
   }

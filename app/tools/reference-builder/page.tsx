@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -41,9 +41,7 @@ function MindMapTab() {
     if (!topic.trim()) return;
     setLoading(true); setError(""); setMap(null);
     try {
-      const res  = await callAI({ tool: "mindmap", topic, detail });
-      const data = await res.json();
-      if (!res.ok || !data.branches) { setError("Could not generate — try again."); return; }
+      const data = await callAIOrThrow<MapData>({ tool: "mindmap", topic, detail });
       setMap(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -157,9 +155,7 @@ function FormulaTab() {
     if (!subject.trim() || !chapter.trim()) return;
     setLoading(true); setError(""); setSaved(false); setSheet(null);
     try {
-      const res = await callAI({ tool: "formula", subject, chapter, board, grade: grade === "Any" ? "" : grade });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to generate. Try again."); return; }
+      const data = await callAIOrThrow<FormulaSheet>({ tool: "formula", subject, chapter, board, grade: grade === "Any" ? "" : grade });
       if (!Array.isArray(data.sections) || data.sections.length === 0) {
         setError("Generation failed — please try again."); return;
       }
@@ -447,9 +443,7 @@ function ConceptConnectTab() {
     if (!conceptA.trim() || !conceptB.trim()) { setError("Enter both concepts."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await callAI({ tool: "concept_connect", conceptA, conceptB });
-      const data = await res.json();
-      if (!res.ok || !data.links) { setError(data.error || "Could not find connections."); return; }
+      const data = await callAIOrThrow<Connection>({ tool: "concept_connect", conceptA, conceptB });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
