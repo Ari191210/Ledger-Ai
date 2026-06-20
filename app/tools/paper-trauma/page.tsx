@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -75,11 +75,11 @@ export default function PaperTraumaPage() {
     setError(null);
     setResult(null);
     try {
-      const res = await callAI({
+      const res = await callAIOrThrow<TraumaMapResult>({
         tool: "paper_trauma_map",
-        mock_data: mockData.trim(),
-        why_notes: whyNotes.trim(),
-      }) as TraumaMapResult;
+        mockResults: mockData.trim(),
+        studentNotes: whyNotes.trim(),
+      });
       setResult(res);
       setOpenSections({ signature: true, clusters: true, ghost: true, patch: true });
     } catch (e: unknown) {
@@ -95,10 +95,10 @@ export default function PaperTraumaPage() {
       .map((d, i) => `${i + 1}. ${d.drill_name} (${d.time_required}): ${d.exact_method}`)
       .join("\n");
     const text = `📌 My Paper Trauma Signature: "${result.trauma_signature}"\n\nSeverity: ${result.severity.toUpperCase()}\n\n48-Hour Patch Protocol:\n${drills}\n\n— via Paper Trauma Map`;
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard?.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    });
+    }).catch(() => {});
   };
 
   const sev = result ? severityConfig[result.severity] : null;
