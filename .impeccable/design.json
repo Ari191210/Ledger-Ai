@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-21T00:00:00Z",
+  "title": "Design System: StudyLedger",
+  "extensions": {
+    "colorMeta": {
+      "paper":        { "role": "neutral", "displayName": "Pitch",        "canonical": "#080808",  "tonalRamp": ["#020202","#080808","#111111","#1a1a1a","#252525","#333333","#484848","#606060"] },
+      "paper-2":      { "role": "neutral", "displayName": "Graphite",     "canonical": "#111111",  "tonalRamp": ["#050505","#111111","#1c1c1c","#272727","#323232","#444444","#585858","#6e6e6e"] },
+      "ink":          { "role": "neutral", "displayName": "Ivory",        "canonical": "#f2f2ef",  "tonalRamp": ["#404040","#686868","#909090","#b0b0ac","#c8c8c4","#dcdcda","#ebebea","#f2f2ef"] },
+      "ink-2":        { "role": "neutral", "displayName": "Smoke",        "canonical": "#c0c0bc",  "tonalRamp": ["#383838","#505050","#6a6a68","#888886","#a0a09e","#b4b4b2","#c8c8c6","#d8d8d6"] },
+      "ink-3":        { "role": "neutral", "displayName": "Ash",          "canonical": "#686864",  "tonalRamp": ["#1a1a18","#2e2e2c","#404040","#505050","#606060","#707070","#828280","#949490"] },
+      "cinnabar":     { "role": "primary", "displayName": "Cinnabar Red", "canonical": "#ff5030",  "tonalRamp": ["#4a0808","#801010","#b02018","#d43020","#f04028","#ff5030","#ff7058","#ff9080"] },
+      "cinnabar-ink": { "role": "primary", "displayName": "Cinnabar Glow","canonical": "#ff6848",  "tonalRamp": ["#4a1008","#801818","#b02818","#d43828","#f05030","#ff6848","#ff8868","#ffa890"] },
+      "sage":  { "role": "secondary", "displayName": "Forest Sage",   "canonical": "#5aaf6a", "tonalRamp": ["#0e2212","#1a3e20","#28602e","#388040","#48a050","#5aaf6a","#78c080","#9ed09c"] },
+      "slate": { "role": "secondary", "displayName": "Scholar Slate",  "canonical": "#5a9ed4", "tonalRamp": ["#0c1e30","#183050","#285080","#3870a8","#4888c0","#5a9ed4","#80b8e0","#a8d0ee"] },
+      "ochre": { "role": "secondary", "displayName": "Exam Ochre",     "canonical": "#d4a840", "tonalRamp": ["#2a1e04","#483208","#705010","#986820","#b88830","#d4a840","#e0c068","#ecd490"] },
+      "plum":  { "role": "secondary", "displayName": "Creative Plum",  "canonical": "#a888d4", "tonalRamp": ["#200832","#381050","#581880","#7830a8","#9058c0","#a888d4","#c0a8e0","#d8ccee"] },
+      "teal":  { "role": "secondary", "displayName": "Study Teal",     "canonical": "#44aaaa", "tonalRamp": ["#082020","#103a3a","#185858","#287878","#389898","#44aaaa","#68c0c0","#90d4d4"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Landing page hero only. One per page." },
+      "headline": { "displayName": "Headline", "purpose": "Major landing page section titles." },
+      "title":    { "displayName": "Title",    "purpose": "Tool page headers, dialog titles." },
+      "body":     { "displayName": "Body",     "purpose": "All UI copy, descriptions, help text. Max 65–75ch." },
+      "label":    { "displayName": "Label",    "purpose": "Data, scores, timestamps, chip text. Always uppercase." }
+    },
+    "shadows": [
+      { "name": "focus-ring",    "value": "0 0 0 3px color-mix(in srgb, #ff6848 18%, transparent)", "purpose": "Focus state on all interactive elements." },
+      { "name": "card-hover",    "value": "0 4px 24px rgba(0,0,0,0.18)",                            "purpose": "Lifted state on interactive glass cards." },
+      { "name": "cinnabar-glow", "value": "0 0 20px color-mix(in srgb, #ff5030 30%, transparent)",  "purpose": "Cinnabar button hover / Ledger Score pulse." }
+    ],
+    "motion": [
+      { "name": "ease-expo-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)",  "purpose": "Default for all transitions and reveals. Fast in, slow decelerate." },
+      { "name": "ease-standard", "value": "ease",                            "purpose": "Simple state changes (border-color, opacity)." },
+      { "name": "duration-micro","value": "140ms",                           "purpose": "Button hover, input border, icon state." },
+      { "name": "duration-reveal","value": "600ms",                          "purpose": "AI output 3D reveal, panel entrances." },
+      { "name": "duration-slow", "value": "38000ms–44000ms",                 "purpose": "Ambient aurora orb drift — never user-triggered." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "375px", "note": "Baseline — all 55 tools must work here." },
+      { "name": "tablet", "value": "768px"  },
+      { "name": "desktop","value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The only fully-filled button. Cinnabar Red. Used for primary actions: Submit, Generate, Save.",
+      "html": "<button class=\"ds-btn-primary\">Generate</button>",
+      "css": ".ds-btn-primary { background: #ff5030; color: #f2f2ef; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease; } .ds-btn-primary:hover { background: #ff6848; transform: translateY(-1px); box-shadow: 0 0 20px color-mix(in srgb, #ff5030 30%, transparent); } .ds-btn-primary:active { transform: translateY(0); box-shadow: none; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, #ff6848 18%, transparent); } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary actions. Transparent fill, hairline border.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: #f2f2ef; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; padding: 10px 20px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: background 140ms ease, border-color 140ms ease; } .ds-btn-ghost:hover { background: color-mix(in srgb, #f2f2ef 6%, transparent); border-color: rgba(255,255,255,0.2); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, #ff6848 18%, transparent); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Default form input. Fully opaque — legibility over aurora.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Ask anything…\" />",
+      "css": ".ds-input { background: #111111; color: #f2f2ef; font-family: 'Inter', system-ui, sans-serif; font-size: 15px; font-weight: 400; line-height: 1.65; padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; width: 100%; box-sizing: border-box; transition: border-color 160ms ease, box-shadow 160ms ease; } .ds-input::placeholder { color: #686864; } .ds-input:focus { outline: none; border-color: rgba(255,104,72,0.6); box-shadow: 0 0 0 3px color-mix(in srgb, #ff6848 18%, transparent); } @media (max-width: 767px) { .ds-input { font-size: 16px; } }"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "glass-card",
+      "description": "Primary container. Aurora shows through at 45% opacity.",
+      "html": "<div class=\"ds-glass-card\"><p class=\"ds-glass-card-body\">Tool output appears here.</p></div>",
+      "css": ".ds-glass-card { background: color-mix(in srgb, #080808 55%, transparent); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid color-mix(in srgb, #f2f2ef 10%, transparent); border-radius: 18px; padding: 20px; transition: border-color 200ms ease, transform 200ms ease; } .ds-glass-card:hover { border-color: color-mix(in srgb, #f2f2ef 20%, transparent); transform: translateY(-2px); } .ds-glass-card-body { color: #c0c0bc; font-family: 'Inter', system-ui, sans-serif; font-size: 15px; line-height: 1.65; margin: 0; }"
+    },
+    {
+      "name": "Category Chip",
+      "kind": "chip",
+      "description": "Tool category badge. One of five semantic colors.",
+      "html": "<span class=\"ds-chip ds-chip--sage\">Writing</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; font-family: 'Space Mono', ui-monospace, monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; border: 1px solid; } .ds-chip--sage { background: rgba(90,175,106,0.10); color: #5aaf6a; border-color: rgba(90,175,106,0.30); } .ds-chip--slate { background: rgba(90,158,212,0.10); color: #5a9ed4; border-color: rgba(90,158,212,0.30); } .ds-chip--ochre { background: rgba(212,168,64,0.10); color: #d4a840; border-color: rgba(212,168,64,0.30); } .ds-chip--plum { background: rgba(168,136,212,0.10); color: #a888d4; border-color: rgba(168,136,212,0.30); } .ds-chip--teal { background: rgba(68,170,170,0.10); color: #44aaaa; border-color: rgba(68,170,170,0.30); }"
+    },
+    {
+      "name": "Ledger Score",
+      "kind": "custom",
+      "description": "The gamification anchor. Large monospace numeral, cinnabar pulse on change.",
+      "html": "<div class=\"ds-score\"><span class=\"ds-score-label\">Ledger Score</span><span class=\"ds-score-value\">847</span></div>",
+      "css": ".ds-score { display: flex; flex-direction: column; align-items: center; gap: 4px; } .ds-score-label { font-family: 'Space Mono', ui-monospace, monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #686864; } .ds-score-value { font-family: 'Space Mono', ui-monospace, monospace; font-size: 72px; font-weight: 700; line-height: 0.88; color: #f2f2ef; transition: color 200ms ease; } .ds-score-value.pulse { animation: score-pulse 600ms cubic-bezier(0.16, 1, 0.3, 1); } @keyframes score-pulse { 0% { color: #ff5030; text-shadow: 0 0 20px rgba(255,80,48,0.6); } 100% { color: #f2f2ef; text-shadow: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Scholar's Dark Room",
+    "overview": "StudyLedger is precision tooling in low light. The WebGL aurora runs perpetually behind every surface — not as decoration, but as proof of life. Glass panels sit at 55–58% opacity so the aurora bleeds through without washing it out. Everything else is stripped back so the light can speak: near-black surfaces, crisp off-white type, and a single high-chroma accent (Cinnabar Red) used only where action is required.\n\nThe system rejects warmth-by-default. A 16-year-old opens this at midnight before an exam and needs to feel that the tool is more capable than they are. The density is deliberate. The type is tight. The contrast is high. The aurora is alive.\n\nEvery palette variant follows the same rule: ultra-dark background, high-contrast ink, one atmosphere-tinted accent, and glows that let the user's chosen atmosphere breathe through the glass.",
+    "keyCharacteristics": [
+      "Aurora-first: every design decision serves the WebGL layer, not the other way around",
+      "Dark by default, palette-switchable — light mode is an override, not the primary register",
+      "Three-font system: Orbitron (display/structural), Inter (body/functional), Space Mono (data/labels)",
+      "Glass panels as portals, not decoration — opacity tuned to let aurora show through",
+      "Cinnabar Red is the only action color; it appears on ≤10% of any screen",
+      "Category indicators use 5 named semantic colors — never cinnabar"
+    ],
+    "rules": [
+      { "name": "The Aurora Rule",      "body": "Every surface decision must ask: does this let the aurora breathe through? If a panel opacity, border, or shadow blocks the WebGL layer, reduce it until the glow shows.", "section": "colors" },
+      { "name": "The One Voice Rule",   "body": "Cinnabar Red is used on ≤10% of any given screen. Its rarity is its power.", "section": "colors" },
+      { "name": "The Category Rule",    "body": "Semantic colors appear as 10%-opacity background tints and chip accents only. Never as button colors, heading colors, or brand moments.", "section": "colors" },
+      { "name": "The Weight Rule",      "body": "Orbitron only appears at 700+ weight. At 400 it loses structural identity.", "section": "typography" },
+      { "name": "The Mono Rule",        "body": "Space Mono signals data, precision, and system output. If it isn't a number, score, timestamp, or label, it's the wrong font.", "section": "typography" },
+      { "name": "The No-Drop-Shadow Rule", "body": "Drop shadows are prohibited as elevation signals. Use tonal steps and glass opacity instead. The only permitted box-shadow is the focus ring.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do let the aurora breathe — keep glass panel opacity at 50–65%, never higher.",
+      "Do use OKLCH for all new color declarations.",
+      "Do reserve Cinnabar Red exclusively for primary actions and critical UI states.",
+      "Do use expo-out easing (cubic-bezier(0.16, 1, 0.3, 1)) for all motion.",
+      "Do respect prefers-reduced-motion: aurora must pause, all transitions must collapse to crossfades.",
+      "Do use background tints (color-mix) instead of border-left for active/selected states.",
+      "Do keep the split-view as the tool layout.",
+      "Do size all touch targets to minimum 44×44px on mobile."
+    ],
+    "donts": [
+      "Don't use border-left or border-right greater than 1px as a colored accent stripe on any card, list item, or nav element.",
+      "Don't use gradient text (background-clip: text with a gradient).",
+      "Don't use bounce or elastic easing (cubic-bezier(0.34, 1.4, ...) or 0.34, 1.56, ...).",
+      "Don't animate layout properties (width, padding-left, height, margin).",
+      "Don't use drop shadows as elevation signals.",
+      "Don't use warm neutral backgrounds (cream, parchment) as the primary surface.",
+      "Don't put tiny uppercase tracked eyebrows above every section.",
+      "Don't use Orbitron at weights below 700.",
+      "Don't hardcode rgba() or #hex values in component code — all color through CSS custom properties.",
+      "Don't use glassmorphism decoratively — glass exists to let the aurora through."
+    ]
+  }
+}
