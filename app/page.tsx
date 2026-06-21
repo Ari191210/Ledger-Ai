@@ -808,7 +808,7 @@ export default function Home() {
         </div>
 
         {/* Full-width editorial hero */}
-        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 860, margin: "0 auto", padding: "0 48px" }}>
+        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 900, margin: "0 auto", padding: "0 72px" }}>
 
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
@@ -883,7 +883,7 @@ export default function Home() {
             )}
 
             {/* Social proof badge */}
-            <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+            <div style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
               <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
                 <strong style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--mono)" }}>3,204</strong> on the Exam-Day Mode waitlist
               </span>
@@ -905,7 +905,7 @@ export default function Home() {
         </div>
 
         {/* Scroll hint */}
-        <div className="hero-scroll" style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <div className="hero-scroll" style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase", opacity: 0.4 }}>Scroll</span>
           <div className="scroll-cue">
             <span />
@@ -934,7 +934,7 @@ export default function Home() {
 
       {/* ─── Stats Bar ─── */}
       <div style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 60%, transparent)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "52px 32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
           {[
             { n: "55",    label: "AI Tools",                  color: "var(--sage)",         bg: "rgba(241,255,196,0.08)" },
             { n: "3,204", label: "Waitlist — Exam-Day Mode",  color: "var(--cinnabar-ink)", bg: "rgba(255,202,175,0.08)" },
@@ -950,12 +950,12 @@ export default function Home() {
 
       {/* ─── 01 / The Brief ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 64, alignItems: "start" }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 88, alignItems: "start" }} className="mob-col">
             <div>
-              <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(28px,4vw,48px)", marginBottom: 28 }}>
+              <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(28px,4vw,48px)", marginBottom: 40 }}>
                 Students don&apos;t have an operating system.
               </h2>
               <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75, marginBottom: 20 }}>
@@ -968,14 +968,14 @@ export default function Home() {
 
             <div>
               {/* Pull quote */}
-              <div className="reveal-quote" style={{ borderTop: "2px solid var(--ink)", paddingTop: 24, marginBottom: 32 }}>
+              <div className="reveal-quote" style={{ borderTop: "2px solid var(--ink)", paddingTop: 32, marginBottom: 44 }}>
                 <p style={{ fontFamily: "var(--sans)", fontStyle: "italic", fontSize: "clamp(18px,2.2vw,24px)", color: "var(--ink)", lineHeight: 1.5, letterSpacing: "-0.01em", margin: 0 }}>
                   &ldquo;The only student tool built around your syllabus, your board, and your exam — not a generic student somewhere in the world.&rdquo;
                 </p>
               </div>
 
               {/* Three meta facts */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                 {[
                   { n: "55", l: "AI Tools" },
                   { n: "6+", l: "Exam Boards" },
@@ -1003,10 +1003,10 @@ export default function Home() {
 
       {/* ─── 02 / How It Works ─── */}
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
-          <h2 className="reveal-up" style={{ ...S.h2, marginBottom: 64 }}>Three steps to a system that works.</h2>
+          <h2 className="reveal-up" style={{ ...S.h2, marginBottom: 80 }}>Three steps to a system that works.</h2>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, position: "relative" }} className="mob-col">
             {/* Connecting rule */}
@@ -1062,8 +1062,8 @@ export default function Home() {
 
       {/* ─── 03 / The System ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
             <div>
@@ -1123,10 +1123,10 @@ export default function Home() {
 
       {/* ─── 04 / Featured Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 52 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 64 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
               55 tools · 6 categories
@@ -1134,7 +1134,7 @@ export default function Home() {
           </div>
 
           {/* 6 chunky cube cards — one per category */}
-          <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
             {([
               { n: "01", slug: "planner",         ttl: "Smart Study Planner", sub: "Subjects in. Timetable out.",           cat: "PLAN",     icon: "◈" },
               { n: "03", slug: "notes",            ttl: "Study Engine",        sub: "Simplify chapters. Full lesson.",       cat: "LEARN",    icon: "◎" },
@@ -1186,8 +1186,8 @@ export default function Home() {
 
       {/* ─── 05 / Ledger Score ─── */}
       <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
             <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
@@ -1293,8 +1293,8 @@ export default function Home() {
 
       {/* ─── 06 / Key Features ─── */}
       <section id="features" className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 40 }}>
             <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
@@ -1375,8 +1375,8 @@ export default function Home() {
 
       {/* ─── 07 / Field Reports ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
             <h2 className="reveal-up" style={S.h2}>Dispatches from actual students.</h2>
