@@ -16,44 +16,55 @@ export function WebGLShader() {
       <div className="mesh-blob" style={{
         position: "absolute",
         top: "-20%", left: "-10%",
-        width: "75vw", height: "75vh",
+        width: "80vw", height: "80vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(255,202,175,0.30) 0%, rgba(218,184,148,0.12) 40%, transparent 70%)",
-        filter: "blur(70px)",
-        animation: "meshDriftA 22s ease-in-out infinite",
+        background: "radial-gradient(ellipse at center, rgba(255,202,175,0.52) 0%, rgba(218,184,148,0.22) 40%, transparent 70%)",
+        filter: "blur(60px)",
+        animation: "meshDriftA 13s ease-in-out infinite",
         willChange: "transform",
       }} />
       {/* Blob 2 — Powder Blue, top-right */}
       <div className="mesh-blob" style={{
         position: "absolute",
         top: "-15%", right: "-15%",
-        width: "65vw", height: "65vh",
+        width: "70vw", height: "70vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(167,190,211,0.28) 0%, rgba(198,226,233,0.10) 40%, transparent 70%)",
-        filter: "blur(90px)",
-        animation: "meshDriftB 28s ease-in-out infinite",
+        background: "radial-gradient(ellipse at center, rgba(167,190,211,0.46) 0%, rgba(198,226,233,0.18) 40%, transparent 70%)",
+        filter: "blur(75px)",
+        animation: "meshDriftB 17s ease-in-out infinite",
         willChange: "transform",
       }} />
       {/* Blob 3 — Cream, center */}
       <div className="mesh-blob" style={{
         position: "absolute",
         top: "35%", left: "10%",
-        width: "55vw", height: "55vh",
+        width: "60vw", height: "60vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(241,255,196,0.18) 0%, rgba(241,255,196,0.06) 40%, transparent 70%)",
-        filter: "blur(110px)",
-        animation: "meshDriftC 35s ease-in-out infinite",
+        background: "radial-gradient(ellipse at center, rgba(241,255,196,0.34) 0%, rgba(241,255,196,0.12) 40%, transparent 70%)",
+        filter: "blur(90px)",
+        animation: "meshDriftC 22s ease-in-out infinite",
         willChange: "transform",
       }} />
       {/* Blob 4 — Light Blue, bottom-right */}
       <div className="mesh-blob" style={{
         position: "absolute",
         bottom: "-10%", right: "5%",
-        width: "50vw", height: "50vh",
+        width: "55vw", height: "55vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(198,226,233,0.22) 0%, rgba(167,190,211,0.08) 40%, transparent 70%)",
+        background: "radial-gradient(ellipse at center, rgba(198,226,233,0.42) 0%, rgba(167,190,211,0.16) 40%, transparent 70%)",
+        filter: "blur(65px)",
+        animation: "meshDriftD 11s ease-in-out infinite",
+        willChange: "transform",
+      }} />
+      {/* Blob 5 — Tan, bottom-left accent */}
+      <div className="mesh-blob" style={{
+        position: "absolute",
+        bottom: "15%", left: "-5%",
+        width: "40vw", height: "40vh",
+        borderRadius: "50%",
+        background: "radial-gradient(ellipse at center, rgba(218,184,148,0.32) 0%, transparent 70%)",
         filter: "blur(80px)",
-        animation: "meshDriftD 18s ease-in-out infinite",
+        animation: "meshDriftA 19s ease-in-out infinite reverse",
         willChange: "transform",
       }} />
       {/* Subtle grain */}

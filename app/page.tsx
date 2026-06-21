@@ -790,12 +790,13 @@ export default function Home() {
             {/* Badge */}
             <div className="hero-badge" style={{
               display: "inline-flex", alignItems: "center", gap: 16,
-              border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
+              border: "1.5px solid color-mix(in srgb, var(--cinnabar-ink) 45%, transparent)",
               padding: "6px 22px", marginBottom: 28,
-              background: "color-mix(in srgb, var(--paper) 60%, transparent)",
+              background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))",
               backdropFilter: "blur(16px)",
               WebkitBackdropFilter: "blur(16px)",
               borderRadius: 999,
+              transform: "rotate(-1.5deg)",
             }}>
               <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <span style={{ position: "relative", width: 8, height: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -815,7 +816,7 @@ export default function Home() {
                   ? <>It&apos;s <span style={{ color: "var(--cinnabar-ink)" }}>{clockTime}</span>{city ? <> in {city}</> : null}.</>
                   : HERO_COPY[variant].line1}
               </div>
-              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(40px,7vw,96px)" : "clamp(40px,8vw,112px)", color: "var(--ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
+              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(40px,7vw,96px)" : "clamp(40px,8vw,112px)", color: "var(--cinnabar-ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
                 {HERO_COPY[variant].line2}
               </div>
             </h1>
@@ -846,7 +847,7 @@ export default function Home() {
                 <Link href="/dashboard" style={{ textDecoration: "none" }} className="hero-cta-btn" >
                   <GetStartedButton />
                 </Link>
-                <a href="#tools" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 22px", border: "1px solid var(--rule)", background: "transparent", transition: "color 200ms, border-color 200ms" }}>
+                <a href="#tools" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--powder-blue)", padding: "12px 22px", border: "1.5px solid color-mix(in srgb, var(--powder-blue) 55%, transparent)", background: "color-mix(in srgb, var(--powder-blue) 8%, transparent)", borderRadius: 8, transition: "color 200ms, border-color 200ms, background 200ms" }}>
                   Explore tools
                 </a>
                 <Link href="/auth" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
@@ -892,12 +893,15 @@ export default function Home() {
       {/* ─── Ticker ─── */}
       <div className="gl-pane-alt" style={{ borderTop: S.border, borderBottom: S.border, padding: "10px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="ticker">
-          <div className="ticker-track" style={{ color: "var(--ink-3)", fontSize: 10, fontFamily: "var(--mono)", letterSpacing: "0.08em" }}>
-            {[0, 1].flatMap((k) => TICKER.map((item, i) => (
-              <span key={`${k}-${i}`} style={{ padding: "0 28px" }}>
-                <span style={{ color: "var(--cinnabar-ink)", marginRight: 12 }}>—</span>{item}
-              </span>
-            )))}
+          <div className="ticker-track" style={{ color: "var(--ink-2)", fontSize: 10, fontFamily: "var(--mono)", letterSpacing: "0.08em" }}>
+            {[0, 1].flatMap((k) => TICKER.map((item, i) => {
+              const tc = (["var(--cinnabar-ink)","var(--powder-blue)","var(--sage)","var(--plum)","var(--tan-brand)"] as const)[i % 5];
+              return (
+                <span key={`${k}-${i}`} style={{ padding: "0 28px" }}>
+                  <span style={{ color: tc, marginRight: 12 }}>—</span>{item}
+                </span>
+              );
+            }))}
           </div>
         </div>
       </div>
@@ -906,13 +910,13 @@ export default function Home() {
       <div style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 60%, transparent)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
           {[
-            { n: "55", label: "AI Tools" },
-            { n: "3,204", label: "Waitlist — Exam-Day Mode" },
-            { n: "Free", label: "To start · No card needed" },
+            { n: "55",    label: "AI Tools",                  color: "var(--sage)",         bg: "rgba(241,255,196,0.08)" },
+            { n: "3,204", label: "Waitlist — Exam-Day Mode",  color: "var(--cinnabar-ink)", bg: "rgba(255,202,175,0.08)" },
+            { n: "Free",  label: "To start · No card needed", color: "var(--plum)",         bg: "rgba(198,226,233,0.08)" },
           ].map((s, i) => (
-            <div key={i} style={{ textAlign: "center", padding: "0 24px", borderRight: i < 2 ? S.border : "none" }}>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 48, fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", marginTop: 8, letterSpacing: "0.02em" }}>{s.label}</div>
+            <div key={i} style={{ textAlign: "center", padding: "20px 24px", borderRight: i < 2 ? S.border : "none", background: s.bg, borderRadius: 12 }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 52, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.n}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", marginTop: 10, letterSpacing: "0.02em" }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -1124,10 +1128,10 @@ export default function Home() {
                     display: "flex",
                     flexDirection: "column",
                     padding: "28px 24px 22px",
-                    background: `color-mix(in srgb, ${c} 6%, var(--paper))`,
-                    border: `1.5px solid color-mix(in srgb, ${c} 28%, transparent)`,
+                    background: `color-mix(in srgb, ${c} 14%, var(--paper))`,
+                    border: `1.5px solid color-mix(in srgb, ${c} 45%, transparent)`,
                     borderRadius: 12,
-                    boxShadow: `6px 6px 0 0 color-mix(in srgb, ${c} 45%, transparent)`,
+                    boxShadow: `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`,
                     cursor: "pointer",
                     minHeight: 210,
                     transition: "transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms cubic-bezier(0.16,1,0.3,1)",
@@ -1135,12 +1139,12 @@ export default function Home() {
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = "translate(-4px, -4px)";
-                    el.style.boxShadow = `10px 10px 0 0 color-mix(in srgb, ${c} 55%, transparent)`;
+                    el.style.boxShadow = `11px 11px 0 0 color-mix(in srgb, ${c} 70%, transparent)`;
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.transform = "";
-                    el.style.boxShadow = `6px 6px 0 0 color-mix(in srgb, ${c} 45%, transparent)`;
+                    el.style.boxShadow = `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`;
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
