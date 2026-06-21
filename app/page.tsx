@@ -643,8 +643,30 @@ export default function Home() {
         )
       );
 
-      /* Tool cube cards — CSS handles hover; GSAP only for scroll-in */
+      /* Tool cube cards — 3D tilt on cursor move (same as dashboard) */
       gsap.utils.toArray<HTMLElement>(".tool-item").forEach(el => {
+        const shadow = el.style.boxShadow;
+        const onEnter = () => {
+          gsap.to(el, { y: -9, scale: 1.025, transformPerspective: 900, duration: 0.28, ease: "power2.out", overwrite: "auto" });
+        };
+        const onMove = (e: MouseEvent) => {
+          const r = el.getBoundingClientRect();
+          const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+          const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+          gsap.to(el, { rotationY: x * 14, rotationX: -y * 10, transformPerspective: 900, duration: 0.22, ease: "power2.out", overwrite: "auto" });
+        };
+        const onLeave = () => {
+          gsap.to(el, { y: 0, scale: 1, rotationY: 0, rotationX: 0, duration: 0.55, ease: "elastic.out(1, 0.6)", overwrite: "auto" });
+          el.style.boxShadow = shadow;
+        };
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mousemove",  onMove);
+        el.addEventListener("mouseleave", onLeave);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mousemove",  onMove);
+          el.removeEventListener("mouseleave", onLeave);
+        });
       });
 
       /* Testimonial nav arrows */
@@ -1138,17 +1160,7 @@ export default function Home() {
                     boxShadow: `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`,
                     cursor: "pointer",
                     minHeight: 210,
-                    transition: "transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms cubic-bezier(0.16,1,0.3,1)",
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.transform = "translate(-4px, -4px)";
-                    el.style.boxShadow = `11px 11px 0 0 color-mix(in srgb, ${c} 70%, transparent)`;
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.transform = "";
-                    el.style.boxShadow = `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`;
+                    transition: "box-shadow 220ms ease",
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
