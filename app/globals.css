@@ -165,350 +165,54 @@
 [data-density="compact"]    { --density-prose: 13px; --density-line: 1.55; }
 [data-density="comfortable"]{ --density-prose: 17px; --density-line: 1.9;  }
 
-/* â”€â”€â”€ Design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* --- Design tokens -------------------------------------------------------------------- */
 :root {
   --serif: var(--font-orbitron), "Orbitron", system-ui, sans-serif;
   --sans:  var(--font-inter), "Inter", system-ui, sans-serif;
   --mono:  var(--font-space-mono), "Space Mono", ui-monospace, monospace;
   --prose: var(--font-lora), "Lora", Georgia, serif;
 
-  /* Dark default â€” matches the WebGL shader hero */
-  --paper:        #080808;
-  --paper-2:      #111111;
-  --ink:          #f2f2ef;
-  --ink-2:        #c0c0bc;
-  --ink-3:        #686864;
-  --rule:         rgba(255,255,255,0.1);
-  --rule-2:       rgba(255,255,255,0.05);
-  --cinnabar:     #ff5030;
-  --cinnabar-ink: #ff6848;
-  --highlight:    rgba(255,200,100,0.12);
-  /* Extended palette */
-  --sage:         #5aaf6a; --sage-bg: rgba(90,175,106,0.1);
-  --slate:        #5a9ed4; --slate-bg: rgba(90,158,212,0.1);
-  --ochre:        #d4a840; --ochre-bg: rgba(212,168,64,0.1);
-  --plum:         #a888d4; --plum-bg: rgba(168,136,212,0.1);
-  --teal:         #44aaaa; --teal-bg: rgba(68,170,170,0.1);
-  /* Gradient atmosphere â€” overridden per palette */
-  --page-glow-a:  rgba(255,80,48,0.07);
-  --page-glow-b:  rgba(180,40,20,0.04);
-}
+  /* == Brand palette == */
+  --peach:        #ffcaaf;
+  --powder-blue:  #a7bed3;
+  --light-blue:   #c6e2e9;
+  --cream:        #f1ffc4;
+  --tan:          #dab894;
 
-/* â”€â”€ Porcelain â€” dark, amber/gold atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="porcelain"] {
-  --paper:        #0e0c08;
-  --paper-2:      #181510;
-  --ink:          #f5f0e6;
-  --ink-2:        #c8b890;
-  --ink-3:        #8a7858;
-  --rule:         rgba(255,240,180,0.1);
-  --rule-2:       rgba(255,240,180,0.05);
-  --cinnabar:     #f0a030;
-  --cinnabar-ink: #f0b840;
-  --highlight:    rgba(255,200,60,0.12);
-  --page-glow-a:  rgba(240,160,30,0.13);
-  --page-glow-b:  rgba(200,100,20,0.09);
-}
+  /* == Semantic roles == */
+  --paper:        #08090c;
+  --paper-2:      #0f1016;
+  --ink:          #f1ffc4;
+  --ink-2:        #dab894;
+  --ink-3:        #a7bed3;
+  --cinnabar:     #e89a80;
+  --cinnabar-ink: #ffcaaf;
+  --highlight:    rgba(255,202,175,0.16);
+  --rule:         rgba(167,190,211,0.20);
+  --rule-2:       rgba(167,190,211,0.08);
+  --page-glow-a:  rgba(255,202,175,0.20);
+  --page-glow-b:  rgba(167,190,211,0.12);
 
-/* â”€â”€ Ink â€” dark, cyan/blue atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="ink"] {
-  --paper:        #050a10;
-  --paper-2:      #0a1218;
-  --ink:          #e6f0f8;
-  --ink-2:        #90b8d8;
-  --ink-3:        #508098;
-  --rule:         rgba(100,200,255,0.1);
-  --rule-2:       rgba(100,200,255,0.05);
-  --cinnabar:     #30c0f0;
-  --cinnabar-ink: #48d0ff;
-  --highlight:    rgba(60,180,255,0.12);
-  --page-glow-a:  rgba(40,160,240,0.13);
-  --page-glow-b:  rgba(20,100,200,0.09);
-}
+  /* == Category colors == */
+  --sage:    #f1ffc4;  --sage-bg:   rgba(241,255,196,0.12);
+  --slate:   #a7bed3;  --slate-bg:  rgba(167,190,211,0.12);
+  --ochre:   #dab894;  --ochre-bg:  rgba(218,184,148,0.12);
+  --plum:    #c6e2e9;  --plum-bg:   rgba(198,226,233,0.10);
+  --teal:    #ffcaaf;  --teal-bg:   rgba(255,202,175,0.12);
 
-/* â”€â”€ Dusk â€” dark, purple/violet atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="dusk"] {
-  --paper:        #080510;
-  --paper-2:      #100a1a;
-  --ink:          #ede8f8;
-  --ink-2:        #b898d8;
-  --ink-3:        #7858a0;
-  --rule:         rgba(180,120,255,0.1);
-  --rule-2:       rgba(180,120,255,0.05);
-  --cinnabar:     #a060f0;
-  --cinnabar-ink: #b878ff;
-  --highlight:    rgba(160,80,255,0.12);
-  --page-glow-a:  rgba(140,60,240,0.13);
-  --page-glow-b:  rgba(80,20,200,0.09);
-}
+  /* == Tint aliases == */
+  --peach-bg:          rgba(255,202,175,0.12);
+  --powder-blue-bg:    rgba(167,190,211,0.12);
+  --light-blue-bg:     rgba(198,226,233,0.10);
+  --cream-brand:       #f1ffc4;  --cream-brand-bg:  rgba(241,255,196,0.10);
+  --tan-brand:         #dab894;  --tan-brand-bg:    rgba(218,184,148,0.10);
 
-/* â”€â”€ Moss â€” dark, green atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="moss"] {
-  --paper:        #050e06;
-  --paper-2:      #091408;
-  --ink:          #e6f5e8;
-  --ink-2:        #90c898;
-  --ink-3:        #508858;
-  --rule:         rgba(100,220,120,0.1);
-  --rule-2:       rgba(100,220,120,0.05);
-  --cinnabar:     #40d060;
-  --cinnabar-ink: #58e878;
-  --highlight:    rgba(60,200,80,0.12);
-  --page-glow-a:  rgba(50,190,70,0.13);
-  --page-glow-b:  rgba(20,140,40,0.09);
-}
-
-/* â”€â”€ Rose â€” dark, pink/blush atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="rose"] {
-  --paper:        #100609;
-  --paper-2:      #1a0a10;
-  --ink:          #f5e8ec;
-  --ink-2:        #d4a0b8;
-  --ink-3:        #8a5870;
-  --rule:         rgba(255,160,200,0.1);
-  --rule-2:       rgba(255,160,200,0.05);
-  --cinnabar:     #e06090;
-  --cinnabar-ink: #f078a8;
-  --highlight:    rgba(240,100,150,0.12);
-  --page-glow-a:  rgba(220,80,130,0.13);
-  --page-glow-b:  rgba(160,40,80,0.09);
-}
-
-/* â”€â”€ Storm â€” dark, cold steel/silver atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="storm"] {
-  --paper:        #080a0e;
-  --paper-2:      #10141a;
-  --ink:          #e8ecf2;
-  --ink-2:        #8898b0;
-  --ink-3:        #485870;
-  --rule:         rgba(150,180,220,0.1);
-  --rule-2:       rgba(150,180,220,0.05);
-  --cinnabar:     #7090c0;
-  --cinnabar-ink: #88a8e0;
-  --highlight:    rgba(100,150,220,0.12);
-  --page-glow-a:  rgba(80,120,200,0.10);
-  --page-glow-b:  rgba(40,70,140,0.07);
-}
-
-/* â”€â”€ Ember â€” dark, copper/orange atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="ember"] {
-  --paper:        #0e0800;
-  --paper-2:      #1a1000;
-  --ink:          #f8f0e0;
-  --ink-2:        #d4a060;
-  --ink-3:        #906030;
-  --rule:         rgba(255,180,80,0.1);
-  --rule-2:       rgba(255,180,80,0.05);
-  --cinnabar:     #f07020;
-  --cinnabar-ink: #ff8830;
-  --highlight:    rgba(255,120,40,0.12);
-  --page-glow-a:  rgba(240,100,20,0.13);
-  --page-glow-b:  rgba(180,60,10,0.09);
-}
-
-/* â”€â”€ Sand â€” dark, warm desert/ochre atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-palette="sand"] {
-  --paper:        #0c0a06;
-  --paper-2:      #161208;
-  --ink:          #f0ead8;
-  --ink-2:        #c8b888;
-  --ink-3:        #806840;
-  --rule:         rgba(220,200,140,0.1);
-  --rule-2:       rgba(220,200,140,0.05);
-  --cinnabar:     #c89040;
-  --cinnabar-ink: #e0a850;
-  --highlight:    rgba(200,160,60,0.12);
-  --page-glow-a:  rgba(200,140,40,0.10);
-  --page-glow-b:  rgba(140,90,20,0.07);
-}
-
-/* â”€â”€â”€ Light mode â€” default â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"] {
-  --paper:        #ddd5c8;
-  --paper-2:      #d2c9bb;
-  --ink:          #000000;
-  --ink-2:        #141210;
-  --ink-3:        #3a3630;
-  --rule:         rgba(16,12,4,0.18);
-  --rule-2:       rgba(16,12,4,0.09);
-  --cinnabar:     #c42000;
-  --cinnabar-ink: #a81800;
-  --highlight:    rgba(180,50,20,0.15);
-  --page-glow-a:  rgba(200,70,30,0.06);
-  --page-glow-b:  rgba(160,40,20,0.04);
-}
-
-/* â”€â”€ Porcelain light â€” warm parchment, amber accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="porcelain"] {
-  --paper:        #faf6ee;
-  --paper-2:      #f0e8d8;
-  --ink:          #2a1f0e;
-  --ink-2:        #6a4e28;
-  --ink-3:        #a07840;
-  --rule:         rgba(100,60,10,0.12);
-  --rule-2:       rgba(100,60,10,0.06);
-  --cinnabar:     #c07010;
-  --cinnabar-ink: #a05808;
-  --highlight:    rgba(200,140,30,0.14);
-  --page-glow-a:  rgba(200,140,30,0.04);
-  --page-glow-b:  rgba(160,90,20,0.03);
-}
-
-/* â”€â”€ Ink light â€” cool blue-white, cyan accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="ink"] {
-  --paper:        #eef4fa;
-  --paper-2:      #e0ecf5;
-  --ink:          #081420;
-  --ink-2:        #284860;
-  --ink-3:        #487090;
-  --rule:         rgba(30,80,140,0.12);
-  --rule-2:       rgba(30,80,140,0.06);
-  --cinnabar:     #1880c0;
-  --cinnabar-ink: #0868a8;
-  --highlight:    rgba(20,120,200,0.12);
-  --page-glow-a:  rgba(30,120,200,0.04);
-  --page-glow-b:  rgba(20,80,160,0.03);
-}
-
-/* â”€â”€ Dusk light â€” lavender, purple accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="dusk"] {
-  --paper:        #f4f0fa;
-  --paper-2:      #e8e0f5;
-  --ink:          #150828;
-  --ink-2:        #4a2870;
-  --ink-3:        #7848a0;
-  --rule:         rgba(100,40,180,0.12);
-  --rule-2:       rgba(100,40,180,0.06);
-  --cinnabar:     #7030d0;
-  --cinnabar-ink: #5818b8;
-  --highlight:    rgba(110,40,210,0.12);
-  --page-glow-a:  rgba(120,50,220,0.04);
-  --page-glow-b:  rgba(80,20,180,0.03);
-}
-
-/* â”€â”€ Moss light â€” pale green, forest accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="moss"] {
-  --paper:        #eef5ee;
-  --paper-2:      #deeede;
-  --ink:          #081408;
-  --ink-2:        #285028;
-  --ink-3:        #487848;
-  --rule:         rgba(20,100,30,0.12);
-  --rule-2:       rgba(20,100,30,0.06);
-  --cinnabar:     #208040;
-  --cinnabar-ink: #106830;
-  --highlight:    rgba(20,130,50,0.12);
-  --page-glow-a:  rgba(30,160,50,0.04);
-  --page-glow-b:  rgba(20,110,30,0.03);
-}
-
-/* â”€â”€ Rose light â€” blush, deep pink accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="rose"] {
-  --paper:        #faf0f4;
-  --paper-2:      #f5e0ea;
-  --ink:          #200810;
-  --ink-2:        #602040;
-  --ink-3:        #904060;
-  --rule:         rgba(160,40,80,0.12);
-  --rule-2:       rgba(160,40,80,0.06);
-  --cinnabar:     #c02860;
-  --cinnabar-ink: #a01848;
-  --highlight:    rgba(190,30,80,0.12);
-  --page-glow-a:  rgba(200,40,100,0.04);
-  --page-glow-b:  rgba(140,20,60,0.03);
-}
-
-/* â”€â”€ Storm light â€” cool grey, steel-blue accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="storm"] {
-  --paper:        #eef0f5;
-  --paper-2:      #e0e4ee;
-  --ink:          #0a0e18;
-  --ink-2:        #2a3048;
-  --ink-3:        #485868;
-  --rule:         rgba(60,80,140,0.12);
-  --rule-2:       rgba(60,80,140,0.06);
-  --cinnabar:     #4060a0;
-  --cinnabar-ink: #304880;
-  --highlight:    rgba(50,70,160,0.12);
-  --page-glow-a:  rgba(60,90,180,0.04);
-  --page-glow-b:  rgba(30,50,130,0.03);
-}
-
-/* â”€â”€ Ember light â€” warm cream, copper accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="ember"] {
-  --paper:        #faf4ec;
-  --paper-2:      #f0e4d0;
-  --ink:          #1a0800;
-  --ink-2:        #5a2c00;
-  --ink-3:        #905020;
-  --rule:         rgba(140,60,0,0.12);
-  --rule-2:       rgba(140,60,0,0.06);
-  --cinnabar:     #b84010;
-  --cinnabar-ink: #9c2c00;
-  --highlight:    rgba(180,60,10,0.12);
-  --page-glow-a:  rgba(200,80,20,0.04);
-  --page-glow-b:  rgba(150,50,10,0.03);
-}
-
-/* â”€â”€ Sand light â€” pale sand, ochre accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"][data-palette="sand"] {
-  --paper:        #f8f4ec;
-  --paper-2:      #ede6d4;
-  --ink:          #1a1408;
-  --ink-2:        #584428;
-  --ink-3:        #806840;
-  --rule:         rgba(120,90,20,0.12);
-  --rule-2:       rgba(120,90,20,0.06);
-  --cinnabar:     #a07018;
-  --cinnabar-ink: #885808;
-  --highlight:    rgba(150,100,10,0.12);
-  --page-glow-a:  rgba(180,130,30,0.04);
-  --page-glow-b:  rgba(130,90,10,0.03);
-}
-
-/* â”€â”€â”€ Hero headline light mode overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-/* Both lines hardcode white for dark-mode hero â€” override for light */
-[data-mode="light"] .hero-word-1 {
-  color: rgba(0,0,0,0.55) !important;
-}
-[data-mode="light"] .hero-word-2 {
-  color: #000000 !important;
-  text-shadow: 0 0 40px rgba(180,40,0,0.18) !important;
-}
-
-/* â”€â”€â”€ Light mode â€” body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-/* Canvas is opacity 1.0 so body is fully hidden â€” keep as var(--paper) fallback
-   for the instant before the canvas renders on first load */
-[data-mode="light"] body {
-  background: var(--paper);
-}
-
-/* â”€â”€â”€ Light mode surface overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-/* Canvas clearColor + mixBlendMode are driven by applyTheme() in web-gl-shader.tsx.
-   Light mode: clearColor=white, mix-blend-mode=multiply so colored waves darken
-   the body paper (white canvas areas are neutral = paper shows through). */
-[data-mode="light"] .grain::before {
-  mix-blend-mode: multiply;    /* grain multiplies onto cream = paper texture */
-  opacity: 0.12;
-}
-[data-mode="light"] .btn {
-  --glass-reflex-light: 0.45;
-  --glass-reflex-dark:  0.8;
-}
-[data-mode="light"] .gl-pane {
-  background: color-mix(in srgb, var(--paper) 60%, transparent) !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6) !important;
-}
-[data-mode="light"] .gl-pane-alt {
-  background: color-mix(in srgb, var(--paper) 70%, transparent) !important;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5) !important;
-}
-[data-mode="light"] .dash-tool:hover {
-  box-shadow:
-    0 0 0 1.5px var(--cat-color, var(--cinnabar-ink)),
-    0 22px 54px rgba(0,0,0,0.12),
-    0 8px 20px rgba(0,0,0,0.07),
-    0 0 48px color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 10%, transparent) !important;
+  /* == Elevations (unchanged structure, brand-tinted) == */
+  --elev-0: 0 0 0 hsl(0 0% 0% / 0);
+  --elev-1: 0 1px 3px hsl(220 10% 3% / 0.40), 0 1px 2px hsl(220 10% 3% / 0.24);
+  --elev-2: 0 4px 6px hsl(220 10% 3% / 0.35), 0 2px 4px hsl(220 10% 3% / 0.22);
+  --elev-3: 0 10px 15px hsl(220 10% 3% / 0.30), 0 4px 6px hsl(220 10% 3% / 0.20);
+  --elev-4: 0 20px 25px hsl(220 10% 3% / 0.28), 0 10px 10px hsl(220 10% 3% / 0.18);
 }
 
 /* â”€â”€â”€ Glass panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -2266,13 +1970,6 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
 .nav-tool-link:hover::before,
 .nav-tool-link[aria-current="page"]::before { transform: translateY(-50%) scaleY(1); }
 
-/* â”€â”€â”€ Light mode elevation adjustments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-[data-mode="light"] {
-  --elev-1: 0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
-  --elev-2: 0 4px 14px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
-  --elev-3: 0 12px 32px rgba(0,0,0,0.13), 0 4px 8px rgba(0,0,0,0.07);
-  --elev-4: 0 24px 56px rgba(0,0,0,0.16), 0 8px 16px rgba(0,0,0,0.08);
-}
 
 /* â”€â”€â”€ Reduced motion: collapse premium animations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
