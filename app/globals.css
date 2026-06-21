@@ -1101,6 +1101,9 @@ input[type="radio"]:checked::after {
 .lp-feats2   { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
 .lp-footer   { padding: 48px 44px 64px; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 28px; }
 
+/* mob-only: hidden by default, shown inside the 768px breakpoint */
+.mob-only { display: none !important; }
+
 @media (max-width: 768px) {
   .lp-title  { font-size: 52px !important; }
   .lp-h3     { font-size: 26px !important; }
@@ -1289,6 +1292,8 @@ main {
 
   /* Hide secondary info to save space */
   .mob-hide { display: none !important; }
+  /* Show mobile-only elements */
+  .mob-only { display: flex !important; }
 
   /* Cols layout â†’ single column */
   .cols-2 { column-count: 1; }

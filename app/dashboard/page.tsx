@@ -1376,24 +1376,6 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Mobile dock */}
-      <div
-        className="mob-only"
-        style={{ position: "fixed", bottom: 20, right: 20, zIndex: 60 }}
-      >
-        <FloatingDock
-          mobileClassName="translate-y-0"
-          items={[
-            { title: "Dashboard",   href: "/dashboard",           icon: <IconLayoutDashboard size={16} /> },
-            { title: "Score",       href: "/tools/score",         icon: <IconChartBar size={16} /> },
-            { title: "Planner",     href: "/tools/planner",       icon: <IconBolt size={16} /> },
-            { title: "Study Engine",href: "/tools/notes",         icon: <IconBook2 size={16} /> },
-            { title: "Past Papers", href: "/tools/papers",        icon: <IconTargetArrow size={16} /> },
-            { title: "Admissions",  href: "/tools/admissions",    icon: <IconStar size={16} /> },
-            { title: "Profile",     href: "/dashboard/profile",   icon: <IconUser size={16} /> },
-          ]}
-        />
-      </div>
     </main>
   );
 }

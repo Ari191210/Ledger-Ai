@@ -1,6 +1,7 @@
 "use client"
 import { useRef, useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   motion,
   useMotionValue,
@@ -25,8 +26,8 @@ interface FloatingDockProps {
 export function FloatingDock({ items, className, mobileClassName }: FloatingDockProps) {
   return (
     <>
-      <DesktopDock items={items} className={className} />
-      <MobileDock items={items} className={mobileClassName} />
+      <DesktopDock items={items} className={`mob-hide ${className ?? ""}`.trim()} />
+      <MobileDock  items={items} className={`mob-only ${mobileClassName ?? ""}`.trim()} />
     </>
   )
 }
@@ -141,86 +142,246 @@ function DockIcon({ item, mouseX }: { item: DockItem; mouseX: MotionValue<number
 }
 
 function MobileDock({ items, className }: { items: DockItem[]; className?: string }) {
-  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const [pressed, setPressed] = useState<string | null>(null)
+
+  // Split: first 5 in bar, rest in "More" tray
+  const primary = items.slice(0, 5)
+  const overflow = items.slice(5)
+  const [moreOpen, setMoreOpen] = useState(false)
+
+  const isActive = (href: string) => pathname === href || pathname?.startsWith(href + "/")
 
   return (
-    <div
+    <nav
       className={className}
-      style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "flex-end" }}
+      aria-label="Mobile navigation"
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 60,
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        background: "color-mix(in srgb, var(--paper-2) 88%, transparent)",
+        backdropFilter: "blur(24px) saturate(180%)",
+        WebkitBackdropFilter: "blur(24px) saturate(180%)",
+        borderTop: "1px solid color-mix(in srgb, var(--ink) 10%, transparent)",
+      }}
     >
+      {/* More tray — slides up from bar */}
       <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.18 }}
-            style={{
-              position: "absolute",
-              bottom: "calc(100% + 8px)",
-              right: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              padding: "10px 12px",
-              background: "color-mix(in srgb, var(--paper-2) 90%, transparent)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
-              borderRadius: 16,
-            }}
-          >
-            {items.map(item => (
-              <Link
-                key={item.title}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  textDecoration: "none",
-                  padding: "6px 8px",
-                  borderRadius: 10,
-                }}
-              >
-                <div style={{
-                  width: 32, height: 32, borderRadius: 10,
-                  background: "color-mix(in srgb, var(--ink) 8%, var(--paper))",
-                  border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "var(--ink-2)", flexShrink: 0,
-                }}>
-                  <div style={{ width: "60%", height: "60%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {item.icon}
-                  </div>
-                </div>
-                <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500, color: "var(--ink)", whiteSpace: "nowrap" }}>
-                  {item.title}
-                </span>
-              </Link>
-            ))}
-          </motion.div>
+        {moreOpen && overflow.length > 0 && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              onClick={() => setMoreOpen(false)}
+              style={{
+                position: "fixed", inset: 0, zIndex: -1,
+                background: "rgba(8,9,12,0.5)",
+              }}
+            />
+            {/* Tray */}
+            <motion.div
+              key="tray"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 16 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                position: "absolute",
+                bottom: "100%",
+                left: 16,
+                right: 16,
+                marginBottom: 10,
+                background: "color-mix(in srgb, var(--paper-2) 95%, transparent)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
+                borderRadius: 18,
+                padding: "8px 6px",
+                display: "grid",
+                gridTemplateColumns: `repeat(${overflow.length}, 1fr)`,
+              }}
+            >
+              {overflow.map(item => {
+                const active = isActive(item.href)
+                return (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    onClick={() => setMoreOpen(false)}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <div style={{
+                      display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center",
+                      gap: 5, padding: "12px 8px",
+                      borderRadius: 12,
+                      background: active
+                        ? "color-mix(in srgb, var(--cinnabar-ink) 12%, transparent)"
+                        : "transparent",
+                    }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 11,
+                        background: active
+                          ? "color-mix(in srgb, var(--cinnabar-ink) 16%, var(--paper))"
+                          : "color-mix(in srgb, var(--ink) 7%, var(--paper))",
+                        border: `1px solid ${active
+                          ? "color-mix(in srgb, var(--cinnabar-ink) 35%, transparent)"
+                          : "color-mix(in srgb, var(--ink) 10%, transparent)"}`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: active ? "var(--cinnabar-ink)" : "var(--ink-3)",
+                      }}>
+                        <div style={{ width: "55%", height: "55%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          {item.icon}
+                        </div>
+                      </div>
+                      <span style={{
+                        fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500,
+                        color: active ? "var(--cinnabar-ink)" : "var(--ink-3)",
+                        letterSpacing: "0.01em",
+                      }}>
+                        {item.title}
+                      </span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
-      <button
-        onClick={() => setOpen(o => !o)}
-        aria-label={open ? "Close navigation" : "Open navigation"}
-        aria-expanded={open}
-        style={{
-          width: 44, height: 44, borderRadius: 14,
-          background: "color-mix(in srgb, var(--paper-2) 80%, transparent)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer",
-          fontFamily: "var(--mono)", fontSize: 18, color: "var(--ink-2)",
-        }}
-      >
-        {open ? "✕" : "⠿"}
-      </button>
-    </div>
+      {/* Main tab row */}
+      <div style={{
+        display: "flex",
+        alignItems: "stretch",
+        height: 58,
+      }}>
+        {primary.map(item => {
+          const active = isActive(item.href)
+          const isPressed = pressed === item.title
+          return (
+            <Link
+              key={item.title}
+              href={item.href}
+              style={{ flex: 1, textDecoration: "none" }}
+              onMouseDown={() => setPressed(item.title)}
+              onMouseUp={() => setPressed(null)}
+              onTouchStart={() => setPressed(item.title)}
+              onTouchEnd={() => setPressed(null)}
+            >
+              <motion.div
+                animate={{ scale: isPressed ? 0.88 : 1 }}
+                transition={{ duration: 0.12, ease: "easeOut" }}
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 4,
+                  position: "relative",
+                }}
+              >
+                {/* Active pill indicator */}
+                <AnimatePresence>
+                  {active && (
+                    <motion.div
+                      key="pill"
+                      layoutId="mobile-dock-active"
+                      initial={{ opacity: 0, scaleX: 0.4 }}
+                      animate={{ opacity: 1, scaleX: 1 }}
+                      exit={{ opacity: 0, scaleX: 0.4 }}
+                      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                      style={{
+                        position: "absolute",
+                        top: 6,
+                        width: 32, height: 3,
+                        borderRadius: 99,
+                        background: "var(--cinnabar-ink)",
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+
+                {/* Icon container */}
+                <div style={{
+                  width: 34, height: 34, borderRadius: 10,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: active
+                    ? "color-mix(in srgb, var(--cinnabar-ink) 14%, var(--paper))"
+                    : "transparent",
+                  transition: "background 200ms ease",
+                  color: active ? "var(--cinnabar-ink)" : "var(--ink-3)",
+                }}>
+                  <div style={{ width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {item.icon}
+                  </div>
+                </div>
+
+                {/* Label */}
+                <span style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: 9,
+                  fontWeight: active ? 600 : 400,
+                  color: active ? "var(--cinnabar-ink)" : "var(--ink-3)",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1,
+                  transition: "color 200ms ease, font-weight 200ms ease",
+                }}>
+                  {item.title.split(" ")[0]}
+                </span>
+              </motion.div>
+            </Link>
+          )
+        })}
+
+        {/* More button */}
+        {overflow.length > 0 && (
+          <button
+            onClick={() => setMoreOpen(o => !o)}
+            aria-label={moreOpen ? "Close more" : "More navigation"}
+            aria-expanded={moreOpen}
+            style={{
+              flex: 1, background: "none", border: "none", cursor: "pointer",
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", gap: 4,
+            }}
+          >
+            <motion.div
+              animate={{ rotate: moreOpen ? 45 : 0 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                width: 34, height: 34, borderRadius: 10,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: moreOpen
+                  ? "color-mix(in srgb, var(--cinnabar-ink) 14%, var(--paper))"
+                  : "transparent",
+                color: moreOpen ? "var(--cinnabar-ink)" : "var(--ink-3)",
+                fontSize: 20, lineHeight: 1,
+                transition: "background 200ms ease, color 200ms ease",
+              }}
+            >
+              ⊕
+            </motion.div>
+            <span style={{
+              fontFamily: "var(--sans)", fontSize: 9, fontWeight: 400,
+              color: moreOpen ? "var(--cinnabar-ink)" : "var(--ink-3)",
+              letterSpacing: "0.02em", lineHeight: 1,
+              transition: "color 200ms ease",
+            }}>
+              More
+            </span>
+          </button>
+        )}
+      </div>
+    </nav>
   )
 }
