@@ -934,15 +934,21 @@ export default function Home() {
 
       {/* ─── Stats Bar ─── */}
       <div style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 60%, transparent)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "52px 32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
           {[
-            { n: "55",    label: "AI Tools",                  color: "var(--sage)",         bg: "rgba(241,255,196,0.08)" },
-            { n: "3,204", label: "Waitlist — Exam-Day Mode",  color: "var(--cinnabar-ink)", bg: "rgba(255,202,175,0.08)" },
-            { n: "Free",  label: "To start · No card needed", color: "var(--plum)",         bg: "rgba(198,226,233,0.08)" },
+            { n: "55",    label: "AI Tools",                  color: "#d4ff5c", bg: "rgba(212,255,92,0.06)",  accent: "#d4ff5c" },
+            { n: "3,204", label: "Waitlist — Exam-Day Mode",  color: "#ff9c6e", bg: "rgba(255,156,110,0.06)", accent: "#ff9c6e" },
+            { n: "Free",  label: "To start · No card needed", color: "#7dd8f0", bg: "rgba(125,216,240,0.06)", accent: "#7dd8f0" },
           ].map((s, i) => (
-            <div key={i} style={{ textAlign: "center", padding: "20px 24px", borderRight: i < 2 ? S.border : "none", background: s.bg, borderRadius: 12 }}>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 52, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.n}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", marginTop: 10, letterSpacing: "0.02em" }}>{s.label}</div>
+            <div key={i} style={{
+              textAlign: "center",
+              padding: "56px 32px 52px",
+              borderRight: i < 2 ? S.border : "none",
+              background: s.bg,
+              borderBottom: `3px solid ${s.accent}`,
+            }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 68, fontWeight: 700, color: s.color, lineHeight: 1, letterSpacing: "-0.02em" }}>{s.n}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: s.color, marginTop: 14, letterSpacing: "0.04em", opacity: 0.6 }}>{s.label}</div>
             </div>
           ))}
         </div>
