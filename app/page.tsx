@@ -739,12 +739,16 @@ export default function Home() {
         transition: "none",
       }} />
 
-      {/* ─── Sticky header ─── */}
+      {/* ─── Floating navbar ─── */}
       <header className="gl-pane lp-header" style={{
-        position: "sticky", top: 0, zIndex: 50,
-        borderBottom: S.border,
+        position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)",
+        width: "calc(100% - 48px)", maxWidth: 960, zIndex: 50,
+        border: S.border,
+        borderRadius: 14,
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "0 40px", height: 60,
+        padding: "0 28px", height: 52,
+        backdropFilter: "blur(20px) saturate(160%)",
+        WebkitBackdropFilter: "blur(20px) saturate(160%)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
           <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16, color: "var(--ink)", letterSpacing: "0.1em" }}>LEDGER</span>
