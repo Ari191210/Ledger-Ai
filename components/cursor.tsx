@@ -53,8 +53,8 @@ export default function Cursor() {
 
     const tick = () => {
       dot.style.transform = `translate(${mouseX - 4}px,${mouseY - 4}px)`
-      ringX += (mouseX - ringX) * 0.11
-      ringY += (mouseY - ringY) * 0.11
+      ringX += (mouseX - ringX) * 0.18
+      ringY += (mouseY - ringY) * 0.18
       ring.style.transform = `translate(${ringX - 16}px,${ringY - 16}px)`
       rafId = requestAnimationFrame(tick)
     }

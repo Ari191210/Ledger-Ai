@@ -1,0 +1,10 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [
+      "app/globals.css",
+      "components/ui/web-gl-shader.tsx"
+    ],
+    "ignoreValues": []
+  }
+}
