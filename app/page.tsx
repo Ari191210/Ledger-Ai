@@ -806,11 +806,6 @@ export default function Home() {
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
 
-            {/* Warm tagline above badge */}
-            <div className="hero-badge-pre" style={{ fontFamily: "var(--sans)", fontSize: "clamp(28px,4vw,44px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.15, marginBottom: 18 }}>
-              Your personal AI<br /><span style={{ color: "var(--cinnabar-ink)" }}>study partner.</span>
-            </div>
-
             {/* Badge */}
             <div className="hero-badge" style={{
               display: "inline-flex", alignItems: "center", gap: 16,

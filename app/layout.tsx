@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Orbitron, DM_Sans, Space_Mono, Lora } from "next/font/google";
+﻿import type { Metadata } from "next";
+import { Syne, DM_Sans, Space_Mono, Lora } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
@@ -15,9 +15,9 @@ import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import RankWhisper from "@/components/rank-whisper";
 import "./globals.css";
 
-const orbitron = Orbitron({
+const syne = Syne({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-orbitron",
   display: "swap",
   preload: false,
@@ -26,7 +26,7 @@ const orbitron = Orbitron({
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-inter",   // reuse existing var — no other files need changing
+  variable: "--font-inter",   // reuse existing var â€” no other files need changing
   display: "swap",
 });
 
@@ -48,9 +48,9 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Ledger — The Student's Operating System",
+  title: "Ledger â€” The Student's Operating System",
   description:
-    "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more — calibrated to your board, grade, and exam date.",
+    "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more â€” calibrated to your board, grade, and exam date.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://studyledger.in"),
   alternates: {
@@ -62,9 +62,9 @@ export const metadata: Metadata = {
     "flashcards", "marks predictor", "doubt solver", "study OS", "ledger study",
   ],
   openGraph: {
-    title: "Ledger — The Student's Operating System",
+    title: "Ledger â€” The Student's Operating System",
     description:
-      "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more — calibrated to your board, grade, and exam date.",
+      "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more â€” calibrated to your board, grade, and exam date.",
     url: "https://studyledger.in",
     siteName: "Ledger",
     type: "website",
@@ -73,13 +73,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Ledger — The Student's Operating System",
+        alt: "Ledger â€” The Student's Operating System",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ledger — The Student's Operating System",
+    title: "Ledger â€” The Student's Operating System",
     description:
       "55 AI-powered tools for students. Calibrated to your board, grade, and exam date.",
     images: ["/og-image.png"],
@@ -102,7 +102,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable}`}
+      className={`${syne.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable}`}
     >
       <head>
         {/* Anti-flash: apply saved palette before first paint */}
@@ -115,7 +115,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body>
-        {/* Global liquid-glass displacement filter — referenced by backdrop-filter: url(#global-liquid-glass) in .btn */}
+        {/* Global liquid-glass displacement filter â€” referenced by backdrop-filter: url(#global-liquid-glass) in .btn */}
         <svg
           aria-hidden="true"
           style={{ position: "absolute", width: 0, height: 0, overflow: "hidden", pointerEvents: "none" }}

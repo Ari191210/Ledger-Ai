@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -23,7 +23,7 @@
   100% { transform: translate(0px, 0px); }
 }
 
-/* ── Glassmorphic card utility ── */
+/* â”€â”€ Glassmorphic card utility â”€â”€ */
 .glass-card {
   background: color-mix(in srgb, var(--paper) 55%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
@@ -32,7 +32,7 @@
   border-radius: var(--radius);
 }
 
-/* ── Scroll indicator ── */
+/* â”€â”€ Scroll indicator â”€â”€ */
 .scroll-cue {
   display: flex;
   flex-direction: column;
@@ -65,7 +65,7 @@
   50%       { opacity: 0.45; }
 }
 
-/* ─── 3D result reveal — fires when AIOutput receives new text ─────────────── */
+/* â”€â”€â”€ 3D result reveal â€” fires when AIOutput receives new text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes ai-3d-reveal {
   from {
     opacity: 0;
@@ -81,7 +81,7 @@
   transform-origin: top center;
 }
 
-/* ─── Tools page ambient background ────────────────────────────────────────── */
+/* â”€â”€â”€ Tools page ambient background â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes tools-drift-a {
   0%,100% { transform: translate(0%, 0%) scale(1); }
   35%     { transform: translate(4%, 6%) scale(1.06); }
@@ -102,8 +102,8 @@
   animation: tools-drift-b 44s ease-in-out infinite;
 }
 
-/* ─── Border-radius scale ───────────────────────────────────────────────────── */
-/* ─── Severity tier tokens (Paper Trauma Map + future severity UI) ─────────── */
+/* â”€â”€â”€ Border-radius scale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€â”€ Severity tier tokens (Paper Trauma Map + future severity UI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   --severity-low-color:     oklch(0.45 0.13 72);
   --severity-low-bg:        oklch(0.97 0.04 90);
@@ -137,19 +137,19 @@
   --radius-lg: 32px;
 }
 
-/* ─── Reading density ───────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Reading density â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root                       { --density-prose: 15px; --density-line: 1.72; }
 [data-density="compact"]    { --density-prose: 13px; --density-line: 1.55; }
 [data-density="comfortable"]{ --density-prose: 17px; --density-line: 1.9;  }
 
-/* ─── Design tokens ─────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Design tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   --serif: var(--font-orbitron), "Orbitron", system-ui, sans-serif;
   --sans:  var(--font-inter), "Inter", system-ui, sans-serif;
   --mono:  var(--font-space-mono), "Space Mono", ui-monospace, monospace;
   --prose: var(--font-lora), "Lora", Georgia, serif;
 
-  /* Dark default — matches the WebGL shader hero */
+  /* Dark default â€” matches the WebGL shader hero */
   --paper:        #080808;
   --paper-2:      #111111;
   --ink:          #f2f2ef;
@@ -166,12 +166,12 @@
   --ochre:        #d4a840; --ochre-bg: rgba(212,168,64,0.1);
   --plum:         #a888d4; --plum-bg: rgba(168,136,212,0.1);
   --teal:         #44aaaa; --teal-bg: rgba(68,170,170,0.1);
-  /* Gradient atmosphere — overridden per palette */
+  /* Gradient atmosphere â€” overridden per palette */
   --page-glow-a:  rgba(255,80,48,0.07);
   --page-glow-b:  rgba(180,40,20,0.04);
 }
 
-/* ── Porcelain — dark, amber/gold atmosphere ─────────────────────────────── */
+/* â”€â”€ Porcelain â€” dark, amber/gold atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="porcelain"] {
   --paper:        #0e0c08;
   --paper-2:      #181510;
@@ -187,7 +187,7 @@
   --page-glow-b:  rgba(200,100,20,0.09);
 }
 
-/* ── Ink — dark, cyan/blue atmosphere ───────────────────────────────────── */
+/* â”€â”€ Ink â€” dark, cyan/blue atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="ink"] {
   --paper:        #050a10;
   --paper-2:      #0a1218;
@@ -203,7 +203,7 @@
   --page-glow-b:  rgba(20,100,200,0.09);
 }
 
-/* ── Dusk — dark, purple/violet atmosphere ──────────────────────────────── */
+/* â”€â”€ Dusk â€” dark, purple/violet atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="dusk"] {
   --paper:        #080510;
   --paper-2:      #100a1a;
@@ -219,7 +219,7 @@
   --page-glow-b:  rgba(80,20,200,0.09);
 }
 
-/* ── Moss — dark, green atmosphere ─────────────────────────────────────── */
+/* â”€â”€ Moss â€” dark, green atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="moss"] {
   --paper:        #050e06;
   --paper-2:      #091408;
@@ -235,7 +235,7 @@
   --page-glow-b:  rgba(20,140,40,0.09);
 }
 
-/* ── Rose — dark, pink/blush atmosphere ─────────────────────────────────── */
+/* â”€â”€ Rose â€” dark, pink/blush atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="rose"] {
   --paper:        #100609;
   --paper-2:      #1a0a10;
@@ -251,7 +251,7 @@
   --page-glow-b:  rgba(160,40,80,0.09);
 }
 
-/* ── Storm — dark, cold steel/silver atmosphere ──────────────────────────── */
+/* â”€â”€ Storm â€” dark, cold steel/silver atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="storm"] {
   --paper:        #080a0e;
   --paper-2:      #10141a;
@@ -267,7 +267,7 @@
   --page-glow-b:  rgba(40,70,140,0.07);
 }
 
-/* ── Ember — dark, copper/orange atmosphere ──────────────────────────────── */
+/* â”€â”€ Ember â€” dark, copper/orange atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="ember"] {
   --paper:        #0e0800;
   --paper-2:      #1a1000;
@@ -283,7 +283,7 @@
   --page-glow-b:  rgba(180,60,10,0.09);
 }
 
-/* ── Sand — dark, warm desert/ochre atmosphere ───────────────────────────── */
+/* â”€â”€ Sand â€” dark, warm desert/ochre atmosphere â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-palette="sand"] {
   --paper:        #0c0a06;
   --paper-2:      #161208;
@@ -299,7 +299,7 @@
   --page-glow-b:  rgba(140,90,20,0.07);
 }
 
-/* ─── Light mode — default ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Light mode â€” default â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"] {
   --paper:        #ddd5c8;
   --paper-2:      #d2c9bb;
@@ -315,7 +315,7 @@
   --page-glow-b:  rgba(160,40,20,0.04);
 }
 
-/* ── Porcelain light — warm parchment, amber accent ──────────────────────────── */
+/* â”€â”€ Porcelain light â€” warm parchment, amber accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="porcelain"] {
   --paper:        #faf6ee;
   --paper-2:      #f0e8d8;
@@ -331,7 +331,7 @@
   --page-glow-b:  rgba(160,90,20,0.03);
 }
 
-/* ── Ink light — cool blue-white, cyan accent ────────────────────────────────── */
+/* â”€â”€ Ink light â€” cool blue-white, cyan accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="ink"] {
   --paper:        #eef4fa;
   --paper-2:      #e0ecf5;
@@ -347,7 +347,7 @@
   --page-glow-b:  rgba(20,80,160,0.03);
 }
 
-/* ── Dusk light — lavender, purple accent ────────────────────────────────────── */
+/* â”€â”€ Dusk light â€” lavender, purple accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="dusk"] {
   --paper:        #f4f0fa;
   --paper-2:      #e8e0f5;
@@ -363,7 +363,7 @@
   --page-glow-b:  rgba(80,20,180,0.03);
 }
 
-/* ── Moss light — pale green, forest accent ──────────────────────────────────── */
+/* â”€â”€ Moss light â€” pale green, forest accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="moss"] {
   --paper:        #eef5ee;
   --paper-2:      #deeede;
@@ -379,7 +379,7 @@
   --page-glow-b:  rgba(20,110,30,0.03);
 }
 
-/* ── Rose light — blush, deep pink accent ────────────────────────────────────── */
+/* â”€â”€ Rose light â€” blush, deep pink accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="rose"] {
   --paper:        #faf0f4;
   --paper-2:      #f5e0ea;
@@ -395,7 +395,7 @@
   --page-glow-b:  rgba(140,20,60,0.03);
 }
 
-/* ── Storm light — cool grey, steel-blue accent ──────────────────────────────── */
+/* â”€â”€ Storm light â€” cool grey, steel-blue accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="storm"] {
   --paper:        #eef0f5;
   --paper-2:      #e0e4ee;
@@ -411,7 +411,7 @@
   --page-glow-b:  rgba(30,50,130,0.03);
 }
 
-/* ── Ember light — warm cream, copper accent ─────────────────────────────────── */
+/* â”€â”€ Ember light â€” warm cream, copper accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="ember"] {
   --paper:        #faf4ec;
   --paper-2:      #f0e4d0;
@@ -427,7 +427,7 @@
   --page-glow-b:  rgba(150,50,10,0.03);
 }
 
-/* ── Sand light — pale sand, ochre accent ────────────────────────────────────── */
+/* â”€â”€ Sand light â€” pale sand, ochre accent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"][data-palette="sand"] {
   --paper:        #f8f4ec;
   --paper-2:      #ede6d4;
@@ -443,8 +443,8 @@
   --page-glow-b:  rgba(130,90,10,0.03);
 }
 
-/* ─── Hero headline light mode overrides ────────────────────────────────────── */
-/* Both lines hardcode white for dark-mode hero — override for light */
+/* â”€â”€â”€ Hero headline light mode overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Both lines hardcode white for dark-mode hero â€” override for light */
 [data-mode="light"] .hero-word-1 {
   color: rgba(0,0,0,0.55) !important;
 }
@@ -453,14 +453,14 @@
   text-shadow: 0 0 40px rgba(180,40,0,0.18) !important;
 }
 
-/* ─── Light mode — body ────────────────────────────────────────────────────── */
-/* Canvas is opacity 1.0 so body is fully hidden — keep as var(--paper) fallback
+/* â”€â”€â”€ Light mode â€” body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Canvas is opacity 1.0 so body is fully hidden â€” keep as var(--paper) fallback
    for the instant before the canvas renders on first load */
 [data-mode="light"] body {
   background: var(--paper);
 }
 
-/* ─── Light mode surface overrides ──────────────────────────────────────────── */
+/* â”€â”€â”€ Light mode surface overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Canvas clearColor + mixBlendMode are driven by applyTheme() in web-gl-shader.tsx.
    Light mode: clearColor=white, mix-blend-mode=multiply so colored waves darken
    the body paper (white canvas areas are neutral = paper shows through). */
@@ -488,7 +488,7 @@
     0 0 48px color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 10%, transparent) !important;
 }
 
-/* ─── Glass panels ───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Glass panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .gl-pane {
   background: color-mix(in srgb, var(--paper) 58%, transparent) !important;
   backdrop-filter: blur(20px);
@@ -504,7 +504,7 @@
   transition: background 220ms ease;
 }
 
-/* Dashboard tool card — bubbly rounded hover */
+/* Dashboard tool card â€” bubbly rounded hover */
 .dash-tool {
   position: relative;
   z-index: 1;
@@ -541,7 +541,7 @@
   transform: translate(5px, -5px);
 }
 
-/* ─── Custom cursor ─────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Custom cursor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (pointer: fine) {
   *, *::before, *::after { cursor: none !important; }
 }
@@ -569,7 +569,7 @@
               border-color 220ms;
 }
 
-/* Hover state — ring expands, dot hides */
+/* Hover state â€” ring expands, dot hides */
 .cur-dot[data-hover]  { width: 3px; height: 3px; opacity: 0.4; }
 .cur-ring[data-hover] { width: 52px; height: 52px; opacity: 0.35; }
 
@@ -577,7 +577,7 @@
 .cur-dot[data-press]  { background: var(--cinnabar); }
 .cur-ring[data-press] { width: 24px; height: 24px; opacity: 0.8; }
 
-/* ─── Base ──────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 html {
   font-size: 15px;
   scroll-behavior: smooth;
@@ -599,7 +599,7 @@ a {
 a:hover { opacity: 0.75; }
 * { box-sizing: border-box; font-synthesis: none; }
 
-/* Headings default to serif italic — Newsreader reads best at 400–500 */
+/* Headings default to serif italic â€” Newsreader reads best at 400â€“500 */
 h1, h2, h3, h4, h5 {
   font-family: var(--serif);
   font-weight: 600;
@@ -609,7 +609,7 @@ h1, h2, h3, h4, h5 {
   margin: 0;
 }
 
-/* Horizontal rules — newspaper rule */
+/* Horizontal rules â€” newspaper rule */
 hr {
   border: none;
   border-top: 1px solid var(--rule);
@@ -618,7 +618,7 @@ hr {
 hr.rule-heavy { border-top-color: var(--ink); }
 hr.rule-double { border-top: 3px double var(--ink); }
 
-/* ─── Grain ─────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Grain â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .grain::before {
   content: "";
   position: fixed;
@@ -630,7 +630,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.07  0 0 0 0 0.05  0 0 0 0.20 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* ─── Typography ────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .mono {
   font-family: var(--mono);
   font-size: 11px;
@@ -654,7 +654,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
 .cin  { color: var(--cinnabar-ink); }
 .mark { background: var(--highlight); padding: 0 0.18em; }
 
-/* ─── Drop cap ──────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Drop cap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dropcap::first-letter {
   font-family: var(--serif);
   font-weight: 700;
@@ -665,7 +665,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   color: var(--cinnabar-ink);
 }
 
-/* ─── Buttons ───────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes btn-flow {
   0%   { transform: translateX(-120%) skewX(-14deg); }
   100% { transform: translateX(420%) skewX(-14deg); }
@@ -701,7 +701,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   -webkit-backdrop-filter: blur(10px) saturate(200%);
 
   box-shadow:
-    /* Full-width top-edge specular — the primary glass tell */
+    /* Full-width top-edge specular â€” the primary glass tell */
     inset 0 1.5px 0 0 color-mix(in srgb, white calc(var(--glass-reflex-light) * 62%), transparent),
     /* Angled top-left corner highlight */
     inset 1.5px 2.5px 0px -1.5px color-mix(in srgb, white calc(var(--glass-reflex-light) * 88%), transparent),
@@ -778,7 +778,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
   border-color: color-mix(in srgb, #2A7A52 42%, transparent);
 }
 
-/* ─── Global button glass base (overridden by .btn / .ui-btn-* / inline styles) */
+/* â”€â”€â”€ Global button glass base (overridden by .btn / .ui-btn-* / inline styles) */
 button:not(.btn):not([class*="ui-btn"]) {
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   border: none;
@@ -791,7 +791,7 @@ button:not(.btn):not([class*="ui-btn"]) {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, white 52%, transparent),
     0 2px 8px color-mix(in srgb, black 12%, transparent);
-  transition: background 180ms ease, transform 200ms cubic-bezier(0.34,1.56,0.64,1);
+  transition: background 180ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
   background: color-mix(in srgb, var(--ink) 14%, transparent);
@@ -805,7 +805,7 @@ button:not(.btn):not([class*="ui-btn"]):disabled {
   cursor: not-allowed;
 }
 
-/* ─── Skeleton shimmer ───────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes sk-shimmer {
   0%   { background-position: -600px 0; }
   100% { background-position:  600px 0; }
@@ -826,7 +826,7 @@ button:not(.btn):not([class*="ui-btn"]):disabled {
   .skel { animation: none; background: var(--paper-2); }
 }
 
-/* ─── Nav + tab-bar buttons: strip glass (they carry structural inline styles) ── */
+/* â”€â”€â”€ Nav + tab-bar buttons: strip glass (they carry structural inline styles) â”€â”€ */
 nav button,
 .mob-tab-bar button {
   backdrop-filter: none !important;
@@ -839,12 +839,12 @@ nav button:hover:not(:disabled),
 nav button:active:not(:disabled),
 .mob-tab-bar button:active:not(:disabled) { transform: none !important; }
 
-/* ─── Forms ─────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Forms â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 input, textarea, select { outline: none; }
 input[type="range"] { cursor: pointer; }
 input[type="checkbox"], input[type="radio"] { cursor: pointer; }
 
-/* ─── Form controls — glass theme ───────────────────────────────────────────── */
+/* â”€â”€â”€ Form controls â€” glass theme â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Text inputs + textareas */
 input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]),
@@ -900,7 +900,7 @@ select option {
   color: var(--ink);
 }
 
-/* Range sliders — glass pill thumb */
+/* Range sliders â€” glass pill thumb */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -1080,7 +1080,7 @@ input[type="radio"]:checked::after {
   background: var(--cinnabar-ink);
 }
 
-/* ─── ui/button.tsx variant classes ─────────────────────────────────────────── */
+/* â”€â”€â”€ ui/button.tsx variant classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ui-btn {
   border: 1.5px solid transparent;
   transition: opacity 160ms ease, transform 160ms cubic-bezier(.4,0,.2,1),
@@ -1158,7 +1158,7 @@ input[type="radio"]:checked::after {
   text-underline-offset: 4px;
 }
 
-/* ─── Figure box ────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Figure box â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .figbox {
   position: relative;
   background: repeating-linear-gradient(135deg, var(--rule-2) 0 1px, transparent 1px 8px), var(--paper-2);
@@ -1185,9 +1185,9 @@ input[type="radio"]:checked::after {
   color: var(--cinnabar-ink);
 }
 
-/* ─── Editorial typography ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Editorial typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* Kicker — tiny label above a headline, e.g. "ANALYSIS · LESSON" */
+/* Kicker â€” tiny label above a headline, e.g. "ANALYSIS Â· LESSON" */
 .kicker {
   font-family: var(--mono);
   font-size: 8px;
@@ -1198,7 +1198,7 @@ input[type="radio"]:checked::after {
   margin-bottom: 5px;
 }
 
-/* Deck / standfirst — the italic sentence below a headline */
+/* Deck / standfirst â€” the italic sentence below a headline */
 .deck {
   font-family: var(--serif);
   font-size: 16px;
@@ -1217,7 +1217,7 @@ input[type="radio"]:checked::after {
   color: var(--ink-3);
 }
 
-/* Section flag — "PLAN ─────────────────" */
+/* Section flag â€” "PLAN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€" */
 .section-flag {
   display: flex;
   align-items: center;
@@ -1242,7 +1242,7 @@ input[type="radio"]:checked::after {
   background: var(--rule);
 }
 
-/* Pull quote — bordered statement */
+/* Pull quote â€” bordered statement */
 .pullquote {
   border-top: 2px solid var(--ink);
   border-bottom: 2px solid var(--ink);
@@ -1271,7 +1271,7 @@ input[type="radio"]:checked::after {
 .hed-md  { font-family: var(--serif); font-size: 28px; font-weight: 700; font-style: normal; line-height: 1.1;  letter-spacing: 0.04em; }
 .hed-sm  { font-family: var(--serif); font-size: 20px; font-weight: 700; font-style: normal; line-height: 1.2;  letter-spacing: 0.03em; }
 
-/* Tool page masthead — editorial header for tool pages */
+/* Tool page masthead â€” editorial header for tool pages */
 .tool-masthead {
   padding: 18px 44px 16px;
   border-bottom: 3px double var(--ink);
@@ -1284,7 +1284,7 @@ input[type="radio"]:checked::after {
   flex-wrap: wrap;
 }
 
-/* ─── Columns ───────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Columns â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .cols-2 {
   column-count: 2;
   column-gap: 28px;
@@ -1296,7 +1296,7 @@ input[type="radio"]:checked::after {
   column-rule: 1px solid var(--rule);
 }
 
-/* ─── Ticker ────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Ticker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes ticker {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -1308,7 +1308,7 @@ input[type="radio"]:checked::after {
   animation: ticker 60s linear infinite;
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Scrollbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -1318,11 +1318,11 @@ input[type="radio"]:checked::after {
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 
-/* ─── Misc ──────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Misc â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .plain { list-style: none; padding: 0; margin: 0; }
 ::selection { background: var(--highlight); color: var(--ink); }
 
-/* ─── Landing page ───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Landing page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .lp-title  { font-family: var(--serif); font-size: 96px; font-weight: 700; font-style: normal; line-height: 0.95; letter-spacing: 0.06em; margin: 12px 0 0; }
 .lp-h3     { font-family: var(--serif); font-size: 44px; font-weight: 600; font-style: normal; line-height: 1.0;  letter-spacing: 0.05em; margin: 10px 0 0; }
 .lp-h2     { font-family: var(--serif); font-size: 44px; font-weight: 500; font-style: normal; line-height: 1.05; letter-spacing: 0.04em; margin: 0; }
@@ -1357,17 +1357,17 @@ input[type="radio"]:checked::after {
   .lp-feats2  { grid-template-columns: 1fr; }
   .lp-footer  { grid-template-columns: 1fr 1fr; padding: 24px 16px 48px; gap: 20px; }
 
-  /* Testimonial inner grid: 3col → stack */
+  /* Testimonial inner grid: 3col â†’ stack */
   .lp-dispatch-meta { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
 
-  /* dropcap — too large on mobile */
+  /* dropcap â€” too large on mobile */
   .dropcap::first-letter { font-size: 3.6em; }
 
-  /* Ticker — smaller */
+  /* Ticker â€” smaller */
   .ticker-track { gap: 28px; }
 }
 
-/* ─── Bento grid — shared by dashboard and landing ─────────────────────────── */
+/* â”€â”€â”€ Bento grid â€” shared by dashboard and landing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -1384,16 +1384,16 @@ input[type="radio"]:checked::after {
   padding: 24px;
 }
 
-/* ─── Nav tools: hide scrollbar so overflow is invisible ────────────────────── */
+/* â”€â”€â”€ Nav tools: hide scrollbar so overflow is invisible â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-tools-scroll::-webkit-scrollbar { display: none; }
 .nav-tools-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ─── Medium screens: hide nav username, keep tool links ────────────────────── */
+/* â”€â”€â”€ Medium screens: hide nav username, keep tool links â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1280px) {
   .nav-username { display: none !important; }
 }
 
-/* ─── Global interaction polish ─────────────────────────────────────────────── */
+/* â”€â”€â”€ Global interaction polish â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Smooth focus rings */
 :focus-visible {
@@ -1413,14 +1413,14 @@ img { image-rendering: auto; }
 /* Selection */
 ::selection { background: var(--highlight); color: var(--ink); }
 
-/* ─── How It Works section ───────────────────────────────────────────────────── */
+/* â”€â”€â”€ How It Works section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hiw-step { will-change: transform, opacity; }
 @media (max-width: 768px) {
   .hiw-step { padding-bottom: 32px !important; }
   .hiw-line  { display: none !important; }
 }
 
-/* ─── Reveal animations (for GSAP targets) ───────────────────────────────────── */
+/* â”€â”€â”€ Reveal animations (for GSAP targets) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .reveal-up   { will-change: transform, opacity; }
 .bento-card  { will-change: transform, opacity; transition: box-shadow 220ms ease, border-color 200ms ease; }
 .feat-card   { will-change: transform, opacity; }
@@ -1428,10 +1428,10 @@ img { image-rendering: auto; }
 .tool-item   { will-change: transform, opacity; transition: background 160ms ease, color 160ms ease; }
 .footer-col  { will-change: transform, opacity; }
 
-/* ─── Smooth hover on tool items ─────────────────────────────────────────────── */
+/* â”€â”€â”€ Smooth hover on tool items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tool-item:hover { background: color-mix(in srgb, var(--paper-2) 80%, transparent) !important; }
 
-/* ─── Tool grid — mobile: 2-col instead of collapsing to 1 ──────────────────── */
+/* â”€â”€â”€ Tool grid â€” mobile: 2-col instead of collapsing to 1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
   .mob-2col { grid-template-columns: repeat(2, 1fr) !important; }
 }
@@ -1439,7 +1439,7 @@ img { image-rendering: auto; }
   .mob-2col { grid-template-columns: 1fr !important; }
 }
 
-/* ─── Section dividers: animated accent line ─────────────────────────────────── */
+/* â”€â”€â”€ Section dividers: animated accent line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .anim-divider {
   height: 1px;
   background: var(--rule);
@@ -1447,7 +1447,7 @@ img { image-rendering: auto; }
   will-change: transform;
 }
 
-/* ─── Page-level fade-in for route transitions ───────────────────────────────── */
+/* â”€â”€â”€ Page-level fade-in for route transitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes page-in {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -1460,19 +1460,19 @@ main {
   main { animation: page-in 10ms linear both; }
 }
 
-/* ─── Dock pill active link highlight ────────────────────────────────────────── */
+/* â”€â”€â”€ Dock pill active link highlight â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dock-item-active {
   background: color-mix(in oklch, var(--cinnabar) 15%, transparent);
   color: var(--cinnabar);
 }
 
-/* ─── Phones only: swap tools row for hamburger ─────────────────────────────── */
+/* â”€â”€â”€ Phones only: swap tools row for hamburger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 500px) {
   .mob-nav-tools { display: none !important; }
   .mob-nav-btn   { display: flex !important; }
 }
 
-/* ─── Skip link (keyboard / screen reader accessibility) ────────────────────── */
+/* â”€â”€â”€ Skip link (keyboard / screen reader accessibility) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .skip-link {
   position: fixed;
   top: -100%;
@@ -1498,7 +1498,7 @@ main {
   outline-offset: 3px;
 }
 
-/* ─── Reduced motion — honour system preference ──────────────────────────────── */
+/* â”€â”€â”€ Reduced motion â€” honour system preference â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1506,14 +1506,14 @@ main {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  /* Custom cursor still needs to track position — only drop its transitions */
+  /* Custom cursor still needs to track position â€” only drop its transitions */
   .cur-dot, .cur-ring { transition: opacity 0ms !important; }
   main { animation: none !important; }
 }
 
-/* ─── Mobile ─────────────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Mobile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
-  /* Grid collapse helpers — !important overrides inline styles */
+  /* Grid collapse helpers â€” !important overrides inline styles */
   .mob-col  { grid-template-columns: 1fr !important; gap: 24px !important; }
   .mob-2col { grid-template-columns: 1fr 1fr !important; }
 
@@ -1524,13 +1524,13 @@ main {
   /* Hide secondary info to save space */
   .mob-hide { display: none !important; }
 
-  /* Cols layout → single column */
+  /* Cols layout â†’ single column */
   .cols-2 { column-count: 1; }
 
   /* Large display numbers */
   .mob-num { font-size: 56px !important; }
 
-  /* Dashboard stats: 5col → 3 top + 2 bottom */
+  /* Dashboard stats: 5col â†’ 3 top + 2 bottom */
   .mob-stats {
     grid-template-columns: repeat(3, 1fr) !important;
   }
@@ -1544,7 +1544,7 @@ main {
     grid-column: span 2;
   }
 
-  /* Share panel: 2col → 1col */
+  /* Share panel: 2col â†’ 1col */
   .mob-share {
     grid-template-columns: 1fr !important;
   }
@@ -1601,7 +1601,7 @@ main {
   .mob-plan-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
   .mob-plan-btns   { flex-wrap: wrap !important; gap: 8px !important; }
 
-  /* Planner DayRow: 4-col → 2-col top + full-width slots */
+  /* Planner DayRow: 4-col â†’ 2-col top + full-width slots */
   .mob-day-row {
     grid-template-columns: 1fr 1fr !important;
     gap: 12px !important;
@@ -1626,7 +1626,7 @@ main {
   /* Marks GPA row: wrap */
   .mob-gpa-row { flex-wrap: wrap !important; gap: 16px !important; }
 
-  /* iOS auto-zoom fix — any input/textarea with font-size < 16px triggers
+  /* iOS auto-zoom fix â€” any input/textarea with font-size < 16px triggers
      the browser to zoom in on focus. One rule fixes all tool pages globally. */
   input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
   textarea {
@@ -1670,10 +1670,10 @@ main {
   }
 }
 
-/* ─── Tool split wrap — height with dvh for mobile address-bar safety ─────── */
+/* â”€â”€â”€ Tool split wrap â€” height with dvh for mobile address-bar safety â”€â”€â”€â”€â”€â”€â”€ */
 /* 100dvh updates as the mobile browser address bar shows/hides, preventing   */
 /* the tool area from being clipped or overflowing.                            */
-/* Nav height corrected to 52px (was 49px — 3px off-by-one).                  */
+/* Nav height corrected to 52px (was 49px â€” 3px off-by-one).                  */
 .tool-split-wrap {
   display:  flex;
   overflow: hidden;
@@ -1681,14 +1681,14 @@ main {
   height: calc(100dvh - 52px);  /* preferred: dynamic viewport height      */
 }
 
-/* ─── Tool main panel: smooth scroll + subtle reveal ────────────────────────── */
+/* â”€â”€â”€ Tool main panel: smooth scroll + subtle reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tool-main-panel {
   scroll-behavior: smooth;
   /* Prevent flash before GSAP entrance animation fires */
   will-change: transform;
 }
 
-/* ─── AI result block entrance ───────────────────────────────────────────────── */
+/* â”€â”€â”€ AI result block entrance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes tool-result-reveal {
   from {
     opacity:   0;
@@ -1705,19 +1705,19 @@ main {
   animation: tool-result-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* ─── Button press feedback ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Button press feedback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn:active {
   transform: scale(0.97);
   transition: transform 80ms ease;
 }
 
-/* ─── Desktop dock: visible above mobile breakpoint ─────────────────────────── */
+/* â”€â”€â”€ Desktop dock: visible above mobile breakpoint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .desk-dock { display: block; }
 
-/* ─── Mobile tab bar: hidden on desktop ─────────────────────────────────────── */
+/* â”€â”€â”€ Mobile tab bar: hidden on desktop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .mob-tab-bar { display: none; }
 
-/* ─── Dashboard tool grid: 4 cols → 3 → 2 → 1 across breakpoints ────────────── */
+/* â”€â”€â”€ Dashboard tool grid: 4 cols â†’ 3 â†’ 2 â†’ 1 across breakpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1100px) {
   .dash-grid { grid-template-columns: repeat(3, 1fr) !important; }
 }
@@ -1728,7 +1728,7 @@ main {
   .dash-grid { grid-template-columns: 1fr !important; }
 }
 
-/* ─── Mobile: tablet/phone UI polish ─────────────────────────────────────────── */
+/* â”€â”€â”€ Mobile: tablet/phone UI polish â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
   /* Stat bento: tighter cells */
   .dash-stat { padding: 14px 12px !important; }
@@ -1740,13 +1740,13 @@ main {
     margin-top: 4px !important;
   }
 
-  /* Dashboard "Command Centre · DATE" line: compress on narrow screens */
+  /* Dashboard "Command Centre Â· DATE" line: compress on narrow screens */
   .dash-header > div:first-child > div:first-child > .mono:first-child {
     font-size: 9px !important;
     letter-spacing: 0.08em !important;
   }
 
-  /* Tool cards: hide verbose description on mobile — title + subtitle is enough */
+  /* Tool cards: hide verbose description on mobile â€” title + subtitle is enough */
   .dash-tool > div:nth-child(4) { display: none !important; }
 
   /* Tool cards: tighter padding on mobile */
@@ -1755,16 +1755,16 @@ main {
   /* Pill tab buttons in tool headers: reduce side padding so more fit before scroll */
   .mob-hp button { padding-left: 12px !important; padding-right: 12px !important; }
 
-  /* Landing page: sticky header — tighter side padding */
+  /* Landing page: sticky header â€” tighter side padding */
   .lp-header { padding-left: 20px !important; padding-right: 20px !important; }
 
-  /* Landing page: all section inner wrappers — 40px sides → 20px on mobile */
+  /* Landing page: all section inner wrappers â€” 40px sides â†’ 20px on mobile */
   .lp-inner { padding-left: 20px !important; padding-right: 20px !important; }
 
-  /* Sections with 80px top/bottom → reduce on mobile */
+  /* Sections with 80px top/bottom â†’ reduce on mobile */
   .lp-inner[style*="80px"] { padding-top: 56px !important; padding-bottom: 48px !important; }
 
-  /* CTA section 96px → reduce on mobile */
+  /* CTA section 96px â†’ reduce on mobile */
   .lp-inner[style*="96px"] { padding-top: 60px !important; padding-bottom: 60px !important; }
 
   /* How It Works: hide horizontal connector line when steps stack vertically */
@@ -1778,23 +1778,23 @@ main {
 
   /* Auth: switch to flex-start so the form scrolls on short phones instead of being clipped */
   .auth-outer { align-items: flex-start !important; padding: 24px 16px 48px !important; }
-  /* Auth card: 32px sides → 20px on mobile (card is only ~343px wide — 64px padding is too much) */
+  /* Auth card: 32px sides â†’ 20px on mobile (card is only ~343px wide â€” 64px padding is too much) */
   .auth-card { padding: 28px 20px !important; }
-  /* Auth heading: 32px → 24px inside narrow card */
+  /* Auth heading: 32px â†’ 24px inside narrow card */
   .auth-heading { font-size: 24px !important; }
 
   /* Onboard: reduce generous top padding on short mobile screens */
   .onboard-outer { padding-top: 32px !important; padding-left: 20px !important; padding-right: 20px !important; }
-  /* Onboard: welcome "Hello" heading — 36px is too large on narrow screens */
+  /* Onboard: welcome "Hello" heading â€” 36px is too large on narrow screens */
   .onboard-hello { font-size: 26px !important; }
-  /* Onboard: interests 2-col grid → 1-col so pill labels don't overflow at ~88px content width */
+  /* Onboard: interests 2-col grid â†’ 1-col so pill labels don't overflow at ~88px content width */
   .onboard-interests { grid-template-columns: 1fr !important; }
 
   /* Saved outputs: tighter row side padding + action buttons can wrap */
   .saved-item-row { padding: 12px 12px !important; }
   .saved-actions  { flex-wrap: wrap !important; }
 
-  /* Profile page: @username heading — 32px is too large in stacked column view */
+  /* Profile page: @username heading â€” 32px is too large in stacked column view */
   .profile-username { font-size: 22px !important; letter-spacing: -0.01em !important; }
 
   /* Profile page account detail rows: stack label + value when narrow (email can overflow) */
@@ -1805,20 +1805,20 @@ main {
   img, video, canvas { max-width: 100%; }
 }
 
-/* ─── Hide scrollbar on pill tab bars while keeping scroll behavior ───────────── */
-/* React serialises overflowX → overflow-x in the DOM, so match the hyphenated form */
+/* â”€â”€â”€ Hide scrollbar on pill tab bars while keeping scroll behavior â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* React serialises overflowX â†’ overflow-x in the DOM, so match the hyphenated form */
 [style*="overflow-x: auto"]::-webkit-scrollbar { display: none; }
 [style*="overflow-x: auto"] { scrollbar-width: none; }
 
-/* ─── Tool page header: humanise tool name + subtitle (no component edits needed) */
+/* â”€â”€â”€ Tool page header: humanise tool name + subtitle (no component edits needed) */
 /*
   Two structural patterns exist across the 40+ tool headers:
-    A) <mob-hp> → <div> → <.mono>Name</> + <.mono>Subtitle</>   (recall-studio, learn-lab, etc.)
-    B) <mob-hp> → <.mono>Name</>  [+ <.mono>Desc</>]            (case-study, practice, syllabus, etc.)
+    A) <mob-hp> â†’ <div> â†’ <.mono>Name</> + <.mono>Subtitle</>   (recall-studio, learn-lab, etc.)
+    B) <mob-hp> â†’ <.mono>Name</>  [+ <.mono>Desc</>]            (case-study, practice, syllabus, etc.)
   CSS `>` (direct child) + :first-child / :not(:first-child) handles both without touching any file.
 */
 
-/* Pattern A — tool name (first .mono inside the wrapper div) */
+/* Pattern A â€” tool name (first .mono inside the wrapper div) */
 .mob-hp > div:first-child > .mono:first-child {
   font-family: var(--sans) !important;
   font-size: 14px !important;
@@ -1826,7 +1826,7 @@ main {
   color: var(--ink) !important;
   letter-spacing: 0 !important;
 }
-/* Pattern A — subtitle (any subsequent .mono inside the wrapper) */
+/* Pattern A â€” subtitle (any subsequent .mono inside the wrapper) */
 .mob-hp > div:first-child > .mono:not(:first-child) {
   font-family: var(--sans) !important;
   font-size: 12px !important;
@@ -1836,7 +1836,7 @@ main {
   line-height: 1.5 !important;
 }
 
-/* Pattern B/C — tool name (.mono that is first direct child of mob-hp) */
+/* Pattern B/C â€” tool name (.mono that is first direct child of mob-hp) */
 .mob-hp > .mono:first-child {
   font-family: var(--sans) !important;
   font-size: 14px !important;
@@ -1844,7 +1844,7 @@ main {
   color: var(--ink) !important;
   letter-spacing: 0 !important;
 }
-/* Pattern B/C — subtitle/description (subsequent .mono direct children) */
+/* Pattern B/C â€” subtitle/description (subsequent .mono direct children) */
 .mob-hp > .mono:not(:first-child) {
   font-family: var(--sans) !important;
   font-size: 12px !important;
@@ -1854,7 +1854,7 @@ main {
   line-height: 1.5 !important;
 }
 
-/* ─── Mobile: tool page headers ──────────────────────────────────────────────── */
+/* â”€â”€â”€ Mobile: tool page headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
   /* Title block stretches to fill the row; prevents subtitle from truncating prematurely */
   .mob-hp > div:first-child { flex: 1; min-width: 0; }
@@ -1863,21 +1863,21 @@ main {
   .mob-hp [style*="overflow-x: auto"] { width: 100% !important; }
 }
 
-/* ─── Mobile: top nav bar ─────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Mobile: top nav bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Default: show signout label, hide icon */
 .nav-signout-icon { display: none; }
 
 @media (max-width: 768px) {
-  /* Hide @username text — avatar initial stays */
+  /* Hide @username text â€” avatar initial stays */
   .nav-username { display: none !important; }
 
   /* Tighten logo */
   .nav-logo { padding: 0 14px !important; }
 
-  /* Tighten ⌘K */
+  /* Tighten âŒ˜K */
   .nav-cmd { padding: 0 10px !important; }
 
-  /* Profile link: gap 8 → 0 since username hidden */
+  /* Profile link: gap 8 â†’ 0 since username hidden */
   .nav-profile-link { padding: 0 10px !important; gap: 0 !important; }
 
   /* Signout: tighten padding */
@@ -1885,7 +1885,7 @@ main {
 }
 
 @media (max-width: 480px) {
-  /* Very small phones: hide ⌘K, trim Tools to icon only */
+  /* Very small phones: hide âŒ˜K, trim Tools to icon only */
   .nav-cmd { display: none !important; }
   .nav-tools-label { display: none !important; }
 
@@ -1895,7 +1895,7 @@ main {
   .nav-signout { padding: 0 10px !important; }
 }
 
-/* ─── Mobile: full-height split panels (exam mode, slide viewer, cremator) ───── */
+/* â”€â”€â”€ Mobile: full-height split panels (exam mode, slide viewer, cremator) â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
   /* Outer container: stop being a fixed-height flex/grid, stack vertically */
   .tool-split {
@@ -1922,24 +1922,24 @@ main {
   }
 }
 
-/* ─── Mobile: horizontal-scroll wrapper for wide tables ──────────────────────── */
+/* â”€â”€â”€ Mobile: horizontal-scroll wrapper for wide tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .mob-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-/* ─── Mobile: study-command planner grid rows ────────────────────────────────── */
+/* â”€â”€â”€ Mobile: study-command planner grid rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
-  /* Day row: 4-col (80px 120px 1fr 260px) → single column */
+  /* Day row: 4-col (80px 120px 1fr 260px) â†’ single column */
   .mob-day-row  { grid-template-columns: 1fr !important; gap: 12px !important; padding: 16px 0 !important; }
-  /* Add-subject row: 5-col form → 2-col */
+  /* Add-subject row: 5-col form â†’ 2-col */
   .mob-add-subj { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
   /* Focus-lab timer: shrink the huge serif number */
   .mob-timer    { font-size: 72px !important; letter-spacing: -0.04em !important; }
 }
 
-/* ─── Mobile: inputs / textareas / selects ───────────────────────────────────── */
+/* â”€â”€â”€ Mobile: inputs / textareas / selects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
   iOS Safari zooms the viewport when a focused field has font-size < 16px.
   !important overrides every inline fontSize: 13/14/11 across all 40+ tool pages.
-  type="range", checkbox, radio excluded — they have no text entry.
+  type="range", checkbox, radio excluded â€” they have no text entry.
 */
 @media (max-width: 768px) {
   input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
@@ -1949,12 +1949,12 @@ main {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   PREMIUM LAYER — depth, warmth, micro-interactions
-   All additions use existing CSS variables — no new color strings.
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   PREMIUM LAYER â€” depth, warmth, micro-interactions
+   All additions use existing CSS variables â€” no new color strings.
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ─── Elevation tokens ──────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Elevation tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   --elev-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
   --elev-2: 0 4px 12px rgba(0,0,0,0.14), 0 2px 4px rgba(0,0,0,0.08);
@@ -1965,7 +1965,7 @@ main {
   --ease-in-out-soft: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
-/* ─── Typography refinements ────────────────────────────────────────────────── */
+/* â”€â”€â”€ Typography refinements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Serif headings: tighter tracking for premium feel */
 h1, h2 { letter-spacing: -0.01em; }
 h3, h4  { letter-spacing: 0; }
@@ -1980,13 +1980,13 @@ p + p  { margin-top: 0.75em; }
 /* Stronger text rendering for headings */
 h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
 
-/* ─── Selection — palette-aware warm highlight ──────────────────────────────── */
+/* â”€â”€â”€ Selection â€” palette-aware warm highlight â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 ::selection {
   background: color-mix(in srgb, var(--cinnabar-ink) 22%, transparent);
   color: var(--ink);
 }
 
-/* ─── Scrollbar — premium minimal ──────────────────────────────────────────── */
+/* â”€â”€â”€ Scrollbar â€” premium minimal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -1998,8 +1998,8 @@ h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPreci
   background: color-mix(in srgb, var(--ink) 28%, transparent);
 }
 
-/* ─── Output panels — recessed depth ───────────────────────────────────────── */
-/* Applies to AI output containers — gives them a recessed "well" feel */
+/* â”€â”€â”€ Output panels â€” recessed depth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Applies to AI output containers â€” gives them a recessed "well" feel */
 .output-well {
   background: var(--paper);
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(0,0,0,0.06);
@@ -2007,7 +2007,7 @@ h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPreci
   border-radius: var(--radius);
 }
 
-/* ─── Premium stat cards ────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Premium stat cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Dashboard stats: number has a subtle glow at rest */
 .dash-stat {
   transition: background 180ms ease, box-shadow 180ms ease !important;
@@ -2017,7 +2017,7 @@ h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPreci
   box-shadow: var(--elev-1) !important;
 }
 
-/* ─── Tool cards: warmer inner gradient on hover ───────────────────────────── */
+/* â”€â”€â”€ Tool cards: warmer inner gradient on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Augments the existing dash-tool hover shadow with a warm inner glow */
 .dash-tool::after {
   content: "";
@@ -2034,7 +2034,7 @@ h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPreci
 }
 .dash-tool:hover::after { opacity: 1; }
 
-/* ─── Focus ring — elegant glow ─────────────────────────────────────────────── */
+/* â”€â”€â”€ Focus ring â€” elegant glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :focus-visible {
   outline: 2px solid var(--cinnabar-ink);
   outline-offset: 3px;
@@ -2045,7 +2045,7 @@ h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPreci
 /* Clear focus ring on mouse click (keyboard nav only) */
 :focus:not(:focus-visible) { outline: none; box-shadow: none; }
 
-/* ─── Input fields: premium focus state ─────────────────────────────────────── */
+/* â”€â”€â”€ Input fields: premium focus state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):focus,
 textarea:focus {
   background: color-mix(in srgb, var(--paper-2) 97%, var(--cinnabar-ink)) !important;
@@ -2055,7 +2055,7 @@ textarea:focus {
     inset 0 1px 3px rgba(0,0,0,0.08) !important;
 }
 
-/* ─── Links: elegant underline animation ────────────────────────────────────── */
+/* â”€â”€â”€ Links: elegant underline animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 a:not(.btn):not([class]) {
   text-decoration: none;
   background-image: linear-gradient(currentColor, currentColor);
@@ -2069,7 +2069,7 @@ a:not(.btn):not([class]):hover {
   opacity: 1;
 }
 
-/* ─── Card entrance — stagger on first paint ─────────────────────────────────── */
+/* â”€â”€â”€ Card entrance â€” stagger on first paint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes card-rise {
   from { opacity: 0; transform: translateY(12px) scale(0.985); }
   to   { opacity: 1; transform: translateY(0)    scale(1); }
@@ -2083,7 +2083,7 @@ a:not(.btn):not([class]):hover {
 .card-rise:nth-child(5) { animation-delay: 160ms; }
 .card-rise:nth-child(6) { animation-delay: 200ms; }
 
-/* ─── Premium table styling ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Premium table styling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .prem-table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 13px; }
 .prem-table th {
   font-family: var(--mono);
@@ -2109,7 +2109,7 @@ a:not(.btn):not([class]):hover {
   transition: background 120ms ease, color 120ms ease;
 }
 
-/* ─── Category chips — premium pill labels ───────────────────────────────────── */
+/* â”€â”€â”€ Category chips â€” premium pill labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .cat-chip {
   display: inline-flex;
   align-items: center;
@@ -2124,7 +2124,7 @@ a:not(.btn):not([class]):hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
 }
 
-/* ─── AI output section — subtle inner depth ─────────────────────────────────── */
+/* â”€â”€â”€ AI output section â€” subtle inner depth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Wraps the derivation/related/applications tabs in formula lab etc. */
 .section-panel {
   border: 1px solid var(--rule);
@@ -2135,7 +2135,7 @@ a:not(.btn):not([class]):hover {
 }
 .section-panel:hover { box-shadow: var(--elev-2); }
 
-/* ─── Subtle warm ambient on glass panels ────────────────────────────────────── */
+/* â”€â”€â”€ Subtle warm ambient on glass panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Adds a barely-visible radial warm spot to glass panels */
 .gl-pane::after,
 .gl-pane-alt::after {
@@ -2150,44 +2150,44 @@ a:not(.btn):not([class]):hover {
   z-index: 0;
 }
 
-/* ─── Page-in animation: refined easing ─────────────────────────────────────── */
+/* â”€â”€â”€ Page-in animation: refined easing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes page-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 main { animation: page-in 280ms var(--ease-out-expo) both; }
 
-/* ─── Bento hover glow ──────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Bento hover glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bento-card:hover {
   box-shadow: var(--elev-2);
   border-color: color-mix(in srgb, var(--ink) 22%, transparent) !important;
 }
 
-/* ─── Tool item hover — warmer background ───────────────────────────────────── */
+/* â”€â”€â”€ Tool item hover â€” warmer background â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tool-item {
-  transition: background 140ms ease, color 140ms ease, padding-left 120ms ease !important;
+  transition: background 140ms ease, color 140ms ease !important;
 }
 .tool-item:hover {
   background: color-mix(in srgb, var(--cinnabar-ink) 6%, var(--paper-2)) !important;
   padding-left: 22px !important;
 }
 
-/* ─── Smooth button press feedback ──────────────────────────────────────────── */
+/* â”€â”€â”€ Smooth button press feedback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn:active:not(:disabled) {
   transform: scale(0.965) !important;
   transition-duration: 80ms !important;
 }
 
-/* ─── Ghost button: cinnabar tint on hover ───────────────────────────────────── */
+/* â”€â”€â”€ Ghost button: cinnabar tint on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn.ghost:hover:not(:disabled) {
   background: color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper-2)) !important;
   color: var(--cinnabar-ink) !important;
 }
 
-/* ─── Sidebar nav links: animated left bar ───────────────────────────────────── */
+/* â”€â”€â”€ Sidebar nav links: animated left bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-tool-link {
   position: relative;
-  transition: color 140ms ease, padding-left 140ms var(--ease-out-spring);
+  transition: color 140ms ease;
 }
 .nav-tool-link::before {
   content: "";
@@ -2204,7 +2204,7 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
 .nav-tool-link:hover::before,
 .nav-tool-link[aria-current="page"]::before { transform: translateY(-50%) scaleY(1); }
 
-/* ─── Light mode elevation adjustments ──────────────────────────────────────── */
+/* â”€â”€â”€ Light mode elevation adjustments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 [data-mode="light"] {
   --elev-1: 0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
   --elev-2: 0 4px 14px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
@@ -2212,7 +2212,7 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
   --elev-4: 0 24px 56px rgba(0,0,0,0.16), 0 8px 16px rgba(0,0,0,0.08);
 }
 
-/* ─── Reduced motion: collapse premium animations ───────────────────────────── */
+/* â”€â”€â”€ Reduced motion: collapse premium animations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   .card-rise       { animation: none !important; opacity: 1 !important; transform: none !important; }
   .nav-tool-link   { transition: color 50ms !important; }
@@ -2220,12 +2220,12 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
   .tool-item:hover { padding-left: 16px !important; }
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
-   MICRO-INTERACTIONS — hover / focus / active transitions
-   OKLCH CSS variables only — no rgba(). No framer-motion. No JS deps.
-   ══════════════════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MICRO-INTERACTIONS â€” hover / focus / active transitions
+   OKLCH CSS variables only â€” no rgba(). No framer-motion. No JS deps.
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ─── Glass-card hover lift ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Glass-card hover lift â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Augments existing .glass-card definition (line ~27) with transition + lift   */
 .glass-card {
   transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -2238,14 +2238,14 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
               0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
 }
 
-/* ─── Link hover — non-button anchors with a class (supplements no-class rule) */
+/* â”€â”€â”€ Link hover â€” non-button anchors with a class (supplements no-class rule) */
 /* The existing a:not(.btn):not([class]) rule handles bare links.               */
 /* This catches links that have a class but aren't buttons or dash-tool links.  */
 a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]) {
   transition: color 160ms ease, opacity 160ms ease;
 }
 
-/* ─── Nav logo: scale + letter-spacing on hover ──────────────────────────────── */
+/* â”€â”€â”€ Nav logo: scale + letter-spacing on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-logo {
   transition: opacity 160ms ease;
 }
@@ -2261,12 +2261,12 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   transition: letter-spacing 220ms ease;
 }
 
-/* ─── Nav links: active bottom-glow border + hover translateY ────────────────── */
+/* â”€â”€â”€ Nav links: active bottom-glow border + hover translateY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-link-active-glow {
   box-shadow: inset 0 -2px 0 0 var(--cinnabar-ink);
 }
 
-/* ─── Dashboard tool arrow: pop on hover (augments existing rule) ────────────── */
+/* â”€â”€â”€ Dashboard tool arrow: pop on hover (augments existing rule) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Existing .dash-tool:hover .dash-tool-arrow already sets translate(5px,-5px).  */
 /* Add scale(1.2) and color via the cat-color variable:                           */
 .dash-tool:hover .dash-tool-arrow {
@@ -2274,7 +2274,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   color: var(--cat-color, var(--cinnabar-ink));
 }
 
-/* ─── Tool-page tab buttons ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Tool-page tab buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tool-tab {
   transition: background 160ms ease,
               color 160ms ease,
@@ -2289,7 +2289,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   transition-duration: 80ms;
 }
 
-/* ─── Divider shimmer on hover ───────────────────────────────────────────────── */
+/* â”€â”€â”€ Divider shimmer on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes divider-shimmer {
   from { background-position: 200% 0; }
   to   { background-position: 0 0; }
@@ -2305,18 +2305,18 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   animation: divider-shimmer 1s ease;
 }
 
-/* ─── Ticker: pause on hover ─────────────────────────────────────────────────── */
+/* â”€â”€â”€ Ticker: pause on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ticker:hover .ticker-track {
   animation-play-state: paused;
 }
 
-/* ─── Scroll-bounce: more dramatic travel ────────────────────────────────────── */
+/* â”€â”€â”€ Scroll-bounce: more dramatic travel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes scroll-bounce {
   0%, 100% { transform: translateY(0)    rotate(45deg); opacity: 0.4; }
   50%       { transform: translateY(10px) rotate(45deg); opacity: 1;   }
 }
 
-/* ─── Nav cmd button: subtle hover glow ─────────────────────────────────────── */
+/* â”€â”€â”€ Nav cmd button: subtle hover glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-cmd:hover span {
   border-color: color-mix(in srgb, var(--cinnabar-ink) 50%, var(--rule));
   color: var(--ink-2);
@@ -2326,7 +2326,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   transition: border-color 160ms ease, color 160ms ease;
 }
 
-/* ─── Profile link: warm background on hover ─────────────────────────────────── */
+/* â”€â”€â”€ Profile link: warm background on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-profile-link {
   transition: background 160ms ease;
 }
@@ -2334,7 +2334,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   background: color-mix(in srgb, var(--cinnabar-ink) 6%, var(--paper-2)) !important;
 }
 
-/* ─── Output well: gentle glow on hover ─────────────────────────────────────── */
+/* â”€â”€â”€ Output well: gentle glow on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .output-well {
   transition: box-shadow 220ms ease;
 }
@@ -2344,7 +2344,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
               0 0 0 1px color-mix(in srgb, var(--cinnabar-ink) 10%, transparent);
 }
 
-/* ─── Reduced motion: disable new micro-interactions ────────────────────────── */
+/* â”€â”€â”€ Reduced motion: disable new micro-interactions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   .glass-card          { transition: none !important; }
   .glass-card:hover    { transform: none !important; }
@@ -2357,11 +2357,11 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   .dash-tool:hover .dash-tool-arrow { transform: translate(5px, -5px); }
 }
 
-/* ════════════════════════════════════════════════════════════════════════════
-   ADDITIONAL MICRO-INTERACTIONS — everything interactive gets feedback
-   ════════════════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ADDITIONAL MICRO-INTERACTIONS â€” everything interactive gets feedback
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ─── Inputs / textarea / select: focus ring ────────────────────────────── */
+/* â”€â”€â”€ Inputs / textarea / select: focus ring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
@@ -2377,9 +2377,9 @@ select:focus {
   outline: none !important;
 }
 
-/* ─── Nav top-bar links: subtle lift on hover ───────────────────────────── */
+/* â”€â”€â”€ Nav top-bar links: subtle lift on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-link-item {
-  transition: background 160ms ease, color 160ms ease, transform 200ms cubic-bezier(0.34,1.4,0.64,1);
+  transition: background 160ms ease, color 160ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .nav-link-item:hover {
   transform: translateY(-1px);
@@ -2387,7 +2387,7 @@ select:focus {
   color: var(--ink) !important;
 }
 
-/* ─── Sign out button: cinnabar fade on hover ───────────────────────────── */
+/* â”€â”€â”€ Sign out button: cinnabar fade on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-signout {
   transition: background 160ms ease, color 160ms ease !important;
 }
@@ -2396,9 +2396,9 @@ select:focus {
   color: var(--cinnabar-ink) !important;
 }
 
-/* ─── Dashboard stat cells: lift on hover ───────────────────────────────── */
+/* â”€â”€â”€ Dashboard stat cells: lift on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .dash-stat {
-  transition: transform 240ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 220ms ease !important;
 }
 .dash-stat:hover {
@@ -2406,40 +2406,40 @@ select:focus {
   box-shadow: 0 8px 28px color-mix(in srgb, var(--ink) 16%, transparent) !important;
 }
 
-/* ─── Bento cards on landing: scale + glow on hover ────────────────────── */
+/* â”€â”€â”€ Bento cards on landing: scale + glow on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* (GSAP also handles this in JS; CSS is the fallback)                        */
 .bento-card {
-  transition: transform 300ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 280ms ease,
               border-color 200ms ease !important;
 }
 
-/* ─── Cat tabs: lift + color flash on hover ─────────────────────────────── */
+/* â”€â”€â”€ Cat tabs: lift + color flash on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .cat-tab {
-  transition: background 140ms ease, color 140ms ease, transform 200ms cubic-bezier(0.34,1.4,0.64,1) !important;
+  transition: background 140ms ease, color 140ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 .cat-tab:hover {
   transform: translateY(-2px) !important;
   background: color-mix(in srgb, var(--ink) 7%, transparent) !important;
 }
 
-/* ─── Testimonial nav arrows: slide on hover ────────────────────────────── */
+/* â”€â”€â”€ Testimonial nav arrows: slide on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .testim-prev, .testim-next {
-  transition: transform 220ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
               border-color 180ms ease,
               color 160ms ease !important;
 }
 .testim-prev:hover { transform: translateX(-4px) scale(1.08) !important; }
 .testim-next:hover { transform: translateX(4px)  scale(1.08) !important; }
 
-/* ─── Feat card Greek letters: scale on parent hover ───────────────────── */
+/* â”€â”€â”€ Feat card Greek letters: scale on parent hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .feat-card {
-  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 260ms ease !important;
 }
 .feat-card .feat-tag {
   display: inline-block;
-  transition: transform 280ms cubic-bezier(0.34,1.56,0.64,1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               color 200ms ease;
 }
 .feat-card:hover .feat-tag {
@@ -2447,9 +2447,9 @@ select:focus {
   color: var(--cinnabar-ink);
 }
 
-/* ─── Stat cards on landing: spring lift ───────────────────────────────── */
+/* â”€â”€â”€ Stat cards on landing: spring lift â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stat-card {
-  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 260ms ease !important;
 }
 .stat-card:hover {
@@ -2457,9 +2457,9 @@ select:focus {
   box-shadow: 0 14px 40px color-mix(in srgb, var(--ink) 20%, transparent) !important;
 }
 
-/* ─── Ledger Score widget: glow on hover ────────────────────────────────── */
+/* â”€â”€â”€ Ledger Score widget: glow on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .score-widget {
-  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 260ms ease !important;
 }
 .score-widget:hover {
@@ -2468,7 +2468,7 @@ select:focus {
               0 0 0 1px color-mix(in srgb, var(--cinnabar) 20%, transparent) !important;
 }
 
-/* ─── Share panel URL boxes: cursor + border on hover ──────────────────── */
+/* â”€â”€â”€ Share panel URL boxes: cursor + border on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .share-url-box {
   transition: border-color 160ms ease, background 160ms ease !important;
   cursor: text;
@@ -2478,7 +2478,7 @@ select:focus {
   background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
 }
 
-/* ─── Exam table rows: highlight on hover ───────────────────────────────── */
+/* â”€â”€â”€ Exam table rows: highlight on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .exam-row {
   transition: background 140ms ease !important;
 }
@@ -2486,9 +2486,9 @@ select:focus {
   background: color-mix(in srgb, var(--cinnabar) 4%, transparent) !important;
 }
 
-/* ─── Quick-launch pill links (dashboard) ───────────────────────────────── */
+/* â”€â”€â”€ Quick-launch pill links (dashboard) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .quick-launch {
-  transition: transform 220ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 200ms ease,
               color 160ms ease !important;
 }
@@ -2498,7 +2498,7 @@ select:focus {
   color: var(--ink) !important;
 }
 
-/* ─── AI output copy/regenerate toolbar buttons ─────────────────────────── */
+/* â”€â”€â”€ AI output copy/regenerate toolbar buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ai-toolbar-btn {
   transition: background 140ms ease, color 140ms ease,
               border-color 140ms ease, transform 180ms ease !important;
@@ -2513,10 +2513,10 @@ select:focus {
   transition-duration: 60ms !important;
 }
 
-/* ─── Tool page section tabs (common pattern in tool pages) ─────────────── */
+/* â”€â”€â”€ Tool page section tabs (common pattern in tool pages) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tab-btn {
   transition: background 140ms ease, color 140ms ease,
-              border-color 140ms ease, transform 200ms cubic-bezier(0.34,1.4,0.64,1) !important;
+              border-color 140ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 .tab-btn:hover:not([data-active="true"]) {
   transform: translateY(-2px) !important;
@@ -2527,9 +2527,9 @@ select:focus {
   transition-duration: 80ms !important;
 }
 
-/* ─── Floating timer (tool pages) ───────────────────────────────────────── */
+/* â”€â”€â”€ Floating timer (tool pages) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .floating-timer {
-  transition: transform 280ms cubic-bezier(0.34,1.4,0.64,1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 260ms ease !important;
 }
 .floating-timer:hover {
@@ -2537,21 +2537,21 @@ select:focus {
   box-shadow: 0 8px 32px color-mix(in srgb, var(--ink) 20%, transparent) !important;
 }
 
-/* ─── HiW step icons: rotate on hover ───────────────────────────────────── */
+/* â”€â”€â”€ HiW step icons: rotate on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hiw-step:hover .hiw-icon {
   transform: scale(1.12) rotate(8deg);
-  transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .hiw-step .hiw-icon {
   transition: transform 300ms ease;
 }
 
-/* ─── Scroll progress bar: glow pulse ───────────────────────────────────── */
+/* â”€â”€â”€ Scroll progress bar: glow pulse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #lp-scroll-bar {
   transition: box-shadow 300ms ease !important;
 }
 
-/* ─── Hero badge: subtle pulse on idle ──────────────────────────────────── */
+/* â”€â”€â”€ Hero badge: subtle pulse on idle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes badge-breathe {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cinnabar) 0%, transparent); }
   50%       { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--cinnabar) 12%, transparent); }
@@ -2560,13 +2560,13 @@ select:focus {
   animation: badge-breathe 4s ease-in-out infinite;
 }
 
-/* ─── Live activity feed: pulsing green dot ─────────────────────────────── */
+/* â”€â”€â”€ Live activity feed: pulsing green dot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklch, oklch(0.65 0.22 145) 25%, transparent); }
   50%       { box-shadow: 0 0 0 6px color-mix(in oklch, oklch(0.65 0.22 145) 10%, transparent); }
 }
 
-/* ─── Reduced motion: disable all new transitions ───────────────────────── */
+/* â”€â”€â”€ Reduced motion: disable all new transitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   .dash-stat, .bento-card, .feat-card, .stat-card, .cat-tab,
   .testim-prev, .testim-next, .score-widget, .quick-launch,

@@ -75,39 +75,38 @@ export function WebGLShader() {
         vec2 uv = gl_FragCoord.xy / resolution;
         float ar = resolution.x / resolution.y;
         vec2 p  = vec2((uv.x - 0.5) * ar, uv.y - 0.5);
-        vec2 m  = vec2((mouse.x - 0.5) * ar * 0.25, (mouse.y - 0.5) * 0.25);
-        float t = time * 0.18;
+        vec2 m  = vec2((mouse.x - 0.5) * ar * 0.18, (mouse.y - 0.5) * 0.18);
+        float t = time * 0.14;
 
-        vec2 c0 = vec2(sin(t * 0.71) * 0.70 + m.x * 0.30,  cos(t * 0.53) * 0.42 + m.y * 0.30);
-        vec2 c1 = vec2(cos(t * 0.47 + 1.3) * 0.78 - m.x * 0.20, sin(t * 0.61 + 2.1) * 0.48 - m.y * 0.20);
-        vec2 c2 = vec2(sin(t * 0.53 + 2.7) * 0.58 + m.x * 0.15, cos(t * 0.79 + 0.9) * 0.58 + m.y * 0.15);
-        vec2 c3 = vec2(cos(t * 0.31 + 3.2) * 0.72 - m.x * 0.10, sin(t * 0.43 + 1.5) * 0.40 - m.y * 0.10);
-        vec2 c4 = vec2(sin(t * 0.67 + 1.1) * 0.48 + m.x * 0.18, cos(t * 0.37 + 2.3) * 0.66 + m.y * 0.18);
-        vec2 c5 = vec2(cos(t * 0.83 + 0.6) * 0.40 - m.x * 0.12, sin(t * 0.59 + 3.4) * 0.52 - m.y * 0.12);
-        vec2 c6 = vec2(sin(t * 0.41 + 0.3) * 0.62 + m.x * 0.08, cos(t * 0.67 + 1.7) * 0.36 + m.y * 0.08);
+        /* Five blobs — coherent warm-to-cool aurora palette */
+        vec2 c0 = vec2(sin(t * 0.71) * 0.68 + m.x * 0.28,  cos(t * 0.53) * 0.40 + m.y * 0.28);
+        vec2 c1 = vec2(cos(t * 0.47 + 1.3) * 0.74 - m.x * 0.18, sin(t * 0.61 + 2.1) * 0.46 - m.y * 0.18);
+        vec2 c2 = vec2(sin(t * 0.53 + 2.7) * 0.56 + m.x * 0.12, cos(t * 0.79 + 0.9) * 0.54 + m.y * 0.12);
+        vec2 c3 = vec2(cos(t * 0.31 + 3.2) * 0.68 - m.x * 0.08, sin(t * 0.43 + 1.5) * 0.38 - m.y * 0.08);
+        vec2 c4 = vec2(sin(t * 0.67 + 1.1) * 0.44 + m.x * 0.14, cos(t * 0.37 + 2.3) * 0.60 + m.y * 0.14);
 
-        float g0 = gauss(p, c0, 0.52);
-        float g1 = gauss(p, c1, 0.44);
-        float g2 = gauss(p, c2, 0.58);
-        float g3 = gauss(p, c3, 0.48);
-        float g4 = gauss(p, c4, 0.40);
-        float g5 = gauss(p, c5, 0.50);
-        float g6 = gauss(p, c6, 0.36);
+        float g0 = gauss(p, c0, 0.56);
+        float g1 = gauss(p, c1, 0.48);
+        float g2 = gauss(p, c2, 0.62);
+        float g3 = gauss(p, c3, 0.44);
+        float g4 = gauss(p, c4, 0.38);
 
+        /* Cinnabar red → deep violet → electric blue → magenta → warm ember */
         vec3 col =
-          vec3(1.00, 0.32, 0.20) * g0 +
-          vec3(1.00, 0.72, 0.06) * g1 +
-          vec3(0.50, 0.12, 1.00) * g2 +
-          vec3(0.06, 0.88, 0.60) * g3 +
-          vec3(1.00, 0.10, 0.60) * g4 +
-          vec3(0.10, 0.55, 1.00) * g5 +
-          vec3(1.00, 0.50, 0.06) * g6;
+          vec3(0.90, 0.17, 0.08) * g0 +
+          vec3(0.42, 0.04, 0.78) * g1 +
+          vec3(0.04, 0.32, 0.88) * g2 +
+          vec3(0.68, 0.04, 0.38) * g3 +
+          vec3(0.82, 0.26, 0.04) * g4;
 
-        float total = g0 + g1 + g2 + g3 + g4 + g5 + g6;
+        float total = g0 + g1 + g2 + g3 + g4;
         if (total > 1.0) col /= total;
-        col *= 1.3;
 
-        float vig = 1.0 - dot(uv - 0.5, uv - 0.5) * 1.2;
+        /* Cinematic tone curve — lift shadows, compress highlights */
+        col = pow(col, vec3(0.80));
+        col *= 0.52;
+
+        float vig = 1.0 - dot(uv - 0.5, uv - 0.5) * 1.0;
         col *= clamp(vig, 0.0, 1.0);
 
         col *= brightness;
