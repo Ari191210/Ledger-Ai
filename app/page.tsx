@@ -169,15 +169,6 @@ const HERO_COPY: Record<HeroVariant, { line1: string; line2: string; sub: string
 };
 
 /* ── Section label row ── */
-function SectionLabel({ num, label }: { num: string; label: string }) {
-  return (
-    <div className="anim-divider-row" style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 40 }}>
-      <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", letterSpacing: "0.18em", flexShrink: 0 }}>{num}</span>
-      <div className="anim-divider" style={{ flex: 1, height: 1, background: "var(--rule)" }} />
-      <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase", flexShrink: 0 }}>{label}</span>
-    </div>
-  );
-}
 
 export default function Home() {
   const [today,          setToday]          = useState("");
@@ -800,8 +791,8 @@ export default function Home() {
           <div style={{ position: "absolute", bottom: "10%", left: "30%", width: 260, height: 260, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--slate) 10%, transparent) 0%, transparent 70%)", filter: "blur(40px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
         </div>
 
-        {/* 2-col editorial layout: headline left, stats + activity right */}
-        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1200, margin: "0 auto", padding: "0 48px", display: "grid", gridTemplateColumns: "1fr 260px", gap: 56, alignItems: "center" }}>
+        {/* Full-width editorial hero */}
+        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 860, margin: "0 auto", padding: "0 48px" }}>
 
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
@@ -896,46 +887,6 @@ export default function Home() {
 
           </div>
 
-          {/* RIGHT: stats strip + live activity (desktop only) */}
-          <div className="mob-hide" style={{ display: "flex", flexDirection: "column", gap: 20, paddingLeft: 40 }}>
-
-            {/* Stats: vertical stack */}
-            <div className="hero-stats glass-card" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              {[{ n: "14,382+", l: "students" }, { n: "+14.2%", l: "avg score lift" }, { n: "55", l: "AI tools" }].map((s, i) => (
-                <div key={i} className="hero-stat-row" style={{ padding: "14px 16px", borderBottom: i < 2 ? "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" : "none" }}>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(20px,2vw,28px)", fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}>{s.n}</div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Live activity toast — embedded in sidebar */}
-            <div className="hero-activity">
-              <div ref={activityRef} style={{
-                display: "flex", alignItems: "flex-start", gap: 12,
-                background: "color-mix(in srgb, var(--paper) 55%, transparent)",
-                border: "1px solid color-mix(in srgb, var(--ink) 10%, transparent)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                padding: "12px 16px",
-                borderRadius: 12,
-              }}>
-                <span style={{ position: "relative", width: 8, height: 8, flexShrink: 0, marginTop: 4 }}>
-                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.35, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
-                  <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block", margin: "1.5px" }} />
-                </span>
-                <div>
-                  <div style={{ marginBottom: 3 }}>
-                    <span style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>{LIVE_ACTIVITY[activityIdx].who}</span>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em", marginLeft: 8 }}>{LIVE_ACTIVITY[activityIdx].ctx}</span>
-                  </div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.4 }}>{LIVE_ACTIVITY[activityIdx].action}</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
         </div>
 
         {/* Scroll hint */}
@@ -979,55 +930,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── Tool Categories Bento ─── */}
-      <section style={{ borderBottom: S.border }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 24px 80px" }}>
-          <SectionLabel num="00" label="What&apos;s inside" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }} className="mob-2col">
-            {([
-              { cat: "Maths & Science",      tools: ["Doubt Solver", "Formula Sheet", "Lab Report Writer"],    color: "var(--slate)" },
-              { cat: "English & Writing",    tools: ["Essay Workshop", "Writing Polish", "Citation Generator"], color: "var(--ochre)" },
-              { cat: "Exam Prep",            tools: ["Past Papers", "Practice Suite", "48-Hour Crunch"],       color: "var(--cinnabar-ink)" },
-              { cat: "Research & Analysis",  tools: ["Research Hub", "Text Analyst", "Mind Map Builder"],      color: "var(--teal)" },
-              { cat: "Study Skills",         tools: ["Study Engine", "AI Flashcards", "Memory Palace Builder"], color: "var(--sage)" },
-              { cat: "Future & Career",      tools: ["Admissions Engine", "Future Finder", "GPA Simulator"],   color: "var(--plum)" },
-            ] as const).map((c, i) => (
-              <div key={i} className="bento-card" style={{
-                background: "color-mix(in oklch, var(--paper-2) 55%, transparent)",
-                backdropFilter: "blur(14px)",
-                WebkitBackdropFilter: "blur(14px)",
-                border: "1px solid color-mix(in oklch, var(--ink) 10%, transparent)",
-                borderRadius: 20,
-                boxShadow: "0 4px 24px color-mix(in oklch, var(--cinnabar) 8%, transparent)",
-                padding: "24px 24px 22px",
-                cursor: "pointer",
-                transition: "transform 180ms ease-out, box-shadow 180ms ease-out",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-3px) scale(1.01)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 40px color-mix(in oklch, var(--cinnabar) 18%, transparent)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.transform = "";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 24px color-mix(in oklch, var(--cinnabar) 8%, transparent)";
-              }}
-              >
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.color, marginBottom: 14 }} />
-                <div style={{ fontFamily: "var(--sans)", fontSize: 15, fontWeight: 700, color: "var(--ink)", marginBottom: 12, letterSpacing: "-0.01em" }}>{c.cat}</div>
-                {c.tools.map(t => (
-                  <div key={t} style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginBottom: 4, lineHeight: 1.4 }}>{t}</div>
-                ))}
-                <div style={{ marginTop: 14, fontFamily: "var(--mono)", fontSize: 9, color: c.color, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>+ more →</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── 01 / The Brief ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="01" label="The Brief" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 64, alignItems: "start" }} className="mob-col">
             <div>
@@ -1080,7 +986,7 @@ export default function Home() {
       {/* ─── 02 / How It Works ─── */}
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="02" label="How It Works" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <h2 className="reveal-up" style={{ ...S.h2, marginBottom: 64 }}>Three steps to a system that works.</h2>
 
@@ -1139,7 +1045,7 @@ export default function Home() {
       {/* ─── 03 / The System ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="03" label="The Quantified Mind" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
             <div>
@@ -1200,7 +1106,7 @@ export default function Home() {
       {/* ─── 04 / All 41 Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="04" label="All 41 Tools" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
@@ -1300,7 +1206,7 @@ export default function Home() {
       {/* ─── 05 / Ledger Score ─── */}
       <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="05" label="Ledger Score" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
             <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
@@ -1407,7 +1313,7 @@ export default function Home() {
       {/* ─── 06 / Key Features ─── */}
       <section id="features" className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="06" label="Key Features" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 40 }}>
             <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
@@ -1489,7 +1395,7 @@ export default function Home() {
       {/* ─── 07 / Field Reports ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
-          <SectionLabel num="07" label="Field Reports" />
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
             <h2 className="reveal-up" style={S.h2}>Dispatches from actual students.</h2>
