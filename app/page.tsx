@@ -784,11 +784,16 @@ export default function Home() {
       {/* ─── Hero ─── */}
       <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
 
-        {/* Floating atmosphere orbs */}
+        {/* Hero atmosphere — layered glows for depth */}
         <div aria-hidden style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-          <div style={{ position: "absolute", top: "15%", left: "8%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--cinnabar) 18%, transparent) 0%, transparent 70%)", filter: "blur(60px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
-          <div style={{ position: "absolute", top: "50%", right: "5%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--plum) 12%, transparent) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 18s ease-in-out infinite reverse", willChange: "transform" }} />
-          <div style={{ position: "absolute", bottom: "10%", left: "30%", width: 260, height: 260, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--slate) 10%, transparent) 0%, transparent 70%)", filter: "blur(40px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
+          {/* Centre burst — terracotta */}
+          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--cinnabar) 22%, transparent) 0%, transparent 65%)", filter: "blur(80px)", willChange: "transform" }} />
+          {/* Sky accent — top right */}
+          <div style={{ position: "absolute", top: "-5%", right: "-5%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--sky) 18%, transparent) 0%, transparent 70%)", filter: "blur(70px)", animation: "hero-orb-drift 18s ease-in-out infinite reverse", willChange: "transform" }} />
+          {/* Lime bottom-left */}
+          <div style={{ position: "absolute", bottom: "5%", left: "5%", width: 340, height: 340, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--lime) 14%, transparent) 0%, transparent 70%)", filter: "blur(60px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
+          {/* Gold mid-right */}
+          <div style={{ position: "absolute", top: "55%", right: "8%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--gold) 16%, transparent) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
         </div>
 
         {/* Full-width editorial hero */}
@@ -1114,7 +1119,7 @@ export default function Home() {
           </div>
 
           {/* Category filter tabs */}
-          <div className="cat-tabs" style={{ display: "flex", gap: 0, flexWrap: "wrap", borderBottom: "1px solid var(--rule)", marginBottom: 0 }}>
+          <div className="cat-tabs" style={{ display: "flex", gap: 8, flexWrap: "wrap" as const, marginBottom: 32 }}>
             {CATEGORIES.map(cat => {
               const active = activeCategory === cat;
               const color  = cat === "ALL" ? "var(--cinnabar-ink)" : CAT_COLOR[cat] ?? "var(--ink)";
@@ -1124,79 +1129,72 @@ export default function Home() {
                   className="cat-tab"
                   onClick={() => setActiveCategory(cat)}
                   style={{
-                    fontFamily: "var(--mono)", fontSize: 9, fontWeight: 500,
-                    letterSpacing: "0.14em", textTransform: "uppercase",
-                    padding: "10px 18px", border: "none", cursor: "pointer",
-                    background: active ? "var(--paper)" : "transparent",
-                    color: active ? "var(--ink)" : "var(--ink-3)",
-                    borderBottom: active ? `2px solid ${color}` : "2px solid transparent",
-                    transition: "color 150ms, border-color 150ms",
+                    fontFamily: "var(--mono)", fontSize: 9, fontWeight: 600,
+                    letterSpacing: "0.14em", textTransform: "uppercase" as const,
+                    padding: "8px 16px", cursor: "pointer",
+                    background: active ? color : "color-mix(in srgb, var(--ink) 6%, transparent)",
+                    color: active ? "#fff" : "var(--ink-3)",
+                    border: `1px solid ${active ? color : "color-mix(in srgb, var(--ink) 12%, transparent)"}`,
+                    borderRadius: 999,
+                    transition: "all 150ms cubic-bezier(0.16,1,0.3,1)",
                   }}
                 >{cat}</button>
               );
             })}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 0, borderRadius: 12, overflow: "hidden", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)" }} className="mob-col">
-            {/* Tool list */}
-            <div style={{ maxHeight: 580, overflowY: "auto", background: "var(--paper)" }}>
-              {filteredTools.map((t, i) => {
-                const active = selectedTool === i;
-                const catColor = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
-                return (
-                  <button
-                    className="tool-item"
-                    key={t.n + t.slug}
-                    onClick={() => setSelectedTool(i)}
-                    onMouseEnter={() => setSelectedTool(i)}
-                    style={{
-                      width: "100%", padding: "12px 18px",
-                      background: active ? `color-mix(in oklch, ${catColor} 12%, var(--paper-2))` : "transparent",
-                      color: "var(--ink)",
-                      border: "none",
-                      borderBottom: i < filteredTools.length - 1 ? "1px solid var(--rule)" : "none",
-                      cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 14,
-                      transition: "background 120ms",
-                    }}
-                  >
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", flexShrink: 0, width: 18, letterSpacing: "0.04em" }}>{t.n}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--ink)" }}>{t.ttl}</div>
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: catColor, marginTop: 3, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t.cat}</div>
+          {/* Tool cards grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
+            {filteredTools.map((t, i) => {
+              const catColor = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
+              return (
+                <Link
+                  href={`/tools/${t.slug}`}
+                  key={t.n + t.slug}
+                  className="tool-item"
+                  style={{
+                    textDecoration: "none",
+                    display: "flex", flexDirection: "column", justifyContent: "space-between",
+                    padding: "22px 22px 18px",
+                    background: "color-mix(in srgb, var(--paper) 55%, transparent)",
+                    backdropFilter: "blur(16px)",
+                    WebkitBackdropFilter: "blur(16px)",
+                    border: `1px solid color-mix(in srgb, var(--ink) 9%, transparent)`,
+                    borderTop: `2px solid ${catColor}`,
+                    borderRadius: 16,
+                    cursor: "pointer",
+                    transition: "transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease, border-color 150ms",
+                    minHeight: 140,
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 40px color-mix(in srgb, ${catColor} 18%, transparent), 0 4px 16px rgba(0,0,0,0.2)`;
+                    (e.currentTarget as HTMLElement).style.borderColor = catColor;
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.transform = "";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "";
+                    (e.currentTarget as HTMLElement).style.borderColor = "";
+                  }}
+                >
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                      <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: catColor, letterSpacing: "0.12em", textTransform: "uppercase" as const, fontWeight: 600 }}>{t.cat}</span>
+                      <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.06em" }}>{t.n}</span>
                     </div>
-                    <span className="tool-arrow" style={{ fontFamily: "var(--mono)", fontSize: 9, opacity: active ? 1 : 0, transition: "opacity 120ms", flexShrink: 0, color: catColor }}>→</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Tool detail */}
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 380, background: "var(--paper)" }}>
-              {/* Detail header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 24px", borderBottom: "1px solid var(--rule)", background: "var(--paper-2)" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: CAT_COLOR[tool.cat] ?? "var(--cinnabar-ink)", letterSpacing: "0.12em", textTransform: "uppercase" as const, fontWeight: 600 }}>{tool.cat}</span>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em" }}>{tool.n} · /tools/{tool.slug}</span>
-              </div>
-              <div style={{ padding: "28px 32px 24px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(22px,2.8vw,32px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.03em", lineHeight: 1.15, color: "var(--ink)", marginBottom: 8 }}>{tool.ttl}</div>
-                  <div style={{ ...S.capAccent, marginBottom: 16 }}>{tool.sub}</div>
-                  <p style={{ ...S.body, fontSize: 13, lineHeight: 1.72 }}>{tool.desc}</p>
-                  <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9 }}>
-                    {tool.gets.map((g, gi) => (
-                      <div key={gi} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                        <span style={{ color: CAT_COLOR[tool.cat] ?? "var(--cinnabar-ink)", fontFamily: "var(--mono)", fontSize: 10, marginTop: 2, flexShrink: 0 }}>—</span>
-                        <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>{g}</span>
-                      </div>
-                    ))}
+                    <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17, color: "var(--ink)", lineHeight: 1.25, marginBottom: 6 }}>{t.ttl}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.55 }}>{t.sub}</div>
                   </div>
-                </div>
-                <div style={{ marginTop: 28, paddingTop: 20, borderTop: S.border, display: "flex", gap: 10 }}>
-                  <Link href={`/tools/${tool.slug}`} className="btn" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>Open tool →</Link>
-                  <Link href="/dashboard" className="btn ghost" style={{ textDecoration: "none", fontSize: 10, letterSpacing: "0.12em" }}>All 41 tools</Link>
-                </div>
-              </div>
-            </div>
+                  <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+                    <span className="tool-arrow" style={{ fontFamily: "var(--mono)", fontSize: 11, color: catColor, opacity: 0 }}>→</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div style={{ marginTop: 32, textAlign: "center" }}>
+            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>Open all 55 tools →</Link>
           </div>
         </div>
       </section>
