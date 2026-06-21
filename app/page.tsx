@@ -784,16 +784,16 @@ export default function Home() {
       {/* ─── Hero ─── */}
       <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
 
-        {/* Hero atmosphere — layered glows for depth */}
+        {/* Hero atmosphere — brand palette glows */}
         <div aria-hidden style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-          {/* Centre burst — terracotta */}
-          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--cinnabar) 22%, transparent) 0%, transparent 65%)", filter: "blur(80px)", willChange: "transform" }} />
-          {/* Sky accent — top right */}
-          <div style={{ position: "absolute", top: "-5%", right: "-5%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--sky) 18%, transparent) 0%, transparent 70%)", filter: "blur(70px)", animation: "hero-orb-drift 18s ease-in-out infinite reverse", willChange: "transform" }} />
-          {/* Lime bottom-left */}
-          <div style={{ position: "absolute", bottom: "5%", left: "5%", width: 340, height: 340, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--lime) 14%, transparent) 0%, transparent 70%)", filter: "blur(60px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
-          {/* Gold mid-right */}
-          <div style={{ position: "absolute", top: "55%", right: "8%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, color-mix(in srgb, var(--gold) 16%, transparent) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
+          {/* Centre burst — Peach Fuzz */}
+          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.22) 0%, transparent 65%)", filter: "blur(80px)", willChange: "transform" }} />
+          {/* Powder Blue — top right */}
+          <div style={{ position: "absolute", top: "-5%", right: "-5%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(70px)", animation: "hero-orb-drift 18s ease-in-out infinite reverse", willChange: "transform" }} />
+          {/* Cream — bottom left */}
+          <div style={{ position: "absolute", bottom: "5%", left: "5%", width: 340, height: 340, borderRadius: "50%", background: "radial-gradient(circle, rgba(241,255,196,0.16) 0%, transparent 70%)", filter: "blur(60px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
+          {/* Light Blue — mid right */}
+          <div style={{ position: "absolute", top: "55%", right: "8%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(198,226,233,0.18) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
         </div>
 
         {/* Full-width editorial hero */}

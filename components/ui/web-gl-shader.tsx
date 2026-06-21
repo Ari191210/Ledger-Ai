@@ -9,49 +9,49 @@ export function WebGLShader() {
         inset: 0,
         zIndex: 0,
         overflow: "hidden",
-        background: "#09070a",
+        background: "#08090c",
       }}
     >
-      {/* Blob 1 — Fiery Terracotta, top-left dominant */}
+      {/* Blob 1 — Peach Fuzz, top-left dominant */}
       <div className="mesh-blob" style={{
         position: "absolute",
         top: "-20%", left: "-10%",
         width: "75vw", height: "75vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(229,89,52,0.34) 0%, rgba(250,121,33,0.14) 40%, transparent 70%)",
+        background: "radial-gradient(ellipse at center, rgba(255,202,175,0.30) 0%, rgba(218,184,148,0.12) 40%, transparent 70%)",
         filter: "blur(70px)",
         animation: "meshDriftA 22s ease-in-out infinite",
         willChange: "transform",
       }} />
-      {/* Blob 2 — Sky Surge, top-right */}
+      {/* Blob 2 — Powder Blue, top-right */}
       <div className="mesh-blob" style={{
         position: "absolute",
         top: "-15%", right: "-15%",
         width: "65vw", height: "65vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(91,192,235,0.30) 0%, rgba(91,192,235,0.10) 40%, transparent 70%)",
+        background: "radial-gradient(ellipse at center, rgba(167,190,211,0.28) 0%, rgba(198,226,233,0.10) 40%, transparent 70%)",
         filter: "blur(90px)",
         animation: "meshDriftB 28s ease-in-out infinite",
         willChange: "transform",
       }} />
-      {/* Blob 3 — Banana Cream, center-left */}
+      {/* Blob 3 — Cream, center */}
       <div className="mesh-blob" style={{
         position: "absolute",
         top: "35%", left: "10%",
         width: "55vw", height: "55vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(253,231,76,0.16) 0%, rgba(253,231,76,0.05) 40%, transparent 70%)",
+        background: "radial-gradient(ellipse at center, rgba(241,255,196,0.18) 0%, rgba(241,255,196,0.06) 40%, transparent 70%)",
         filter: "blur(110px)",
         animation: "meshDriftC 35s ease-in-out infinite",
         willChange: "transform",
       }} />
-      {/* Blob 4 — Yellow Green, bottom-right */}
+      {/* Blob 4 — Light Blue, bottom-right */}
       <div className="mesh-blob" style={{
         position: "absolute",
         bottom: "-10%", right: "5%",
         width: "50vw", height: "50vh",
         borderRadius: "50%",
-        background: "radial-gradient(ellipse at center, rgba(155,197,61,0.22) 0%, rgba(155,197,61,0.07) 40%, transparent 70%)",
+        background: "radial-gradient(ellipse at center, rgba(198,226,233,0.22) 0%, rgba(167,190,211,0.08) 40%, transparent 70%)",
         filter: "blur(80px)",
         animation: "meshDriftD 18s ease-in-out infinite",
         willChange: "transform",
