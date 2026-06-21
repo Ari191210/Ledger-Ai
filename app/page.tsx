@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { GetStartedButton } from "@/components/ui/get-started-button";
+import { GooeyInput } from "@/components/ui/gooey-input";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -180,6 +181,7 @@ export default function Home() {
   const [hasSyllabus,    setHasSyllabus]    = useState(false);
   const [mistakesPerWeek,setMistakesPerWeek]= useState(8);
   const [streak,         setStreak]         = useState(5);
+  const [toolSearch,     setToolSearch]     = useState("");
 
   const [variant,      setVariant]      = useState<HeroVariant>("day");
   const [clockTime,    setClockTime]    = useState("");
@@ -1132,57 +1134,91 @@ export default function Home() {
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 64 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 40 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
               55 tools · 6 categories
             </span>
           </div>
 
-          {/* 6 chunky cube cards — one per category */}
-          <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
-            {([
-              { n: "01", slug: "planner",         ttl: "Smart Study Planner", sub: "Subjects in. Timetable out.",           cat: "PLAN",     icon: "◈" },
-              { n: "03", slug: "notes",            ttl: "Study Engine",        sub: "Simplify chapters. Full lesson.",       cat: "LEARN",    icon: "◎" },
-              { n: "25", slug: "essay-blueprint",  ttl: "Essay Workshop",      sub: "Plan. Argue. Grade. One page.",         cat: "WRITE",    icon: "✦" },
-              { n: "06", slug: "papers",           ttl: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB.",            cat: "PRACTISE", icon: "◆" },
-              { n: "13", slug: "admissions",       ttl: "Admissions Engine",   sub: "Your real odds. 60 universities.",      cat: "FUTURE",   icon: "◉" },
-              { n: "★",  slug: "score",            ttl: "Ledger Score",        sub: "Your real-time exam readiness.",        cat: "TRACK",    icon: "★" },
-            ] as const).map(t => {
-              const c = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
-              return (
-                <Link
-                  href={`/tools/${t.slug}`}
-                  key={t.n}
-                  className="tool-item"
-                  style={{
-                    textDecoration: "none",
-                    display: "flex",
-                    flexDirection: "column",
-                    padding: "28px 24px 22px",
-                    background: `color-mix(in srgb, ${c} 14%, var(--paper))`,
-                    border: `1.5px solid color-mix(in srgb, ${c} 45%, transparent)`,
-                    borderRadius: 12,
-                    boxShadow: `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`,
-                    cursor: "pointer",
-                    minHeight: 210,
-                    transition: "box-shadow 220ms ease",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: c, letterSpacing: "0.16em", textTransform: "uppercase" as const }}>{t.cat}</span>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 20, color: c, lineHeight: 1, opacity: 0.65 }}>{t.icon}</span>
-                  </div>
-                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)", lineHeight: 1.18, marginBottom: 10, letterSpacing: "-0.01em" }}>{t.ttl}</div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.6, flex: 1 }}>{t.sub}</div>
-                  <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: c, opacity: 0.55, letterSpacing: "0.08em" }}>{t.n}</span>
-                    <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: c }}>→</span>
-                  </div>
-                </Link>
-              );
-            })}
+          {/* Search */}
+          <div style={{ marginBottom: 48 }}>
+            <GooeyInput
+              value={toolSearch}
+              onChange={setToolSearch}
+              placeholder="Search tools — planner, essays, past papers…"
+              style={{ width: "100%", maxWidth: 520 }}
+            />
           </div>
+
+          {/* 6 chunky cube cards — filtered by search */}
+          {(() => {
+            const ALL_TOOLS = [
+              { n: "01", slug: "planner",        ttl: "Smart Study Planner", sub: "Subjects in. Timetable out.",         cat: "PLAN",     icon: "◈" },
+              { n: "03", slug: "notes",           ttl: "Study Engine",        sub: "Simplify chapters. Full lesson.",     cat: "LEARN",    icon: "◎" },
+              { n: "25", slug: "essay-blueprint", ttl: "Essay Workshop",      sub: "Plan. Argue. Grade. One page.",       cat: "WRITE",    icon: "✦" },
+              { n: "06", slug: "papers",          ttl: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB.",          cat: "PRACTISE", icon: "◆" },
+              { n: "13", slug: "admissions",      ttl: "Admissions Engine",   sub: "Your real odds. 60 universities.",    cat: "FUTURE",   icon: "◉" },
+              { n: "★",  slug: "score",           ttl: "Ledger Score",        sub: "Your real-time exam readiness.",      cat: "TRACK",    icon: "★" },
+            ] as const;
+            const q = toolSearch.trim().toLowerCase();
+            const visible = q
+              ? ALL_TOOLS.filter(t =>
+                  t.ttl.toLowerCase().includes(q) ||
+                  t.sub.toLowerCase().includes(q) ||
+                  t.cat.toLowerCase().includes(q) ||
+                  t.slug.includes(q)
+                )
+              : ALL_TOOLS;
+            if (visible.length === 0) return (
+              <div style={{ padding: "48px 0", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--ink-3)", marginBottom: 12 }}>
+                  No match for &ldquo;{toolSearch}&rdquo;
+                </div>
+                <Link href={`/dashboard`} className="btn ghost" style={{ textDecoration: "none", fontSize: 11, padding: "8px 18px" }}>
+                  Search all 55 tools →
+                </Link>
+              </div>
+            );
+            return (
+              <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visible.length, 3)}, 1fr)`, gap: 32 }}>
+                {visible.map(t => {
+                  const c = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
+                  return (
+                    <Link
+                      href={`/tools/${t.slug}`}
+                      key={t.n}
+                      className="tool-item"
+                      style={{
+                        textDecoration: "none",
+                        display: "flex",
+                        flexDirection: "column",
+                        padding: "28px 24px 22px",
+                        background: `color-mix(in srgb, ${c} 14%, var(--paper))`,
+                        border: `1.5px solid color-mix(in srgb, ${c} 45%, transparent)`,
+                        borderRadius: 12,
+                        boxShadow: `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`,
+                        cursor: "pointer",
+                        minHeight: 210,
+                        transition: "box-shadow 220ms ease",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: c, letterSpacing: "0.16em", textTransform: "uppercase" as const }}>{t.cat}</span>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 20, color: c, lineHeight: 1, opacity: 0.65 }}>{t.icon}</span>
+                      </div>
+                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)", lineHeight: 1.18, marginBottom: 10, letterSpacing: "-0.01em" }}>{t.ttl}</div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.6, flex: 1 }}>{t.sub}</div>
+                      <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: c, opacity: 0.55, letterSpacing: "0.08em" }}>{t.n}</span>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: c }}>→</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           <div style={{ marginTop: 40, textAlign: "center" }}>
             <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>Open all 55 tools →</Link>

@@ -10,6 +10,17 @@ import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import FeaturesShowcase from "@/components/features-showcase";
+import { GooeyInput } from "@/components/ui/gooey-input";
+import { FloatingDock } from "@/components/ui/floating-dock";
+import {
+  IconLayoutDashboard,
+  IconBolt,
+  IconStar,
+  IconBook2,
+  IconTargetArrow,
+  IconUser,
+  IconChartBar,
+} from "@tabler/icons-react";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import EmptyChair from "@/components/empty-chair";
 import gsap from "gsap";
@@ -619,7 +630,7 @@ function LedgerScoreWidget() {
                 {p.val}<span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", fontWeight: 400 }}>/{p.max}</span>
               </span>
               <div style={{ height: 4, background: "color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 2 }}>
-                <div className="pillar-bar-fill" style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--ink)", transition: "width 800ms ease", borderRadius: 2 }} />
+                <div className="pillar-bar-fill" style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--ink)", borderRadius: 2 }} />
               </div>
             </div>
           ))}
@@ -763,28 +774,6 @@ export default function Dashboard() {
       });
     });
 
-    // ── Search input focus glow ──────────────────────────────────────────────
-    const searchWrap = document.querySelector<HTMLElement>(".tool-search-wrap");
-    if (searchWrap) {
-      const inp = searchWrap.querySelector("input");
-      const onFocus = () => gsap.to(searchWrap, {
-        scale: 1.01,
-        boxShadow: "0 0 0 2px color-mix(in srgb, var(--cinnabar) 30%, transparent)",
-        duration: 0.25, ease: "power2.out", overwrite: "auto",
-      });
-      const onBlur = () => gsap.to(searchWrap, {
-        scale: 1, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)",
-        duration: 0.25, ease: "power2.out", overwrite: "auto",
-      });
-      if (inp) {
-        inp.addEventListener("focus", onFocus);
-        inp.addEventListener("blur",  onBlur);
-        cleanup.push(() => {
-          inp.removeEventListener("focus", onFocus);
-          inp.removeEventListener("blur",  onBlur);
-        });
-      }
-    }
 
     return () => cleanup.forEach(fn => fn());
   }, { scope: containerRef });
@@ -1037,7 +1026,7 @@ export default function Dashboard() {
                       borderRadius:   14,
                       border:         `1.5px solid color-mix(in srgb, ${catColor} 30%, color-mix(in srgb, var(--ink) 8%, transparent))`,
                       boxShadow:      "0 2px 8px color-mix(in oklch, var(--ink) 10%, transparent)",
-                      transition:     "transform 280ms cubic-bezier(0.34,1.4,0.64,1), box-shadow 240ms ease, background 160ms ease",
+                      transition:     "transform 280ms cubic-bezier(0.22,1,0.36,1), box-shadow 240ms ease, background 160ms ease",
                     }}
                     onMouseOver={e => {
                       const el = e.currentTarget as HTMLAnchorElement;
@@ -1248,44 +1237,25 @@ export default function Dashboard() {
         })()}
 
         {/* Tool search */}
-        <div className="tool-search-wrap" style={{ display: "flex", alignItems: "center", gap: 10, border: "none", borderRadius: 12, background: "color-mix(in srgb, var(--ink) 7%, transparent)", padding: "0 14px", marginBottom: 28, height: 42, boxShadow: "inset 0 1px 0 color-mix(in srgb, white 10%, transparent)" }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 14, color: "var(--ink-3)", flexShrink: 0 }}>⌕</span>
-          <input
-            type="search"
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
+          <GooeyInput
             value={toolQuery}
-            onChange={e => setToolQuery(e.target.value)}
-            placeholder="Search 41 tools…"
-            aria-label="Search tools"
-            aria-controls="tools-grid"
-            style={{
-              flex: 1, background: "transparent", border: "none",
-              fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)",
-              outline: "none",
-            }}
+            onChange={setToolQuery}
+            placeholder="Search 55 tools…"
+            style={{ flex: 1 }}
           />
           {toolQuery && (
-            <>
-              <span
-                className="mono"
-                aria-live="polite"
-                aria-atomic="true"
-                style={{ color: totalMatches > 0 ? "var(--ink-3)" : "var(--cinnabar-ink)", fontSize: 9, flexShrink: 0 }}
-              >
-                {totalMatches > 0 ? `${totalMatches} result${totalMatches !== 1 ? "s" : ""}` : "No matches"}
-              </span>
-              <button
-                onClick={() => setToolQuery("")}
-                aria-label="Clear search"
-                style={{
-                  background: "color-mix(in srgb, var(--ink) 8%, transparent)", border: "none",
-                  color: "var(--ink-3)", cursor: "pointer",
-                  padding: "2px 8px", fontFamily: "var(--mono)", fontSize: 10,
-                  flexShrink: 0,
-                }}
-              >
-                ✕
-              </button>
-            </>
+            <span
+              className="mono"
+              aria-live="polite"
+              aria-atomic="true"
+              style={{
+                fontSize: 9, flexShrink: 0, whiteSpace: "nowrap",
+                color: totalMatches > 0 ? "var(--ink-3)" : "var(--cinnabar-ink)",
+              }}
+            >
+              {totalMatches > 0 ? `${totalMatches} match${totalMatches !== 1 ? "es" : ""}` : "No matches"}
+            </span>
           )}
         </div>
 
@@ -1380,6 +1350,49 @@ export default function Dashboard() {
 
       <div className="mono" style={{ marginTop: 24, color: "var(--ink-3)", fontSize: 10, textAlign: "right" }}>
         <Link href="/" style={{ color: "var(--ink-3)" }}>← Back to home</Link>
+      </div>
+
+      {/* ── Floating dock ── */}
+      <div
+        className="mob-hide"
+        style={{
+          position: "fixed",
+          bottom: 20,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 60,
+        }}
+      >
+        <FloatingDock
+          items={[
+            { title: "Dashboard",   href: "/dashboard",           icon: <IconLayoutDashboard size={18} /> },
+            { title: "Score",       href: "/tools/score",         icon: <IconChartBar size={18} /> },
+            { title: "Planner",     href: "/tools/planner",       icon: <IconBolt size={18} /> },
+            { title: "Study Engine",href: "/tools/notes",         icon: <IconBook2 size={18} /> },
+            { title: "Past Papers", href: "/tools/papers",        icon: <IconTargetArrow size={18} /> },
+            { title: "Admissions",  href: "/tools/admissions",    icon: <IconStar size={18} /> },
+            { title: "Profile",     href: "/dashboard/profile",   icon: <IconUser size={18} /> },
+          ]}
+        />
+      </div>
+
+      {/* Mobile dock */}
+      <div
+        className="mob-only"
+        style={{ position: "fixed", bottom: 20, right: 20, zIndex: 60 }}
+      >
+        <FloatingDock
+          mobileClassName="translate-y-0"
+          items={[
+            { title: "Dashboard",   href: "/dashboard",           icon: <IconLayoutDashboard size={16} /> },
+            { title: "Score",       href: "/tools/score",         icon: <IconChartBar size={16} /> },
+            { title: "Planner",     href: "/tools/planner",       icon: <IconBolt size={16} /> },
+            { title: "Study Engine",href: "/tools/notes",         icon: <IconBook2 size={16} /> },
+            { title: "Past Papers", href: "/tools/papers",        icon: <IconTargetArrow size={16} /> },
+            { title: "Admissions",  href: "/tools/admissions",    icon: <IconStar size={16} /> },
+            { title: "Profile",     href: "/dashboard/profile",   icon: <IconUser size={16} /> },
+          ]}
+        />
       </div>
     </main>
   );
