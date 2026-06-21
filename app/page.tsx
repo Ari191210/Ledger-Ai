@@ -1252,13 +1252,12 @@ export default function Home() {
                     onMouseEnter={() => setSelectedTool(i)}
                     style={{
                       width: "100%", padding: "12px 18px",
-                      background: active ? "var(--paper-2)" : "transparent",
+                      background: active ? `color-mix(in oklch, ${catColor} 12%, var(--paper-2))` : "transparent",
                       color: "var(--ink)",
                       border: "none",
                       borderBottom: i < filteredTools.length - 1 ? "1px solid var(--rule)" : "none",
-                      borderLeft: active ? `3px solid ${catColor}` : "3px solid transparent",
                       cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 14,
-                      transition: "background 120ms, border-left-color 120ms",
+                      transition: "background 120ms",
                     }}
                   >
                     <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", flexShrink: 0, width: 18, letterSpacing: "0.04em" }}>{t.n}</span>
@@ -1425,7 +1424,7 @@ export default function Home() {
             {FEATS.slice(0, 3).map((f, i) => (
               <div className="feat-card glass-card" key={f.tag} style={{
                 padding: "36px 28px",
-                borderLeft: "3px solid var(--cinnabar-ink)",
+                borderTop: "2px solid var(--cinnabar-ink)",
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
               }}>
                 <div>
@@ -1455,7 +1454,7 @@ export default function Home() {
                 className="feat-card glass-card"
                 key={f.tag}
                 style={{
-                  borderLeft: expandedFeat === i + 3 ? "3px solid var(--cinnabar-ink)" : "3px solid transparent",
+                  borderTop: expandedFeat === i + 3 ? "2px solid var(--cinnabar-ink)" : "2px solid transparent",
                   cursor: "pointer",
                   transition: "border-color 150ms ease, background 150ms ease",
                   padding: "22px 20px",
@@ -1478,7 +1477,7 @@ export default function Home() {
               </div>
             ))}
             {/* Coming soon */}
-            <div className="glass-card" style={{ padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderLeft: "3px solid var(--rule)" }}>
+            <div className="glass-card" style={{ padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderTop: "2px solid var(--rule)" }}>
               <div>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 10 }}>Q3 2026</div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 8, lineHeight: 1.3 }}>Exam-Day Mode</div>
@@ -1546,7 +1545,7 @@ export default function Home() {
                 maxWidth:     780,
                 color:        "var(--ink)",
                 fontWeight:   400,
-                borderLeft:   "3px solid var(--ink)",
+                borderLeft:   "2px solid var(--ink-3)",
                 paddingLeft:  24,
               }}>
                 {TESTIMONIALS[testimIdx].q}

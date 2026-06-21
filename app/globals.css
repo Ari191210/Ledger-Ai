@@ -515,7 +515,7 @@
     0 2px 8px rgba(0,0,0,0.10),
     0 0 0 0 transparent;
   transition:
-    transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 280ms ease,
     border-color 220ms ease,
     background 180ms ease !important;
@@ -533,7 +533,7 @@
 }
 .dash-tool-arrow {
   display: inline-block;
-  transition: color 220ms ease, transform 260ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: color 220ms ease, transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--ink-3);
 }
 .dash-tool:hover .dash-tool-arrow {
@@ -714,7 +714,7 @@ hr.rule-double { border-top: 3px double var(--ink); }
     0px 2px 6px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 14%), transparent),
     0px 8px 22px 0px color-mix(in srgb, black calc(var(--glass-reflex-dark) * 10%), transparent);
 
-  transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 280ms ease,
               background-color 200ms ease,
               border-color 200ms ease;
@@ -1961,7 +1961,7 @@ main {
   --elev-3: 0 12px 32px rgba(0,0,0,0.20), 0 4px 8px rgba(0,0,0,0.10);
   --elev-4: 0 24px 56px rgba(0,0,0,0.28), 0 8px 16px rgba(0,0,0,0.12);
   --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-out-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-spring:  cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-soft: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
@@ -2228,7 +2228,7 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
 /* ─── Glass-card hover lift ──────────────────────────────────────────────────── */
 /* Augments existing .glass-card definition (line ~27) with transition + lift   */
 .glass-card {
-  transition: transform 280ms cubic-bezier(0.34, 1.4, 0.64, 1),
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 280ms ease,
               border-color 200ms ease;
 }
@@ -2254,7 +2254,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
 }
 .nav-logo:hover span {
   letter-spacing: 0.16em;
-  transition: letter-spacing 220ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: letter-spacing 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .nav-logo span {
   display: inline-block;
@@ -2279,7 +2279,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
   transition: background 160ms ease,
               color 160ms ease,
               border-color 160ms ease,
-              transform 200ms cubic-bezier(0.34, 1.4, 0.64, 1);
+              transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .tool-tab:hover:not(:disabled) {
   transform: translateY(-1px);
