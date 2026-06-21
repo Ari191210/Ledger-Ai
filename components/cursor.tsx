@@ -1,85 +1,71 @@
 "use client"
 import { useEffect, useRef } from "react"
 
+const BRAND = ["#ffcaaf", "#a7bed3", "#f1ffc4", "#c6e2e9", "#dab894"]
+const INTERACTIVE = "a, button, [role='button'], input, textarea, select, label, [tabindex]"
+
 export default function Cursor() {
-  const dotRef  = useRef<HTMLDivElement>(null)
-  const ringRef = useRef<HTMLDivElement>(null)
+  const elRef = useRef<HTMLDivElement>(null)
+  const colorIdx = useRef(0)
 
   useEffect(() => {
-    // Only run on fine-pointer devices (desktop)
     if (!window.matchMedia("(pointer: fine)").matches) return
+    const el = elRef.current
+    if (!el) return
 
-    const dot  = dotRef.current
-    const ring = ringRef.current
-    if (!dot || !ring) return
-
-    let mouseX = -100, mouseY = -100
-    let ringX  = -100, ringY  = -100
-    let rafId: number
-    let visible = false
-
-    const INTERACTIVE = "a, button, [role='button'], input, textarea, select, label, [tabindex]"
+    let mx = -100, my = -100, rafId: number, visible = false
 
     const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
-      if (!visible) {
-        visible = true
-        dot.style.opacity  = "1"
-        ring.style.opacity = "1"
-        ringX = mouseX
-        ringY = mouseY
-      }
+      mx = e.clientX; my = e.clientY
+      if (!visible) { visible = true; el.style.opacity = "1" }
     }
-
     const onOver = (e: MouseEvent) => {
-      const el = (e.target as Element).closest(INTERACTIVE)
-      if (el) {
-        dot.dataset.hover  = "1"
-        ring.dataset.hover = "1"
-      }
+      if ((e.target as Element).closest(INTERACTIVE)) el.dataset.hover = "1"
     }
-
     const onOut = (e: MouseEvent) => {
-      const el = (e.target as Element).closest(INTERACTIVE)
-      if (el) {
-        delete dot.dataset.hover
-        delete ring.dataset.hover
-      }
+      if ((e.target as Element).closest(INTERACTIVE)) delete el.dataset.hover
     }
-
-    const onDown = () => { dot.dataset.press  = "1"; ring.dataset.press  = "1" }
-    const onUp   = () => { delete dot.dataset.press; delete ring.dataset.press }
+    const onClick = () => {
+      colorIdx.current = (colorIdx.current + 1) % BRAND.length
+      el.style.setProperty("--cur-color", BRAND[colorIdx.current])
+      el.dataset.click = "1"
+      setTimeout(() => delete el.dataset.click, 350)
+    }
+    const onDown = () => { el.dataset.press = "1" }
+    const onUp   = () => { delete el.dataset.press }
 
     const tick = () => {
-      dot.style.transform = `translate(${mouseX - 4}px,${mouseY - 4}px)`
-      ringX += (mouseX - ringX) * 0.18
-      ringY += (mouseY - ringY) * 0.18
-      ring.style.transform = `translate(${ringX - 16}px,${ringY - 16}px)`
+      el.style.transform = `translate(${mx}px, ${my}px)`
       rafId = requestAnimationFrame(tick)
     }
 
-    document.addEventListener("mousemove",  onMove, { passive: true })
-    document.addEventListener("mouseover",  onOver, { passive: true })
-    document.addEventListener("mouseout",   onOut,  { passive: true })
-    document.addEventListener("mousedown",  onDown, { passive: true })
-    document.addEventListener("mouseup",    onUp,   { passive: true })
+    document.addEventListener("mousemove", onMove,   { passive: true })
+    document.addEventListener("mouseover", onOver,   { passive: true })
+    document.addEventListener("mouseout",  onOut,    { passive: true })
+    document.addEventListener("click",     onClick)
+    document.addEventListener("mousedown", onDown,   { passive: true })
+    document.addEventListener("mouseup",   onUp,     { passive: true })
     rafId = requestAnimationFrame(tick)
 
     return () => {
-      document.removeEventListener("mousemove",  onMove)
-      document.removeEventListener("mouseover",  onOver)
-      document.removeEventListener("mouseout",   onOut)
-      document.removeEventListener("mousedown",  onDown)
-      document.removeEventListener("mouseup",    onUp)
+      document.removeEventListener("mousemove", onMove)
+      document.removeEventListener("mouseover", onOver)
+      document.removeEventListener("mouseout",  onOut)
+      document.removeEventListener("click",     onClick)
+      document.removeEventListener("mousedown", onDown)
+      document.removeEventListener("mouseup",   onUp)
       cancelAnimationFrame(rafId)
     }
   }, [])
 
   return (
-    <>
-      <div ref={dotRef}  className="cur-dot"  aria-hidden="true" />
-      <div ref={ringRef} className="cur-ring" aria-hidden="true" />
-    </>
+    <div ref={elRef} className="cur-x" aria-hidden="true">
+      <div className="cur-x-arm cur-x-top" />
+      <div className="cur-x-arm cur-x-right" />
+      <div className="cur-x-arm cur-x-bottom" />
+      <div className="cur-x-arm cur-x-left" />
+      <div className="cur-x-dot" />
+      <div className="cur-x-ring" />
+    </div>
   )
 }

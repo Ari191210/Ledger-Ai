@@ -643,23 +643,8 @@ export default function Home() {
         )
       );
 
-      /* Tool list rows — x slide */
+      /* Tool cube cards — CSS handles hover; GSAP only for scroll-in */
       gsap.utils.toArray<HTMLElement>(".tool-item").forEach(el => {
-        const arrow = el.querySelector<HTMLElement>(".tool-arrow");
-        const onEnter = () => {
-          gsap.to(el, { x: 5, duration: 0.2, ease: "power2.out", overwrite: "auto" });
-          if (arrow) gsap.fromTo(arrow, { x: -8, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.22, ease: "power2.out" });
-        };
-        const onLeave = () => {
-          gsap.to(el, { x: 0, duration: 0.3, ease: "power3.out", overwrite: "auto" });
-          if (arrow) gsap.to(arrow, { x: -8, autoAlpha: 0, duration: 0.18, ease: "power2.in" });
-        };
-        el.addEventListener("mouseenter", onEnter);
-        el.addEventListener("mouseleave", onLeave);
-        hoverListeners.push(() => {
-          el.removeEventListener("mouseenter", onEnter);
-          el.removeEventListener("mouseleave", onLeave);
-        });
       });
 
       /* Testimonial nav arrows */
@@ -1106,94 +1091,74 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 04 / All 41 Tools ─── */}
+      {/* ─── 04 / Featured Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "80px 40px 72px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 40 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 28 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 52 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
-              {filteredTools.length} tool{filteredTools.length !== 1 ? "s" : ""} · {activeCategory === "ALL" ? "all categories" : activeCategory.toLowerCase()}
+              55 tools · 6 categories
             </span>
           </div>
 
-          {/* Category filter tabs */}
-          <div className="cat-tabs" style={{ display: "flex", gap: 8, flexWrap: "wrap" as const, marginBottom: 32 }}>
-            {CATEGORIES.map(cat => {
-              const active = activeCategory === cat;
-              const color  = cat === "ALL" ? "var(--cinnabar-ink)" : CAT_COLOR[cat] ?? "var(--ink)";
-              return (
-                <button
-                  key={cat}
-                  className="cat-tab"
-                  onClick={() => setActiveCategory(cat)}
-                  style={{
-                    fontFamily: "var(--mono)", fontSize: 9, fontWeight: 600,
-                    letterSpacing: "0.14em", textTransform: "uppercase" as const,
-                    padding: "8px 16px", cursor: "pointer",
-                    background: active ? color : "color-mix(in srgb, var(--ink) 6%, transparent)",
-                    color: active ? "#fff" : "var(--ink-3)",
-                    border: `1px solid ${active ? color : "color-mix(in srgb, var(--ink) 12%, transparent)"}`,
-                    borderRadius: 999,
-                    transition: "all 150ms cubic-bezier(0.16,1,0.3,1)",
-                  }}
-                >{cat}</button>
-              );
-            })}
-          </div>
-
-          {/* Tool cards grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
-            {filteredTools.map((t, i) => {
-              const catColor = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
+          {/* 6 chunky cube cards — one per category */}
+          <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+            {([
+              { n: "01", slug: "planner",         ttl: "Smart Study Planner", sub: "Subjects in. Timetable out.",           cat: "PLAN",     icon: "◈" },
+              { n: "03", slug: "notes",            ttl: "Study Engine",        sub: "Simplify chapters. Full lesson.",       cat: "LEARN",    icon: "◎" },
+              { n: "25", slug: "essay-blueprint",  ttl: "Essay Workshop",      sub: "Plan. Argue. Grade. One page.",         cat: "WRITE",    icon: "✦" },
+              { n: "06", slug: "papers",           ttl: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB.",            cat: "PRACTISE", icon: "◆" },
+              { n: "13", slug: "admissions",       ttl: "Admissions Engine",   sub: "Your real odds. 60 universities.",      cat: "FUTURE",   icon: "◉" },
+              { n: "★",  slug: "score",            ttl: "Ledger Score",        sub: "Your real-time exam readiness.",        cat: "TRACK",    icon: "★" },
+            ] as const).map(t => {
+              const c = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
               return (
                 <Link
                   href={`/tools/${t.slug}`}
-                  key={t.n + t.slug}
+                  key={t.n}
                   className="tool-item"
                   style={{
                     textDecoration: "none",
-                    display: "flex", flexDirection: "column", justifyContent: "space-between",
-                    padding: "22px 22px 18px",
-                    background: "color-mix(in srgb, var(--paper) 55%, transparent)",
-                    backdropFilter: "blur(16px)",
-                    WebkitBackdropFilter: "blur(16px)",
-                    border: `1px solid color-mix(in srgb, var(--ink) 9%, transparent)`,
-                    borderTop: `2px solid ${catColor}`,
-                    borderRadius: 16,
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "28px 24px 22px",
+                    background: `color-mix(in srgb, ${c} 6%, var(--paper))`,
+                    border: `1.5px solid color-mix(in srgb, ${c} 28%, transparent)`,
+                    borderRadius: 12,
+                    boxShadow: `6px 6px 0 0 color-mix(in srgb, ${c} 45%, transparent)`,
                     cursor: "pointer",
-                    transition: "transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease, border-color 150ms",
-                    minHeight: 140,
+                    minHeight: 210,
+                    transition: "transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms cubic-bezier(0.16,1,0.3,1)",
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                    (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 40px color-mix(in srgb, ${catColor} 18%, transparent), 0 4px 16px rgba(0,0,0,0.2)`;
-                    (e.currentTarget as HTMLElement).style.borderColor = catColor;
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.transform = "translate(-4px, -4px)";
+                    el.style.boxShadow = `10px 10px 0 0 color-mix(in srgb, ${c} 55%, transparent)`;
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.transform = "";
-                    (e.currentTarget as HTMLElement).style.boxShadow = "";
-                    (e.currentTarget as HTMLElement).style.borderColor = "";
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.transform = "";
+                    el.style.boxShadow = `6px 6px 0 0 color-mix(in srgb, ${c} 45%, transparent)`;
                   }}
                 >
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                      <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: catColor, letterSpacing: "0.12em", textTransform: "uppercase" as const, fontWeight: 600 }}>{t.cat}</span>
-                      <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.06em" }}>{t.n}</span>
-                    </div>
-                    <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 17, color: "var(--ink)", lineHeight: 1.25, marginBottom: 6 }}>{t.ttl}</div>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.55 }}>{t.sub}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: c, letterSpacing: "0.16em", textTransform: "uppercase" as const }}>{t.cat}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 20, color: c, lineHeight: 1, opacity: 0.65 }}>{t.icon}</span>
                   </div>
-                  <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
-                    <span className="tool-arrow" style={{ fontFamily: "var(--mono)", fontSize: 11, color: catColor, opacity: 0 }}>→</span>
+                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)", lineHeight: 1.18, marginBottom: 10, letterSpacing: "-0.01em" }}>{t.ttl}</div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.6, flex: 1 }}>{t.sub}</div>
+                  <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: c, opacity: 0.55, letterSpacing: "0.08em" }}>{t.n}</span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: c }}>→</span>
                   </div>
                 </Link>
               );
             })}
           </div>
 
-          <div style={{ marginTop: 32, textAlign: "center" }}>
+          <div style={{ marginTop: 40, textAlign: "center" }}>
             <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>Open all 55 tools →</Link>
           </div>
         </div>
