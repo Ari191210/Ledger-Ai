@@ -6,7 +6,7 @@
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
-@keyframes scroll-bounce {
+@keyframes scroll-cue-drift {
   0%, 100% { transform: translateY(0);    opacity: 0.5; }
   50%       { transform: translateY(8px);  opacity: 1;   }
 }
@@ -46,7 +46,7 @@
   border-right: 1.5px solid var(--ink-3);
   border-bottom: 1.5px solid var(--ink-3);
   transform: rotate(45deg);
-  animation: scroll-bounce 1.4s ease-in-out infinite;
+  animation: scroll-cue-drift 1.4s ease-in-out infinite;
 }
 .scroll-cue span:nth-child(2) { animation-delay: 0.2s; opacity: 0.5; }
 .scroll-cue span:nth-child(3) { animation-delay: 0.4s; opacity: 0.25; }
@@ -54,6 +54,29 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+@keyframes meshDriftA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(60px, -40px) scale(1.08); }
+  66%       { transform: translate(-30px, 30px) scale(0.95); }
+}
+@keyframes meshDriftB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-50px, 50px) scale(1.06); }
+  70%       { transform: translate(40px, -20px) scale(0.97); }
+}
+@keyframes meshDriftC {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(30px, 40px) scale(1.05); }
+}
+@keyframes meshDriftD {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  45%       { transform: translate(-40px, -30px) scale(1.10); }
+  80%       { transform: translate(20px, 20px) scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mesh-blob { animation: none !important; }
+}
+
 
 @keyframes ai-cursor-blink {
   0%, 50% { opacity: 1; }
@@ -553,8 +576,7 @@
   pointer-events: none; z-index: 99999;
   opacity: 0;
   will-change: transform;
-  transition: opacity 300ms, width 180ms cubic-bezier(.4,0,.2,1),
-              height 180ms cubic-bezier(.4,0,.2,1),
+  transition: opacity 300ms, transform 180ms cubic-bezier(.4,0,.2,1),
               background 220ms;
 }
 .cur-ring {
@@ -564,14 +586,13 @@
   pointer-events: none; z-index: 99998;
   opacity: 0;
   will-change: transform;
-  transition: opacity 300ms, width 220ms cubic-bezier(.4,0,.2,1),
-              height 220ms cubic-bezier(.4,0,.2,1),
+  transition: opacity 300ms, transform 220ms cubic-bezier(.4,0,.2,1),
               border-color 220ms;
 }
 
-/* Hover state â€” ring expands, dot hides */
-.cur-dot[data-hover]  { width: 3px; height: 3px; opacity: 0.4; }
-.cur-ring[data-hover] { width: 52px; height: 52px; opacity: 0.35; }
+/* Hover state — ring expands, dot hides */
+.cur-dot[data-hover]  { transform: translate(-50%, -50%) scale(0.375); opacity: 0.4; }
+.cur-ring[data-hover] { transform: translate(-50%, -50%) scale(1.625); opacity: 0.35; }
 
 /* Press state */
 .cur-dot[data-press]  { background: var(--cinnabar); }
@@ -2311,7 +2332,7 @@ a:not(.btn):not([class*="dash-tool"]):not([class*="nav-"]):not([class*="ui-btn"]
 }
 
 /* â”€â”€â”€ Scroll-bounce: more dramatic travel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-@keyframes scroll-bounce {
+@keyframes scroll-cue-drift {
   0%, 100% { transform: translateY(0)    rotate(45deg); opacity: 0.4; }
   50%       { transform: translateY(10px) rotate(45deg); opacity: 1;   }
 }
@@ -2578,3 +2599,4 @@ select:focus {
   }
   .hero-badge { animation: none !important; }
 }
+

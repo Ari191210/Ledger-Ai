@@ -816,8 +816,6 @@ export default function Home() {
               </span>
               <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
               <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-2)" }}>Academic OS</span>
-              <span className="mob-hide" style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
-              <span className="mob-hide" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", color: "var(--ink-3)" }}>Est. 2025</span>
             </div>
 
             {/* Headline — variant-aware */}
@@ -1684,7 +1682,7 @@ export default function Home() {
         {/* Colophon */}
         <div className="lp-inner" style={{ borderTop: "1px solid var(--rule)", padding: "13px 40px", maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>MMXXVI Ledger Study Co.</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>Set in Orbitron, Space Grotesk &amp; Space Mono</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>Set in Instrument Serif, DM Sans &amp; Space Mono</span>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>{today}</span>
         </div>
 

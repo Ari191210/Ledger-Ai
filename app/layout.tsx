@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from "next";
-import { Syne, DM_Sans, Space_Mono, Lora } from "next/font/google";
+import { Instrument_Serif, DM_Sans, Space_Mono, Lora } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
@@ -15,9 +15,10 @@ import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import RankWhisper from "@/components/rank-whisper";
 import "./globals.css";
 
-const syne = Syne({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400"],
+  style: ["normal", "italic"],
   variable: "--font-orbitron",
   display: "swap",
   preload: false,
@@ -102,7 +103,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable}`}
+      className={`${instrumentSerif.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable}`}
     >
       <head>
         {/* Anti-flash: apply saved palette before first paint */}
