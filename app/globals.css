@@ -213,6 +213,21 @@
   --elev-2: 0 4px 6px hsl(220 10% 3% / 0.35), 0 2px 4px hsl(220 10% 3% / 0.22);
   --elev-3: 0 10px 15px hsl(220 10% 3% / 0.30), 0 4px 6px hsl(220 10% 3% / 0.20);
   --elev-4: 0 20px 25px hsl(220 10% 3% / 0.28), 0 10px 10px hsl(220 10% 3% / 0.18);
+
+  /* == Premium typography scale == */
+  --display-xl: clamp(64px, 10vw, 144px);
+  --display-lg: clamp(48px, 7vw, 112px);
+  --display-md: clamp(36px, 5vw, 72px);
+  --display-sm: clamp(28px, 3.5vw, 48px);
+  --body-lg: 18px;
+  --body-md: 16px;
+  --body-sm: 14px;
+  --tracking-display: -0.05em;
+  --tracking-heading: -0.03em;
+  --tracking-body: 0.01em;
+  --leading-display: 1.0;
+  --leading-heading: 1.1;
+  --leading-body: 1.7;
 }
 
 /* â”€â”€â”€ Glass panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -565,6 +580,46 @@ button:not(.btn):not([class*=”ui-btn”]):disabled {
   .pop-in, .wiggle, .pill-active { animation: none; }
   .tool-cube { transition: none; }
   .ripple-host .ripple-el { animation: none; }
+}
+
+/* ─── Premium reveal animations ─── */
+@keyframes reveal-clip {
+  from { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateY(12px); }
+  to   { clip-path: inset(0 0 0% 0);   opacity: 1; transform: translateY(0); }
+}
+@keyframes count-up-fade {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.08); }
+}
+.reveal-clip {
+  animation: reveal-clip 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  clip-path: inset(0 0 0% 0);
+}
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.20s; }
+.stagger-4 { animation-delay: 0.30s; }
+.stagger-5 { animation-delay: 0.42s; }
+.stagger-6 { animation-delay: 0.56s; }
+
+/* ─── Bento grid ─── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+.bento-1  { grid-column: span 4; }
+.bento-2  { grid-column: span 6; }
+.bento-3  { grid-column: span 8; }
+.bento-4  { grid-column: span 12; }
+.bento-tall { grid-row: span 2; }
+
+@media (max-width: 900px) {
+  .bento-1, .bento-2, .bento-3, .bento-4 { grid-column: span 12; }
 }
 
 /* --- Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */

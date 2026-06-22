@@ -317,11 +317,11 @@ export default function Home() {
 
       /* ── PRE-HIDE: set all scroll-animated elements invisible BEFORE anything fires ── */
       if (!reduceMotion) {
-        gsap.set(".reveal-up",    { autoAlpha: 0, y: 60,  filter: "blur(8px)" });
+        gsap.set(".reveal-up",    { autoAlpha: 0, y: 48, clipPath: "inset(0 0 20% 0)" });
         gsap.set(".reveal-body",  { autoAlpha: 0, y: 40 });
         gsap.set(".reveal-quote", { autoAlpha: 0, x: -50 });
         gsap.set(".reveal-stat",  { autoAlpha: 0, y: 40, scale: 0.85 });
-        gsap.set(".bento-card",   { autoAlpha: 0, y: 64,  scale: 0.88, filter: "blur(6px)" });
+        gsap.set(".bento-card",   { autoAlpha: 0, y: 40, scale: 0.96 });
         gsap.set(".feat-card",    { autoAlpha: 0, y: 56,  scale: 0.9 });
         gsap.set(".stat-card",    { autoAlpha: 0, y: 48,  scale: 0.88 });
         gsap.set(".hiw-step",     { autoAlpha: 0, y: 50 });
@@ -414,10 +414,10 @@ export default function Home() {
         });
       });
 
-      /* ── Section headings: large Y + blur reveal ── */
+      /* ── Section headings: clip-path reveal ── */
       gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
         gsap.to(el, {
-          autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "power3.out",
+          autoAlpha: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 0.85, ease: "power3.out",
           scrollTrigger: { trigger: el, start: "top 90%", once: true },
         });
       });
@@ -446,13 +446,13 @@ export default function Home() {
         });
       });
 
-      /* ── Bento cards: large Y + scale + blur ── */
+      /* ── Bento cards: Y + scale reveal ── */
       gsap.utils.toArray<HTMLElement>(".bento-card").forEach((el, i) => {
         gsap.to(el, {
-          autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "power3.out",
+          autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "power3.out",
           delay: i * 0.12,
           scrollTrigger: { trigger: el, start: "top 88%", once: true },
-          clearProps: "filter,transform,opacity,visibility",
+          clearProps: "transform,opacity,visibility",
         });
       });
 
@@ -809,8 +809,8 @@ export default function Home() {
           <div style={{ position: "absolute", top: "55%", right: "8%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(198,226,233,0.18) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
         </div>
 
-        {/* Full-width editorial hero */}
-        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 900, margin: "0 auto", padding: "0 72px" }}>
+        {/* Two-column editorial hero */}
+        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1100, margin: "0 auto", padding: "0 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
 
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
@@ -839,12 +839,12 @@ export default function Home() {
 
             {/* Headline — variant-aware */}
             <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.01em", lineHeight: 1.05, margin: "0 0 24px" }}>
-              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(52px,9vw,120px)" : "clamp(40px,7vw,96px)", color: "var(--ink-2)", fontStyle: "italic" }}>
+              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(60px,10vw,140px)" : "clamp(52px,8vw,108px)", color: "var(--ink-2)", fontStyle: "italic" }}>
                 {variant === "late"
                   ? <>It&apos;s <span style={{ color: "var(--cinnabar-ink)" }}>{clockTime}</span>{city ? <> in {city}</> : null}.</>
                   : HERO_COPY[variant].line1}
               </div>
-              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(40px,7vw,96px)" : "clamp(40px,8vw,112px)", color: "var(--cinnabar-ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
+              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(52px,8vw,112px)" : "clamp(52px,9vw,128px)", color: "var(--cinnabar-ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
                 {HERO_COPY[variant].line2}
               </div>
             </h1>
@@ -904,6 +904,48 @@ export default function Home() {
 
           </div>
 
+          {/* RIGHT: product preview card */}
+          <div className="mob-hide" style={{ position: "relative" }}>
+            {/* Glow behind card */}
+            <div aria-hidden style={{ position: "absolute", inset: "-40px", borderRadius: "50%", background: "radial-gradient(ellipse at center, rgba(255,202,175,0.15) 0%, transparent 70%)", filter: "blur(40px)", animation: "glow-pulse 4s ease-in-out infinite", pointerEvents: "none" }} />
+            <div className="gl-pane" style={{ borderRadius: 20, border: "1px solid color-mix(in srgb, var(--cinnabar-ink) 20%, transparent)", overflow: "hidden", padding: "28px", position: "relative" }}>
+              {/* Mini header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid var(--rule)" }}>
+                <div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 6 }}>Ledger Score</div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>847</div>
+                </div>
+                <div style={{ padding: "6px 14px", borderRadius: 999, background: "color-mix(in srgb, var(--cream) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--cream) 30%, transparent)", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--cream)" }}>
+                  Exam Ready
+                </div>
+              </div>
+              {/* 3×2 mini tool grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                {[
+                  { label: "Planner",    cat: "PLAN",     color: "var(--cream)" },
+                  { label: "Past Papers",cat: "PRACTISE", color: "var(--powder-blue)" },
+                  { label: "Score",      cat: "TRACK",    color: "var(--tan)" },
+                  { label: "Essay",      cat: "WRITE",    color: "var(--light-blue)" },
+                  { label: "Predict",    cat: "PRACTISE", color: "var(--powder-blue)" },
+                  { label: "Admissions", cat: "FUTURE",   color: "var(--cinnabar-ink)" },
+                ].map((t, i) => (
+                  <div key={i} style={{ padding: "14px 12px", borderRadius: 12, background: `color-mix(in srgb, ${t.color} 8%, var(--paper-2))`, border: `1px solid color-mix(in srgb, ${t.color} 18%, transparent)` }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase", color: t.color, marginBottom: 6, opacity: 0.8 }}>{t.cat}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, color: "var(--ink)", lineHeight: 1.3 }}>{t.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Footer strip */}
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", color: "var(--ink-3)", textTransform: "uppercase" }}>55 tools active</span>
+                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "inline-block", animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite", opacity: 0.7 }} />
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em" }}>Live</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Scroll hint */}
@@ -934,23 +976,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── Stats Bar ─── */}
-      <div style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 60%, transparent)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0 }}>
+      {/* ─── Trust strip ─── */}
+      <div style={{ borderBottom: S.border, borderTop: S.border }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
           {[
-            { n: "55",    label: "AI Tools",                  color: "#d4ff5c", bg: "rgba(212,255,92,0.06)",  accent: "#d4ff5c" },
-            { n: "3,204", label: "Waitlist — Exam-Day Mode",  color: "#ff9c6e", bg: "rgba(255,156,110,0.06)", accent: "#ff9c6e" },
-            { n: "Free",  label: "To start · No card needed", color: "#7dd8f0", bg: "rgba(125,216,240,0.06)", accent: "#7dd8f0" },
+            { n: "55",    label: "AI tools across 6 categories", color: "var(--cream)" },
+            { n: "3,204", label: "students on the waitlist",     color: "var(--cinnabar-ink)" },
+            { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)" },
           ].map((s, i) => (
             <div key={i} style={{
-              textAlign: "center",
-              padding: "56px 32px 52px",
+              padding: "52px 48px",
               borderRight: i < 2 ? S.border : "none",
-              background: s.bg,
-              borderBottom: `3px solid ${s.accent}`,
+              display: "flex", flexDirection: "column", gap: 12,
             }}>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 68, fontWeight: 700, color: s.color, lineHeight: 1, letterSpacing: "-0.02em" }}>{s.n}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: s.color, marginTop: 14, letterSpacing: "0.04em", opacity: 0.6 }}>{s.label}</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,88px)", fontWeight: 700, color: s.color, lineHeight: 1, letterSpacing: "-0.04em" }}>{s.n}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", lineHeight: 1.5 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -1009,61 +1049,70 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 02 / How It Works ─── */}
+      {/* ─── 02 / A system, not just apps ─── */}
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "140px 56px 120px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(36px,5vw,72px)", letterSpacing: "-0.03em", marginBottom: 64 }}>
+            A system, not just apps.
+          </h2>
 
-          <h2 className="reveal-up" style={{ ...S.h2, marginBottom: 80 }}>Three steps to a system that works.</h2>
+          <div className="bento-grid">
+            {/* Big upload card — spans 8 cols */}
+            <div className="bento-3 gl-pane" style={{ padding: "48px", borderRadius: 20, minHeight: 280, position: "relative", overflow: "hidden" }}>
+              <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
+              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px" }}>Your syllabus becomes your year.</h3>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7, maxWidth: 460 }}>Upload a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in 6 seconds.</p>
+            </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, position: "relative" }} className="mob-col">
-            {/* Connecting rule */}
-            <div className="hiw-line" style={{ position: "absolute", top: 27, left: "calc(16.6% + 16px)", right: "calc(16.6% + 16px)", height: 1, background: "var(--rule)", zIndex: 0, transformOrigin: "left center" }} />
-
-            {([
-              {
-                n: "01", icon: "↑",
-                title: "Upload your syllabus",
-                body: "Paste a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in seconds.",
-              },
-              {
-                n: "02", icon: "◎",
-                title: "Study with 41 AI tools",
-                body: "Every tool knows your syllabus. Flashcards pull from your topics. The planner knows your exam dates. Each session feeds the next.",
-              },
-              {
-                n: "03", icon: "↗",
-                title: "Track your readiness",
-                body: "Your Ledger Score updates in real time — PYQ accuracy, syllabus coverage, mistake velocity, and daily streak. One number that tells you the truth.",
-              },
-            ] as const).map((step, i) => (
-              <div key={step.n} className="hiw-step" style={{ padding: "0 0 0 0", position: "relative", zIndex: 1 }}>
-                <div style={{
-                  width: 56, height: 56,
-                  border: "1px solid color-mix(in srgb, var(--cinnabar-ink) 30%, transparent)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  marginBottom: 32,
-                  background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))",
-                  backdropFilter: "blur(8px)",
-                  borderRadius: 14,
-                  fontFamily: "var(--serif)", fontSize: 22, color: "var(--cinnabar-ink)",
-                }}>
-                  {step.icon}
-                </div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 14 }}>
-                  Step {step.n}
-                </div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 700, color: "var(--ink)", marginBottom: 14, letterSpacing: "0.03em", lineHeight: 1.15 }}>
-                  {step.title}
-                </div>
-                <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", lineHeight: 1.72, margin: 0, maxWidth: 280 }}>
-                  {step.body}
-                </p>
-                {i < 2 && (
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 16, color: "var(--rule)", position: "absolute", top: 13, right: "-4px", display: "none" }} className="mob-hide">→</div>
-                )}
+            {/* Boards stat card — spans 4 cols */}
+            <div className="bento-1 gl-pane" style={{ padding: "40px 32px", borderRadius: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
+              <div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,80px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>CBSE · ICSE · IB · IGCSE · A-Level · SAT</div>
               </div>
-            ))}
+            </div>
+
+            {/* Study card — spans 6 */}
+            <div className="bento-2 gl-pane" style={{ padding: "48px", borderRadius: 20, minHeight: 240, position: "relative", overflow: "hidden" }}>
+              <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
+              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>55 tools, one login, one streak.</h3>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>Doubt solver, essay workshop, past papers, prediction engine. All tools share the same score, same streak, same profile.</p>
+            </div>
+
+            {/* AI tools stat card — spans 6 */}
+            <div className="bento-2 gl-pane" style={{ padding: "40px 36px", borderRadius: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
+              <div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,80px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>Plan · Learn · Write · Practise · Future · Track</div>
+              </div>
+            </div>
+
+            {/* Score card — full width */}
+            <div className="bento-4 gl-pane" style={{ padding: "48px 56px", borderRadius: 20, display: "flex", gap: 64, alignItems: "center", flexWrap: "wrap" as const }}>
+              <div style={{ flex: "1 1 320px" }}>
+                <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
+                <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One number. Every insight.</h3>
+                <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7 }}>Ledger Score runs on four signals — PYQ accuracy, syllabus coverage, mistake velocity, daily consistency — updated every time you use any tool.</p>
+              </div>
+              <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { n: "40%", l: "PYQ Accuracy", c: "var(--cinnabar-ink)" },
+                  { n: "25%", l: "Syllabus",      c: "var(--powder-blue)" },
+                  { n: "20%", l: "Mistakes",      c: "var(--cream)" },
+                  { n: "15%", l: "Consistency",   c: "var(--tan)" },
+                ].map((p, i) => (
+                  <div key={i} style={{ padding: "20px 18px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))`, border: `1px solid color-mix(in srgb, ${p.c} 25%, transparent)` }}>
+                    <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: p.c, lineHeight: 1 }}>{p.n}</div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{p.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
