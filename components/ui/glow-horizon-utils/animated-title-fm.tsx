@@ -52,21 +52,42 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
         ))}
       </div>
 
-      {/* Tagline */}
+      {/* Benefit subheadline */}
       <motion.p
         initial={{ opacity: 0, y: -12 }}
         animate={open ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.9, ease: EASE, delay: 0.75 }}
+        transition={{ duration: 0.9, ease: EASE, delay: 0.65 }}
         style={{
-          fontFamily: "var(--sans)",
-          fontSize: "clamp(13px,1.4vw,16px)",
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          fontSize: "clamp(18px,2.2vw,28px)",
+          color: "var(--ink-2)",
+          marginTop: 18,
+          letterSpacing: "-0.01em",
+          lineHeight: 1.35,
+          maxWidth: 620,
+          margin: "18px auto 0",
+        }}
+      >
+        Upload your syllabus. See exactly what to study next. Watch your exam readiness score update in real time.
+      </motion.p>
+
+      {/* Supporting tagline */}
+      <motion.p
+        initial={{ opacity: 0, y: -12 }}
+        animate={open ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.9, ease: EASE, delay: 0.85 }}
+        style={{
+          fontFamily: "var(--mono)",
+          fontSize: "clamp(10px,1.1vw,12px)",
           color: "var(--ink-3)",
-          marginTop: 20,
-          letterSpacing: "0.02em",
+          marginTop: 14,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
           lineHeight: 1.6,
         }}
       >
-        For CBSE, IB, JEE, NEET, and board exam students. Upload your syllabus. See exactly how far behind you are. Get your readiness score.
+        CBSE · ICSE · IB · JEE · NEET · A-Level · SAT
       </motion.p>
 
       {/* CTAs */}

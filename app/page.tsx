@@ -877,6 +877,77 @@ export default function Home() {
       {/* ─── Product walkthrough ─── */}
       <ProductWalkthrough />
 
+      {/* ─── ChatGPT vs Ledger comparison ─── */}
+      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 56 }}>
+            <h2 className="reveal-up" style={S.h2}>Why not just use ChatGPT?</h2>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>
+              Students ask this every day
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }} className="mob-col">
+            {/* ChatGPT column */}
+            <div style={{ borderRadius: 16, border: "1px solid var(--rule)", overflow: "hidden" }}>
+              <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--rule)", background: "color-mix(in srgb, var(--ink) 3%, var(--paper))" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 4 }}>Generic AI</div>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink-2)" }}>ChatGPT / Gemini</div>
+              </div>
+              {[
+                "Answers your question, then forgets it",
+                "Has no idea what board you're on",
+                "Doesn't know what chapters you're behind on",
+                "Can't track what you've covered",
+                "No readiness score — you can't measure progress",
+                "No exam date awareness",
+                "Generic study tips, not your specific syllabus",
+                "Starts fresh every session",
+              ].map((row, i) => (
+                <div key={i} style={{ padding: "14px 28px", borderBottom: i < 7 ? "1px solid var(--rule)" : "none", display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ color: "var(--ink-3)", fontSize: 14, flexShrink: 0 }}>✕</span>
+                  <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.4 }}>{row}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Ledger column */}
+            <div style={{ borderRadius: 16, border: "1.5px solid var(--cinnabar-ink)", overflow: "hidden" }}>
+              <div style={{ padding: "20px 28px", borderBottom: "1px solid color-mix(in srgb, var(--cinnabar-ink) 25%, transparent)", background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)", marginBottom: 4 }}>Built for exams</div>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)" }}>StudyLedger</div>
+              </div>
+              {[
+                "Remembers every session, every subject, every gap",
+                "Knows your board, grade, and exam date",
+                "Shows exactly how many chapters you're behind — and how long to catch up",
+                "Tracks syllabus coverage across every tool you use",
+                "Live 0–1000 readiness score, updated every session",
+                "Counts down to your exam and adjusts your plan daily",
+                "Everything calibrated to your actual uploaded syllabus",
+                "Your history, your score, your streak — always there",
+              ].map((row, i) => (
+                <div key={i} style={{ padding: "14px 28px", borderBottom: i < 7 ? "1px solid color-mix(in srgb, var(--cinnabar-ink) 15%, transparent)" : "none", display: "flex", alignItems: "center", gap: 12, background: i % 2 === 0 ? "color-mix(in srgb, var(--cinnabar-ink) 3%, var(--paper))" : "transparent" }}>
+                  <span style={{ color: "var(--cinnabar-ink)", fontSize: 14, flexShrink: 0 }}>✓</span>
+                  <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.4 }}>{row}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 40, textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "clamp(16px,2vw,22px)", color: "var(--ink-2)", margin: "0 0 24px" }}>
+              ChatGPT answers questions. Ledger builds a system around your syllabus.
+            </p>
+            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>
+              Upload your syllabus — free →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Trust strip ─── */}
       <div style={{ borderBottom: S.border, borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
@@ -1067,59 +1138,6 @@ export default function Home() {
               <Link href="/auth" className="btn" style={{ textDecoration: "none", marginTop: 24, display: "inline-flex", alignSelf: "flex-start", fontSize: 10, letterSpacing: "0.12em" }}>
                 See your real score →
               </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 02 / The Brief ─── */}
-      <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 88, alignItems: "start" }} className="mob-col">
-            <div>
-              <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(28px,4vw,48px)", marginBottom: 40 }}>
-                Students don&apos;t have an operating system.
-              </h2>
-              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75, marginBottom: 20 }}>
-                They have seven apps that don&apos;t talk to each other, a notes folder they dread opening, a study plan that expired in October, and an exam five weeks away that still feels theoretical.
-              </p>
-              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75 }}>
-                Ledger is the system that was missing. Not a productivity app. Not AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, and every tool calibrated to your board, your grade, and your exam date.
-              </p>
-            </div>
-
-            <div>
-              {/* Pull quote */}
-              <div className="reveal-quote" style={{ borderTop: "2px solid var(--ink)", paddingTop: 32, marginBottom: 44 }}>
-                <p style={{ fontFamily: "var(--sans)", fontStyle: "italic", fontSize: "clamp(18px,2.2vw,24px)", color: "var(--ink)", lineHeight: 1.5, letterSpacing: "-0.01em", margin: 0 }}>
-                  &ldquo;The only student tool built around your syllabus, your board, and your exam — not a generic student somewhere in the world.&rdquo;
-                </p>
-              </div>
-
-              {/* Three meta facts */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-                {[
-                  { n: "55+", l: "Study Tools" },
-                  { n: "6+", l: "Exam Boards" },
-                  { n: "8w", l: "To see results" },
-                ].map((m, i) => (
-                  <div key={i} className="reveal-stat glass-card" style={{ padding: "20px 16px" }}>
-                    <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", lineHeight: 1, letterSpacing: "0.04em" }}>{m.n}</div>
-                    <div style={{ ...S.cap, marginTop: 8 }}>{m.l}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ marginTop: 24 }}>
-                <div className="anim-divider" style={S.rule} />
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, ...S.cap, fontSize: 9 }}>
-                  <span>Est. 2025</span>
-                  <span>One system</span>
-                  <span>One operating system</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
