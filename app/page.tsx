@@ -59,7 +59,7 @@ const TOOLS = [
   { n: "42", slug: "exam-strategy",   ttl: "Exam Strategy",         sub: "How to work the paper on exam day.",            cat: "PRACTISE", desc: "Input your exam type, duration, and subject. Get time allocation per section, nerve-control techniques, last-minute revision priorities, and a personalised exam-day checklist.",                                                                                                                gets: ["Time allocation per section", "Nerve-control + focus techniques", "Personalised exam-day checklist"] },
   { n: "43", slug: "concept-connect", ttl: "Concept Connect",       sub: "Bridge ideas across subjects.",                 cat: "TRACK",    desc: "Enter two concepts from any discipline. Get structural, causal, analogical, and historical connections — uncovering surprising links between ideas you thought were unrelated.",                                                                                                                  gets: ["Structural + causal connections", "Analogical + historical links", "Cross-subject insight map"] },
   { n: "44", slug: "model-answer",    ttl: "Model Answer Factory",  sub: "Produce full-marks exemplars.",                 cat: "WRITE",    desc: "Paste any exam question. Get a model answer hitting every marking point, a structure guide showing how marks are distributed, and commentary on what makes this answer grade-band-A.",                                                                                                          gets: ["Full-marks model answer", "Mark-point distribution map", "Commentary on why it works"] },
-  { n: "★",  slug: "score",           ttl: "Ledger Score",          sub: "Your real-time exam readiness.",                cat: "TRACK",    desc: "A 0-1000 index computed from four signals: PYQ accuracy (40%), syllabus coverage (25%), mistake velocity (20%), and daily consistency (15%). Updates every time you use any tool.",                                                                                                             gets: ["Live 0-1000 readiness score", "4-pillar breakdown", "Top 3 actions to improve today"] },
+  { n: "★",  slug: "score",           ttl: "Ledger Score",          sub: "Your real-time exam readiness.",                cat: "TRACK",    desc: "A 0-1000 index built from four signals: past paper accuracy (40%), syllabus coverage (25%), how fast you correct errors (20%), and daily consistency (15%). Updates every time you use any tool.",                                                                                                    gets: ["Live 0-1000 readiness score", "4-pillar breakdown", "Top 3 actions to improve today"] },
 ] as const;
 
 const FEATS = [
@@ -80,10 +80,10 @@ const TESTIMONIALS = [
 ] as const;
 
 const STATS = [
-  { big: "14.2", suffix: "%", sm: "Median score lift after 8 weeks — pilot cohort" },
-  { big: "7.4",  suffix: "h", sm: "Recovered per student, per week — self-reported" },
-  { big: "94",   suffix: "%", sm: "Continue after first board exam — self-reported"  },
-  { big: "42",   suffix: "",  sm: "Schools in current pilot programme" },
+  { big: "8",   suffix: "wk", sm: "Typical time to first measurable score improvement — pilot users" },
+  { big: "7.4", suffix: "h",  sm: "Study hours recovered per week — self-reported, pilot cohort"     },
+  { big: "6",   suffix: "+",  sm: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT"          },
+  { big: "42",  suffix: "",   sm: "Schools in the current pilot programme"                           },
 ] as const;
 
 const TICKER = [
@@ -1190,7 +1190,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 40 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
-              55 tools · 6 categories
+              6 categories · browse below
             </span>
           </div>
 
@@ -1229,7 +1229,7 @@ export default function Home() {
                   No match for &ldquo;{toolSearch}&rdquo;
                 </div>
                 <Link href={`/dashboard`} className="btn ghost" style={{ textDecoration: "none", fontSize: 11, padding: "8px 18px" }}>
-                  Search all 55 tools →
+                  Search all tools →
                 </Link>
               </div>
             );
@@ -1263,7 +1263,7 @@ export default function Home() {
                       <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)", lineHeight: 1.18, marginBottom: 10, letterSpacing: "-0.01em" }}>{t.ttl}</div>
                       <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.6, flex: 1 }}>{t.sub}</div>
                       <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: c, opacity: 0.55, letterSpacing: "0.08em" }}>{t.n}</span>
+                        <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: c, opacity: 0.55, letterSpacing: "0.08em" }}>{t.cat}</span>
                         <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: c }}>→</span>
                       </div>
                     </Link>
@@ -1274,7 +1274,7 @@ export default function Home() {
           })()}
 
           <div style={{ marginTop: 40, textAlign: "center" }}>
-            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>Open all 55 tools →</Link>
+            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>Open all tools →</Link>
           </div>
         </div>
       </section>
@@ -1617,7 +1617,7 @@ export default function Home() {
               ))}
               <li style={{ marginTop: 16 }}>
                 <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
-                  → All 55 tools
+                  → All tools
                 </Link>
               </li>
             </ul>

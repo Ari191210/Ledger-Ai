@@ -66,7 +66,7 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
           lineHeight: 1.6,
         }}
       >
-        AI study planner for board and competitive exams. Know what to revise, track where you&apos;re behind, and watch your readiness score update live.
+        For CBSE, IB, JEE, NEET, and board exam students. Upload your syllabus. See exactly how far behind you are. Get your readiness score.
       </motion.p>
 
       {/* CTAs */}

@@ -171,12 +171,20 @@ export function HeroInteractiveDemo() {
       <div style={{ maxWidth: 680, margin: "0 auto", position: "relative" }}>
 
         {/* Section label */}
-        <div style={{
-          textAlign: "center", paddingTop: 72, paddingBottom: 32,
-          fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)",
-          letterSpacing: "0.2em", textTransform: "uppercase",
-        }}>
-          Try it now — no account needed
+        <div style={{ textAlign: "center", paddingTop: 72, paddingBottom: 12 }}>
+          <p style={{
+            fontFamily: "var(--serif)", fontStyle: "italic",
+            fontSize: "clamp(22px,3vw,32px)", color: "var(--ink)",
+            letterSpacing: "-0.01em", lineHeight: 1.3, margin: "0 0 10px",
+          }}>
+            What&apos;s your exam readiness score right now?
+          </p>
+          <p style={{
+            fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)",
+            letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 28px",
+          }}>
+            Enter a subject to find out — no account needed
+          </p>
         </div>
 
         {/* Input row */}
