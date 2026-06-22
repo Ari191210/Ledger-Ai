@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { GetStartedButton } from "@/components/ui/get-started-button";
 import { GooeyInput } from "@/components/ui/gooey-input";
+import GlowHorizonFM from "@/components/ui/glow-horizon";
+import { AnimatedTitleFM } from "@/components/ui/glow-horizon-utils/animated-title-fm";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -819,162 +821,21 @@ export default function Home() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", ["--hero-glow-opacity" as string]: "0.6" } as React.CSSProperties}>
+      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#050507", overflow: "hidden" }}>
 
-        {/* Hero atmosphere — brand palette glows */}
-        <div aria-hidden style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-          {/* Centre burst — Peach Fuzz */}
-          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.22) 0%, transparent 65%)", filter: "blur(80px)", willChange: "transform" }} />
-          {/* Powder Blue — top right */}
-          <div style={{ position: "absolute", top: "-5%", right: "-5%", width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(70px)", animation: "hero-orb-drift 18s ease-in-out infinite reverse", willChange: "transform" }} />
-          {/* Cream — bottom left */}
-          <div style={{ position: "absolute", bottom: "5%", left: "5%", width: 340, height: 340, borderRadius: "50%", background: "radial-gradient(circle, rgba(241,255,196,0.16) 0%, transparent 70%)", filter: "blur(60px)", animation: "float-orb 22s ease-in-out infinite", willChange: "transform" }} />
-          {/* Light Blue — mid right */}
-          <div style={{ position: "absolute", top: "55%", right: "8%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(198,226,233,0.18) 0%, transparent 70%)", filter: "blur(50px)", animation: "hero-orb-drift 14s ease-in-out infinite", willChange: "transform" }} />
+        {/* Glow horizon effect */}
+        <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+          <GlowHorizonFM variant="top" />
         </div>
 
-        {/* Two-column editorial hero */}
-        <div className="hero-content hero-grid mob-col mob-p" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1100, margin: "0 auto", padding: "0 48px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
-
-          {/* LEFT: badge + headline + subtitle + CTAs */}
-          <div>
-
-            {/* Badge */}
-            <div className="hero-badge" style={{
-              display: "inline-flex", alignItems: "center", gap: 16,
-              border: "1.5px solid color-mix(in srgb, var(--cinnabar-ink) 45%, transparent)",
-              padding: "6px 22px", marginBottom: 28,
-              background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))",
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
-              borderRadius: 999,
-              transform: "rotate(-1.5deg)",
-            }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                <span style={{ position: "relative", width: 8, height: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "var(--cinnabar-ink)", opacity: 0.4, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
-                  <span style={{ position: "relative", width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "block" }} />
-                </span>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>Live</span>
-              </span>
-              <span style={{ width: 1, height: 12, background: "var(--rule)", display: "inline-block" }} />
-              <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-2)" }}>Academic OS</span>
-            </div>
-
-            {/* Headline — variant-aware */}
-            <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.01em", lineHeight: 1.05, margin: "0 0 24px" }}>
-              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(36px,5vw,64px)" : "clamp(32px,4.5vw,52px)", color: "var(--ink-2)", fontStyle: "italic" }}>
-                {variant === "late"
-                  ? <>It&apos;s <span style={{ color: "var(--cinnabar-ink)" }}>{clockTime}</span>{city ? <> in {city}</> : null}.</>
-                  : HERO_COPY[variant].line1}
-              </div>
-              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(36px,5vw,64px)" : "clamp(36px,5vw,60px)", color: "var(--cinnabar-ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
-                {HERO_COPY[variant].line2}
-              </div>
-            </h1>
-
-            {/* Sub — variant-aware */}
-            <p className="hero-sub" style={{ fontFamily: "var(--sans)", fontSize: "clamp(14px,1.5vw,17px)", color: "var(--ink-2)", maxWidth: 480, margin: "0 0 28px", lineHeight: 1.7, letterSpacing: "0.01em" }}>
-              {HERO_COPY[variant].sub}
-            </p>
-
-            {/* CTAs — variant-aware */}
-            {variant === "dead" ? (
-              <div className="hero-ctas" style={{ display: "flex", gap: 16, flexWrap: "wrap" as const, alignItems: "center" }}>
-                <button
-                  className="btn"
-                  onClick={() => { setBookmarkHint(true); }}
-                  style={{ cursor: "pointer" }}
-                >
-                  Bookmark for tomorrow →
-                </button>
-                {bookmarkHint && (
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em" }}>
-                    Press {typeof navigator !== "undefined" && navigator.platform.includes("Mac") ? "Cmd" : "Ctrl"}+D
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div className="hero-ctas" style={{ display: "flex", gap: 12, flexWrap: "wrap" as const, alignItems: "center" }}>
-                <Link href="/dashboard" style={{ textDecoration: "none" }} className="hero-cta-btn" >
-                  <GetStartedButton />
-                </Link>
-                <a href="#tools" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--powder-blue)", padding: "12px 22px", border: "1.5px solid color-mix(in srgb, var(--powder-blue) 55%, transparent)", background: "color-mix(in srgb, var(--powder-blue) 8%, transparent)", borderRadius: 8, transition: "color 200ms, border-color 200ms, background 200ms" }}>
-                  Explore tools
-                </a>
-                <Link href="/auth" className="hero-cta-btn" style={{ textDecoration: "none", display: "inline-block", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", padding: "12px 4px", transition: "color 200ms" }}>
-                  Sign in
-                </Link>
-              </div>
-            )}
-
-            {/* Social proof badge */}
-            <div style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
-              <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>
-                <strong style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--mono)" }}>3,204</strong> on the Exam-Day Mode waitlist
-              </span>
-              <span style={{ color: "var(--rule)", fontSize: 13 }}>·</span>
-              <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}><strong style={{ color: "var(--ink-2)" }}>Free</strong> to start</span>
-              <span style={{ color: "var(--rule)", fontSize: 13 }}>·</span>
-              <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)" }}>No card needed</span>
-            </div>
-
-            {/* Late-night: awake count ticker */}
-            {variant === "late" && awakeCount !== null && (
-              <div style={{ marginTop: 12, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.04em" }}>
-                {awakeCount.toLocaleString("en-IN")} students studying right now
-              </div>
-            )}
-
-          </div>
-
-          {/* RIGHT: product preview card */}
-          <div className="mob-hide" style={{ position: "relative" }}>
-            {/* Glow behind card */}
-            <div aria-hidden style={{ position: "absolute", inset: "-40px", borderRadius: "50%", background: "radial-gradient(ellipse at center, rgba(255,202,175,0.15) 0%, transparent 70%)", filter: "blur(40px)", animation: "glow-pulse 4s ease-in-out infinite", pointerEvents: "none" }} />
-            <div className="gl-pane" style={{ borderRadius: 20, border: "1px solid color-mix(in srgb, var(--cinnabar-ink) 20%, transparent)", overflow: "hidden", padding: "28px", position: "relative" }}>
-              {/* Mini header */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid var(--rule)" }}>
-                <div>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 6 }}>Ledger Score</div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1, letterSpacing: "-0.02em" }}>847</div>
-                </div>
-                <div style={{ padding: "6px 14px", borderRadius: 999, background: "color-mix(in srgb, var(--cream) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--cream) 30%, transparent)", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--cream)" }}>
-                  Exam Ready
-                </div>
-              </div>
-              {/* 3×2 mini tool grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-                {[
-                  { label: "Planner",    cat: "PLAN",     color: "var(--cream)" },
-                  { label: "Past Papers",cat: "PRACTISE", color: "var(--powder-blue)" },
-                  { label: "Score",      cat: "TRACK",    color: "var(--tan)" },
-                  { label: "Essay",      cat: "WRITE",    color: "var(--light-blue)" },
-                  { label: "Predict",    cat: "PRACTISE", color: "var(--powder-blue)" },
-                  { label: "Admissions", cat: "FUTURE",   color: "var(--cinnabar-ink)" },
-                ].map((t, i) => (
-                  <div key={i} style={{ padding: "14px 12px", borderRadius: 12, background: `color-mix(in srgb, ${t.color} 8%, var(--paper-2))`, border: `1px solid color-mix(in srgb, ${t.color} 18%, transparent)` }}>
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 7, letterSpacing: "0.12em", textTransform: "uppercase", color: t.color, marginBottom: 6, opacity: 0.8 }}>{t.cat}</div>
-                    <div style={{ fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, color: "var(--ink)", lineHeight: 1.3 }}>{t.label}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Footer strip */}
-              <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", color: "var(--ink-3)", textTransform: "uppercase" }}>55 tools active</span>
-                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "inline-block", animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite", opacity: 0.7 }} />
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em" }}>Live</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        {/* Animated title */}
+        <div style={{ position: "relative", zIndex: 2, width: "100%" }}>
+          <AnimatedTitleFM open={true} />
         </div>
 
         {/* Scroll hint */}
         <div className="hero-scroll" style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase", opacity: 0.4 }}>Scroll</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "rgba(255,255,255,0.25)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
           <div className="scroll-cue">
             <span />
             <span />
@@ -983,6 +844,7 @@ export default function Home() {
         </div>
 
       </section>
+
 
       {/* ─── Ticker ─── */}
       <div className="gl-pane-alt" style={{ borderTop: S.border, borderBottom: S.border, padding: "10px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
