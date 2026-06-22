@@ -893,7 +893,114 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── 01 / The Brief ─── */}
+      {/* ─── 01 / Ledger Score ─── */}
+      <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
+            <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
+            <div style={{ ...S.cap, fontSize: 9 }}>Tool — · Live preview</div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 12 }} className="mob-col">
+            {/* Sliders */}
+            <div className="glass-card" style={{ padding: "32px 32px" }}>
+              <div style={S.capAccent}>Adjust your activity</div>
+
+              {[
+                { label: "Past paper sessions done", val: papers, min: 0, max: 20, set: setPapers, unit: String(papers) },
+                { label: "Mistakes per week",        val: mistakesPerWeek, min: 0, max: 30, set: setMistakesPerWeek, unit: String(mistakesPerWeek) },
+                { label: "Focus streak (days)",      val: streak, min: 0, max: 30, set: setStreak, unit: `${streak}d` },
+              ].map(({ label, val, min, max, set, unit }) => (
+                <div key={label} style={{ marginTop: 24 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
+                    <span style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "normal", fontWeight: 700, color: "var(--cinnabar-ink)" }}>{unit}</span>
+                  </div>
+                  <input type="range" min={min} max={max} value={val} onChange={e => set(+e.target.value)} style={{ width: "100%" }} />
+                </div>
+              ))}
+
+              <button
+                onClick={() => setHasSyllabus(v => !v)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", marginTop: 20,
+                  border: "none",
+                  borderRadius: 10,
+                  background: hasSyllabus ? "color-mix(in srgb, var(--cinnabar-ink) 16%, var(--paper))" : "color-mix(in srgb, var(--ink) 8%, transparent)",
+                  boxShadow: hasSyllabus ? `0 0 0 1.5px var(--cinnabar-ink), 0 4px 14px color-mix(in srgb, var(--cinnabar-ink) 18%, transparent)` : "none",
+                  color: "var(--ink)", cursor: "pointer", width: "100%",
+                  fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500,
+                  transition: "all 200ms",
+                }}
+              >
+                <div style={{
+                  width: 16, height: 16, border: `1.5px solid ${hasSyllabus ? "var(--cinnabar-ink)" : "var(--rule)"}`,
+                  background: hasSyllabus ? "var(--cinnabar-ink)" : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 180ms",
+                }}>
+                  {hasSyllabus && <span style={{ fontSize: 9, color: "var(--paper)", lineHeight: 1 }}>✓</span>}
+                </div>
+                Syllabus uploaded to Ledger
+                {!hasSyllabus && <span style={{ marginLeft: "auto", ...S.capAccent, fontSize: 9 }}>+250 pts</span>}
+              </button>
+            </div>
+
+            {/* Score display */}
+            <div className="glass-card" style={{ padding: "32px 32px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <div style={S.cap}>Estimated Ledger Score</div>
+              <div ref={scoreNumRef} style={{ fontFamily: "var(--serif)", fontSize: "clamp(72px,10vw,100px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.02em", lineHeight: 1, marginTop: 8, color: "var(--ink)", transition: "color 300ms" }}>
+                {scorePreview}
+              </div>
+              <div style={{ ...S.cap, marginTop: 6, color: "var(--cinnabar-ink)" }}>/ 1000 · {scoreTierLabel(scorePreview)}</div>
+
+              {/* Tier bar */}
+              <div style={{ marginTop: 20 }}>
+                <div style={{ display: "flex", gap: 2 }}>
+                  {TIERS.map(tier => {
+                    const filled = scorePreview >= tier.min;
+                    const isCurrent = scorePreview >= tier.min && scorePreview <= tier.max;
+                    return (
+                      <div key={tier.label} style={{ flex: 1, height: 5, background: filled ? (isCurrent ? "var(--cinnabar-ink)" : "var(--ink-3)") : "var(--rule)", transition: "background 400ms ease", borderRadius: 1 }} />
+                    );
+                  })}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+                  {TIERS.map(t => (
+                    <span key={t.label} style={{ fontFamily: "var(--mono)", fontSize: 8, color: scorePreview >= t.min && scorePreview <= t.max ? "var(--cinnabar-ink)" : "var(--ink-3)", letterSpacing: "0.06em", textTransform: "uppercase", transition: "color 300ms" }}>{t.label}</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Improvement tips */}
+              <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 6 }}>
+                {!hasSyllabus && (
+                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
+                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+250 pts</span> — Upload your syllabus
+                  </div>
+                )}
+                {papers < 5 && (
+                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
+                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((5 - papers) * 18)} pts</span> — Do {5 - papers} more past paper sessions
+                  </div>
+                )}
+                {streak < 7 && (
+                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
+                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((7 - streak) * 7.5)} pts</span> — Build a 7-day streak
+                  </div>
+                )}
+              </div>
+
+              <Link href="/auth" className="btn" style={{ textDecoration: "none", marginTop: 24, display: "inline-flex", alignSelf: "flex-start", fontSize: 10, letterSpacing: "0.12em" }}>
+                See your real score →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 02 / The Brief ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
@@ -1168,113 +1275,6 @@ export default function Home() {
 
           <div style={{ marginTop: 40, textAlign: "center" }}>
             <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>Open all 55 tools →</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 05 / Ledger Score ─── */}
-      <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
-            <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
-            <div style={{ ...S.cap, fontSize: 9 }}>Tool — · Live preview</div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 12 }} className="mob-col">
-            {/* Sliders */}
-            <div className="glass-card" style={{ padding: "32px 32px" }}>
-              <div style={S.capAccent}>Adjust your activity</div>
-
-              {[
-                { label: "Past paper sessions done", val: papers, min: 0, max: 20, set: setPapers, unit: String(papers) },
-                { label: "Mistakes per week",        val: mistakesPerWeek, min: 0, max: 30, set: setMistakesPerWeek, unit: String(mistakesPerWeek) },
-                { label: "Focus streak (days)",      val: streak, min: 0, max: 30, set: setStreak, unit: `${streak}d` },
-              ].map(({ label, val, min, max, set, unit }) => (
-                <div key={label} style={{ marginTop: 24 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-                    <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "normal", fontWeight: 700, color: "var(--cinnabar-ink)" }}>{unit}</span>
-                  </div>
-                  <input type="range" min={min} max={max} value={val} onChange={e => set(+e.target.value)} style={{ width: "100%" }} />
-                </div>
-              ))}
-
-              <button
-                onClick={() => setHasSyllabus(v => !v)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", marginTop: 20,
-                  border: "none",
-                  borderRadius: 10,
-                  background: hasSyllabus ? "color-mix(in srgb, var(--cinnabar-ink) 16%, var(--paper))" : "color-mix(in srgb, var(--ink) 8%, transparent)",
-                  boxShadow: hasSyllabus ? `0 0 0 1.5px var(--cinnabar-ink), 0 4px 14px color-mix(in srgb, var(--cinnabar-ink) 18%, transparent)` : "none",
-                  color: "var(--ink)", cursor: "pointer", width: "100%",
-                  fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500,
-                  transition: "all 200ms",
-                }}
-              >
-                <div style={{
-                  width: 16, height: 16, border: `1.5px solid ${hasSyllabus ? "var(--cinnabar-ink)" : "var(--rule)"}`,
-                  background: hasSyllabus ? "var(--cinnabar-ink)" : "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 180ms",
-                }}>
-                  {hasSyllabus && <span style={{ fontSize: 9, color: "var(--paper)", lineHeight: 1 }}>✓</span>}
-                </div>
-                Syllabus uploaded to Ledger
-                {!hasSyllabus && <span style={{ marginLeft: "auto", ...S.capAccent, fontSize: 9 }}>+250 pts</span>}
-              </button>
-            </div>
-
-            {/* Score display */}
-            <div className="glass-card" style={{ padding: "32px 32px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div style={S.cap}>Estimated Ledger Score</div>
-              <div ref={scoreNumRef} style={{ fontFamily: "var(--serif)", fontSize: "clamp(72px,10vw,100px)", fontStyle: "normal", fontWeight: 700, letterSpacing: "0.02em", lineHeight: 1, marginTop: 8, color: "var(--ink)", transition: "color 300ms" }}>
-                {scorePreview}
-              </div>
-              <div style={{ ...S.cap, marginTop: 6, color: "var(--cinnabar-ink)" }}>/ 1000 · {scoreTierLabel(scorePreview)}</div>
-
-              {/* Tier bar */}
-              <div style={{ marginTop: 20 }}>
-                <div style={{ display: "flex", gap: 2 }}>
-                  {TIERS.map(tier => {
-                    const filled = scorePreview >= tier.min;
-                    const isCurrent = scorePreview >= tier.min && scorePreview <= tier.max;
-                    return (
-                      <div key={tier.label} style={{ flex: 1, height: 5, background: filled ? (isCurrent ? "var(--cinnabar-ink)" : "var(--ink-3)") : "var(--rule)", transition: "background 400ms ease", borderRadius: 1 }} />
-                    );
-                  })}
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-                  {TIERS.map(t => (
-                    <span key={t.label} style={{ fontFamily: "var(--mono)", fontSize: 8, color: scorePreview >= t.min && scorePreview <= t.max ? "var(--cinnabar-ink)" : "var(--ink-3)", letterSpacing: "0.06em", textTransform: "uppercase", transition: "color 300ms" }}>{t.label}</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Improvement tips */}
-              <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 6 }}>
-                {!hasSyllabus && (
-                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+250 pts</span> — Upload your syllabus
-                  </div>
-                )}
-                {papers < 5 && (
-                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((5 - papers) * 18)} pts</span> — Do {5 - papers} more past paper sessions
-                  </div>
-                )}
-                {streak < 7 && (
-                  <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((7 - streak) * 7.5)} pts</span> — Build a 7-day streak
-                  </div>
-                )}
-              </div>
-
-              <Link href="/auth" className="btn" style={{ textDecoration: "none", marginTop: 24, display: "inline-flex", alignSelf: "flex-start", fontSize: 10, letterSpacing: "0.12em" }}>
-                See your real score →
-              </Link>
-            </div>
           </div>
         </div>
       </section>
