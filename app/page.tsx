@@ -810,7 +810,7 @@ export default function Home() {
         </div>
 
         {/* Two-column editorial hero */}
-        <div className="hero-content hero-grid mob-col mob-p" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1100, margin: "0 auto", padding: "0 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div className="hero-content hero-grid mob-col mob-p" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1100, margin: "0 auto", padding: "0 48px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
 
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
@@ -839,12 +839,12 @@ export default function Home() {
 
             {/* Headline — variant-aware */}
             <h1 className="hero-h1" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.01em", lineHeight: 1.05, margin: "0 0 24px" }}>
-              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(60px,10vw,140px)" : "clamp(52px,8vw,108px)", color: "var(--ink-2)", fontStyle: "italic" }}>
+              <div className="hero-word-1" style={{ display: "block", fontSize: variant === "dead" ? "clamp(36px,5vw,64px)" : "clamp(32px,4.5vw,52px)", color: "var(--ink-2)", fontStyle: "italic" }}>
                 {variant === "late"
                   ? <>It&apos;s <span style={{ color: "var(--cinnabar-ink)" }}>{clockTime}</span>{city ? <> in {city}</> : null}.</>
                   : HERO_COPY[variant].line1}
               </div>
-              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(52px,8vw,112px)" : "clamp(52px,9vw,128px)", color: "var(--cinnabar-ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
+              <div className="hero-word-2" style={{ display: "block", fontSize: variant === "dead" ? "clamp(36px,5vw,64px)" : "clamp(36px,5vw,60px)", color: "var(--cinnabar-ink)", fontStyle: "normal", letterSpacing: "-0.02em" }}>
                 {HERO_COPY[variant].line2}
               </div>
             </h1>
@@ -985,12 +985,12 @@ export default function Home() {
             { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)" },
           ].map((s, i) => (
             <div key={i} className="trust-strip-item" style={{
-              padding: "52px 48px",
+              padding: "36px 32px",
               borderRight: i < 2 ? S.border : "none",
-              display: "flex", flexDirection: "column", gap: 12,
+              display: "flex", flexDirection: "column", gap: 8,
             }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,88px)", fontWeight: 700, color: s.color, lineHeight: 1, letterSpacing: "-0.04em" }}>{s.n}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", lineHeight: 1.5 }}>{s.label}</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: s.color, lineHeight: 1, letterSpacing: "-0.03em" }}>{s.n}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -1053,7 +1053,7 @@ export default function Home() {
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "140px 56px 120px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
-          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(36px,5vw,72px)", letterSpacing: "-0.03em", marginBottom: 64 }}>
+          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(24px,3vw,40px)", letterSpacing: "-0.02em", marginBottom: 40 }}>
             A system, not just apps.
           </h2>
 
@@ -1070,7 +1070,7 @@ export default function Home() {
             <div className="bento-1 gl-pane" style={{ padding: "40px 32px", borderRadius: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
               <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,80px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>CBSE · ICSE · IB · IGCSE · A-Level · SAT</div>
               </div>
             </div>
@@ -1087,7 +1087,7 @@ export default function Home() {
             <div className="bento-2 gl-pane" style={{ padding: "40px 36px", borderRadius: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
               <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,80px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>Plan · Learn · Write · Practise · Future · Track</div>
               </div>
             </div>
