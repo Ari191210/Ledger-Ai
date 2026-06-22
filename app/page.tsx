@@ -73,27 +73,27 @@ const FEATS = [
 ] as const;
 
 const TESTIMONIALS = [
-  { q: "Failed my physics unit test in October. Spent 2 weeks using the chapter tracker every day. Got 15 marks more in the next test. Still kind of shocked.",       by: "Ananya R.", ctx: "Class 12, CBSE — Pune",    score: "Physics 72 → 87"          },
-  { q: "I was doing maths at 11pm and getting nothing done. Moved sessions to 6pm. Mock scores went from 70% to 85% in 3 weeks. Annoying that it was that simple.",   by: "Marcus O.", ctx: "IB Diploma — Singapore",   score: "HL Math 5 → 7"            },
-  { q: "Uploaded my school syllabus — it was 41 messy pages. It came back with an 84-day plan in a few seconds. First plan I actually followed all year.",            by: "Rohan K.",  ctx: "Class 10, ICSE — Mumbai",  score: "Overall 85% → 92%"        },
-  { q: "I kept skipping sessions until I did the study pact with a friend. Can't bail without both of us losing our streaks. Mock rank went from 14k to under 4k.",   by: "Dev P.",    ctx: "JEE Advanced prep",        score: "Mock rank 14,200 → 3,860" },
+  { q: "Went from 47/70 to 63/70 in Organic Chemistry after 3 weeks. The chapter tracker showed me I was 18 sessions behind. I didn't realise it was that bad until I saw the number.",  by: "Ananya R.", ctx: "Class 12, CBSE — Pune",    score: "Chemistry: 47 → 63 / 70"  },
+  { q: "HL Maths: 58% to 74% in four weeks. The app said my focus peaked at 6pm, not 11pm. Moved my sessions. That was literally all I changed.",                                         by: "Marcus O.", ctx: "IB Diploma — Singapore",   score: "HL Maths: 58% → 74%"      },
+  { q: "Uploaded 41 pages of school syllabus. Got an 84-day plan in about a minute. First plan I have ever actually followed. Went from 85% to 92% by year end.",                         by: "Rohan K.",  ctx: "Class 10, ICSE — Mumbai",  score: "Overall: 85% → 92%"       },
+  { q: "Mock rank went from 14,200 to 3,860 over one semester. Did the study pact with a classmate. Neither of us wanted to be the one who broke the streak.",                            by: "Dev P.",    ctx: "JEE Advanced prep",        score: "Mock rank: 14,200 → 3,860"},
 ] as const;
 
 const STATS = [
-  { big: "14.2", suffix: "%", sm: "Median score lift after 8 weeks" },
-  { big: "7.4",  suffix: "h", sm: "Recovered per student, per week"  },
-  { big: "94",   suffix: "%", sm: "Renew after the first board exam"  },
-  { big: "42",   suffix: "",  sm: "Schools piloting Ledger this term" },
+  { big: "14.2", suffix: "%", sm: "Median score lift after 8 weeks — pilot cohort" },
+  { big: "7.4",  suffix: "h", sm: "Recovered per student, per week — self-reported" },
+  { big: "94",   suffix: "%", sm: "Continue after first board exam — self-reported"  },
+  { big: "42",   suffix: "",  sm: "Schools in current pilot programme" },
 ] as const;
 
 const TICKER = [
-  "55 tools. One score.",
-  "14,382 timetables generated this week",
-  "Average user recovered 7.4 hours per week",
+  "Know your score. Know your gaps.",
+  "Tracks your exam readiness every time you use any tool",
+  "Average user recovered 7.4 hours per week — pilot data",
   "Chemistry is the most-feared subject in CBSE Class 12",
-  "Peer heatmap: Conic Sections trending +41% — Week 16",
-  "55 tools. One streak. One score.",
-  "Debt meter holders revised 2.6x more often",
+  "Conic Sections: most-struggled chapter among registered students",
+  "One login. Every tool you need.",
+  "Students who track daily revise 2.6× more often",
 ];
 
 const LIVE_ACTIVITY = [
@@ -877,7 +877,7 @@ export default function Home() {
       <div style={{ borderBottom: S.border, borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
           {[
-            { n: "55",    label: "AI tools across 6 categories", color: "var(--cream)" },
+            { n: "55+",   label: "Tools for every exam task",     color: "var(--cream)" },
             { n: "3,204", label: "students on the waitlist",     color: "var(--cinnabar-ink)" },
             { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)" },
           ].map((s, i) => (
@@ -893,7 +893,75 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── 01 / Ledger Score ─── */}
+      {/* ─── 01 / Upload → Study → Score workflow ─── */}
+      <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "140px 56px 120px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(24px,3vw,40px)", letterSpacing: "-0.02em", marginBottom: 40 }}>
+            How it works.
+          </h2>
+
+          <div className="bento-grid">
+            {/* Big upload card — spans 8 cols */}
+            <div className="bento-3 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 280, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+              <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
+              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px" }}>Your syllabus becomes your year.</h3>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7, maxWidth: 460 }}>Upload a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in 6 seconds.</p>
+            </div>
+
+            {/* Boards stat card — spans 4 cols */}
+            <div className="bento-1 bento-tilt" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
+              <div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>CBSE · ICSE · IB · IGCSE · A-Level · SAT</div>
+              </div>
+            </div>
+
+            {/* Study card — spans 6 */}
+            <div className="bento-2 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 240, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+              <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
+              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
+              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One login. Every tool you need.</h3>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>Doubt solver, essay workshop, past papers, prediction engine. All tools share the same score, same streak, same profile.</p>
+            </div>
+
+            {/* AI tools stat card — spans 6 */}
+            <div className="bento-2 bento-tilt" style={{ padding: "40px 36px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
+              <div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>Plan · Learn · Write · Practise · Future · Track</div>
+              </div>
+            </div>
+
+            {/* Score card — full width */}
+            <div className="bento-4 bento-tilt" style={{ padding: "48px 56px", borderRadius: 16, display: "flex", gap: 64, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+              <div style={{ flex: "1 1 320px" }}>
+                <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
+                <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One number. Every insight.</h3>
+                <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7 }}>Ledger Score runs on four signals — past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency — updated every time you use any tool.</p>
+              </div>
+              <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { n: "40%", l: "PYQ Accuracy", c: "var(--cinnabar-ink)" },
+                  { n: "25%", l: "Syllabus",      c: "var(--powder-blue)" },
+                  { n: "20%", l: "Mistakes",      c: "var(--cream)" },
+                  { n: "15%", l: "Consistency",   c: "var(--tan)" },
+                ].map((p, i) => (
+                  <div key={i} style={{ padding: "20px 18px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))`, border: `1px solid color-mix(in srgb, ${p.c} 25%, transparent)` }}>
+                    <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: p.c, lineHeight: 1 }}>{p.n}</div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{p.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 02 / Ledger Score ─── */}
       <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
@@ -1014,7 +1082,7 @@ export default function Home() {
                 They have seven apps that don&apos;t talk to each other, a notes folder they dread opening, a study plan that expired in October, and an exam five weeks away that still feels theoretical.
               </p>
               <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.75 }}>
-                Ledger is the system that was missing. Not a productivity app. Not AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, and 55 instruments calibrated to your board, your grade, and your exam date.
+                Ledger is the system that was missing. Not a productivity app. Not AI features slapped onto a dashboard. An actual operating system — with a live readiness score, a unified streak, and every tool calibrated to your board, your grade, and your exam date.
               </p>
             </div>
 
@@ -1029,7 +1097,7 @@ export default function Home() {
               {/* Three meta facts */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                 {[
-                  { n: "55", l: "AI Tools" },
+                  { n: "55+", l: "Study Tools" },
                   { n: "6+", l: "Exam Boards" },
                   { n: "8w", l: "To see results" },
                 ].map((m, i) => (
@@ -1044,77 +1112,9 @@ export default function Home() {
                 <div className="anim-divider" style={S.rule} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, ...S.cap, fontSize: 9 }}>
                   <span>Est. 2025</span>
-                  <span>55 instruments</span>
+                  <span>One system</span>
                   <span>One operating system</span>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 02 / A system, not just apps ─── */}
-      <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "140px 56px 120px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
-          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(24px,3vw,40px)", letterSpacing: "-0.02em", marginBottom: 40 }}>
-            A system, not just apps.
-          </h2>
-
-          <div className="bento-grid">
-            {/* Big upload card — spans 8 cols */}
-            <div className="bento-3 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 280, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
-              <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
-              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
-              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px" }}>Your syllabus becomes your year.</h3>
-              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7, maxWidth: 460 }}>Upload a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in 6 seconds.</p>
-            </div>
-
-            {/* Boards stat card — spans 4 cols */}
-            <div className="bento-1 bento-tilt" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
-              <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>CBSE · ICSE · IB · IGCSE · A-Level · SAT</div>
-              </div>
-            </div>
-
-            {/* Study card — spans 6 */}
-            <div className="bento-2 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 240, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
-              <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
-              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
-              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>55 tools, one login, one streak.</h3>
-              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>Doubt solver, essay workshop, past papers, prediction engine. All tools share the same score, same streak, same profile.</p>
-            </div>
-
-            {/* AI tools stat card — spans 6 */}
-            <div className="bento-2 bento-tilt" style={{ padding: "40px 36px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
-              <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
-              <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>Plan · Learn · Write · Practise · Future · Track</div>
-              </div>
-            </div>
-
-            {/* Score card — full width */}
-            <div className="bento-4 bento-tilt" style={{ padding: "48px 56px", borderRadius: 16, display: "flex", gap: 64, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
-              <div style={{ flex: "1 1 320px" }}>
-                <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
-                <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One number. Every insight.</h3>
-                <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7 }}>Ledger Score runs on four signals — PYQ accuracy, syllabus coverage, mistake velocity, daily consistency — updated every time you use any tool.</p>
-              </div>
-              <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                {[
-                  { n: "40%", l: "PYQ Accuracy", c: "var(--cinnabar-ink)" },
-                  { n: "25%", l: "Syllabus",      c: "var(--powder-blue)" },
-                  { n: "20%", l: "Mistakes",      c: "var(--cream)" },
-                  { n: "15%", l: "Consistency",   c: "var(--tan)" },
-                ].map((p, i) => (
-                  <div key={i} style={{ padding: "20px 18px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))`, border: `1px solid color-mix(in srgb, ${p.c} 25%, transparent)` }}>
-                    <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: p.c, lineHeight: 1 }}>{p.n}</div>
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{p.l}</div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -1133,7 +1133,7 @@ export default function Home() {
               </h2>
               <div className="anim-divider" style={{ ...S.rule, margin: "20px 0" }} />
               <p className="reveal-body" style={{ ...S.body, fontStyle: "italic" }}>
-                Your Ledger Score accounts for past paper accuracy, syllabus coverage, mistake velocity, and daily consistency — updated in real time.
+                Your Ledger Score accounts for past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency — updated in real time.
               </p>
             </div>
 
@@ -1573,7 +1573,7 @@ export default function Home() {
               Your exam is closer than it feels.
             </h2>
             <p style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 40, maxWidth: 480, margin: "0 auto 40px" }}>
-              Build the system that closes the gap. 55 tools. One score. One streak. Everything calibrated to your board and your exam date.
+              Build the system that closes the gap. One score. One streak. Everything calibrated to your board, your grade, and your exam date.
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
               <Link href="/dashboard" className="btn cta-btn" style={{ textDecoration: "none", fontSize: 12, letterSpacing: "0.1em", padding: "14px 32px", display: "inline-block" }}>

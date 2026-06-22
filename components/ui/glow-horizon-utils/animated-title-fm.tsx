@@ -66,7 +66,7 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
           lineHeight: 1.6,
         }}
       >
-        Built for the hours after coaching. The second shift.
+        AI study planner for board and competitive exams. Know what to revise, track where you&apos;re behind, and watch your readiness score update live.
       </motion.p>
 
       {/* CTAs */}
