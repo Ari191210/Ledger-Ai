@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
@@ -133,6 +134,9 @@ export default function AppNav() {
   const [open, setOpen]               = useState(false);
   const [hoveredNav, setHoveredNav]   = useState<string | null>(null);
   const [logoHovered, setLogoHovered] = useState(false);
+  const [themeOpen, setThemeOpen]     = useState(false);
+  const [activeTheme, setActiveTheme] = useState<PaletteId>("ledger");
+  const themeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try { setEmbedded(window.self !== window.top); } catch { setEmbedded(true); }
@@ -153,6 +157,23 @@ export default function AppNav() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, closeSidebar]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setActiveTheme(getActivePalette());
+    const handler = (e: Event) => setActiveTheme((e as CustomEvent<PaletteId>).detail);
+    window.addEventListener("ledger-palette", handler);
+    return () => window.removeEventListener("ledger-palette", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!themeOpen) return;
+    function onOutside(e: MouseEvent) {
+      if (themeRef.current && !themeRef.current.contains(e.target as Node)) setThemeOpen(false);
+    }
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, [themeOpen]);
 
   function openPalette() {
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
@@ -224,14 +245,74 @@ export default function AppNav() {
             letterSpacing: logoHovered ? "0.16em" : "0.1em",
             transform: logoHovered ? "scale(1.05)" : "scale(1)",
             display: "inline-block",
-            transition: "letter-spacing 220ms cubic-bezier(0.34,1.4,0.64,1), transform 220ms cubic-bezier(0.34,1.4,0.64,1)",
+            transition: "letter-spacing 220ms cubic-bezier(0.22,1,0.36,1), transform 220ms cubic-bezier(0.22,1,0.36,1)",
           }}>
             LEDGER
           </span>
         </Link>
 
         {navLink("/dashboard", "Dashboard", undefined, true)}
-        {navLink("/tools/personalise", "Themes", undefined, true)}
+
+        {/* ── Theme picker dropdown ── */}
+        <div
+          ref={themeRef}
+          className="mob-hide"
+          style={{ position: "relative", display: "flex", alignItems: "stretch", flexShrink: 0 }}
+        >
+          <button
+            onClick={() => setThemeOpen(o => !o)}
+            aria-expanded={themeOpen}
+            aria-label="Change theme"
+            style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "0 16px",
+              height: "100%", background: themeOpen ? "var(--paper-2)" : "transparent",
+              border: "none", borderRight: "1px solid var(--rule)", cursor: "pointer",
+              fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
+              letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-2)",
+              boxShadow: themeOpen ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
+              transition: "background 160ms ease, color 160ms ease",
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "inline-block", flexShrink: 0 }} />
+            <span>Theme</span>
+          </button>
+
+          {themeOpen && (
+            <div style={{
+              position: "absolute", top: "calc(100% + 1px)", left: 0,
+              width: 300, background: "var(--paper-2)",
+              border: "1px solid var(--rule)", borderTop: "none", zIndex: 200,
+            }}>
+              <div style={{ padding: "9px 14px 8px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)" }}>Choose theme</span>
+                <Link href="/tools/personalise" onClick={() => setThemeOpen(false)} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.08em" }}>full picker →</Link>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", padding: 1 }}>
+                {PALETTE_IDS.map(pid => {
+                  const m = PALETTE_META[pid];
+                  const isActive = activeTheme === pid;
+                  return (
+                    <button
+                      key={pid}
+                      onClick={() => { applyPalette(pid); setActiveTheme(pid); setThemeOpen(false); }}
+                      style={{
+                        background: m.paper, border: "none", padding: "14px 10px",
+                        cursor: "pointer", display: "flex", flexDirection: "column",
+                        gap: 7, alignItems: "flex-start", position: "relative",
+                        outline: isActive ? `2px solid ${m.accent}` : "2px solid transparent",
+                        outlineOffset: -2, transition: "opacity 120ms", width: "100%",
+                      }}
+                    >
+                      <div style={{ width: 16, height: 16, borderRadius: "50%", background: m.accent }} />
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase", color: m.ink, opacity: 0.8 }}>{m.name}</div>
+                      {isActive && <div style={{ position: "absolute", top: 5, right: 5, width: 5, height: 5, borderRadius: "50%", background: m.accent }} />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
 
         <Link
           href="/tools/score"
@@ -328,7 +409,7 @@ export default function AppNav() {
         <div
           onClick={closeSidebar}
           aria-hidden="true"
-          style={{ position: "fixed", inset: 0, background: "rgba(24,36,27,0.45)", zIndex: 199 }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 199 }}
         />
       )}
 
@@ -386,7 +467,8 @@ export default function AppNav() {
         <div role="list" style={{ flex: 1, overflowY: "auto" }}>
           {CATEGORIES.map(cat => (
             <div key={cat.label}>
-              <div style={{ padding: "7px 16px", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)", borderLeft: `3px solid ${cat.color}` }}>
+              <div style={{ padding: "7px 16px", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: cat.color, flexShrink: 0, display: "inline-block" }} />
                 <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: cat.color, letterSpacing: "0.14em", textTransform: "uppercase" }}>{cat.label}</span>
               </div>
               {cat.tools.map(t => <ToolRow key={t.slug} t={t} color={cat.color} onOpen={openTool} onSplit={splitTool} />)}

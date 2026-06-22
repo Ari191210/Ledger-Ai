@@ -7,14 +7,14 @@ import { getDensity, applyDensity, type Density } from "@/lib/density";
 import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_DEFAULTS } from "@/lib/dash-layout";
 
 const PALETTE_DESC: Record<PaletteId, string> = {
-  porcelain: "Obsidian + warm cream + amber gold",
-  ink:       "Cold black + icy blue + electric cyan",
-  dusk:      "Deep violet + lavender + vivid purple",
-  moss:      "Forest dark + pale sage + emerald",
-  rose:      "Wine black + blush + crimson rose",
-  storm:     "Navy charcoal + steel + periwinkle",
-  ember:     "Midnight amber + parchment + copper",
-  sand:      "Warm brown + antique cream + brass",
+  ledger: "Dark charcoal with warm peach and cream",
+  void:   "AMOLED true black with electric violet",
+  dusk:   "Deep navy with soft indigo",
+  amber:  "Warm dark with golden amber",
+  rose:   "Deep dark with rose pink",
+  frost:  "Arctic dark with sky blue",
+  forest: "Forest dark with mint green",
+  ember:  "Deep dark with burnt orange",
 };
 
 const DENSITY_OPTIONS: {
@@ -37,7 +37,7 @@ const LAYOUT_SECTIONS: { id: DashSection; label: string; sub: string }[] = [
 ];
 
 export default function PersonalisePage() {
-  const [active,  setActive]  = useState<PaletteId>("porcelain");
+  const [active,  setActive]  = useState<PaletteId>("ledger");
   const [density, setDensity] = useState<Density>("default");
   const [layout,  setLayout]  = useState<DashLayout>(DASH_DEFAULTS);
 
@@ -128,7 +128,7 @@ export default function PersonalisePage() {
                     background: "transparent",
                     outline: isAct ? `2px solid ${pm.accent}` : "2px solid transparent",
                     outlineOffset: 2,
-                    transition: "outline-color 200ms, transform 200ms cubic-bezier(0.34,1.2,0.64,1)",
+                    transition: "outline-color 200ms, transform 200ms cubic-bezier(0.22,1,0.36,1)",
                     transform: isAct ? "scale(1.01)" : "scale(1)",
                     textAlign: "left",
                   }}
@@ -270,7 +270,7 @@ export default function PersonalisePage() {
               lineHeight: densityOpt.line,
               color: "var(--ink-2)",
               margin: 0,
-              transition: "font-size 300ms ease, line-height 300ms ease",
+              transition: "color 200ms ease",
               maxWidth: 720,
             }}>
               {SAMPLE_TEXT}
@@ -349,7 +349,7 @@ export default function PersonalisePage() {
                       left: on ? 21 : 3,
                       width: 14, height: 14, borderRadius: "50%",
                       background: on ? "#fff" : "var(--ink-3)",
-                      transition: "left 220ms cubic-bezier(0.34,1.2,0.64,1), background 220ms",
+                      transition: "left 220ms cubic-bezier(0.22,1,0.36,1), background 220ms",
                     }} />
                   </div>
                 </button>

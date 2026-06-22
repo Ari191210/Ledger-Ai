@@ -16,7 +16,7 @@ import { sounds } from "@/lib/sounds";
 gsap.registerPlugin(useGSAP);
 
 export default function PaletteToggle() {
-  const [active,    setActive]    = useState<PaletteId>("porcelain");
+  const [active,    setActive]    = useState<PaletteId>("ledger");
   const [hovered,   setHovered]   = useState<PaletteId | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 

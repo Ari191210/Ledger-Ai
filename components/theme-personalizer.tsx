@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
 
 export default function ThemePersonalizer() {
-  const [active, setActive] = useState<PaletteId>("porcelain");
+  const [active, setActive] = useState<PaletteId>("ledger");
 
   useEffect(() => {
     setActive(getActivePalette());
@@ -32,7 +32,7 @@ export default function ThemePersonalizer() {
           Personalise
         </div>
         <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>
-          {PALETTE_IDS.length} themes · click to apply
+          {PALETTE_IDS.length} themes &middot; click to apply
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export default function ThemePersonalizer() {
                 background: m.paper,
                 display: "flex",
                 flexDirection: "column",
-                gap: 12,
+                gap: 10,
                 position: "relative",
                 outline: isActive ? `2px solid ${m.accent}` : "2px solid transparent",
                 outlineOffset: -2,
@@ -92,7 +92,7 @@ export default function ThemePersonalizer() {
               <div style={{
                 width: "100%",
                 aspectRatio: "16/9",
-                background: m.paper,
+                background: m.paper2,
                 border: `1px solid ${m.rule}`,
                 borderRadius: 2,
                 padding: "8px 10px",
@@ -112,7 +112,7 @@ export default function ThemePersonalizer() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>
                   <div style={{ width: "70%", height: 4, background: m.ink, borderRadius: 1, opacity: 0.7 }} />
                   <div style={{ width: "50%", height: 3, background: m.ink, borderRadius: 1, opacity: 0.35 }} />
-                  <div style={{ width: "60%", height: 3, background: m.ink, borderRadius: 1, opacity: 0.35 }} />
+                  <div style={{ width: "60%", height: 3, background: m.ink2, borderRadius: 1, opacity: 0.35 }} />
                 </div>
                 <div style={{ marginTop: "auto", display: "flex", gap: 4 }}>
                   <div style={{ width: 24, height: 8, background: m.accent, borderRadius: 1, opacity: 0.85 }} />
@@ -122,13 +122,17 @@ export default function ThemePersonalizer() {
 
               {/* Swatches */}
               <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
-                <div style={{ width: 14, height: 14, borderRadius: "50%", background: m.accent, flexShrink: 0 }} />
-                <div style={{ width: 10, height: 10, borderRadius: "50%", background: m.ink, opacity: 0.7, flexShrink: 0 }} />
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: m.ink, opacity: 0.3, flexShrink: 0 }} />
+                <div style={{ width: 16, height: 16, borderRadius: "50%", background: m.accent, flexShrink: 0 }} />
+                <div style={{ width: 11, height: 11, borderRadius: "50%", background: m.ink, opacity: 0.7, flexShrink: 0 }} />
+                <div style={{ width: 9, height: 9, borderRadius: "50%", background: m.ink2, opacity: 0.6, flexShrink: 0 }} />
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: m.ink3, opacity: 0.5, flexShrink: 0 }} />
               </div>
 
-              <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: m.ink, opacity: 0.8 }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: m.ink, opacity: 0.85 }}>
                 {m.name}
+              </div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: m.ink, opacity: 0.45, lineHeight: 1.4 }}>
+                {m.description}
               </div>
             </button>
           );

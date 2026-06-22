@@ -1356,6 +1356,10 @@ main {
   /* Large display numbers */
   .mob-num { font-size: 56px !important; }
 
+  /* Trust strip: swap border-right → border-bottom when stacked */
+  .trust-strip-item { border-right: none !important; border-bottom: 1px solid var(--rule) !important; padding: 36px 24px !important; }
+  .trust-strip-item:last-child { border-bottom: none !important; }
+
   /* Dashboard stats: 5col â†’ 3 top + 2 bottom */
   .mob-stats {
     grid-template-columns: repeat(3, 1fr) !important;

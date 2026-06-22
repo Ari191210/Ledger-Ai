@@ -810,7 +810,7 @@ export default function Home() {
         </div>
 
         {/* Two-column editorial hero */}
-        <div className="hero-content hero-grid" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1100, margin: "0 auto", padding: "0 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div className="hero-content hero-grid mob-col mob-p" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 1100, margin: "0 auto", padding: "0 72px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
 
           {/* LEFT: badge + headline + subtitle + CTAs */}
           <div>
@@ -984,7 +984,7 @@ export default function Home() {
             { n: "3,204", label: "students on the waitlist",     color: "var(--cinnabar-ink)" },
             { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)" },
           ].map((s, i) => (
-            <div key={i} style={{
+            <div key={i} className="trust-strip-item" style={{
               padding: "52px 48px",
               borderRight: i < 2 ? S.border : "none",
               display: "flex", flexDirection: "column", gap: 12,
