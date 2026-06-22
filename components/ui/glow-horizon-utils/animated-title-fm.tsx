@@ -21,7 +21,7 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
           fontSize: 11,
           letterSpacing: "0.22em",
           textTransform: "uppercase",
-          color: "rgba(255,255,255,0.45)",
+          color: "var(--ink-3)",
           marginBottom: 18,
         }}
       >
@@ -41,8 +41,8 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
               fontFamily: "var(--serif)",
               fontStyle: "italic",
               fontWeight: 400,
-              fontSize: "clamp(48px,8vw,100px)",
-              color: "#ffffff",
+              fontSize: "clamp(64px,10vw,130px)",
+              color: "var(--ink)",
               letterSpacing: "-0.025em",
               lineHeight: 1.05,
             }}
@@ -60,7 +60,7 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
         style={{
           fontFamily: "var(--sans)",
           fontSize: "clamp(13px,1.4vw,16px)",
-          color: "rgba(255,255,255,0.45)",
+          color: "var(--ink-3)",
           marginTop: 20,
           letterSpacing: "0.02em",
           lineHeight: 1.6,
@@ -86,8 +86,8 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             textDecoration: "none",
-            color: "#050507",
-            background: "#ffffff",
+            color: "var(--paper)",
+            background: "var(--ink)",
             padding: "12px 28px",
             borderRadius: 8,
             transition: "opacity 180ms",
@@ -105,9 +105,9 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             textDecoration: "none",
-            color: "rgba(255,255,255,0.65)",
+            color: "var(--ink-2)",
             padding: "12px 24px",
-            border: "1px solid rgba(255,255,255,0.18)",
+            border: "1px solid var(--rule)",
             borderRadius: 8,
             transition: "border-color 180ms, color 180ms",
           }}
@@ -130,11 +130,11 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
           flexWrap: "wrap",
           fontFamily: "var(--sans)",
           fontSize: 12,
-          color: "rgba(255,255,255,0.32)",
+          color: "var(--ink-3)",
           letterSpacing: "0.01em",
         }}
       >
-        <span><strong style={{ color: "rgba(255,255,255,0.55)" }}>3,204</strong> on the waitlist</span>
+        <span><strong style={{ color: "var(--ink-2)" }}>3,204</strong> on the waitlist</span>
         <span style={{ opacity: 0.3 }}>·</span>
         <span>Free to start</span>
         <span style={{ opacity: 0.3 }}>·</span>

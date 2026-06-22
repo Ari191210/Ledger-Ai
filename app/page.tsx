@@ -830,7 +830,7 @@ export default function Home() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#050507", overflow: "hidden" }}>
+      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper)", overflow: "hidden" }}>
 
         {/* Glow horizon effect */}
         <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -844,7 +844,7 @@ export default function Home() {
 
         {/* Scroll hint */}
         <div className="hero-scroll" style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "rgba(255,255,255,0.25)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Scroll</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase", opacity: 0.5 }}>Scroll</span>
           <div className="scroll-cue">
             <span />
             <span />

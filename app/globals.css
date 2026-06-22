@@ -271,6 +271,19 @@
 [data-palette=”paper”] .ticker-track {
   color: var(--ink-2) !important;
 }
+[data-palette=”paper”] .hero-product-reveal {
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%) !important;
+}
+[data-palette=”paper”] .hero-product-reveal .reveal-card {
+  background: rgba(255,255,255,0.90) !important;
+  border-color: rgba(28,25,23,0.08) !important;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.08), 0 0 0 1px rgba(28,25,23,0.06) !important;
+  color: var(--ink) !important;
+}
+[data-palette=”paper”] .hero-product-reveal .reveal-card span,
+[data-palette=”paper”] .hero-product-reveal .reveal-card div {
+  color: var(--ink-3) !important;
+}
 
 /* --- Glass panels ----------------------------------------------------------------- */
 .gl-pane {

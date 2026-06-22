@@ -45,8 +45,9 @@ export function HeroProductReveal() {
 
   return (
     <section
+      className="hero-product-reveal"
       style={{
-        background:     "linear-gradient(180deg, #050507 0%, #06070e 100%)",
+        background:     "linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%)",
         padding:        "0 24px 120px",
         overflow:       "hidden",
         position:       "relative",

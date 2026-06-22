@@ -135,6 +135,7 @@ export default function AppNav() {
   const [hoveredNav, setHoveredNav]   = useState<string | null>(null);
   const [logoHovered, setLogoHovered] = useState(false);
   const [activeTheme, setActiveTheme] = useState<PaletteId>("ledger");
+  const [navVisible,  setNavVisible]  = useState(false);
 
   useEffect(() => {
     try { setEmbedded(window.self !== window.top); } catch { setEmbedded(true); }
@@ -163,6 +164,14 @@ export default function AppNav() {
     window.addEventListener("ledger-palette", handler);
     return () => window.removeEventListener("ledger-palette", handler);
   }, []);
+
+  // Slide navbar in on first scroll (only on landing page)
+  useEffect(() => {
+    if (path !== "/") { setNavVisible(true); return; }
+    const onScroll = () => { setNavVisible(true); window.removeEventListener("scroll", onScroll); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [path]);
 
   const isLight = activeTheme === "paper";
 
@@ -229,6 +238,8 @@ export default function AppNav() {
         position: "sticky", top: 0, zIndex: 100,
         borderBottom: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
+        transform: navVisible ? "translateY(0)" : "translateY(-100%)",
+        transition: "transform 0.55s cubic-bezier(0.16,1,0.3,1)",
       }}>
         <Link
           href="/"
@@ -263,23 +274,27 @@ export default function AppNav() {
           aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
           className="mob-hide"
           style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 48, height: "100%", flexShrink: 0,
-            background: "transparent", border: "none",
+            display: "flex", alignItems: "center", gap: 7,
+            padding: "0 16px", height: "100%", flexShrink: 0,
+            background: isLight ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent",
+            border: "none",
             borderRight: "1px solid var(--rule)", cursor: "pointer",
-            color: "var(--ink-2)", transition: "background 160ms ease, color 160ms ease",
+            color: isLight ? "var(--cinnabar-ink)" : "var(--ink-2)",
+            fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600,
+            letterSpacing: "0.1em", textTransform: "uppercase",
+            transition: "background 160ms ease, color 160ms ease",
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--ink) 6%, transparent)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = isLight ? "color-mix(in srgb, var(--cinnabar-ink) 14%, transparent)" : "color-mix(in srgb, var(--ink) 6%, transparent)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = isLight ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent"; }}
         >
           {isLight ? (
             /* moon — currently light, click → dark */
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
           ) : (
             /* sun — currently dark, click → light */
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="5" />
               <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
               <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
@@ -287,6 +302,7 @@ export default function AppNav() {
               <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
             </svg>
           )}
+          <span>{isLight ? "Dark" : "Light"}</span>
         </button>
 
         <Link
