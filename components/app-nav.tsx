@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
+import { useEffect, useState, useCallback } from "react";
+import { applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
@@ -134,9 +134,7 @@ export default function AppNav() {
   const [open, setOpen]               = useState(false);
   const [hoveredNav, setHoveredNav]   = useState<string | null>(null);
   const [logoHovered, setLogoHovered] = useState(false);
-  const [themeOpen, setThemeOpen]     = useState(false);
   const [activeTheme, setActiveTheme] = useState<PaletteId>("ledger");
-  const themeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try { setEmbedded(window.self !== window.top); } catch { setEmbedded(true); }
@@ -166,14 +164,20 @@ export default function AppNav() {
     return () => window.removeEventListener("ledger-palette", handler);
   }, []);
 
-  useEffect(() => {
-    if (!themeOpen) return;
-    function onOutside(e: MouseEvent) {
-      if (themeRef.current && !themeRef.current.contains(e.target as Node)) setThemeOpen(false);
+  const isLight = activeTheme === "paper";
+
+  function toggleLightDark() {
+    if (isLight) {
+      const last = (typeof window !== "undefined" ? localStorage.getItem("ledger-last-dark") : null) as PaletteId | null;
+      const target = last || "ledger";
+      applyPalette(target);
+      setActiveTheme(target);
+    } else {
+      if (typeof window !== "undefined") localStorage.setItem("ledger-last-dark", activeTheme);
+      applyPalette("paper");
+      setActiveTheme("paper");
     }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, [themeOpen]);
+  }
 
   function openPalette() {
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
@@ -253,66 +257,37 @@ export default function AppNav() {
 
         {navLink("/dashboard", "Dashboard", undefined, true)}
 
-        {/* ── Theme picker dropdown ── */}
-        <div
-          ref={themeRef}
+        {/* ── Light / dark toggle ── */}
+        <button
+          onClick={toggleLightDark}
+          aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
           className="mob-hide"
-          style={{ position: "relative", display: "flex", alignItems: "stretch", flexShrink: 0 }}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 48, height: "100%", flexShrink: 0,
+            background: "transparent", border: "none",
+            borderRight: "1px solid var(--rule)", cursor: "pointer",
+            color: "var(--ink-2)", transition: "background 160ms ease, color 160ms ease",
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--ink) 6%, transparent)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
         >
-          <button
-            onClick={() => setThemeOpen(o => !o)}
-            aria-expanded={themeOpen}
-            aria-label="Change theme"
-            style={{
-              display: "flex", alignItems: "center", gap: 6, padding: "0 16px",
-              height: "100%", background: themeOpen ? "var(--paper-2)" : "transparent",
-              border: "none", borderRight: "1px solid var(--rule)", cursor: "pointer",
-              fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
-              letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-2)",
-              boxShadow: themeOpen ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
-              transition: "background 160ms ease, color 160ms ease",
-            }}
-          >
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--cinnabar-ink)", display: "inline-block", flexShrink: 0 }} />
-            <span>Theme</span>
-          </button>
-
-          {themeOpen && (
-            <div style={{
-              position: "absolute", top: "calc(100% + 1px)", left: 0,
-              width: 300, background: "var(--paper-2)",
-              border: "1px solid var(--rule)", borderTop: "none", zIndex: 200,
-            }}>
-              <div style={{ padding: "9px 14px 8px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)" }}>Choose theme</span>
-                <Link href="/tools/personalise" onClick={() => setThemeOpen(false)} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.08em" }}>full picker →</Link>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, background: "var(--rule)", padding: 1 }}>
-                {PALETTE_IDS.map(pid => {
-                  const m = PALETTE_META[pid];
-                  const isActive = activeTheme === pid;
-                  return (
-                    <button
-                      key={pid}
-                      onClick={() => { applyPalette(pid); setActiveTheme(pid); setThemeOpen(false); }}
-                      style={{
-                        background: m.paper, border: "none", padding: "14px 10px",
-                        cursor: "pointer", display: "flex", flexDirection: "column",
-                        gap: 7, alignItems: "flex-start", position: "relative",
-                        outline: isActive ? `2px solid ${m.accent}` : "2px solid transparent",
-                        outlineOffset: -2, transition: "opacity 120ms", width: "100%",
-                      }}
-                    >
-                      <div style={{ width: 16, height: 16, borderRadius: "50%", background: m.accent }} />
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase", color: m.ink, opacity: 0.8 }}>{m.name}</div>
-                      {isActive && <div style={{ position: "absolute", top: 5, right: 5, width: 5, height: 5, borderRadius: "50%", background: m.accent }} />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          {isLight ? (
+            /* moon — currently light, click → dark */
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          ) : (
+            /* sun — currently dark, click → light */
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
           )}
-        </div>
+        </button>
 
         <Link
           href="/tools/score"

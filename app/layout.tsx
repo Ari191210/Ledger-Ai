@@ -3,7 +3,6 @@ import { Instrument_Serif, DM_Sans, Space_Mono, Lora } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
 import SyncManager from "@/components/sync-manager";
-import PaletteToggle from "@/components/palette-toggle";
 import PageGradient from "@/components/page-gradient";
 import { WebGLShader } from "@/components/ui/web-gl-shader";
 import Cursor from "@/components/cursor";
@@ -158,7 +157,6 @@ export default function RootLayout({
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
-          <PaletteToggle />
           <RankWhisper />
         </AuthProvider>
       </body>
