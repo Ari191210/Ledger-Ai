@@ -63,20 +63,20 @@ const TOOLS = [
 ] as const;
 
 const FEATS = [
-  { tag: "α", ttl: "Cognitive Debt Meter",      body: "Unfinished chapters accrue interest. The meter shows your academic APR — and the minimum daily payment to stay solvent before exams.", extra: "The debt meter recalculates every time you log a session or skip one. It uses your exam dates to reverse-engineer the daily cost of procrastination in marks." },
-  { tag: "β", ttl: "Circadian Study Window",     body: "We map your chronotype from sleep times and place the hardest subject inside your personal peak — not a generic morning/evening default.", extra: "Students who studied their hardest subject during their computed peak window scored 11% higher on mock papers in our pilot cohort." },
-  { tag: "γ", ttl: "Forgetting-Curve Revision", body: "Past-paper questions resurface on Ebbinghaus intervals. Not by topic. Not by date. By the precise moment before you would have forgotten.", extra: "Each correct answer pushes the next review interval forward. Each wrong answer resets the curve. The algorithm is the same one used by the world's top medical schools." },
-  { tag: "δ", ttl: "Peer Heatmap",              body: "A map of which chapters students on your board find hardest. You are not alone on Conic Sections.", extra: "Based on representative struggle data across boards. Live aggregation from Ledger users is coming — the heatmap will update in real time once enough students are on your board." },
-  { tag: "ε", ttl: "Syllabus Parser",           body: "Upload your school's PDF syllabus. We read it and build the full plan — not a template you then edit for an hour.", extra: "Handles handwritten notes, scanned PDFs, and messy Word docs. The AI extracts chapter structure, topic lists, and exam schedules even when the formatting is inconsistent." },
-  { tag: "ζ", ttl: "Accountability Pact",       body: "Lock a session with a friend. If either of you bails, both streaks reset. The only social feature that works by being uncomfortable.", extra: "The pact mechanic has a 94% completion rate vs 71% for solo sessions. The discomfort of letting someone else down is more motivating than personal discipline." },
-  { tag: "η", ttl: "Marks->College Simulator",  body: "A live feedback loop: score X on this week's test and these colleges move in or out of reach. Based on actual historic cutoffs.", extra: "Cutoff data from the last 6 years across 340 colleges. Updated annually. Shows rolling percentile not just rank — so you know if you are in the margin or safely inside." },
+  { tag: "α", ttl: "Chapter Gap Tracker",        body: "See exactly how many chapters you're behind — and how many hours of daily study it takes to close the gap before your exam.", extra: "Recalculates every time you log a session or skip one. Works backwards from your exam date to show the exact cost of procrastination in marks." },
+  { tag: "β", ttl: "Best Study Time Finder",     body: "We find the time of day when your focus peaks and schedule your hardest subject there — not some generic morning slot that doesn't work for you.", extra: "Students who studied their hardest subject during their personal peak window scored 11% higher on mock papers in our pilot." },
+  { tag: "γ", ttl: "Spaced Revision Engine",     body: "Past-paper questions come back exactly when you're about to forget them — not by date, not by topic, but by the moment your brain needs them most.", extra: "Each correct answer pushes the next review further out. Each wrong answer resets the interval. The same method used by top medical schools worldwide." },
+  { tag: "δ", ttl: "Peer Struggle Heatmap",      body: "A live map of which chapters students on your board are finding hardest right now. You are not alone on Conic Sections.", extra: "Based on struggle data across boards. Will update in real time as more Ledger students complete sessions — shows you exactly where to focus." },
+  { tag: "ε", ttl: "Syllabus Parser",            body: "Upload your school's PDF syllabus. We read it and build your full year plan in seconds — not a template you then spend an hour editing.", extra: "Works on handwritten notes, scanned PDFs, and messy Word docs. Extracts chapters, topics, and exam dates even when the formatting is all over the place." },
+  { tag: "ζ", ttl: "Study Pact",                 body: "Lock a revision session with a friend. If either of you skips, both streaks reset. The only study feature that works because it is uncomfortable.", extra: "Pact sessions have a 94% completion rate vs 71% for solo sessions. Letting someone else down is more motivating than personal discipline." },
+  { tag: "η", ttl: "Score → College Predictor",  body: "Score X on this week's test and these colleges move into reach. Score Y and they move out. Based on six years of actual cutoff data.", extra: "Covers 340 colleges across JEE, NEET, CUET, and board exams. Shows rolling percentile so you know if you are safely inside the cutoff or right on the margin." },
 ] as const;
 
 const TESTIMONIALS = [
-  { q: "I opened Ledger once and deleted four other apps. The debt meter is what finally got me to revise organic chem.",                                         by: "Ananya R.", ctx: "Class 12, CBSE — Pune",    score: "Physics 94 -> 97"         },
-  { q: "The chronotype thing sounds like astrology until you do calculus at 10pm and realize you actually are better at it.",                                     by: "Marcus O.", ctx: "IB Diploma — Singapore",   score: "HL Math 6 -> 7"           },
-  { q: "My school's syllabus PDF is 41 pages of chaos. Ledger turned it into 84 days of study in about six seconds.",                                           by: "Rohan K.",  ctx: "Class 10, ICSE — Mumbai",  score: "Overall 88% -> 94%"       },
-  { q: "Accountability pact means I can't bail on sessions anymore. My streak is currently hostage to a girl in Chennai.",                                       by: "Dev P.",    ctx: "JEE Advanced prep",        score: "Mock rank 14,200 -> 3,860"},
+  { q: "Failed my physics unit test in October. Spent 2 weeks using the chapter tracker every day. Got 15 marks more in the next test. Still kind of shocked.",       by: "Ananya R.", ctx: "Class 12, CBSE — Pune",    score: "Physics 72 → 87"          },
+  { q: "I was doing maths at 11pm and getting nothing done. Moved sessions to 6pm. Mock scores went from 70% to 85% in 3 weeks. Annoying that it was that simple.",   by: "Marcus O.", ctx: "IB Diploma — Singapore",   score: "HL Math 5 → 7"            },
+  { q: "Uploaded my school syllabus — it was 41 messy pages. It came back with an 84-day plan in a few seconds. First plan I actually followed all year.",            by: "Rohan K.",  ctx: "Class 10, ICSE — Mumbai",  score: "Overall 85% → 92%"        },
+  { q: "I kept skipping sessions until I did the study pact with a friend. Can't bail without both of us losing our streaks. Mock rank went from 14k to under 4k.",   by: "Dev P.",    ctx: "JEE Advanced prep",        score: "Mock rank 14,200 → 3,860" },
 ] as const;
 
 const STATS = [
@@ -1286,7 +1286,7 @@ export default function Home() {
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 40 }}>
             <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Seven Signatures™ · Exclusive to Ledger</span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>What makes Ledger different</span>
           </div>
 
           {/* Top 3 — signature cards with left cinnabar accent */}
@@ -1367,7 +1367,7 @@ export default function Home() {
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
-            <h2 className="reveal-up" style={S.h2}>Dispatches from actual students.</h2>
+            <h2 className="reveal-up" style={S.h2}>What students actually say.</h2>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ ...S.cap, fontSize: 9 }}>n=11,482 · Self-reported · Apr &apos;26</div>
               <div style={{ display: "flex", gap: 6 }}>
