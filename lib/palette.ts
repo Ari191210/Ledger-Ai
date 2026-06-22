@@ -35,13 +35,13 @@ export const PALETTE_META: Record<PaletteId, PaletteDef> = {
   },
   paper: {
     name: "Paper",
-    description: "Warm parchment with dark ink and terracotta accent",
-    paper: "#f7f3ec",    paper2: "#ede8e0",
-    ink: "#1a1410",      ink2: "#4a3f35",       ink3: "#7a6f65",
-    accent: "#c2410c",   accentMid: "#9a3412",
-    rule: "rgba(26,20,16,0.14)", rule2: "rgba(26,20,16,0.07)",
-    glowA: "rgba(194,65,12,0.14)", glowB: "rgba(154,52,18,0.07)",
-    highlight: "rgba(194,65,12,0.10)",
+    description: "Warm white with violet accent — clean studio light",
+    paper: "#fafaf9",    paper2: "#f5f5f4",
+    ink: "#1c1917",      ink2: "#57534e",       ink3: "#a8a29e",
+    accent: "#7c3aed",   accentMid: "#6d28d9",
+    rule: "rgba(28,25,23,0.09)", rule2: "rgba(28,25,23,0.05)",
+    glowA: "rgba(124,58,237,0.12)", glowB: "rgba(109,40,217,0.06)",
+    highlight: "rgba(124,58,237,0.09)",
   },
   void: {
     name: "Void",
@@ -216,6 +216,7 @@ export function applyPalette(p: PaletteId) {
   for (const [key, cssVar] of CSS_VARS) {
     root.style.setProperty(cssVar, def[key] as string)
   }
+  root.dataset.palette = p
   localStorage.setItem("palette", p)
   window.dispatchEvent(new CustomEvent("ledger-palette", { detail: p }))
 }

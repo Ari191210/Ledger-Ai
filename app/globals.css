@@ -230,7 +230,49 @@
   --leading-body: 1.7;
 }
 
-/* â”€â”€â”€ Glass panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* --- Light mode overrides --------------------------------------------------------- */
+[data-palette=”paper”] {
+  --elev-1: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --elev-2: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --elev-3: 0 8px 16px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.03);
+  --elev-4: 0 16px 32px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.02);
+}
+[data-palette=”paper”] html,
+[data-palette=”paper”] body { background: var(--paper); }
+
+[data-palette=”paper”] .gl-pane {
+  background: rgba(255,255,255,0.82) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.04) !important;
+}
+[data-palette=”paper”] .gl-pane-alt {
+  background: rgba(245,245,244,0.88) !important;
+  box-shadow: none !important;
+}
+[data-palette=”paper”] .glass-card {
+  background: rgba(255,255,255,0.78) !important;
+  border-color: rgba(28,25,23,0.08) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(28,25,23,0.06) !important;
+}
+[data-palette=”paper”] .bento-tilt:hover {
+  box-shadow: 0 12px 32px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.05),
+              0 0 0 1px rgba(124,58,237,0.18) !important;
+}
+[data-palette=”paper”] .btn {
+  background: #1c1917 !important;
+  color: #fafaf9 !important;
+  border-color: #1c1917 !important;
+}
+[data-palette=”paper”] .btn:hover {
+  background: #292524 !important;
+}
+[data-palette=”paper”] .scroll-cue span {
+  background: rgba(28,25,23,0.25) !important;
+}
+[data-palette=”paper”] .ticker-track {
+  color: var(--ink-2) !important;
+}
+
+/* --- Glass panels ----------------------------------------------------------------- */
 .gl-pane {
   background: color-mix(in srgb, var(--paper) 58%, transparent) !important;
   backdrop-filter: blur(20px);
