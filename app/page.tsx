@@ -6,6 +6,7 @@ import { GetStartedButton } from "@/components/ui/get-started-button";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import GlowHorizonFM from "@/components/ui/glow-horizon";
 import { AnimatedTitleFM } from "@/components/ui/glow-horizon-utils/animated-title-fm";
+import { HeroProductReveal } from "@/components/ui/hero-product-reveal";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -853,6 +854,8 @@ export default function Home() {
 
       </section>
 
+      {/* ─── Product Reveal ─── */}
+      <HeroProductReveal />
 
       {/* ─── Ticker ─── */}
       <div className="gl-pane-alt" style={{ borderTop: S.border, borderBottom: S.border, padding: "10px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
