@@ -715,44 +715,50 @@ export default function Dashboard() {
     const cards = gsap.utils.toArray<HTMLElement>(".dash-tool");
     const cleanup: (() => void)[] = [];
 
-    cards.forEach(card => {
-      const onEnter = () => {
-        gsap.to(card, {
-          y: -9, scale: 1.025,
-          transformPerspective: 900,
-          duration: 0.32, ease: "power2.out",
-          overwrite: "auto",
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      cards.forEach(card => {
+        const onEnter = () => {
+          gsap.to(card, {
+            y: -8, scale: 1.022,
+            transformPerspective: 1000,
+            duration: 0.28, ease: "expo.out",
+            overwrite: "auto",
+          });
+        };
+        const onMove = (e: MouseEvent) => {
+          const r = card.getBoundingClientRect();
+          const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+          const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+          gsap.to(card, {
+            rotationY:  x * 10,
+            rotationX: -y * 7,
+            transformPerspective: 1000,
+            duration: 0.18,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+          const sx = (-x * 12).toFixed(1);
+          const sy = (-y * 8).toFixed(1);
+          card.style.boxShadow = `${sx}px ${sy}px 32px color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 24%, transparent), 0 4px 16px color-mix(in srgb, var(--ink) 8%, transparent)`;
+        };
+        const onLeave = () => {
+          card.style.boxShadow = "";
+          gsap.to(card, {
+            y: 0, scale: 1, rotationY: 0, rotationX: 0,
+            duration: 0.4, ease: "expo.out",
+            overwrite: "auto",
+          });
+        };
+        card.addEventListener("mouseenter", onEnter);
+        card.addEventListener("mousemove",  onMove);
+        card.addEventListener("mouseleave", onLeave);
+        cleanup.push(() => {
+          card.removeEventListener("mouseenter", onEnter);
+          card.removeEventListener("mousemove",  onMove);
+          card.removeEventListener("mouseleave", onLeave);
         });
-      };
-      const onMove = (e: MouseEvent) => {
-        const r = card.getBoundingClientRect();
-        const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;  // -1..1
-        const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
-        gsap.to(card, {
-          rotationY:   x * 14,
-          rotationX:  -y * 10,
-          transformPerspective: 900,
-          duration: 0.25,
-          ease: "power2.out",
-          overwrite: "auto",
-        });
-      };
-      const onLeave = () => {
-        gsap.to(card, {
-          y: 0, scale: 1, rotationY: 0, rotationX: 0,
-          duration: 0.55, ease: "elastic.out(1, 0.6)",
-          overwrite: "auto",
-        });
-      };
-      card.addEventListener("mouseenter", onEnter);
-      card.addEventListener("mousemove",  onMove);
-      card.addEventListener("mouseleave", onLeave);
-      cleanup.push(() => {
-        card.removeEventListener("mouseenter", onEnter);
-        card.removeEventListener("mousemove",  onMove);
-        card.removeEventListener("mouseleave", onLeave);
       });
-    });
+    }
 
     // ── Stat cell hover ─────────────────────────────────────────────────────
     const statCells = gsap.utils.toArray<HTMLElement>(".dash-stat");

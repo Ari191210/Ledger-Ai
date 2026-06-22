@@ -657,31 +657,36 @@ export default function Home() {
         )
       );
 
-      /* Tool cube cards — 3D tilt on cursor move (same as dashboard) */
-      gsap.utils.toArray<HTMLElement>(".tool-item").forEach(el => {
-        const shadow = el.style.boxShadow;
-        const onEnter = () => {
-          gsap.to(el, { y: -9, scale: 1.025, transformPerspective: 900, duration: 0.28, ease: "power2.out", overwrite: "auto" });
-        };
-        const onMove = (e: MouseEvent) => {
-          const r = el.getBoundingClientRect();
-          const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;
-          const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
-          gsap.to(el, { rotationY: x * 14, rotationX: -y * 10, transformPerspective: 900, duration: 0.22, ease: "power2.out", overwrite: "auto" });
-        };
-        const onLeave = () => {
-          gsap.to(el, { y: 0, scale: 1, rotationY: 0, rotationX: 0, duration: 0.55, ease: "elastic.out(1, 0.6)", overwrite: "auto" });
-          el.style.boxShadow = shadow;
-        };
-        el.addEventListener("mouseenter", onEnter);
-        el.addEventListener("mousemove",  onMove);
-        el.addEventListener("mouseleave", onLeave);
-        hoverListeners.push(() => {
-          el.removeEventListener("mouseenter", onEnter);
-          el.removeEventListener("mousemove",  onMove);
-          el.removeEventListener("mouseleave", onLeave);
+      /* Tool cube cards — 3D tilt on cursor move */
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        gsap.utils.toArray<HTMLElement>(".tool-item").forEach(el => {
+          const shadow = el.style.boxShadow;
+          const onEnter = () => {
+            gsap.to(el, { y: -8, scale: 1.022, transformPerspective: 1000, duration: 0.28, ease: "expo.out", overwrite: "auto" });
+          };
+          const onMove = (e: MouseEvent) => {
+            const r = el.getBoundingClientRect();
+            const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+            const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+            gsap.to(el, { rotationY: x * 10, rotationX: -y * 7, transformPerspective: 1000, duration: 0.18, ease: "power2.out", overwrite: "auto" });
+            const sx = (-x * 12).toFixed(1);
+            const sy = (-y * 8).toFixed(1);
+            el.style.boxShadow = `${sx}px ${sy}px 28px color-mix(in srgb, var(--cat-color, var(--cinnabar-ink)) 20%, transparent)`;
+          };
+          const onLeave = () => {
+            el.style.boxShadow = shadow;
+            gsap.to(el, { y: 0, scale: 1, rotationY: 0, rotationX: 0, duration: 0.4, ease: "expo.out", overwrite: "auto" });
+          };
+          el.addEventListener("mouseenter", onEnter);
+          el.addEventListener("mousemove",  onMove);
+          el.addEventListener("mouseleave", onLeave);
+          hoverListeners.push(() => {
+            el.removeEventListener("mouseenter", onEnter);
+            el.removeEventListener("mousemove",  onMove);
+            el.removeEventListener("mouseleave", onLeave);
+          });
         });
-      });
+      }
 
       /* Bento cards — 3D tilt (gentler than tool cards since cards are larger) */
       gsap.utils.toArray<HTMLElement>(".bento-tilt").forEach(el => {
