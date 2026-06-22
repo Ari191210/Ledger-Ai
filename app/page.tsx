@@ -190,6 +190,14 @@ export default function Home() {
   const [city,         setCity]         = useState<string | null>(null);
   const [awakeCount,   setAwakeCount]   = useState<number | null>(null);
   const [bookmarkHint, setBookmarkHint] = useState(false);
+  const [heroOpen,     setHeroOpen]     = useState(false);
+
+  // Hero: open on first scroll
+  useEffect(() => {
+    const onScroll = () => { setHeroOpen(true); window.removeEventListener("scroll", onScroll); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Clock + variant — ticks every second
   useEffect(() => {
@@ -830,7 +838,7 @@ export default function Home() {
 
         {/* Animated title */}
         <div style={{ position: "relative", zIndex: 2, width: "100%" }}>
-          <AnimatedTitleFM open={true} />
+          <AnimatedTitleFM open={heroOpen} />
         </div>
 
         {/* Scroll hint */}
@@ -1279,9 +1287,9 @@ export default function Home() {
           </div>
 
           {/* Top 3 — signature cards with left cinnabar accent */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 12 }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginBottom: 24 }} className="mob-col">
             {FEATS.slice(0, 3).map((f, i) => (
-              <div className="feat-card glass-card" key={f.tag} style={{
+              <div className="feat-card glass-card bento-tilt" key={f.tag} style={{
                 padding: "36px 28px",
                 borderTop: "2px solid var(--cinnabar-ink)",
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
@@ -1307,10 +1315,10 @@ export default function Home() {
           </div>
 
           {/* Bottom 4 — compact, expand on click */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="mob-2col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }} className="mob-2col">
             {FEATS.slice(3).map((f, i) => (
               <div
-                className="feat-card glass-card"
+                className="feat-card glass-card bento-tilt"
                 key={f.tag}
                 style={{
                   borderTop: expandedFeat === i + 3 ? "2px solid var(--cinnabar-ink)" : "2px solid transparent",

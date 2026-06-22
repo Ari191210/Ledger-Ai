@@ -114,6 +114,8 @@ export default function RootLayout({
         />
         <meta name="theme-color" content="#18241b" />
         <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="" />
+        <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
       </head>
       <body>
         {/* Global liquid-glass displacement filter â€” referenced by backdrop-filter: url(#global-liquid-glass) in .btn */}

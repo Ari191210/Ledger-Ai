@@ -167,10 +167,10 @@
 
 /* --- Design tokens -------------------------------------------------------------------- */
 :root {
-  --serif: var(--font-orbitron), "Orbitron", system-ui, sans-serif;
-  --sans:  var(--font-inter), "Inter", system-ui, sans-serif;
+  --serif: "Orsiri", var(--font-orbitron), Georgia, serif;
+  --sans:  "Orsiri", var(--font-inter), system-ui, sans-serif;
   --mono:  var(--font-space-mono), "Space Mono", ui-monospace, monospace;
-  --prose: var(--font-lora), "Lora", Georgia, serif;
+  --prose: "Orsiri", var(--font-lora), Georgia, serif;
 
   /* == Brand palette == */
   --peach:        #ffcaaf;

@@ -13,9 +13,9 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
 
       {/* "Welcome to" eyebrow */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: -16 }}
         animate={open ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.9, ease: EASE, delay: 1.4 }}
+        transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
         style={{
           fontFamily: "var(--mono)",
           fontSize: 11,
@@ -28,14 +28,14 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
         Welcome to
       </motion.div>
 
-      {/* Main title — character-by-character reveal */}
+      {/* Main title — character-by-character pop-down reveal */}
       <div style={{ overflow: "hidden", display: "flex", justifyContent: "center" }}>
         {TITLE.split("").map((char, i) => (
           <motion.span
             key={i}
-            initial={{ y: "110%" }}
+            initial={{ y: "-110%" }}
             animate={open ? { y: 0 } : {}}
-            transition={{ duration: 0.75, ease: EASE, delay: 1.6 + i * 0.038 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.2 + i * 0.032 }}
             style={{
               display: "inline-block",
               fontFamily: "var(--serif)",
@@ -54,9 +54,9 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
 
       {/* Tagline */}
       <motion.p
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={open ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.9, ease: EASE, delay: 2.3 }}
+        transition={{ duration: 0.9, ease: EASE, delay: 0.75 }}
         style={{
           fontFamily: "var(--sans)",
           fontSize: "clamp(13px,1.4vw,16px)",
@@ -71,9 +71,9 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
 
       {/* CTAs */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: -16 }}
         animate={open ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.9, ease: EASE, delay: 2.6 }}
+        transition={{ duration: 0.9, ease: EASE, delay: 1.0 }}
         style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 36, flexWrap: "wrap" }}
       >
         <Link
@@ -120,7 +120,7 @@ export function AnimatedTitleFM({ open }: { open: boolean }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={open ? { opacity: 1 } : {}}
-        transition={{ duration: 1, ease: EASE, delay: 3.0 }}
+        transition={{ duration: 1, ease: EASE, delay: 1.3 }}
         style={{
           marginTop: 28,
           display: "flex",
