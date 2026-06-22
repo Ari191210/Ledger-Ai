@@ -671,6 +671,30 @@ export default function Home() {
         });
       });
 
+      /* Bento cards — 3D tilt (gentler than tool cards since cards are larger) */
+      gsap.utils.toArray<HTMLElement>(".bento-tilt").forEach(el => {
+        const onEnter = () => {
+          gsap.to(el, { y: -6, scale: 1.012, transformPerspective: 1400, duration: 0.32, ease: "power2.out", overwrite: "auto" });
+        };
+        const onMove = (e: MouseEvent) => {
+          const rect = el.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
+          const y = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
+          gsap.to(el, { rotationY: x * 7, rotationX: -y * 5, transformPerspective: 1400, duration: 0.25, ease: "power2.out", overwrite: "auto" });
+        };
+        const onLeave = () => {
+          gsap.to(el, { y: 0, scale: 1, rotationY: 0, rotationX: 0, duration: 0.6, ease: "power3.out", overwrite: "auto" });
+        };
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mousemove",  onMove);
+        el.addEventListener("mouseleave", onLeave);
+        hoverListeners.push(() => {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mousemove",  onMove);
+          el.removeEventListener("mouseleave", onLeave);
+        });
+      });
+
       /* Testimonial nav arrows */
       gsap.utils.toArray<HTMLElement>(".testim-arrow-prev").forEach(el =>
         addHover(el,
@@ -1059,7 +1083,7 @@ export default function Home() {
 
           <div className="bento-grid">
             {/* Big upload card — spans 8 cols */}
-            <div className="bento-3 gl-pane" style={{ padding: "48px", borderRadius: 20, minHeight: 280, position: "relative", overflow: "hidden" }}>
+            <div className="bento-3 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 280, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
               <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
               <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px" }}>Your syllabus becomes your year.</h3>
@@ -1067,7 +1091,7 @@ export default function Home() {
             </div>
 
             {/* Boards stat card — spans 4 cols */}
-            <div className="bento-1 gl-pane" style={{ padding: "40px 32px", borderRadius: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div className="bento-1 bento-tilt" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
               <div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
@@ -1076,7 +1100,7 @@ export default function Home() {
             </div>
 
             {/* Study card — spans 6 */}
-            <div className="bento-2 gl-pane" style={{ padding: "48px", borderRadius: 20, minHeight: 240, position: "relative", overflow: "hidden" }}>
+            <div className="bento-2 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 240, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
               <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
               <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>55 tools, one login, one streak.</h3>
@@ -1084,7 +1108,7 @@ export default function Home() {
             </div>
 
             {/* AI tools stat card — spans 6 */}
-            <div className="bento-2 gl-pane" style={{ padding: "40px 36px", borderRadius: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div className="bento-2 bento-tilt" style={{ padding: "40px 36px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
               <div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
@@ -1093,7 +1117,7 @@ export default function Home() {
             </div>
 
             {/* Score card — full width */}
-            <div className="bento-4 gl-pane" style={{ padding: "48px 56px", borderRadius: 20, display: "flex", gap: 64, alignItems: "center", flexWrap: "wrap" as const }}>
+            <div className="bento-4 bento-tilt" style={{ padding: "48px 56px", borderRadius: 16, display: "flex", gap: 64, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <div style={{ flex: "1 1 320px" }}>
                 <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
                 <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One number. Every insight.</h3>

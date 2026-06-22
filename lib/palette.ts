@@ -1,5 +1,5 @@
 export const PALETTE_IDS = [
-  "ledger", "void", "dusk", "amber", "rose", "frost", "forest", "ember",
+  "ledger", "paper", "void", "dusk", "amber", "rose", "frost", "forest", "ember",
 ] as const
 
 export type PaletteId = (typeof PALETTE_IDS)[number]
@@ -31,6 +31,16 @@ export const PALETTE_META: Record<PaletteId, PaletteDef> = {
     rule: "rgba(167,190,211,0.20)", rule2: "rgba(167,190,211,0.08)",
     glowA: "rgba(255,202,175,0.20)", glowB: "rgba(167,190,211,0.12)",
     highlight: "rgba(255,202,175,0.16)",
+  },
+  paper: {
+    name: "Paper",
+    description: "Warm parchment with dark ink and terracotta accent",
+    paper: "#f7f3ec",    paper2: "#ede8e0",
+    ink: "#1a1410",      ink2: "#4a3f35",       ink3: "#7a6f65",
+    accent: "#c2410c",   accentMid: "#9a3412",
+    rule: "rgba(26,20,16,0.14)", rule2: "rgba(26,20,16,0.07)",
+    glowA: "rgba(194,65,12,0.14)", glowB: "rgba(154,52,18,0.07)",
+    highlight: "rgba(194,65,12,0.10)",
   },
   void: {
     name: "Void",

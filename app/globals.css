@@ -617,6 +617,17 @@ button:not(.btn):not([class*=”ui-btn”]):disabled {
 .bento-3  { grid-column: span 8; }
 .bento-4  { grid-column: span 12; }
 .bento-tall { grid-row: span 2; }
+.bento-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: box-shadow 300ms ease;
+}
+.bento-tilt:hover {
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.22),
+    0 8px 16px rgba(0,0,0,0.14),
+    0 0 0 1px color-mix(in srgb, var(--cinnabar-ink) 20%, transparent);
+}
 
 @media (max-width: 900px) {
   .bento-1, .bento-2, .bento-3, .bento-4 { grid-column: span 12; }

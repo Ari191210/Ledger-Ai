@@ -8,6 +8,7 @@ import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_
 
 const PALETTE_DESC: Record<PaletteId, string> = {
   ledger: "Dark charcoal with warm peach and cream",
+  paper:  "Warm parchment with dark ink and terracotta accent",
   void:   "AMOLED true black with electric violet",
   dusk:   "Deep navy with soft indigo",
   amber:  "Warm dark with golden amber",
