@@ -1,5 +1,6 @@
 "use client"
 import * as React from "react"
+import { motion, useReducedMotion, type Easing } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
 
@@ -24,35 +25,39 @@ interface DockIconButtonProps {
 const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
   ({ icon: Icon, label, onClick, active, className }, ref) => {
     return (
-      <button
-        ref={ref}
+      <motion.button
+        ref={ref as React.Ref<HTMLButtonElement>}
+        whileHover={{ scale: 1.12, y: -3 }}
+        whileTap={{ scale: 0.93 }}
         onClick={onClick}
-        className={cn(
-          "relative group p-3 rounded-xl transition-all duration-150",
-          active ? "bg-[var(--cinnabar)]/15" : "hover:bg-[var(--paper-2)]",
-          className
-        )}
-        style={{ transform: "translateY(0)", transition: "transform 150ms ease, background 150ms ease" }}
-        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.1)" }}
-        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(1)" }}
-        onMouseDown={e  => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.95)" }}
-        onMouseUp={e    => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.1)" }}
+        aria-label={label}
+        aria-current={active ? "page" : undefined}
+        className={cn("relative group p-3 rounded-xl", className)}
+        style={{
+          background: active
+            ? "color-mix(in srgb, var(--cinnabar-ink) 12%, transparent)"
+            : "transparent",
+          border: "none",
+          cursor: "pointer",
+          transition: "background 150ms ease",
+        }}
       >
         <Icon
-          className={cn(
-            "w-5 h-5 transition-colors",
-            active ? "text-[var(--cinnabar)]" : "text-[var(--ink-2)]"
-          )}
+          size={20}
+          strokeWidth={active ? 2.4 : 1.8}
+          style={{ color: active ? "var(--cinnabar-ink)" : "var(--ink-2)" }}
+          aria-hidden
         />
         <span
           className={cn(
             "absolute -top-9 left-1/2 -translate-x-1/2",
-            "px-2 py-1 rounded-md text-xs font-mono tracking-wide",
+            "px-2 py-1 rounded-md text-xs border",
             "opacity-0 group-hover:opacity-100",
-            "transition-opacity whitespace-nowrap pointer-events-none",
-            "border"
+            "transition-opacity whitespace-nowrap pointer-events-none"
           )}
           style={{
+            fontFamily: "var(--mono)",
+            letterSpacing: "0.08em",
             background: "var(--paper-2)",
             color: "var(--ink-2)",
             borderColor: "var(--rule)",
@@ -60,7 +65,7 @@ const DockIconButton = React.forwardRef<HTMLButtonElement, DockIconButtonProps>(
         >
           {label}
         </span>
-      </button>
+      </motion.button>
     )
   }
 )
@@ -68,22 +73,16 @@ DockIconButton.displayName = "DockIconButton"
 
 const Dock = React.forwardRef<HTMLDivElement, DockProps>(
   ({ items, className }, ref) => {
+    const prefersReduced = useReducedMotion()
+
     return (
       <div
         ref={ref}
-        className={cn(
-          "fixed bottom-6 left-1/2 -translate-x-1/2 z-50",
-          className
-        )}
-        style={{ animation: "dock-float 4s ease-in-out infinite" }}
+        className={cn("fixed bottom-5 left-1/2 -translate-x-1/2 z-50", className)}
       >
-        <style>{`
-          @keyframes dock-float {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50%       { transform: translateX(-50%) translateY(4px); }
-          }
-        `}</style>
-        <div
+        <motion.div
+          animate={prefersReduced ? undefined : { y: [-2, 2, -2] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" as Easing }}
           className="flex items-center gap-0.5 p-2 rounded-2xl border backdrop-blur-xl shadow-lg"
           style={{
             background: "color-mix(in oklch, var(--paper) 88%, transparent)",
@@ -93,7 +92,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
           {items.map((item) => (
             <DockIconButton key={item.label} {...item} />
           ))}
-        </div>
+        </motion.div>
       </div>
     )
   }
