@@ -242,11 +242,13 @@ export default function AppNav() {
       <CommandPalette />
 
       {/* ── Top nav bar ── */}
-      <nav role="navigation" aria-label="Main navigation" className="gl-pane" style={{
-        position: "sticky", top: 0, zIndex: 100,
-        borderBottom: "1px solid var(--rule)",
+      <nav role="navigation" aria-label="Main navigation" className="gl-pane float-nav" style={{
+        position: "fixed", top: 12, left: 16, right: 16, zIndex: 100,
+        border: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
-        transform: navVisible ? "translateY(0)" : "translateY(-100%)",
+        borderRadius: 14,
+        overflow: "hidden",
+        transform: navVisible ? "translateY(0)" : "translateY(-80px)",
         transition: "transform 0.55s cubic-bezier(0.16,1,0.3,1)",
       }}>
         <Link
@@ -402,6 +404,9 @@ export default function AppNav() {
           </div>
         )}
       </nav>
+
+      {/* Spacer: compensates for fixed nav (52px height + 12px top + 12px clearance) */}
+      <div style={{ height: 76 }} aria-hidden="true" />
 
       {/* ── Sidebar backdrop ── */}
       {open && (
