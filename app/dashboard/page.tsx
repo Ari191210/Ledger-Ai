@@ -1196,7 +1196,7 @@ export default function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", paddingBottom: 14, marginBottom: 20 }}>
           <div style={{ fontFamily: "var(--serif)", fontSize: 26, fontStyle: "italic", fontWeight: 500 }}>The Archive</div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>41 tools · click to open</div>
+          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>55 tools · click to open</div>
         </div>
 
         {/* Your top tools — personalised by usage */}

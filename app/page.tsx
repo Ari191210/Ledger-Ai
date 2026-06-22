@@ -87,12 +87,12 @@ const STATS = [
 ] as const;
 
 const TICKER = [
-  "Forty-one tools. One score.",
+  "55 tools. One score.",
   "14,382 timetables generated this week",
   "Average user recovered 7.4 hours per week",
   "Chemistry is the most-feared subject in CBSE Class 12",
   "Peer heatmap: Conic Sections trending +41% — Week 16",
-  "Forty-one tools. One streak. One score.",
+  "55 tools. One streak. One score.",
   "Debt meter holders revised 2.6x more often",
 ];
 
@@ -1047,7 +1047,7 @@ export default function Home() {
               <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Toolkit</span>
                 <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>51</div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>55</div>
                   <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.8 }}>
                     <li>· Study Engine</li>
                     <li>· Practice Suite</li>
