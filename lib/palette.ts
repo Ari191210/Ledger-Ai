@@ -1,5 +1,7 @@
 export const PALETTE_IDS = [
-  "ledger", "paper", "void", "dusk", "amber", "rose", "frost", "forest", "ember",
+  "ledger", "paper", "paper-rose", "paper-frost", "paper-forest",
+  "paper-amber", "paper-ember", "paper-plum", "paper-slate",
+  "void", "dusk", "amber", "rose", "frost", "forest", "ember",
   "midnight", "ocean", "sage", "crimson", "gold", "slate", "copper", "plum",
 ] as const
 
@@ -20,6 +22,7 @@ export interface PaletteDef {
   glowA: string
   glowB: string
   highlight: string
+  isLight?: boolean
 }
 
 export const PALETTE_META: Record<PaletteId, PaletteDef> = {
@@ -42,6 +45,84 @@ export const PALETTE_META: Record<PaletteId, PaletteDef> = {
     rule: "rgba(28,25,23,0.09)", rule2: "rgba(28,25,23,0.05)",
     glowA: "rgba(124,58,237,0.12)", glowB: "rgba(109,40,217,0.06)",
     highlight: "rgba(124,58,237,0.09)",
+    isLight: true,
+  },
+  "paper-rose": {
+    name: "Rose Light",
+    description: "Warm blush white with rose red accent",
+    paper: "#fff9fb",    paper2: "#fef2f5",
+    ink: "#1c0810",      ink2: "#7a4858",       ink3: "#b08898",
+    accent: "#e11d48",   accentMid: "#be123c",
+    rule: "rgba(28,8,16,0.08)",  rule2: "rgba(28,8,16,0.04)",
+    glowA: "rgba(225,29,72,0.12)", glowB: "rgba(190,18,60,0.06)",
+    highlight: "rgba(225,29,72,0.09)",
+    isLight: true,
+  },
+  "paper-frost": {
+    name: "Frost Light",
+    description: "Cool ice white with sky blue accent",
+    paper: "#f8fbff",    paper2: "#eef5ff",
+    ink: "#0a1624",      ink2: "#3a5878",       ink3: "#6888a8",
+    accent: "#0284c7",   accentMid: "#0369a1",
+    rule: "rgba(10,22,36,0.08)", rule2: "rgba(10,22,36,0.04)",
+    glowA: "rgba(2,132,199,0.12)", glowB: "rgba(3,105,161,0.06)",
+    highlight: "rgba(2,132,199,0.09)",
+    isLight: true,
+  },
+  "paper-forest": {
+    name: "Forest Light",
+    description: "Cream white with forest green accent",
+    paper: "#f8fdf9",    paper2: "#eefaf2",
+    ink: "#0a1c10",      ink2: "#3a6448",       ink3: "#68a080",
+    accent: "#15803d",   accentMid: "#166534",
+    rule: "rgba(10,28,16,0.08)", rule2: "rgba(10,28,16,0.04)",
+    glowA: "rgba(21,128,61,0.12)", glowB: "rgba(22,101,52,0.06)",
+    highlight: "rgba(21,128,61,0.09)",
+    isLight: true,
+  },
+  "paper-amber": {
+    name: "Amber Light",
+    description: "Warm cream with golden amber accent",
+    paper: "#fffdf5",    paper2: "#fef9e7",
+    ink: "#1c1502",      ink2: "#6a5010",       ink3: "#a88848",
+    accent: "#d97706",   accentMid: "#b45309",
+    rule: "rgba(28,21,2,0.08)",  rule2: "rgba(28,21,2,0.04)",
+    glowA: "rgba(217,119,6,0.12)", glowB: "rgba(180,83,9,0.06)",
+    highlight: "rgba(217,119,6,0.09)",
+    isLight: true,
+  },
+  "paper-ember": {
+    name: "Ember Light",
+    description: "Warm white with burnt orange accent",
+    paper: "#fff8f5",    paper2: "#fff0e8",
+    ink: "#1c0a02",      ink2: "#7a3018",       ink3: "#b07058",
+    accent: "#ea580c",   accentMid: "#c2410c",
+    rule: "rgba(28,10,2,0.08)",  rule2: "rgba(28,10,2,0.04)",
+    glowA: "rgba(234,88,12,0.12)", glowB: "rgba(194,65,12,0.06)",
+    highlight: "rgba(234,88,12,0.09)",
+    isLight: true,
+  },
+  "paper-plum": {
+    name: "Plum Light",
+    description: "Soft white with vivid fuchsia accent",
+    paper: "#fdf8ff",    paper2: "#f8eeff",
+    ink: "#180820",      ink2: "#683488",       ink3: "#a870c0",
+    accent: "#a21caf",   accentMid: "#86198f",
+    rule: "rgba(24,8,32,0.08)",  rule2: "rgba(24,8,32,0.04)",
+    glowA: "rgba(162,28,175,0.12)", glowB: "rgba(134,25,143,0.06)",
+    highlight: "rgba(162,28,175,0.09)",
+    isLight: true,
+  },
+  "paper-slate": {
+    name: "Slate Light",
+    description: "Cool gray-white with deep slate accent",
+    paper: "#f8fafc",    paper2: "#f1f5f9",
+    ink: "#0f172a",      ink2: "#475569",       ink3: "#94a3b8",
+    accent: "#334155",   accentMid: "#1e293b",
+    rule: "rgba(15,23,42,0.08)", rule2: "rgba(15,23,42,0.04)",
+    glowA: "rgba(51,65,85,0.12)", glowB: "rgba(30,41,59,0.06)",
+    highlight: "rgba(51,65,85,0.09)",
+    isLight: true,
   },
   void: {
     name: "Void",
@@ -217,6 +298,8 @@ export function applyPalette(p: PaletteId) {
     root.style.setProperty(cssVar, def[key] as string)
   }
   root.dataset.palette = p
+  if (def.isLight) root.dataset.mode = "light"
+  else delete root.dataset.mode
   localStorage.setItem("palette", p)
   window.dispatchEvent(new CustomEvent("ledger-palette", { detail: p }))
 }

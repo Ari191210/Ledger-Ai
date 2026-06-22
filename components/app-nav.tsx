@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
+import { applyPalette, getActivePalette, PALETTE_META, type PaletteId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
@@ -160,7 +160,11 @@ export default function AppNav() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     setActiveTheme(getActivePalette());
-    const handler = (e: Event) => setActiveTheme((e as CustomEvent<PaletteId>).detail);
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<PaletteId>).detail;
+      setActiveTheme(detail);
+      if (PALETTE_META[detail]?.isLight) localStorage.setItem("ledger-last-light", detail);
+    };
     window.addEventListener("ledger-palette", handler);
     return () => window.removeEventListener("ledger-palette", handler);
   }, []);
@@ -173,7 +177,7 @@ export default function AppNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [path]);
 
-  const isLight = activeTheme === "paper";
+  const isLight = !!PALETTE_META[activeTheme]?.isLight;
 
   function toggleLightDark() {
     if (isLight) {
@@ -182,9 +186,13 @@ export default function AppNav() {
       applyPalette(target);
       setActiveTheme(target);
     } else {
-      if (typeof window !== "undefined") localStorage.setItem("ledger-last-dark", activeTheme);
-      applyPalette("paper");
-      setActiveTheme("paper");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ledger-last-dark", activeTheme);
+        const lastLight = localStorage.getItem("ledger-last-light") as PaletteId | null;
+        const target = (lastLight && PALETTE_META[lastLight]?.isLight) ? lastLight : "paper";
+        applyPalette(target);
+        setActiveTheme(target);
+      }
     }
   }
 

@@ -9,23 +9,30 @@ import { FontPicker } from "./_font-picker";
 import { ColorBuilder } from "./_color-builder";
 
 const PALETTE_DESC: Record<PaletteId, string> = {
-  ledger:   "Dark charcoal · warm peach & cream",
-  paper:    "Parchment · dark ink · terracotta",
-  void:     "AMOLED black · electric violet",
-  dusk:     "Deep navy · soft indigo",
-  amber:    "Warm dark · golden amber",
-  rose:     "Deep dark · rose pink",
-  frost:    "Arctic dark · sky blue",
-  forest:   "Forest dark · mint green",
-  ember:    "Deep dark · burnt orange",
-  midnight: "Deep black · electric violet",
-  ocean:    "Abyssal dark · ice blue",
-  sage:     "Forest dark · emerald",
-  crimson:  "Dark · deep crimson red",
-  gold:     "Rich dark · antique gold",
-  slate:    "Near-black · cool slate",
-  copper:   "Dark · burnished copper",
-  plum:     "Dark · vivid fuchsia",
+  ledger:        "Dark charcoal · warm peach & cream",
+  paper:         "Warm white · violet accent",
+  "paper-rose":  "Blush white · rose red accent",
+  "paper-frost": "Ice white · sky blue accent",
+  "paper-forest":"Cream white · forest green accent",
+  "paper-amber": "Warm cream · golden amber accent",
+  "paper-ember": "Warm white · burnt orange accent",
+  "paper-plum":  "Soft white · fuchsia plum accent",
+  "paper-slate": "Cool gray-white · slate accent",
+  void:          "AMOLED black · electric violet",
+  dusk:          "Deep navy · soft indigo",
+  amber:         "Warm dark · golden amber",
+  rose:          "Deep dark · rose pink",
+  frost:         "Arctic dark · sky blue",
+  forest:        "Forest dark · mint green",
+  ember:         "Deep dark · burnt orange",
+  midnight:      "Deep black · electric violet",
+  ocean:         "Abyssal dark · ice blue",
+  sage:          "Forest dark · emerald",
+  crimson:       "Dark · deep crimson red",
+  gold:          "Rich dark · antique gold",
+  slate:         "Near-black · cool slate",
+  copper:        "Dark · burnished copper",
+  plum:          "Dark · vivid fuchsia",
 };
 
 const DENSITY_OPTIONS: { id: Density; label: string; sub: string }[] = [
@@ -129,8 +136,39 @@ export default function PersonalisePage() {
         <section style={{ paddingTop: 56, marginBottom: 8 }}>
           <div style={CARD}>
             <SectionHead n="01 · Colour Palette" label="Make Ledger yours." right={`${PALETTE_IDS.length} themes · applies instantly`} />
+
+            {/* Light palettes */}
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>☀ Light</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10, marginBottom: 28 }}>
+              {PALETTE_IDS.filter(p => PALETTE_META[p].isLight).map((p) => {
+                const pm = PALETTE_META[p];
+                const isAct = active === p;
+                return (
+                  <button key={p} onClick={() => pick(p)} style={{
+                    border: "none", padding: 0, cursor: "pointer", textAlign: "left", background: "transparent",
+                    outline: isAct ? `2px solid ${pm.accent}` : "2px solid transparent",
+                    outlineOffset: 2, borderRadius: 12, transition: "outline-color 180ms",
+                  }}>
+                    <div style={{ background: pm.paper, borderRadius: 12, padding: "20px 18px", minHeight: 110, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: pm.accent }} />
+                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: pm.ink, lineHeight: 1, marginBottom: 10, letterSpacing: "-0.02em" }}>{pm.name}</div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: pm.ink, opacity: 0.38, lineHeight: 1.5 }}>{PALETTE_DESC[p]}</div>
+                      <div style={{ display: "flex", gap: 4, marginTop: 12, alignItems: "center" }}>
+                        <div style={{ width: 14, height: 14, borderRadius: "50%", background: pm.accent }} />
+                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: pm.ink, opacity: 0.7 }} />
+                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: pm.ink, opacity: 0.3 }} />
+                        {isAct && <div style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 7, background: pm.accent, color: pm.paper, padding: "2px 6px" }}>✓</div>}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Dark palettes */}
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>☾ Dark</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-              {PALETTE_IDS.map((p) => {
+              {PALETTE_IDS.filter(p => !PALETTE_META[p].isLight).map((p) => {
                 const pm = PALETTE_META[p];
                 const isAct = active === p;
                 return (

@@ -231,58 +231,48 @@
 }
 
 /* --- Light mode overrides --------------------------------------------------------- */
-[data-palette=”paper”] {
+[data-mode=”light”] {
   --elev-1: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
   --elev-2: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
   --elev-3: 0 8px 16px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.03);
   --elev-4: 0 16px 32px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.02);
 }
-[data-palette=”paper”] html,
-[data-palette=”paper”] body { background: var(--paper); }
+[data-mode=”light”] html,
+[data-mode=”light”] body { background: var(--paper); }
 
-[data-palette=”paper”] .gl-pane {
-  background: rgba(255,255,255,0.82) !important;
+[data-mode=”light”] .gl-pane {
+  background: color-mix(in srgb, var(--paper) 86%, transparent) !important;
   box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.04) !important;
 }
-[data-palette=”paper”] .gl-pane-alt {
-  background: rgba(245,245,244,0.88) !important;
+[data-mode=”light”] .gl-pane-alt {
+  background: color-mix(in srgb, var(--paper) 92%, transparent) !important;
   box-shadow: none !important;
 }
-[data-palette=”paper”] .glass-card {
-  background: rgba(255,255,255,0.78) !important;
-  border-color: rgba(28,25,23,0.08) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(28,25,23,0.06) !important;
+[data-mode=”light”] .glass-card {
+  background: color-mix(in srgb, var(--paper) 82%, transparent) !important;
+  border-color: var(--rule) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px var(--rule-2) !important;
 }
-[data-palette=”paper”] .bento-tilt:hover {
+[data-mode=”light”] .bento-tilt:hover {
   box-shadow: 0 12px 32px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.05),
-              0 0 0 1px rgba(124,58,237,0.18) !important;
+              0 0 0 1px color-mix(in srgb, var(--cinnabar-ink) 20%, transparent) !important;
 }
-[data-palette=”paper”] .btn {
-  background: #1c1917 !important;
-  color: #fafaf9 !important;
-  border-color: #1c1917 !important;
+[data-mode=”light”] .btn {
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  border-color: var(--ink) !important;
 }
-[data-palette=”paper”] .btn:hover {
-  background: #292524 !important;
+[data-mode=”light”] .btn:hover {
+  background: color-mix(in srgb, var(--ink) 85%, transparent) !important;
 }
-[data-palette=”paper”] .scroll-cue span {
-  background: rgba(28,25,23,0.25) !important;
+[data-mode=”light”] .scroll-cue span {
+  background: color-mix(in srgb, var(--ink) 25%, transparent) !important;
 }
-[data-palette=”paper”] .ticker-track {
+[data-mode=”light”] .ticker-track {
   color: var(--ink-2) !important;
 }
-[data-palette=”paper”] .hero-product-reveal {
+[data-mode=”light”] .hero-product-reveal {
   background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%) !important;
-}
-[data-palette=”paper”] .hero-product-reveal .reveal-card {
-  background: rgba(255,255,255,0.90) !important;
-  border-color: rgba(28,25,23,0.08) !important;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.08), 0 0 0 1px rgba(28,25,23,0.06) !important;
-  color: var(--ink) !important;
-}
-[data-palette=”paper”] .hero-product-reveal .reveal-card span,
-[data-palette=”paper”] .hero-product-reveal .reveal-card div {
-  color: var(--ink-3) !important;
 }
 
 /* --- Glass panels ----------------------------------------------------------------- */
