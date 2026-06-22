@@ -146,8 +146,8 @@ const TIERS = [
 const S = {
   cap:       { fontFamily: "var(--mono)", fontSize: 10, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)" },
   capAccent: { fontFamily: "var(--mono)", fontSize: 10, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)" },
-  h2:        { fontFamily: "var(--serif)", fontSize: "clamp(26px,3.5vw,40px)", fontStyle: "normal" as const, fontWeight: 700, color: "var(--ink)", letterSpacing: "0.04em", lineHeight: 1.1 },
-  body:      { fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-3)", lineHeight: 1.7 },
+  h2:        { fontFamily: "var(--serif)", fontSize: "clamp(26px,3.5vw,40px)", fontStyle: "normal" as const, fontWeight: 700, color: "var(--ink)", letterSpacing: "0.04em", lineHeight: 1.2, textWrap: "balance" as const },
+  body:      { fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", lineHeight: 1.8, textWrap: "pretty" as const },
   rule:      { height: 1, background: "var(--rule)", width: "100%" },
   border:    "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
   borderInk: "1px solid var(--ink)",
@@ -879,10 +879,10 @@ export default function Home() {
 
       {/* ─── ChatGPT vs Ledger comparison ─── */}
       <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 56 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 64 }}>
             <h2 className="reveal-up" style={S.h2}>Why not just use ChatGPT?</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>
               Students ask this every day
@@ -957,7 +957,7 @@ export default function Home() {
             { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)" },
           ].map((s, i) => (
             <div key={i} className="trust-strip-item" style={{
-              padding: "36px 32px",
+              padding: "48px 40px",
               borderRight: i < 2 ? S.border : "none",
               display: "flex", flexDirection: "column", gap: 8,
             }}>
@@ -970,18 +970,18 @@ export default function Home() {
 
       {/* ─── 01 / Upload → Study → Score workflow ─── */}
       <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "140px 56px 120px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
-          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(24px,3vw,40px)", letterSpacing: "-0.02em", marginBottom: 40 }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "180px 56px 160px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
+          <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(24px,3vw,40px)", letterSpacing: "-0.02em", marginBottom: 56 }}>
             How it works.
           </h2>
 
           <div className="bento-grid">
             {/* Big upload card — spans 8 cols */}
-            <div className="bento-3 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 280, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-3 bento-tilt" style={{ padding: "60px", borderRadius: 16, minHeight: 300, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
               <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
-              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px" }}>Your syllabus becomes your year.</h3>
+              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px", textWrap: "balance" }}>Your syllabus becomes your year.</h3>
               <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7, maxWidth: 460 }}>Upload a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in 6 seconds.</p>
             </div>
 
@@ -995,15 +995,15 @@ export default function Home() {
             </div>
 
             {/* Study card — spans 6 */}
-            <div className="bento-2 bento-tilt" style={{ padding: "48px", borderRadius: 16, minHeight: 240, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-2 bento-tilt" style={{ padding: "56px", borderRadius: 16, minHeight: 260, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
               <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
-              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One login. Every tool you need.</h3>
+              <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px", textWrap: "balance" }}>One login. Every tool you need.</h3>
               <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>Doubt solver, essay workshop, past papers, prediction engine. All tools share the same score, same streak, same profile.</p>
             </div>
 
             {/* AI tools stat card — spans 6 */}
-            <div className="bento-2 bento-tilt" style={{ padding: "40px 36px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-2 bento-tilt" style={{ padding: "52px 44px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
               <div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
@@ -1012,22 +1012,22 @@ export default function Home() {
             </div>
 
             {/* Score card — full width */}
-            <div className="bento-4 bento-tilt" style={{ padding: "48px 56px", borderRadius: 16, display: "flex", gap: 64, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-4 bento-tilt" style={{ padding: "60px 68px", borderRadius: 16, display: "flex", gap: 72, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
               <div style={{ flex: "1 1 320px" }}>
                 <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
-                <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px" }}>One number. Every insight.</h3>
+                <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px", textWrap: "balance" }}>One number. Every insight.</h3>
                 <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7 }}>Ledger Score runs on four signals — past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency — updated every time you use any tool.</p>
               </div>
-              <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[
                   { n: "40%", l: "PYQ Accuracy", c: "var(--cinnabar-ink)" },
                   { n: "25%", l: "Syllabus",      c: "var(--powder-blue)" },
                   { n: "20%", l: "Mistakes",      c: "var(--cream)" },
                   { n: "15%", l: "Consistency",   c: "var(--tan)" },
                 ].map((p, i) => (
-                  <div key={i} style={{ padding: "20px 18px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))`, border: `1px solid color-mix(in srgb, ${p.c} 25%, transparent)` }}>
+                  <div key={i} style={{ padding: "24px 20px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))`, border: `1px solid color-mix(in srgb, ${p.c} 25%, transparent)` }}>
                     <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: p.c, lineHeight: 1 }}>{p.n}</div>
-                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 6 }}>{p.l}</div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 8 }}>{p.l}</div>
                   </div>
                 ))}
               </div>
@@ -1038,15 +1038,15 @@ export default function Home() {
 
       {/* ─── 02 / Ledger Score ─── */}
       <section id="score" className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 48 }}>
             <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
             <div style={{ ...S.cap, fontSize: 9 }}>Tool — · Live preview</div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 12 }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 20 }} className="mob-col">
             {/* Sliders */}
             <div className="glass-card" style={{ padding: "32px 32px" }}>
               <div style={S.capAccent}>Adjust your activity</div>
@@ -1145,23 +1145,23 @@ export default function Home() {
 
       {/* ─── 03 / The System ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
-          <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "start" }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 72, alignItems: "start" }} className="mob-col">
             <div>
               <h2 className="reveal-up" style={S.h2}>
                 Every session moves the number.
               </h2>
-              <div className="anim-divider" style={{ ...S.rule, margin: "20px 0" }} />
+              <div className="anim-divider" style={{ ...S.rule, margin: "28px 0" }} />
               <p className="reveal-body" style={{ ...S.body, fontStyle: "italic" }}>
                 Your Ledger Score accounts for past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency — updated in real time.
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }} className="mob-col">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }} className="mob-col">
               {/* Score */}
-              <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.capAccent}>Ledger Score</span>
                 <div>
                   <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>0</div>
@@ -1173,7 +1173,7 @@ export default function Home() {
               </div>
 
               {/* Toolkit */}
-              <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Toolkit</span>
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>55</div>
@@ -1186,7 +1186,7 @@ export default function Home() {
               </div>
 
               {/* Streak */}
-              <div className="bento-card glass-card" style={{ padding: "28px 24px", minHeight: 220, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Focus Streak</span>
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>
@@ -1206,10 +1206,10 @@ export default function Home() {
 
       {/* ─── 04 / Featured Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 40 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 56 }}>
             <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
               6 categories · browse below
@@ -1217,7 +1217,7 @@ export default function Home() {
           </div>
 
           {/* Search */}
-          <div style={{ marginBottom: 48 }}>
+          <div style={{ marginBottom: 64 }}>
             <GooeyInput
               value={toolSearch}
               onChange={setToolSearch}
@@ -1256,7 +1256,7 @@ export default function Home() {
               </div>
             );
             return (
-              <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visible.length, 3)}, 1fr)`, gap: 32 }}>
+              <div className="cubes-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(visible.length, 3)}, 1fr)`, gap: 40 }}>
                 {visible.map(t => {
                   const c = CAT_COLOR[t.cat] ?? "var(--cinnabar-ink)";
                   return (
@@ -1268,14 +1268,13 @@ export default function Home() {
                         textDecoration: "none",
                         display: "flex",
                         flexDirection: "column",
-                        padding: "28px 24px 22px",
+                        padding: "36px 28px 28px",
                         background: `color-mix(in srgb, ${c} 14%, var(--paper))`,
                         border: `1.5px solid color-mix(in srgb, ${c} 45%, transparent)`,
                         borderRadius: 12,
                         boxShadow: `7px 7px 0 0 color-mix(in srgb, ${c} 60%, transparent)`,
                         cursor: "pointer",
-                        minHeight: 210,
-                        transition: "box-shadow 220ms ease",
+                        minHeight: 220,
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
@@ -1303,19 +1302,19 @@ export default function Home() {
 
       {/* ─── 06 / Key Features ─── */}
       <section id="features" className="gl-pane-alt" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 40 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 56 }}>
             <h2 className="reveal-up" style={S.h2}>Features nobody else ships.</h2>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>What makes Ledger different</span>
           </div>
 
           {/* Top 3 — signature cards with left cinnabar accent */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginBottom: 24 }} className="mob-col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28, marginBottom: 28 }} className="mob-col">
             {FEATS.slice(0, 3).map((f, i) => (
               <div className="feat-card glass-card bento-tilt" key={f.tag} style={{
-                padding: "36px 28px",
+                padding: "44px 32px",
                 borderTop: "2px solid var(--cinnabar-ink)",
                 display: "flex", flexDirection: "column", justifyContent: "space-between",
               }}>
@@ -1385,17 +1384,17 @@ export default function Home() {
 
       {/* ─── 07 / Field Reports ─── */}
       <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 32 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 48 }}>
             <h2 className="reveal-up" style={S.h2}>What students actually say.</h2>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{ ...S.cap, fontSize: 9 }}>n=11,482 · Self-reported · Apr &apos;26</div>
               <div style={{ display: "flex", gap: 6 }}>
-                <button className="testim-arrow-prev" onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+                <button aria-label="Previous testimonial" className="testim-arrow-prev" onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
                   style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>←</button>
-                <button className="testim-arrow-next" onClick={() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length)}
+                <button aria-label="Next testimonial" className="testim-arrow-next" onClick={() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length)}
                   style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>→</button>
               </div>
             </div>
@@ -1423,7 +1422,7 @@ export default function Home() {
               &ldquo;
             </div>
 
-            <div style={{ padding: "32px 36px 28px", position: "relative" }}>
+            <div className="testim-body" style={{ padding: "44px 48px 40px", position: "relative" }}>
               <div style={{ ...S.capAccent, fontSize: 9, marginBottom: 22 }}>Dispatch No.{String(testimIdx + 1).padStart(2, "0")}</div>
 
               {/* Quote with left annotation border */}
@@ -1437,6 +1436,7 @@ export default function Home() {
                 maxWidth:     780,
                 color:        "var(--ink)",
                 fontWeight:   400,
+                textWrap:     "pretty",
                 borderLeft:   "2px solid var(--ink-3)",
                 paddingLeft:  24,
               }}>
@@ -1468,13 +1468,13 @@ export default function Home() {
           </div>
 
           {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginTop: 16 }} className="mob-2col">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginTop: 32 }} className="mob-2col">
             {STATS.map(({ big, suffix, sm }, i) => (
               <div
                 className="stat-card glass-card"
                 key={i}
                 style={{
-                  padding:     "32px 24px 28px",
+                  padding:     "40px 28px 36px",
                   borderTop:   "2px solid var(--cinnabar-ink)",
                   position:    "relative",
                   borderRadius: 14,
@@ -1543,7 +1543,7 @@ export default function Home() {
 
       {/* ─── Waitlist ─── */}
       <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
-        <div style={{ maxWidth: 680, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "120px 24px 100px", textAlign: "center" }}>
           <div style={{ ...S.capAccent, marginBottom: 20 }}>Exam-Day Mode — Join the waitlist</div>
           <h2 style={{ fontFamily: "var(--sans)", fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.2, marginBottom: 12 }}>
             <span style={{ fontFamily: "var(--mono)", color: "var(--cinnabar-ink)" }}>3,204</span> students are waiting.

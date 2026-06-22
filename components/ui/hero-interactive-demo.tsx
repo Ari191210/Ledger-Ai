@@ -99,9 +99,9 @@ function daysUntil(dateStr: string) {
 }
 
 function barColor(pct: number) {
-  if (pct >= 70) return "rgba(74,222,128,0.75)";
-  if (pct >= 50) return "rgba(255,202,175,0.85)";
-  return "rgba(251,113,133,0.80)";
+  if (pct >= 70) return "color-mix(in srgb, var(--sage) 75%, transparent)";
+  if (pct >= 50) return "color-mix(in srgb, var(--ochre) 70%, transparent)";
+  return "color-mix(in srgb, var(--cinnabar-ink) 80%, transparent)";
 }
 
 function barLabel(pct: number) {
@@ -205,6 +205,7 @@ export function HeroInteractiveDemo() {
           />
           <input
             type="date"
+            aria-label="Exam date"
             min={today}
             value={examDate}
             onChange={e => setExamDate(e.target.value)}
@@ -303,12 +304,14 @@ export function HeroInteractiveDemo() {
                       {ch.name}
                     </div>
                     <div style={{ flex: 1, height: 5, background: "var(--rule)", borderRadius: 3, overflow: "hidden" }}>
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${ch.pct}%` }}
-                        transition={{ duration: 0.85, ease: EASE, delay: 0.25 + i * 0.07 }}
-                        style={{ height: "100%", background: barColor(ch.pct), borderRadius: 3 }}
-                      />
+                      <div style={{ width: `${ch.pct}%`, height: "100%", borderRadius: 3 }}>
+                        <motion.div
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.85, ease: EASE, delay: 0.25 + i * 0.07 }}
+                          style={{ height: "100%", background: barColor(ch.pct), borderRadius: 3, transformOrigin: "left" }}
+                        />
+                      </div>
                     </div>
                     <div style={{ width: 36, fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", flexShrink: 0 }}>
                       {barLabel(ch.pct)}
@@ -372,7 +375,7 @@ export function HeroInteractiveDemo() {
       </div>
 
       {/* spin keyframe */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @media (prefers-reduced-motion: reduce) { @keyframes spin { to { transform: none; } } }`}</style>
     </section>
   );
 }

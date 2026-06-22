@@ -655,7 +655,7 @@ button:not(.btn):not([class*=”ui-btn”]):disabled {
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
+  gap: 24px;
 }
 .bento-1  { grid-column: span 4; }
 .bento-2  { grid-column: span 6; }
@@ -1305,11 +1305,12 @@ img { image-rendering: auto; }
 .bento-card  { will-change: transform, opacity; transition: box-shadow 220ms ease, border-color 200ms ease; }
 .feat-card   { will-change: transform, opacity; }
 .stat-card   { will-change: transform, opacity; }
-.tool-item   { will-change: transform, opacity; transition: background 160ms ease, color 160ms ease; }
+.tool-item   { will-change: transform, box-shadow; transition: transform 200ms cubic-bezier(0.16,1,0.3,1), box-shadow 200ms cubic-bezier(0.16,1,0.3,1); }
 .footer-col  { will-change: transform, opacity; }
 
 /* â”€â”€â”€ Smooth hover on tool items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.tool-item:hover { background: color-mix(in srgb, var(--paper-2) 80%, transparent) !important; }
+.tool-item:hover { transform: translateY(-3px); }
+@media (prefers-reduced-motion: reduce) { .tool-item { transition: none !important; } .tool-item:hover { transform: none !important; } }
 
 /* â”€â”€â”€ Tool grid â€” mobile: 2-col instead of collapsing to 1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
@@ -1400,6 +1401,9 @@ main {
   /* Padding overrides */
   .mob-p  { padding: 20px 16px 56px !important; }
   .mob-hp { padding: 12px 16px !important; flex-wrap: wrap !important; gap: 6px !important; }
+
+  /* Testimonial card — reduce generous desktop padding on mobile */
+  .testim-body { padding: 28px 24px 24px !important; }
 
   /* Hide secondary info to save space */
   .mob-hide { display: none !important; }
