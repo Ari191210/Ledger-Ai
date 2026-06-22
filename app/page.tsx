@@ -7,6 +7,7 @@ import { GooeyInput } from "@/components/ui/gooey-input";
 import GlowHorizonFM from "@/components/ui/glow-horizon";
 import { AnimatedTitleFM } from "@/components/ui/glow-horizon-utils/animated-title-fm";
 import { HeroInteractiveDemo } from "@/components/ui/hero-interactive-demo";
+import { ProductWalkthrough } from "@/components/ui/product-walkthrough";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -873,6 +874,9 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ─── Product walkthrough ─── */}
+      <ProductWalkthrough />
+
       {/* ─── Trust strip ─── */}
       <div style={{ borderBottom: S.border, borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
@@ -1603,8 +1607,11 @@ export default function Home() {
             <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const, marginBottom: 20 }}>
               The Student&apos;s Operating System · Est. MMXXV
             </div>
+            <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", margin: "0 0 10px", lineHeight: 1.68, maxWidth: 250 }}>
+              Built by a student, for students. Not VC-funded. Not a feature of a bigger platform.
+            </p>
             <p style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", margin: 0, lineHeight: 1.68, maxWidth: 250 }}>
-              Independent, student-funded. We will never sell your study data.
+              Independent and student-funded. We will never sell your study data.
             </p>
           </div>
 
