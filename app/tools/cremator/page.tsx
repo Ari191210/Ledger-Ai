@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -947,29 +948,7 @@ export default function CrematorPage() {
           >
             Hours available per day
           </label>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <input
-              type="range"
-              min={1}
-              max={16}
-              step={0.5}
-              value={form.hoursPerDay}
-              onChange={(e) => setForm((f) => ({ ...f, hoursPerDay: e.target.value }))}
-              style={{ flex: 1, cursor: "pointer", accentColor: "var(--cinnabar)" }}
-            />
-            <span
-              style={{
-                fontFamily: "var(--mono)",
-                fontSize: 16,
-                fontWeight: 700,
-                color: "var(--ink)",
-                minWidth: 40,
-                textAlign: "right",
-              }}
-            >
-              {form.hoursPerDay}h
-            </span>
-          </div>
+          <ElasticSlider defaultValue={parseFloat(form.hoursPerDay)} startingValue={1} maxValue={16} isStepped stepSize={0.5} onChange={(v) => setForm((f) => ({ ...f, hoursPerDay: String(v) }))} />
           {form.examDate && (
             <div
               style={{

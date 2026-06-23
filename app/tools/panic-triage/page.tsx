@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -486,19 +487,7 @@ export default function PanicTriagePage() {
         {selectedExam && (
           <section style={{ marginBottom: "2rem" }}>
             <StepLabel number={2} text={`Hours remaining: ${hoursRemaining}h`} />
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <span style={{ color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: "0.85rem" }}>1h</span>
-              <input
-                type="range"
-                min={1}
-                max={12}
-                step={0.5}
-                value={hoursRemaining}
-                onChange={(e) => setHoursRemaining(parseFloat(e.target.value))}
-                style={{ flex: 1, accentColor: "var(--cinnabar)", cursor: "pointer" }}
-              />
-              <span style={{ color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: "0.85rem" }}>12h</span>
-            </div>
+            <ElasticSlider defaultValue={hoursRemaining} startingValue={1} maxValue={12} isStepped stepSize={0.5} onChange={setHoursRemaining} />
             <p
               style={{
                 textAlign: "center",

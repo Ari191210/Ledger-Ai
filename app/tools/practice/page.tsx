@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -155,7 +156,7 @@ export default function PracticeSuitePage() {
           </div>
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Number of problems: {count}</div>
-            <input type="range" min={3} max={10} value={count} onChange={e => setCount(Number(e.target.value))} style={{ width: "100%" }} />
+            <ElasticSlider defaultValue={count} startingValue={3} maxValue={10} isStepped stepSize={1} onChange={setCount} />
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
               <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>3</span>
               <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>10</span>

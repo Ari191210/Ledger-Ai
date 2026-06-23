@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
@@ -202,7 +203,7 @@ function MarksTab() {
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
               <span style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1 }}>{target}%</span>
             </div>
-            <input type="range" min="40" max="100" value={target} onChange={(e) => setTarget(+e.target.value)} style={{ width: "100%", accentColor: "var(--cinnabar-ink)", marginTop: 10 }} />
+            <ElasticSlider defaultValue={target} startingValue={40} maxValue={100} isStepped stepSize={1} onChange={setTarget} />
             <div className="mono" style={{ color: "var(--ink-3)", display: "flex", justifyContent: "space-between", marginTop: 4 }}><span>40%</span><span>70%</span><span>100%</span></div>
           </div>
         </div>
@@ -250,7 +251,7 @@ function MarksTab() {
                         <span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>What if {s.name} = {whatIfScore}%?</span>
                         {hypotheticalPct !== null && <span style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", fontWeight: 700 }}>{hypotheticalPct.toFixed(1)}%<span className="mono" style={{ fontSize: 11, marginLeft: 8, color: hypotheticalPct > currentPct ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>{hypotheticalPct > currentPct ? "+" : ""}{(hypotheticalPct - currentPct).toFixed(1)}%</span></span>}
                       </div>
-                      <input type="range" min={0} max={100} value={whatIfScore} onChange={e => setWhatIfScore(+e.target.value)} style={{ width: "100%", accentColor: "var(--cinnabar)" }} />
+                      <ElasticSlider defaultValue={whatIfScore} startingValue={0} maxValue={100} isStepped stepSize={1} onChange={setWhatIfScore} />
                       <div style={{ display: "flex", justifyContent: "space-between" }}><span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>0%</span><span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>100%</span></div>
                     </div>
                   )}
@@ -543,7 +544,7 @@ function ExamDebriefTab() {
               <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Sleep last night</div>
               <div className="mono" style={{ fontSize: 16, fontWeight: 700, color: parseFloat(form.sleepHours) < 6 ? "var(--cinnabar-ink)" : "var(--ink)" }}>{form.sleepHours}h</div>
             </div>
-            <input type="range" min={2} max={12} step={0.5} value={form.sleepHours} onChange={e => setForm(f => ({ ...f, sleepHours: e.target.value }))} style={{ width: "100%", accentColor: "var(--cinnabar-ink)" }} />
+            <ElasticSlider defaultValue={parseFloat(form.sleepHours)} startingValue={2} maxValue={12} isStepped stepSize={0.5} onChange={(v) => setForm(f => ({ ...f, sleepHours: String(v) }))} />
           </div>
           <div style={{ marginBottom: 28 }}>
             <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Anxiety level going in</div>

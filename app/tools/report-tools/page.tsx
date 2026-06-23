@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -261,7 +262,7 @@ function ModelAnswerTab() {
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Marks: {marks}</div>
-        <input type="range" min={1} max={25} value={marks} onChange={e => setMarks(Number(e.target.value))} style={{ width: "100%", cursor: "pointer" }} />
+        <ElasticSlider defaultValue={marks} startingValue={1} maxValue={25} isStepped stepSize={1} onChange={setMarks} />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>1</span>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>25</span>

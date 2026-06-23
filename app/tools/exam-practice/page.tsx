@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import TierGate from "@/components/tier-gate";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
 import { useAuth } from "@/components/auth-provider";
@@ -469,7 +470,7 @@ function PaperTriageTab() {
                 <label style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>{label}</label>
                 <div className="mono" style={{ fontSize: 14, fontWeight: 700 }}>{val}h</div>
               </div>
-              <input type="range" min={min} max={max} value={val} onChange={e => set(Number(e.target.value))} style={{ width: "100%", accentColor: "var(--cinnabar)" }} />
+              <ElasticSlider defaultValue={val} startingValue={min} maxValue={max} isStepped stepSize={1} onChange={set} />
             </div>
           ))}
           <div style={{ padding: "14px 18px", background: "var(--paper-2)", border: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
@@ -565,7 +566,7 @@ function CrunchTab() {
                 <span style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1 }}>{hoursLeft}</span>
                 <span className="mono" style={{ color: "var(--ink-3)" }}>hours left</span>
               </div>
-              <input type="range" min={4} max={48} step={1} value={hoursLeft} onChange={e => setHoursLeft(+e.target.value)} style={{ width: "100%", accentColor: "var(--cinnabar)" }} />
+              <ElasticSlider defaultValue={hoursLeft} startingValue={4} maxValue={48} isStepped stepSize={1} onChange={setHoursLeft} />
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>4h</span>
                 <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>48h</span>

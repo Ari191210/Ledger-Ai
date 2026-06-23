@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import ElasticSlider from "@/components/ui/elastic-slider";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
 import { callAIOrThrow } from "@/lib/ai-fetch";
@@ -360,11 +361,7 @@ function PlannerTab() {
                       />
                     </td>
                     <td style={{ padding: "10px 8px 10px 0", whiteSpace: "nowrap" }}>
-                      <input
-                        type="range" min="1" max="5" value={s.priority}
-                        onChange={(e) => { const ns = [...subjects]; ns[i] = { ...s, priority: +e.target.value }; setSubjects(ns); }}
-                        style={{ width: 64, accentColor: "var(--cinnabar-ink)", cursor: "pointer" }}
-                      />
+                      <ElasticSlider defaultValue={s.priority} startingValue={1} maxValue={5} isStepped stepSize={1} onChange={(v) => { const ns = [...subjects]; ns[i] = { ...s, priority: v }; setSubjects(ns); }} />
                       <span className="mono" style={{ marginLeft: 6, color: "var(--ink-3)" }}>{s.priority}/5</span>
                     </td>
                     <td style={{ padding: "10px 0", textAlign: "right" }}>
@@ -405,8 +402,7 @@ function PlannerTab() {
               <input placeholder="Weak chapters (comma sep)" value={newSubj.weak} onChange={(e) => setNewSubj({ ...newSubj, weak: e.target.value })}
                 style={{ fontFamily: "var(--sans)", fontSize: 12, border: "1px solid var(--rule)", background: "var(--paper)", padding: "6px 8px", color: "var(--ink)" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <input type="range" min="1" max="5" value={newSubj.priority} onChange={(e) => setNewSubj({ ...newSubj, priority: +e.target.value })}
-                  style={{ width: 52, accentColor: "var(--cinnabar-ink)", cursor: "pointer" }} />
+                <ElasticSlider defaultValue={newSubj.priority} startingValue={1} maxValue={5} isStepped stepSize={1} onChange={(v) => setNewSubj({ ...newSubj, priority: v })} />
                 <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{newSubj.priority}</span>
               </div>
               <div style={{ display: "flex", gap: 6 }}>
@@ -428,8 +424,7 @@ function PlannerTab() {
               <span className="mob-n72" style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 72, fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1 }}>{hoursPerDay}h</span>
               <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>per weekday</span>
             </div>
-            <input type="range" min="1" max="8" step="0.5" value={hoursPerDay} onChange={(e) => setHoursPerDay(+e.target.value)}
-              style={{ width: "100%", accentColor: "var(--cinnabar-ink)", marginTop: 12, cursor: "pointer" }} />
+            <ElasticSlider defaultValue={hoursPerDay} startingValue={1} maxValue={8} isStepped stepSize={0.5} onChange={setHoursPerDay} />
             <div className="mono" style={{ color: "var(--ink-3)", display: "flex", justifyContent: "space-between", marginTop: 4 }}>
               <span>1h</span><span>4h</span><span>8h</span>
             </div>

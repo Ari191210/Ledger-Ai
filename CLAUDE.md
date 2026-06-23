@@ -1,159 +1,176 @@
-# Studyledger — Claude Instructions
+# Ruflo — Claude Code Configuration
 
-## Project
-studyledger.in — a Next.js 14 student OS. Codebase at this directory. Live at studyledger.in on Vercel.
-Vault: `C:\Users\DELL\Documents\LedgerBrain\`
+## Rules
 
----
+- Do what has been asked; nothing more, nothing less
+- NEVER create files unless absolutely necessary — prefer editing existing files
+- NEVER create documentation files unless explicitly requested
+- NEVER save working files or tests to root — use `/src`, `/tests`, `/docs`, `/config`, `/scripts`
+- ALWAYS read a file before editing it
+- NEVER commit secrets, credentials, or .env files
+- NEVER add a `Co-Authored-By` trailer to user commits unless this project's `.claude/settings.json` has `attribution.commit` set (#2078). The Claude Code Bash tool may suggest one in its default commit-message template — ignore it. `Co-Authored-By` is semantic authorship attribution under git/GitHub convention; the tool is the facilitator, not a co-author.
+- Keep files under 500 lines
+- Validate input at system boundaries
 
-## MANDATORY: Agent Protocol — Every Command, No Exceptions
+## Agent Comms (SendMessage-First Coordination)
 
-Ruflo is installed. 98 agents live in `.claude/agents/`. **You MUST spawn the correct agents for every task before writing any code.** No exceptions. No "quick fixes" done solo.
-
-### Agent map — spawn based on task type
-
-| Task type | Agents to spawn (in parallel) |
-|-----------|-------------------------------|
-| New UI / frontend feature | `core/coder` + `core/reviewer` + `analysis/analyze-code-quality` |
-| New API route / backend logic | `development/dev-backend-api` + `core/reviewer` |
-| Bug fix | `analysis/code-analyzer` + `core/coder` + `core/tester` |
-| New feature (full) | `sparc/specification` + `core/planner` → then `core/coder` + `core/reviewer` |
-| Refactor | `core/reviewer` + `analysis/analyze-code-quality` + `core/coder` |
-| Architecture decision | `sparc/architecture` + `architecture/arch-system-design` |
-| Security / auth / RLS | `analysis/code-review/analyze-code-quality` + `development/dev-backend-api` |
-| Performance | `optimization/performance-monitor` + `core/reviewer` |
-
-### Pre-push verification — ALL three must pass before `git push`
+Named agents coordinate via `SendMessage`, not polling or shared state.
 
 ```
-1. npx tsc --noEmit          → 0 errors
-2. npx next lint             → 0 errors (warnings OK)
-3. npx next build            → exit code 0
+Lead (you) ←→ architect ←→ developer ←→ tester ←→ reviewer
+              (named agents message each other directly)
 ```
 
-If any step fails, fix it before pushing. Never push a broken build.
+### Spawning a Coordinated Team
 
-### Proof required — in every response that pushes code
+```javascript
+// ALL agents in ONE message, each knows WHO to message next
+Agent({ prompt: "Research the codebase. SendMessage findings to 'architect'.",
+  subagent_type: "researcher", name: "researcher", run_in_background: true })
+Agent({ prompt: "Wait for 'researcher'. Design solution. SendMessage to 'coder'.",
+  subagent_type: "system-architect", name: "architect", run_in_background: true })
+Agent({ prompt: "Wait for 'architect'. Implement it. SendMessage to 'tester'.",
+  subagent_type: "coder", name: "coder", run_in_background: true })
+Agent({ prompt: "Wait for 'coder'. Write tests. SendMessage results to 'reviewer'.",
+  subagent_type: "tester", name: "tester", run_in_background: true })
+Agent({ prompt: "Wait for 'tester'. Review code quality and security.",
+  subagent_type: "reviewer", name: "reviewer", run_in_background: true })
 
-After every `git push`, report:
-1. **Agents spawned**: list agent names and what each one did
-2. **Verification results**: paste the tsc / lint / build output (or "0 errors")
-3. **What was changed**: file list + one-line summary per file
+// Kick off the pipeline
+SendMessage({ to: "researcher", summary: "Start", message: "[task context]" })
+```
 
-### Why this matters
+### Patterns
 
-Every push deploys to Vercel automatically. A broken push = a broken live site at studyledger.in.
-Students are using the site. No mistakes.
-
----
-
----
-
-## Vault logging — ALWAYS do this
-
-After every code change in this project, update the vault. This is non-negotiable.
+| Pattern | Flow | Use When |
+|---------|------|----------|
+| **Pipeline** | A → B → C → D | Sequential dependencies (feature dev) |
+| **Fan-out** | Lead → A, B, C → Lead | Independent parallel work (research) |
+| **Supervisor** | Lead ↔ workers | Ongoing coordination (complex refactor) |
 
 ### Rules
 
-**1. Tool page changed** → update `LedgerBrain/Tools/[CATEGORY]/[slug].md`
-- Add a changelog entry at the bottom: `- YYYY-MM-DD: what changed + why`
-- Update the `status` frontmatter field if it changed
-- Update `last-changed` date
+- ALWAYS name agents — `name: "role"` makes them addressable
+- ALWAYS include comms instructions in prompts — who to message, what to send
+- Spawn ALL agents in ONE message with `run_in_background: true`
+- After spawning: STOP, tell user what's running, wait for results
+- NEVER poll status — agents message back or complete automatically
 
-**2. Component created or changed** → update `LedgerBrain/Components/[name].md`
-- Document props, purpose, how it works
+## Swarm & Routing
 
-**3. API route changed** → update `LedgerBrain/Architecture/Overview.md`
+### Config
+- **Topology**: hierarchical-mesh (anti-drift)
+- **Max Agents**: 15
+- **Memory**: hybrid
+- **HNSW**: Enabled
+- **Neural**: Enabled
 
-**4. Every session** → create or append `LedgerBrain/Sessions/[descriptive-name].md`
-- Name format: `Build — [what was built]` or `Fix — [what was fixed]` or `Refactor — [what changed]`
-- NEVER use dates as filenames
-- Include: what changed, why, patterns observed, wiki-links to affected tools/components
-
-**5. New pattern spotted** → append to the relevant `LedgerBrain/Patterns/` file
-- A pattern is: something that worked well, a repeated structure, a design insight
-
-**6. After 3+ sessions in one area** → write to `LedgerBrain/Ideas/`
-- Generate a concrete improvement idea based on what was learned
-
----
-
-## Vault structure
-
-```
-LedgerBrain/
-  00-Index.md               — master map (update when adding new notes)
-  Sessions/                 — one note per work session, descriptive names
-  Tools/
-    PLAN/                   — 7 tools
-    LEARN/                  — 9 tools
-    WRITE/                  — 12 tools
-    PRACTISE/               — 13 tools
-    FUTURE/                 — 7 tools
-    TRACK/                  — 12 tools
-  Components/               — one note per component
-  Patterns/                 — observed patterns, grouped by type
-  Ideas/                    — improvement ideas generated from patterns
-  Architecture/             — stack, routes, design system
-  Roadmap/                  — audit, backlog, shipped, decisions
-  Features/                 — 60-tools list, seven signatures
+```bash
+npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
 ```
 
----
+### Agent Routing
 
-## Frontmatter — all tool notes must have
+| Task | Agents | Topology |
+|------|--------|----------|
+| Bug Fix | researcher, coder, tester | hierarchical |
+| Feature | architect, coder, tester, reviewer | hierarchical |
+| Refactor | architect, coder, reviewer | hierarchical |
+| Performance | perf-engineer, coder | hierarchical |
+| Security | security-architect, auditor | hierarchical |
 
-```yaml
----
-name: [Tool Name]
-slug: [slug]
-route: /tools/[slug]
-category: PLAN | LEARN | WRITE | PRACTISE | FUTURE | TRACK
-status: built | stub | wip
-ai: true | false
-signature: true | false
-tags:
-  - status/built        # (or stub / wip)
-  - category/learn      # (or plan / write / practise / future / track)
-  - ai/true             # (or ai/false)
-last-changed: YYYY-MM-DD
----
+### When to Swarm
+- **YES**: 3+ files, new features, cross-module refactoring, API changes, security, performance
+- **NO**: single file edits, 1-2 line fixes, docs updates, config changes, questions
+
+### 3-Tier Model Routing
+
+| Tier | Handler | Use Cases |
+|------|---------|-----------|
+| 1 | Agent Booster (WASM) | Simple transforms — skip LLM, use Edit directly |
+| 2 | Haiku | Simple tasks, low complexity |
+| 3 | Sonnet/Opus | Architecture, security, complex reasoning |
+
+## Memory & Learning
+
+### Before Any Task
+```bash
+npx @claude-flow/cli@latest memory search --query "[task keywords]" --namespace patterns
+npx @claude-flow/cli@latest hooks route --task "[task description]"
 ```
 
-Tags drive graph colour coding in Obsidian:
-- `status/built` → green
-- `status/stub` → amber
-- `status/wip` → orange
-- `signature` → red
-- `category/*` → colour per category
+### After Success
+```bash
+npx @claude-flow/cli@latest memory store --namespace patterns --key "[name]" --value "[what worked]"
+npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
+```
 
----
+### MCP Tools (use `ToolSearch("keyword")` to discover)
 
-## Code style
+| Category | Key Tools |
+|----------|-----------|
+| **Memory** | `memory_store`, `memory_search`, `memory_search_unified` |
+| **Bridge** | `memory_import_claude`, `memory_bridge_status` |
+| **Swarm** | `swarm_init`, `swarm_status`, `swarm_health` |
+| **Agents** | `agent_spawn`, `agent_list`, `agent_status` |
+| **Hooks** | `hooks_route`, `hooks_post-task`, `hooks_worker-dispatch` |
+| **Security** | `aidefence_scan`, `aidefence_is_safe`, `aidefence_has_pii` |
+| **Hive-Mind** | `hive-mind_init`, `hive-mind_consensus`, `hive-mind_spawn` |
 
-- No Tailwind color classes — all OKLCH CSS variables
-- Inline styles on components, CSS classes only for design-system utilities
-- TypeScript strict mode
-- All AI tools use `callAI()` from `lib/ai-fetch.ts`
-- All AI tools call `/api/ai` with a `tool` field matching the switch case
-- Loading state: `<AIThinking />` in the output column
-- Response rendering: `<AIOutput text={...} />` for prose, `variant="principle"` for short serif quotes
+### Background Workers
 
----
+| Worker | When |
+|--------|------|
+| `audit` | After security changes |
+| `optimize` | After performance work |
+| `testgaps` | After adding features |
+| `map` | Every 5+ file changes |
+| `document` | After API changes |
 
-## Rate limiting (to be built before October 8)
+```bash
+npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
+```
 
-Before October 8 2026: all features free, no plans.
-On October 8 2026: plans activate. Free tier gets 20 AI calls/day.
-Implementation: track `ai_calls_today` + `ai_calls_reset_at` in `user_data` Supabase table.
-Limit message: *"You've queried the ledger 20 times today. It resets at midnight."* with countdown.
+## Agents
 
----
+**Core**: `coder`, `reviewer`, `tester`, `planner`, `researcher`
+**Architecture**: `system-architect`, `backend-dev`, `mobile-dev`
+**Security**: `security-architect`, `security-auditor`
+**Performance**: `performance-engineer`, `perf-analyzer`
+**Coordination**: `hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`
+**GitHub**: `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`
 
-## Do not
+Any string works as a custom agent type.
 
-- Do not add Tailwind color utilities
-- Do not use `framer-motion` (GSAP is already installed)
-- Do not mock Supabase in any code
-- Do not commit `.env` or `.env.local`
-- Do not create README files unless asked
+## Build & Test
+
+- ALWAYS run tests after code changes
+- ALWAYS verify build succeeds before committing
+
+```bash
+npm run build && npm test
+```
+
+## CLI Quick Reference
+
+```bash
+npx @claude-flow/cli@latest init --wizard           # Setup
+npx @claude-flow/cli@latest swarm init --v3-mode     # Start swarm
+npx @claude-flow/cli@latest memory search --query "" # Vector search
+npx @claude-flow/cli@latest hooks route --task ""    # Route to agent
+npx @claude-flow/cli@latest doctor --fix             # Diagnostics
+npx @claude-flow/cli@latest security scan            # Security scan
+npx @claude-flow/cli@latest performance benchmark    # Benchmarks
+```
+
+26 commands, 140+ subcommands. Use `--help` on any command for details.
+
+## Setup
+
+```bash
+claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
+npx @claude-flow/cli@latest daemon start
+npx @claude-flow/cli@latest doctor --fix
+```
+
+**Agent tool** handles execution (agents, files, code, git). **MCP tools** handle coordination (swarm, memory, hooks). **CLI** is the same via Bash.
