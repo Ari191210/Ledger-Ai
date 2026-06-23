@@ -435,7 +435,7 @@ export default function AppNav() {
         {/* Sidebar header */}
         <div style={{ padding: "0 20px", borderBottom: "1px solid var(--rule)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, height: 52 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 15, color: "var(--ink)", letterSpacing: "0.08em" }}>LEDGER</span>
+            <span style={{ fontFamily: "'Melodrama', var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 17, color: "var(--ink)", letterSpacing: "0.01em" }}>Ledger</span>
             <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" }}>{TOTAL_TOOLS} tools</span>
           </div>
           <button
