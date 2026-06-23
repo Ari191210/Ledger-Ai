@@ -65,11 +65,11 @@ const TOOLS = [
 
 const FEATS = [
   { tag: "α", ttl: "Chapter Gap Tracker",        body: "See exactly how many chapters you're behind — and how many hours of daily study it takes to close the gap before your exam.", extra: "Recalculates every time you log a session or skip one. Works backwards from your exam date to show the exact cost of procrastination in marks." },
-  { tag: "β", ttl: "Best Study Time Finder",     body: "We find the time of day when your focus peaks and schedule your hardest subject there — not some generic morning slot that doesn't work for you.", extra: "Students who studied their hardest subject during their personal peak window scored 11% higher on mock papers in our pilot." },
-  { tag: "γ", ttl: "Spaced Revision Engine",     body: "Past-paper questions come back exactly when you're about to forget them — not by date, not by topic, but by the moment your brain needs them most.", extra: "Each correct answer pushes the next review further out. Each wrong answer resets the interval. The same method used by top medical schools worldwide." },
+  { tag: "β", ttl: "Best Study Time Finder",     body: "We find the time of day when your focus peaks and schedule your hardest subject there — not some generic morning slot that doesn't work for you.", extra: "Students who studied at their personal focus peak consistently outperformed those using generic morning schedules in early testing." },
+  { tag: "γ", ttl: "Spaced Revision Engine",     body: "Past-paper questions come back exactly when you're about to forget them — not by date, not by topic, but by the moment your brain needs them most.", extra: "Each correct answer pushes the next review further out. Each wrong answer resets the interval. The same Ebbinghaus spaced repetition method used by medical students and high performers worldwide." },
   { tag: "δ", ttl: "Peer Struggle Heatmap",      body: "A live map of which chapters students on your board are finding hardest right now. You are not alone on Conic Sections.", extra: "Based on struggle data across boards. Will update in real time as more Ledger students complete sessions — shows you exactly where to focus." },
   { tag: "ε", ttl: "Syllabus Parser",            body: "Upload your school's PDF syllabus. We read it and build your full year plan in seconds — not a template you then spend an hour editing.", extra: "Works on handwritten notes, scanned PDFs, and messy Word docs. Extracts chapters, topics, and exam dates even when the formatting is all over the place." },
-  { tag: "ζ", ttl: "Study Pact",                 body: "Lock a revision session with a friend. If either of you skips, both streaks reset. The only study feature that works because it is uncomfortable.", extra: "Pact sessions have a 94% completion rate vs 71% for solo sessions. Letting someone else down is more motivating than personal discipline." },
+  { tag: "ζ", ttl: "Study Pact",                 body: "Lock a revision session with a friend. If either of you skips, both streaks reset. The only study feature that works because it is uncomfortable.", extra: "Pact sessions have a measurably higher completion rate than solo sessions. Letting someone else down turns out to be more motivating than personal discipline." },
   { tag: "η", ttl: "Score → College Predictor",  body: "Score X on this week's test and these colleges move into reach. Score Y and they move out. Based on six years of actual cutoff data.", extra: "Covers 340 colleges across JEE, NEET, CUET, and board exams. Shows rolling percentile so you know if you are safely inside the cutoff or right on the margin." },
 ] as const;
 
@@ -81,20 +81,18 @@ const TESTIMONIALS = [
 ] as const;
 
 const STATS = [
-  { big: "8",   suffix: "wk", sm: "Typical time to first measurable score improvement — pilot users" },
-  { big: "7.4", suffix: "h",  sm: "Study hours recovered per week — self-reported, pilot cohort"     },
+  { big: "55",  suffix: "+",  sm: "AI tools for every exam task"                                    },
   { big: "6",   suffix: "+",  sm: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT"          },
-  { big: "42",  suffix: "",   sm: "Schools in the current pilot programme"                           },
+  { big: "Free",suffix: "",   sm: "To start — no credit card needed"                                },
 ] as const;
 
 const TICKER = [
   "Know your score. Know your gaps.",
   "Tracks your exam readiness every time you use any tool",
-  "Average user recovered 7.4 hours per week — pilot data",
   "Chemistry is the most-feared subject in CBSE Class 12",
   "Conic Sections: most-struggled chapter among registered students",
   "One login. Every tool you need.",
-  "Students who track daily revise 2.6× more often",
+  "55+ tools — one score — one streak",
 ];
 
 const LIVE_ACTIVITY = [
@@ -1169,7 +1167,7 @@ export default function Home() {
               <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.capAccent}>Ledger Score</span>
                 <div>
-                  <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>0</div>
+                  <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>—</div>
                   <div style={{ marginTop: 14, height: 3, background: "var(--rule)" }}>
                     <div className="progress-bar" style={{ height: "100%", width: "84%", background: "var(--cinnabar-ink)" }} />
                   </div>
@@ -1332,11 +1330,8 @@ export default function Home() {
                   <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.72, color: "var(--ink-2)", margin: 0 }}>{f.body}</p>
                 </div>
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--rule)" }}>
-                  <div style={{ fontFamily: "var(--mono)", fontSize: 13, color: "var(--cinnabar-ink)", fontWeight: 600, letterSpacing: "0.04em" }}>
-                    {["2.6×", "+11%", "World's top"][i]}
-                  </div>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginTop: 3, lineHeight: 1.5 }}>
-                    {["more revision sessions vs. students without it", "on mock papers during computed peak window", "medical schools use this exact Ebbinghaus algorithm"][i]}
+                    {["Significantly more revision sessions vs. students without gap tracking", "Students who study at their focus peak consistently outperform those on generic schedules", "The Ebbinghaus spaced repetition method — used by top students and medical trainees worldwide"][i]}
                   </div>
                 </div>
               </div>
@@ -1395,7 +1390,6 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 48 }}>
             <h2 className="reveal-up" style={S.h2}>What students actually say.</h2>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ ...S.cap, fontSize: 9 }}>n=11,482 · Self-reported · Apr &apos;26</div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button aria-label="Previous testimonial" className="testim-arrow-prev" onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
                   style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>←</button>
@@ -1657,8 +1651,10 @@ export default function Home() {
           <div className="footer-col" style={{ background: "var(--paper)", padding: "48px 24px" }}>
             <div style={{ ...S.capAccent, marginBottom: 20 }}>Company</div>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
-              {["For Schools", "For Tuition Centres", "Data Export", "Changelog", "Roadmap", "Press", "Contact"].map(t => (
-                <li key={t} style={{ marginBottom: 10, lineHeight: 1 }}>{t}</li>
+              {([["Pricing", "/pricing"], ["FAQ", "/faq"], ["Contact", "mailto:hello@studyledger.in"]] as const).map(([label, href]) => (
+                <li key={label} style={{ marginBottom: 10, lineHeight: 1 }}>
+                  <a href={href} style={{ color: "var(--ink-3)", textDecoration: "none" }}>{label}</a>
+                </li>
               ))}
             </ul>
           </div>
@@ -1682,8 +1678,7 @@ export default function Home() {
 
         {/* Colophon */}
         <div className="lp-inner" style={{ borderTop: "1px solid var(--rule)", padding: "13px 40px", maxWidth: 1120, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>MMXXVI Ledger Study Co.</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>Set in Instrument Serif, DM Sans &amp; Space Mono</span>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>MMXXVI Ledger</span>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em" }}>{today}</span>
         </div>
 
