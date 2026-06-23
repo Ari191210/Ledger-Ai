@@ -8,7 +8,7 @@ const CASES = [
     subject: "Organic Chemistry",
     before: { score: "47 / 70", coverage: "34% syllabus done", habit: "No revision system" },
     after:  { score: "63 / 70", coverage: "91% syllabus done", habit: "18-day streak" },
-    quote: "The chapter tracker showed me I was 18 sessions behind. I didn&apos;t realise it was that bad until I saw the number.",
+    quote: "The chapter tracker showed me I was 18 sessions behind. I didn't realise it was that bad until I saw the number.",
     weeks: 3,
   },
   {
@@ -26,7 +26,7 @@ const CASES = [
     subject: "Overall percentage",
     before: { score: "85%", coverage: "No structured plan", habit: "Cramming before tests" },
     after:  { score: "92%", coverage: "84-day plan followed", habit: "Daily score tracking" },
-    quote: "First plan I&apos;ve actually followed. Went from 85% to 92% by year end.",
+    quote: "First plan I've actually followed. Went from 85% to 92% by year end.",
     weeks: 12,
   },
 ];

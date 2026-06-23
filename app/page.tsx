@@ -13,6 +13,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
 import ElasticSlider from "@/components/ui/elastic-slider";
+import { BeforeAfterSection } from "@/components/ui/before-after-section";
+import { StudentJourneySection } from "@/components/ui/student-journey";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
@@ -1633,6 +1635,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <BeforeAfterSection />
+      <StudentJourneySection />
 
       {/* ─── Waitlist ─── */}
       <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
