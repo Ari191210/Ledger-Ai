@@ -50,6 +50,7 @@ rounded:
   md: "18px"
   lg: "24px"
   xl: "32px"
+  pill: "9999px"
 spacing:
   xs: "4px"
   sm: "8px"

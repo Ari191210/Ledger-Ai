@@ -12,6 +12,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
+import ElasticSlider from "@/components/ui/elastic-slider";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
@@ -1061,16 +1062,26 @@ export default function Home() {
               <div style={S.capAccent}>Adjust your activity</div>
 
               {[
-                { label: "Past paper sessions done", val: papers, min: 0, max: 20, set: setPapers, unit: String(papers) },
+                { label: "Past paper sessions done", val: papers,         min: 0, max: 20, set: setPapers,         unit: String(papers) },
                 { label: "Mistakes per week",        val: mistakesPerWeek, min: 0, max: 30, set: setMistakesPerWeek, unit: String(mistakesPerWeek) },
-                { label: "Focus streak (days)",      val: streak, min: 0, max: 30, set: setStreak, unit: `${streak}d` },
+                { label: "Focus streak (days)",      val: streak,          min: 0, max: 30, set: setStreak,          unit: `${streak}d` },
               ].map(({ label, val, min, max, set, unit }) => (
                 <div key={label} style={{ marginTop: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
                     <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
                     <span style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "normal", fontWeight: 700, color: "var(--cinnabar-ink)" }}>{unit}</span>
                   </div>
-                  <input type="range" min={min} max={max} value={val} onChange={e => set(+e.target.value)} style={{ width: "100%" }} />
+                  <ElasticSlider
+                    startingValue={min}
+                    maxValue={max}
+                    defaultValue={val}
+                    isStepped
+                    stepSize={1}
+                    leftIcon={<span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>{min}</span>}
+                    rightIcon={<span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>{max}</span>}
+                    onChange={set}
+                    showValue={false}
+                  />
                 </div>
               ))}
 

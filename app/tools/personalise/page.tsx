@@ -7,6 +7,7 @@ import { getDensity, applyDensity, type Density } from "@/lib/density";
 import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { FontPicker } from "./_font-picker";
 import { ColorBuilder } from "./_color-builder";
+import ElasticSlider from "@/components/ui/elastic-slider";
 
 const PALETTE_DESC: Record<PaletteId, string> = {
   ledger:        "Dark charcoal · warm peach & cream",
@@ -225,8 +226,17 @@ export default function PersonalisePage() {
             {/* Radius */}
             <div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginBottom: 10, letterSpacing: "0.1em" }}>BORDER RADIUS · {radius}px</div>
-              <input type="range" min={0} max={24} value={radius} onChange={e => changeRadius(Number(e.target.value))}
-                style={{ width: "100%", accentColor: "var(--cinnabar-ink)" }} />
+              <ElasticSlider
+                startingValue={0}
+                maxValue={24}
+                defaultValue={radius}
+                isStepped
+                stepSize={1}
+                leftIcon={<span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>0</span>}
+                rightIcon={<span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>24</span>}
+                onChange={changeRadius}
+                showValue={false}
+              />
             </div>
             {/* Width */}
             <div>

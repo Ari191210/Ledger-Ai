@@ -5,6 +5,25 @@
       "app/globals.css",
       "components/ui/web-gl-shader.tsx"
     ],
-    "ignoreValues": []
+    "ignoreValues": [
+      {
+        "rule": "design-system-radius",
+        "value": "9999px",
+        "reason": "Pill radius for slider track — standard CSS pattern",
+        "createdAt": "2026-06-23T12:43:00.974Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255,202,175,0.18)",
+        "reason": "Ledger palette glow-A token — intentional pre-existing palette value",
+        "createdAt": "2026-06-23T13:13:07.336Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(167,190,211,0.20)",
+        "reason": "Ledger palette rule token — intentional pre-existing palette value",
+        "createdAt": "2026-06-23T13:13:09.106Z"
+      }
+    ]
   }
 }
