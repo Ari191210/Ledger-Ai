@@ -822,6 +822,12 @@ export default function Home() {
                 onMouseLeave={e => (e.currentTarget.style.color = "var(--ink-3)")}
               >{label}</a>
             ))}
+            {[["Pricing", "/pricing"], ["FAQ", "/faq"]].map(([label, href]) => (
+              <Link key={href} href={href} className="lp-nav-link" style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 500, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 180ms", display: "inline-block" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--ink)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "var(--ink-3)")}
+              >{label}</Link>
+            ))}
           </nav>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
