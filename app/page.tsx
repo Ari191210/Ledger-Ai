@@ -166,7 +166,7 @@ function getVariant(): HeroVariant {
 
 const HERO_COPY: Record<HeroVariant, { line1: string; line2: string; sub: string }> = {
   morning: { line1: "Before the day",              line2: "decides what you'll be.",          sub: "Ledger. For the hours that compound." },
-  day:     { line1: "School is for sitting.",       line2: "This is for thinking.",            sub: "Ledger. A second brain for the syllabus." },
+  day:     { line1: "Stop guessing",                 line2: "what to study.",                   sub: "Upload your syllabus. Get a day-by-day plan, past papers, AI help — and your exam readiness score — in under 60 seconds. Free." },
   evening: { line1: "The hours after coaching",     line2: "are the ones that matter.",        sub: "Ledger. Built for the second shift." },
   late:    { line1: "",                             line2: "You're still here.",               sub: "So are we. Ledger is the only study OS designed for the hours nobody photographs." },
   dead:    { line1: "Sleep.",                       line2: "We'll be here tomorrow.",          sub: "Ledger. The only edtech that will tell you to stop." },
@@ -958,12 +958,64 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Competitive table: Quizlet / Notion / GCR ─── */}
+      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "100px 56px 80px" }}>
+          <div style={{ marginBottom: 48 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 12 }}>vs everything else</div>
+            <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(22px,2.8vw,34px)" }}>Why not Quizlet, Notion, or Google Classroom?</h2>
+          </div>
+          <div style={{ overflowX: "auto" as const }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" as const, fontFamily: "var(--sans)", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "left" as const, padding: "14px 20px", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", borderBottom: "1px solid var(--rule)", fontWeight: 500 }}>Feature</th>
+                  {(["Quizlet", "Notion", "Google Classroom", "ChatGPT", "Ledger"] as const).map((tool, i) => (
+                    <th key={tool} style={{ textAlign: "center" as const, padding: "14px 16px", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: i === 4 ? "var(--cinnabar-ink)" : "var(--ink-3)", borderBottom: "1px solid var(--rule)", fontWeight: i === 4 ? 700 : 500 }}>{tool}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {([
+                  ["Board-aware study plan",          false, false, false, false, true],
+                  ["Real-time exam readiness score",  false, false, false, false, true],
+                  ["Past papers, AI-graded",          false, false, false, false, true],
+                  ["AI that knows your syllabus",     false, false, false, false, true],
+                  ["Tracks gaps across sessions",     false, false, false, false, true],
+                  ["55+ integrated study tools",      false, false, false, false, true],
+                  ["Flashcard practice",              true,  false, false, false, true],
+                  ["Works across all 6 boards",       false, false, true,  false, true],
+                  ["Free to start",                   true,  true,  true,  true,  true],
+                ] as const).map(([feat, ...vals], ri) => (
+                  <tr key={String(feat)} style={{ background: ri % 2 === 0 ? "color-mix(in srgb, var(--ink) 2%, transparent)" : "transparent" }}>
+                    <td style={{ padding: "13px 20px", color: "var(--ink-2)", lineHeight: 1.4 }}>{feat}</td>
+                    {vals.map((v, ci) => (
+                      <td key={ci} style={{ textAlign: "center" as const, padding: "13px 16px", fontSize: 14 }}>
+                        {v
+                          ? <span style={{ color: ci === 4 ? "var(--cinnabar-ink)" : "var(--sage)" }}>✓</span>
+                          : <span style={{ color: "var(--ink-3)", opacity: 0.4 }}>—</span>
+                        }
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ marginTop: 32, textAlign: "center" as const }}>
+            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>
+              Try Ledger free →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Trust strip ─── */}
       <div style={{ borderBottom: S.border, borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
           {[
             { n: "55+",   label: "Tools for every exam task",     color: "var(--cream)" },
-            { n: "3,204", label: "students on the waitlist",     color: "var(--cinnabar-ink)" },
+            { n: "6+",    label: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT", color: "var(--cinnabar-ink)" },
             { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)" },
           ].map((s, i) => (
             <div key={i} className="trust-strip-item" style={{
@@ -1224,16 +1276,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── Start Here ─── */}
+      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 100px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 56 }}>
+            <h2 className="reveal-up" style={S.h2}>Start here. Takes 2 minutes.</h2>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Then use any tool, in any order</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)" }} className="mob-col">
+            {([
+              { step: "01", title: "Upload your syllabus", body: "PDF, photo, or paste it in. Ledger maps every subject, chapter, and topic automatically. No manual setup.", cta: "Upload now →", href: "/dashboard", time: "60 seconds", color: "var(--cinnabar-ink)" },
+              { step: "02", title: "See your Ledger Score", body: "Instant exam readiness across 4 signals: past paper accuracy, syllabus coverage, error rate, and daily consistency.", cta: "Check your score →", href: "/tools/score", time: "Instant", color: "var(--powder-blue)" },
+              { step: "03", title: "Fix your biggest gap", body: "The score shows exactly which chapters you are behind on. One tool, one session, one gap closed. Then repeat.", cta: "Browse tools →", href: "/dashboard", time: "5 minutes", color: "var(--sage)" },
+            ] as const).map((s) => (
+              <div key={s.step} style={{ background: "var(--paper)", padding: "52px 40px", display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontFamily: "var(--serif)", fontSize: 52, fontWeight: 700, color: s.color, lineHeight: 1, opacity: 0.22 }}>{s.step}</span>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>{s.time}</span>
+                </div>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)", lineHeight: 1.2, letterSpacing: "-0.01em" }}>{s.title}</div>
+                <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7, margin: 0, flex: 1 }}>{s.body}</p>
+                <Link href={s.href} style={{ fontFamily: "var(--mono)", fontSize: 10, color: s.color, textDecoration: "none", letterSpacing: "0.08em", marginTop: 4 }}>{s.cta}</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── 04 / Featured Tools ─── */}
       <section id="tools" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 56 }}>
-            <h2 className="reveal-up" style={S.h2}>Every tool a student needs.</h2>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" as const }}>
-              6 categories · browse below
-            </span>
+            <h2 className="reveal-up" style={S.h2}>Three tools to start with.</h2>
+            <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.12em", textTransform: "uppercase" as const, textDecoration: "none" }}>
+              Browse all 55+ →
+            </Link>
           </div>
 
           {/* Search */}
@@ -1249,12 +1329,9 @@ export default function Home() {
           {/* 6 chunky cube cards — filtered by search */}
           {(() => {
             const ALL_TOOLS = [
-              { n: "01", slug: "planner",        ttl: "Smart Study Planner", sub: "Subjects in. Timetable out.",         cat: "PLAN",     icon: "◈" },
-              { n: "03", slug: "notes",           ttl: "Study Engine",        sub: "Simplify chapters. Full lesson.",     cat: "LEARN",    icon: "◎" },
-              { n: "25", slug: "essay-blueprint", ttl: "Essay Workshop",      sub: "Plan. Argue. Grade. One page.",       cat: "WRITE",    icon: "✦" },
-              { n: "06", slug: "papers",          ttl: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB.",          cat: "PRACTISE", icon: "◆" },
-              { n: "13", slug: "admissions",      ttl: "Admissions Engine",   sub: "Your real odds. 60 universities.",    cat: "FUTURE",   icon: "◉" },
-              { n: "★",  slug: "score",           ttl: "Ledger Score",        sub: "Your real-time exam readiness.",      cat: "TRACK",    icon: "★" },
+              { n: "03", slug: "notes",  ttl: "Study Engine",  sub: "Upload a chapter. Get a full structured lesson, simplified.",  cat: "LEARN",    icon: "◎" },
+              { n: "06", slug: "papers", ttl: "Past Papers",   sub: "CBSE, JEE, NEET, SAT, IB — graded by AI, tracked in score.",   cat: "PRACTISE", icon: "◆" },
+              { n: "★",  slug: "score",  ttl: "Ledger Score",  sub: "Your real-time exam readiness across every topic you study.",   cat: "TRACK",    icon: "★" },
             ] as const;
             const q = toolSearch.trim().toLowerCase();
             const visible = q
@@ -1562,7 +1639,7 @@ export default function Home() {
         <div style={{ maxWidth: 680, margin: "0 auto", padding: "120px 24px 100px", textAlign: "center" }}>
           <div style={{ ...S.capAccent, marginBottom: 20 }}>Exam-Day Mode — Join the waitlist</div>
           <h2 style={{ fontFamily: "var(--sans)", fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.2, marginBottom: 12 }}>
-            <span style={{ fontFamily: "var(--mono)", color: "var(--cinnabar-ink)" }}>3,204</span> students are waiting.
+            Be first to know when Exam-Day Mode launches.
           </h2>
           <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 36 }}>
             Full exam-day simulation: real papers, real time pressure, real board conditions. Launching October 2026.
