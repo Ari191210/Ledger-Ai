@@ -265,14 +265,14 @@ export default function AppNav() {
           }}
         >
           <span style={{
-            fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16,
+            fontFamily: "'Melodrama', var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 20,
             color: "var(--ink)",
-            letterSpacing: logoHovered ? "0.16em" : "0.1em",
-            transform: logoHovered ? "scale(1.05)" : "scale(1)",
+            letterSpacing: logoHovered ? "0.06em" : "0.01em",
+            transform: logoHovered ? "scale(1.04)" : "scale(1)",
             display: "inline-block",
-            transition: "letter-spacing 220ms cubic-bezier(0.22,1,0.36,1), transform 220ms cubic-bezier(0.22,1,0.36,1)",
+            transition: "letter-spacing 280ms cubic-bezier(0.22,1,0.36,1), transform 280ms cubic-bezier(0.22,1,0.36,1)",
           }}>
-            LEDGER
+            Ledger
           </span>
         </Link>
 
