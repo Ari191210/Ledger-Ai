@@ -74,9 +74,21 @@ function applyFont(font: FontOption, category: FontCategory) {
   }
 }
 
+function getStoredFontName(category: FontCategory): string {
+  if (typeof window === "undefined") return "";
+  const key = category === "serif" ? "ledger-font-serif" : category === "mono" ? "ledger-font-mono" : "ledger-font-sans";
+  const raw = localStorage.getItem(key) ?? "";
+  return raw.replace(/^"|"$/g, ""); // strip surrounding quotes
+}
+
 export function FontPicker() {
   const [tab, setTab] = useState<FontCategory>("sans");
-  const [activeFont, setActiveFont] = useState<string>("");
+  const [activeFont, setActiveFont] = useState<string>(() => getStoredFontName("sans"));
+
+  function changeTab(c: FontCategory) {
+    setTab(c);
+    setActiveFont(getStoredFontName(c));
+  }
 
   function pick(font: FontOption) {
     applyFont(font, tab);
@@ -98,7 +110,7 @@ export function FontPicker() {
       {/* Category tabs */}
       <div style={{ display: "flex", gap: 2, marginBottom: 20 }}>
         {(Object.keys(FONTS) as FontCategory[]).map(c => (
-          <button key={c} onClick={() => setTab(c)} style={{
+          <button key={c} onClick={() => changeTab(c)} style={{
             flex: 1, padding: "10px 0", border: "none", cursor: "pointer",
             background: tab === c ? "color-mix(in srgb, var(--cinnabar-ink) 12%, var(--paper))" : "transparent",
             borderBottom: tab === c ? "2px solid var(--cinnabar-ink)" : "2px solid transparent",
