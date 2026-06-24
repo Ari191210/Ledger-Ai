@@ -12,6 +12,7 @@ import ButtonClickEffect from "@/components/ui/button-click-effect";
 import PostHogProvider from "@/components/posthog-provider";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import RankWhisper from "@/components/rank-whisper";
+import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -177,6 +178,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
         <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="" />
         <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}` }} />
       </head>
       <body>
         {/* Global liquid-glass displacement filter - referenced by backdrop-filter: url(#global-liquid-glass) in .btn */}
@@ -220,6 +222,7 @@ export default function RootLayout({
             {children}
           </ErrorBoundary>
           <RankWhisper />
+          <WhatsAppWidget />
         </AuthProvider>
       </body>
     </html>
