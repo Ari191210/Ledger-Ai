@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -119,7 +119,8 @@ export function HeroInteractiveDemo() {
   const [loadIdx,  setLoadIdx]  = useState(0);
   const [score,    setScore]    = useState(0);
 
-  const today = new Date().toISOString().split("T")[0];
+  const [today, setToday] = useState("");
+  useEffect(() => { setToday(new Date().toISOString().split("T")[0]); }, []);
 
   const generate = useCallback(() => {
     if (!subject.trim() || phase === "loading") return;

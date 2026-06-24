@@ -1,20 +1,28 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { GetStartedButton } from "@/components/ui/get-started-button";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import GlowHorizonFM from "@/components/ui/glow-horizon";
 import { AnimatedTitleFM } from "@/components/ui/glow-horizon-utils/animated-title-fm";
-import { HeroInteractiveDemo } from "@/components/ui/hero-interactive-demo";
 import { ProductWalkthrough } from "@/components/ui/product-walkthrough";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
-import ElasticSlider from "@/components/ui/elastic-slider";
 import { BeforeAfterSection } from "@/components/ui/before-after-section";
 import { StudentJourneySection } from "@/components/ui/student-journey";
+
+const HeroInteractiveDemo = dynamic(
+  () => import("@/components/ui/hero-interactive-demo").then(m => ({ default: m.HeroInteractiveDemo })),
+  { ssr: false }
+);
+const ElasticSlider = dynamic(
+  () => import("@/components/ui/elastic-slider"),
+  { ssr: false }
+);
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
