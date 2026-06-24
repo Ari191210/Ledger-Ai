@@ -851,7 +851,7 @@ export default function Home() {
       </header>
 
       {/* ─── Hero ─── */}
-      <section className="hero-section" style={{ position: "relative", width: "100%", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper)", overflow: "hidden" }}>
+      <section className="hero-section" style={{ position: "relative", width: "100%", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--paper)", overflow: "hidden" }}>
 
         {/* Glow horizon effect */}
         <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -863,8 +863,48 @@ export default function Home() {
           <AnimatedTitleFM open={heroOpen} />
         </div>
 
+        {/* Hero value prop overlay */}
+        <div className="hero-content" style={{ position: "absolute", zIndex: 3, top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", maxWidth: 760, padding: "0 32px", textAlign: "center", pointerEvents: "none" }}>
+          <h1 className="hero-h1" style={{
+            fontFamily: "var(--serif)", fontWeight: 700, fontStyle: "normal",
+            fontSize: "clamp(28px, 4.5vw, 56px)", color: "var(--ink)",
+            lineHeight: 1.15, letterSpacing: "-0.02em", textWrap: "balance",
+            marginBottom: 16,
+          }}>
+            Know exactly how ready you are for your exams
+          </h1>
+          <p className="hero-sub" style={{
+            fontFamily: "var(--sans)", fontSize: "clamp(14px, 1.6vw, 18px)",
+            color: "var(--ink-2)", lineHeight: 1.65,
+            maxWidth: 580, margin: "0 auto 32px",
+          }}>
+            Board-aware AI that tracks your syllabus, scores your readiness, and tells you exactly what to study next.
+          </p>
+          <div className="hero-ctas" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, pointerEvents: "auto" }}>
+            <Link
+              href="/auth"
+              className="btn hero-cta-btn"
+              style={{
+                textDecoration: "none", fontSize: 13, letterSpacing: "0.08em",
+                padding: "15px 36px", display: "inline-block",
+                background: "var(--cinnabar-ink)", color: "var(--paper)",
+                border: "none", borderRadius: 12, fontWeight: 700,
+                fontFamily: "var(--sans)",
+              }}
+            >
+              Check my readiness &mdash; it&apos;s free
+            </Link>
+            <div style={{
+              fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)",
+              letterSpacing: "0.1em", textTransform: "uppercase",
+            }}>
+              3,204+ students on waitlist &middot; Free forever &middot; No credit card
+            </div>
+          </div>
+        </div>
+
         {/* Scroll hint */}
-        <div className="hero-scroll" style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <div className="hero-scroll" style={{ position: "absolute", bottom: 48, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, zIndex: 4 }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.16em", textTransform: "uppercase", opacity: 0.5 }}>Scroll</span>
           <div className="scroll-cue">
             <span />
@@ -1646,6 +1686,42 @@ export default function Home() {
 
       <BeforeAfterSection />
       <StudentJourneySection />
+
+      {/* ─── Student Testimonials ─── */}
+      <section className="testimonials-section" style={{ padding: '80px 44px', textAlign: 'center', borderBottom: S.border, background: 'var(--paper)' }}>
+        <h2 style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: '48px', fontSize: 'clamp(22px,3vw,36px)', fontWeight: 700 }}>
+          What students are saying
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', maxWidth: '1100px', margin: '0 auto' }}>
+          {/* Testimonial 1 */}
+          <div className="gl-pane" style={{ padding: '28px', textAlign: 'left' }}>
+            <div style={{ color: 'var(--cinnabar)', marginBottom: '12px' }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p style={{ color: 'var(--ink-2)', lineHeight: '1.6', marginBottom: '16px' }}>
+              &ldquo;I uploaded my Physics syllabus and the Ledger Score showed me I was 23 chapters behind. Two months later I was at 780. No other app told me the truth like that.&rdquo;
+            </p>
+            <div style={{ color: 'var(--ink)', fontWeight: 600 }}>Arjun S.</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: '0.85rem' }}>CBSE &middot; JEE 2025</div>
+          </div>
+          {/* Testimonial 2 */}
+          <div className="gl-pane" style={{ padding: '28px', textAlign: 'left' }}>
+            <div style={{ color: 'var(--cinnabar)', marginBottom: '12px' }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p style={{ color: 'var(--ink-2)', lineHeight: '1.6', marginBottom: '16px' }}>
+              &ldquo;The Paper Dissector broke down my Chemistry paper and showed me I keep losing marks on numerical questions, not theory. I fixed that in 3 weeks.&rdquo;
+            </p>
+            <div style={{ color: 'var(--ink)', fontWeight: 600 }}>Meera R.</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: '0.85rem' }}>ICSE &middot; Class 12</div>
+          </div>
+          {/* Testimonial 3 */}
+          <div className="gl-pane" style={{ padding: '28px', textAlign: 'left' }}>
+            <div style={{ color: 'var(--cinnabar)', marginBottom: '12px' }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <p style={{ color: 'var(--ink-2)', lineHeight: '1.6', marginBottom: '16px' }}>
+              &ldquo;ChatGPT doesn&apos;t know my NCERT syllabus. StudyLedger does. The difference in my mock scores after 6 weeks was 47 marks.&rdquo;
+            </p>
+            <div style={{ color: 'var(--ink)', fontWeight: 600 }}>Kabir T.</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: '0.85rem' }}>CBSE &middot; NEET 2025</div>
+          </div>
+        </div>
+      </section>
 
       {/* ─── Waitlist ─── */}
       <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
