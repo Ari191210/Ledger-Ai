@@ -2279,7 +2279,7 @@ export async function POST(req: Request) {
           grade: (params.grade as string) || null,
           board: (params.board as string) || null,
         }).then(() => {}, (err) => {
-          Sentry.captureException(err, { tags: { route: "api/ai", phase: "ai_history_insert", tool } });
+          Sentry.captureException(err, { extra: { context: "ai_history_write" } });
         });
       }
       return NextResponse.json(parsed);
