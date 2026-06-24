@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
+import { Sun, Moon } from "lucide-react";
 import { applyPalette, getActivePalette, PALETTE_META, type PaletteId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
@@ -136,6 +137,7 @@ export default function AppNav() {
   const [logoHovered, setLogoHovered] = useState(false);
   const [activeTheme, setActiveTheme] = useState<PaletteId>("ledger");
   const [navVisible,  setNavVisible]  = useState(false);
+  const [isLight, setIsLight]         = useState(false);
 
   useEffect(() => {
     try { setEmbedded(window.self !== window.top); } catch { setEmbedded(true); }
@@ -169,6 +171,14 @@ export default function AppNav() {
     return () => window.removeEventListener("ledger-palette", handler);
   }, []);
 
+  useEffect(() => {
+    const mode = localStorage.getItem("ledger-theme-mode");
+    if (mode === "light") {
+      setIsLight(true);
+      applyPalette("paper");
+    }
+  }, []);
+
   // Slide navbar in on first scroll (only on landing page)
   useEffect(() => {
     if (path !== "/") { setNavVisible(true); return; }
@@ -177,22 +187,22 @@ export default function AppNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [path]);
 
-  const isLight = !!PALETTE_META[activeTheme]?.isLight;
-
   function toggleLightDark() {
     if (isLight) {
-      const last = (typeof window !== "undefined" ? localStorage.getItem("ledger-last-dark") : null) as PaletteId | null;
-      const target = last || "ledger";
+      // Switch to dark: restore saved dark palette
+      localStorage.setItem("ledger-theme-mode", "dark");
+      setIsLight(false);
+      const saved = localStorage.getItem("ledger-palette") as PaletteId | null;
+      const target = saved || "ledger";
       applyPalette(target);
       setActiveTheme(target);
     } else {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("ledger-last-dark", activeTheme);
-        const lastLight = localStorage.getItem("ledger-last-light") as PaletteId | null;
-        const target = (lastLight && PALETTE_META[lastLight]?.isLight) ? lastLight : "paper";
-        applyPalette(target);
-        setActiveTheme(target);
-      }
+      // Switch to light: save current dark palette, apply porcelain ("paper")
+      localStorage.setItem("ledger-theme-mode", "light");
+      localStorage.setItem("ledger-palette", activeTheme);
+      setIsLight(true);
+      applyPalette("paper");
+      setActiveTheme("paper");
     }
   }
 
@@ -299,18 +309,10 @@ export default function AppNav() {
         >
           {isLight ? (
             /* moon — currently light, click → dark */
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
+            <Moon size={16} />
           ) : (
             /* sun — currently dark, click → light */
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="5" />
-              <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-              <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-            </svg>
+            <Sun size={16} />
           )}
           <span>{isLight ? "Dark" : "Light"}</span>
         </button>
