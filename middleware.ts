@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Composite key: "endpoint-group:ip"
+// COLD-START NOTE: this Map is per-serverless-instance and resets on every Vercel cold start.
+// It is a fast IP-burst guard only — NOT the authoritative rate limit.
+// The authoritative per-user daily limit is enforced in app/api/ai/route.ts via the
+// Supabase `ai_calls` column. Do not rely on this Map for correctness guarantees.
 const hits = new Map<string, { count: number; resetAt: number }>();
 
 interface RateRule {
