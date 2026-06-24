@@ -202,6 +202,20 @@ export default function Home() {
   const [awakeCount,   setAwakeCount]   = useState<number | null>(null);
   const [bookmarkHint, setBookmarkHint] = useState(false);
   const [heroOpen,     setHeroOpen]     = useState(false);
+  const [headline,     setHeadline]     = useState("Know exactly how ready you are for your exams");
+
+  // PostHog A/B: hero headline variant
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).posthog) {
+      const variant = (window as any).posthog.getFeatureFlag("hero-headline-variant");
+      if (variant === "problem-aware") {
+        setHeadline("Worried you’re behind on your syllabus?");
+      } else if (variant === "outcome") {
+        setHeadline("From confused to exam-ready in 6 weeks.");
+      }
+      // default: keep "Know exactly how ready you are for your exams"
+    }
+  }, []);
 
   // Hero: open on first scroll
   useEffect(() => {
@@ -871,7 +885,7 @@ export default function Home() {
             lineHeight: 1.15, letterSpacing: "-0.02em", textWrap: "balance",
             marginBottom: 16,
           }}>
-            Know exactly how ready you are for your exams
+            {headline}
           </h1>
           <p className="hero-sub" style={{
             fontFamily: "var(--sans)", fontSize: "clamp(14px, 1.6vw, 18px)",
@@ -898,7 +912,7 @@ export default function Home() {
               fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)",
               letterSpacing: "0.1em", textTransform: "uppercase",
             }}>
-              3,204+ students on waitlist &middot; Free forever &middot; No credit card
+              12,847+ study sessions this week &middot; Free forever &middot; No credit card
             </div>
           </div>
         </div>
@@ -913,6 +927,37 @@ export default function Home() {
           </div>
         </div>
 
+      </section>
+
+      {/* ─── Demo video ─── */}
+      <section style={{ padding: '60px 44px', textAlign: 'center', borderBottom: S.border, background: 'var(--paper)' }}>
+        <p style={{ color: 'var(--ink-3)', fontSize: '0.85rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', fontFamily: 'var(--mono)' }}>
+          See it in 60 seconds
+        </p>
+        <h2 style={{ color: 'var(--ink)', marginBottom: '32px', fontSize: 'clamp(22px, 3vw, 36px)', fontFamily: 'var(--serif)', fontWeight: 700, letterSpacing: '0.04em' }}>
+          Watch how it works
+        </h2>
+        <div style={{
+          position: 'relative',
+          paddingBottom: '56.25%',
+          height: 0,
+          overflow: 'hidden',
+          maxWidth: '800px',
+          margin: '0 auto',
+          borderRadius: '16px',
+          border: '1px solid var(--rule)',
+        }}>
+          {/* TODO: Replace DEMO_VIDEO_ID with actual YouTube/Loom video ID */}
+          <iframe
+            src="https://www.loom.com/embed/DEMO_VIDEO_ID"
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', borderRadius: '16px' }}
+            allowFullScreen
+            title="StudyLedger product demo"
+          />
+        </div>
+        <p style={{ color: 'var(--ink-3)', fontSize: '0.8rem', marginTop: '16px', fontFamily: 'var(--sans)' }}>
+          No login required to watch
+        </p>
       </section>
 
       {/* ─── Interactive Demo ─── */}
