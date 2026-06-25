@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { supabase } from "./supabase";
 import { getLocalProfile } from "./user-data";
 import { sounds } from "./sounds";
@@ -45,6 +46,7 @@ export async function callAIOrThrow<T = unknown>(
     res = await callAI(body);
   } catch {
     track.aiError(tool, "network");
+    toast.error("Connection error — check your network.");
     throw new AIError(
       "Network error — check your connection and try again.",
       "network",
@@ -67,6 +69,7 @@ export async function callAIOrThrow<T = unknown>(
     }
     if (res.status === 403) {
       track.aiError(tool, "moderation");
+      toast.error((data.error as string) || "Your AI access has been suspended.");
       throw new AIError(
         (data.error as string) || "Your AI access has been suspended.",
         "moderation",
@@ -74,12 +77,14 @@ export async function callAIOrThrow<T = unknown>(
     }
     if (res.status === 400) {
       track.aiError(tool, "moderation");
+      toast.error((data.error as string) || "This topic isn't something Ledger can help with.");
       throw new AIError(
         (data.error as string) || "This topic isn't something Ledger can help with.",
         "moderation",
       );
     }
     track.aiError(tool, res.status >= 500 ? "server" : "unknown");
+    toast.error((data.error as string) || "Something went wrong — please try again.");
     throw new AIError(
       (data.error as string) || "Something went wrong. Please try again.",
       res.status >= 500 ? "server" : "unknown",
@@ -87,6 +92,7 @@ export async function callAIOrThrow<T = unknown>(
   }
 
   track.aiComplete(tool, Date.now() - t0);
+  toast.success("Result ready", { duration: 2000 });
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("ai-complete"));
   }
