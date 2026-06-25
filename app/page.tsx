@@ -890,10 +890,29 @@ export default function Home() {
           <p className="hero-sub" style={{
             fontFamily: "var(--sans)", fontSize: "clamp(14px, 1.6vw, 18px)",
             color: "var(--ink-2)", lineHeight: 1.65,
-            maxWidth: 580, margin: "0 auto 32px",
+            maxWidth: 580, margin: "0 auto 24px",
           }}>
             Board-aware AI that tracks your syllabus, scores your readiness, and tells you exactly what to study next.
           </p>
+          <div className="hero-divider" style={{
+            width: 40, height: 1, background: "var(--rule)",
+            margin: "0 auto 24px",
+          }} />
+          <div className="hero-stats" style={{
+            display: "flex", gap: "clamp(20px, 4vw, 48px)", justifyContent: "center",
+            margin: "0 auto 32px", opacity: 0,
+          }}>
+            {[
+              { value: "55+", label: "AI tools" },
+              { value: "1000", label: "Ledger Score" },
+              { value: "6+", label: "Exam boards" },
+            ].map(({ value, label }) => (
+              <div key={label} style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(22px,3vw,32px)", color: "var(--ink)", lineHeight: 1 }}>{value}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 5 }}>{label}</div>
+              </div>
+            ))}
+          </div>
           <div className="hero-ctas" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, pointerEvents: "auto" }}>
             <Link
               href="/auth"
@@ -929,35 +948,23 @@ export default function Home() {
 
       </section>
 
-      {/* ─── Demo video ─── */}
-      <section style={{ padding: '60px 44px', textAlign: 'center', borderBottom: S.border, background: 'var(--paper)' }}>
-        <p style={{ color: 'var(--ink-3)', fontSize: '0.85rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', fontFamily: 'var(--mono)' }}>
-          See it in 60 seconds
-        </p>
-        <h2 style={{ color: 'var(--ink)', marginBottom: '32px', fontSize: 'clamp(22px, 3vw, 36px)', fontFamily: 'var(--serif)', fontWeight: 700, letterSpacing: '0.04em' }}>
-          Watch how it works
-        </h2>
-        <div style={{
-          position: 'relative',
-          paddingBottom: '56.25%',
-          height: 0,
-          overflow: 'hidden',
-          maxWidth: '800px',
-          margin: '0 auto',
-          borderRadius: '16px',
-          border: '1px solid var(--rule)',
-        }}>
-          {/* TODO: Replace DEMO_VIDEO_ID with actual YouTube/Loom video ID */}
-          <iframe
-            src="https://www.loom.com/embed/DEMO_VIDEO_ID"
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', borderRadius: '16px' }}
-            allowFullScreen
-            title="StudyLedger product demo"
-          />
+      {/* ─── Product at a Glance ─── */}
+      <section style={{ padding: "56px 44px", borderBottom: S.border, background: "var(--paper)" }}>
+        <p style={{ ...S.cap, textAlign: "center", marginBottom: 12 }}>Product at a Glance</p>
+        <h2 style={{ ...S.h2, textAlign: "center", marginBottom: 48 }}>Everything a serious student needs</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 1, border: S.borderInk, maxWidth: 900, margin: "0 auto" }}>
+          {[
+            { stat: "55+", label: "AI-powered tools", sub: "Notes, doubts, papers, career — all in one place" },
+            { stat: "1000", label: "Ledger Score", sub: "Your readiness out of 1000, updated after every session" },
+            { stat: "6+", label: "Exam boards", sub: "CBSE · ICSE · IB · JEE · NEET · SAT and more" },
+          ].map(({ stat, label, sub }) => (
+            <div key={label} style={{ padding: "36px 28px", background: "var(--paper)", borderRight: S.borderInk }}>
+              <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(40px,5vw,64px)", color: "var(--cinnabar-ink)", lineHeight: 1, marginBottom: 8 }}>{stat}</div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink)", marginBottom: 8 }}>{label}</div>
+              <div style={{ ...S.body, fontSize: 13 }}>{sub}</div>
+            </div>
+          ))}
         </div>
-        <p style={{ color: 'var(--ink-3)', fontSize: '0.8rem', marginTop: '16px', fontFamily: 'var(--sans)' }}>
-          No login required to watch
-        </p>
       </section>
 
       {/* ─── Interactive Demo ─── */}
