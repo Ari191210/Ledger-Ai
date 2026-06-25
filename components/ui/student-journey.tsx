@@ -38,18 +38,6 @@ const STAGES = [
     score: "Score: ~590",
     scoreNote: "Developing tier",
   },
-  {
-    day: "Exam Day",
-    title: "You know exactly what to do.",
-    points: [
-      "Exam-Day Mode: only your weakest 14 days",
-      "No decisions. No panic. Just gaps.",
-      "Last-night summary auto-generated",
-      "You walked in prepared.",
-    ],
-    score: "Score: 750+",
-    scoreNote: "Strong tier",
-  },
 ];
 
 export function StudentJourneySection() {
@@ -61,7 +49,7 @@ export function StudentJourneySection() {
           Day 1 to exam day.<br />What actually happens.
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, position: "relative" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, position: "relative" }}>
           <div style={{ position: "absolute", top: 28, left: "12.5%", right: "12.5%", height: 1, background: "var(--rule)", zIndex: 0 }} />
 
           {STAGES.map((s, i) => (
