@@ -1,6 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 const STEP_DURATION = 3800;
 
@@ -26,27 +25,28 @@ const SCORE_SIGNALS = [
 function UploadVisual({ visible }: { visible: boolean }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20, padding: "32px 0" }}>
-      <motion.div
-        initial={{ y: -30, opacity: 0 }}
-        animate={visible ? { y: 0, opacity: 1 } : {}}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div
         style={{
           width: 200, padding: "28px 24px",
           background: "color-mix(in srgb, var(--cinnabar-ink) 10%, var(--paper))",
           border: "1.5px solid color-mix(in srgb, var(--cinnabar-ink) 35%, transparent)",
           borderRadius: 14, textAlign: "center",
+          opacity: visible ? 1 : 0,
+          transform: visible ? "none" : "translateY(-30px)",
+          transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
         }}
       >
         <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
         <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--cinnabar-ink)", marginBottom: 4 }}>syllabus_class12.pdf</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>41 pages · 6 subjects</div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={visible ? { opacity: 1 } : {}}
-        transition={{ delay: 0.7, duration: 0.4 }}
-        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}
+      <div
+        style={{
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.4s ease 0.7s",
+        }}
       >
         <div style={{ width: 2, height: 28, background: "var(--rule)" }} />
         <div style={{
@@ -56,18 +56,27 @@ function UploadVisual({ visible }: { visible: boolean }) {
           Reading syllabus…
         </div>
         {/* shimmer bar */}
-        <motion.div
+        <div
           style={{ width: 160, height: 4, borderRadius: 2, background: "var(--rule)", overflow: "hidden", marginTop: 4 }}
         >
-          <motion.div
-            initial={{ x: -160 }}
-            animate={visible ? { x: 160 } : {}}
-            transition={{ delay: 0.9, duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.3 }}
-            style={{ width: 80, height: "100%", background: "var(--cinnabar-ink)", borderRadius: 2 }}
-          />
-        </motion.div>
-      </motion.div>
+          <ShimmerBar visible={visible} />
+        </div>
+      </div>
     </div>
+  );
+}
+
+/** Looping shimmer via CSS animation injected once */
+function ShimmerBar({ visible }: { visible: boolean }) {
+  return (
+    <div
+      style={{
+        width: 80, height: "100%",
+        background: "var(--cinnabar-ink)", borderRadius: 2,
+        opacity: visible ? 1 : 0,
+        animation: visible ? "shimmer-slide 1.7s ease-in-out 0.9s infinite" : "none",
+      }}
+    />
   );
 }
 
@@ -78,12 +87,14 @@ function ParseVisual({ visible }: { visible: boolean }) {
         Chapters detected
       </div>
       {SUBJECTS.map((s, i) => (
-        <motion.div
+        <div
           key={s}
-          initial={{ x: -20, opacity: 0 }}
-          animate={visible ? { x: 0, opacity: 1 } : {}}
-          transition={{ delay: i * 0.12, duration: 0.4, ease: "easeOut" }}
-          style={{ display: "flex", alignItems: "center", gap: 12 }}
+          style={{
+            display: "flex", alignItems: "center", gap: 12,
+            opacity: visible ? 1 : 0,
+            transform: visible ? "none" : "translateX(-20px)",
+            transition: `opacity 0.4s ease ${i * 0.12}s, transform 0.4s ease ${i * 0.12}s`,
+          }}
         >
           <div style={{
             width: 6, height: 6, borderRadius: "50%",
@@ -92,31 +103,32 @@ function ParseVisual({ visible }: { visible: boolean }) {
           }} />
           <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)", flex: 1 }}>{s}</div>
           <div style={{ width: `${55 + i * 8}%`, maxWidth: 100, height: 3, background: "var(--rule)", borderRadius: 2, overflow: "hidden" }}>
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={visible ? { scaleX: 1 } : {}}
-              transition={{ delay: 0.3 + i * 0.12, duration: 0.5 }}
-              style={{ height: "100%", width: "100%", background: "var(--cinnabar-ink)", borderRadius: 2, transformOrigin: "left" }}
+            <div
+              style={{
+                height: "100%", width: "100%", background: "var(--cinnabar-ink)", borderRadius: 2,
+                transformOrigin: "left",
+                transform: visible ? "scaleX(1)" : "scaleX(0)",
+                transition: `transform 0.5s ease ${0.3 + i * 0.12}s`,
+              }}
             />
           </div>
           <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", width: 32, textAlign: "right" }}>
             {12 + i * 3}ch
           </div>
-        </motion.div>
+        </div>
       ))}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={visible ? { opacity: 1 } : {}}
-        transition={{ delay: 0.9 }}
+      <div
         style={{
           marginTop: 8, padding: "8px 14px", borderRadius: 8,
           background: "color-mix(in srgb, var(--sage) 15%, var(--paper))",
           border: "1px solid color-mix(in srgb, var(--sage) 30%, transparent)",
           fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.4s ease 0.9s",
         }}
       >
         ✓ 84 chapters · 3 exam dates · board auto-detected as CBSE
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -129,12 +141,14 @@ function PlanVisual({ visible }: { visible: boolean }) {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
         {PLAN_DAYS.map((day, i) => (
-          <motion.div
+          <div
             key={day.d}
-            initial={{ scaleY: 0, opacity: 0 }}
-            animate={visible ? { scaleY: 1, opacity: 1 } : {}}
-            transition={{ delay: i * 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            style={{ transformOrigin: "bottom", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}
+            style={{
+              transformOrigin: "bottom", display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+              opacity: visible ? 1 : 0,
+              transform: visible ? "scaleY(1)" : "scaleY(0)",
+              transition: `opacity 0.45s cubic-bezier(0.16,1,0.3,1) ${i * 0.08}s, transform 0.45s cubic-bezier(0.16,1,0.3,1) ${i * 0.08}s`,
+            }}
           >
             <div
               style={{
@@ -145,21 +159,25 @@ function PlanVisual({ visible }: { visible: boolean }) {
               }}
             />
             <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", letterSpacing: "0.06em" }}>{day.d}</div>
-          </motion.div>
+          </div>
         ))}
       </div>
       {PLAN_DAYS.slice(0, 3).map((day, i) => (
-        <motion.div
+        <div
           key={`row-${i}`}
-          initial={{ opacity: 0, x: -10 }}
-          animate={visible ? { opacity: 1, x: 0 } : {}}
-          transition={{ delay: 0.65 + i * 0.1 }}
-          style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8, background: `color-mix(in srgb, ${day.color} 8%, var(--paper))`, border: `1px solid color-mix(in srgb, ${day.color} 20%, transparent)` }}
+          style={{
+            display: "flex", alignItems: "center", gap: 10, padding: "7px 12px", borderRadius: 8,
+            background: `color-mix(in srgb, ${day.color} 8%, var(--paper))`,
+            border: `1px solid color-mix(in srgb, ${day.color} 20%, transparent)`,
+            opacity: visible ? 1 : 0,
+            transform: visible ? "none" : "translateX(-10px)",
+            transition: `opacity 0.4s ease ${0.65 + i * 0.1}s, transform 0.4s ease ${0.65 + i * 0.1}s`,
+          }}
         >
           <div style={{ width: 6, height: 6, borderRadius: "50%", background: day.color, flexShrink: 0 }} />
           <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink)", flex: 1 }}>{day.d} — {day.subj}</div>
           <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>{Math.round(day.pct * 3)}h</div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );
@@ -183,14 +201,16 @@ function ScoreVisual({ visible }: { visible: boolean }) {
   return (
     <div style={{ padding: "16px 0", minHeight: 220, display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 12 }}>
-        <motion.div
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={visible ? { scale: 1, opacity: 1 } : {}}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          style={{ fontFamily: "var(--serif)", fontSize: "clamp(56px,8vw,80px)", fontWeight: 700, color: "var(--ink)", lineHeight: 1 }}
+        <div
+          style={{
+            fontFamily: "var(--serif)", fontSize: "clamp(56px,8vw,80px)", fontWeight: 700, color: "var(--ink)", lineHeight: 1,
+            opacity: visible ? 1 : 0,
+            transform: visible ? "none" : "scale(0.6)",
+            transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+          }}
         >
           {count}
-        </motion.div>
+        </div>
         <div style={{ paddingBottom: 8 }}>
           <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>/1000</div>
           <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--cinnabar-ink)", marginTop: 2 }}>Needs attention</div>
@@ -199,40 +219,43 @@ function ScoreVisual({ visible }: { visible: boolean }) {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {SCORE_SIGNALS.map((sig, i) => (
-          <motion.div
+          <div
             key={sig.label}
-            initial={{ opacity: 0 }}
-            animate={visible ? { opacity: 1 } : {}}
-            transition={{ delay: 0.4 + i * 0.1 }}
-            style={{ display: "flex", alignItems: "center", gap: 10 }}
+            style={{
+              display: "flex", alignItems: "center", gap: 10,
+              opacity: visible ? 1 : 0,
+              transition: `opacity 0.4s ease ${0.4 + i * 0.1}s`,
+            }}
           >
             <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", width: 120, flexShrink: 0 }}>{sig.label}</div>
             <div style={{ flex: 1, height: 4, background: "var(--rule)", borderRadius: 2, overflow: "hidden" }}>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={visible ? { width: `${sig.pct}%` } : {}}
-                transition={{ delay: 0.6 + i * 0.1, duration: 0.7, ease: "easeOut" }}
-                style={{ height: "100%", background: sig.color, borderRadius: 2 }}
+              <div
+                style={{
+                  height: "100%", background: sig.color, borderRadius: 2,
+                  width: `${sig.pct}%`,
+                  transformOrigin: "left",
+                  transform: visible ? "scaleX(1)" : "scaleX(0)",
+                  transition: `transform 0.7s ease ${0.6 + i * 0.1}s`,
+                }}
               />
             </div>
             <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", width: 30, textAlign: "right" }}>{sig.pct}%</div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={visible ? { opacity: 1 } : {}}
-        transition={{ delay: 1.1 }}
+      <div
         style={{
           padding: "10px 14px", borderRadius: 10, marginTop: 4,
           background: "color-mix(in srgb, var(--cinnabar-ink) 10%, var(--paper))",
           border: "1px solid color-mix(in srgb, var(--cinnabar-ink) 25%, transparent)",
           fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.4s ease 1.1s",
         }}
       >
         Top priority: complete 3 more past papers in Physics to lift your score by ~40 points.
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -247,6 +270,8 @@ const STEPS = [
 export function ProductWalkthrough() {
   const [active, setActive] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const prevActive = useRef(active);
 
   const advance = useCallback(() => {
     setActive(prev => (prev + 1) % STEPS.length);
@@ -268,10 +293,27 @@ export function ProductWalkthrough() {
     return () => cancelAnimationFrame(raf);
   }, [active, advance]);
 
+  // Cross-fade the visual panel when active step changes
+  useEffect(() => {
+    if (prevActive.current === active) return;
+    prevActive.current = active;
+    setIsVisible(false);
+    const t = setTimeout(() => setIsVisible(true), 35);
+    return () => clearTimeout(t);
+  }, [active]);
+
   const Visual = STEPS[active].visual;
 
   return (
     <section style={{ borderBottom: "1px solid var(--rule)" }}>
+      {/* shimmer keyframe — injected once, no extra file needed */}
+      <style>{`
+        @keyframes shimmer-slide {
+          0%   { transform: translateX(-160px); }
+          100% { transform: translateX(160px); }
+        }
+      `}</style>
+
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "120px 56px 108px" }} className="lp-inner">
         <div style={{ height: 1, background: "var(--rule)", marginBottom: 56 }} />
 
@@ -333,17 +375,15 @@ export function ProductWalkthrough() {
               {STEPS[active].sub}
             </div>
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.35 }}
-              >
-                <Visual visible />
-              </motion.div>
-            </AnimatePresence>
+            <div
+              style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "none" : "translateY(12px)",
+                transition: "opacity 0.35s ease, transform 0.35s ease",
+              }}
+            >
+              <Visual visible={isVisible} />
+            </div>
           </div>
         </div>
       </div>
