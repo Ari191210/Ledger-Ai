@@ -6,7 +6,6 @@ import Link from "next/link";
 import { GetStartedButton } from "@/components/ui/get-started-button";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import GlowHorizonFM from "@/components/ui/glow-horizon";
-import { AnimatedTitleFM } from "@/components/ui/glow-horizon-utils/animated-title-fm";
 import { ProductWalkthrough } from "@/components/ui/product-walkthrough";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -201,7 +200,6 @@ export default function Home() {
   const [city,         setCity]         = useState<string | null>(null);
   const [awakeCount,   setAwakeCount]   = useState<number | null>(null);
   const [bookmarkHint, setBookmarkHint] = useState(false);
-  const [heroOpen,     setHeroOpen]     = useState(false);
   const [headline,     setHeadline]     = useState("Know exactly how ready you are for your exams");
 
   // PostHog A/B: hero headline variant
@@ -217,12 +215,6 @@ export default function Home() {
     }
   }, []);
 
-  // Hero: open on first scroll
-  useEffect(() => {
-    const onScroll = () => { setHeroOpen(true); window.removeEventListener("scroll", onScroll); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Clock + variant — ticks every second
   useEffect(() => {
@@ -870,11 +862,6 @@ export default function Home() {
         {/* Glow horizon effect */}
         <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0 }}>
           <GlowHorizonFM variant="top" />
-        </div>
-
-        {/* Animated title — decorative backdrop, must not be in flex flow */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", opacity: 0.06 }}>
-          <AnimatedTitleFM open={heroOpen} />
         </div>
 
         {/* Hero value prop overlay */}
