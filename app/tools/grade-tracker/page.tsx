@@ -5,6 +5,8 @@ import ElasticSlider from "@/components/ui/elastic-slider";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from "recharts";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -307,6 +309,23 @@ function ScoreTab() {
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48 }}>
         <div>
           <div className="mono cin" style={{ marginBottom: 16 }}>Score Breakdown</div>
+          {(() => {
+            const radarData = PILLARS.map(p => ({
+              pillar: p.label,
+              pct: Math.round(((score[p.key] as number) / p.max) * 100),
+            }));
+            const radarConfig = { pct: { label: "Score %" } } satisfies ChartConfig;
+            return (
+              <ChartContainer config={radarConfig} style={{ height: 200, marginBottom: 24 }}>
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="var(--rule)" />
+                  <PolarAngleAxis dataKey="pillar" tick={{ fontFamily: "var(--mono)", fontSize: 9, fill: "var(--ink-3)", letterSpacing: "0.1em" }} />
+                  <Radar dataKey="pct" stroke="var(--cinnabar-ink)" fill="var(--cinnabar-ink)" fillOpacity={0.15} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </RadarChart>
+              </ChartContainer>
+            );
+          })()}
           {PILLARS.map(p => {
             const val = score[p.key] as number;
             const pct = Math.round((val / p.max) * 100);

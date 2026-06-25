@@ -13,6 +13,7 @@ import PostHogProvider from "@/components/posthog-provider";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import RankWhisper from "@/components/rank-whisper";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -223,6 +224,7 @@ export default function RootLayout({
           </ErrorBoundary>
           <RankWhisper />
           <WhatsAppWidget />
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
