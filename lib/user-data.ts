@@ -97,18 +97,19 @@ export async function loadUserData(userId: string): Promise<UserData | null> {
   return { ...(data as UserData), ...localProfile };
 }
 
-export async function saveUserData(userId: string, updates: Partial<UserData>) {
+export async function saveUserData(userId: string, updates: Partial<UserData>): Promise<{ error: string | null }> {
   // Always persist profile fields to localStorage so they survive across sessions
   writeLocalProfile(updates);
 
-  await supabase.from("user_data").upsert({
+  const { error } = await supabase.from("user_data").upsert({
     id: userId,
     ...updates,
     updated_at: new Date().toISOString(),
   });
+  return { error: error?.message ?? null };
 }
 
-export async function patchUserData(userId: string, key: keyof UserData, value: unknown) {
+export async function patchUserData(userId: string, key: keyof UserData, value: unknown): Promise<{ error: string | null }> {
   const existing = await loadUserData(userId);
-  await saveUserData(userId, { ...(existing ?? {}), [key]: value });
+  return saveUserData(userId, { ...(existing ?? {}), [key]: value });
 }
