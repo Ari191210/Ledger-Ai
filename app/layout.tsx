@@ -27,7 +27,7 @@ const instrumentSerif = Instrument_Serif({
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: “--font-inter”,   // reuse existing var - no other files need changing
+  variable: “--font-inter”,
   display: "swap",
 });
 
