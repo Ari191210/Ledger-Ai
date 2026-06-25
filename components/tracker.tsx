@@ -1,6 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { track } from "@/lib/posthog";
+import { TOOLS_REGISTRY } from "@/lib/tools-registry";
 
 function getSessionId(): string {
   if (typeof window === "undefined") return "";
@@ -18,12 +20,17 @@ export default function Tracker() {
   useEffect(() => {
     if (pathname.startsWith("/admin")) return;
     const sessionId = getSessionId();
-    const tool = pathname.startsWith("/tools/") ? pathname.replace("/tools/", "") : null;
+    const toolSlug = pathname.startsWith("/tools/") ? pathname.replace("/tools/", "") : null;
     fetch("/api/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, page: pathname, tool }),
+      body: JSON.stringify({ sessionId, page: pathname, tool: toolSlug }),
     }).catch(() => {});
+
+    if (toolSlug) {
+      const entry = TOOLS_REGISTRY.find((t) => t.slug === toolSlug);
+      track.toolOpen(toolSlug, entry?.cat ?? "UNKNOWN");
+    }
   }, [pathname]);
 
   return null;

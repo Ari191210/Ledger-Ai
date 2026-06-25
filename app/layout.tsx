@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Instrument_Serif, DM_Sans, Space_Mono, Lora } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
@@ -27,7 +27,7 @@ const instrumentSerif = Instrument_Serif({
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: “--font-inter”,
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -49,41 +49,41 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: “StudyLedger | The Student's Operating System”,
+  title: "StudyLedger | The Student's Operating System",
   description:
-    “55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more - calibrated to your board, grade, and exam date.”,
-  manifest: “/manifest.json”,
-  metadataBase: new URL(“https://studyledger.in”),
+    "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more - calibrated to your board, grade, and exam date.",
+  manifest: "/manifest.json",
+  metadataBase: new URL("https://studyledger.in"),
   alternates: {
-    canonical: “/”,
+    canonical: "/",
   },
   keywords: [
-    “student study app”, “AI study tools”, “CBSE study”, “JEE preparation”, “NEET preparation”,
-    “IGCSE study”, “IB study tools”, “study planner”, “past papers”, “exam preparation”,
-    “flashcards”, “marks predictor”, “doubt solver”, “study OS”, “ledger study”,
+    "student study app", "AI study tools", "CBSE study", "JEE preparation", "NEET preparation",
+    "IGCSE study", "IB study tools", "study planner", "past papers", "exam preparation",
+    "flashcards", "marks predictor", "doubt solver", "study OS", "ledger study",
   ],
   openGraph: {
-    title: “StudyLedger | The Student's Operating System”,
+    title: "StudyLedger | The Student's Operating System",
     description:
-      “55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more - calibrated to your board, grade, and exam date.”,
-    url: “https://studyledger.in”,
-    siteName: “StudyLedger”,
-    type: “website”,
+      "55 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more - calibrated to your board, grade, and exam date.",
+    url: "https://studyledger.in",
+    siteName: "StudyLedger",
+    type: "website",
     images: [
       {
-        url: “/og-image.png”,
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: “StudyLedger | The Student's Operating System”,
+        alt: "StudyLedger | The Student's Operating System",
       },
     ],
   },
   twitter: {
-    card: “summary_large_image”,
-    title: “StudyLedger | The Student's Operating System”,
+    card: "summary_large_image",
+    title: "StudyLedger | The Student's Operating System",
     description:
-      “55 AI-powered tools for students. Calibrated to your board, grade, and exam date.”,
-    images: [“/og-image.png”],
+      "55 AI-powered tools for students. Calibrated to your board, grade, and exam date.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,

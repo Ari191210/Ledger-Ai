@@ -9,6 +9,7 @@ import { trackToolVisit, getRecentTools, getFavTools, saveFavTools } from "@/lib
 import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
+import { track } from "@/lib/posthog";
 import FeaturesShowcase from "@/components/features-showcase";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import { FloatingDock } from "@/components/ui/floating-dock";
@@ -576,7 +577,20 @@ function LedgerScoreWidget() {
   const [score, setScore] = useState<ScoreBreakdown | null>(null);
   const scoreRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
-    try { setScore(computeLedgerScore()); } catch { setScore({ total: 0, pqaScore: 0, syllabusScore: 0, mistakeScore: 0, consistencyScore: 0, pqaAccuracy: 0, papersCount: 0, syllabusUploaded: false, subjectsCovered: 0, subjectsTotal: 0, recentMistakes: 0, streak: 0, actions: ["Upload your syllabus — this alone unlocks up to 250 score points"], subjectAccuracy: [] }); }
+    try {
+      const s = computeLedgerScore();
+      setScore(s);
+      track.featureUsed("ledger_score_computed", {
+        score: s.total,
+        tier: scoreTier(s.total).label,
+        pqa_score: s.pqaScore,
+        syllabus_score: s.syllabusScore,
+        mistake_score: s.mistakeScore,
+        consistency_score: s.consistencyScore,
+      });
+    } catch {
+      setScore({ total: 0, pqaScore: 0, syllabusScore: 0, mistakeScore: 0, consistencyScore: 0, pqaAccuracy: 0, papersCount: 0, syllabusUploaded: false, subjectsCovered: 0, subjectsTotal: 0, recentMistakes: 0, streak: 0, actions: ["Upload your syllabus — this alone unlocks up to 250 score points"], subjectAccuracy: [] });
+    }
   }, []);
   if (!score) return null;
   const tier = scoreTier(score.total);
