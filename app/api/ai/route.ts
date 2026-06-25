@@ -249,6 +249,89 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 
 type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map";
 
+// Required params per tool — missing any → 400, prevents silent blank AI output
+const REQUIRED_PARAMS: Partial<Record<ToolName, string[]>> = {
+  notes:                ["content"],
+  doubt:                ["question"],
+  career:               ["answers"],
+  assignment:           ["brief"],
+  crunch:               ["examName", "topics"],
+  tutor:                ["subject", "topic"],
+  formula:              ["subject", "chapter"],
+  admissions:           ["profile", "topColleges"],
+  essay_grade:          ["essay"],
+  personal_statement:   ["ps"],
+  interview_questions:  ["role"],
+  interview_eval:       ["question", "answer"],
+  mindmap:              ["topic"],
+  presentation:         ["topic"],
+  debate:               ["motion"],
+  exam_sim:             ["topic"],
+  vocab:                ["topic"],
+  research:             ["query"],
+  coach_briefing:       ["context"],
+  coach_chat:           ["message"],
+  mark_scheme:          ["topic"],
+  mark_scheme_eval:     ["question", "answer"],
+  essay_blueprint:      ["prompt"],
+  concept_web:          ["topic"],
+  paper_dissector:      ["question"],
+  lang_analyzer:        ["text"],
+  lab_report:           ["experiment"],
+  compare:              ["items"],
+  source:               ["question", "sourceText"],
+  practice:             ["topic"],
+  predict:              ["topic"],
+  memory_palace:        ["topic", "items"],
+  analogy:              ["concept"],
+  case_study:           ["question", "caseText"],
+  timeline:             ["topic"],
+  reading:              ["question", "passage"],
+  grammar:              ["text"],
+  study_guide:          ["topic"],
+  concept_connect:      ["conceptA", "conceptB"],
+  model_answer:         ["question"],
+  papers_explain:       ["question", "correct"],
+  argument:             ["claim"],
+  cremator:             ["syllabusText"],
+  formula_recall:       ["topic"],
+  exam_debrief:         ["examName"],
+  circuit_breaker:      ["context"],
+  topic_half_life:      ["chaptersLog"],
+  analysis_hub:         ["data"],
+  application_plan:     ["profile"],
+  brain_budget:         ["schedule", "exams"],
+  exam_triage:          ["topics"],
+  focus_lab:            ["task"],
+  language_lab:         ["topic"],
+  memory_toolkit:       ["content"],
+  recall_studio:        ["content"],
+  reference_builder:    ["sources"],
+  report_writer:        ["keyPoints"],
+  research_suite:       ["question"],
+  revision_intel:       ["topics"],
+  study_command:        ["weakTopics"],
+  uni_prep:             ["profile"],
+  writing_tools:        ["text", "operation"],
+  paper_triage:         ["topicStatusMap"],
+  doubt_cross_question: ["question", "solution"],
+  doubt_cross_eval:     ["question", "solution", "qa"],
+  calibration_questions:["topic"],
+  feynman_probe:        ["concept", "explanation"],
+  feynman_eval:         ["concept", "explanation", "qa"],
+  paper_pattern:        ["topic"],
+  last_night_triage:    ["chapter_states"],
+  paper_autopsy:        ["paperData"],
+  marks_obituary:       ["lost"],
+  silent_topic_audit:   ["studyLog"],
+  examiner_mind:        ["question", "studentAnswer"],
+  last_night_brief:     ["subjectsChapters"],
+  marks_autopsy:        ["errorLog"],
+  panic_triage:         ["chapters"],
+  marks_forensics:      ["question", "studentAnswer"],
+  paper_trauma_map:     ["mockResults"],
+};
+
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
   switch (tool) {
@@ -2111,6 +2194,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: sanitised.error }, { status: 400 });
   }
   const params = sanitised.params;
+
+  // ── Required-field check per tool ─────────────────────────────────────────
+  const requiredFields = REQUIRED_PARAMS[tool] ?? [];
+  const missingFields = requiredFields.filter(f => !params[f] && params[f] !== 0 && params[f] !== false);
+  if (missingFields.length > 0) {
+    return NextResponse.json(
+      { error: `Missing required field(s) for ${tool}: ${missingFields.join(", ")}` },
+      { status: 400 },
+    );
+  }
 
   // ── Authentication required ────────────────────────────────────────────────
   const authHeader = req.headers.get("Authorization");
