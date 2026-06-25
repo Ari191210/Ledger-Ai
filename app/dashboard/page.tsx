@@ -244,7 +244,7 @@ function LiveSection({ activeCount, feed }: { activeCount: number | null; feed: 
   return (
     <div className="glass-card" style={{ marginBottom: 32, padding: "20px 24px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "oklch(0.65 0.22 145)", display: "inline-block", boxShadow: "0 0 0 3px color-mix(in oklch, oklch(0.65 0.22 145) 25%, transparent)", animation: "pulse-dot 2s ease-in-out infinite" }} />
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--severity-success-color)", display: "inline-block", boxShadow: "0 0 0 3px color-mix(in oklch, var(--severity-success-color) 25%, transparent)", animation: "pulse-dot 2s ease-in-out infinite" }} />
         <span className="mono" style={{ fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Live</span>
         {activeCount !== null && (
           <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)", marginLeft: 4 }}>
@@ -257,7 +257,7 @@ function LiveSection({ activeCount, feed }: { activeCount: number | null; feed: 
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {feed.slice(0, 6).map((row, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "oklch(0.65 0.22 145)", flexShrink: 0 }} />
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--severity-success-color)", flexShrink: 0 }} />
               <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)" }}>
                 Someone just used <strong style={{ color: "var(--ink)" }}>{label(row.tool)}</strong>
               </span>
@@ -554,8 +554,8 @@ function ScoreRing({ score, size = 160 }: { score: number; size?: number }) {
       <defs>
         <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="var(--cinnabar)" />
-          <stop offset="50%" stopColor="oklch(0.65 0.22 290)" />
-          <stop offset="100%" stopColor="oklch(0.75 0.18 180)" />
+          <stop offset="50%" stopColor="var(--ink-2)" />
+          <stop offset="100%" stopColor="var(--severity-success-color)" />
         </linearGradient>
       </defs>
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="color-mix(in oklch, var(--ink) 8%, transparent)" strokeWidth={10} />
@@ -644,7 +644,7 @@ function LedgerScoreWidget() {
                 {p.val}<span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", fontWeight: 400 }}>/{p.max}</span>
               </span>
               <div style={{ height: 4, background: "color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 2 }}>
-                <div className="pillar-bar-fill" style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--ink)", borderRadius: 2 }} />
+                <div className="pillar-bar-fill" style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--cinnabar-ink)", borderRadius: 2, transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)" }} />
               </div>
             </div>
           ))}
@@ -889,7 +889,7 @@ export default function Dashboard() {
         }} />
         <div style={{
           position: "absolute", width: 500, height: 500, borderRadius: "50%",
-          background: "radial-gradient(circle, color-mix(in srgb, oklch(0.55 0.18 300) 6%, transparent) 0%, transparent 70%)",
+          background: "radial-gradient(circle, color-mix(in srgb, var(--ink-2) 6%, transparent) 0%, transparent 70%)",
           filter: "blur(90px)", bottom: "10%", left: "-5%",
           animation: "float-orb 28s ease-in-out infinite reverse",
         }} />
@@ -913,7 +913,7 @@ export default function Dashboard() {
                 {/* SVG flame */}
                 <svg width="18" height="22" viewBox="0 0 18 22" fill="none" aria-hidden="true">
                   <path d="M9 0C9 0 4 5 4 10C4 12.5 5.5 14.5 7 15.5C7 13 8 11 9 10C10 11 11 13 11 15.5C12.5 14.5 14 12.5 14 10C14 5 9 0 9 0Z" fill="var(--cinnabar)" opacity="0.9"/>
-                  <ellipse cx="9" cy="17" rx="4" ry="5" fill="color-mix(in oklch, var(--cinnabar) 60%, oklch(0.75 0.18 60))" opacity="0.8"/>
+                  <ellipse cx="9" cy="17" rx="4" ry="5" fill="color-mix(in oklch, var(--cinnabar) 60%, var(--paper))" opacity="0.8"/>
                 </svg>
                 <span style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--cinnabar-ink)", lineHeight: 1 }}>{streak}</span>
                 <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", opacity: 0.8 }}>day streak</span>
@@ -1004,100 +1004,75 @@ export default function Dashboard() {
       )}
 
       {/* Jump back in — recently used tools, at the top of the dashboard */}
-      {recentSlugs.length > 0 && (() => {
+      {(() => {
         const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
         const recent = recentSlugs.slice(0, 6)
           .map(s => allTools.find(t => t.slug === s))
           .filter(Boolean) as typeof allTools;
-        if (!recent.length) return null;
         return (
           <div style={{ marginBottom: 32 }}>
-            {/* Section divider — matches SectionLabel style */}
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.18em", flexShrink: 0 }}>↩</span>
               <div style={{ flex: 1, height: 1, background: "color-mix(in srgb, var(--ink) 8%, transparent)" }} />
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase", flexShrink: 0 }}>Jump back in</span>
             </div>
 
-            {/* Tool cards — rounded bubbly grid */}
-            <div style={{
-              display:             "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-              gap:                 12,
-            }}>
-              {recent.map(t => {
-                const cat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
-                const catLabel = cat?.label ?? "";
-                const catColor = CAT_COLOR[catLabel as keyof typeof CAT_COLOR] ?? "var(--ink-3)";
-                return (
-                  <Link
-                    key={t.slug}
-                    href={`/tools/${t.slug}`}
-                    onClick={() => trackToolVisit(t.slug)}
-                    style={{
-                      textDecoration: "none",
-                      display:        "flex",
-                      flexDirection:  "column",
-                      gap:            8,
-                      padding:        "18px 20px 16px",
-                      background:     "color-mix(in srgb, var(--paper) 55%, transparent)",
-                      backdropFilter: "blur(20px) saturate(180%)",
-                      WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                      borderRadius:   14,
-                      border:         `1.5px solid color-mix(in srgb, ${catColor} 30%, color-mix(in srgb, var(--ink) 8%, transparent))`,
-                      boxShadow:      "0 2px 8px color-mix(in oklch, var(--ink) 10%, transparent)",
-                      transition:     "transform 280ms cubic-bezier(0.22,1,0.36,1), box-shadow 240ms ease, background 160ms ease",
-                    }}
-                    onMouseOver={e => {
-                      const el = e.currentTarget as HTMLAnchorElement;
-                      el.style.background  = "color-mix(in srgb, var(--paper) 70%, transparent)";
-                      el.style.transform   = "translateY(-6px) scale(1.03)";
-                      el.style.boxShadow   = `0 0 0 1.5px ${catColor}, 0 18px 44px color-mix(in oklch, var(--ink) 32%, transparent), 0 0 36px color-mix(in srgb, ${catColor} 14%, transparent)`;
-                    }}
-                    onMouseOut={e => {
-                      const el = e.currentTarget as HTMLAnchorElement;
-                      el.style.background  = "color-mix(in srgb, var(--paper) 55%, transparent)";
-                      el.style.transform   = "";
-                      el.style.boxShadow   = "0 2px 8px color-mix(in oklch, var(--ink) 10%, transparent)";
-                    }}
-                  >
-                    {/* Category tag */}
-                    <div style={{
-                      fontFamily:    "var(--mono)",
-                      fontSize:      8,
-                      letterSpacing: "0.16em",
-                      textTransform: "uppercase",
-                      color:         catColor,
-                    }}>
-                      {catLabel}
-                    </div>
-
-                    {/* Tool name */}
-                    <div style={{
-                      fontFamily: "var(--serif)",
-                      fontSize:   14,
-                      fontWeight: 600,
-                      color:      "var(--ink)",
-                      lineHeight: 1.25,
-                      flex:       1,
-                    }}>
-                      {t.ttl}
-                    </div>
-
-                    {/* Open arrow */}
-                    <div style={{
-                      fontFamily:    "var(--mono)",
-                      fontSize:      9,
-                      color:         catColor,
-                      letterSpacing: "0.06em",
-                      marginTop:     4,
-                    }}>
-                      Open →
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            {recent.length === 0 ? (
+              <div style={{ padding: "40px 24px", textAlign: "center", border: "1px dashed var(--rule)", borderRadius: 12 }}>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 24, color: "var(--ink-2)", marginBottom: 8 }}>No tools used yet</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", marginBottom: 20 }}>Your recently used tools will appear here</div>
+                <Link href="/tools" style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.08em", border: "1px solid var(--cinnabar-ink)", padding: "8px 16px", borderRadius: 6 }}>
+                  Browse all 55 tools →
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+                {recent.map(t => {
+                  const cat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
+                  const catLabel = cat?.label ?? "";
+                  const catColor = CAT_COLOR[catLabel as keyof typeof CAT_COLOR] ?? "var(--ink-3)";
+                  return (
+                    <Link
+                      key={t.slug}
+                      href={`/tools/${t.slug}`}
+                      onClick={() => trackToolVisit(t.slug)}
+                      style={{
+                        textDecoration: "none",
+                        display:        "flex",
+                        flexDirection:  "column",
+                        position:       "relative",
+                        overflow:       "hidden",
+                        padding:        "14px 16px 14px 20px",
+                        border:         "1px solid var(--rule)",
+                        borderRadius:   10,
+                        background:     "var(--paper)",
+                        color:          "var(--ink)",
+                        cursor:         "pointer",
+                        transition:     "transform 150ms ease, box-shadow 150ms ease",
+                      }}
+                      onMouseOver={e => {
+                        const el = e.currentTarget as HTMLAnchorElement;
+                        el.style.transform  = "translateY(-2px)";
+                        el.style.boxShadow  = "0 4px 16px color-mix(in srgb, var(--ink) 8%, transparent)";
+                      }}
+                      onMouseOut={e => {
+                        const el = e.currentTarget as HTMLAnchorElement;
+                        el.style.transform  = "";
+                        el.style.boxShadow  = "";
+                      }}
+                    >
+                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: catColor }} />
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)", marginBottom: 4 }}>
+                        {t.ttl}
+                      </div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.04em", lineHeight: 1.4 }}>
+                        {t.sub}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })()}
@@ -1183,27 +1158,30 @@ export default function Dashboard() {
               <div className="mono" style={{ fontSize: 9, letterSpacing: "0.14em", color: "var(--cinnabar-ink)" }}>★ Favourites</div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{favs.length} pinned</div>
             </div>
-            <div className="dash-grid mob-2col" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-              {favs.map((t, ti) => {
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+              {favs.map((t) => {
                 const favCat      = TOOL_CATEGORIES.find(c => c.tools.some(x => x.slug === t.slug));
                 const favCatColor = CAT_COLOR[(favCat?.label ?? "") as keyof typeof CAT_COLOR] ?? "var(--cinnabar-ink)";
                 return (
-                <Link key={t.slug} href={`/tools/${t.slug}`} className="dash-tool glass-card"
+                <Link key={t.slug} href={`/tools/${t.slug}`} className="dash-tool"
                   onClick={() => trackToolVisit(t.slug)}
                   style={{
-                    textDecoration: "none", padding: "18px 20px 14px",
-                    display: "flex", flexDirection: "column", color: "var(--ink)", minHeight: 120,
-                    "--cat-color": favCatColor,
-                  } as React.CSSProperties}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                    <div className="mono" style={{ fontSize: 7, letterSpacing: "0.14em", color: favCatColor }}>★</div>
-                    <button onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFav(t.slug); }} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", padding: 0 }}>✕</button>
+                    textDecoration: "none",
+                    display: "flex", flexDirection: "column",
+                    position: "relative", overflow: "hidden",
+                    padding: "14px 16px 14px 20px",
+                    border: "1px solid var(--rule)", borderRadius: 10,
+                    background: "var(--paper)", color: "var(--ink)", cursor: "pointer",
+                    transition: "transform 150ms ease, box-shadow 150ms ease",
+                  } as React.CSSProperties}
+                  onMouseOver={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.transform = "translateY(-2px)"; el.style.boxShadow = "0 4px 16px color-mix(in srgb, var(--ink) 8%, transparent)"; }}
+                  onMouseOut={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.transform = ""; el.style.boxShadow = ""; }}>
+                  <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: favCatColor }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{t.ttl}</div>
+                    <button onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFav(t.slug); }} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", padding: 0, flexShrink: 0, marginLeft: 8 }}>✕</button>
                   </div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 500, fontStyle: "italic", color: "var(--ink)", flex: 1 }}>{t.ttl}</div>
-                  <div style={{ borderTop: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", marginTop: 10, paddingTop: 8, display: "flex", justifyContent: "space-between" }}>
-                    <div className="mono" style={{ fontSize: 7, color: "var(--ink-3)" }}>{String(ti + 1).padStart(2, "0")}</div>
-                    <span className="dash-tool-arrow mono" style={{ fontSize: 11 }}>↗</span>
-                  </div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.04em", lineHeight: 1.4 }}>{t.sub}</div>
                 </Link>
                 );
               })}
