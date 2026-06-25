@@ -35,6 +35,10 @@
       },
       "optional": true
     },
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    },
     "flow-nexus": {
       "command": "cmd",
       "args": [
