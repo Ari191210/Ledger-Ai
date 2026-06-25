@@ -872,8 +872,8 @@ export default function Home() {
           <GlowHorizonFM variant="top" />
         </div>
 
-        {/* Animated title */}
-        <div style={{ position: "relative", zIndex: 2, width: "100%" }}>
+        {/* Animated title — decorative backdrop, must not be in flex flow */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", opacity: 0.06 }}>
           <AnimatedTitleFM open={heroOpen} />
         </div>
 
