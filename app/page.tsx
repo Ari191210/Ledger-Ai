@@ -396,40 +396,15 @@ export default function Home() {
 
       /* ── Hero entrance ── */
       if (reduceMotion) {
-        gsap.set(
-          [".hero-badge", ".hero-word-1", ".hero-word-2", ".hero-divider",
-           ".hero-sub", ".hero-stats", ".hero-ctas > *", ".hero-scroll", ".hero-activity"],
-          { autoAlpha: 1, y: 0, x: 0, scale: 1, clipPath: "none", filter: "none" }
-        );
+        gsap.set([".hero-ctas > *", ".hero-scroll"], { autoAlpha: 1, y: 0, scale: 1 });
       } else {
         gsap.timeline({ defaults: { ease: "power3.out" } })
-          .fromTo(".hero-badge",
-            { clipPath: "inset(0 100% 0 0)", autoAlpha: 0 },
-            { clipPath: "inset(0 0% 0 0)", autoAlpha: 1, duration: 0.8, ease: "power2.inOut" })
-          .fromTo(".hero-word-1",
-            { autoAlpha: 0, y: 70, filter: "blur(8px)" },
-            { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 1.0, stagger: 0.15, ease: "power3.out" }, "-=0.3")
-          .fromTo(".hero-word-2",
-            { autoAlpha: 0, y: 60, filter: "blur(6px)" },
-            { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.95 }, "-=0.55")
-          .fromTo(".hero-divider",
-            { scaleX: 0, transformOrigin: "left" },
-            { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, "-=0.5")
-          .fromTo(".hero-sub",
-            { autoAlpha: 0, y: 24 },
-            { autoAlpha: 1, y: 0, duration: 0.65 }, "-=0.4")
-          .fromTo(".hero-stats",
-            { autoAlpha: 0, x: 30, scale: 0.93 },
-            { autoAlpha: 1, x: 0, scale: 1, duration: 0.7, ease: "power3.out" }, "-=0.5")
           .fromTo(".hero-ctas > *",
             { autoAlpha: 0, y: 20, scale: 0.94 },
-            { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1 }, "-=0.45")
+            { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1 })
           .fromTo(".hero-scroll",
             { autoAlpha: 0, y: 10 },
-            { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.2")
-          .fromTo(".hero-activity",
-            { autoAlpha: 0, x: -30, filter: "blur(6px)" },
-            { autoAlpha: 1, x: 0, filter: "blur(0px)", duration: 0.65, ease: "power2.out" }, "-=0.5");
+            { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.2");
       }
 
       if (reduceMotion) {
