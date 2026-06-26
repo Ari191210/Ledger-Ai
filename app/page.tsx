@@ -295,6 +295,27 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Navbar hide on scroll-down, show on scroll-up */
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>(".lp-header");
+    if (!nav) return;
+    nav.style.transition = "transform 0.35s cubic-bezier(0.16,1,0.3,1)";
+    let last = window.scrollY;
+    const onScroll = () => {
+      const cur = window.scrollY;
+      if (cur < 80) {
+        nav.style.transform = "translateX(-50%) translateY(0)";
+      } else if (cur > last) {
+        nav.style.transform = "translateX(-50%) translateY(calc(-100% - 24px))";
+      } else {
+        nav.style.transform = "translateX(-50%) translateY(0)";
+      }
+      last = cur;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   /* Live activity cycling */
   useEffect(() => {
     const el = activityRef.current;
