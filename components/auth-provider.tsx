@@ -47,10 +47,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             u.user_metadata?.name ||
             u.email?.split("@")[0] ||
             "there";
-          fetch("/api/welcome", {
+          fetch("/api/jobs/enqueue", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: u.id, name: displayName }),
+            body: JSON.stringify({ type: "send-welcome", payload: { userId: u.id, name: displayName } }),
           }).catch(() => {});
         }
       }
