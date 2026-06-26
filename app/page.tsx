@@ -441,6 +441,19 @@ export default function Home() {
         });
       });
 
+      /* ── Welcome section: scroll-triggered char reveal ── */
+      gsap.to(".welcome-eyebrow", {
+        autoAlpha: 1, duration: 0.6, ease: "power2.out",
+        scrollTrigger: { trigger: ".welcome-section", start: "top 80%", once: true },
+      });
+      gsap.utils.toArray<HTMLElement>(".welcome-char").forEach((el, i) => {
+        gsap.to(el, {
+          y: 0, autoAlpha: 1, duration: 0.7, ease: [0.16, 1, 0.3, 1] as unknown as string,
+          delay: i * 0.032,
+          scrollTrigger: { trigger: ".welcome-section", start: "top 75%", once: true },
+        });
+      });
+
       /* ── Section headings: clip-path reveal ── */
       gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
         gsap.to(el, {
@@ -874,13 +887,6 @@ export default function Home() {
           }}>
             {headline}
           </h1>
-          <p className="hero-sub" style={{
-            fontFamily: "var(--sans)", fontSize: "clamp(14px, 1.6vw, 18px)",
-            color: "var(--ink-2)", lineHeight: 1.65,
-            maxWidth: 580, margin: "0 auto 24px",
-          }}>
-            Board-aware AI that tracks your syllabus, scores your readiness, and tells you exactly what to study next.
-          </p>
           <div className="hero-divider" style={{
             width: 40, height: 1, background: "var(--rule)",
             margin: "0 auto 24px",
@@ -933,6 +939,35 @@ export default function Home() {
           </div>
         </div>
 
+      </section>
+
+      {/* ─── Welcome ─── */}
+      <section className="welcome-section" style={{ padding: "120px 32px", textAlign: "center", borderBottom: S.border, background: "var(--paper)", overflow: "hidden" }}>
+        <div className="welcome-eyebrow" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 20, opacity: 0 }}>
+          Welcome to
+        </div>
+        <div style={{ overflow: "hidden" }}>
+          {"StudyLedger".split("").map((char, i) => (
+            <span
+              key={i}
+              className="welcome-char"
+              style={{
+                display: "inline-block",
+                fontFamily: "var(--serif)",
+                fontStyle: "italic",
+                fontWeight: 400,
+                fontSize: "clamp(56px, 10vw, 130px)",
+                color: "var(--ink)",
+                letterSpacing: "-0.025em",
+                lineHeight: 1.05,
+                transform: "translateY(110%)",
+                opacity: 0,
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </div>
       </section>
 
       {/* ─── Product at a Glance ─── */}
