@@ -50,10 +50,10 @@ export function StudentJourneySection() {
         </h2>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, position: "relative" }}>
-          <div style={{ position: "absolute", top: 28, left: "12.5%", right: "12.5%", height: 1, background: "var(--rule)", zIndex: 0 }} />
+          <div style={{ position: "absolute", top: 22, left: "16.67%", right: "16.67%", height: 1, background: "var(--rule)", zIndex: 0 }} />
 
           {STAGES.map((s, i) => (
-            <div key={s.day} style={{ position: "relative", zIndex: 1, padding: "0 16px" }}>
+            <div key={s.day} style={{ position: "relative", zIndex: 1, padding: "0 24px" }}>
               <div style={{
                 width: 12,
                 height: 12,
@@ -61,6 +61,8 @@ export function StudentJourneySection() {
                 background: i === STAGES.length - 1 ? "var(--cinnabar-ink)" : "var(--ink-3)",
                 border: "2px solid var(--paper)",
                 marginBottom: 28,
+                marginLeft: "auto",
+                marginRight: "auto",
                 boxShadow: i === STAGES.length - 1 ? "0 0 12px var(--cinnabar-ink)" : "none",
               }} />
 
