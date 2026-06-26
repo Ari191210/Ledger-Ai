@@ -65,10 +65,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signOut() {
     if (user) {
-      // Sync localStorage to cloud before signing out
       await pushToCloud(user.id).catch(() => {});
     }
     await supabase.auth.signOut();
+    if (typeof window !== "undefined") {
+      const keep = new Set([
+        "palette", "palette-custom-accent",
+        "ledger-mode", "ledger-density", "ledger-theme-mode", "ledger-palette",
+        "ledger-last-light", "ledger-font-sans", "ledger-font-serif",
+        "ledger-font-mono", "ledger-radius", "ledger-width", "ledger-anim-speed",
+        "ledger-dash-layout",
+      ]);
+      Object.keys(localStorage).forEach(k => { if (!keep.has(k)) localStorage.removeItem(k); });
+    }
   }
 
   return (
