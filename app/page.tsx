@@ -887,26 +887,7 @@ export default function Home() {
           }}>
             {headline}
           </h1>
-          <div className="hero-divider" style={{
-            width: 40, height: 1, background: "var(--rule)",
-            margin: "0 auto 24px",
-          }} />
-          <div className="hero-stats" style={{
-            display: "flex", gap: "clamp(20px, 4vw, 48px)", justifyContent: "center",
-            margin: "0 auto 32px", opacity: 0,
-          }}>
-            {[
-              { value: "55+", label: "AI tools" },
-              { value: "1000", label: "Ledger Score" },
-              { value: "6+", label: "Exam boards" },
-            ].map(({ value, label }) => (
-              <div key={label} style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(22px,3vw,32px)", color: "var(--ink)", lineHeight: 1 }}>{value}</div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 5 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-          <div className="hero-ctas" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, pointerEvents: "auto" }}>
+          <div className="hero-ctas" style={{ display: "flex", justifyContent: "center", pointerEvents: "auto", marginTop: 32 }}>
             <Link
               href="/auth"
               className="btn hero-cta-btn"
@@ -920,12 +901,6 @@ export default function Home() {
             >
               Check my readiness &mdash; it&apos;s free
             </Link>
-            <div style={{
-              fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)",
-              letterSpacing: "0.1em", textTransform: "uppercase",
-            }}>
-              12,847+ study sessions this week &middot; Free forever &middot; No credit card
-            </div>
           </div>
         </div>
 
