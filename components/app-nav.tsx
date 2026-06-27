@@ -12,6 +12,9 @@ import CommandPalette from "./command-palette";
 type Tool = { slug: string; full: string; sub: string };
 type Category = { label: string; color: string; tools: Tool[] };
 
+// iOS-native drawer curve — feels like it grows from the trigger, not slides from a wall
+const DRAWER_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+
 const CATEGORIES: Category[] = [
   {
     label: "PLAN", color: "var(--sage)",
@@ -90,8 +93,13 @@ const CATEGORIES: Category[] = [
 
 const TOTAL_TOOLS = CATEGORIES.reduce((n, c) => n + c.tools.length, 0);
 
-function ToolRow({ t, color, onOpen, onSplit }: { t: Tool; color: string; onOpen: (s: string) => void; onSplit: (s: string) => void }) {
+function ToolRow({ t, color, idx, sidebarOpen, onOpen, onSplit }: {
+  t: Tool; color: string; idx: number; sidebarOpen: boolean;
+  onOpen: (s: string) => void; onSplit: (s: string) => void;
+}) {
   const [hovered, setHovered] = useState(false);
+  // Cap delay so the wave completes before users start scanning (~240ms max)
+  const delay = Math.min(idx * 14, 240);
   return (
     <div
       style={{
@@ -100,6 +108,9 @@ function ToolRow({ t, color, onOpen, onSplit }: { t: Tool; color: string; onOpen
         borderLeft: hovered ? `3px solid ${color}` : "3px solid transparent",
         background: hovered ? "var(--paper)" : "transparent",
         transition: "background 140ms ease, border-color 140ms ease",
+        animation: sidebarOpen
+          ? `sidebar-item-in 0.24s cubic-bezier(0.23,1,0.32,1) ${delay}ms both`
+          : undefined,
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -112,11 +123,13 @@ function ToolRow({ t, color, onOpen, onSplit }: { t: Tool; color: string; onOpen
         <button
           onClick={() => onOpen(t.slug)}
           aria-label={`Open ${t.full}`}
+          className="tool-row-btn"
           style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--ink-2)", background: "transparent", color: "var(--ink-2)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
         >Open</button>
         <button
           onClick={() => onSplit(t.slug)}
           aria-label={`Split view with ${t.full}`}
+          className="tool-row-btn"
           style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--rule)", background: "transparent", color: "var(--ink-3)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
         >Split</button>
       </div>
@@ -343,6 +356,7 @@ export default function AppNav() {
           aria-label="Open tools panel"
           aria-expanded={open}
           aria-haspopup="dialog"
+          className="nav-btn-press"
           style={{
             display: "flex", alignItems: "center", gap: 7, padding: "0 18px",
             background: open ? "var(--paper-2)" : "transparent", border: "none",
@@ -410,14 +424,18 @@ export default function AppNav() {
       {/* Spacer: compensates for fixed nav (52px height + 12px top + 12px clearance) */}
       <div style={{ height: 76 }} aria-hidden="true" />
 
-      {/* ── Sidebar backdrop ── */}
-      {open && (
-        <div
-          onClick={closeSidebar}
-          aria-hidden="true"
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 199 }}
-        />
-      )}
+      {/* ── Sidebar backdrop — always mounted so it can fade out ── */}
+      <div
+        onClick={open ? closeSidebar : undefined}
+        aria-hidden="true"
+        style={{
+          position: "fixed", inset: 0, zIndex: 199,
+          background: "rgba(0,0,0,0.55)",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          transition: `opacity ${open ? 220 : 180}ms ease`,
+        }}
+      />
 
       {/* ── Slide-in sidebar — browse by category, open or split ── */}
       <div
@@ -431,7 +449,7 @@ export default function AppNav() {
           background: "var(--paper-2)", borderRight: "1px solid var(--rule)",
           zIndex: 200, display: "flex", flexDirection: "column",
           transform: open ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 220ms cubic-bezier(0.4,0,0.2,1)",
+          transition: `transform ${open ? 280 : 200}ms ${DRAWER_EASE}`,
         }}
       >
         {/* Sidebar header */}
@@ -471,15 +489,21 @@ export default function AppNav() {
 
         {/* Tool list — always browsing by category */}
         <div role="list" style={{ flex: 1, overflowY: "auto" }}>
-          {CATEGORIES.map(cat => (
-            <div key={cat.label}>
-              <div style={{ padding: "7px 16px", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: cat.color, flexShrink: 0, display: "inline-block" }} />
-                <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: cat.color, letterSpacing: "0.14em", textTransform: "uppercase" }}>{cat.label}</span>
+          {(() => {
+            let globalIdx = 0;
+            return CATEGORIES.map(cat => (
+              <div key={cat.label}>
+                <div style={{ padding: "7px 16px", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: cat.color, flexShrink: 0, display: "inline-block" }} />
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: cat.color, letterSpacing: "0.14em", textTransform: "uppercase" }}>{cat.label}</span>
+                </div>
+                {cat.tools.map(t => {
+                  const idx = globalIdx++;
+                  return <ToolRow key={t.slug} t={t} color={cat.color} idx={idx} sidebarOpen={open} onOpen={openTool} onSplit={splitTool} />;
+                })}
               </div>
-              {cat.tools.map(t => <ToolRow key={t.slug} t={t} color={cat.color} onOpen={openTool} onSplit={splitTool} />)}
-            </div>
-          ))}
+            ));
+          })()}
         </div>
 
         {/* Footer */}
