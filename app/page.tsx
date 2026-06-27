@@ -875,6 +875,25 @@ export default function Home() {
 
         {/* Hero value prop overlay */}
         <div className="hero-content" style={{ position: "absolute", zIndex: 3, top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", maxWidth: 760, padding: "0 32px", textAlign: "center", pointerEvents: "none" }}>
+
+          {/* Announcement pill */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24,
+            background: "color-mix(in srgb, var(--cinnabar-ink) 6%, var(--paper))",
+            border: "1px solid color-mix(in srgb, var(--cinnabar-ink) 18%, transparent)",
+            borderRadius: 99, padding: "5px 14px 5px 5px",
+            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+          }}>
+            <span style={{
+              background: "var(--cinnabar-ink)", color: "var(--paper)",
+              fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase",
+              padding: "3px 9px", borderRadius: 99, lineHeight: 1.6,
+            }}>New</span>
+            <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", letterSpacing: "0.02em" }}>
+              Ledger Score — exam readiness in 60 seconds
+            </span>
+          </div>
+
           <h1 className="hero-h1" style={{
             fontFamily: "var(--serif)", fontWeight: 700, fontStyle: "normal",
             fontSize: "clamp(28px, 4.5vw, 56px)", color: "var(--ink)",
@@ -886,16 +905,22 @@ export default function Home() {
           <div className="hero-ctas" style={{ display: "flex", justifyContent: "center", pointerEvents: "auto", marginTop: 32 }}>
             <Link
               href="/auth"
-              className="btn hero-cta-btn"
+              className="btn hero-cta-btn group"
               style={{
                 textDecoration: "none", fontSize: 13, letterSpacing: "0.08em",
-                padding: "15px 36px", display: "inline-block",
+                padding: "13px 32px", display: "inline-flex", alignItems: "center",
                 background: "var(--cinnabar-ink)", color: "var(--paper)",
                 border: "none", borderRadius: 12, fontWeight: 700,
-                fontFamily: "var(--sans)",
+                fontFamily: "var(--sans)", overflow: "hidden",
               }}
             >
-              Check my readiness &mdash; it&apos;s free
+              <span style={{ overflow: "hidden", height: 20, display: "block" }}>
+                <span className="flex flex-col transition-transform duration-500 group-hover:-translate-y-1/2"
+                  style={{ transitionTimingFunction: "cubic-bezier(0.25,0.1,0.25,1)" }}>
+                  <span style={{ lineHeight: "20px" }}>Check my readiness &mdash; it&apos;s free</span>
+                  <span aria-hidden style={{ lineHeight: "20px" }}>Check my readiness &mdash; it&apos;s free</span>
+                </span>
+              </span>
             </Link>
           </div>
         </div>
