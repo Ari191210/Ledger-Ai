@@ -5,7 +5,7 @@ import { PricingCards } from "@/components/ui/pricing-cards";
 export const metadata: Metadata = {
   title: "Pricing — Ledger",
   description:
-    "Free forever to start. Pro for ₹199/month — every tool, unlimited AI, no limits. School pricing for tutors and coaching centres.",
+    "Free forever to start. Pro for ₹199/month — every tool, unlimited AI, no limits. Max for serious exam prep with AI tutor and parent dashboard.",
 };
 
 
@@ -132,7 +132,7 @@ export default function PricingPage() {
             }}
           >
             Free forever to start. Pro for students who want every tool with no limits.
-            School pricing for teachers and tuition centres.
+            Max for serious exam prep with AI tutor and parent dashboard.
           </p>
         </div>
 

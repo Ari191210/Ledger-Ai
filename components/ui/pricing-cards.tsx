@@ -26,13 +26,14 @@ const PRO_FEATURES = [
   "Early access to new tools",
 ];
 
-const SCHOOL_FEATURES = [
+const MAX_FEATURES = [
   "Everything in Pro",
-  "Bulk student licences",
-  "Teacher dashboard (Q4 2026)",
-  "Per-student usage analytics",
-  "Custom onboarding",
-  "Dedicated support",
+  "Personalised AI tutor sessions",
+  "Parent & guardian dashboard",
+  "Score projections & exam forecast",
+  "Study Rooms — unlimited members",
+  "Dedicated support & onboarding",
+  "First access to every new tool",
 ];
 
 function PricingSwitch({ onSwitch }: { onSwitch: (yearly: boolean) => void }) {
@@ -235,6 +236,8 @@ export function PricingCards() {
   const [yearly, setYearly] = useState(false);
   const proMonthly = 199;
   const proYearlyPerMonth = 125; // ₹1,499/yr
+  const maxMonthly = 499;
+  const maxYearlyPerMonth = 333; // ₹3,999/yr
 
   return (
     <>
@@ -284,15 +287,16 @@ export function PricingCards() {
           highlighted
         />
         <TierCard
-          label="School"
-          price="Custom"
-          period="per student"
-          desc="For schools, tutors, and coaching centres."
-          features={SCHOOL_FEATURES}
-          cta="Contact us →"
-          ctaHref="mailto:hello@studyledger.in"
+          label="Max"
+          price={yearly ? maxYearlyPerMonth : maxMonthly}
+          isNumeric
+          period={yearly ? "/month, billed yearly" : "/month"}
+          yearNote={yearly ? "You save ₹1,989/year" : undefined}
+          desc="For serious exam prep — AI tutor, parent dashboard, everything unlocked."
+          features={MAX_FEATURES}
+          cta="Get Max →"
+          ctaHref="/auth"
           highlighted={false}
-          externalCta
         />
       </div>
     </>
