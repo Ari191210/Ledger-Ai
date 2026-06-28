@@ -266,12 +266,13 @@ export default function AppNav() {
 
       {/* ── Top nav bar ── */}
       <nav role="navigation" aria-label="Main navigation" className="gl-pane float-nav" style={{
-        position: "fixed", top: 12, left: 16, right: 16, zIndex: 100,
+        position: "fixed", top: 16, left: "50%", zIndex: 100,
+        width: "calc(100% - 48px)", maxWidth: 960,
         border: "1px solid var(--rule)",
         display: "flex", alignItems: "stretch", height: 52,
         borderRadius: 14,
         overflow: "hidden",
-        transform: navVisible ? "translateY(0)" : "translateY(-80px)",
+        transform: navVisible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-80px)",
         transition: "transform 0.55s cubic-bezier(0.16,1,0.3,1)",
       }}>
         <Link
