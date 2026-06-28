@@ -12,16 +12,6 @@ import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger
 import { track } from "@/lib/posthog";
 import FeaturesShowcase from "@/components/features-showcase";
 import { GooeyInput } from "@/components/ui/gooey-input";
-import { FloatingDock } from "@/components/ui/floating-dock";
-import {
-  IconLayoutDashboard,
-  IconBolt,
-  IconStar,
-  IconBook2,
-  IconTargetArrow,
-  IconUser,
-  IconChartBar,
-} from "@tabler/icons-react";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import EmptyChair from "@/components/empty-chair";
 import gsap from "gsap";
@@ -644,7 +634,7 @@ function LedgerScoreWidget() {
                 {p.val}<span style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", fontWeight: 400 }}>/{p.max}</span>
               </span>
               <div style={{ height: 4, background: "color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 2 }}>
-                <div className="pillar-bar-fill" style={{ height: "100%", width: `${Math.min(100, Math.round((p.val / p.max) * 100))}%`, background: "var(--cinnabar-ink)", borderRadius: 2, transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)" }} />
+                <div className="pillar-bar-fill" style={{ height: "100%", width: "100%", background: "var(--cinnabar-ink)", borderRadius: 2, transformOrigin: "left center", transform: `scaleX(${Math.min(1, p.val / p.max)})`, transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1)" }} />
               </div>
             </div>
           ))}
@@ -1350,29 +1340,6 @@ export default function Dashboard() {
         <Link href="/" style={{ color: "var(--ink-3)" }}>← Back to home</Link>
       </div>
 
-      {/* ── Floating dock ── */}
-      <div
-        className="mob-hide"
-        style={{
-          position: "fixed",
-          bottom: 20,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 60,
-        }}
-      >
-        <FloatingDock
-          items={[
-            { title: "Dashboard",   href: "/dashboard",           icon: <IconLayoutDashboard size={18} /> },
-            { title: "Score",       href: "/tools/score",         icon: <IconChartBar size={18} /> },
-            { title: "Planner",     href: "/tools/planner",       icon: <IconBolt size={18} /> },
-            { title: "Study Engine",href: "/tools/notes",         icon: <IconBook2 size={18} /> },
-            { title: "Past Papers", href: "/tools/papers",        icon: <IconTargetArrow size={18} /> },
-            { title: "Admissions",  href: "/tools/admissions",    icon: <IconStar size={18} /> },
-            { title: "Profile",     href: "/dashboard/profile",   icon: <IconUser size={18} /> },
-          ]}
-        />
-      </div>
 
     </main>
   );
