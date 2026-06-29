@@ -650,6 +650,99 @@ function LedgerScoreWidget() {
   );
 }
 
+function TodayIntention() {
+  const dateKey   = new Date().toDateString();
+  const storeKey  = `ledger:intention:${dateKey}`;
+
+  const [intention, setIntention] = useState("");
+  const [editing,   setEditing]   = useState(false);
+  const [draft,     setDraft]     = useState("");
+  const [loaded,    setLoaded]    = useState(false);
+  const inputRef                  = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storeKey) ?? "";
+      setIntention(saved);
+      if (!saved) setEditing(true);
+    } catch {}
+    setLoaded(true);
+  }, [storeKey]);
+
+  useEffect(() => {
+    if (editing && inputRef.current) inputRef.current.focus();
+  }, [editing]);
+
+  function commit() {
+    const val = draft.trim();
+    if (!val) return;
+    try { localStorage.setItem(storeKey, val); } catch {}
+    setIntention(val);
+    setDraft("");
+    setEditing(false);
+  }
+
+  function startEdit() { setDraft(intention); setEditing(true); }
+
+  if (!loaded) return null;
+
+  const sharedRow: React.CSSProperties = {
+    display: "flex", alignItems: "center", gap: 16,
+    borderBottom: "1px solid color-mix(in srgb, var(--ink) 10%, transparent)",
+    paddingBottom: 14, marginBottom: 32,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)",
+    letterSpacing: "0.14em", textTransform: "uppercase", flexShrink: 0,
+  };
+
+  const intentionStyle: React.CSSProperties = {
+    fontFamily: "var(--serif)", fontStyle: "italic",
+    fontSize: "clamp(18px, 2.2vw, 24px)", color: "var(--ink)",
+    letterSpacing: "-0.02em", flex: 1, lineHeight: 1.15,
+  };
+
+  if (editing) {
+    return (
+      <div style={sharedRow}>
+        <span style={labelStyle}>Today I&apos;m studying</span>
+        <input
+          ref={inputRef}
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter")  commit();
+            if (e.key === "Escape") { setEditing(false); setDraft(""); }
+          }}
+          placeholder="e.g. Organic Chemistry — reaction mechanisms"
+          style={{
+            ...intentionStyle,
+            background: "none", border: "none", outline: "none", padding: 0,
+            color: "var(--ink)", opacity: draft ? 1 : 0.45,
+          }}
+        />
+        <button onClick={commit} className="btn" style={{ padding: "6px 14px", fontSize: 11, flexShrink: 0 }}>
+          Set →
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ ...sharedRow, cursor: "text" }} onClick={startEdit}>
+      <span style={labelStyle}>Studying</span>
+      <span style={intentionStyle}>{intention}</span>
+      <button
+        onClick={e => { e.stopPropagation(); startEdit(); }}
+        style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", padding: "2px 4px", opacity: 0.5, flexShrink: 0 }}
+      >
+        edit
+      </button>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -955,6 +1048,9 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* Today's Intention */}
+      <TodayIntention />
 
       {/* Profile setup banner */}
       {showProfileBanner && (
