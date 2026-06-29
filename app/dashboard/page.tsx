@@ -650,6 +650,57 @@ function LedgerScoreWidget() {
   );
 }
 
+function FocusStrip() {
+  const dateKey  = new Date().toDateString();
+  const storeKey = `ledger:intention:${dateKey}`;
+  const [intention, setIntention] = useState("");
+  const [elapsed,   setElapsed]   = useState(0);
+
+  useEffect(() => {
+    try { setIntention(localStorage.getItem(storeKey) ?? ""); } catch {}
+    const start = Date.now();
+    const iv = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(iv);
+  }, [storeKey]);
+
+  if (!intention) return null;
+
+  const h   = Math.floor(elapsed / 3600);
+  const m   = Math.floor((elapsed % 3600) / 60);
+  const s   = elapsed % 60;
+  const fmt = h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+
+  return (
+    <div style={{
+      position: "sticky", top: 76, zIndex: 50,
+      display: "flex", alignItems: "center", gap: 16,
+      padding: "9px 16px", marginBottom: 32,
+      background: "color-mix(in srgb, var(--paper) 94%, transparent)",
+      backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+      borderTop: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
+      borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
+    }}>
+      <span style={{
+        width: 5, height: 5, borderRadius: "50%", background: "var(--cinnabar-ink)", flexShrink: 0,
+        boxShadow: "0 0 0 3px color-mix(in oklch, var(--cinnabar-ink) 20%, transparent)",
+        animation: "pulse-dot 2s ease-in-out infinite",
+      }} />
+      <span style={{
+        fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 14,
+        color: "var(--ink)", flex: 1,
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        letterSpacing: "-0.01em",
+      }}>{intention}</span>
+      <span style={{
+        fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)",
+        letterSpacing: "0.08em", flexShrink: 0, tabularNums: true,
+      } as React.CSSProperties}>{fmt}</span>
+    </div>
+  );
+}
+
 function TodayIntention() {
   const dateKey   = new Date().toDateString();
   const storeKey  = `ledger:intention:${dateKey}`;
@@ -1048,6 +1099,9 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* Sticky session strip — shows intention + running timer while scrolling */}
+      <FocusStrip />
 
       {/* Today's Intention */}
       <TodayIntention />
