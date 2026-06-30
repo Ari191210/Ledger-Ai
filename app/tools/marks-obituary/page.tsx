@@ -77,6 +77,15 @@ const ERROR_LABELS: Record<ErrorType, string> = {
   presentation: "Presentation", time_pressure: "Time pressure", misread: "Misread",
 };
 
+function InfoRow({ label, value, valueColor, dark }: { label: string; value: string; valueColor?: string; dark?: boolean }) {
+  return (
+    <div style={{ padding: "10px 14px", borderBottom: "1px solid", borderColor: dark ? "rgba(255,255,255,0.08)" : "var(--rule)", background: dark ? "rgba(0,0,0,0.15)" : "transparent" }}>
+      <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: dark ? "rgba(255,255,255,0.4)" : "var(--ink-3)", marginBottom: 4, letterSpacing: "0.08em", textTransform: "uppercase" }}>{label}</div>
+      <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: valueColor || (dark ? "#f3f4f6" : "var(--ink)"), lineHeight: 1.5 }}>{value}</div>
+    </div>
+  );
+}
+
 function ErrorDistributionBar({ distribution }: { distribution: Record<ErrorType, number> }) {
   const entries = Object.entries(distribution) as [ErrorType, number][];
   const max = Math.max(...entries.map(([, v]) => v), 1);
