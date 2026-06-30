@@ -751,9 +751,7 @@ export default function MarksObituaryPage() {
 
               {/* AIOutput for killer insight */}
               <div style={{ marginTop: "24px" }}>
-                <AIOutput variant="principle">
-                  {`Top error type: ${result.aggregate.top_error_type} — ${result.aggregate.killer_habit}`}
-                </AIOutput>
+                <AIOutput variant="principle" text={`Top error type: ${result.aggregate.top_error_type} — ${result.aggregate.killer_habit}`} />
               </div>
 
               {/* 3-day patch plan */}
