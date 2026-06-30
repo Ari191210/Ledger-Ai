@@ -52,7 +52,12 @@ export const TOOLS_REGISTRY: ToolEntry[] = [
   { slug: "calibration",        title: "Confidence Calibrator",  subtitle: "Know what you actually know.",          cat: "PRACTISE", keywords: ["confidence","calibration","blind","spot","self","assess","overconfidence"] },
   { slug: "dna",                title: "Mistake DNA",            subtitle: "Your error fingerprint.",               cat: "PRACTISE", keywords: ["mistake","dna","error","fingerprint","conceptual","calculation","careless","pattern"] },
   { slug: "cremator",           title: "Syllabus Cremator",      subtitle: "Kill the filler. Keep the core.",       cat: "PRACTISE", keywords: ["cremator","syllabus","priority","skip","do","now","chapter","rank"] },
-  { slug: "paper-pattern",      title: "Paper Pattern Analyser", subtitle: "Decode what examiners want.",           cat: "PRACTISE", keywords: ["paper","pattern","examiner","question","type","frequency","mark","allocation"] },
+  { slug: "paper-pattern",      title: "Paper Pattern Analyser", subtitle: "Decode what examiners want.",                       cat: "PRACTISE", keywords: ["paper","pattern","examiner","question","type","frequency","mark","allocation"] },
+  { slug: "paper-autopsy",      title: "Paper Autopsy",          subtitle: "Dissect every mark you lost.",                     cat: "PRACTISE", keywords: ["paper","autopsy","answer","mark","lost","error","subtopic","drill","breakdown"] },
+  { slug: "marks-obituary",     title: "Marks Obituary",         subtitle: "Write the obituary. Get the autopsy.",             cat: "PRACTISE", keywords: ["marks","obituary","coroner","cause","death","lost","prevention","forensic"] },
+  { slug: "panic-triage",       title: "Paper Panic Triage",     subtitle: "2AM before the exam — what to do right now.",      cat: "PRACTISE", keywords: ["panic","triage","night","before","crunch","last","minute","rescue","plan"] },
+  { slug: "marks-forensics",    title: "Marks Forensics",        subtitle: "Paste your answer. Know exactly which line lost you marks.", cat: "PRACTISE", keywords: ["marks","forensics","answer","line","lost","mark","scheme","breakdown"] },
+  { slug: "paper-trauma",       title: "Paper Trauma Map",       subtitle: "Find the questions that broke you — and why you'll see them again.", cat: "PRACTISE", keywords: ["paper","trauma","mock","questions","broke","pattern","neutralise","results"] },
 
   // ── FUTURE (4) ───────────────────────────────────────────────────────────
   { slug: "admissions", title: "Admissions Engine", subtitle: "Your real odds. 60 universities.",    cat: "FUTURE",   keywords: ["admissions","university","odds","probability","college","uni","match","career","subject","path","future","applications","prep"] },
@@ -69,5 +74,6 @@ export const TOOLS_REGISTRY: ToolEntry[] = [
   { slug: "timeline",       title: "Timeline Builder",      subtitle: "Build any historical timeline.",    cat: "TRACK",    keywords: ["timeline","chronology","history","event","sequence","period","date"] },
   { slug: "study-guide",    title: "Study Guide Generator", subtitle: "One topic. One clean guide.",       cat: "TRACK",    keywords: ["study","guide","generate","topic","notes","key","points","definitions","questions"] },
   { slug: "analysis-hub",   title: "Analysis Hub",          subtitle: "Analyse anything deeply.",          cat: "TRACK",    keywords: ["analysis","analyse","deep","text","data","event","concept","academic","breakdown"] },
+  { slug: "silent-topics",  title: "Silent Topic Finder",   subtitle: "Find what you've been avoiding.",   cat: "TRACK",    keywords: ["silent","topic","avoid","map","syllabus","dodging","reentry","cinnabar","gap"] },
   { slug: "personalise",    title: "Personalise",           subtitle: "Your study profile.",               cat: "TRACK",    keywords: ["personalise","profile","grade","board","subject","preference","tailor","settings"] },
 ]
