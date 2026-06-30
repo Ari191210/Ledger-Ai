@@ -42,8 +42,8 @@ let nextSubjectId = 6;
 
 function Bar({ value, max, color = "var(--ink)" }: { value: number; max: number; color?: string }) {
   return (
-    <div style={{ height: 8, background: "var(--paper-2)", border: "1px solid var(--rule)", marginTop: 6 }}>
-      <div style={{ height: "100%", width: `${Math.min(100, (value / max) * 100)}%`, background: color, transition: "width 800ms cubic-bezier(0.4,0,0.2,1)" }} />
+    <div style={{ height: 8, background: "var(--paper-2)", border: "1px solid var(--rule)", marginTop: 6, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: "100%", transform: `scaleX(${Math.min(1, value / max)})`, transformOrigin: "left", background: color, transition: "transform 800ms cubic-bezier(0.4,0,0.2,1)" }} />
     </div>
   );
 }
@@ -244,8 +244,8 @@ function MarksTab() {
                     <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600, color: isWhatIf ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.name}</span>
                     <span className="mono" style={{ color: "var(--ink-3)" }}>{s.score}%</span>
                   </button>
-                  <div style={{ height: 6, background: "var(--paper-2)", border: `1px solid ${isWhatIf ? "var(--cinnabar-ink)" : "var(--rule)"}` }}>
-                    <div style={{ height: "100%", width: `${s.score}%`, background: s.score >= target ? "var(--cinnabar)" : "var(--ink-3)", transition: "width 300ms" }} />
+                  <div style={{ height: 6, background: "var(--paper-2)", border: `1px solid ${isWhatIf ? "var(--cinnabar-ink)" : "var(--rule)"}`, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: "100%", transform: `scaleX(${s.score / 100})`, transformOrigin: "left", background: s.score >= target ? "var(--cinnabar)" : "var(--ink-3)", transition: "transform 300ms" }} />
                   </div>
                   {isWhatIf && (
                     <div style={{ margin: "8px 0 14px", padding: "16px", border: "1px solid var(--cinnabar-ink)", background: "var(--paper-2)" }}>
@@ -299,7 +299,7 @@ function ScoreTab() {
             {tier.nextAt < 1000 && <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>{tier.nextAt - score.total} pts to {tier.next}</span>}
           </div>
           <div style={{ height: 12, background: "var(--paper-2)", border: "none", position: "relative", overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${(score.total / 1000) * 100}%`, background: "var(--ink)", transition: "width 1s cubic-bezier(0.4,0,0.2,1)" }} />
+            <div style={{ height: "100%", width: "100%", transform: `scaleX(${score.total / 1000})`, transformOrigin: "left", background: "var(--ink)", transition: "transform 1s cubic-bezier(0.4,0,0.2,1)" }} />
             {[200, 400, 600, 800].map(t => <div key={t} style={{ position: "absolute", top: 0, bottom: 0, left: `${t / 10}%`, width: 1, background: "var(--paper)", opacity: 0.3 }} />)}
           </div>
           <div className="mono" style={{ display: "flex", justifyContent: "space-between", marginTop: 4, color: "var(--ink-3)", fontSize: 9 }}><span>0</span><span>Beginner</span><span>Building</span><span>Developing</span><span>Strong</span><span>Exam Ready</span></div>
@@ -370,7 +370,7 @@ function ScoreTab() {
             <div style={{ border: "1px solid var(--rule)", padding: "24px 20px", background: "var(--paper-2)", textAlign: "center" }}>
               <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontStyle: "italic", marginBottom: 8 }}>No paper sessions yet.</div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 16 }}>Do a Past Papers session to see your accuracy by subject.</div>
-              <Link href="/tools/papers" className="btn ghost" style={{ textDecoration: "none", display: "inline-block" }}>Start a session →</Link>
+              <Link href="/tools/exam-practice" className="btn ghost" style={{ textDecoration: "none", display: "inline-block" }}>Start a session →</Link>
             </div>
           )}
           <div style={{ marginTop: 32, border: "1px solid var(--rule)", padding: "20px" }}>

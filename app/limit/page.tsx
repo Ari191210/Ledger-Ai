@@ -40,7 +40,7 @@ export default function LimitPage() {
             {[
               ["Dashboard", "/dashboard"],
               ["Study Rooms", "/tools/rooms"],
-              ["Your Notes", "/tools/notes"],
+              ["Learn Lab", "/tools/learn-lab"],
             ].map(([label, href]) => (
               <Link
                 key={label}

@@ -47,7 +47,7 @@ function DNATab() {
       <div className="mono" style={{ color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 28 }}>
         After each Past Papers session, use the &quot;Tag your mistakes&quot; section. Tap why you got each question wrong — Conceptual, Slip, Misread, Rushed, or Blanked. Your fingerprint builds up here automatically.
       </div>
-      <Link href="/tools/papers" className="btn">Go to Past Papers →</Link>
+      <Link href="/tools/exam-practice" className="btn">Go to Past Papers →</Link>
     </div>
   );
 
@@ -82,8 +82,8 @@ function DNATab() {
                 <span className="mono" style={{ fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>{cat}</span>
                 <span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{byCat[cat]} · {total > 0 ? Math.round((byCat[cat] / total) * 100) : 0}%</span>
               </div>
-              <div style={{ height: 6, background: "var(--paper-2)", border: "1px solid var(--rule)" }}>
-                <div style={{ height: "100%", width: `${(byCat[cat] / maxCatCount) * 100}%`, background: cat === topCat[0] ? "var(--cinnabar)" : "var(--ink)", transition: "width 600ms ease" }} />
+              <div style={{ height: 6, background: "var(--paper-2)", border: "1px solid var(--rule)", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: "100%", transform: `scaleX(${byCat[cat] / maxCatCount})`, transformOrigin: "left", background: cat === topCat[0] ? "var(--cinnabar)" : "var(--ink)", transition: "transform 600ms ease" }} />
               </div>
             </div>
           ))}

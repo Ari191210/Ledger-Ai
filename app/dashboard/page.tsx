@@ -578,7 +578,7 @@ function LedgerScoreWidget() {
   }
 
   return (
-    <Link ref={scoreRef} href="/tools/score" className="glass-card score-widget"
+    <Link ref={scoreRef} href="/tools/grade-tracker" className="glass-card score-widget"
       style={{ textDecoration: "none", display: "block", marginBottom: 40, color: "inherit", overflow: "hidden" }}
       onMouseEnter={handleScoreEnter}
       onMouseLeave={handleScoreLeave}
@@ -1224,7 +1224,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-          <Link href="/tools/papers" className="mono" style={{ color: "var(--ink-3)", fontSize: 10, whiteSpace: "nowrap" }}>Practice → </Link>
+          <Link href="/tools/exam-practice" className="mono" style={{ color: "var(--ink-3)", fontSize: 10, whiteSpace: "nowrap" }}>Practice → </Link>
         </div>
       )}
 

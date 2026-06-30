@@ -307,7 +307,7 @@ export default function SyllabusPage() {
                 <button className="btn" onClick={saveSyllabus} disabled={saved}>
                   {saved ? "Saved ✓" : "Save to profile →"}
                 </button>
-                <Link href="/tools/planner" className="btn ghost" style={{ textDecoration: "none" }}>
+                <Link href="/tools/study-command" className="btn ghost" style={{ textDecoration: "none" }}>
                   Open Planner →
                 </Link>
                 <button className="btn ghost" onClick={() => { setSyllabus(null); setFile(null); setPastedText(""); setSaved(false); }}>

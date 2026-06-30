@@ -1397,7 +1397,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--rule)" }} className="mob-col">
             {([
               { step: "01", title: "Upload your syllabus", body: "PDF, photo, or paste it in. Ledger maps every subject, chapter, and topic automatically. No manual setup.", cta: "Upload now →", href: "/dashboard", time: "60 seconds", color: "var(--cinnabar-ink)" },
-              { step: "02", title: "See your Ledger Score", body: "Instant exam readiness across 4 signals: past paper accuracy, syllabus coverage, error rate, and daily consistency.", cta: "Check your score →", href: "/tools/score", time: "Instant", color: "var(--powder-blue)" },
+              { step: "02", title: "See your Ledger Score", body: "Instant exam readiness across 4 signals: past paper accuracy, syllabus coverage, error rate, and daily consistency.", cta: "Check your score →", href: "/tools/grade-tracker", time: "Instant", color: "var(--powder-blue)" },
               { step: "03", title: "Fix your biggest gap", body: "The score shows exactly which chapters you are behind on. One tool, one session, one gap closed. Then repeat.", cta: "Browse tools →", href: "/dashboard", time: "5 minutes", color: "var(--sage)" },
             ] as const).map((s) => (
               <div key={s.step} style={{ background: "var(--paper)", padding: "52px 40px", display: "flex", flexDirection: "column", gap: 16 }}>
