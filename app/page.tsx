@@ -13,6 +13,7 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
 import { BeforeAfterSection } from "@/components/ui/before-after-section";
 import { StudentJourneySection } from "@/components/ui/student-journey";
+import CardSwap, { Card } from "@/components/ui/CardSwap";
 
 const HeroInteractiveDemo = dynamic(
   () => import("@/components/ui/hero-interactive-demo").then(m => ({ default: m.HeroInteractiveDemo })),
@@ -1757,38 +1758,57 @@ export default function Home() {
       <BeforeAfterSection />
       <StudentJourneySection />
 
-      {/* ─── Student Testimonials ─── */}
-      <section className="testimonials-section" style={{ padding: '80px 44px', textAlign: 'center', borderBottom: S.border, background: 'var(--paper)' }}>
-        <h2 style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)', marginBottom: '48px', fontSize: 'clamp(22px,3vw,36px)', fontWeight: 700 }}>
-          What students are saying
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', maxWidth: '1100px', margin: '0 auto' }}>
-          {/* Testimonial 1 */}
-          <div className="gl-pane" style={{ padding: '28px', textAlign: 'left' }}>
-            <div style={{ color: 'var(--cinnabar)', marginBottom: '12px' }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-            <p style={{ color: 'var(--ink-2)', lineHeight: '1.6', marginBottom: '16px' }}>
-              &ldquo;I uploaded my Physics syllabus and the Ledger Score showed me I was 23 chapters behind. Two months later I was at 780. No other app told me the truth like that.&rdquo;
+      {/* ─── Student Testimonials (CardSwap) ─── */}
+      <section style={{ padding: '80px 44px', borderBottom: S.border, background: 'var(--paper)', overflow: 'hidden' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+          {/* Left: heading + context */}
+          <div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: 'var(--cinnabar-ink)', marginBottom: 16 }}>Student results</div>
+            <h2 style={{ fontFamily: 'var(--sans)', fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.15, marginBottom: 20 }}>
+              Real scores.<br />Real students.
+            </h2>
+            <p style={{ fontFamily: 'var(--sans)', fontSize: 15, color: 'var(--ink-3)', lineHeight: 1.7, maxWidth: 360 }}>
+              Every result below came from a student who used StudyLedger for at least three weeks. No cherry-picking — these are the first four we asked.
             </p>
-            <div style={{ color: 'var(--ink)', fontWeight: 600 }}>Arjun S.</div>
-            <div style={{ color: 'var(--ink-3)', fontSize: '0.85rem' }}>CBSE &middot; JEE 2025</div>
           </div>
-          {/* Testimonial 2 */}
-          <div className="gl-pane" style={{ padding: '28px', textAlign: 'left' }}>
-            <div style={{ color: 'var(--cinnabar)', marginBottom: '12px' }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-            <p style={{ color: 'var(--ink-2)', lineHeight: '1.6', marginBottom: '16px' }}>
-              &ldquo;The Paper Dissector broke down my Chemistry paper and showed me I keep losing marks on numerical questions, not theory. I fixed that in 3 weeks.&rdquo;
-            </p>
-            <div style={{ color: 'var(--ink)', fontWeight: 600 }}>Meera R.</div>
-            <div style={{ color: 'var(--ink-3)', fontSize: '0.85rem' }}>ICSE &middot; Class 12</div>
-          </div>
-          {/* Testimonial 3 */}
-          <div className="gl-pane" style={{ padding: '28px', textAlign: 'left' }}>
-            <div style={{ color: 'var(--cinnabar)', marginBottom: '12px' }}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-            <p style={{ color: 'var(--ink-2)', lineHeight: '1.6', marginBottom: '16px' }}>
-              &ldquo;ChatGPT doesn&apos;t know my NCERT syllabus. StudyLedger does. The difference in my mock scores after 6 weeks was 47 marks.&rdquo;
-            </p>
-            <div style={{ color: 'var(--ink)', fontWeight: 600 }}>Kabir T.</div>
-            <div style={{ color: 'var(--ink-3)', fontSize: '0.85rem' }}>CBSE &middot; NEET 2025</div>
+          {/* Right: stacked 3D testimonial cards */}
+          <div style={{ position: 'relative', height: 420 }}>
+            <CardSwap
+              width={340}
+              height={260}
+              cardDistance={50}
+              verticalDistance={60}
+              delay={4500}
+              pauseOnHover
+              skewAmount={4}
+              easing="elastic"
+            >
+              {TESTIMONIALS.map((t) => (
+                <Card
+                  key={t.by}
+                  style={{
+                    background: 'color-mix(in srgb, var(--paper-2) 92%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--ink) 14%, transparent)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    padding: '28px 26px',
+                    display: 'flex',
+                    flexDirection: 'column' as const,
+                    justifyContent: 'space-between',
+                    gap: 14,
+                  }}
+                >
+                  <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--ink)', lineHeight: 1.65, margin: 0 }}>
+                    &ldquo;{t.q}&rdquo;
+                  </p>
+                  <div>
+                    <div style={{ fontFamily: 'var(--sans)', fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{t.by}</div>
+                    <div style={{ fontFamily: 'var(--sans)', fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{t.ctx}</div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--cinnabar-ink)', marginTop: 8, letterSpacing: '0.04em' }}>{t.score}</div>
+                  </div>
+                </Card>
+              ))}
+            </CardSwap>
           </div>
         </div>
       </section>
