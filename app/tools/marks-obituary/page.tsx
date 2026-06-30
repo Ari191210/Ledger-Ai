@@ -977,4 +977,39 @@ function DeathCertCard({
                   alignItems: "flex-start",
                   padding: "8px 12px",
                   background: "#0a1f0a",
-                  border: "1px solid #16a
+                  border: "1px solid #16a34a33",
+                  borderRadius: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "var(--mono)",
+                    fontSize: "9px",
+                    color: "#16a34a",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    flexShrink: 0,
+                    marginTop: "2px",
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <p
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: "12px",
+                    color: "#d1d5db",
+                    margin: 0,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {action}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

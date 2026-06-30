@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map" | "marks_obituary";
 
 // Required params per tool — missing any → 400, prevents silent blank AI output
 const REQUIRED_PARAMS: Partial<Record<ToolName, string[]>> = {
@@ -522,20 +522,26 @@ Rules:
 - Never be generic — every sentence should reference something specific from their profile`,
       };
 
-    case "flashcards":
+    case "flashcards": {
+      const diff = (params.difficulty as string) || "Medium";
+      const diffGuide =
+        diff === "Easy"   ? "Focus on core definitions, key terms, and basic factual recall. Every answer should be clear to a student seeing the topic for the first time."
+        : diff === "Hard" ? "Focus on synthesis, evaluation, edge cases, and nuanced understanding. Questions should challenge a student who already knows the basics — no straightforward definitions."
+        :                   "Mix definition, application, cause-effect, and comparison questions. Assume the student has basic familiarity with the topic.";
       return {
         system: `${SAFETY_PREAMBLE}You are a study-card expert. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate high-quality flashcards for the topic below. Respond with exactly this JSON shape:
-{"topic":"clean topic title","cards":[{"q":"question or term","a":"clear, concise answer","hint":"optional one-word hint or null"}]}
+{"topic":"clean topic title","cards":[{"q":"question","a":"clear answer","hint":"short memory-jog phrase"}]}
 
 Rules:
 - Generate exactly ${params.count || 10} cards
-- Questions should test understanding, not just recall
-- Answers should be 1-3 sentences max
-- Mix definition, application, and "why" questions
-${(params.content || params.notes) ? `\nStudent's notes to base cards on:\n${params.content || params.notes}` : `\nTopic: ${params.subject || params.topic}`}
+- Difficulty: ${diff}. ${diffGuide}
+- Answers: 1-3 sentences, no bullet lists
+- hint: always a short phrase (never null or empty) that jogs memory without giving the answer
+${(params.content || params.notes) ? `\nStudent notes to base cards on:\n${params.content || params.notes}` : `\nTopic: ${params.subject || params.topic}`}
 Level: ${params.level || "A-Level"}`,
       };
+    }
 
     case "essay_grade":
       return {
@@ -2163,6 +2169,88 @@ Respond with exactly this JSON:
   "one_line_verdict": "single blunt diagnostic sentence"
 }`,
       };
+
+    case "marks_obituary":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert examiner and educational psychologist specialising in post-mortem analysis of student exam performance. Your role is to forensically dissect every mark lost, identify the precise cognitive or procedural failure behind each error, and prescribe targeted remediation. You have deep expertise in mark scheme interpretation across all major exam boards and subjects. You classify errors with clinical precision into six categories: conceptual (fundamental misunderstanding of the topic), recall (forgotten fact, formula, or definition), calculation (correct method but arithmetic/algebraic slip), presentation (correct thinking but marks lost to poor communication, missing units, incomplete working), time_pressure (answer rushed, cut short, or abandoned), or misread (wrong value taken from question, wrong question answered, or misinterpreted instruction). For each question you identify the EXACT step where marks were lost — not vaguely, but surgically: which line of working, which substitution, which conclusion. You then generate a specific, actionable 3-step fix protocol that directly targets the failure mechanism — not generic study advice. You also assess recurrence risk based on how systematic vs accidental the error appears. In your aggregate analysis you identify the dominant error type, the single most recurring failure pattern (the 'killer habit'), and a realistic 3-day patch plan with one concrete action per day. Always respond with valid JSON only.`,
+        userText: `A student has submitted their exam answers for post-mortem analysis. Analyse every question below and produce a surgical error breakdown.
+
+For each question:
+1. Classify the error type precisely (conceptual | recall | calculation | presentation | time_pressure | misread)
+2. Give a short error label (e.g. "Unit dropped", "Sign error", "Formula recalled incorrectly", "Incomplete method shown")
+3. Identify the EXACT moment the error occurred — which step, which operation, which decision
+4. State what the mark scheme required that was missing or wrong (mark_scheme_gap)
+5. Write 3 specific fix actions targeting that exact failure — not generic advice
+6. Rate recurrence risk (high = systematic pattern likely to repeat; medium = occasional slip; low = one-off)
+
+For the aggregate section:
+- Count total marks lost across all questions
+- Identify the top error type by frequency
+- Populate the error_distribution counts
+- Write one sentence naming the killer habit — the deepest recurring failure pattern
+- Write a 3-day patch plan: Day 1 targets the worst error type, Day 2 reinforces fundamentals, Day 3 tests under exam conditions
+
+Here are the questions and answers to analyse:
+
+${params.questions && Array.isArray(params.questions) ? params.questions.map((q, i) => `
+--- QUESTION ${i + 1} ---
+Question text: ${q.questionText || "Not provided"}
+Student answer / working: ${q.studentAnswer || "Not provided"}
+Mark scheme / expected answer: ${q.markScheme || "Not provided"}
+Marks available: ${q.marksAvailable || "Not provided"}
+Marks awarded: ${q.marksAwarded || "Not provided"}
+`).join("\n") : `
+--- QUESTION 1 ---
+Question text: ${params.questionText || "Not provided"}
+Student answer / working: ${params.studentAnswer || "Not provided"}
+Mark scheme / expected answer: ${params.markScheme || "Not provided"}
+Marks available: ${params.marksAvailable || "Not provided"}
+Marks awarded: ${params.marksAwarded || "Not provided"}
+`}
+
+Subject (if provided): ${params.subject || "Not specified"}
+Exam board (if provided): ${params.examBoard || "Not specified"}
+
+Respond with exactly this JSON:
+{
+  "questions": [
+    {
+      "question_snippet": "first 80 chars of question",
+      "marks_available": "number",
+      "marks_awarded": "number",
+      "marks_lost": "number",
+      "error_type": "conceptual|recall|calculation|presentation|time_pressure|misread",
+      "error_label": "e.g. Unit dropped, Sign error, Incomplete method",
+      "exact_moment": "Step 3 — divided force by mass² instead of mass",
+      "mark_scheme_gap": "What the mark scheme required that was missing/wrong",
+      "fix_protocol": [
+        "action 1",
+        "action 2",
+        "action 3"
+      ],
+      "recurrence_risk": "high|medium|low"
+    }
+  ],
+  "aggregate": {
+    "total_marks_lost": "number",
+    "top_error_type": "string",
+    "error_distribution": {
+      "conceptual": 0,
+      "recall": 0,
+      "calculation": 0,
+      "presentation": 0,
+      "time_pressure": 0,
+      "misread": 0
+    },
+    "killer_habit": "The single most recurring failure pattern in one sentence",
+    "patch_plan": [
+      "Day 1 action",
+      "Day 2 action",
+      "Day 3 action"
+    ]
+  }
+}`,
+      };
   }
 }
 
@@ -2183,7 +2271,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map", "marks_obituary"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }
