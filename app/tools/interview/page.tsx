@@ -15,22 +15,31 @@ const TYPES = [
   { v: "medical",    l: "Medicine / MMI",          sub: "Medical school multiple mini interviews" },
 ];
 
+const DIFFS: { value: string; label: string; desc: string }[] = [
+  { value: "warmup",    label: "Warm-up",      desc: "Standard expected questions" },
+  { value: "standard",  label: "Standard",     desc: "Typical interview difficulty" },
+  { value: "pressure",  label: "High-pressure", desc: "Curveballs + pushback" },
+];
+const COUNTS = [5, 8, 10] as const;
+
 export default function InterviewPage() {
-  const [type, setType]       = useState("university");
-  const [role, setRole]       = useState("");
+  const [type, setType]           = useState("university");
+  const [role, setRole]           = useState("");
+  const [difficulty, setDifficulty] = useState("standard");
+  const [count, setCount]         = useState<5 | 8 | 10>(5);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [qIdx, setQIdx]       = useState(0);
-  const [answer, setAnswer]   = useState("");
-  const [evaluation, setEval] = useState<Evaluation | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [qIdx, setQIdx]           = useState(0);
+  const [answer, setAnswer]       = useState("");
+  const [evaluation, setEval]     = useState<Evaluation | null>(null);
+  const [loading, setLoading]     = useState(false);
   const [genLoading, setGenLoading] = useState(false);
-  const [error, setError]     = useState("");
-  const [phase, setPhase]     = useState<"setup"|"practice"|"result">("setup");
+  const [error, setError]         = useState("");
+  const [phase, setPhase]         = useState<"setup"|"practice"|"result">("setup");
 
   async function generateQuestions() {
     setGenLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<{ questions: Question[] }>({ tool: "interview_questions", type, role });
+      const data = await callAIOrThrow<{ questions: Question[] }>({ tool: "interview_questions", type, role, difficulty, count });
       setQuestions(data.questions); setPhase("practice"); setQIdx(0); setAnswer(""); setEval(null);
     } catch { setError("Network error."); }
     finally { setGenLoading(false); }
@@ -69,14 +78,37 @@ export default function InterviewPage() {
             </button>
           ))}
         </div>
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 16 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Specific role / course / university (optional)</div>
           <input value={role} onChange={e => setRole(e.target.value)} placeholder="e.g. PPE at Oxford, Goldman Sachs summer analyst, Rhodes Scholar…"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
+        <div style={{ marginBottom: 16 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Difficulty</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {DIFFS.map(d => (
+              <button key={d.value} onClick={() => setDifficulty(d.value)}
+                style={{ flex: 1, padding: "8px 6px", border: `1px solid ${difficulty === d.value ? "var(--ink)" : "var(--rule)"}`, background: difficulty === d.value ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: difficulty === d.value ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{d.label}</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: difficulty === d.value ? "var(--paper-2)" : "var(--ink-3)" }}>{d.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ marginBottom: 24 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Questions</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {COUNTS.map(n => (
+              <button key={n} onClick={() => setCount(n as 5 | 8 | 10)}
+                style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 18px", border: `1px solid ${count === n ? "var(--ink)" : "var(--rule)"}`, background: count === n ? "var(--ink)" : "var(--paper-2)", color: count === n ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
         {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
         <button className="btn" onClick={generateQuestions} disabled={genLoading} style={{ width: "100%", opacity: genLoading ? 0.5 : 1 }}>
-          {genLoading ? "Generating questions…" : "Start practice session →"}
+          {genLoading ? "Generating questions…" : `Start ${count}-question session →`}
         </button>
         {genLoading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>

@@ -585,19 +585,26 @@ Word count: ${params.limit}
 Target: ${params.uni ? `${params.uni}${params.course ? " — " + params.course : ""}` : "UK university"}`,
       };
 
-    case "interview_questions":
+    case "interview_questions": {
+      const ivDiff = (params.difficulty as string) || "standard";
+      const ivN = params.count || 6;
+      const ivDiffGuide =
+        ivDiff === "warmup"   ? "Use standard, expected questions a well-prepared candidate would anticipate. No trick questions, no pressure — build confidence. Tips should be reassuring and practical."
+        : ivDiff === "pressure" ? "Include unexpected or uncomfortable questions: 'What's your biggest weakness?', ethical dilemmas, 'Why should we pick you over someone with better grades?', rapid follow-ups that challenge weak answers. Tips should warn the candidate about common traps."
+        :                         "Mix standard questions with a few that require genuine reflection. Include at least one question the candidate might not have prepared for. Tips should be coaching-oriented.";
       return {
         system: `${SAFETY_PREAMBLE}You are a senior interviewer who trains candidates for competitive interviews. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate interview questions for this candidate. Respond with exactly this JSON shape:
 {"questions":[{"id":1,"q":"full question text","type":"behavioral/technical/motivational","tip":"what interviewers look for in the answer"}]}
 
-Generate exactly 6 questions. Mix types appropriately for the interview type.
+Generate exactly ${ivN} questions. Mix types appropriately for the interview type.
+Difficulty: ${ivDiff}. ${ivDiffGuide}
 
 Interview type: ${params.type}
-Role / Course: ${params.role}
-Level: ${params.level || "undergraduate"}
+Role / Course: ${params.role || "not specified"}
 ${params.context ? `Additional context: ${params.context}` : ""}`,
       };
+    }
 
     case "interview_eval":
       return {
