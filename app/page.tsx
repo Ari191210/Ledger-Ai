@@ -189,7 +189,6 @@ export default function Home() {
   const [selectedTool,   setSelectedTool]   = useState(0);
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [expandedFeat,   setExpandedFeat]   = useState<number | null>(null);
-  const [testimIdx,      setTestimIdx]      = useState(0);
   const [papers,         setPapers]         = useState(3);
   const [hasSyllabus,    setHasSyllabus]    = useState(false);
   const [mistakesPerWeek,setMistakesPerWeek]= useState(8);
@@ -264,7 +263,6 @@ export default function Home() {
   }, [variant]);
 
   const containerRef  = useRef<HTMLDivElement>(null);
-  const testimRef     = useRef<HTMLDivElement>(null);
   const scoreNumRef   = useRef<HTMLDivElement>(null);
   const activityRef   = useRef<HTMLDivElement>(null);
   const prevScoreRef  = useRef(scorePreviewCalc(3, false, 8, 5));
@@ -335,15 +333,6 @@ export default function Home() {
     }, 3800);
     return () => clearInterval(cycle);
   }, []);
-
-  /* Animate testimonial on change */
-  useEffect(() => {
-    if (!testimRef.current) return;
-    gsap.fromTo(testimRef.current,
-      { autoAlpha: 0, y: 10 },
-      { autoAlpha: 1, y: 0, duration: 0.35, ease: "power2.out" }
-    );
-  }, [testimIdx]);
 
   /* Animate score number on change */
   useEffect(() => {
@@ -737,20 +726,6 @@ export default function Home() {
         });
       });
 
-      /* Testimonial nav arrows */
-      gsap.utils.toArray<HTMLElement>(".testim-arrow-prev").forEach(el =>
-        addHover(el,
-          { x: -4, scale: 1.1, duration: 0.2, ease: "power2.out" },
-          { x:  0, scale: 1,   duration: 0.3, ease: "power3.out" }
-        )
-      );
-      gsap.utils.toArray<HTMLElement>(".testim-arrow-next").forEach(el =>
-        addHover(el,
-          { x:  4, scale: 1.1, duration: 0.2, ease: "power2.out" },
-          { x:  0, scale: 1,   duration: 0.3, ease: "power3.out" }
-        )
-      );
-
       /* Stat cards — lift on hover */
       gsap.utils.toArray<HTMLElement>(".stat-card").forEach(el =>
         addHover(el,
@@ -801,6 +776,20 @@ export default function Home() {
         });
         observer.observe(activityEl, { childList: true, subtree: true, characterData: true });
         hoverListeners.push(() => observer.disconnect());
+      }
+
+      /* ── Side-entrance reveals ── */
+      if (!reduceMotion) {
+        gsap.set(".reveal-left",  { autoAlpha: 0, x: -60 });
+        gsap.set(".reveal-right", { autoAlpha: 0, x:  60 });
+        ScrollTrigger.batch(".reveal-left", {
+          onEnter: (els) => gsap.to(els, { autoAlpha: 1, x: 0, duration: 0.7, stagger: 0.08, ease: "power2.out", clearProps: "opacity,transform" }),
+          once: true, start: "top 88%",
+        });
+        ScrollTrigger.batch(".reveal-right", {
+          onEnter: (els) => gsap.to(els, { autoAlpha: 1, x: 0, duration: 0.7, stagger: 0.08, ease: "power2.out", clearProps: "opacity,transform" }),
+          once: true, start: "top 88%",
+        });
       }
 
       /* ── Force ScrollTrigger to recalculate positions after fonts/images settle ── */
@@ -1022,7 +1011,7 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }} className="mob-col">
             {/* ChatGPT column */}
-            <div style={{ borderRadius: 16, border: "1px solid var(--rule)", overflow: "hidden" }}>
+            <div className="reveal-left" style={{ borderRadius: 16, border: "1px solid var(--rule)", overflow: "hidden" }}>
               <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--rule)", background: "color-mix(in srgb, var(--ink) 3%, var(--paper))" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 4 }}>Generic AI</div>
                 <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink-2)" }}>ChatGPT / Gemini</div>
@@ -1045,7 +1034,7 @@ export default function Home() {
             </div>
 
             {/* Ledger column */}
-            <div style={{ borderRadius: 16, border: "1.5px solid var(--cinnabar-ink)", overflow: "hidden" }}>
+            <div className="reveal-right" style={{ borderRadius: 16, border: "1.5px solid var(--cinnabar-ink)", overflow: "hidden" }}>
               <div style={{ padding: "20px 28px", borderBottom: "1px solid color-mix(in srgb, var(--cinnabar-ink) 25%, transparent)", background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)", marginBottom: 4 }}>Built for exams</div>
                 <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)" }}>StudyLedger</div>
@@ -1342,7 +1331,7 @@ export default function Home() {
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
 
           <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 72, alignItems: "start" }} className="mob-col">
-            <div>
+            <div className="reveal-left">
               <h2 className="reveal-up" style={S.h2}>
                 Every session moves the number.
               </h2>
@@ -1352,7 +1341,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }} className="mob-col">
+            <div className="reveal-right mob-col" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
               {/* Score */}
               <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.capAccent}>Ledger Score</span>
@@ -1597,172 +1586,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── 07 / Field Reports ─── */}
-      <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 48 }}>
-            <h2 className="reveal-up" style={S.h2}>What students actually say.</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button aria-label="Previous testimonial" className="testim-arrow-prev" onClick={() => setTestimIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>←</button>
-                <button aria-label="Next testimonial" className="testim-arrow-next" onClick={() => setTestimIdx(i => (i + 1) % TESTIMONIALS.length)}
-                  style={{ padding: "7px 14px", background: "color-mix(in srgb, var(--ink) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 12%, transparent)", borderRadius: 8, cursor: "pointer", fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-2)", transition: "border-color 150ms, color 150ms", display: "inline-block" }}>→</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Testimonial */}
-          <div ref={testimRef} style={{ border: "1px solid color-mix(in srgb, var(--ink) 14%, transparent)", borderTop: "2px solid color-mix(in srgb, var(--ink) 60%, transparent)", position: "relative", overflow: "hidden", borderRadius: 16, background: "color-mix(in srgb, var(--paper) 55%, transparent)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
-            {/* Watermark quotation mark */}
-            <div
-              aria-hidden
-              style={{
-                position:      "absolute",
-                top:           -16,
-                right:         32,
-                fontFamily:    "var(--serif)",
-                fontSize:      260,
-                fontWeight:    700,
-                lineHeight:    1,
-                color:         "var(--ink)",
-                opacity:       0.045,
-                userSelect:    "none",
-                pointerEvents: "none",
-              }}
-            >
-              &ldquo;
-            </div>
-
-            <div className="testim-body" style={{ padding: "44px 48px 40px", position: "relative" }}>
-              <div style={{ ...S.capAccent, fontSize: 9, marginBottom: 22 }}>Dispatch No.{String(testimIdx + 1).padStart(2, "0")}</div>
-
-              {/* Quote with left annotation border */}
-              <blockquote style={{
-                fontFamily:   "var(--serif)",
-                fontSize:     "clamp(19px,2.6vw,26px)",
-                fontStyle:    "italic",
-                lineHeight:   1.52,
-                margin:       "0 0 28px",
-                letterSpacing:"-0.005em",
-                maxWidth:     780,
-                color:        "var(--ink)",
-                fontWeight:   400,
-                textWrap:     "pretty",
-                borderLeft:   "2px solid var(--ink-3)",
-                paddingLeft:  24,
-              }}>
-                {TESTIMONIALS[testimIdx].q}
-              </blockquote>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", borderTop: S.border, paddingTop: 18, gap: 20 }} className="mob-col lp-dispatch-meta">
-                <div>
-                  <div style={S.cap}>Filed by</div>
-                  {/* Italic serif signature */}
-                  <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, marginTop: 6, color: "var(--ink)", lineHeight: 1.3 }}>{TESTIMONIALS[testimIdx].by}</div>
-                </div>
-                <div>
-                  <div style={S.cap}>Desk</div>
-                  <div style={{ fontFamily: "var(--sans)", fontWeight: 500, fontSize: 13, marginTop: 5, color: "var(--ink-2)" }}>{TESTIMONIALS[testimIdx].ctx}</div>
-                </div>
-                <div>
-                  <div style={S.cap}>Result</div>
-                  <div style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 14, marginTop: 5, color: "var(--cinnabar-ink)" }}>{TESTIMONIALS[testimIdx].score}</div>
-                </div>
-                <div style={{ display: "flex", gap: 5, alignItems: "flex-end" }}>
-                  {TESTIMONIALS.map((_, i) => (
-                    <button key={i} onClick={() => setTestimIdx(i)} aria-label={`Testimonial ${i + 1}`}
-                      style={{ width: i === testimIdx ? 24 : 7, height: 7, background: i === testimIdx ? "var(--ink)" : "var(--rule)", border: "none", cursor: "pointer", transition: "all 220ms cubic-bezier(0.4,0,0.2,1)", padding: 0, flexShrink: 0 }} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginTop: 32 }} className="mob-2col">
-            {STATS.map(({ big, suffix, sm }, i) => (
-              <div
-                className="stat-card glass-card"
-                key={i}
-                style={{
-                  padding:     "40px 28px 36px",
-                  borderTop:   "2px solid var(--cinnabar-ink)",
-                  position:    "relative",
-                  borderRadius: 14,
-                }}
-              >
-                {/* Mono index — marginal note style */}
-                <div style={{
-                  fontFamily:    "var(--mono)",
-                  fontSize:      9,
-                  letterSpacing: "0.14em",
-                  color:         "var(--cinnabar-ink)",
-                  opacity:       0.55,
-                  marginBottom:  16,
-                  textTransform: "uppercase",
-                }}>
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-
-                {/* Headline number */}
-                <div style={{
-                  fontFamily:    "var(--serif)",
-                  fontSize:      "clamp(52px, 5.5vw, 72px)",
-                  fontStyle:     "normal",
-                  fontWeight:    700,
-                  lineHeight:    1,
-                  letterSpacing: "-0.01em",
-                  color:         "var(--ink)",
-                  display:       "flex",
-                  alignItems:    "baseline",
-                  gap:           6,
-                }}>
-                  <span
-                    className="count-up"
-                    data-target={big}
-                    data-decimals={big.includes(".") ? "1" : "0"}
-                  >
-                    {big}
-                  </span>
-                  <span style={{
-                    fontSize:   "clamp(22px, 2.2vw, 30px)",
-                    fontWeight: 400,
-                    color:      "var(--ink-2)",
-                  }}>
-                    {suffix}
-                  </span>
-                </div>
-
-                {/* Label */}
-                <div style={{
-                  fontFamily:    "var(--mono)",
-                  fontSize:      10,
-                  fontWeight:    500,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color:         "var(--ink-3)",
-                  marginTop:     18,
-                  lineHeight:    1.55,
-                }}>
-                  {sm}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <BeforeAfterSection />
       <StudentJourneySection />
 
       {/* ─── Student Testimonials (CardSwap) ─── */}
       <section style={{ padding: '80px 44px', borderBottom: S.border, background: 'var(--paper)', overflow: 'hidden' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
+        <div className="testimonials-swap-grid" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
           {/* Left: heading + context */}
-          <div>
+          <div className="reveal-left">
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: 'var(--cinnabar-ink)', marginBottom: 16 }}>Student results</div>
             <h2 style={{ fontFamily: 'var(--sans)', fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.15, marginBottom: 20 }}>
               Real scores.<br />Real students.
@@ -1772,7 +1603,7 @@ export default function Home() {
             </p>
           </div>
           {/* Right: stacked 3D testimonial cards */}
-          <div style={{ position: 'relative', height: 420 }}>
+          <div className="reveal-right" style={{ position: 'relative', height: 420 }}>
             <CardSwap
               width={340}
               height={260}

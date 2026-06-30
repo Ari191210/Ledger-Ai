@@ -181,39 +181,39 @@
   --prose: "Orsiri", var(--font-lora), Georgia, serif;
 
   /* == Brand palette == */
-  --peach:        #ffcaaf;
-  --powder-blue:  #a7bed3;
-  --light-blue:   #c6e2e9;
-  --cream:        #f1ffc4;
-  --tan:          #dab894;
+  --peach:        #ff6b6b;
+  --powder-blue:  #818cf8;
+  --light-blue:   #22d3ee;
+  --cream:        #a3e635;
+  --tan:          #fb923c;
 
   /* == Semantic roles == */
   --paper:        #08090c;
   --paper-2:      #0f1016;
-  --ink:          #f1ffc4;
-  --ink-2:        #dab894;
-  --ink-3:        #a7bed3;
-  --cinnabar:     #e89a80;
-  --cinnabar-ink: #ffcaaf;
-  --highlight:    rgba(255,202,175,0.16);
-  --rule:         rgba(167,190,211,0.20);
-  --rule-2:       rgba(167,190,211,0.08);
-  --page-glow-a:  rgba(255,202,175,0.20);
-  --page-glow-b:  rgba(167,190,211,0.12);
+  --ink:          #f0f0f5;
+  --ink-2:        #c4c4d4;
+  --ink-3:        #8888aa;
+  --cinnabar:     #ef4444;
+  --cinnabar-ink: #ff7c5c;
+  --highlight:    rgba(255,124,92,0.22);
+  --rule:         rgba(129,140,248,0.22);
+  --rule-2:       rgba(129,140,248,0.09);
+  --page-glow-a:  rgba(239,68,68,0.32);
+  --page-glow-b:  rgba(129,140,248,0.22);
 
   /* == Category colors == */
-  --sage:    #f1ffc4;  --sage-bg:   rgba(241,255,196,0.12);
-  --slate:   #a7bed3;  --slate-bg:  rgba(167,190,211,0.12);
-  --ochre:   #dab894;  --ochre-bg:  rgba(218,184,148,0.12);
-  --plum:    #c6e2e9;  --plum-bg:   rgba(198,226,233,0.10);
-  --teal:    #ffcaaf;  --teal-bg:   rgba(255,202,175,0.12);
+  --sage:    #a3e635;  --sage-bg:   rgba(163,230,53,0.15);
+  --slate:   #818cf8;  --slate-bg:  rgba(129,140,248,0.15);
+  --ochre:   #fb923c;  --ochre-bg:  rgba(251,146,60,0.14);
+  --plum:    #22d3ee;  --plum-bg:   rgba(34,211,238,0.13);
+  --teal:    #f472b6;  --teal-bg:   rgba(244,114,182,0.14);
 
   /* == Tint aliases == */
-  --peach-bg:          rgba(255,202,175,0.12);
-  --powder-blue-bg:    rgba(167,190,211,0.12);
-  --light-blue-bg:     rgba(198,226,233,0.10);
-  --cream-brand:       #f1ffc4;  --cream-brand-bg:  rgba(241,255,196,0.10);
-  --tan-brand:         #dab894;  --tan-brand-bg:    rgba(218,184,148,0.10);
+  --peach-bg:          rgba(255,107,107,0.16);
+  --powder-blue-bg:    rgba(129,140,248,0.16);
+  --light-blue-bg:     rgba(34,211,238,0.13);
+  --cream-brand:       #a3e635;  --cream-brand-bg:  rgba(163,230,53,0.15);
+  --tan-brand:         #fb923c;  --tan-brand-bg:    rgba(251,146,60,0.12);
 
   /* == Elevations (unchanged structure, brand-tinted) == */
   --elev-0: 0 0 0 hsl(0 0% 0% / 0);
@@ -351,7 +351,7 @@
 .cur-dot {
   position: fixed; top: -4px; left: -4px;
   width: 8px; height: 8px; border-radius: 50%;
-  background: #ffcaaf;
+  background: #ff7c5c;
   pointer-events: none; z-index: 99999;
   opacity: 0; will-change: transform;
   transition: background 300ms ease;
@@ -359,7 +359,7 @@
 .cur-ring {
   position: fixed; top: -16px; left: -16px;
   width: 32px; height: 32px; border-radius: 50%;
-  border: 1.5px solid #ffcaaf;
+  border: 1.5px solid #ff7c5c;
   pointer-events: none; z-index: 99998;
   opacity: 0; will-change: transform;
   transition: border-color 300ms ease, opacity 200ms ease;
@@ -1327,6 +1327,16 @@ img { image-rendering: auto; }
 }
 @media (max-width: 480px) {
   .mob-2col { grid-template-columns: 1fr !important; }
+}
+
+/* ─── CardSwap testimonials: mobile stack ─── */
+@media (max-width: 768px) {
+  .testimonials-swap-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .testimonials-swap-grid > div:last-child {
+    height: 340px !important;
+  }
 }
 
 /* â”€â”€â”€ Section dividers: animated accent line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
