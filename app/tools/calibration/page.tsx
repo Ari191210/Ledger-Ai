@@ -9,8 +9,9 @@ type CQQuestion = { q: string; options: string[]; answer: number; subtopic: stri
 type CalibData  = { questions: CQQuestion[] };
 type Phase      = "setup" | "quiz" | "result";
 
-const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Statistics", "History", "Geography", "Computer Science", "Further Maths"];
-const LEVELS   = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE", "SAT"];
+const SUBJECTS   = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Statistics", "History", "Geography", "Computer Science", "Further Maths"];
+const LEVELS     = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE", "SAT"];
+const CAL_COUNTS = [5, 10, 15] as const;
 const CONF_LABELS = ["Clueless", "Uncertain", "Maybe", "Fairly sure", "Certain"];
 const CONF_VALUES = [0, 0.25, 0.5, 0.75, 1.0];
 const CONF_COLORS = ["var(--cinnabar)", "var(--gold)", "#9a8a00", "var(--sage)", "var(--sage)"];
@@ -19,6 +20,7 @@ export default function CalibrationPage() {
   const [subject,  setSubject]  = useState("Mathematics");
   const [topic,    setTopic]    = useState("");
   const [level,    setLevel]    = useState("A-Level");
+  const [count,    setCount]    = useState<5 | 10 | 15>(10);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<AIError | string | null>(null);
   const [phase,    setPhase]    = useState<Phase>("setup");
@@ -34,7 +36,7 @@ export default function CalibrationPage() {
     if (!subject) return;
     setLoading(true); setError(null);
     try {
-      const data = await callAIOrThrow<CalibData>({ tool: "calibration_questions", subject, topic, level });
+      const data = await callAIOrThrow<CalibData>({ tool: "calibration_questions", subject, topic, level, count });
       if (!data.questions?.length) { setError("No questions generated — try again."); return; }
       setQuestions(data.questions);
       setConfidences(new Array(data.questions.length).fill(-1));
@@ -155,7 +157,7 @@ export default function CalibrationPage() {
               style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
           </div>
 
-          <div style={{ marginBottom: 28 }}>
+          <div style={{ marginBottom: 14 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {LEVELS.map(l => (
@@ -167,10 +169,24 @@ export default function CalibrationPage() {
             </div>
           </div>
 
+          <div style={{ marginBottom: 28 }}>
+            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Questions</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {(CAL_COUNTS.map(n => ({ n, label: n === 5 ? "Quick check" : n === 10 ? "Standard" : "Deep diagnostic", desc: n === 5 ? "~3 min" : n === 10 ? "~6 min" : "~9 min" }))).map(({ n, label, desc }) => (
+                <button key={n} onClick={() => setCount(n as 5 | 10 | 15)}
+                  style={{ flex: 1, padding: "10px 6px", border: `1px solid ${count === n ? "var(--ink)" : "var(--rule)"}`, background: count === n ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontStyle: "italic", color: count === n ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{n}</div>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: count === n ? "var(--paper-2)" : "var(--ink)", marginBottom: 2 }}>{label}</div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: count === n ? "var(--paper-2)" : "var(--ink-3)" }}>{desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {error && <div style={{ marginBottom: 14 }}><AIErrorDisplay error={error} onRetry={generate} inline /></div>}
 
           <button className="btn" onClick={generate} disabled={loading || !subject} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
-            {loading ? "Generating questions…" : "Start calibration →"}
+            {loading ? "Generating questions…" : `Start ${count}-question calibration →`}
           </button>
           {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
 

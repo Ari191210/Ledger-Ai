@@ -1028,17 +1028,28 @@ ${params.text}`,
       };
     }
 
-    case "study_guide":
+    case "study_guide": {
+      const sgLvl = (params.level as string) || "A-Level";
+      const sgGuide =
+        sgLvl === "GCSE" || sgLvl === "IGCSE"
+          ? "GCSE depth: mustKnow items should be definitions, key facts, and simple processes. Explanations: accessible, no assumed prior knowledge. Exam tip: focus on command words and mark allocation."
+          : sgLvl === "JEE" || sgLvl === "CBSE Class 12" || sgLvl === "CBSE Class 11"
+          ? "JEE/CBSE depth: mustKnow should include key formulae, derivations, and standard problem types. Sections should cover theory AND numerical application. Exam tip: focus on application speed and common traps."
+          : sgLvl === "IB"
+          ? "IB depth: mustKnow should include conceptual frameworks, evaluation language, and command words. Sections should cover both content and how to write about it analytically. Exam tip: emphasise how to answer 'evaluate' and 'discuss' commands."
+          : "A-Level depth: mustKnow should include precise definitions, key formulae, and mechanisms. Sections should explain WHY, not just what. commonMistakes should target A-Level-specific errors. Exam tip: focus on synoptic links and evaluation.";
       return {
         system: `${SAFETY_PREAMBLE}You are a master ${params.subject || "academic"} teacher who creates comprehensive, exam-focused study guides. Always respond with valid JSON only.`,
         userText: `Create a complete study guide for the topic below. Respond with exactly this JSON:
-{"topic":"${params.topic}","overview":"3-4 sentence overview of what this topic covers and why it matters","sections":[{"title":"section title","content":"clear explanation in 3-5 sentences","keyPoints":["key point 1","key point 2","key point 3"]}],"mustKnow":["essential fact/formula/definition 1","..."],"commonMistakes":["common mistake 1","..."],"quickReview":["one-line review point 1","..."],"examTip":"specific exam strategy for this topic"}
+{"topic":"${params.topic}","overview":"3-4 sentence overview of what this topic covers and why it matters at ${sgLvl}","sections":[{"title":"section title","content":"clear explanation in 3-5 sentences","keyPoints":["key point 1","key point 2","key point 3"]}],"mustKnow":["essential fact/formula/definition 1","..."],"commonMistakes":["common mistake 1","..."],"quickReview":["one-line review point 1","..."],"examTip":"specific exam strategy for this topic at ${sgLvl}"}
 
-sections: 4-6 logical sections covering the topic comprehensively. mustKnow: 5-7 items. commonMistakes: 4-5 items. quickReview: 8-10 one-liners.
+sections: 4-6 logical sections. mustKnow: 5-7 items. commonMistakes: 4-5 items. quickReview: 8-10 one-liners.
+${sgGuide}
 Subject: ${params.subject || "General"}
-Level: ${params.level}
+Level: ${sgLvl}
 Topic: ${params.topic}`,
       };
+    }
 
     case "exam_strategy":
       return {
@@ -1730,24 +1741,39 @@ Questions and student answers:
 ${(params.qa as Array<{q: string; a: string}>).map((item, i) => `Q${i + 1}: ${item.q}\nStudent answer: ${item.a || "(left blank)"}`).join("\n\n")}`,
       };
 
-    case "calibration_questions":
+    case "calibration_questions": {
+      const calN = Number(params.count) || 10;
+      const calLvl = (params.level as string) || "A-Level";
+      const easyN  = calN === 5 ? 2 : calN === 15 ? 4 : 3;
+      const medN   = calN === 5 ? 2 : calN === 15 ? 7 : 5;
+      const hardN  = calN - easyN - medN;
+      const calLvlGuide =
+        calLvl === "GCSE" || calLvl === "IGCSE"
+          ? "GCSE standard: Easy = direct recall of definitions and key facts. Medium = apply a formula or concept to a straightforward scenario. Hard = multi-step or requires evaluating why something happens."
+          : calLvl === "JEE" || calLvl === "CBSE Class 12" || calLvl === "CBSE Class 11"
+          ? "JEE/CBSE standard: Easy = single-concept application. Medium = multi-step calculation with 2-3 concepts. Hard = tricky edge cases, non-obvious setups, or requires insight beyond textbook examples."
+          : calLvl === "IB"
+          ? "IB standard: Easy = recall + single-step application. Medium = analysis requiring command-word awareness (explain, compare). Hard = evaluation or synthesis across concepts."
+          : "A-Level standard: Easy = recall or single-step application. Medium = multi-step problem or requires understanding why. Hard = synoptic or requires evaluating competing explanations.";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert exam question writer. Always respond with valid JSON only.`,
-        userText: `Generate exactly 10 multiple-choice questions for a calibration exercise. Questions should test genuine understanding across the topic — not just recall. Include questions from different subtopics so we can build an accurate topic-by-topic confidence map.
+        userText: `Generate exactly ${calN} multiple-choice questions for a confidence calibration exercise. Questions must test genuine understanding across different subtopics — not just rote recall — so we can build an accurate topic-by-topic confidence map.
 
 Respond with exactly this JSON:
 {"questions":[{"q":"question text","options":["A option","B option","C option","D option"],"answer":0,"subtopic":"specific subtopic this tests","difficulty":"easy|medium|hard"}]}
 
 Rules:
-- answer: 0-based index of correct option
-- Vary difficulty: 3 easy, 5 medium, 2 hard
-- Each question must test a distinct subtopic
-- Distractors must be plausible — not obviously wrong
+- answer: 0-based index of the correct option
+- Difficulty split: ${easyN} easy, ${medN} medium, ${hardN} hard
+- Each question must test a DISTINCT subtopic — spread coverage across the topic
+- Distractors must be plausible — wrong for a specific reason a student might hold
+- ${calLvlGuide}
 
 Subject: ${params.subject}
-Topic: ${params.topic}
-Level: ${params.level || "A-Level"}`,
+Topic: ${params.topic || "all major subtopics"}
+Level: ${calLvl}`,
       };
+    }
 
     case "feynman_probe": {
       const fAudience = (params.audience as string) || "12-year-old";
