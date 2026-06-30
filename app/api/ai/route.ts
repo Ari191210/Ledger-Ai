@@ -347,11 +347,17 @@ Content:
 ${params.content}`,
       };
 
-    case "doubt":
+    case "doubt": {
+      const doubtLevel = (params.level as string) || "A-Level";
+      const depth = (params.depth as string) || "proper";
+      const depthGuide =
+        depth === "quick"    ? "Give a concise 2-3 step overview — the student wants the gist fast, not a full lesson."
+        : depth === "stuck"  ? "The student is stuck mid-problem. Identify exactly where they likely went wrong and give the next 1-2 steps only — don't solve the whole thing for them."
+        :                       "Teach it properly: full step-by-step worked solution, explain the reasoning at each step, not just the mechanics.";
       return {
-        system: `${SAFETY_PREAMBLE}${profileCtx}You are a patient tutor. Always respond with valid JSON only — no markdown fences.`,
+        system: `${SAFETY_PREAMBLE}${profileCtx}You are a patient tutor who adapts to student level. Always respond with valid JSON only — no markdown fences.`,
         userText: `Solve this problem and respond with exactly this JSON shape:
-{"solution":"step-by-step worked solution with each step on a new line","principle":"the underlying theorem or concept in 1-2 sentences","practice":["similar problem 1","similar problem 2","similar problem 3"],"sim":{"type":"none","label":"","params":{}}}
+{"solution":"${depthGuide} Each step on a new line, numbered.","principle":"the underlying theorem or concept in 1-2 sentences — pitched at ${doubtLevel} level","practice":["a similar problem at ${doubtLevel} level","another variant","a slightly harder extension"],"sim":{"type":"none","label":"","params":{}}}
 
 For the "sim" field: if this is a physics, chemistry, or biology problem, pick the most relevant simulation type and set realistic params extracted from the problem where given, else use sensible defaults. For maths, history, literature, or other non-science questions, use type "none".
 
@@ -387,6 +393,7 @@ Extract numeric values from the problem text wherever possible (e.g. if problem 
 Problem:
 ${params.question || "See the image above."}`,
       };
+    }
 
     case "career":
       return {
@@ -1025,18 +1032,26 @@ Concept A: ${params.conceptA}
 Concept B: ${params.conceptB}`,
       };
 
-    case "model_answer":
+    case "model_answer": {
+      const board = (params.examBoard as string) || "";
+      const boardGuide = board
+        ? `Exam board: ${board}. Write in the exact style ${board} rewards — use their specific command word conventions, mark allocation logic, and common examiner commentary.`
+        : "";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert ${params.subject || "academic"} examiner who writes model answers that demonstrate exactly what full marks requires. Always respond with valid JSON only.`,
         userText: `Write a model answer for the exam question below. Respond with exactly this JSON:
-{"question":"${params.question}","marks":${params.marks},"modelAnswer":"the complete model answer written at the highest level for ${params.level} — use appropriate academic language, specific evidence, and structured argument","markingPoints":["marking point 1 that this answer covers","point 2","point 3"],"whatMakesItGood":["specific quality 1","quality 2","quality 3"],"structureGuide":"how this answer is structured and why — useful for students to replicate","examTip":"one insight into what examiners reward most for this question type"}
+{"question":"${params.question}","marks":${params.marks},"modelAnswer":"the complete model answer written at full-marks level for ${params.level}${board ? ` (${board})` : ""} — appropriate academic language, specific evidence, structured argument","markingPoints":["key marking point 1","point 2","point 3"],"keywordsRequired":["keyword/phrase examiners specifically reward 1","keyword 2","keyword 3"],"whatMakesItGood":["specific quality 1","quality 2","quality 3"],"structureGuide":"how this answer is structured and why — so the student can replicate it","examTip":"one insight into what examiners reward most for this question type at ${board || params.level}"}
 
-markingPoints: list the 4-6 key marking points this model answer hits. The answer should be appropriate length for ${params.marks} marks at ${params.level}.
+markingPoints: 4-6 key marking points this model answer covers.
+keywordsRequired: 3-5 specific words, phrases, or concepts the examiner's mark scheme explicitly rewards — things a student MUST include for full marks.
+Answer length: appropriate for ${params.marks} marks at ${params.level}.
+${boardGuide}
 Subject: ${params.subject || "General"}
 Level: ${params.level}
 Marks: ${params.marks}
 Question: ${params.question}`,
       };
+    }
 
     case "papers_explain":
       return {

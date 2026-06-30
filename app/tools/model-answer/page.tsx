@@ -6,14 +6,16 @@ import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
-type ModelAnswer = { question: string; marks: number; modelAnswer: string; markingPoints: string[]; whatMakesItGood: string[]; structureGuide: string; examTip: string };
+type ModelAnswer = { question: string; marks: number; modelAnswer: string; markingPoints: string[]; keywordsRequired?: string[]; whatMakesItGood: string[]; structureGuide: string; examTip: string };
 
 const LEVELS = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "JEE", "NEET"];
+const BOARDS  = ["AQA", "Edexcel", "OCR", "CIE", "WJEC", "IB", "CBSE", "ICSE"];
 
 export default function ModelAnswerPage() {
   const [question, setQuestion] = useState("");
   const [subject, setSubject]   = useState("");
   const [level, setLevel]       = useState("A-Level");
+  const [examBoard, setExamBoard] = useState("");
   const [marks, setMarks]       = useState(6);
   const [result, setResult]     = useState<ModelAnswer | null>(null);
   const [loading, setLoading]   = useState(false);
@@ -24,7 +26,7 @@ export default function ModelAnswerPage() {
     if (!question.trim()) { setError("Enter an exam question."); return; }
     setLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<ModelAnswer>({ tool: "model_answer", question, subject, level, marks });
+      const data = await callAIOrThrow<ModelAnswer>({ tool: "model_answer", question, subject, level, marks, examBoard: examBoard || undefined });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -68,6 +70,16 @@ export default function ModelAnswerPage() {
             {result.whatMakesItGood.map((w, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 12, marginBottom: 5, color: "var(--ink-2)" }}>· {w}</div>)}
           </div>
         </div>
+        {result.keywordsRequired && result.keywordsRequired.length > 0 && (
+          <div style={{ border: "1px solid var(--rule)", padding: "14px 16px", marginBottom: 12, background: "color-mix(in oklch, var(--sage) 4%, transparent)" }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 10 }}>KEYWORDS EXAMINERS REWARD</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {result.keywordsRequired.map((kw, i) => (
+                <span key={i} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "3px 8px", border: "1px solid var(--sage)", color: "var(--sage)", background: "transparent" }}>{kw}</span>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div style={{ border: "1px solid var(--rule)", padding: "14px 16px", marginBottom: 12 }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>STRUCTURE GUIDE</div>
@@ -108,6 +120,12 @@ export default function ModelAnswerPage() {
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {LEVELS.map(l => <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>)}
+          </div>
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam board <span style={{ color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: 9 }}>(optional — for board-specific answers)</span></div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {BOARDS.map(b => <button key={b} onClick={() => setExamBoard(examBoard === b ? "" : b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${examBoard === b ? "var(--ink)" : "var(--rule)"}`, background: examBoard === b ? "var(--ink)" : "var(--paper)", color: examBoard === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>)}
           </div>
         </div>
         <div style={{ marginBottom: 20 }}>
