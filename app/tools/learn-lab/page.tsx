@@ -386,9 +386,17 @@ function DoubtTab() {
 }
 
 // ─── Feynman Engine tab ───────────────────────────────────────────────────────
+const FEYNMAN_AUDIENCES = [
+  { value: "12-year-old", label: "Simple", desc: "Explain to a 12-year-old — no jargon, no prior knowledge" },
+  { value: "classmate",   label: "Classmate", desc: "Explain to a fellow student — some domain knowledge OK" },
+  { value: "expert",      label: "Expert", desc: "Explain to a peer expert — technical depth required" },
+] as const;
+type FeynmanAudience = typeof FEYNMAN_AUDIENCES[number]["value"];
+
 function FeynmanTab() {
   const [concept, setConcept] = useState("");
   const [subject, setSubject] = useState("Physics");
+  const [audience, setAudience] = useState<FeynmanAudience>("12-year-old");
   const [explanation, setExplanation] = useState("");
   const [phase, setPhase] = useState<FeynmanPhase>("setup");
   const [probeData, setProbeData] = useState<ProbeData | null>(null);
@@ -401,7 +409,7 @@ function FeynmanTab() {
     if (!concept.trim() || !explanation.trim()) return;
     setLoading(true); setError(null);
     try {
-      const data = await callAIOrThrow<ProbeData>({ tool: "feynman_probe", concept, subject, explanation });
+      const data = await callAIOrThrow<ProbeData>({ tool: "feynman_probe", concept, subject, audience, explanation });
       if (!data.questions?.length) { setError("Couldn't generate questions — try again."); return; }
       setProbeData(data); setProbeAnswers(new Array(data.questions.length).fill("")); setPhase("probing");
     } catch (err) { setError(err instanceof AIError ? err : "Something went wrong."); }
@@ -413,13 +421,13 @@ function FeynmanTab() {
     setPhase("evaluating"); setError(null);
     try {
       const qa = probeData.questions.map((q, i) => ({ q: q.q, a: probeAnswers[i] ?? "" }));
-      const data = await callAIOrThrow<FeynmanEvalData>({ tool: "feynman_eval", concept, subject, explanation, qa });
+      const data = await callAIOrThrow<FeynmanEvalData>({ tool: "feynman_eval", concept, subject, audience, explanation, qa });
       setEvalData(data); setPhase("result");
     } catch (err) { setError(err instanceof AIError ? err : "Something went wrong."); setPhase("answering"); }
   }
 
   function restart() {
-    setPhase("setup"); setConcept(""); setSubject("Physics"); setExplanation("");
+    setPhase("setup"); setConcept(""); setSubject("Physics"); setAudience("12-year-old"); setExplanation("");
     setProbeData(null); setProbeAnswers(["", "", ""]); setEvalData(null); setError(null);
   }
 
@@ -442,6 +450,18 @@ function FeynmanTab() {
           ))}
         </div>
       </div>
+      <div style={{ marginBottom: 14 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Who are you explaining to?</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {FEYNMAN_AUDIENCES.map(a => (
+            <button key={a.value} onClick={() => setAudience(a.value)}
+              style={{ flex: 1, padding: "8px 6px", border: `1px solid ${audience === a.value ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: audience === a.value ? "var(--cinnabar-ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: audience === a.value ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{a.label}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: audience === a.value ? "var(--paper-2)" : "var(--ink-3)", lineHeight: 1.3 }}>{a.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Concept to explain</div>
         <input value={concept} onChange={e => setConcept(e.target.value)} placeholder="e.g. Photosynthesis, Integration by parts, Keynesian economics…"
@@ -454,8 +474,12 @@ function FeynmanTab() {
   if (phase === "explaining") return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
       <div className="mono cin" style={{ marginBottom: 8 }}>Step 1 · Your explanation</div>
-      <h2 style={{ fontFamily: "var(--serif)", fontSize: 24, fontWeight: 500, fontStyle: "italic", margin: "0 0 8px" }}>Explain {concept} as if teaching a 12-year-old.</h2>
-      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6, margin: "0 0 20px" }}>Write freely — don&apos;t look anything up. Use simple language. If you find yourself stuck, that&apos;s the point.</p>
+      <h2 style={{ fontFamily: "var(--serif)", fontSize: 24, fontWeight: 500, fontStyle: "italic", margin: "0 0 8px" }}>
+        {audience === "12-year-old" ? `Explain ${concept} as if teaching a 12-year-old.` : audience === "classmate" ? `Explain ${concept} to a fellow student.` : `Explain ${concept} at an expert level.`}
+      </h2>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6, margin: "0 0 20px" }}>
+        {audience === "12-year-old" ? "Write freely — don't look anything up. Use simple language. If you find yourself stuck, that's the point." : audience === "classmate" ? "Use domain vocabulary freely — but explain the reasoning, not just the facts. Don't look anything up." : "Use precise technical language. Cover mechanisms, edge cases, and implications. Don't look anything up."}
+      </p>
       <textarea value={explanation} onChange={e => setExplanation(e.target.value)} placeholder={`Explain ${concept} simply. What is it? How does it work? Why does it matter?`} rows={12}
         style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7, border: "none", background: "var(--paper)", padding: "16px", color: "var(--ink)", resize: "vertical", boxSizing: "border-box", marginBottom: 12 }} />
       {error && <div style={{ marginBottom: 12 }}><AIErrorDisplay error={error} onRetry={submitExplanation} inline /></div>}

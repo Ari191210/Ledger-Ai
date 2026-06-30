@@ -781,21 +781,32 @@ Career interests: ${JSON.stringify(params.career)}
 Additional context: ${params.extra || "none"}`,
       };
 
-    case "essay_blueprint":
+    case "essay_blueprint": {
+      const bpLvl = (params.level as string) || "A-Level";
+      const bpGuide =
+        bpLvl === "GCSE" || bpLvl === "IGCSE"
+          ? "GCSE standard: clear topic sentences, PEEL paragraph structure, simple connectives, 2-3 pieces of evidence per paragraph, accessible vocabulary. Thesis should be a direct statement, not hedged."
+          : bpLvl === "University" || bpLvl === "AP"
+          ? "University standard: nuanced thesis with concession, sophisticated paragraph transitions, engagement with counter-arguments, historiographical awareness (for humanities), precise citation integration, academic register throughout."
+          : bpLvl === "IB HL" || bpLvl === "IB SL"
+          ? "IB standard: clear line of argument, conceptual analysis, counter-argument with rebuttal, command-word awareness (evaluate/assess/to what extent), theory of knowledge connections where relevant."
+          : "A-Level standard: analytical thesis, PEEL or SEAL paragraphs, subject-specific terminology, evaluation of evidence, counter-argument in one paragraph, confident academic register.";
       return {
-        system: `${SAFETY_PREAMBLE}You are an essay writing coach and expert in ${params.subject} at ${params.level} level. Always respond with valid JSON only — no markdown fences.`,
+        system: `${SAFETY_PREAMBLE}You are an essay writing coach and expert in ${params.subject} at ${bpLvl} level. Always respond with valid JSON only — no markdown fences.`,
         userText: `Create a detailed essay blueprint. Respond with exactly this JSON shape:
-{"title":"suggested essay title","thesis":"a clear, arguable thesis statement","totalWords":${params.words || 1000},"sections":[{"title":"section name","purpose":"what this section achieves","points":["what to include","argument or evidence","analytical point"],"wordCount":250,"openWith":"suggested opening phrase or sentence"}],"dos":["do this","do that"],"donts":["avoid this","avoid that"],"keyTerms":["term1","term2","term3","term4","term5"]}
+{"title":"suggested essay title","thesis":"a clear, arguable thesis statement appropriate for ${bpLvl}","totalWords":${params.words || 1000},"sections":[{"title":"section name","purpose":"what this section achieves","points":["what to include","argument or evidence","analytical point"],"wordCount":250,"openWith":"suggested opening phrase or sentence"}],"dos":["do this","do that"],"donts":["avoid this","avoid that"],"keyTerms":["term1","term2","term3","term4","term5"]}
 
 sections: Introduction + 3-4 body paragraphs + Conclusion. Word counts should sum to ${params.words || 1000}.
-dos: 4-5 specific to this essay type and level. donts: 4-5. keyTerms: 5-8 subject-specific terms to use.
+dos: 4-5 specific to this essay type and ${bpLvl} level. donts: 4-5. keyTerms: 5-8 subject-specific terms the examiner rewards.
+${bpGuide}
 
 Subject: ${params.subject}
-Level: ${params.level}
+Level: ${bpLvl}
 Essay type: ${params.type}
 Essay question: ${params.prompt}
 Word limit: ${params.words}`,
       };
+    }
 
     case "concept_web":
       return {
@@ -1738,38 +1749,50 @@ Topic: ${params.topic}
 Level: ${params.level || "A-Level"}`,
       };
 
-    case "feynman_probe":
+    case "feynman_probe": {
+      const fAudience = (params.audience as string) || "12-year-old";
+      const fAudienceCtx =
+        fAudience === "expert"    ? "a peer expert in the same field — they expect precise technical language, mechanisms, edge cases, and nuance. Probe for depth, not simplicity."
+        : fAudience === "classmate" ? "a fellow student with some domain knowledge — they know the vocabulary but want the reasoning explained. Probe for whether the student understands WHY, not just WHAT."
+        :                             "a confused 12-year-old with no prior knowledge — they need simple analogies and plain language. Probe for whether the student can really simplify.";
       return {
         system: `${SAFETY_PREAMBLE}You are a Socratic teacher who identifies gaps in student understanding by asking probing questions. Always respond with valid JSON only.`,
-        userText: `A student tried to explain a concept as if teaching it to a confused 12-year-old. Identify the 3 most significant gaps in their understanding, then generate a probing question for each gap — written as a confused student would ask it.
+        userText: `A student tried to explain a concept to ${fAudienceCtx}
+
+Identify the 3 most significant gaps in their understanding, then generate a probing question for each gap — written as the audience would ask it.
 
 Respond with exactly this JSON:
-{"gaps":["gap in understanding 1","gap 2","gap 3"],"questions":[{"q":"question a confused student would ask that exposes this gap","gap":"which gap this targets"},{"q":"...","gap":"..."},{"q":"...","gap":"..."}],"explanationQuality":"1-2 sentence honest assessment of how well they explained it — what they got right and what was missing or wrong"}
+{"gaps":["gap in understanding 1","gap 2","gap 3"],"questions":[{"q":"question the audience would ask that exposes this gap","gap":"which gap this targets"},{"q":"...","gap":"..."},{"q":"...","gap":"..."}],"explanationQuality":"1-2 sentence honest assessment of how well they explained it for this audience — what they got right and what was missing or wrong"}
 
 Concept being explained: ${params.concept}
 Subject: ${params.subject || "general"}
+Audience: ${fAudience}
 
 Student's explanation:
 ${params.explanation}`,
       };
+    }
 
-    case "feynman_eval":
+    case "feynman_eval": {
+      const fEvAudience = (params.audience as string) || "12-year-old";
       return {
         system: `${SAFETY_PREAMBLE}You are a knowledgeable tutor building an accurate map of what a student truly understands vs thinks they understand. Always respond with valid JSON only.`,
-        userText: `A student explained a concept and then answered 3 probing questions. Build their knowledge map based on both the explanation and answers.
+        userText: `A student explained a concept to a ${fEvAudience} and then answered 3 probing questions. Build their knowledge map based on both the explanation and answers.
 
 Respond with exactly this JSON:
 {"knowledgeMap":{"solid":["concept or subtopic they clearly understand"],"shaky":["concept they partially understand — right direction but incomplete"],"missing":["concept or gap they don't understand or got wrong"]},"score":7,"outOf":10,"answers":[{"q":"question","studentAnswer":"their answer","verdict":"correct|partial|wrong","explanation":"brief correct explanation of this concept"}],"summary":"2-3 honest sentences on what they actually know vs what they thought they knew","recommendation":"what to study next — specific topic or exercise, not generic advice"}
 
-answers: exactly 3 items.
+answers: exactly 3 items. Score out of 10 calibrated to ${fEvAudience} audience — for expert, demand precision; for 12-year-old, reward clarity and analogy.
 
 Concept: ${params.concept}
 Subject: ${params.subject || "general"}
+Audience: ${fEvAudience}
 Original explanation: ${params.explanation}
 
 Questions and student answers:
 ${(params.qa as Array<{q: string; a: string}>).map((item, i) => `Q${i + 1}: ${item.q}\nAnswer: ${item.a || "(left blank)"}`).join("\n\n")}`,
       };
+    }
 
     case "paper_pattern":
       return {
