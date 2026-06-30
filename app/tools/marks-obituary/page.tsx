@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { callAI } from "@/lib/ai-fetch";
+import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
@@ -118,7 +118,7 @@ export default function MarksObituaryPage() {
     setResult(null);
     setLoading(true);
     try {
-      const res = await callAI({
+      const res = await callAIOrThrow<ObituaryResult>({
         tool: "marks_obituary",
         questions: questions.map((q) => ({
           questionText: q.questionText,
@@ -127,7 +127,7 @@ export default function MarksObituaryPage() {
           marksAvailable: Number(q.marksAvailable),
           marksAwarded: Number(q.marksAwarded),
         })),
-      }) as ObituaryResult;
+      });
       setResult(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
