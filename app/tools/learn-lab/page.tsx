@@ -889,9 +889,13 @@ function MindMapTab() {
 }
 
 // ─── Concept Connect tab ──────────────────────────────────────────────────────
+const CONNECT_LEVELS = ["GCSE", "A-Level", "IB", "University"];
+
 function ConceptConnectTab() {
   const [conceptA, setConceptA] = useState("");
   const [conceptB, setConceptB] = useState("");
+  const [subject, setSubject]   = useState("");
+  const [level, setLevel]       = useState("A-Level");
   const [result, setResult] = useState<Connection | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -900,7 +904,7 @@ function ConceptConnectTab() {
     if (!conceptA.trim() || !conceptB.trim()) { setError("Enter both concepts."); return; }
     setLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<Connection>({ tool: "concept_connect", conceptA, conceptB });
+      const data = await callAIOrThrow<Connection>({ tool: "concept_connect", conceptA, conceptB, subject: subject || undefined, level });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -959,7 +963,29 @@ function ConceptConnectTab() {
         <input value={conceptB} onChange={e => setConceptB(e.target.value)} placeholder="e.g. Capitalism, Entropy, Nationalism…"
           style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
-      <div style={{ marginBottom: 20, padding: "12px 16px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
+      <div style={{ marginBottom: 14 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject context <span style={{ color: "var(--ink-3)", fontSize: 9 }}>(optional — for exam-relevant connections)</span></div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+          {FEYNMAN_SUBJECTS.map(s => (
+            <button key={s} onClick={() => setSubject(subject === s ? "" : s)}
+              style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 8px", border: `1px solid ${subject === s ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: subject === s ? "var(--cinnabar-ink)" : "var(--paper-2)", color: subject === s ? "var(--paper)" : "var(--ink-3)", cursor: "pointer" }}>
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {CONNECT_LEVELS.map(l => (
+            <button key={l} onClick={() => setLevel(l)}
+              style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper-2)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom: 20, padding: "10px 14px", border: "1px solid var(--rule)", background: "var(--paper-2)" }}>
         <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Try cross-subject pairs for surprising insights. E.g.: &quot;Mitosis&quot; + &quot;Industrial Revolution&quot; or &quot;Keynesian Economics&quot; + &quot;WW2&quot;</div>
       </div>
       {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error}</div>}

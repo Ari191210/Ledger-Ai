@@ -1063,16 +1063,23 @@ Duration: ${params.duration} minutes
 Subject: ${params.subject}`,
       };
 
-    case "concept_connect":
+    case "concept_connect": {
+      const ccSubject = (params.subject as string) || "";
+      const ccLevel   = (params.level as string) || "A-Level";
+      const ccCtx     = ccSubject
+        ? `The student is studying ${ccSubject} at ${ccLevel}. Prioritise connections that are exam-relevant for this subject — connections that unlock essay arguments, evaluation points, or synoptic marks. Still find unexpected cross-subject links, but anchor the exam angles specifically to ${ccSubject}.`
+        : `Find connections that are broadly useful across subjects. Prioritise links that are intellectually surprising and exam-generative at ${ccLevel} level.`;
       return {
         system: `${SAFETY_PREAMBLE}You are a brilliant interdisciplinary teacher who finds unexpected connections between concepts across and within subjects. Always respond with valid JSON only.`,
         userText: `Find deep connections between the two concepts below. Respond with exactly this JSON:
-{"conceptA":"${params.conceptA}","conceptB":"${params.conceptB}","links":[{"type":"Structural|Causal|Analogical|Historical|Mathematical|Philosophical","description":"how these concepts connect via this type of link","example":"a specific concrete example illustrating this connection"}],"deepInsight":"the most surprising or profound insight this connection reveals","crossSubjectValue":"how understanding this connection helps across multiple subjects or disciplines","examAngles":["exam angle this connection enables 1","angle 2","angle 3"],"examTip":"how to use cross-concept connections in exam answers to gain marks"}
+{"conceptA":"${params.conceptA}","conceptB":"${params.conceptB}","links":[{"type":"Structural|Causal|Analogical|Historical|Mathematical|Philosophical","description":"how these concepts connect via this type of link","example":"a specific concrete example illustrating this connection"}],"deepInsight":"the most surprising or profound insight this connection reveals","crossSubjectValue":"how understanding this connection helps across multiple subjects or disciplines","examAngles":["exam angle this connection enables 1","angle 2","angle 3"],"examTip":"how to use cross-concept connections in exam answers to gain marks at ${ccLevel}"}
 
 Find 3-4 distinct types of connections. Be intellectually ambitious — the most valuable connections are often unexpected.
+${ccCtx}
 Concept A: ${params.conceptA}
 Concept B: ${params.conceptB}`,
       };
+    }
 
     case "model_answer": {
       const board = (params.examBoard as string) || "";
