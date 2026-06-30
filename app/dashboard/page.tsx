@@ -14,6 +14,7 @@ import FeaturesShowcase from "@/components/features-showcase";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import EmptyChair from "@/components/empty-chair";
+import { LiveActivityCard } from "@/components/live-activity-card";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -1235,7 +1236,14 @@ export default function Dashboard() {
       </div>
 
       {/* Live activity section */}
-      <LiveSection activeCount={activeCount} feed={feed} />
+      <LiveActivityCard
+        activeCount={activeCount}
+        feed={feed}
+        toolLabel={(slug) =>
+          TOOL_CATEGORIES.flatMap(c => c.tools).find(t => t.slug === slug)?.ttl
+          ?? slug.replace(/-/g, " ")
+        }
+      />
 
       {/* Weak topics strip */}
       {weakTopics.length > 0 && (
