@@ -984,16 +984,25 @@ Subject context: ${params.subject || "General academic"}
 Concept: ${params.concept}`,
       };
 
-    case "case_study":
+    case "case_study": {
+      const csLvl = (params.level as string) || "A-Level";
+      const csGuide =
+        csLvl === "GCSE"       ? "Write at GCSE level: clear, structured, straightforward. Use simple frameworks. Explain any business terms used. Recommendations should be practical and 2-3 sentences each."
+        : csLvl === "IB"       ? "Write at IB Business Management level: apply frameworks rigorously, consider global and ethical dimensions. Recommendations must evaluate trade-offs across multiple stakeholders."
+        : csLvl === "University" ? "Write at undergraduate strategy level: apply Porter, BCG, Ansoff, or financial logic where relevant. Recommendations must address risk, implementation, and measurable success metrics."
+        :                          "Write at A-Level Business/Economics level: evaluate rather than describe — weigh short vs. long-term, consider stakeholder perspectives, address the command word directly.";
       return {
         system: `${SAFETY_PREAMBLE}You are a senior business studies and economics teacher with expertise in case study analysis using multiple frameworks. Always respond with valid JSON only.`,
         userText: `Analyse the following case study and respond with exactly this JSON:
-{"title":"short descriptive title","summary":"2-3 sentence summary of the case","situation":"background context and current position","problem":"the core problem or decision the business/entity faces","stakeholders":["stakeholder 1","..."],"analysis":[{"framework":"${params.framework === "Auto-select best" ? "most appropriate framework(s) for this case" : params.framework}","points":["analysis point 1","point 2","point 3","point 4"]}],"recommendations":["specific actionable recommendation 1","recommendation 2","recommendation 3"],"conclusion":"evaluative judgement that weighs the evidence","examTip":"specific tip for answering this type of case study in exams"}
+{"title":"short descriptive title","summary":"2-3 sentence summary of the case","situation":"background context and current position","problem":"the core problem or decision the business/entity faces","stakeholders":["stakeholder 1","..."],"analysis":[{"framework":"framework name","points":["analysis point 1","point 2","point 3","point 4"]}],"recommendations":["specific actionable recommendation 1","recommendation 2","recommendation 3"],"conclusion":"evaluative judgement that weighs the evidence","examTip":"specific tip for answering this type of case study in exams"}
 
+Level: ${csLvl}. ${csGuide}
+Framework: ${params.framework === "Auto-select best" ? "choose the most appropriate for this case" : params.framework}
 ${params.question ? `Exam question to address: ${params.question}` : ""}
 Case study:
 ${params.caseText}`,
       };
+    }
 
     case "timeline":
       return {

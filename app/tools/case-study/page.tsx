@@ -8,11 +8,14 @@ import { AIThinking } from "@/components/ai-thinking";
 type CaseStudy = { title: string; summary: string; situation: string; problem: string; stakeholders: string[]; analysis: { framework: string; points: string[] }[]; recommendations: string[]; conclusion: string; examTip: string };
 
 const FRAMEWORKS = ["SWOT", "Porter's Five Forces", "PESTLE", "BCG Matrix", "ANSOFF", "Auto-select best"];
+const LEVELS = ["GCSE", "A-Level", "IB", "University"] as const;
+type CsLevel = typeof LEVELS[number];
 
 export default function CaseStudyPage() {
   const [caseText, setCaseText]     = useState("");
   const [question, setQuestion]     = useState("");
   const [framework, setFramework]   = useState("Auto-select best");
+  const [level, setLevel]           = useState<CsLevel>("A-Level");
   const [result, setResult]         = useState<CaseStudy | null>(null);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState("");
@@ -21,7 +24,7 @@ export default function CaseStudyPage() {
     if (caseText.trim().length < 20) { setError("Paste a case study or describe the scenario."); return; }
     setLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<CaseStudy>({ tool: "case_study", caseText, question, framework });
+      const data = await callAIOrThrow<CaseStudy>({ tool: "case_study", caseText, question, framework, level });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -104,6 +107,17 @@ export default function CaseStudyPage() {
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Exam question (optional)</div>
           <input value={question} onChange={e => setQuestion(e.target.value)} placeholder="e.g. 'Evaluate the most appropriate strategy for the business'"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {LEVELS.map(l => (
+              <button key={l} onClick={() => setLevel(l)}
+                style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 14px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper-2)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+                {l}
+              </button>
+            ))}
+          </div>
         </div>
         <div style={{ marginBottom: 20 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Analysis framework</div>
