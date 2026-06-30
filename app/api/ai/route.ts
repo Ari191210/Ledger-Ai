@@ -898,21 +898,29 @@ Source text/description:
 ${params.sourceText}`,
       };
 
-    case "practice":
+    case "practice": {
+      const prDiff = (params.difficulty as string) || "Mixed";
+      const prGuide =
+        prDiff === "Easy"   ? "Test direct recall and single-step application. All values given. One clear method. Confidence-building for students new to the topic."
+        : prDiff === "Hard"  ? "Require multi-step reasoning, non-obvious setup, or synthesis across sub-topics. Unfamiliar contexts, missing steps to infer, or evaluation required. Stretch problems that a top student would find challenging."
+        : prDiff === "Mixed" ? "Mix: 2 straightforward recall/application questions, 2 mid-difficulty requiring method choice, 1 harder problem requiring synthesis or multi-step approach."
+        :                       "Test application and method selection. Values require substitution. Students must choose the right approach and show working. Standard exam difficulty.";
+      const prMarks = prDiff === "Hard" ? 6 : prDiff === "Medium" ? 4 : 3;
       return {
         system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher and examiner. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate a practice problem set. Respond with exactly this JSON shape:
-{"topic":"precise topic title","difficulty":"${params.difficulty}","problems":[{"number":1,"problem":"full problem statement with all necessary information","hint":"one-line hint that guides without giving away","marks":${params.difficulty === "Hard" ? 6 : params.difficulty === "Medium" ? 4 : 3},"solution":"complete step-by-step worked solution — show every step clearly, number each step, explain WHY at key steps"}]}
+{"topic":"precise topic title","difficulty":"${prDiff}","problems":[{"number":1,"problem":"full problem statement with all necessary information","hint":"one-line hint that guides without giving away the method","marks":${prMarks},"solution":"complete step-by-step worked solution — number each step, show all working, explain the WHY at non-obvious steps"}]}
 
 Generate exactly ${params.count || 5} problems.
-difficulty distribution: ${params.difficulty === "Mixed" ? "roughly 2 easy, 2 medium, 1 hard" : `all ${params.difficulty}`}
-marks: reflect actual exam mark allocation
-solution: must be complete enough that a student who got it wrong can fully understand — no skipped steps
+Difficulty: ${prDiff}. ${prGuide}
+marks: reflect actual exam mark allocation for ${params.level}
+solution: complete enough that a student who got it wrong can fully understand — no skipped steps
 
 Subject: ${params.subject}
 Topic: ${params.topic}
 Level: ${params.level}`,
       };
+    }
 
     case "predict":
       return {
@@ -985,17 +993,29 @@ Passage:
 ${params.passage}`,
       };
 
-    case "grammar":
+    case "grammar": {
+      const grLvl = (params.level as string) || "A-Level";
+      const grStandard =
+        grLvl === "GCSE" || grLvl === "IGCSE"
+          ? "Judge against GCSE standard: clear topic sentences, correct punctuation and spelling, simple connectives used accurately, basic subject-specific vocabulary. Do not penalise for lack of university-level complexity."
+          : grLvl === "University" || grLvl === "AP"
+          ? "Judge against undergraduate standard: sophisticated argument structure, precise academic register, varied syntax, strong hedging language, authoritative evidence integration, zero informal register."
+          : grLvl === "IB HL" || grLvl === "IB SL"
+          ? "Judge against IB standard: structured analytical prose, precise command word awareness, nuanced vocabulary, clear thesis-argument-evidence flow, formal academic register throughout."
+          : "Judge against A-Level/IGCSE standard: clear argument structure, accurate use of subject-specific vocabulary, analytical rather than descriptive tone, well-constructed paragraphs with evidence and explanation.";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert academic writing coach who helps students improve grammar, style, vocabulary, and academic register. Always respond with valid JSON only.`,
         userText: `Check the writing below for grammar, style, vocabulary, and academic register issues. Respond with exactly this JSON:
-{"overallScore":0,"band":"Excellent|Good|Developing|Needs work","issues":[{"type":"Grammar|Style|Vocabulary|Punctuation|Structure","original":"the problematic phrase or sentence","suggestion":"improved version","explanation":"why this is better"}],"strengths":["strength 1","strength 2","strength 3"],"rewrite":"full rewritten version of the text with all improvements applied","academicPhrases":["useful academic phrase 1","phrase 2","phrase 3","phrase 4","phrase 5"],"examTip":"one specific writing tip for ${params.purpose} writing"}
+{"overallScore":0,"band":"Excellent|Good|Developing|Needs work","issues":[{"type":"Grammar|Style|Vocabulary|Punctuation|Structure","original":"the problematic phrase or sentence","suggestion":"improved version","explanation":"why this is better"}],"strengths":["strength 1","strength 2","strength 3"],"rewrite":"full rewritten version of the text with all improvements applied","academicPhrases":["useful academic phrase 1","phrase 2","phrase 3","phrase 4","phrase 5"],"examTip":"one specific writing tip for ${params.purpose} writing at ${grLvl} level"}
 
-overallScore: 0-100. Identify up to 8 most important issues. strengths: 2-3 genuine strengths to acknowledge.
+overallScore: 0-100 calibrated for ${grLvl}. Identify up to 8 most important issues, prioritised by impact on marks.
+${grStandard}
 Writing type: ${params.purpose}
+Level: ${grLvl}
 Text:
 ${params.text}`,
       };
+    }
 
     case "study_guide":
       return {

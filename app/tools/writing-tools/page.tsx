@@ -441,6 +441,7 @@ function WritingPolishTab() {
 
   const [text,        setText]        = useState("");
   const [purpose,     setPurpose]     = useState("Essay");
+  const [grLevel,     setGrLevel]     = useState("A-Level");
   const [result,      setResult]      = useState<GrammarResult | null>(null);
   const [grLoading,   setGrLoading]   = useState(false);
   const [grError,     setGrError]     = useState("");
@@ -462,7 +463,7 @@ function WritingPolishTab() {
     if (text.trim().length < 30) { setGrError("Paste at least a paragraph of text."); return; }
     setGrLoading(true); setGrError("");
     try {
-      const data = await callAIOrThrow<GrammarResult>({ tool: "grammar", text, purpose });
+      const data = await callAIOrThrow<GrammarResult>({ tool: "grammar", text, purpose, level: grLevel });
       setResult(data);
     } catch { setGrError("Network error."); }
     finally { setGrLoading(false); }
@@ -500,6 +501,14 @@ function WritingPolishTab() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {PURPOSES.map(p => (
                 <button key={p} onClick={() => setPurpose(p)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${purpose === p ? "var(--ink)" : "var(--rule)"}`, background: purpose === p ? "var(--ink)" : "var(--paper)", color: purpose === p ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{p}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level <span style={{ color: "var(--ink-3)", fontSize: 9 }}>(sets the standard we hold your writing to)</span></div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {LEVELS.map(l => (
+                <button key={l} onClick={() => setGrLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${grLevel === l ? "var(--ink)" : "var(--rule)"}`, background: grLevel === l ? "var(--ink)" : "var(--paper)", color: grLevel === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
               ))}
             </div>
           </div>
@@ -608,8 +617,8 @@ function WritingPolishTab() {
               </select>
             </div>
           </div>
-          <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 8 }}>
-            <div style={{ height: "100%", width: `${pct}%`, background: wcColor, transition: "width 200ms" }} />
+          <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 8, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: "100%", background: wcColor, transform: `scaleX(${pct / 100})`, transformOrigin: "left", transition: "transform 200ms ease" }} />
           </div>
           <textarea value={ps} onChange={e => setPs(e.target.value)} rows={20} placeholder="Start writing your personal statement here…"
             style={{ width: "100%", fontFamily: "Georgia, serif", fontSize: 15, border: "none", background: "var(--paper)", padding: "16px 18px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical", lineHeight: 1.8, marginBottom: 16 }} />

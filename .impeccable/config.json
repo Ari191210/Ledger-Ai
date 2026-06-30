@@ -23,6 +23,12 @@
         "value": "rgba(167,190,211,0.20)",
         "reason": "Ledger palette rule token — intentional pre-existing palette value",
         "createdAt": "2026-06-23T13:13:09.106Z"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "georgia",
+        "reason": "Intentional: PS textarea mimics word processor; citations rendered in academic serif",
+        "createdAt": "2026-06-30T18:51:27.551Z"
       }
     ]
   }
