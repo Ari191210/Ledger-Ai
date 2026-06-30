@@ -977,4 +977,4 @@ function DeathCertCard({
                   alignItems: "flex-start",
                   padding: "8px 12px",
                   background: "#0a1f0a",
-                  border: "1px solid #16a
+                  border: "1px solid #16a34a",
