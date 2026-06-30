@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import callAI from "@/lib/ai-fetch";
+import { callAI } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 
