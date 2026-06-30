@@ -72,6 +72,32 @@ function generateId(): string {
   return Math.random().toString(36).slice(2, 9);
 }
 
+const ERROR_LABELS: Record<ErrorType, string> = {
+  conceptual: "Conceptual", recall: "Recall", calculation: "Calculation",
+  presentation: "Presentation", time_pressure: "Time pressure", misread: "Misread",
+};
+
+function ErrorDistributionBar({ distribution }: { distribution: Record<ErrorType, number> }) {
+  const entries = Object.entries(distribution) as [ErrorType, number][];
+  const max = Math.max(...entries.map(([, v]) => v), 1);
+  return (
+    <div style={{ marginTop: 20 }}>
+      <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 10, letterSpacing: "0.1em" }}>ERROR BREAKDOWN</div>
+      {entries.filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+        <div key={type} style={{ marginBottom: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+            <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)" }}>{ERROR_LABELS[type]}</span>
+            <span className="mono" style={{ fontSize: 10, color: "var(--ink-3)" }}>{count}</span>
+          </div>
+          <div style={{ height: 4, background: "var(--paper-2)", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${(count / max) * 100}%`, background: "var(--cinnabar-ink)", transform: "scaleX(1)", transformOrigin: "left" }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function MarksObituaryPage() {
   const [questions, setQuestions] = useState<QuestionInput[]>([
     {
