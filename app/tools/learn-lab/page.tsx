@@ -165,6 +165,7 @@ function DoubtTab() {
   const [error, setError] = useState<AIError | string | null>(null);
   const [profile, setProfile] = useState<UserProfile>({});
   const fileRef = useRef<HTMLInputElement>(null);
+  const [depth, setDepth] = useState<"quick" | "stuck" | "proper">("proper");
   const [crossPhase, setCrossPhase] = useState<CrossPhase>("idle");
   const [crossQs, setCrossQs] = useState<CrossQ[]>([]);
   const [crossAnswers, setCrossAnswers] = useState<string[]>(["", ""]);
@@ -193,7 +194,7 @@ function DoubtTab() {
     setCrossPhase("idle"); setCrossQs([]); setCrossAnswers(["", ""]); setCrossEval(null); setCrossError(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
-      const body: Record<string, unknown> = { tool: "doubt", question, ...profile, syllabusSubjects };
+      const body: Record<string, unknown> = { tool: "doubt", question, depth, ...profile, syllabusSubjects };
       if (image) body.image = image;
       const data = await callAIOrThrow<DoubtOutput>(body);
       setOutput(data);
@@ -260,6 +261,18 @@ function DoubtTab() {
                 </button>
               )}
               <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} style={{ display: "none" }} />
+            </div>
+            <div style={{ marginTop: 14, marginBottom: 4 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 6 }}>HOW MUCH HELP DO YOU NEED?</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {([["quick", "Quick gist", "2-3 steps, gist only"], ["stuck", "I'm stuck", "Next 1-2 steps, don't solve it"], ["proper", "Teach me", "Full worked solution"]] as const).map(([val, label, desc]) => (
+                  <button key={val} onClick={() => setDepth(val)}
+                    style={{ flex: 1, padding: "8px 6px", border: `1px solid ${depth === val ? "var(--ink)" : "var(--rule)"}`, background: depth === val ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: depth === val ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{label}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: depth === val ? "var(--paper-2)" : "var(--ink-3)", lineHeight: 1.3 }}>{desc}</div>
+                  </button>
+                ))}
+              </div>
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
               <button className="btn" onClick={solve} disabled={!canSolve} style={{ opacity: !canSolve ? 0.5 : 1 }}>{loading ? "Solving…" : "Solve →"}</button>
