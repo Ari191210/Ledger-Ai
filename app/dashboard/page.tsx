@@ -228,39 +228,6 @@ function usePersonalisedOrder(userId: string | undefined) {
   return freq;
 }
 
-function LiveSection({ activeCount, feed }: { activeCount: number | null; feed: { tool: string; created_at: string }[] }) {
-  const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
-  const label = (slug: string) => allTools.find(t => t.slug === slug)?.ttl ?? slug.replace(/-/g, " ");
-
-  return (
-    <div className="glass-card" style={{ marginBottom: 32, padding: "20px 24px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--severity-success-color)", display: "inline-block", boxShadow: "0 0 0 3px color-mix(in oklch, var(--severity-success-color) 25%, transparent)", animation: "pulse-dot 2s ease-in-out infinite" }} />
-        <span className="mono" style={{ fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Live</span>
-        {activeCount !== null && (
-          <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)", marginLeft: 4 }}>
-            <strong style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18 }}>{activeCount}</strong>
-            <span style={{ color: "var(--ink-2)", marginLeft: 6 }}>students studying right now</span>
-          </span>
-        )}
-      </div>
-      {feed.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {feed.slice(0, 6).map((row, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--severity-success-color)", flexShrink: 0 }} />
-              <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)" }}>
-                Someone just used <strong style={{ color: "var(--ink)" }}>{label(row.tool)}</strong>
-              </span>
-              <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginLeft: "auto", flexShrink: 0 }}>{timeAgo(row.created_at)}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const BOARDS = ["CBSE", "ICSE", "IB", "State Board", "JEE", "NEET", "Other"];
 
 function daysUntil(dateStr: string) {
