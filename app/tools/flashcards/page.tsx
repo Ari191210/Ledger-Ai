@@ -4,28 +4,39 @@ import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 
-type Card = { q: string; a: string };
+type Card = { q: string; a: string; hint?: string };
+type Diff = "Easy" | "Medium" | "Hard";
+
+const DIFFS: { value: Diff; desc: string }[] = [
+  { value: "Easy",   desc: "Definitions & key terms" },
+  { value: "Medium", desc: "Application & comparison" },
+  { value: "Hard",   desc: "Synthesis & edge cases" },
+];
+const COUNTS = [10, 20, 30] as const;
 
 export default function FlashcardsPage() {
-  const [input, setInput]     = useState("");
-  const [subject, setSubject] = useState("");
-  const [cards, setCards]     = useState<Card[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
-  const [idx, setIdx]         = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [known, setKnown]     = useState<Set<number>>(new Set());
-  const [unknown, setUnknown] = useState<Set<number>>(new Set());
-  const [mode, setMode]       = useState<"all"|"unknown">("all");
+  const [input, setInput]         = useState("");
+  const [subject, setSubject]     = useState("");
+  const [difficulty, setDifficulty] = useState<Diff>("Medium");
+  const [count, setCount]         = useState<10 | 20 | 30>(10);
+  const [cards, setCards]         = useState<Card[]>([]);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState("");
+  const [idx, setIdx]             = useState(0);
+  const [flipped, setFlipped]     = useState(false);
+  const [showHint, setShowHint]   = useState(false);
+  const [known, setKnown]         = useState<Set<number>>(new Set());
+  const [unknown, setUnknown]     = useState<Set<number>>(new Set());
+  const [mode, setMode]           = useState<"all"|"unknown">("all");
 
   const deck = mode === "unknown" ? cards.filter((_, i) => unknown.has(i)) : cards;
   const cur  = deck[idx];
 
   async function generate() {
     if (!input.trim() && !subject.trim()) return;
-    setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setKnown(new Set()); setUnknown(new Set());
+    setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setShowHint(false); setKnown(new Set()); setUnknown(new Set());
     try {
-      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject });
+      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject, difficulty, count });
       if (!Array.isArray(data.cards) || !data.cards.length) { setError("No cards generated — try again."); return; }
       setCards(data.cards);
     } catch { setError("Network error."); }
@@ -46,8 +57,8 @@ export default function FlashcardsPage() {
     next();
   }
 
-  function next() { setFlipped(false); setTimeout(() => setIdx(i => (i + 1) % deck.length), 80); }
-  function prev() { setFlipped(false); setTimeout(() => setIdx(i => (i - 1 + deck.length) % deck.length), 80); }
+  function next() { setFlipped(false); setShowHint(false); setTimeout(() => setIdx(i => (i + 1) % deck.length), 80); }
+  function prev() { setFlipped(false); setShowHint(false); setTimeout(() => setIdx(i => (i - 1 + deck.length) % deck.length), 80); }
 
   return (
     <div>
@@ -72,9 +83,32 @@ export default function FlashcardsPage() {
               <textarea value={input} onChange={e => setInput(e.target.value)} rows={8} placeholder="Paste chapter notes, definitions, or any study material here…"
                 style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box", resize: "vertical" }} />
             </div>
+            <div style={{ marginBottom: 14 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Difficulty</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {DIFFS.map(d => (
+                  <button key={d.value} onClick={() => setDifficulty(d.value)}
+                    style={{ flex: 1, padding: "8px 6px", border: `1px solid ${difficulty === d.value ? "var(--ink)" : "var(--rule)"}`, background: difficulty === d.value ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: difficulty === d.value ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{d.value}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: difficulty === d.value ? "var(--paper-2)" : "var(--ink-3)" }}>{d.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Cards</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                {COUNTS.map(n => (
+                  <button key={n} onClick={() => setCount(n as 10 | 20 | 30)}
+                    style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 18px", border: `1px solid ${count === n ? "var(--ink)" : "var(--rule)"}`, background: count === n ? "var(--ink)" : "var(--paper-2)", color: count === n ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
             {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
             <button className="btn" onClick={generate} disabled={loading || (!input.trim() && !subject.trim())} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
-              {loading ? "Generating cards…" : "Generate flashcards →"}
+              {loading ? "Generating cards…" : `Generate ${count} ${difficulty.toLowerCase()} cards →`}
             </button>
             {loading && <div style={{ marginTop: 20 }}><AIThinking /></div>}
           </>
@@ -99,12 +133,26 @@ export default function FlashcardsPage() {
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 12, textAlign: "center" }}>{idx + 1} / {deck.length}</div>
 
                 {/* Card */}
-                <div onClick={() => setFlipped(f => !f)} style={{ border: "none", padding: "60px 40px", textAlign: "center", cursor: "pointer", minHeight: 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: flipped ? "var(--ink)" : "var(--paper)", transition: "background 200ms", marginBottom: 20, userSelect: "none" }}>
+                <div onClick={() => setFlipped(f => !f)} style={{ border: "none", padding: "60px 40px", textAlign: "center", cursor: "pointer", minHeight: 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: flipped ? "var(--ink)" : "var(--paper)", transition: "background 200ms", marginBottom: 12, userSelect: "none" }}>
                   <div className="mono" style={{ color: flipped ? "color-mix(in oklch, var(--paper) 40%, transparent)" : "var(--ink-3)", fontSize: 9, marginBottom: 16, letterSpacing: "0.1em" }}>{flipped ? "ANSWER" : "QUESTION — click to reveal"}</div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", color: flipped ? "var(--paper)" : "var(--ink)", lineHeight: 1.5, maxWidth: 520 }}>
                     {flipped ? cur.a : cur.q}
                   </div>
                 </div>
+                {!flipped && cur.hint && (
+                  <div style={{ marginBottom: 12, textAlign: "center" }}>
+                    {showHint
+                      ? <div style={{ padding: "8px 14px", background: "var(--paper-2)", border: "1px solid var(--rule)", display: "inline-block" }}>
+                          <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>HINT · </span>
+                          <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>{cur.hint}</span>
+                        </div>
+                      : <button onClick={e => { e.stopPropagation(); setShowHint(true); }}
+                          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "5px 14px", border: "1px solid var(--rule)", background: "none", cursor: "pointer", color: "var(--ink-3)" }}>
+                          Hint
+                        </button>
+                    }
+                  </div>
+                )}
 
                 <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                   <button onClick={prev} style={{ flex: 1, padding: "11px", fontFamily: "var(--mono)", fontSize: 10, border: "none", background: "var(--paper)", cursor: "pointer" }}>← Prev</button>
