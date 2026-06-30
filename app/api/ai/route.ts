@@ -637,7 +637,14 @@ Rules:
 Topic: ${params.topic}`,
       };
 
-    case "debate":
+    case "debate": {
+      const dbLvl = (params.level as string) || "A-Level";
+      const dbGuide =
+        dbLvl === "GCSE"       ? "Use accessible language. Arguments should be clear and concrete — avoid jargon. Evidence: relatable statistics, news stories, familiar examples. Rebuttals: simple one-sentence responses."
+        : dbLvl === "IB"       ? "Apply a global perspective. Reference international organisations, cross-cultural evidence, and Theory of Knowledge connections (claim, counter-claim, perspectives). Rebuttals should acknowledge nuance."
+        : dbLvl === "University" ? "Arguments must engage with academic theory, empirical research, and philosophical underpinnings. Name specific scholars, studies, or frameworks. Rebuttals should identify methodological weaknesses or theoretical tensions."
+        : dbLvl === "General"  ? "Use plain English. Arguments should be compelling to a lay audience — lead with real-world impact and relatable consequences. Avoid discipline-specific jargon."
+        :                        "Use A-Level academic register. Arguments should demonstrate analysis and evaluation — go beyond description. Evidence: named economists, historians, scientists, or studies. Rebuttals should counter the strongest objection.";
       return {
         system: `${SAFETY_PREAMBLE}You are a debate coach and expert in argumentation. Always respond with valid JSON only — no markdown fences.`,
         userText: `Prepare debate arguments for this motion. Respond with exactly this JSON shape:
@@ -645,13 +652,14 @@ Topic: ${params.topic}`,
 
 Rules:
 - for and against: 3 arguments each, strongest to weakest
-- evidence: be specific (name studies, statistics, historical events, or real examples)
+- evidence: be specific (name studies, statistics, historical events, or real examples) — never vague
 - keyTerms: 4-6 terms essential to this debate
-- Level: ${params.level || "A-Level"}
+- Level: ${dbLvl}. ${dbGuide}
 ${params.side === "for" ? "Focus: generate only FOR arguments (copy them into against array as placeholders)" : params.side === "against" ? "Focus: generate only AGAINST arguments" : "Generate both sides equally"}
 
 Motion: ${params.motion}`,
       };
+    }
 
     case "exam_sim":
       return {

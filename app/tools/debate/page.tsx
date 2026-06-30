@@ -6,10 +6,19 @@ import { AIThinking } from "@/components/ai-thinking";
 
 type DebateOutput = { motion: string; for: { argument: string; evidence: string; rebuttal: string }[]; against: { argument: string; evidence: string; rebuttal: string }[]; keyTerms: { term: string; def: string }[]; practiceQs: string[] };
 
+const LEVELS = ["GCSE", "A-Level", "IB", "University", "General"] as const;
+type Level = typeof LEVELS[number];
+
+const SIDES: { value: "both" | "for" | "against"; label: string; desc: string }[] = [
+  { value: "both",    label: "Both sides",  desc: "Full preparation" },
+  { value: "for",     label: "For only",    desc: "Argue the motion" },
+  { value: "against", label: "Against only", desc: "Oppose the motion" },
+];
+
 export default function DebatePage() {
   const [motion, setMotion]   = useState("");
   const [side, setSide]       = useState<"both"|"for"|"against">("both");
-  const [level, setLevel]     = useState("A-Level");
+  const [level, setLevel]     = useState<Level>("A-Level");
   const [output, setOutput]   = useState<DebateOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
@@ -108,20 +117,27 @@ export default function DebatePage() {
           <input value={motion} onChange={e => setMotion(e.target.value)} placeholder="e.g. This house believes AI will do more harm than good · Social media should be banned for under-16s…"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
-          <div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Prepare</div>
-            <select value={side} onChange={e => setSide(e.target.value as "both"|"for"|"against")} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
-              <option value="both">Both sides</option>
-              <option value="for">For the motion only</option>
-              <option value="against">Against only</option>
-            </select>
+        <div style={{ marginBottom: 16 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Prepare</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {SIDES.map(s => (
+              <button key={s.value} onClick={() => setSide(s.value)}
+                style={{ flex: 1, padding: "8px 6px", border: `1px solid ${side === s.value ? "var(--ink)" : "var(--rule)"}`, background: side === s.value ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: side === s.value ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{s.label}</div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: side === s.value ? "var(--paper-2)" : "var(--ink-3)" }}>{s.desc}</div>
+              </button>
+            ))}
           </div>
-          <div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
-            <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
-              {["GCSE","A-Level","IB","University","General"].map(l => <option key={l}>{l}</option>)}
-            </select>
+        </div>
+        <div style={{ marginBottom: 24 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {LEVELS.map(l => (
+              <button key={l} onClick={() => setLevel(l)}
+                style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 14px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper-2)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>
+                {l}
+              </button>
+            ))}
           </div>
         </div>
         {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
