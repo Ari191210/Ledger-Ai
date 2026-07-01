@@ -346,9 +346,9 @@ function EssayGraderTab({ subject, level }: { subject: string; level: string }) 
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay type</div>
-          <select value={gradeType} onChange={e => setGradeType(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
-            {GRADE_TYPES.map(t => <option key={t}>{t}</option>)}
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {GRADE_TYPES.map(t => <button key={t} onClick={() => setGradeType(t)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${gradeType === t ? "var(--ink)" : "var(--rule)"}`, background: gradeType === t ? "var(--ink)" : "var(--paper)", color: gradeType === t ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{t}</button>)}
+          </div>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Essay prompt / question (optional)</div>
@@ -612,9 +612,9 @@ function WritingPolishTab() {
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Word limit</div>
-              <select value={psLimit} onChange={e => setPsLimit(Number(e.target.value))} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "9px 8px", color: "var(--ink)" }}>
-                {WORD_LIMITS.map(l => <option key={l} value={l}>{l} words</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {WORD_LIMITS.map(l => <button key={l} onClick={() => setPsLimit(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${psLimit === l ? "var(--ink)" : "var(--rule)"}`, background: psLimit === l ? "var(--ink)" : "var(--paper)", color: psLimit === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}w</button>)}
+              </div>
             </div>
           </div>
           <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 8, overflow: "hidden" }}>
@@ -739,9 +739,9 @@ function CitationTab() {
       </div>
 
       <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
-        <select value={style} onChange={e => setStyle(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", cursor: "pointer" }}>
-          {[...STYLES, "All styles"].map(s => <option key={s}>{s}</option>)}
-        </select>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {[...STYLES, "All styles"].map(s => <button key={s} onClick={() => setStyle(s)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${style === s ? "var(--ink)" : "var(--rule)"}`, background: style === s ? "var(--ink)" : "var(--paper)", color: style === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{s}</button>)}
+        </div>
         <button className="btn" onClick={generate} style={{ flex: 1, cursor: "pointer" }}>Generate citation &rarr;</button>
       </div>
 

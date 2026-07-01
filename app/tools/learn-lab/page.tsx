@@ -854,11 +854,11 @@ function MindMapTab() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, marginBottom: 20 }}>
         <input value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && generate()} placeholder="e.g. Photosynthesis, French Revolution, Machine Learning, Supply and Demand…"
           style={{ fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
-        <select value={detail} onChange={e => setDetail(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "12px 10px", color: "var(--ink)" }}>
-          <option value="brief">Overview (3 branches)</option>
-          <option value="medium">Standard (5 branches)</option>
-          <option value="deep">Deep dive (7+ branches)</option>
-        </select>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[["brief","Overview"],["medium","Standard"],["deep","Deep dive"]].map(([v,l]) => (
+            <button key={v} onClick={() => setDetail(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${detail === v ? "var(--ink)" : "var(--rule)"}`, background: detail === v ? "var(--ink)" : "var(--paper)", color: detail === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+          ))}
+        </div>
       </div>
       {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
       <button className="btn" onClick={generate} disabled={loading || !topic.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>

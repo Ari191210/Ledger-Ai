@@ -228,9 +228,11 @@ export default function PracticeSuitePage() {
           <SharedSetup />
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Questions</div>
-            <select value={mockCount} onChange={e => setMockCount(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
-              {["5","10","15","20"].map(n => <option key={n} value={n}>{n} questions</option>)}
-            </select>
+            <div style={{ display: "flex", gap: 6 }}>
+              {["5","10","15","20"].map(n => (
+                <button key={n} onClick={() => setMockCount(n)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 12px", border: `1px solid ${mockCount === n ? "var(--ink)" : "var(--rule)"}`, background: mockCount === n ? "var(--ink)" : "var(--paper)", color: mockCount === n ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{n}</button>
+              ))}
+            </div>
           </div>
           {mkError && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{mkError}</div>}
           <button className="btn" onClick={startMock} disabled={mkLoading} style={{ width: "100%", opacity: mkLoading ? 0.5 : 1 }}>
@@ -309,7 +311,7 @@ export default function PracticeSuitePage() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 8 }}>
                 <div style={{ background: "var(--paper-2)", height: 12, overflow: "hidden" }}>
-                  <div style={{ width: `${pct}%`, height: "100%", background: gradeColor, transition: "width 0.8s" }} />
+                  <div style={{ height: "100%", background: gradeColor, transform: `scaleX(${pct / 100})`, transformOrigin: "left", transition: "transform 0.8s cubic-bezier(0.4,0,0.2,1)" }} />
                 </div>
                 <div style={{ display: "flex", gap: 20 }}>
                   <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)" }}>Time: {pad(Math.floor(elapsed / 60))}:{pad(elapsed % 60)}</div>
