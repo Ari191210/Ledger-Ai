@@ -5,6 +5,7 @@ import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData, type UserProfile } from "@/lib/user-data";
+import { useUserLevel } from "@/hooks/use-user-level";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -892,6 +893,7 @@ function MindMapTab() {
 const CONNECT_LEVELS = ["GCSE", "A-Level", "IB", "University"];
 
 function ConceptConnectTab() {
+  const profileLevel = useUserLevel();
   const [conceptA, setConceptA] = useState("");
   const [conceptB, setConceptB] = useState("");
   const [subject, setSubject]   = useState("");
@@ -899,6 +901,7 @@ function ConceptConnectTab() {
   const [result, setResult] = useState<Connection | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  useEffect(() => { if (CONNECT_LEVELS.includes(profileLevel)) setLevel(profileLevel); }, [profileLevel]);
 
   async function generate() {
     if (!conceptA.trim() || !conceptB.trim()) { setError("Enter both concepts."); return; }

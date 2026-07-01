@@ -1,6 +1,7 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useUserLevel } from "@/hooks/use-user-level";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
@@ -52,10 +53,12 @@ const TREND_COLOR: Record<string, string> = {
 };
 
 export default function PaperPatternPage() {
+  const profileLevel = useUserLevel();
   const [subject, setSubject] = useState("Mathematics");
   const [board,   setBoard]   = useState("A-Level (Edexcel)");
   const [level,   setLevel]   = useState("A-Level");
   const [topic,   setTopic]   = useState("");
+  useEffect(() => { const m = profileLevel.startsWith("CBSE") ? "CBSE" : profileLevel; if (LEVELS.includes(m)) setLevel(m); }, [profileLevel]);
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState<AIError | string | null>(null);

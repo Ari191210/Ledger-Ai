@@ -1,6 +1,7 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useUserLevel } from "@/hooks/use-user-level";
 import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -164,6 +165,7 @@ function LabReportTab() {
 // ── Tab: Model Answer ──────────────────────────────────────────────────────
 
 function ModelAnswerTab() {
+  const profileLevel = useUserLevel();
   const [question, setQuestion] = useState("");
   const [subject, setSubject]   = useState("");
   const [level, setLevel]       = useState("A-Level");
@@ -172,6 +174,7 @@ function ModelAnswerTab() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
   const [copied, setCopied]     = useState(false);
+  useEffect(() => { const m = profileLevel.startsWith("CBSE") ? "CBSE" : profileLevel; if (LEVELS.includes(m)) setLevel(m); }, [profileLevel]);
 
   async function generate() {
     if (!question.trim()) { setError("Enter an exam question."); return; }
