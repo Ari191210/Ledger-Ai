@@ -1,5 +1,6 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUserLevel } from "@/hooks/use-user-level";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -12,9 +13,12 @@ const SUBJECTS = ["History", "Economics", "Science", "Politics", "Literature", "
 const LEVELS   = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "University"];
 
 export default function TimelinePage() {
+  const profileLevel = useUserLevel();
   const [topic, setTopic]     = useState("");
   const [subject, setSubject] = useState("History");
   const [level, setLevel]     = useState("A-Level");
+
+  useEffect(() => { const m = profileLevel.startsWith("CBSE") ? "CBSE" : profileLevel; if (LEVELS.includes(m)) setLevel(m); }, [profileLevel]);
   const [result, setResult]   = useState<Timeline | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");

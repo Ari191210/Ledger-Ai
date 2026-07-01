@@ -1,5 +1,6 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUserLevel } from "@/hooks/use-user-level";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -11,9 +12,12 @@ type Chart = { title: string; items: string[]; rows: Row[]; similarities: string
 const LEVELS = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "University"];
 
 export default function ComparePage() {
+  const profileLevel = useUserLevel();
   const [items, setItems]       = useState(["", ""]);
   const [subject, setSubject]   = useState("");
   const [level, setLevel]       = useState("A-Level");
+
+  useEffect(() => { const m = profileLevel.startsWith("CBSE") ? "CBSE" : profileLevel; if (LEVELS.includes(m)) setLevel(m); }, [profileLevel]);
   const [criteria, setCriteria] = useState("");
   const [chart, setChart]       = useState<Chart | null>(null);
   const [loading, setLoading]   = useState(false);
