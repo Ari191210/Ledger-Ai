@@ -121,10 +121,11 @@ function HalfLifeTab() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16, marginBottom: 16 }}>
           <div>
             <div className="mono cin" style={{ marginBottom: 8, fontSize: 9 }}>02 · Exam</div>
-            <select value={exam} onChange={e => setExam(e.target.value)}
-              style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper-2)", padding: "10px 12px", color: "var(--ink)", outline: "none" }}>
-              {HL_EXAM_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {HL_EXAM_OPTIONS.map(o => (
+                <button key={o} onClick={() => setExam(o)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${exam === o ? "var(--ink)" : "var(--rule)"}`, background: exam === o ? "var(--ink)" : "var(--paper-2)", color: exam === o ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{o}</button>
+              ))}
+            </div>
           </div>
           <div>
             <div className="mono cin" style={{ marginBottom: 8, fontSize: 9 }}>03 · Subject</div>
@@ -183,8 +184,8 @@ function HalfLifeTab() {
                       <span style={{ fontFamily: "var(--mono)", fontSize: 15, fontWeight: 600, color, minWidth: 38, textAlign: "right" }}>{pct}%</span>
                     </div>
                   </div>
-                  <div style={{ height: 4, background: "var(--rule)", position: "relative" }}>
-                    <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, transition: "width 0.6s ease", opacity: entry.status === "fresh" ? 0.5 : 1 }} />
+                  <div style={{ height: 4, background: "var(--rule)", position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "100%", background: color, transform: `scaleX(${pct / 100})`, transformOrigin: "left", transition: "transform 0.6s ease", opacity: entry.status === "fresh" ? 0.5 : 1 }} />
                     <div style={{ position: "absolute", left: "40%", top: -3, bottom: -3, width: 1, background: "var(--cinnabar-ink)", opacity: 0.4 }} />
                   </div>
                 </div>
@@ -403,10 +404,11 @@ export default function RevisionPlannerPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Board</div>
-                <select value={form.board} onChange={e => setForm(f => ({ ...f, board: e.target.value }))}
-                  style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)", boxSizing: "border-box" }}>
-                  {["CBSE", "ICSE", "IB", "A-Level", "IGCSE", "AP", "SAT"].map(b => <option key={b}>{b}</option>)}
-                </select>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                  {["CBSE", "ICSE", "IB", "A-Level", "IGCSE", "AP", "SAT"].map(b => (
+                    <button key={b} onClick={() => setForm(f => ({ ...f, board: b }))} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${form.board === b ? "var(--ink)" : "var(--rule)"}`, background: form.board === b ? "var(--ink)" : "var(--paper)", color: form.board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
+                  ))}
+                </div>
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
