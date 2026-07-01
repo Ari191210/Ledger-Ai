@@ -67,7 +67,7 @@ function ResearchTab() {
     if (!query.trim()) return;
     setResLoading(true); setResError(""); setData(null);
     try {
-      const d = await callAIOrThrow<ResearchData>({ tool: "research", query, subject, depth, purpose });
+      const d = await callAIOrThrow<ResearchData>({ tool: "research", query, subject, depth, purpose, level: profile.grade });
       if (!d.sections) { setResError("Could not generate — try again."); return; }
       setData(d); setResTab("overview");
     } catch { setResError("Network error."); }

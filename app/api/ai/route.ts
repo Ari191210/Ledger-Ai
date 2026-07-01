@@ -335,17 +335,27 @@ const REQUIRED_PARAMS: Partial<Record<ToolName, string[]>> = {
 function buildPrompt(tool: ToolName, params: Record<string, unknown>): { system: string; userText: string } {
   const profileCtx = buildProfileContext(params);
   switch (tool) {
-    case "notes":
+    case "notes": {
+      const notesGrade = (params.grade as string) || (params.level as string) || "A-Level";
+      const notesBoard = (params.board as string) || "";
+      const notesLvlGuide =
+        ["Class 9","Class 10","GCSE","IGCSE"].includes(notesGrade)
+          ? "Pitch at GCSE/Class 10 level — clear everyday language, simple analogies, foundational concepts. No unnecessary jargon."
+          : ["University","AP","IB HL"].includes(notesGrade)
+          ? "Pitch at university/advanced level — assume prior subject knowledge, use precise academic language, surface nuance and edge cases."
+          : "Pitch at A-Level/Class 12 standard — rigorous but accessible, correct subject terminology, application-ready insights.";
       return {
         system: `${SAFETY_PREAMBLE}${profileCtx}You are a concise study assistant. You help students understand complex material quickly. Always respond with valid JSON only — no markdown fences, no prose outside the JSON.`,
         userText: `Analyse this study content and respond with exactly this JSON shape:
-{"explanation":"2-3 paragraph plain-English explanation","summary":["bullet 1","bullet 2","...up to 10"],"flashcards":[{"q":"question","a":"answer"}],"quiz":[{"q":"question","opts":["A","B","C","D"],"ans":0}]}
+{"explanation":"2-3 paragraph explanation pitched at ${notesGrade}${notesBoard ? ` (${notesBoard})` : ""} level","summary":["bullet 1","bullet 2","...up to 10"],"flashcards":[{"q":"question","a":"answer"}],"quiz":[{"q":"question","opts":["A","B","C","D"],"ans":0}]}
 
-flashcards: exactly 5 items. quiz: exactly 5 items, ans is the 0-based index of the correct option.
+flashcards: exactly 5 items at ${notesGrade} difficulty. quiz: exactly 5 items, ans is 0-based index of the correct option.
+${notesLvlGuide}
 
 Content:
 ${params.content}`,
       };
+    }
 
     case "doubt": {
       const doubtLevel = (params.level as string) || "A-Level";
@@ -737,6 +747,7 @@ Rules:
 - furtherReading: 3-4 real, relevant sources
 - essayAngles: 5 distinct thesis angles that would make strong essays
 - Purpose: ${params.purpose}
+${params.level ? `- Academic level: ${params.level} — calibrate vocabulary, source complexity, and analytical depth accordingly.` : ""}
 ${params.subject ? `Subject area: ${params.subject}` : ""}
 
 Research question / topic: ${params.query}`,
