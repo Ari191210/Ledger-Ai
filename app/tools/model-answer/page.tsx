@@ -1,5 +1,6 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUserLevel } from "@/hooks/use-user-level";
 import Link from "next/link";
 import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
@@ -12,9 +13,15 @@ const LEVELS = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "JEE", "NEET"];
 const BOARDS  = ["AQA", "Edexcel", "OCR", "CIE", "WJEC", "IB", "CBSE", "ICSE"];
 
 export default function ModelAnswerPage() {
+  const profileLevel = useUserLevel();
   const [question, setQuestion] = useState("");
   const [subject, setSubject]   = useState("");
   const [level, setLevel]       = useState("A-Level");
+
+  useEffect(() => {
+    const mapped = profileLevel.startsWith("CBSE") ? "CBSE" : profileLevel;
+    if (LEVELS.includes(mapped)) setLevel(mapped);
+  }, [profileLevel]);
   const [examBoard, setExamBoard] = useState("");
   const [marks, setMarks]       = useState(6);
   const [result, setResult]     = useState<ModelAnswer | null>(null);

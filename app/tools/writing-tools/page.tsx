@@ -6,8 +6,7 @@ import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
-import { useAuth } from "@/components/auth-provider";
-import { loadUserData } from "@/lib/user-data";
+import { useUserLevel } from "@/hooks/use-user-level";
 
 // ── Shared essay types ────────────────────────────────────────────────────────
 
@@ -770,23 +769,17 @@ function CitationTab() {
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function WritingToolsPage() {
-  const { user } = useAuth();
+  const profileLevel = useUserLevel();
   const [tab, setTab]       = useState<Tab>("blueprint");
   const [subject, setSubject] = useState("History");
   const [level, setLevel]   = useState("A-Level");
   const [argueClaim, setArgueClaim] = useState("");
 
   useEffect(() => {
-    if (!user) return;
-    loadUserData(user.id).then(ud => {
-      if (!ud) return;
-      const b = ud.board || "", g = ud.grade || "";
-      if (b.startsWith("IB")) { setLevel("IB HL"); return; }
-      if (b.startsWith("IGCSE")) { setLevel("IGCSE"); return; }
-      if (g === "Class 9" || g === "Class 10") { setLevel("GCSE"); return; }
-      if (g?.includes("College")) { setLevel("University"); return; }
-    });
-  }, [user]);
+    const wLevels = ["GCSE","IGCSE","A-Level","IB HL","IB SL","AP","University"];
+    const mapped = profileLevel === "IB" ? "IB HL" : profileLevel === "University" ? "University" : profileLevel;
+    if (wLevels.includes(mapped)) setLevel(mapped);
+  }, [profileLevel]);
 
   function goToArgue(claim: string) {
     setArgueClaim(claim);

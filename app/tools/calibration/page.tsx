@@ -1,5 +1,6 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUserLevel } from "@/hooks/use-user-level";
 import Link from "next/link";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
@@ -17,9 +18,12 @@ const CONF_VALUES = [0, 0.25, 0.5, 0.75, 1.0];
 const CONF_COLORS = ["var(--cinnabar)", "var(--gold)", "#9a8a00", "var(--sage)", "var(--sage)"];
 
 export default function CalibrationPage() {
+  const profileLevel = useUserLevel();
   const [subject,  setSubject]  = useState("Mathematics");
   const [topic,    setTopic]    = useState("");
   const [level,    setLevel]    = useState("A-Level");
+
+  useEffect(() => { if (LEVELS.includes(profileLevel)) setLevel(profileLevel); }, [profileLevel]);
   const [count,    setCount]    = useState<5 | 10 | 15>(10);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<AIError | string | null>(null);

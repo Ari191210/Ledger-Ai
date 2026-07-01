@@ -1,10 +1,11 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { type AIError } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
+import { useUserLevel } from "@/hooks/use-user-level";
 
 type Question = { q: string; options: string[]; answer: number; explanation: string };
 type ExamData  = { title: string; timeMinutes: number; questions: Question[] };
@@ -23,9 +24,12 @@ const DIFFICULTIES = [
 type Difficulty = typeof DIFFICULTIES[number]["id"];
 
 export default function ExamSimPage() {
+  const profileLevel = useUserLevel();
   const [subject,    setSubject]    = useState("Mathematics");
   const [topic,      setTopic]      = useState("");
   const [level,      setLevel]      = useState("A-Level");
+
+  useEffect(() => { if (LEVELS.includes(profileLevel)) setLevel(profileLevel); }, [profileLevel]);
   const [count,      setCount]      = useState("10");
   const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
 

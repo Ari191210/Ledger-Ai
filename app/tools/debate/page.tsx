@@ -1,5 +1,6 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUserLevel } from "@/hooks/use-user-level";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
@@ -16,9 +17,15 @@ const SIDES: { value: "both" | "for" | "against"; label: string; desc: string }[
 ];
 
 export default function DebatePage() {
+  const profileLevel = useUserLevel();
   const [motion, setMotion]   = useState("");
   const [side, setSide]       = useState<"both"|"for"|"against">("both");
   const [level, setLevel]     = useState<Level>("A-Level");
+
+  useEffect(() => {
+    const l = (profileLevel === "University" || profileLevel === "GCSE" || profileLevel === "IGCSE" || profileLevel === "IB") ? profileLevel as Level : "A-Level";
+    setLevel(l);
+  }, [profileLevel]);
   const [output, setOutput]   = useState<DebateOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");

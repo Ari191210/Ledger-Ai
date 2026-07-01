@@ -1543,14 +1543,20 @@ Respond with exactly this JSON:
 }`,
       };
 
-    case "recall_studio":
+    case "recall_studio": {
+      const rcDiff = (params.difficulty as string) ?? "mixed";
+      const rcDiffGuide =
+        rcDiff === "easy"   ? "Focus on direct recall: definitions, key terms, basic facts. Every question should be answerable by a student who read the notes once. Prioritise cue-card and short-answer types."
+        : rcDiff === "hard"  ? "Focus on synthesis and application: why questions, compare-and-contrast, edge cases, diagram prompts requiring reasoning. Avoid pure recall — make students think."
+        : rcDiff === "mixed" ? "Spread across Bloom's taxonomy: 2-3 recall (easy), 2-3 application (medium), 2-3 synthesis (hard). Mix all question types."
+        :                      "Spread across Bloom's taxonomy: 2-3 recall (easy), 2-3 application (medium), 2-3 synthesis (hard). Mix all question types.";
       return {
         system: `${SAFETY_PREAMBLE}You are a retrieval-practice expert. Generate varied recall questions (MCQ, short answer, cue-card, diagram prompt) targeting different difficulty levels and Bloom's taxonomy layers. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate a recall practice session for this topic.
 
 Topic: ${params.topic}
 Content/notes: ${params.content}
-Difficulty: ${params.difficulty ?? "mixed"}
+Difficulty: ${rcDiff}. ${rcDiffGuide}
 Question count: ${params.questionCount ?? 8}
 
 Respond with exactly this JSON:
@@ -1573,6 +1579,7 @@ Respond with exactly this JSON:
   "selfAssessment": "how to score yourself honestly"
 }`,
       };
+    }
 
     case "reference_builder":
       return {

@@ -3,8 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
-import { useAuth } from "@/components/auth-provider";
-import { loadUserData } from "@/lib/user-data";
+import { useUserLevel } from "@/hooks/use-user-level";
 
 type Tab = "flashcards" | "formula";
 
@@ -48,28 +47,14 @@ function isClose(a: string, b: string) {
 // ── Tab: Flashcards ───────────────────────────────────────────────────────────
 
 function FlashcardsTab() {
-  const { user } = useAuth();
+  const level = useUserLevel();
   const [input, setInput]         = useState("");
   const [subject, setSubject]     = useState("");
   const [difficulty, setDiff]     = useState<Difficulty>("Medium");
-  const [level, setLevel]         = useState("A-Level");
   const [count, setCount]         = useState(10);
   const [cards, setCards]         = useState<Card[]>([]);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState("");
-
-  useEffect(() => {
-    if (!user) return;
-    loadUserData(user.id).then(ud => {
-      if (!ud) return;
-      const t = ud.targetExam || "", b = ud.board || "", g = ud.grade || "";
-      if (t.includes("JEE")) { setLevel("JEE"); return; }
-      if (b.startsWith("IB")) { setLevel("IB"); return; }
-      if (b.startsWith("IGCSE")) { setLevel("IGCSE"); return; }
-      if (b === "CBSE") { setLevel(g === "Class 11" ? "CBSE Class 11" : "CBSE Class 12"); return; }
-      if (g === "Class 9" || g === "Class 10") { setLevel("GCSE"); return; }
-    });
-  }, [user]);
   const [idx, setIdx]             = useState(0);
   const [flipped, setFlipped]     = useState(false);
   const [showHint, setShowHint]   = useState(false);
