@@ -551,7 +551,7 @@ function ExamDebriefTab() {
             </div>
             <div>
               <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Board</div>
-              <select value={form.examBoard} onChange={e => setForm(f => ({ ...f, examBoard: e.target.value }))} style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--rule)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{DEBRIEF_BOARDS.map(b => <option key={b}>{b}</option>)}</select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{DEBRIEF_BOARDS.map(b => <button key={b} onClick={() => setForm(f => ({ ...f, examBoard: b }))} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${form.examBoard === b ? "var(--ink)" : "var(--rule)"}`, background: form.examBoard === b ? "var(--ink)" : "var(--paper)", color: form.examBoard === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>)}</div>
             </div>
           </div>
           <div style={{ marginBottom: 18 }}>

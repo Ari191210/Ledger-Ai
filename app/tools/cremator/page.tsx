@@ -486,10 +486,10 @@ export default function CrematorPage() {
                 <div
                   style={{
                     height: "100%",
-                    width: `${Math.min(100, (time_budget_summary.minutes_allocated / time_budget_summary.total_minutes_available) * 100)}%`,
                     background: confidenceColor,
-                    borderRadius: 3,
-                    transition: "width 0.4s ease",
+                    transform: `scaleX(${Math.min(1, (time_budget_summary.minutes_allocated / time_budget_summary.total_minutes_available))})`,
+                    transformOrigin: "left",
+                    transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)",
                   }}
                 />
               </div>
@@ -878,27 +878,11 @@ export default function CrematorPage() {
             >
               Exam Board
             </label>
-            <select
-              value={form.examBoard}
-              onChange={(e) => setForm((f) => ({ ...f, examBoard: e.target.value }))}
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                border: "none",
-                background: "var(--paper)",
-                color: "var(--ink)",
-                fontFamily: "var(--sans)",
-                fontSize: 13,
-                cursor: "pointer",
-                appearance: "none",
-              }}
-            >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {EXAM_BOARDS.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
+                <button key={b} onClick={() => setForm((f) => ({ ...f, examBoard: b }))} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${form.examBoard === b ? "var(--ink)" : "var(--rule)"}`, background: form.examBoard === b ? "var(--ink)" : "var(--paper)", color: form.examBoard === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
               ))}
-            </select>
+            </div>
           </div>
 
           <div>
@@ -1044,7 +1028,7 @@ export default function CrematorPage() {
               marginBottom: 16,
               padding: "8px 12px",
               border: "1px solid var(--cinnabar)",
-              background: "oklch(97% 0.02 20)",
+              background: "color-mix(in oklch, var(--cinnabar) 6%, var(--paper))",
             }}
           >
             {error}

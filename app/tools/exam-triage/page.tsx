@@ -159,7 +159,7 @@ function FloatingClock({ totalMinutes, spentMinutes }: { totalMinutes: number; s
       <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 1, textTransform: "uppercase" }}>Time Left</div>
       <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2 }}>{pad(Math.floor(remaining / 60))}:{pad(remaining % 60)}</div>
       <div style={{ height: 3, background: "var(--paper-2)", overflow: "hidden" }}>
-        <div style={{ width: `${pct * 100}%`, height: "100%", background: pct > 0.75 ? "var(--cinnabar)" : "var(--sage)", transition: "width 0.4s" }} />
+        <div style={{ height: "100%", background: pct > 0.75 ? "var(--cinnabar)" : "var(--sage)", transform: `scaleX(${pct})`, transformOrigin: "left", transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)" }} />
       </div>
       <div style={{ fontSize: 9, opacity: 0.5 }}>{Math.floor(spentMinutes / 60)}h {spentMinutes % 60}m used</div>
     </div>
@@ -173,7 +173,7 @@ function SessionBlock({ session, startMinutes, onMarkDone }: { session: LNSessio
   const end = startMinutes + session.duration_minutes;
   const timeStr = `${pad(Math.floor(startMinutes / 60) % 24)}:${pad(startMinutes % 60)} — ${pad(Math.floor(end / 60) % 24)}:${pad(end % 60)}`;
   return (
-    <div style={{ border: "1px solid var(--rule)", borderLeft: `4px solid ${triageColor(session.triage_status)}`, background: session.done ? "var(--paper-2)" : triageBg(session.triage_status), marginBottom: 10, opacity: session.done ? 0.55 : 1, transition: "opacity 0.3s" }}>
+    <div style={{ border: `1px solid ${triageColor(session.triage_status)}`, background: session.done ? "var(--paper-2)" : triageBg(session.triage_status), marginBottom: 10, opacity: session.done ? 0.55 : 1, transition: "opacity 0.3s" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", cursor: "pointer" }} onClick={() => setExpanded(e => !e)}>
         <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", minWidth: 110, flexShrink: 0 }}>{timeStr}</div>
         <div style={{ flex: 1 }}>
@@ -440,10 +440,9 @@ function CrematorTab() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
         <div>
           <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Exam Board</label>
-          <select value={form.examBoard} onChange={e => setForm(f => ({ ...f, examBoard: e.target.value }))}
-            style={{ width: "100%", padding: "10px 12px", border: "none", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
-            {EXAM_BOARDS.map(b => <option key={b} value={b}>{b}</option>)}
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {EXAM_BOARDS.map(b => <button key={b} onClick={() => setForm(f => ({ ...f, examBoard: b }))} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${form.examBoard === b ? "var(--ink)" : "var(--rule)"}`, background: form.examBoard === b ? "var(--ink)" : "var(--paper)", color: form.examBoard === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>)}
+          </div>
         </div>
         <div>
           <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Exam Date</label>
