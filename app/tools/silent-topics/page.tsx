@@ -272,20 +272,19 @@ export default function SilentTopicsPage() {
           </div>
 
           {/* Exam + Subject */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 8 }}>Exam</div>
-              <select value={exam} onChange={e => setExam(e.target.value)}
-                style={{ ...inp, appearance: "none" as const }}>
-                {EXAMS.map(e => <option key={e}>{e}</option>)}
-              </select>
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 8 }}>Exam</div>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 6 }}>
+              {EXAMS.map(e => (
+                <button key={e} onClick={() => setExam(e)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${exam === e ? "var(--ink)" : "var(--rule)"}`, background: exam === e ? "var(--ink)" : "var(--paper)", color: exam === e ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{e}</button>
+              ))}
             </div>
-            <div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 8 }}>Subject</div>
-              <input value={subject} onChange={e => setSubject(e.target.value)}
-                placeholder="e.g. Physics"
-                style={inp} />
-            </div>
+          </div>
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 8 }}>Subject</div>
+            <input value={subject} onChange={e => setSubject(e.target.value)}
+              placeholder="e.g. Physics"
+              style={inp} />
           </div>
 
           {error && <AIErrorDisplay error={error} onRetry={analyse} />}
