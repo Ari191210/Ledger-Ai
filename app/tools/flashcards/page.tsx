@@ -15,11 +15,21 @@ const DIFFS: { value: Diff; desc: string }[] = [
 ];
 const COUNTS = [10, 20, 30] as const;
 
+const FOCUS_TYPES: { value: string; desc: string }[] = [
+  { value: "Mixed",         desc: "All types" },
+  { value: "Definitions",   desc: "Terms & meanings" },
+  { value: "Key facts",     desc: "Dates, numbers, names" },
+  { value: "Formulas",      desc: "Equations & rules" },
+  { value: "Cause & Effect","desc": "Why & what followed" },
+  { value: "Comparisons",   desc: "Similarities & differences" },
+];
+
 export default function FlashcardsPage() {
   const level = useUserLevel();
   const [input, setInput]         = useState("");
   const [subject, setSubject]     = useState("");
   const [difficulty, setDifficulty] = useState<Diff>("Medium");
+  const [focus, setFocus]         = useState("Mixed");
   const [count, setCount]         = useState<10 | 20 | 30>(10);
   const [cards, setCards]         = useState<Card[]>([]);
   const [loading, setLoading]     = useState(false);
@@ -38,7 +48,7 @@ export default function FlashcardsPage() {
     if (!input.trim() && !subject.trim()) return;
     setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setShowHint(false); setKnown(new Set()); setUnknown(new Set());
     try {
-      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject, difficulty, count, level });
+      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject, difficulty, count, level, focus: focus === "Mixed" ? undefined : focus });
       if (!Array.isArray(data.cards) || !data.cards.length) { setError("No cards generated — try again."); return; }
       setCards(data.cards);
     } catch { setError("Network error."); }
@@ -93,6 +103,18 @@ export default function FlashcardsPage() {
                     style={{ flex: 1, padding: "8px 6px", border: `1px solid ${difficulty === d.value ? "var(--ink)" : "var(--rule)"}`, background: difficulty === d.value ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "center" }}>
                     <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: difficulty === d.value ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{d.value}</div>
                     <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: difficulty === d.value ? "var(--paper-2)" : "var(--ink-3)" }}>{d.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Card focus</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {FOCUS_TYPES.map(f => (
+                  <button key={f.value} onClick={() => setFocus(f.value)}
+                    style={{ padding: "6px 10px", border: `1px solid ${focus === f.value ? "var(--ink)" : "var(--rule)"}`, background: focus === f.value ? "var(--ink)" : "var(--paper-2)", cursor: "pointer", textAlign: "left" }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: focus === f.value ? "var(--paper)" : "var(--ink)", marginBottom: 2 }}>{f.value}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 9, color: focus === f.value ? "rgba(255,255,255,0.55)" : "var(--ink-3)" }}>{f.desc}</div>
                   </button>
                 ))}
               </div>

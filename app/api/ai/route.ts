@@ -545,6 +545,14 @@ Rules:
         diff === "Easy"   ? "Focus on core definitions, key terms, and basic factual recall. Every answer should be clear to a student seeing the topic for the first time."
         : diff === "Hard" ? "Focus on synthesis, evaluation, edge cases, and nuanced understanding. Questions should challenge a student who already knows the basics — no straightforward definitions."
         :                   "Mix definition, application, cause-effect, and comparison questions. Assume the student has basic familiarity with the topic.";
+      const fcFocus = params.focus as string | undefined;
+      const focusGuide = !fcFocus ? ""
+        : fcFocus === "Definitions"   ? "\nCard focus: EVERY question must ask the student to define or explain a term, concept, or theory. Front = 'What is X?' or 'Define X'. Back = precise 1-2 sentence definition."
+        : fcFocus === "Key facts"     ? "\nCard focus: EVERY card must test a specific factual recall item — a date, number, name, statistic, or event. Front = 'When did X happen?' or 'What is the value of Y?'. Back = precise fact."
+        : fcFocus === "Formulas"      ? "\nCard focus: EVERY card must involve an equation, formula, or rule. Front = the situation or what the formula calculates. Back = the formula with variable definitions."
+        : fcFocus === "Cause & Effect"? "\nCard focus: EVERY card must test causal or consequential reasoning. Front = 'What caused X?' or 'What was the effect of Y?' or 'Why did Z happen?'. Back = clear causal explanation."
+        : fcFocus === "Comparisons"   ? "\nCard focus: EVERY card must ask the student to compare, contrast, or distinguish between two related concepts. Front = 'What is the difference between X and Y?'. Back = key distinctions."
+        : "";
       return {
         system: `${SAFETY_PREAMBLE}You are a study-card expert. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate high-quality flashcards for the topic below. Respond with exactly this JSON shape:
@@ -552,7 +560,7 @@ Rules:
 
 Rules:
 - Generate exactly ${params.count || 10} cards
-- Difficulty: ${diff}. ${diffGuide}
+- Difficulty: ${diff}. ${diffGuide}${focusGuide}
 - Answers: 1-3 sentences, no bullet lists
 - hint: always a short phrase (never null or empty) that jogs memory without giving the answer
 ${(params.content || params.notes) ? `\nStudent notes to base cards on:\n${params.content || params.notes}` : `\nTopic: ${params.subject || params.topic}`}
