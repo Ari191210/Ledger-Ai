@@ -1,5 +1,6 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useUserLevel } from "@/hooks/use-user-level";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -16,9 +17,12 @@ type Analysis  = { type: string; tone: Tone[]; structure: Structure[]; language:
 const TEXT_TYPES = ["Poetry", "Prose extract", "News article", "Speech", "Diary/Letter", "Advertisement", "Literary non-fiction"];
 
 function LangAnalyzerTab() {
+  const profileLevel = useUserLevel();
   const [text, setText]         = useState("");
   const [textType, setTextType] = useState("Poetry");
   const [level, setLevel]       = useState("A-Level");
+
+  useEffect(() => { const ls = ["GCSE","IGCSE","A-Level","IB"]; if (ls.includes(profileLevel)) setLevel(profileLevel); }, [profileLevel]);
   const [focus, setFocus]       = useState("full");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading]   = useState(false);
@@ -160,10 +164,13 @@ type VaultData = { words: Word[]; theme: string };
 type CardState = "front" | "back";
 
 function VocabTab() {
+  const profileLevel = useUserLevel();
   const [topic, setTopic]       = useState("");
   const [context, setContext]   = useState("academic");
   const [count, setCount]       = useState("10");
   const [level, setLevel]       = useState("A-Level");
+
+  useEffect(() => { const ls = ["GCSE","A-Level","IB","University","Advanced"]; if (ls.includes(profileLevel)) setLevel(profileLevel); }, [profileLevel]);
   const [vault, setVault]       = useState<VaultData | null>(null);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
