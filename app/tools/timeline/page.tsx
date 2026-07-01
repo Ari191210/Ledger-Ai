@@ -9,10 +9,12 @@ type Event = { date: string; title: string; description: string; significance: s
 type Timeline = { title: string; period: string; events: Event[]; themes: string[]; examTip: string };
 
 const SUBJECTS = ["History", "Economics", "Science", "Politics", "Literature", "Geography", "Other"];
+const LEVELS   = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "University"];
 
 export default function TimelinePage() {
   const [topic, setTopic]     = useState("");
   const [subject, setSubject] = useState("History");
+  const [level, setLevel]     = useState("A-Level");
   const [result, setResult]   = useState<Timeline | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
@@ -23,7 +25,7 @@ export default function TimelinePage() {
     if (!topic.trim()) { setError("Enter a topic or period."); return; }
     setLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<Timeline>({ tool: "timeline", topic, subject });
+      const data = await callAIOrThrow<Timeline>({ tool: "timeline", topic, subject, level });
       setResult(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -86,10 +88,16 @@ export default function TimelinePage() {
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
         <div className="mono cin" style={{ marginBottom: 8 }}>Chronology, annotated.</div>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 500, fontStyle: "italic", margin: "0 0 28px" }}>Build a fully annotated timeline for any topic or period.</h2>
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {SUBJECTS.map(s => <button key={s} onClick={() => setSubject(s)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${subject === s ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: subject === s ? "var(--cinnabar-ink)" : "var(--paper)", color: subject === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{s}</button>)}
+          </div>
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {LEVELS.map(l => <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>)}
           </div>
         </div>
         <div style={{ marginBottom: 20 }}>

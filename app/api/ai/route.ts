@@ -1023,16 +1023,27 @@ ${params.caseText}`,
       };
     }
 
-    case "timeline":
+    case "timeline": {
+      const tlLvl = (params.level as string) || "A-Level";
+      const tlGuide =
+        tlLvl === "GCSE" || tlLvl === "IGCSE"
+          ? "GCSE level: descriptions in 1-2 clear sentences. significance: one concrete consequence a student can memorise. examTip: focus on cause/effect chains and how to reference dates in essays."
+          : tlLvl === "IB"
+          ? "IB level: descriptions should note historical perspectives and multi-causal explanations. significance: address both short and long-term consequences. examTip: connect events to Paper 1/2 themes and TOK links."
+          : tlLvl === "University"
+          ? "University level: include historiographical debate where relevant. significance: engage with scholarly interpretation of each event's importance. examTip: advise how timelines support argument-led essays, not narrative ones."
+          : "A-Level/CBSE level: descriptions should use analytical language. significance: explain the event's role in a broader causal chain. examTip: advise students on how to weave chronology into evaluative exam answers.";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher who creates detailed annotated timelines. Always respond with valid JSON only.`,
         userText: `Create a comprehensive annotated timeline for the topic below. Respond with exactly this JSON:
-{"title":"full descriptive title","period":"date range e.g. 1789–1815","events":[{"date":"specific date or year range","title":"name of event","description":"2-3 sentences explaining what happened","significance":"why this event matters — consequence and importance","category":"Political|Economic|Social|Military|Scientific|Other"}],"themes":["overarching theme 1","theme 2","theme 3","theme 4"],"examTip":"how to use timelines effectively in exam answers"}
+{"title":"full descriptive title","period":"date range e.g. 1789–1815","events":[{"date":"specific date or year range","title":"name of event","description":"explanation of what happened","significance":"why this event matters — consequence and importance","category":"Political|Economic|Social|Military|Scientific|Other"}],"themes":["overarching theme 1","theme 2","theme 3","theme 4"],"examTip":"how to use timelines effectively in exam answers for this level"}
 
 Generate 10-14 key events in chronological order. Vary categories for a complete picture.
+Level: ${tlLvl}. ${tlGuide}
 Subject: ${params.subject}
 Topic: ${params.topic}`,
       };
+    }
 
     case "reading":
       return {

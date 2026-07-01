@@ -99,31 +99,28 @@ export default function PresentationPage() {
           <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Climate Change and Food Security, Quantum Computing, Shakespeare's use of tragedy…"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "11px 14px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
-          <div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Audience</div>
-            <select value={audience} onChange={e => setAudience(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
-              <option value="class">Classmates</option>
-              <option value="teacher">Teacher / examiner</option>
-              <option value="university">University panel</option>
-              <option value="general">General audience</option>
-              <option value="corporate">Corporate / professional</option>
-            </select>
+        <div style={{ marginBottom: 14 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Audience</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {[["class","Classmates"],["teacher","Teacher / examiner"],["university","University panel"],["general","General"],["corporate","Professional"]].map(([v,l]) => (
+              <button key={v} onClick={() => setAudience(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${audience === v ? "var(--ink)" : "var(--rule)"}`, background: audience === v ? "var(--ink)" : "var(--paper)", color: audience === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
           </div>
-          <div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration (min)</div>
-            <select value={duration} onChange={e => setDuration(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
-              {["5","7","10","15","20","30"].map(d => <option key={d} value={d}>{d} minutes</option>)}
-            </select>
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Style</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[["academic","Academic"],["persuasive","Persuasive"],["informative","Informative"],["narrative","Narrative"]].map(([v,l]) => (
+              <button key={v} onClick={() => setStyle(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${style === v ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: style === v ? "var(--cinnabar-ink)" : "var(--paper)", color: style === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
           </div>
-          <div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Style</div>
-            <select value={style} onChange={e => setStyle(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)" }}>
-              <option value="academic">Academic</option>
-              <option value="persuasive">Persuasive</option>
-              <option value="informative">Informative</option>
-              <option value="narrative">Narrative / Story</option>
-            </select>
+        </div>
+        <div style={{ marginBottom: 24 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {["5","7","10","15","20","30"].map(d => (
+              <button key={d} onClick={() => setDuration(d)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 12px", border: `1px solid ${duration === d ? "var(--ink)" : "var(--rule)"}`, background: duration === d ? "var(--ink)" : "var(--paper)", color: duration === d ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{d}m</button>
+            ))}
           </div>
         </div>
         {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
