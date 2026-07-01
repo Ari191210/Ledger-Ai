@@ -1,10 +1,12 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { useAuth } from "@/components/auth-provider";
+import { loadUserData } from "@/lib/user-data";
 
 type Mode = "practice" | "mock";
 
@@ -27,13 +29,30 @@ const TAB_STYLE = (active: boolean): React.CSSProperties => ({
   border: "none", borderRadius: 8, transition: "background 160ms, color 160ms", cursor: "pointer", letterSpacing: "0.05em",
 });
 
+function profileLevel(board?: string, grade?: string, targetExam?: string): string {
+  if (targetExam?.includes("JEE")) return "JEE";
+  if (board?.startsWith("IB")) return "IB";
+  if (board?.startsWith("IGCSE")) return "IGCSE";
+  if (board === "CBSE") return grade === "Class 11" ? "CBSE Class 11" : "CBSE Class 12";
+  if (grade === "Class 9" || grade === "Class 10") return "GCSE";
+  return "A-Level";
+}
+
 export default function PracticeSuitePage() {
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("practice");
 
   // Shared
   const [subject,  setSubject]  = useState("Mathematics");
   const [topic,    setTopic]    = useState("");
   const [level,    setLevel]    = useState("A-Level");
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then(ud => {
+      if (ud) setLevel(profileLevel(ud.board, ud.grade, ud.targetExam));
+    });
+  }, [user]);
 
   // Practice state
   const [difficulty, setDifficulty] = useState("Mixed");

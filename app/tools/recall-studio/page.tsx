@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
+import { useAuth } from "@/components/auth-provider";
+import { loadUserData } from "@/lib/user-data";
 
 type Tab = "flashcards" | "formula";
 
@@ -46,13 +48,28 @@ function isClose(a: string, b: string) {
 // ── Tab: Flashcards ───────────────────────────────────────────────────────────
 
 function FlashcardsTab() {
+  const { user } = useAuth();
   const [input, setInput]         = useState("");
   const [subject, setSubject]     = useState("");
   const [difficulty, setDiff]     = useState<Difficulty>("Medium");
+  const [level, setLevel]         = useState("A-Level");
   const [count, setCount]         = useState(10);
   const [cards, setCards]         = useState<Card[]>([]);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then(ud => {
+      if (!ud) return;
+      const t = ud.targetExam || "", b = ud.board || "", g = ud.grade || "";
+      if (t.includes("JEE")) { setLevel("JEE"); return; }
+      if (b.startsWith("IB")) { setLevel("IB"); return; }
+      if (b.startsWith("IGCSE")) { setLevel("IGCSE"); return; }
+      if (b === "CBSE") { setLevel(g === "Class 11" ? "CBSE Class 11" : "CBSE Class 12"); return; }
+      if (g === "Class 9" || g === "Class 10") { setLevel("GCSE"); return; }
+    });
+  }, [user]);
   const [idx, setIdx]             = useState(0);
   const [flipped, setFlipped]     = useState(false);
   const [showHint, setShowHint]   = useState(false);
@@ -66,7 +83,7 @@ function FlashcardsTab() {
     if (!input.trim() && !subject.trim()) return;
     setLoading(true); setError(""); setCards([]); setIdx(0); setFlipped(false); setShowHint(false); setUnknown(new Set());
     try {
-      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject, difficulty, count });
+      const data = await callAIOrThrow<{ cards: Card[] }>({ tool: "flashcards", content: input, subject, difficulty, count, level });
       if (!Array.isArray(data.cards) || !data.cards.length) { setError("No cards generated — try again."); return; }
       setCards(data.cards);
     } catch { setError("Network error."); }
