@@ -88,6 +88,10 @@ export default function PersonalisePage() {
     setLayout(getDashLayout());
     const saved = localStorage.getItem("ledger-radius");
     if (saved) { const v = parseInt(saved); setRadius(v); document.documentElement.style.setProperty("--radius", v + "px"); }
+    const savedW = localStorage.getItem("ledger-width") as "narrow"|"medium"|"wide" | null;
+    if (savedW) setWidth(savedW);
+    const savedS = localStorage.getItem("ledger-anim-speed") as "reduced"|"normal"|"fast" | null;
+    if (savedS) setSpeed(savedS);
     const onP = (e: Event) => setActive((e as CustomEvent<PaletteId>).detail);
     window.addEventListener("ledger-palette", onP);
     return () => window.removeEventListener("ledger-palette", onP);
