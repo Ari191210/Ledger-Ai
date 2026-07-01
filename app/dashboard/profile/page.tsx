@@ -9,30 +9,25 @@ import { supabase } from "@/lib/supabase";
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
 const GRADES   = ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "First Year (College)", "Second Year+ (College)"];
+const GRADE_SHORT: Record<string,string> = { "First Year (College)": "1st yr", "Second Year+ (College)": "2nd yr+" };
 const BOARDS   = ["CBSE", "ICSE", "IB (International Baccalaureate)", "IGCSE / Cambridge", "State Board", "Home School / Other"];
+const BOARD_SHORT: Record<string,string> = { "IB (International Baccalaureate)": "IB", "IGCSE / Cambridge": "IGCSE", "State Board": "State", "Home School / Other": "Other" };
 const STREAMS  = ["Science — PCM (Physics, Chemistry, Maths)", "Science — PCB (Physics, Chemistry, Biology)", "Commerce", "Arts / Humanities", "Not applicable yet"];
+const STREAM_SHORT: Record<string,string> = { "Science — PCM (Physics, Chemistry, Maths)": "Science PCM", "Science — PCB (Physics, Chemistry, Biology)": "Science PCB", "Not applicable yet": "N/A" };
 const EXAMS    = ["JEE Main / Advanced", "NEET UG", "CUET", "IPMAT", "CA Foundation", "SAT / ACT", "A-Levels / IGCSE Boards", "IELTS / TOEFL", "No specific exam — just school boards"];
+const EXAM_SHORT: Record<string,string> = { "JEE Main / Advanced": "JEE", "A-Levels / IGCSE Boards": "A-Level", "No specific exam — just school boards": "School only" };
 const LEARNING = [
-  { value: "examples-first", label: "Examples first — see it, then understand why" },
-  { value: "theory-first",   label: "Theory first — principle, then application" },
-  { value: "bullet-points",  label: "Bullet points — quick, scannable" },
-  { value: "step-by-step",   label: "Step by step — one idea at a time" },
+  { value: "examples-first", label: "Examples first" },
+  { value: "theory-first",   label: "Theory first" },
+  { value: "bullet-points",  label: "Bullet points" },
+  { value: "step-by-step",   label: "Step by step" },
 ] as const;
 const COMMS = [
-  { value: "simple",         label: "Simple and clear — everyday English" },
-  { value: "conversational", label: "Conversational — like a study buddy" },
-  { value: "detailed",       label: "Detailed and thorough — full context" },
-  { value: "direct",         label: "Direct and concise — essentials only" },
+  { value: "simple",         label: "Simple" },
+  { value: "conversational", label: "Conversational" },
+  { value: "detailed",       label: "Detailed" },
+  { value: "direct",         label: "Direct" },
 ] as const;
-
-const sel: React.CSSProperties = {
-  width: "100%", padding: "10px 14px", border: "1px solid var(--rule)",
-  background: "var(--paper)", color: "var(--ink)",
-  fontFamily: "var(--mono)", fontSize: 13, outline: "none", cursor: "pointer",
-  appearance: "none", WebkitAppearance: "none",
-  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\")",
-  backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center",
-};
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -188,48 +183,42 @@ export default function ProfilePage() {
             Every AI tool is calibrated to these settings. Update them whenever your grade or goals change.
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <div style={row}>
               <span style={label}>Grade</span>
-              <select value={grade} onChange={e => setGrade(e.target.value)} style={sel}>
-                <option value="">— select —</option>
-                {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {GRADES.map(g => <button key={g} type="button" onClick={() => setGrade(g)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${grade === g ? "var(--ink)" : "var(--rule)"}`, background: grade === g ? "var(--ink)" : "var(--paper)", color: grade === g ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{GRADE_SHORT[g] || g}</button>)}
+              </div>
             </div>
             <div style={row}>
               <span style={label}>Board</span>
-              <select value={board} onChange={e => setBoard(e.target.value)} style={sel}>
-                <option value="">— select —</option>
-                {BOARDS.map(b => <option key={b} value={b}>{b}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {BOARDS.map(b => <button key={b} type="button" onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${board === b ? "var(--ink)" : "var(--rule)"}`, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{BOARD_SHORT[b] || b}</button>)}
+              </div>
             </div>
             <div style={row}>
               <span style={label}>Stream</span>
-              <select value={stream} onChange={e => setStream(e.target.value)} style={sel}>
-                <option value="">— select —</option>
-                {STREAMS.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {STREAMS.map(s => <button key={s} type="button" onClick={() => setStream(s)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${stream === s ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: stream === s ? "var(--cinnabar-ink)" : "var(--paper)", color: stream === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{STREAM_SHORT[s] || s}</button>)}
+              </div>
             </div>
             <div style={row}>
               <span style={label}>Target Exam</span>
-              <select value={exam} onChange={e => setExam(e.target.value)} style={sel}>
-                <option value="">— select —</option>
-                {EXAMS.map(e => <option key={e} value={e}>{e}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {EXAMS.map(e => <button key={e} type="button" onClick={() => setExam(e)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${exam === e ? "var(--ink)" : "var(--rule)"}`, background: exam === e ? "var(--ink)" : "var(--paper)", color: exam === e ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{EXAM_SHORT[e] || e}</button>)}
+              </div>
             </div>
             <div style={row}>
               <span style={label}>Learning Style</span>
-              <select value={learn} onChange={e => setLearn(e.target.value)} style={sel}>
-                <option value="">— select —</option>
-                {LEARNING.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {LEARNING.map(l => <button key={l.value} type="button" onClick={() => setLearn(l.value)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${learn === l.value ? "var(--sage)" : "var(--rule)"}`, background: learn === l.value ? "var(--sage)" : "var(--paper)", color: learn === l.value ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l.label}</button>)}
+              </div>
             </div>
             <div style={row}>
               <span style={label}>AI Tone</span>
-              <select value={comm} onChange={e => setComm(e.target.value)} style={sel}>
-                <option value="">— select —</option>
-                {COMMS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {COMMS.map(c => <button key={c.value} type="button" onClick={() => setComm(c.value)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${comm === c.value ? "var(--gold)" : "var(--rule)"}`, background: comm === c.value ? "var(--gold)" : "var(--paper)", color: comm === c.value ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{c.label}</button>)}
+              </div>
             </div>
           </div>
 

@@ -337,10 +337,13 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 4 }}>Board</div>
-              <select value={form.board} onChange={e => setForm(f => ({ ...f, board: e.target.value }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "8px 10px", color: "var(--ink)", outline: "none", boxSizing: "border-box" }}>
-                {BOARDS.map(b => <option key={b}>{b}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {BOARDS.map(b => (
+                  <button key={b} onClick={() => setForm(f => ({ ...f, board: b }))} style={{ fontFamily: "var(--mono)", fontSize: 12, padding: "5px 10px", border: form.board === b ? "1px solid var(--ink)" : "1px solid var(--rule)", background: form.board === b ? "var(--ink)" : "transparent", color: form.board === b ? "var(--paper)" : "var(--ink-2)", cursor: "pointer" }}>
+                    {b}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <button className="btn" onClick={addExam} disabled={saving || !form.name || !form.date} style={{ opacity: saving || !form.name || !form.date ? 0.5 : 1 }}>
