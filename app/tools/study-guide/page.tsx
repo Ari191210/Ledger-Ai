@@ -8,11 +8,18 @@ import { AIThinking } from "@/components/ai-thinking";
 type Guide = { topic: string; overview: string; sections: { title: string; content: string; keyPoints: string[] }[]; mustKnow: string[]; commonMistakes: string[]; quickReview: string[]; examTip: string };
 
 const LEVELS = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "JEE", "NEET"];
+const DEPTHS = [
+  { id: "Quick Scan",  desc: "Key facts & bullet points — 5 min read" },
+  { id: "Deep Dive",   desc: "Full explanations — first-time learning" },
+  { id: "Exam-Ready",  desc: "Mark scheme focused — night before exam" },
+] as const;
+type Depth = typeof DEPTHS[number]["id"];
 
 export default function StudyGuidePage() {
   const [topic, setTopic]     = useState("");
   const [subject, setSubject] = useState("");
   const [level, setLevel]     = useState("A-Level");
+  const [depth, setDepth]     = useState<Depth>("Deep Dive");
   const [guide, setGuide]     = useState<Guide | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
@@ -22,7 +29,7 @@ export default function StudyGuidePage() {
     if (!topic.trim()) { setError("Enter a topic or chapter."); return; }
     setLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<Guide>({ tool: "study_guide", topic, subject, level });
+      const data = await callAIOrThrow<Guide>({ tool: "study_guide", topic, subject, level, depth });
       setGuide(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -103,12 +110,29 @@ export default function StudyGuidePage() {
           <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Biology, Economics…"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 16 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {LEVELS.map(l => <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>)}
           </div>
         </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Mode</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {DEPTHS.map(d => {
+              const active = depth === d.id;
+              return (
+                <button key={d.id} onClick={() => setDepth(d.id)}
+                  style={{ flex: 1, padding: "10px 12px", border: `1px solid ${active ? "var(--ink)" : "var(--rule)"}`, background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink-2)", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", marginBottom: 2 }}>{d.id}</div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: active ? "rgba(255,255,255,0.6)" : "var(--ink-3)" }}>{d.desc}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {error && <div style={{ color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13, marginBottom: 12 }}>{error}</div>}
         <button className="btn" onClick={generate} disabled={loading} style={{ width: "100%", opacity: loading ? 0.5 : 1 }}>
           {loading ? "Building study guide…" : "Build study guide →"}

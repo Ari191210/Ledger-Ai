@@ -1062,7 +1062,8 @@ ${params.text}`,
 
     case "study_guide": {
       const sgLvl = (params.level as string) || "A-Level";
-      const sgGuide =
+      const sgDepth = (params.depth as string) || "Deep Dive";
+      const sgLvlGuide =
         sgLvl === "GCSE" || sgLvl === "IGCSE"
           ? "GCSE depth: mustKnow items should be definitions, key facts, and simple processes. Explanations: accessible, no assumed prior knowledge. Exam tip: focus on command words and mark allocation."
           : sgLvl === "JEE" || sgLvl === "CBSE Class 12" || sgLvl === "CBSE Class 11"
@@ -1070,15 +1071,23 @@ ${params.text}`,
           : sgLvl === "IB"
           ? "IB depth: mustKnow should include conceptual frameworks, evaluation language, and command words. Sections should cover both content and how to write about it analytically. Exam tip: emphasise how to answer 'evaluate' and 'discuss' commands."
           : "A-Level depth: mustKnow should include precise definitions, key formulae, and mechanisms. Sections should explain WHY, not just what. commonMistakes should target A-Level-specific errors. Exam tip: focus on synoptic links and evaluation.";
+      const sgDepthGuide =
+        sgDepth === "Quick Scan"
+          ? "MODE — Quick Scan: keep section content to 2-3 sentences max. keyPoints: terse one-liners only. mustKnow: bare minimum 4-5 items. quickReview: 10 punchy one-liners to flash through in 2 minutes. Prioritise speed of absorption over completeness."
+          : sgDepth === "Exam-Ready"
+          ? "MODE — Exam-Ready: every section must reference what examiners specifically award marks for. mustKnow: include exact phrases/keywords examiners reward. commonMistakes: frame as 'students lose marks when…'. examTip: give a specific marking-scheme insight, not general advice. quickReview: write as exam-ready bullet points a student would recite under pressure."
+          : "MODE — Deep Dive: full explanations with 4-6 sentences per section content and real examples. keyPoints should explain the WHY behind each point. mustKnow should include reasoning, not just the fact. For first-time learning or filling knowledge gaps.";
       return {
         system: `${SAFETY_PREAMBLE}You are a master ${params.subject || "academic"} teacher who creates comprehensive, exam-focused study guides. Always respond with valid JSON only.`,
         userText: `Create a complete study guide for the topic below. Respond with exactly this JSON:
-{"topic":"${params.topic}","overview":"3-4 sentence overview of what this topic covers and why it matters at ${sgLvl}","sections":[{"title":"section title","content":"clear explanation in 3-5 sentences","keyPoints":["key point 1","key point 2","key point 3"]}],"mustKnow":["essential fact/formula/definition 1","..."],"commonMistakes":["common mistake 1","..."],"quickReview":["one-line review point 1","..."],"examTip":"specific exam strategy for this topic at ${sgLvl}"}
+{"topic":"${params.topic}","overview":"3-4 sentence overview of what this topic covers and why it matters at ${sgLvl}","sections":[{"title":"section title","content":"clear explanation","keyPoints":["key point 1","key point 2","key point 3"]}],"mustKnow":["essential fact/formula/definition 1","..."],"commonMistakes":["common mistake 1","..."],"quickReview":["one-line review point 1","..."],"examTip":"specific exam strategy for this topic at ${sgLvl}"}
 
 sections: 4-6 logical sections. mustKnow: 5-7 items. commonMistakes: 4-5 items. quickReview: 8-10 one-liners.
-${sgGuide}
+${sgLvlGuide}
+${sgDepthGuide}
 Subject: ${params.subject || "General"}
 Level: ${sgLvl}
+Mode: ${sgDepth}
 Topic: ${params.topic}`,
       };
     }
