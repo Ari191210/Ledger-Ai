@@ -154,8 +154,8 @@ function DebtMeterWidget({ subjects, today }: { subjects: PlannerSubject[]; toda
       <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 10, lineHeight: 1.5 }}>
         Minimum payment to stay solvent before exams: <strong>{minPay}h / day</strong>. Miss three days and interest compounds.
       </p>
-      <div style={{ marginTop: 16, height: 8, background: "var(--paper-2)", border: "1px solid var(--rule)", position: "relative" }}>
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${apr}%`, background: "var(--cinnabar)", transition: "width 400ms ease" }} />
+      <div style={{ marginTop: 16, height: 8, background: "var(--paper-2)", border: "1px solid var(--rule)", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "100%", background: "var(--cinnabar)", transform: `scaleX(${apr / 100})`, transformOrigin: "left", transition: "transform 400ms ease" }} />
       </div>
     </div>
   );
@@ -592,19 +592,19 @@ function DeadlinesTab() {
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Category</div>
-              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as DeadlineCategory }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-                {(Object.keys(CAT_LABELS) as DeadlineCategory[]).map(c => <option key={c} value={c}>{CAT_LABELS[c]}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(Object.keys(CAT_LABELS) as DeadlineCategory[]).map(c => (
+                  <button key={c} onClick={() => setForm(f => ({ ...f, category: c }))} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${form.category === c ? "var(--ink)" : "var(--rule)"}`, background: form.category === c ? "var(--ink)" : "var(--paper)", color: form.category === c ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{CAT_LABELS[c]}</button>
+                ))}
+              </div>
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Priority</div>
-              <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as DeadlinePriority }))}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
+              <div style={{ display: "flex", gap: 4 }}>
+                {([["high","High","var(--cinnabar)"],["medium","Medium","var(--ink)"],["low","Low","var(--ink)"]] as [DeadlinePriority,string,string][]).map(([v,l,ac]) => (
+                  <button key={v} onClick={() => setForm(f => ({ ...f, priority: v }))} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${form.priority === v ? ac : "var(--rule)"}`, background: form.priority === v ? ac : "var(--paper)", color: form.priority === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+                ))}
+              </div>
             </div>
             <div style={{ gridColumn: "1/-1" }}>
               <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, marginBottom: 4 }}>Notes (optional)</div>

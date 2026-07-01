@@ -143,10 +143,10 @@ export default function GpaSimPage() {
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div className="mono" style={{ color: "var(--ink-3)" }}>GPA Simulator</div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <select value={board} onChange={e => setBoard(e.target.value as Board)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: `2px solid ${cfg.color}`, background: "var(--paper)", padding: "6px 10px", color: cfg.color, cursor: "pointer" }}>
-            {(Object.keys(BOARD_CONFIGS) as Board[]).map(b => <option key={b} value={b}>{BOARD_CONFIGS[b].label}</option>)}
-          </select>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
+          {(Object.keys(BOARD_CONFIGS) as Board[]).map(b => (
+            <button key={b} onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${b === board ? BOARD_CONFIGS[b].color : "var(--rule)"}`, background: b === board ? BOARD_CONFIGS[b].color : "var(--paper)", color: b === board ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
+          ))}
         </div>
       </header>
 
@@ -162,9 +162,11 @@ export default function GpaSimPage() {
           </div>
           <div>
             <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", marginBottom: 4 }}>{cfg.targetScale.label}</div>
-            <select value={targetIdx} onChange={e => setTargetIdx(parseInt(e.target.value))} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: `2px solid ${scoreColor}`, background: "var(--paper)", padding: "10px 8px", color: scoreColor }}>
-              {targetOptions.map((opt, i) => <option key={i} value={i}>{opt}</option>)}
-            </select>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {targetOptions.map((opt, i) => (
+                <button key={i} onClick={() => setTargetIdx(i)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${i === targetIdx ? scoreColor : "var(--rule)"}`, background: i === targetIdx ? scoreColor : "var(--paper)", color: i === targetIdx ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{opt}</button>
+              ))}
+            </div>
           </div>
         </div>
 
