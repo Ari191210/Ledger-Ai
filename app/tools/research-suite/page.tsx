@@ -133,21 +133,19 @@ function ResearchTab() {
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Purpose</div>
-              <select value={purpose} onChange={e => setPurpose(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-                <option value="essay">Essay / coursework</option>
-                <option value="debate">Debate preparation</option>
-                <option value="presentation">Presentation</option>
-                <option value="revision">Exam revision</option>
-                <option value="general">General learning</option>
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {([["essay","Essay / coursework"],["debate","Debate prep"],["presentation","Presentation"],["revision","Exam revision"],["general","General"]] as [string,string][]).map(([v,l]) => (
+                  <button key={v} onClick={() => setPurpose(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${purpose === v ? "var(--ink)" : "var(--rule)"}`, background: purpose === v ? "var(--ink)" : "var(--paper)", color: purpose === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+                ))}
+              </div>
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Depth</div>
-              <select value={depth} onChange={e => setDepth(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-                <option value="overview">Quick overview</option>
-                <option value="standard">Standard depth</option>
-                <option value="deep">Deep dive</option>
-              </select>
+              <div style={{ display: "flex", gap: 4 }}>
+                {([["overview","Overview"],["standard","Standard"],["deep","Deep dive"]] as [string,string][]).map(([v,l]) => (
+                  <button key={v} onClick={() => setDepth(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${depth === v ? "var(--ink)" : "var(--rule)"}`, background: depth === v ? "var(--ink)" : "var(--paper)", color: depth === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+                ))}
+              </div>
             </div>
           </div>
           {resError && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{resError}</div>}
@@ -450,17 +448,19 @@ function DebateTab() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Prepare</div>
-          <select value={side} onChange={e => setSide(e.target.value as "both"|"for"|"against")} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            <option value="both">Both sides</option>
-            <option value="for">For the motion only</option>
-            <option value="against">Against only</option>
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {([["both","Both sides"],["for","For only"],["against","Against only"]] as ["both"|"for"|"against",string][]).map(([v,l]) => (
+              <button key={v} onClick={() => setSide(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${side === v ? "var(--ink)" : "var(--rule)"}`, background: side === v ? "var(--ink)" : "var(--paper)", color: side === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
-          <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            {["GCSE","A-Level","IB","University","General"].map(l => <option key={l}>{l}</option>)}
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {["GCSE","A-Level","IB","University","General"].map(l => (
+              <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
         </div>
       </div>
       {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
@@ -560,28 +560,27 @@ function PresentationTab() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Audience</div>
-          <select value={audience} onChange={e => setAudience(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            <option value="class">Classmates</option>
-            <option value="teacher">Teacher / examiner</option>
-            <option value="university">University panel</option>
-            <option value="general">General audience</option>
-            <option value="corporate">Corporate / professional</option>
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {([["class","Classmates"],["teacher","Teacher"],["university","University"],["general","General"],["corporate","Corporate"]] as [string,string][]).map(([v,l]) => (
+              <button key={v} onClick={() => setAudience(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${audience === v ? "var(--ink)" : "var(--rule)"}`, background: audience === v ? "var(--ink)" : "var(--paper)", color: audience === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration (min)</div>
-          <select value={duration} onChange={e => setDuration(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            {["5","7","10","15","20","30"].map(d => <option key={d} value={d}>{d} minutes</option>)}
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {["5","7","10","15","20","30"].map(d => (
+              <button key={d} onClick={() => setDuration(d)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${duration === d ? "var(--ink)" : "var(--rule)"}`, background: duration === d ? "var(--ink)" : "var(--paper)", color: duration === d ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{d}m</button>
+            ))}
+          </div>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Style</div>
-          <select value={style} onChange={e => setStyle(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            <option value="academic">Academic</option>
-            <option value="persuasive">Persuasive</option>
-            <option value="informative">Informative</option>
-            <option value="narrative">Narrative / Story</option>
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {([["academic","Academic"],["persuasive","Persuasive"],["informative","Informative"],["narrative","Narrative"]] as [string,string][]).map(([v,l]) => (
+              <button key={v} onClick={() => setStyle(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${style === v ? "var(--ink)" : "var(--rule)"}`, background: style === v ? "var(--ink)" : "var(--paper)", color: style === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
         </div>
       </div>
       {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
