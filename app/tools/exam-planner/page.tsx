@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
+import { useUserLevel } from "@/hooks/use-user-level";
 import { AIThinking } from "@/components/ai-thinking";
 
 type TabType = "plan" | "review" | "halflife" | "predict";
@@ -227,12 +228,14 @@ function HalfLifeTab() {
 // ── Tab: Question Predictor ───────────────────────────────────────────────────
 
 function PredictTab() {
+  const profileLevel = useUserLevel();
   const [topic,   setTopic]   = useState("");
   const [subject, setSubject] = useState("");
   const [level,   setLevel]   = useState("A-Level");
   const [result,  setResult]  = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
+  useEffect(() => { const m = profileLevel.startsWith("CBSE") ? "CBSE" : profileLevel; if (PREDICT_LEVELS.includes(m)) setLevel(m); }, [profileLevel]);
 
   async function generate() {
     if (!topic.trim()) { setError("Enter a topic or chapter."); return; }
