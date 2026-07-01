@@ -211,9 +211,8 @@ function VerdictCard({ point, index }: { point: MarkSchemePoint; index: number }
               style={{
                 margin: 0,
                 padding: "8px 12px",
-                borderLeft: `3px solid ${borderColor[point.verdict]}`,
+                border: "1px solid var(--rule)",
                 background: "var(--paper)",
-                borderRadius: "0 6px 6px 0",
                 fontFamily: "var(--serif)",
                 fontSize: 13.5,
                 fontStyle: "italic",
@@ -296,10 +295,10 @@ function SummaryBar({ total_available, total_awarded, points }: { total_availabl
           <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--verdict-dropped-color)" }}>✗ Dropped: {dropped}</span>
         </div>
       </div>
-      <div style={{ width: "100%", height: 10, borderRadius: 5, background: "var(--rule)", overflow: "hidden", display: "flex" }}>
-        <div style={{ width: `${totalAvail > 0 ? (awarded / totalAvail) * 100 : 0}%`, background: "var(--verdict-awarded-bar)", transition: "width 0.4s" }} />
-        <div style={{ width: `${totalAvail > 0 ? (partial / totalAvail) * 100 : 0}%`, background: "var(--verdict-partial-bar)", transition: "width 0.4s" }} />
-        <div style={{ width: `${totalAvail > 0 ? (dropped / totalAvail) * 100 : 0}%`, background: "var(--verdict-dropped-bar)", transition: "width 0.4s" }} />
+      <div style={{ position: "relative", width: "100%", height: 10, background: "var(--rule)", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "var(--verdict-dropped-bar)", transform: `scaleX(${totalAvail > 0 ? (awarded + partial + dropped) / totalAvail : 0})`, transformOrigin: "left", transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "var(--verdict-partial-bar)", transform: `scaleX(${totalAvail > 0 ? (awarded + partial) / totalAvail : 0})`, transformOrigin: "left", transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "var(--verdict-awarded-bar)", transform: `scaleX(${totalAvail > 0 ? awarded / totalAvail : 0})`, transformOrigin: "left", transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)" }} />
       </div>
     </div>
   );
@@ -539,34 +538,13 @@ export default function MarksForensicsPage() {
               />
             </div>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-              <div style={{ flex: 1, minWidth: 140 }}>
-                <label htmlFor="board" style={labelStyle}>
-                  Board / Exam
-                </label>
-                <select
-                  id="board"
-                  value={board}
-                  onChange={(e) => setBoard(e.target.value as Board)}
-                  style={{
-                    width: "100%",
-                    background: "var(--paper)",
-                    border: "1.5px solid var(--rule)",
-                    borderRadius: 8,
-                    padding: "9px 12px",
-                    fontFamily: "var(--sans)",
-                    fontSize: 14,
-                    color: "var(--ink)",
-                    cursor: "pointer",
-                    outline: "none",
-                    appearance: "none",
-                  }}
-                >
+              <div style={{ flex: "0 0 100%" }}>
+                <label style={labelStyle}>Board / Exam</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {BOARDS.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
+                    <button key={b} type="button" onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 12px", border: `1px solid ${board === b ? "var(--ink)" : "var(--rule)"}`, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
                   ))}
-                </select>
+                </div>
               </div>
               <div style={{ flex: 1, minWidth: 140 }}>
                 <label style={labelStyle}>Marks available</label>
