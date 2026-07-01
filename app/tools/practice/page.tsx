@@ -21,6 +21,17 @@ function pad(n: number) { return String(n).padStart(2, "0"); }
 const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Statistics", "Further Maths"];
 const LEVELS   = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE"];
 const DIFF     = ["Mixed", "Easy", "Medium", "Hard"];
+const QTYPES   = ["Any type", "Worked problem", "Short answer", "Essay / evaluation", "Data analysis"];
+
+const TOPIC_PLACEHOLDER: Record<string, string> = {
+  Mathematics:    "e.g. Integration by parts, Binomial theorem, Sequences…",
+  Physics:        "e.g. Circular motion, Electromagnetic induction, Waves…",
+  Chemistry:      "e.g. Equilibrium, Organic mechanisms, Electrochemistry…",
+  Biology:        "e.g. Photosynthesis, Cell division, DNA replication…",
+  Economics:      "e.g. Price elasticity, Market failure, Fiscal policy…",
+  Statistics:     "e.g. Hypothesis testing, Normal distribution, Regression…",
+  "Further Maths":"e.g. Complex numbers, Differential equations, Matrices…",
+};
 
 const TAB_STYLE = (active: boolean): React.CSSProperties => ({
   padding: "10px 22px", fontFamily: "var(--mono)", fontSize: 10,
@@ -41,6 +52,7 @@ export default function PracticeSuitePage() {
 
   // Practice state
   const [difficulty, setDifficulty] = useState("Mixed");
+  const [qtype,      setQtype]      = useState("Any type");
   const [count,      setCount]      = useState(5);
   const [set,        setSet]        = useState<PracticeSet | null>(null);
   const [revealed,   setRevealed]   = useState<Record<number, boolean>>({});
@@ -64,7 +76,7 @@ export default function PracticeSuitePage() {
     if (!topic.trim()) { setPrError("Enter a topic."); return; }
     setPrLoading(true); setPrError(""); setRevealed({}); setHinted({});
     try {
-      const data = await callAIOrThrow<PracticeSet>({ tool: "practice", subject, topic, level, difficulty, count });
+      const data = await callAIOrThrow<PracticeSet>({ tool: "practice", subject, topic, level, difficulty, count, qtype: qtype === "Any type" ? undefined : qtype });
       setSet(data);
     } catch { setPrError("Network error."); }
     finally { setPrLoading(false); }
@@ -107,7 +119,7 @@ export default function PracticeSuitePage() {
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic {mode === "practice" ? <span style={{ color: "var(--cinnabar-ink)" }}>*</span> : "(optional)"}</div>
-        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Integration by parts, Circular motion…"
+        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder={TOPIC_PLACEHOLDER[subject] || "e.g. Enter a topic or chapter…"}
           style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
       </div>
       <div style={{ marginBottom: 14 }}>
@@ -156,6 +168,12 @@ export default function PracticeSuitePage() {
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Difficulty</div>
             <div style={{ display: "flex", gap: 6 }}>
               {DIFF.map(d => <button key={d} onClick={() => setDifficulty(d)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${difficulty === d ? "var(--ink)" : "var(--rule)"}`, background: difficulty === d ? "var(--ink)" : "var(--paper)", color: difficulty === d ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{d}</button>)}
+            </div>
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Question type</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {QTYPES.map(q => <button key={q} onClick={() => setQtype(q)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${qtype === q ? "var(--ink)" : "var(--rule)"}`, background: qtype === q ? "var(--ink)" : "var(--paper)", color: qtype === q ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{q}</button>)}
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>

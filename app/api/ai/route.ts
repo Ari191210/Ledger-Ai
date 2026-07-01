@@ -977,13 +977,20 @@ ${params.sourceText}`,
         : prDiff === "Mixed" ? "Mix: 2 straightforward recall/application questions, 2 mid-difficulty requiring method choice, 1 harder problem requiring synthesis or multi-step approach."
         :                       "Test application and method selection. Values require substitution. Students must choose the right approach and show working. Standard exam difficulty.";
       const prMarks = prDiff === "Hard" ? 6 : prDiff === "Medium" ? 4 : 3;
+      const prQtype = params.qtype as string | undefined;
+      const prQtypeGuide = !prQtype ? ""
+        : prQtype === "Worked problem"      ? "\nFormat: structured numeric or algebraic problem requiring step-by-step working. Show all substitution, algebra, and units in the solution."
+        : prQtype === "Short answer"        ? "\nFormat: concise factual or conceptual questions. Answer in 1-3 sentences or a brief calculation. No extended working required."
+        : prQtype === "Essay / evaluation"  ? "\nFormat: discursive questions using command words like Evaluate, Discuss, Assess, To what extent. Problems should require structured argument, evidence, and a judgement."
+        : prQtype === "Data analysis"       ? "\nFormat: provide a small dataset, graph description, or experimental result in the problem. Student must interpret, calculate, or draw conclusions from data."
+        : "";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} teacher and examiner. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate a practice problem set. Respond with exactly this JSON shape:
 {"topic":"precise topic title","difficulty":"${prDiff}","problems":[{"number":1,"problem":"full problem statement with all necessary information","hint":"one-line hint that guides without giving away the method","marks":${prMarks},"solution":"complete step-by-step worked solution — number each step, show all working, explain the WHY at non-obvious steps"}]}
 
 Generate exactly ${params.count || 5} problems.
-Difficulty: ${prDiff}. ${prGuide}
+Difficulty: ${prDiff}. ${prGuide}${prQtypeGuide}
 marks: reflect actual exam mark allocation for ${params.level}
 solution: complete enough that a student who got it wrong can fully understand — no skipped steps
 
