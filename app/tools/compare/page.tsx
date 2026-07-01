@@ -8,13 +8,16 @@ import { AIThinking } from "@/components/ai-thinking";
 type Row = { criterion: string; items: string[] };
 type Chart = { title: string; items: string[]; rows: Row[]; similarities: string[]; differences: string[]; verdict: string };
 
+const LEVELS = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "University"];
+
 export default function ComparePage() {
-  const [items, setItems]     = useState(["", ""]);
-  const [subject, setSubject] = useState("");
+  const [items, setItems]       = useState(["", ""]);
+  const [subject, setSubject]   = useState("");
+  const [level, setLevel]       = useState("A-Level");
   const [criteria, setCriteria] = useState("");
-  const [chart, setChart]     = useState<Chart | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const [chart, setChart]       = useState<Chart | null>(null);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
 
   function setItem(i: number, v: string) { setItems(prev => prev.map((x, j) => j === i ? v : x)); }
   function addItem() { if (items.length < 4) setItems(prev => [...prev, ""]); }
@@ -25,7 +28,7 @@ export default function ComparePage() {
     if (filled.length < 2) { setError("Enter at least two items to compare."); return; }
     setLoading(true); setError("");
     try {
-      const data = await callAIOrThrow<Chart>({ tool: "compare", items: filled, subject, criteria });
+      const data = await callAIOrThrow<Chart>({ tool: "compare", items: filled, subject, level, criteria });
       setChart(data);
     } catch { setError("Network error."); }
     finally { setLoading(false); }
@@ -113,8 +116,17 @@ export default function ComparePage() {
         </div>
 
         <div style={{ marginBottom: 14 }}>
+          <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {LEVELS.map(l => (
+              <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Subject / context (optional)</div>
-          <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. A-Level Biology, IB Economics…"
+          <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Biology, Economics, History…"
             style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
         </div>
 

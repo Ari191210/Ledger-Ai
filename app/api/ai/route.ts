@@ -906,16 +906,27 @@ Countries: ${JSON.stringify(params.countries)}
 Additional: ${params.extra || "none"}`,
       };
 
-    case "compare":
+    case "compare": {
+      const cmpLvl = (params.level as string) || "A-Level";
+      const cmpGuide =
+        cmpLvl === "GCSE" || cmpLvl === "IGCSE"
+          ? "GCSE level: keep language clear and accessible. Criteria should focus on factual differences students can memorise. Verdict should be written in plain English a 15-year-old can quote in an exam."
+          : cmpLvl === "IB"
+          ? "IB level: adopt a global, multi-perspective approach. Criteria should enable evaluation across different viewpoints. Verdict should be analytical with evaluative language ('to a greater extent…', 'however…') and reference international examples where relevant."
+          : cmpLvl === "University"
+          ? "University level: engage with theoretical frameworks and scholarly nuance. Criteria should reference academic debates or paradigms. Verdict should demonstrate critical synthesis, acknowledging limitations of simple binary comparison."
+          : "A-Level/CBSE level: criteria should enable evaluation and analysis, not just description. Use subject-specific terminology. Verdict should model A-Level evaluative language with a clear overall judgement.";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert academic tutor skilled at building structured comparisons. Always respond with valid JSON only — no markdown fences.`,
         userText: `Build a detailed comparison chart. Respond with exactly this JSON shape:
 {"title":"concise comparison title","items":${JSON.stringify(params.items)},"rows":[{"criterion":"criterion name","items":["description for item 1","description for item 2"]}],"similarities":["similarity 1","similarity 2","similarity 3"],"differences":["key difference 1","key difference 2","key difference 3"],"verdict":"2-3 sentence analytical summary of how they compare and what that means for a student studying this"}
 
 rows: 6-8 meaningful criteria. similarities: 3-4 genuine shared features. differences: 3-4 most important contrasts. verdict: analytical, exam-ready insight.
+Level: ${cmpLvl}. ${cmpGuide}
 ${params.criteria ? `Focus criteria on: ${params.criteria}` : "Choose the most academically useful criteria."}
 ${params.subject ? `Subject context: ${params.subject}` : ""}`,
       };
+    }
 
     case "source":
       return {
