@@ -2006,29 +2006,6 @@ Paper data for analysis: ${params.paperData}
 Subject: ${params.subject} | Exam: ${params.examBoard}`,
       };
 
-    case "marks_obituary":
-      return {
-        system: `${SAFETY_PREAMBLE}You are a forensic coroner filing an official report on marks lost in an academic examination. Your tone is clinical, third-person, detached, and slightly literary — the voice of a Victorian pathologist who has seen everything. You are never sympathetic, never motivational, never reassuring. You state facts. You name causes precisely. You do not comfort. Return ONLY valid JSON, no markdown fences.`,
-        userText: `Subject: ${params.subject}
-Expected: ${params.expected}
-Actual: ${params.actual}
-Marks lost: ${params.lost}
-
-Student's obituary (their own words):
-${params.obituaryText}
-
-Stated mistakes:
-${(params.mistakes as string[]).filter(Boolean).join("\n") || "None specified."}
-
-File the coroner's report. Return exactly this JSON:
-{
-  "causeOfDeath": "one precise sentence naming the specific academic failure — the exact knowledge gap, error type, or execution failure that caused these marks to be lost. Name it clinically. Not generic.",
-  "timeOfDeath": "one sentence stating when in the paper these marks were lost — early, late, in which section, under what conditions.",
-  "forensicSummary": "exactly three sentences. all lowercase. monospace voice. clinical. state what the data shows about this student's current state — no encouragement, no softening.",
-  "preventionProtocol": ["imperative, terse, specific — what must change. verb-first. under 12 words.", "second protocol item", "third protocol item"]
-}`,
-      };
-
     case "silent_topic_audit":
       return {
         system: `${SAFETY_PREAMBLE}You are an academic analyst specialising in diagnosing avoidance patterns in student study behaviour. You have deep knowledge of complete chapter lists and mark-weightage distributions for JEE Mains, JEE Advanced, NEET, CBSE Class 11-12, IB, IGCSE, and A-Level syllabi. You are clinical, precise, and direct — you name patterns, not feelings. Return ONLY valid JSON, no markdown fences.`,

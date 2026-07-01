@@ -54,18 +54,18 @@ const ERROR_ICONS: Record<ErrorType, string> = {
 };
 
 const ERROR_COLORS: Record<ErrorType, string> = {
-  conceptual: "#e05a5a",
-  recall: "#e07a3a",
-  calculation: "#e0a83a",
-  presentation: "#8a6fe0",
-  time_pressure: "#5a9de0",
-  misread: "#5ac9a8",
+  conceptual: "var(--cinnabar)",
+  recall: "var(--cinnabar-ink)",
+  calculation: "var(--gold)",
+  presentation: "var(--ink-2)",
+  time_pressure: "var(--ink-3)",
+  misread: "var(--sage)",
 };
 
 const RISK_COLORS: Record<RecurrenceRisk, string> = {
-  high: "#dc2626",
-  medium: "#d97706",
-  low: "#16a34a",
+  high: "var(--cinnabar)",
+  medium: "var(--gold)",
+  low: "var(--sage)",
 };
 
 function generateId(): string {
@@ -118,9 +118,13 @@ export default function MarksObituaryPage() {
       marksAwarded: "",
     },
   ]);
+  const [subject, setSubject] = useState("");
+  const [board, setBoard] = useState("A-Level");
   const [result, setResult] = useState<ObituaryResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const BOARDS = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE", "JEE", "NEET", "AP"];
 
   function addQuestion(): void {
     setQuestions((prev) => [
@@ -155,6 +159,8 @@ export default function MarksObituaryPage() {
     try {
       const res = await callAIOrThrow<ObituaryResult>({
         tool: "marks_obituary",
+        subject: subject || undefined,
+        examBoard: board || undefined,
         questions: questions.map((q) => ({
           questionText: q.questionText,
           studentAnswer: q.studentAnswer,
@@ -276,6 +282,23 @@ export default function MarksObituaryPage() {
             Paste your questions, answers, and mark schemes. We&apos;ll diagnose exactly where
             you died — and give you a surgical fix protocol so it never happens again.
           </p>
+        </div>
+
+        {/* Context */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 28 }}>
+          <div>
+            <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", marginBottom: 6 }}>Subject (optional)</div>
+            <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Physics, History…"
+              style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--sans)", fontSize: 13, border: "1px solid var(--rule)", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }} />
+          </div>
+          <div>
+            <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", marginBottom: 6 }}>Exam board / level</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {BOARDS.map(b => (
+                <button key={b} type="button" onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${board === b ? "var(--ink)" : "var(--rule)"}`, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Form */}
