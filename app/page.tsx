@@ -13,7 +13,6 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
 import { BeforeAfterSection } from "@/components/ui/before-after-section";
 import { StudentJourneySection } from "@/components/ui/student-journey";
-import CardSwap, { Card } from "@/components/ui/CardSwap";
 
 const HeroInteractiveDemo = dynamic(
   () => import("@/components/ui/hero-interactive-demo").then(m => ({ default: m.HeroInteractiveDemo })),
@@ -84,12 +83,6 @@ const FEATS = [
   { tag: "η", ttl: "Score → College Predictor",  body: "Score X on this week's test and these colleges move into reach. Score Y and they move out. Based on six years of actual cutoff data.", extra: "Covers 340 colleges across JEE, NEET, CUET, and board exams. Shows rolling percentile so you know if you are safely inside the cutoff or right on the margin." },
 ] as const;
 
-const TESTIMONIALS = [
-  { q: "Went from 47/70 to 63/70 in Organic Chemistry after 3 weeks. The chapter tracker showed me I was 18 sessions behind. I didn't realise it was that bad until I saw the number.",  by: "Ananya R.", ctx: "Class 12, CBSE — Pune",    score: "Chemistry: 47 → 63 / 70"  },
-  { q: "HL Maths: 58% to 74% in four weeks. The app said my focus peaked at 6pm, not 11pm. Moved my sessions. That was literally all I changed.",                                         by: "Marcus O.", ctx: "IB Diploma — Singapore",   score: "HL Maths: 58% → 74%"      },
-  { q: "Uploaded 41 pages of school syllabus. Got an 84-day plan in about a minute. First plan I have ever actually followed. Went from 85% to 92% by year end.",                         by: "Rohan K.",  ctx: "Class 10, ICSE — Mumbai",  score: "Overall: 85% → 92%"       },
-  { q: "Mock rank went from 14,200 to 3,860 over one semester. Did the study pact with a classmate. Neither of us wanted to be the one who broke the streak.",                            by: "Dev P.",    ctx: "JEE Advanced prep",        score: "Mock rank: 14,200 → 3,860"},
-] as const;
 
 const STATS = [
   { big: "55",  suffix: "+",  sm: "AI tools for every exam task"                                    },
@@ -1588,61 +1581,6 @@ export default function Home() {
 
       <BeforeAfterSection />
       <StudentJourneySection />
-
-      {/* ─── Student Testimonials (CardSwap) ─── */}
-      <section style={{ padding: '80px 44px', borderBottom: S.border, background: 'var(--paper)', overflow: 'hidden' }}>
-        <div className="testimonials-swap-grid" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
-          {/* Left: heading + context */}
-          <div className="reveal-left">
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: 'var(--cinnabar-ink)', marginBottom: 16 }}>Student results</div>
-            <h2 style={{ fontFamily: 'var(--sans)', fontSize: 'clamp(24px,3vw,38px)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.15, marginBottom: 20 }}>
-              Real scores.<br />Real students.
-            </h2>
-            <p style={{ fontFamily: 'var(--sans)', fontSize: 15, color: 'var(--ink-3)', lineHeight: 1.7, maxWidth: 360 }}>
-              Every result below came from a student who used StudyLedger for at least three weeks. No cherry-picking — these are the first four we asked.
-            </p>
-          </div>
-          {/* Right: stacked 3D testimonial cards */}
-          <div className="reveal-right" style={{ position: 'relative', height: 420 }}>
-            <CardSwap
-              width={340}
-              height={260}
-              cardDistance={50}
-              verticalDistance={60}
-              delay={4500}
-              pauseOnHover
-              skewAmount={4}
-              easing="elastic"
-            >
-              {TESTIMONIALS.map((t) => (
-                <Card
-                  key={t.by}
-                  style={{
-                    background: 'color-mix(in srgb, var(--paper-2) 92%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--ink) 14%, transparent)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    padding: '28px 26px',
-                    display: 'flex',
-                    flexDirection: 'column' as const,
-                    justifyContent: 'space-between',
-                    gap: 14,
-                  }}
-                >
-                  <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--ink)', lineHeight: 1.65, margin: 0 }}>
-                    &ldquo;{t.q}&rdquo;
-                  </p>
-                  <div>
-                    <div style={{ fontFamily: 'var(--sans)', fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{t.by}</div>
-                    <div style={{ fontFamily: 'var(--sans)', fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{t.ctx}</div>
-                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--cinnabar-ink)', marginTop: 8, letterSpacing: '0.04em' }}>{t.score}</div>
-                  </div>
-                </Card>
-              ))}
-            </CardSwap>
-          </div>
-        </div>
-      </section>
 
       {/* ─── Waitlist ─── */}
       <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>

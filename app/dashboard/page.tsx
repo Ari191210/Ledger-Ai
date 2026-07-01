@@ -1465,6 +1465,51 @@ export default function Dashboard() {
         <Link href="/" style={{ color: "var(--ink-3)" }}>← Back to home</Link>
       </div>
 
+      {/* ─── Floating quick-access bar ─── */}
+      {(() => {
+        const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
+        const DEFAULTS = ["learn-lab", "practice", "flashcards", "grade-tracker"];
+        const pinnedSlugs = favSlugs.size > 0 ? Array.from(favSlugs).slice(0, 5) : DEFAULTS;
+        const pinned = pinnedSlugs.map(s => allTools.find(t => t.slug === s)).filter(Boolean) as DashTool[];
+        if (!pinned.length) return null;
+        return (
+          <div style={{
+            position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
+            zIndex: 90, display: "flex", alignItems: "center", gap: 4,
+            background: "color-mix(in srgb, var(--paper-2) 96%, transparent)",
+            backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+            border: "1px solid var(--rule)",
+            padding: "6px 10px 6px 14px",
+            maxWidth: "calc(100vw - 48px)",
+            boxShadow: "0 8px 32px color-mix(in srgb, var(--ink) 14%, transparent)",
+          }}>
+            <span className="mono" style={{ fontSize: 8, color: "var(--cinnabar-ink)", letterSpacing: "0.1em", marginRight: 6, flexShrink: 0 }}>★</span>
+            {pinned.map(t => (
+              <Link key={t.slug} href={`/tools/${t.slug}`}
+                onClick={() => trackToolVisit(t.slug)}
+                style={{
+                  fontFamily: "var(--mono)", fontSize: 9, padding: "5px 12px",
+                  border: "1px solid var(--rule)",
+                  background: "transparent",
+                  color: "var(--ink-2)", textDecoration: "none", letterSpacing: "0.06em",
+                  whiteSpace: "nowrap", transition: "background 120ms, color 120ms, border-color 120ms",
+                }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.background = "var(--ink)"; el.style.color = "var(--paper)"; el.style.borderColor = "var(--ink)"; }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLAnchorElement; el.style.background = "transparent"; el.style.color = "var(--ink-2)"; el.style.borderColor = "var(--rule)"; }}
+              >
+                {t.ttl}
+              </Link>
+            ))}
+            <div style={{ width: 1, height: 16, background: "var(--rule)", margin: "0 4px", flexShrink: 0 }} />
+            <button
+              onClick={() => document.getElementById("tools-grid")?.scrollIntoView({ behavior: "smooth" })}
+              style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--ink-3)", background: "none", border: "none", cursor: "pointer", letterSpacing: "0.08em", padding: "4px 6px", whiteSpace: "nowrap", flexShrink: 0 }}
+            >
+              {favSlugs.size > 0 ? "edit" : "pin ★"}
+            </button>
+          </div>
+        );
+      })()}
 
     </main>
   );

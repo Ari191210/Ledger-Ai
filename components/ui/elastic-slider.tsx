@@ -10,7 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import "./elastic-slider.css";
 
-const MAX_OVERFLOW = 50;
+const MAX_OVERFLOW = 20;
 
 export interface ElasticSliderProps {
   defaultValue?: number;

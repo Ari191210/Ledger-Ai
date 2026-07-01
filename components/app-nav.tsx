@@ -192,10 +192,23 @@ export default function AppNav() {
     }
   }, []);
 
-  // Slide navbar in on first scroll (only on landing page)
+  // Landing page: slide in after first scroll. All other pages: hide on scroll-down, show on scroll-up.
   useEffect(() => {
-    if (path !== "/") { setNavVisible(true); return; }
-    const onScroll = () => { setNavVisible(true); window.removeEventListener("scroll", onScroll); };
+    if (path === "/") {
+      setNavVisible(false);
+      const onScroll = () => { setNavVisible(true); window.removeEventListener("scroll", onScroll); };
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
+    }
+    setNavVisible(true);
+    let lastY = typeof window !== "undefined" ? window.scrollY : 0;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 80) { setNavVisible(true); }
+      else if (y > lastY + 8) { setNavVisible(false); }
+      else if (y < lastY - 8) { setNavVisible(true); }
+      lastY = y;
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [path]);
