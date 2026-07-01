@@ -96,11 +96,11 @@ export default function CitationPage() {
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
-          <select value={style} onChange={e => setStyle(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)" }}>
-            {[...STYLES, "All styles"].map(s => <option key={s}>{s}</option>)}
-          </select>
-          <button className="btn" onClick={generate} style={{ flex: 1 }}>Generate citation →</button>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 24, alignItems: "center" }}>
+          {[...STYLES, "All styles"].map(s => (
+            <button key={s} onClick={() => setStyle(s)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${style === s ? "var(--ink)" : "var(--rule)"}`, background: style === s ? "var(--ink)" : "var(--paper)", color: style === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{s}</button>
+          ))}
+          <button className="btn" onClick={generate} style={{ marginLeft: "auto" }}>Generate citation →</button>
         </div>
 
         {citations.length > 0 && (

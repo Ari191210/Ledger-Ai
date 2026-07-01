@@ -105,10 +105,11 @@ export default function ResumePage() {
               {skills.map((s, i) => (
                 <div key={s.id} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
                   <div style={{ flex: 1 }}>{inp(s.name, (v) => { const n = [...skills]; n[i] = { ...s, name: v }; setSkills(n); }, "Skill name")}</div>
-                  <select value={s.level} onChange={(e) => { const n = [...skills]; n[i] = { ...s, level: e.target.value as Skill["level"] }; setSkills(n); }}
-                    style={{ fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", background: "var(--paper)", padding: "6px 8px", color: "var(--ink)" }}>
-                    <option>Basic</option><option>Intermediate</option><option>Advanced</option>
-                  </select>
+                  <div style={{ display: "flex", gap: 3 }}>
+                    {(["Basic","Intermediate","Advanced"] as Skill["level"][]).map(lv => (
+                      <button key={lv} onClick={() => { const n = [...skills]; n[i] = { ...s, level: lv }; setSkills(n); }} style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 7px", border: `1px solid ${s.level === lv ? "var(--ink)" : "var(--rule)"}`, background: s.level === lv ? "var(--ink)" : "var(--paper)", color: s.level === lv ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{lv}</button>
+                    ))}
+                  </div>
                   <button onClick={() => setSkills((p) => p.filter((_, k) => k !== i))}
                     style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>✕</button>
                 </div>

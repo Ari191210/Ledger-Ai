@@ -205,25 +205,27 @@ function VocabTab() {
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Context</div>
-          <select value={context} onChange={e => setContext(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            <option value="academic">Academic writing</option>
-            <option value="subject">Subject-specific</option>
-            <option value="general">General English</option>
-            <option value="sat">SAT / test prep</option>
-            <option value="literature">Literature</option>
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {([["academic","Academic"],["subject","Subject"],["general","General"],["sat","SAT prep"],["literature","Literature"]] as [string,string][]).map(([v,l]) => (
+              <button key={v} onClick={() => setContext(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${context === v ? "var(--ink)" : "var(--rule)"}`, background: context === v ? "var(--ink)" : "var(--paper)", color: context === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Level</div>
-          <select value={level} onChange={e => setLevel(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            {["GCSE","A-Level","IB","University","Advanced"].map(l => <option key={l}>{l}</option>)}
-          </select>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {["GCSE","A-Level","IB","University","Advanced"].map(l => (
+              <button key={l} onClick={() => setLevel(l)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${level === l ? "var(--ink)" : "var(--rule)"}`, background: level === l ? "var(--ink)" : "var(--paper)", color: level === l ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+            ))}
+          </div>
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Words</div>
-          <select value={count} onChange={e => setCount(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", cursor: "pointer" }}>
-            {["8","10","15","20"].map(n => <option key={n} value={n}>{n} words</option>)}
-          </select>
+          <div style={{ display: "flex", gap: 4 }}>
+            {["8","10","15","20"].map(n => (
+              <button key={n} onClick={() => setCount(n)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${count === n ? "var(--ink)" : "var(--rule)"}`, background: count === n ? "var(--ink)" : "var(--paper)", color: count === n ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{n}</button>
+            ))}
+          </div>
         </div>
       </div>
       {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
@@ -254,7 +256,7 @@ function VocabTab() {
 
       {/* Progress bar */}
       <div style={{ background: "var(--paper-2)", height: 6, marginBottom: 32, borderRadius: 2, overflow: "hidden" }}>
-        <div style={{ width: `${(knownCount / total) * 100}%`, height: "100%", background: "var(--sage)", transition: "width 0.3s" }} />
+        <div style={{ width: "100%", height: "100%", background: "var(--sage)", transform: `scaleX(${knownCount / total})`, transformOrigin: "left", transition: "transform 0.3s" }} />
       </div>
 
       {mode === "cards" ? (

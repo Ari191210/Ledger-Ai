@@ -70,14 +70,14 @@ function MindMapTab() {
     <>
       <div className="mono cin" style={{ marginBottom: 8 }}>Build a mind map</div>
       <h2 style={{ fontFamily: "var(--serif)", fontSize: 30, fontWeight: 500, fontStyle: "italic", letterSpacing: "-0.015em", margin: "0 0 28px" }}>Any topic. Full concept breakdown.</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, marginBottom: 20 }}>
+      <div style={{ marginBottom: 20 }}>
         <input value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && generate()} placeholder="e.g. Photosynthesis, French Revolution, Machine Learning, Supply and Demand&hellip;"
-          style={{ fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
-        <select value={detail} onChange={e => setDetail(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "12px 10px", color: "var(--ink)", cursor: "pointer" }}>
-          <option value="brief">Overview (3 branches)</option>
-          <option value="medium">Standard (5 branches)</option>
-          <option value="deep">Deep dive (7+ branches)</option>
-        </select>
+          style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", marginBottom: 8 }} />
+        <div style={{ display: "flex", gap: 4 }}>
+          {([["brief","Overview"],["medium","Standard"],["deep","Deep dive"]] as [string,string][]).map(([v,l]) => (
+            <button key={v} onClick={() => setDetail(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${detail === v ? "var(--ink)" : "var(--rule)"}`, background: detail === v ? "var(--ink)" : "var(--paper)", color: detail === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
+          ))}
+        </div>
       </div>
       {error && <div style={{ marginBottom: 12, color: "var(--cinnabar-ink)", fontFamily: "var(--sans)", fontSize: 13 }}>{error}</div>}
       <button className="btn" onClick={generate} disabled={loading || !topic.trim()} style={{ width: "100%", opacity: loading ? 0.5 : 1, cursor: "pointer" }}>
@@ -227,17 +227,19 @@ function FormulaTab() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Board</div>
-              <select value={board} onChange={e => setBoard(e.target.value)}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }}>
-                {BOARDS.map(b => <option key={b}>{b}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {BOARDS.map(b => (
+                  <button key={b} onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${board === b ? "var(--ink)" : "var(--rule)"}`, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
+                ))}
+              </div>
             </div>
             <div>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Grade</div>
-              <select value={grade} onChange={e => setGrade(e.target.value)}
-                style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box", cursor: "pointer" }}>
-                {GRADES.map(g => <option key={g}>{g}</option>)}
-              </select>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {GRADES.map(g => (
+                  <button key={g} onClick={() => setGrade(g)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${grade === g ? "var(--ink)" : "var(--rule)"}`, background: grade === g ? "var(--ink)" : "var(--paper)", color: grade === g ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{g}</button>
+                ))}
+              </div>
             </div>
           </div>
 
