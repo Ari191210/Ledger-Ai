@@ -533,31 +533,23 @@ export default function PaperAutopsyPage() {
               {step === 1 && (
                 <div style={sectionStyle}>
                   {/* Meta */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "12px", marginBottom: "20px" }}>
-                    <div>
-                      <label style={labelStyle}>Subject</label>
-                      <select
-                        style={selectStyle}
-                        value={subject}
-                        onChange={e => setSubject(e.target.value as Subject)}
-                      >
-                        {(["Physics", "Chemistry", "Mathematics", "Biology", "English", "Other"] as Subject[]).map(s => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={labelStyle}>Subject</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                      {(["Physics", "Chemistry", "Mathematics", "Biology", "English", "Other"] as Subject[]).map(s => (
+                        <button key={s} onClick={() => setSubject(s)} style={{ fontFamily: "var(--mono)", fontSize: "10px", padding: "5px 10px", border: `1px solid ${subject === s ? "var(--ink)" : "var(--rule)"}`, background: subject === s ? "var(--ink)" : "var(--paper)", color: subject === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{s}</button>
+                      ))}
                     </div>
-                    <div>
-                      <label style={labelStyle}>Exam Board</label>
-                      <select
-                        style={selectStyle}
-                        value={examBoard}
-                        onChange={e => setExamBoard(e.target.value as ExamBoard)}
-                      >
-                        {(["JEE", "NEET", "CBSE", "CUET", "Other"] as ExamBoard[]).map(b => (
-                          <option key={b} value={b}>{b}</option>
-                        ))}
-                      </select>
+                  </div>
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={labelStyle}>Exam Board</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                      {(["JEE", "NEET", "CBSE", "CUET", "Other"] as ExamBoard[]).map(b => (
+                        <button key={b} onClick={() => setExamBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: "10px", padding: "5px 10px", border: `1px solid ${examBoard === b ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: examBoard === b ? "var(--cinnabar-ink)" : "var(--paper)", color: examBoard === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
+                      ))}
                     </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
                     <div>
                       <label style={labelStyle}>Total Marks</label>
                       <input

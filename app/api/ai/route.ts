@@ -628,7 +628,20 @@ Detail level: ${params.detail === "brief" ? "3 main branches, 2-3 children each"
 Topic: ${params.topic}`,
       };
 
-    case "presentation":
+    case "presentation": {
+      const presAud = (params.audience as string) || "class";
+      const presStyle = (params.style as string) || "academic";
+      const audGuide =
+        presAud === "teacher"    ? "Examiners and teachers reward precise terminology, structured arguments, and explicit signposting. Use formal register, reference the topic's academic context, and avoid filler slides."
+        : presAud === "university" ? "University panels expect theoretical grounding, evidence-based claims, and critical analysis. Acknowledge counterarguments. Speaker notes should reflect academic reasoning, not just description."
+        : presAud === "general"  ? "General audiences need jargon-free language, relatable analogies, and clear takeaways. Open with a hook, use storytelling, and close with one memorable message."
+        : presAud === "corporate" ? "Professional audiences value brevity and business relevance. Lead with impact/ROI, use data to back claims, keep slides minimal. Speaker notes should be executive-register."
+        :                          "Classmates want engaging, relatable content. Use examples from shared experience, a conversational tone, and interaction cues ('think about when…'). Don't over-explain basics.";
+      const styleGuide =
+        presStyle === "persuasive"  ? "Structure each slide to move the audience — problem → stakes → solution → call to action. Use rhetorical questions, triads, and strong verbs."
+        : presStyle === "informative" ? "Prioritise clarity over argument. Each slide should answer one question. Use definitions, data, and concrete examples. No fluff."
+        : presStyle === "narrative"  ? "Build a story arc: establish context → rising tension/challenge → resolution → lesson. Speaker notes should feel like a script with scene-setting."
+        :                              "Use formal academic structure: introduction with thesis, body with evidence and analysis, conclusion restating key insights. Avoid first-person opinion.";
       return {
         system: `${SAFETY_PREAMBLE}You are a presentation coach and content strategist. Always respond with valid JSON only — no markdown fences.`,
         userText: `Create a complete presentation plan. Respond with exactly this JSON shape:
@@ -637,12 +650,14 @@ Topic: ${params.topic}`,
 Rules:
 - Number of slides: calibrate to ${params.duration} minutes (roughly 1-1.5 min per slide, include title + conclusion)
 - bullets: 3-5 per slide, concise and scannable
-- speakerNote: natural spoken language the presenter would say
-- Style ${params.style}: academic=formal tone; persuasive=rhetorical; informative=clear facts; narrative=story arc
-- Audience: ${params.audience}
+- speakerNote: natural spoken language — write what the presenter actually says, not a description of the slide
+- Audience (${presAud}): ${audGuide}
+- Style (${presStyle}): ${styleGuide}
+- advice: one high-impact delivery tip specific to this audience and style
 
 Topic: ${params.topic}`,
       };
+    }
 
     case "debate": {
       const dbLvl = (params.level as string) || "A-Level";
