@@ -299,7 +299,7 @@ function FormulaTab() {
         <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Subject</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
           {SUBJECTS.map(s => (
-            <button key={s} onClick={() => setSubject(s)}
+            <button key={s} onClick={() => { setSubject(s); setTopic(TOPICS[s][0]); }}
               style={{ padding: "12px", border: `1px solid ${subject === s ? "var(--ink)" : "var(--rule)"}`, background: subject === s ? "var(--ink)" : "transparent", color: subject === s ? "var(--paper)" : "var(--ink-2)", fontFamily: "var(--sans)", fontSize: 13, fontWeight: subject === s ? 700 : 400, cursor: "pointer" }}>
               {s}
             </button>
@@ -308,10 +308,11 @@ function FormulaTab() {
       </div>
       <div style={{ marginBottom: 28 }}>
         <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Topic</div>
-        <select value={topic} onChange={e => setTopic(e.target.value)}
-          style={{ width: "100%", padding: "12px 14px", border: "1px solid var(--rule)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
-          {(TOPICS[subject] || []).map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {(TOPICS[subject] || []).map(t => (
+            <button key={t} onClick={() => setTopic(t)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${topic === t ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: topic === t ? "var(--cinnabar-ink)" : "var(--paper)", color: topic === t ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{t}</button>
+          ))}
+        </div>
       </div>
       {error && <div className="mono" style={{ fontSize: 12, color: "var(--cinnabar-ink)", marginBottom: 16, padding: "10px 14px", border: "1px solid var(--cinnabar-ink)" }}>{error}</div>}
       {loading && <AIThinking />}

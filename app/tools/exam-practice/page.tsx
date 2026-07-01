@@ -177,8 +177,8 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
           <button onClick={() => setState(null)} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)" }}>✕ Exit</button>
         </div>
       </div>
-      <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 32 }}>
-        <div style={{ height: "100%", width: `${(current / paper.questions.length) * 100}%`, background: "var(--cinnabar)", transition: "width 300ms" }} />
+      <div style={{ height: 4, background: "var(--paper-2)", border: "1px solid var(--rule)", marginBottom: 32, overflow: "hidden" }}>
+        <div style={{ height: "100%", background: "var(--cinnabar)", transform: `scaleX(${current / paper.questions.length})`, transformOrigin: "left", transition: "transform 300ms cubic-bezier(0.4,0,0.2,1)" }} />
       </div>
       <div style={{ border: "none", padding: "28px 28px 24px" }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 8 }}>{q.topic}</div>
@@ -282,8 +282,12 @@ type TriagePlan = { skip: SkipItem[]; quick_revision: QuickRevisionItem[]; deep_
 const EXAM_OPTIONS = ["CBSE Class 12 – Physics","CBSE Class 12 – Chemistry","CBSE Class 12 – Mathematics","CBSE Class 12 – Biology","CBSE Class 12 – English","CBSE Class 12 – Economics","CBSE Class 12 – Accountancy","CBSE Class 12 – Business Studies","CBSE Class 12 – History","CBSE Class 12 – Political Science","CBSE Class 12 – Geography","CBSE Class 12 – Computer Science","JEE Mains – Physics","JEE Mains – Chemistry","JEE Mains – Mathematics","JEE Advanced – Physics","JEE Advanced – Chemistry","JEE Advanced – Mathematics","NEET – Physics","NEET – Chemistry","NEET – Biology (Botany)","NEET – Biology (Zoology)","IGCSE – Mathematics","IGCSE – Physics","IGCSE – Chemistry","IGCSE – Biology","IGCSE – Economics","IGCSE – English Language","IGCSE – History","IGCSE – Computer Science"];
 const TRIAGE_STORAGE_KEY = "paper_triage_plan";
 
+const EXAM_BOARDS = [...new Set(EXAM_OPTIONS.map(o => o.split(" – ")[0]))];
+function subjectsFor(board: string) { return EXAM_OPTIONS.filter(o => o.startsWith(board + " – ")).map(o => o.split(" – ")[1]); }
+
 function PaperTriageTab() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [examBoard, setExamBoard] = useState("");
   const [exam, setExam] = useState("");
   const [hoursLeft, setHoursLeft]   = useState(6);
   const [hoursSleep, setHoursSleep] = useState(6);
@@ -371,7 +375,7 @@ function PaperTriageTab() {
           <div style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Your Attack Plan</div>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Study window: {Math.floor(studyMinutes/60)}h {studyMinutes%60}m · {exam}</div>
         </div>
-        <div style={{ marginBottom: 32, padding: "18px 22px", borderLeft: "3px solid var(--cinnabar)", background: "var(--paper-2)" }}>
+        <div style={{ marginBottom: 32, padding: "18px 22px", border: "1px solid var(--cinnabar)", background: "var(--paper-2)" }}>
           <AIOutput variant="principle" text={plan.sleep_verdict} />
         </div>
         {plan.skip.length > 0 && (
@@ -449,10 +453,25 @@ function PaperTriageTab() {
           <div style={{ width: 28, height: 28, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--mono)", fontSize: 12, fontWeight: 700 }}>1</div>
           <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700 }}>Which exam is tomorrow?</div>
         </div>
-        <select value={exam} onChange={e => { setExam(e.target.value); setStep(1); setTopicList([]); setTopicStatus({}); }} style={{ width: "100%", padding: "12px 16px", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink)", background: "var(--paper)", border: "1px solid var(--rule)", marginBottom: 20 }}>
-          <option value="">Select exam / subject…</option>
-          {EXAM_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+        <div style={{ marginBottom: 12 }}>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>Exam board</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {EXAM_BOARDS.map(b => (
+              <button key={b} onClick={() => { setExamBoard(b); setExam(""); setStep(1); setTopicList([]); setTopicStatus({}); }} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${examBoard === b ? "var(--ink)" : "var(--rule)"}`, background: examBoard === b ? "var(--ink)" : "var(--paper)", color: examBoard === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>
+            ))}
+          </div>
+        </div>
+        {examBoard && (
+          <div style={{ marginBottom: 20 }}>
+            <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>Subject</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {subjectsFor(examBoard).map(s => {
+                const full = `${examBoard} – ${s}`;
+                return <button key={s} onClick={() => { setExam(full); setStep(1); setTopicList([]); setTopicStatus({}); }} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${exam === full ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: exam === full ? "var(--cinnabar-ink)" : "var(--paper)", color: exam === full ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{s}</button>;
+              })}
+            </div>
+          </div>
+        )}
         {step === 1 && <button onClick={fetchTopics} disabled={!exam || loadingTopics} style={{ fontFamily: "var(--mono)", fontSize: 12, padding: "12px 28px", background: exam ? "var(--ink)" : "var(--rule)", color: exam ? "var(--paper)" : "var(--ink-3)", border: "none", cursor: exam ? "pointer" : "not-allowed" }}>{loadingTopics ? "Loading topics…" : "Load Topic List →"}</button>}
         {step === 1 && loadingTopics && <div style={{ marginTop: 20 }}><AIThinking /></div>}
         {step > 1 && exam && <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)", display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: "var(--sage)" }}>✓</span> {exam} <button onClick={() => { setStep(1); setTopicList([]); setTopicStatus({}); }} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "2px 8px", border: "1px solid var(--rule)", background: "none", color: "var(--ink-3)", cursor: "pointer", marginLeft: 8 }}>Change</button></div>}
@@ -495,7 +514,7 @@ function PaperTriageTab() {
             {topicList.map(topic => {
               const s = topicStatus[topic];
               return (
-                <button key={topic} onClick={() => cycleStatus(topic)} style={{ background: s === "green" ? "color-mix(in oklch, var(--sage) 12%, transparent)" : s === "amber" ? "color-mix(in oklch, var(--gold) 12%, transparent)" : s === "red" ? "color-mix(in oklch, var(--cinnabar) 12%, transparent)" : "var(--paper-2)", border: s === "green" ? "1.5px solid #4caf50" : s === "amber" ? "1.5px solid #f59e0b" : s === "red" ? "1.5px solid #ef4444" : "1px solid var(--rule)", padding: "10px 12px", fontFamily: "var(--sans)", fontSize: 12, color: s === "green" ? "var(--sage)" : s === "amber" ? "var(--gold)" : s === "red" ? "var(--cinnabar)" : "var(--ink-2)", cursor: "pointer", textAlign: "left" }}>
+                <button key={topic} onClick={() => cycleStatus(topic)} style={{ background: s === "green" ? "color-mix(in oklch, var(--sage) 12%, transparent)" : s === "amber" ? "color-mix(in oklch, var(--gold) 12%, transparent)" : s === "red" ? "color-mix(in oklch, var(--cinnabar) 12%, transparent)" : "var(--paper-2)", border: s === "green" ? "1.5px solid var(--sage)" : s === "amber" ? "1.5px solid var(--gold)" : s === "red" ? "1.5px solid var(--cinnabar)" : "1px solid var(--rule)", padding: "10px 12px", fontFamily: "var(--sans)", fontSize: 12, color: s === "green" ? "var(--sage)" : s === "amber" ? "var(--gold)" : s === "red" ? "var(--cinnabar)" : "var(--ink-2)", cursor: "pointer", textAlign: "left" }}>
                   {topic}
                 </button>
               );
@@ -820,9 +839,11 @@ function MarkSchemeTab() {
           </div>
           <div style={{ marginBottom: 20 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Total marks available</div>
-            <select value={totalMarks} onChange={e => setTotalMarks(e.target.value)} style={{ fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "9px 12px", color: "var(--ink)" }}>
-              {["5","8","10","12","15","20","25"].map(m => <option key={m} value={m}>{m} marks</option>)}
-            </select>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {["5","8","10","12","15","20","25"].map(m => (
+                <button key={m} onClick={() => setTotalMarks(m)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${totalMarks === m ? "var(--ink)" : "var(--rule)"}`, background: totalMarks === m ? "var(--ink)" : "var(--paper)", color: totalMarks === m ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{m}m</button>
+              ))}
+            </div>
           </div>
           <button className="btn" onClick={() => setGrPhase("answer")} disabled={!gradeQuestion.trim()} style={{ width: "100%", opacity: gradeQuestion.trim() ? 1 : 0.4 }}>Write my answer →</button>
         </main>
@@ -975,18 +996,16 @@ function FormulaSheetTab() {
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Chapter / Topic</div>
               <input value={chapter} onChange={e => setChapter(e.target.value)} placeholder="Laws of Motion, Integration…" onKeyDown={e => e.key === "Enter" && generate()} style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-              <div>
-                <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Board</div>
-                <select value={board} onChange={e => setBoard(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box" }}>
-                  {FORMULA_BOARDS.map(b => <option key={b}>{b}</option>)}
-                </select>
+            <div style={{ marginBottom: 10 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Board</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {FORMULA_BOARDS.map(b => <button key={b} onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${board === b ? "var(--ink)" : "var(--rule)"}`, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{b}</button>)}
               </div>
-              <div>
-                <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Grade</div>
-                <select value={grade} onChange={e => setGrade(e.target.value)} style={{ width: "100%", fontFamily: "var(--mono)", fontSize: 11, border: "none", background: "var(--paper)", padding: "10px 8px", color: "var(--ink)", boxSizing: "border-box" }}>
-                  {FORMULA_GRADES.map(g => <option key={g}>{g}</option>)}
-                </select>
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Grade</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {FORMULA_GRADES.map(g => <button key={g} onClick={() => setGrade(g)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${grade === g ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: grade === g ? "var(--cinnabar-ink)" : "var(--paper)", color: grade === g ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{g}</button>)}
               </div>
             </div>
             <button className="btn" onClick={generate} disabled={loading || !subject.trim() || !chapter.trim()} style={{ width: "100%", opacity: loading || !subject.trim() || !chapter.trim() ? 0.5 : 1 }}>{loading ? "Generating…" : "Generate formula sheet →"}</button>
@@ -1199,8 +1218,8 @@ function FormulaRecallTab() {
           <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{current + 1} / {formulas.length} · {subject}</div>
           <div className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{topic}</div>
         </div>
-        <div style={{ height: 3, background: "var(--rule)" }}>
-          <div style={{ height: "100%", width: `${(current / formulas.length) * 100}%`, background: "var(--cinnabar-ink)", transition: "width 400ms ease" }} />
+        <div style={{ height: 3, background: "var(--rule)", overflow: "hidden" }}>
+          <div style={{ height: "100%", background: "var(--cinnabar-ink)", transform: `scaleX(${current / formulas.length})`, transformOrigin: "left", transition: "transform 400ms cubic-bezier(0.4,0,0.2,1)" }} />
         </div>
         <main style={{ maxWidth: 560, margin: "0 auto", padding: "60px 32px" }}>
           <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 20 }}>{f.topic}</div>
@@ -1253,9 +1272,11 @@ function FormulaRecallTab() {
       </div>
       <div style={{ marginBottom: 32 }}>
         <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Topic</div>
-        <select value={topic} onChange={e => setTopic(e.target.value)} style={{ width: "100%", padding: "12px 14px", border: "1px solid var(--rule)", background: "var(--paper)", color: "var(--ink)", fontFamily: "var(--sans)", fontSize: 13 }}>
-          {(RECALL_TOPICS[subject] || []).map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {(RECALL_TOPICS[subject] || []).map(t => (
+            <button key={t} onClick={() => setTopic(t)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${topic === t ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: topic === t ? "var(--cinnabar-ink)" : "var(--paper)", color: topic === t ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{t}</button>
+          ))}
+        </div>
       </div>
       {error && <div className="mono" style={{ fontSize: 12, color: "var(--cinnabar-ink)", marginBottom: 16, padding: "10px 14px", border: "1px solid var(--cinnabar-ink)" }}>{error}</div>}
       {loading && <AIThinking />}
