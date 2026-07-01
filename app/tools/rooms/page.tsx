@@ -256,11 +256,12 @@ function ActiveRoom({ roomId, myName, onLeave }: { roomId: string; myName: strin
               {mm}:{ss}
             </div>
             {/* Progress bar */}
-            <div style={{ margin: "16px 0 0", height: 3, background: "var(--rule-2)", borderRadius: 2 }}>
+            <div style={{ margin: "16px 0 0", height: 3, background: "var(--rule-2)", borderRadius: 2, overflow: "hidden" }}>
               <div style={{
-                height: "100%", width: `${progress * 100}%`,
+                height: "100%", width: "100%",
                 background: done ? "var(--cinnabar)" : "var(--cinnabar-ink)",
-                transition: "width 1s linear, background 400ms ease",
+                transform: `scaleX(${progress})`, transformOrigin: "left",
+                transition: "transform 1s linear, background 400ms ease",
                 borderRadius: 2,
               }} />
             </div>

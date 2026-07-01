@@ -736,10 +736,12 @@ export default function PanicTriagePage() {
                   <div
                     style={{
                       height: "100%",
-                      width: `${totalMarksRecoverable > 0 ? (completedMarks / totalMarksRecoverable) * 100 : 0}%`,
+                      width: "100%",
                       backgroundColor: "var(--cinnabar)",
                       borderRadius: "4px",
-                      transition: "width 0.4s ease",
+                      transform: `scaleX(${totalMarksRecoverable > 0 ? completedMarks / totalMarksRecoverable : 0})`,
+                      transformOrigin: "left",
+                      transition: "transform 0.4s ease",
                     }}
                   />
                 </div>
