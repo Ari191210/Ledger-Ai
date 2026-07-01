@@ -1,6 +1,7 @@
 ﻿"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useUserLevel } from "@/hooks/use-user-level";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -12,6 +13,7 @@ const LEVELS = ["GCSE", "A-Level", "IB", "University"] as const;
 type CsLevel = typeof LEVELS[number];
 
 export default function CaseStudyPage() {
+  const profileLevel = useUserLevel();
   const [caseText, setCaseText]     = useState("");
   const [question, setQuestion]     = useState("");
   const [framework, setFramework]   = useState("Auto-select best");
@@ -19,6 +21,7 @@ export default function CaseStudyPage() {
   const [result, setResult]         = useState<CaseStudy | null>(null);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState("");
+  useEffect(() => { if ((LEVELS as readonly string[]).includes(profileLevel)) setLevel(profileLevel as CsLevel); }, [profileLevel]);
 
   async function analyse() {
     if (caseText.trim().length < 20) { setError("Paste a case study or describe the scenario."); return; }

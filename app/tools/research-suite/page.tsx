@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import TierGate from "@/components/tier-gate";
+import { useUserLevel } from "@/hooks/use-user-level";
 import { type UserProfile } from "@/lib/user-data";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -355,6 +356,7 @@ function ResearchTab() {
 // ── Tab: Debate Coach ──────────────────────────────────────────────────────
 
 function DebateTab() {
+  const profileLevel = useUserLevel();
   const [motion, setMotion]   = useState("");
   const [side, setSide]       = useState<"both"|"for"|"against">("both");
   const [level, setLevel]     = useState("A-Level");
@@ -362,6 +364,7 @@ function DebateTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
   const [view, setView]       = useState<"for"|"against">("for");
+  useEffect(() => { const m = profileLevel === "IGCSE" ? "GCSE" : profileLevel; if (["GCSE","A-Level","IB","University","General"].includes(m)) setLevel(m); }, [profileLevel]);
 
   async function generate() {
     if (!motion.trim()) return;
