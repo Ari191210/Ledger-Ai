@@ -12,15 +12,22 @@ type Phase     = "setup" | "exam" | "result";
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
 
-const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Statistics", "Further Maths", "Computer Science", "History", "Geography"];
-const LEVELS   = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE", "SAT"];
-const COUNTS   = ["5", "10", "15", "20"];
+const SUBJECTS     = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Statistics", "Further Maths", "Computer Science", "History", "Geography"];
+const LEVELS       = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE", "SAT"];
+const COUNTS       = ["5", "10", "15", "20"];
+const DIFFICULTIES = [
+  { id: "Easy",   label: "Easy",   desc: "Recall & recognition" },
+  { id: "Medium", label: "Medium", desc: "Application & analysis" },
+  { id: "Hard",   label: "Hard",   desc: "Evaluation & exam traps" },
+] as const;
+type Difficulty = typeof DIFFICULTIES[number]["id"];
 
 export default function ExamSimPage() {
-  const [subject,  setSubject]  = useState("Mathematics");
-  const [topic,    setTopic]    = useState("");
-  const [level,    setLevel]    = useState("A-Level");
-  const [count,    setCount]    = useState("10");
+  const [subject,    setSubject]    = useState("Mathematics");
+  const [topic,      setTopic]      = useState("");
+  const [level,      setLevel]      = useState("A-Level");
+  const [count,      setCount]      = useState("10");
+  const [difficulty, setDifficulty] = useState<Difficulty>("Medium");
 
   const [phase,    setPhase]    = useState<Phase>("setup");
   const [examData, setExamData] = useState<ExamData | null>(null);
@@ -36,7 +43,7 @@ export default function ExamSimPage() {
   async function startExam() {
     setLoading(true); setError(null);
     try {
-      const data = await callAIOrThrow<ExamData>({ tool: "exam_sim", subject, topic, count, level });
+      const data = await callAIOrThrow<ExamData>({ tool: "exam_sim", subject, topic, count, level, difficulty });
       if (!Array.isArray(data.questions) || !data.questions.length) {
         setError("No questions generated — try again."); return;
       }
@@ -134,7 +141,7 @@ export default function ExamSimPage() {
             </div>
           </div>
 
-          <div style={{ marginBottom: 28 }}>
+          <div style={{ marginBottom: 16 }}>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Questions</div>
             <div style={{ display: "flex", gap: 6 }}>
               {COUNTS.map(c => (
@@ -143,6 +150,23 @@ export default function ExamSimPage() {
                   {c}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 28 }}>
+            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Difficulty</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              {DIFFICULTIES.map(d => {
+                const active = difficulty === d.id;
+                const accent = d.id === "Easy" ? "var(--sage)" : d.id === "Hard" ? "var(--cinnabar-ink)" : "var(--ink)";
+                return (
+                  <button key={d.id} onClick={() => setDifficulty(d.id)}
+                    style={{ flex: 1, padding: "10px 12px", border: `1px solid ${active ? accent : "var(--rule)"}`, background: active ? accent : "var(--paper)", color: active ? "var(--paper)" : "var(--ink-2)", cursor: "pointer", textAlign: "left" }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em", marginBottom: 2 }}>{d.label}</div>
+                    <div style={{ fontFamily: "var(--sans)", fontSize: 10, color: active ? "rgba(255,255,255,0.75)" : "var(--ink-3)" }}>{d.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -264,7 +288,7 @@ export default function ExamSimPage() {
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 10 }}>
                 <div style={{ background: "var(--paper-2)", height: 12, overflow: "hidden" }}>
-                  <div style={{ width: `${pct}%`, height: "100%", background: gradeColor, transition: "width 0.8s" }} />
+                  <div style={{ width: "100%", height: "100%", background: gradeColor, transform: `scaleX(${pct / 100})`, transformOrigin: "left", transition: "transform 0.8s cubic-bezier(0.4,0,0.2,1)" }} />
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
                   <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)" }}>Time: {pad(Math.floor(elapsed / 60))}:{pad(elapsed % 60)}</div>

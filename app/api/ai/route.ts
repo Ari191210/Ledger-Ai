@@ -668,7 +668,14 @@ Motion: ${params.motion}`,
       };
     }
 
-    case "exam_sim":
+    case "exam_sim": {
+      const esDiff = (params.difficulty as string) || "Medium";
+      const esDiffGuide =
+        esDiff === "Easy"
+          ? "Questions test recall and recognition — straightforward definitions, basic single-rule application, unambiguous answers. Distractors tempting without study but obviously wrong on reflection. 80% easy, 15% medium, 5% hard."
+          : esDiff === "Hard"
+          ? "Questions test evaluation, multi-step reasoning, and common misconceptions. Two options may seem correct — one is subtly better. Use precise academic language. Distractors are common student errors or partially correct statements. 5% easy, 25% medium, 70% hard."
+          : "Mix of recall, application, and analysis. 30% easy (recall), 50% medium (application), 20% hard (analysis/evaluation). Distractors must be plausible.";
       return {
         system: `${SAFETY_PREAMBLE}You are an expert exam setter. Always respond with valid JSON only — no markdown fences.`,
         userText: `Generate a realistic multiple-choice exam. Respond with exactly this JSON shape:
@@ -677,13 +684,14 @@ Motion: ${params.motion}`,
 Rules:
 - Generate exactly ${params.count || 10} questions
 - answer: 0-based index of correct option
-- Vary difficulty: ~30% easy, 50% medium, 20% hard
+- Difficulty: ${esDiff}. ${esDiffGuide}
 - Distractors must be plausible — not obviously wrong
 - Level: ${params.level || "A-Level"}
-${params.topic ? `Topic: ${params.topic}` : ""}
+${params.topic ? `- Topic: ${params.topic}` : ""}
 
 Subject: ${params.subject}`,
       };
+    }
 
     case "vocab":
       return {
