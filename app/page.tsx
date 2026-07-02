@@ -31,7 +31,7 @@ const TOOLS = [
   { n: "03", slug: "notes",           ttl: "Study Engine",          sub: "Simplify chapters. Get a full lesson.",          cat: "LEARN",    desc: "Two modes in one: Simplify turns any chapter into plain-English notes, flashcards, and a graded quiz — saved to your library. Learn delivers a full board-calibrated lesson on any topic, with worked examples, key facts, and a practice quiz.",                                                              gets: ["Simplify: board-matched notes + flashcards + quiz", "Learn: full lesson on any topic", "Saved notes library across sessions"] },
   { n: "04", slug: "doubt",           ttl: "Doubt Solver",          sub: "A question, a worked answer.",                   cat: "LEARN",    desc: "Type any problem. Receive a fully worked solution with the underlying concept, not just the answer. The AI explains it the way your board's marking scheme expects — step by step.",                                                                                                                  gets: ["Full worked solution", "Underlying principle explained", "Board-style step layout"] },
   { n: "05", slug: "focus",           ttl: "Focus Dashboard",       sub: "Pomodoro, streaks, tasks.",                      cat: "PLAN",     desc: "A single screen: 25-minute timer, running task list, and a streak that persists across every tool. No social feed, no notifications you didn't ask for. Just the session and a counter.",                                                                                                              gets: ["25-min Pomodoro timer", "Cross-tool streak tracking", "Task list that doesn't disappear"] },
-  { n: "06", slug: "papers",          ttl: "Past Papers",           sub: "CBSE, JEE, NEET, SAT, IB.",                     cat: "PRACTISE", desc: "47 papers, 900+ questions. 10 random questions per session, or Timed Mode where the clock is running and you submit when it hits zero. Every wrong answer tags a weak topic.",                                                                                                                          gets: ["Timed mode with auto-submit", "Weak topic tagging per answer", "Session log with accuracy trend"] },
+  { n: "06", slug: "papers",          ttl: "Past Papers",           sub: "CBSE, JEE, NEET, SAT, IB.",                     cat: "PRACTISE", desc: "68 papers, 650+ questions. 10 random questions per session, or Timed Mode where the clock is running and you submit when it hits zero. Every wrong answer tags a weak topic.",                                                                                                                          gets: ["Timed mode with auto-submit", "Weak topic tagging per answer", "Session log with accuracy trend"] },
   { n: "07", slug: "resume",          ttl: "Resume Builder",        sub: "For applications, not LinkedIn.",                cat: "FUTURE",   desc: "For internships, summer programs, university applications, and college essays. Enter activities and achievements; the tool assembles one polished PDF formatted for admissions committees.",                                                                                                              gets: ["College application format", "Achievement bullet writing", "One-page PDF output"] },
   { n: "08", slug: "rooms",           ttl: "Study Rooms",           sub: "Silent accountability.",                         cat: "TRACK",    desc: "Private rooms with a shared timer and a shared task list. Enter a code, see who's in the session, and start the clock together. If one person bails, both streaks take the hit.",                                                                                                                     gets: ["Code-based rooms, no signup", "Shared Pomodoro timer", "Mutual streak accountability"] },
   { n: "09", slug: "dna",             ttl: "Error Tracker",         sub: "See exactly where you go wrong.",                cat: "PRACTISE", desc: "Every wrong answer from Past Papers is categorised: Conceptual Gap, Calculation Slip, Misread, Rushed, or Memory Blank. Visualised by subject. The pattern becomes obvious within three sessions.",                                                                                                      gets: ["5-category mistake taxonomy", "Per-subject breakdown chart", "Recurring topic tracker"] },
@@ -77,7 +77,7 @@ const FEATS = [
   { tag: "α", ttl: "Chapter Gap Tracker",        body: "See exactly how many chapters you're behind — and how many hours of daily study it takes to close the gap before your exam.", extra: "Recalculates every time you log a session or skip one. Works backwards from your exam date to show the exact cost of procrastination in marks." },
   { tag: "β", ttl: "Best Study Time Finder",     body: "We find the time of day when your focus peaks and schedule your hardest subject there — not some generic morning slot that doesn't work for you.", extra: "Students who studied at their personal focus peak consistently outperformed those using generic morning schedules in early testing." },
   { tag: "γ", ttl: "Spaced Revision Engine",     body: "Past-paper questions come back exactly when you're about to forget them — not by date, not by topic, but by the moment your brain needs them most.", extra: "Each correct answer pushes the next review further out. Each wrong answer resets the interval. The same Ebbinghaus spaced repetition method used by medical students and high performers worldwide." },
-  { tag: "δ", ttl: "Peer Struggle Heatmap",      body: "A live map of which chapters students on your board are finding hardest right now. You are not alone on Conic Sections.", extra: "Based on struggle data across boards. Will update in real time as more Ledger students complete sessions — shows you exactly where to focus." },
+  { tag: "δ", ttl: "Peer Struggle Heatmap",      body: "A map of which chapters students on your board find hardest. You are not alone on Conic Sections.", extra: "Builds from struggle data as Ledger students complete sessions — the more the platform is used, the sharper it shows you where to focus." },
   { tag: "ε", ttl: "Syllabus Parser",            body: "Upload your school's PDF syllabus. We read it and build your full year plan in seconds — not a template you then spend an hour editing.", extra: "Works on handwritten notes, scanned PDFs, and messy Word docs. Extracts chapters, topics, and exam dates even when the formatting is all over the place." },
   { tag: "ζ", ttl: "Study Pact",                 body: "Lock a revision session with a friend. If either of you skips, both streaks reset. The only study feature that works because it is uncomfortable.", extra: "Pact sessions have a measurably higher completion rate than solo sessions. Letting someone else down turns out to be more motivating than personal discipline." },
   { tag: "η", ttl: "Score → College Predictor",  body: "Score X on this week's test and these colleges move into reach. Score Y and they move out. Based on six years of actual cutoff data.", extra: "Covers 340 colleges across JEE, NEET, CUET, and board exams. Shows rolling percentile so you know if you are safely inside the cutoff or right on the margin." },
@@ -93,22 +93,11 @@ const STATS = [
 const TICKER = [
   "Know your score. Know your gaps.",
   "Tracks your exam readiness every time you use any tool",
-  "Chemistry is the most-feared subject in CBSE Class 12",
-  "Conic Sections: most-struggled chapter among registered students",
+  "Every wrong answer becomes a scheduled revision",
+  "Built for CBSE, ICSE, IB, IGCSE, A-Level, JEE, NEET, SAT",
   "One login. Every tool you need.",
   "55+ tools — one score — one streak",
 ];
-
-const LIVE_ACTIVITY = [
-  { who: "Ananya R.",     ctx: "CBSE Class 12 · Pune",      action: "just reached 800 on Ledger Score" },
-  { who: "14 students",  ctx: "JEE Advanced prep",          action: "opened a study room this hour" },
-  { who: "Rohan K.",     ctx: "ICSE Class 10 · Mumbai",     action: "finished a 90-min focus session" },
-  { who: "Dev P.",       ctx: "NEET 2026 prep",             action: "mock rank improved 4,800 places" },
-  { who: "Priya S.",     ctx: "IB DP Year 2 · Bangalore",   action: "uploaded syllabus — plan ready in 6s" },
-  { who: "138 students", ctx: "this week",                  action: "improved their Ledger Score by 50+ pts" },
-  { who: "Marcus O.",    ctx: "IB Diploma · Singapore",     action: "HL Math prediction moved from 5 → 7" },
-  { who: "Zara Q.",      ctx: "A-Level · London",           action: "just completed a Past Papers session" },
-] as const;
 
 const CATEGORIES = ["ALL", "PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"] as const;
 
@@ -257,9 +246,7 @@ export default function Home() {
 
   const containerRef  = useRef<HTMLDivElement>(null);
   const scoreNumRef   = useRef<HTMLDivElement>(null);
-  const activityRef   = useRef<HTMLDivElement>(null);
   const prevScoreRef  = useRef(scorePreviewCalc(3, false, 8, 5));
-  const [activityIdx, setActivityIdx] = useState(0);
 
   const filteredTools = activeCategory === "ALL"
     ? TOOLS
@@ -306,25 +293,6 @@ export default function Home() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  /* Live activity cycling */
-  useEffect(() => {
-    const el = activityRef.current;
-    if (!el) return;
-    const cycle = setInterval(() => {
-      gsap.to(el, {
-        autoAlpha: 0, y: -10, duration: 0.28, ease: "power2.in",
-        onComplete: () => {
-          setActivityIdx(i => (i + 1) % LIVE_ACTIVITY.length);
-          gsap.fromTo(el,
-            { autoAlpha: 0, y: 10 },
-            { autoAlpha: 1, y: 0, duration: 0.38, ease: "power2.out" }
-          );
-        },
-      });
-    }, 3800);
-    return () => clearInterval(cycle);
   }, []);
 
   /* Animate score number on change */
@@ -760,16 +728,6 @@ export default function Home() {
           },
         });
       });
-
-      /* Live activity toast — scale pulse on each new item */
-      const activityEl = activityRef.current;
-      if (activityEl) {
-        const observer = new MutationObserver(() => {
-          gsap.fromTo(activityEl, { scale: 0.96 }, { scale: 1, duration: 0.35, ease: "back.out(2)" });
-        });
-        observer.observe(activityEl, { childList: true, subtree: true, characterData: true });
-        hoverListeners.push(() => observer.disconnect());
-      }
 
       /* ── Side-entrance reveals ── */
       if (!reduceMotion) {
@@ -1528,7 +1486,7 @@ export default function Home() {
                 </div>
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--rule)" }}>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginTop: 3, lineHeight: 1.5 }}>
-                    {["Significantly more revision sessions vs. students without gap tracking", "Students who study at their focus peak consistently outperform those on generic schedules", "The Ebbinghaus spaced repetition method — used by top students and medical trainees worldwide"][i]}
+                    {["Every tracked gap becomes a scheduled revision session — nothing slips silently", "Schedules work around your focus peak instead of a generic timetable", "The Ebbinghaus spaced repetition method — used by top students and medical trainees worldwide"][i]}
                   </div>
                 </div>
               </div>

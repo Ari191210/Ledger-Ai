@@ -570,7 +570,7 @@ function CircadianTab() {
       <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 24, marginBottom: 40 }}>
         <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>How chronotype is calculated</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.7, maxWidth: 640 }}>
-          Your chronotype is derived from your sleep midpoint — the halfway point between when you fall asleep and when you wake. This method is used in clinical sleep research and is more reliable than asking whether you are a &ldquo;morning person.&rdquo; Students who studied their hardest subject during their computed peak window scored 11% higher on mock papers in our pilot cohort.
+          Your chronotype is derived from your sleep midpoint — the halfway point between when you fall asleep and when you wake. This method is used in clinical sleep research and is more reliable than asking whether you are a &ldquo;morning person.&rdquo; Scheduling your hardest subject inside that window means your peak focus goes where it earns the most marks.
         </div>
       </div>
     </div>
