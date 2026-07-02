@@ -1564,16 +1564,16 @@ export default function Home() {
                 )}
               </div>
             ))}
-            {/* Coming soon */}
-            <div className="glass-card" style={{ padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderTop: "2px solid var(--rule)" }}>
+            {/* Exam-Day Mode — live */}
+            <div className="glass-card" style={{ padding: "22px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderTop: "2px solid var(--cinnabar-ink)" }}>
               <div>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 10 }}>Q3 2026</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)", marginBottom: 10 }}>Now live</div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 8, lineHeight: 1.3 }}>Exam-Day Mode</div>
                 <p style={{ fontFamily: "var(--sans)", fontSize: 12, lineHeight: 1.65, color: "var(--ink-3)", margin: 0 }}>
                   Locks to what you got wrong in the last 14 days. No decisions. Just the gaps.
                 </p>
               </div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", marginTop: 14, letterSpacing: "0.08em" }}>Waitlist: 3,204</div>
+              <Link href="/tools/exam-day" style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", marginTop: 14, letterSpacing: "0.08em", textDecoration: "none" }}>Open Exam-Day Mode →</Link>
             </div>
           </div>
         </div>
@@ -1585,41 +1585,28 @@ export default function Home() {
       {/* ─── Waitlist ─── */}
       <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
         <div style={{ maxWidth: 680, margin: "0 auto", padding: "120px 24px 100px", textAlign: "center" }}>
-          <div style={{ ...S.capAccent, marginBottom: 20 }}>Exam-Day Mode — Join the waitlist</div>
+          <div style={{ ...S.capAccent, marginBottom: 20 }}>Exam-Day Mode — Now live</div>
           <h2 style={{ fontFamily: "var(--sans)", fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.2, marginBottom: 12 }}>
-            Be first to know when Exam-Day Mode launches.
+            Exam-Day Mode is here.
           </h2>
           <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 36 }}>
-            Full exam-day simulation: real papers, real time pressure, real board conditions. Launching October 2026.
+            The morning of the paper, Ledger locks to a single screen: only what you got wrong in the last 14 days. No decisions. Just the gaps.
           </p>
-          <form style={{ display: "flex", gap: 10, maxWidth: 460, margin: "0 auto", flexWrap: "wrap" as const }} onSubmit={e => e.preventDefault()}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              style={{
-                flex: 1, minWidth: 200,
-                fontFamily: "var(--sans)", fontSize: 14,
-                background: "color-mix(in oklch, var(--paper-2) 60%, transparent)",
-                border: "1px solid color-mix(in oklch, var(--ink) 15%, transparent)",
-                borderRadius: 12, padding: "13px 18px",
-                color: "var(--ink)", outline: "none",
-                backdropFilter: "blur(8px)",
-              }}
-            />
-            <button type="submit" style={{
-              background: "var(--cinnabar-ink)", color: "#fff",
-              border: "none", borderRadius: 12, padding: "13px 28px",
-              fontSize: 14, fontWeight: 700, cursor: "pointer",
-              fontFamily: "var(--sans)", letterSpacing: "0.02em",
-              transition: "transform 150ms ease-out",
-            }}
-            onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
-            onMouseLeave={e => (e.currentTarget.style.transform = "")}
-            >
-              Join waitlist
-            </button>
-          </form>
-          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>No spam · We&apos;ll email you when it launches</div>
+          <Link href="/tools/exam-day" style={{
+            display: "inline-block",
+            background: "var(--cinnabar-ink)", color: "#fff",
+            borderRadius: 12, padding: "13px 28px",
+            fontSize: 14, fontWeight: 700, cursor: "pointer",
+            fontFamily: "var(--sans)", letterSpacing: "0.02em",
+            textDecoration: "none",
+            transition: "transform 150ms ease-out",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
+          onMouseLeave={e => (e.currentTarget.style.transform = "")}
+          >
+            Open Exam-Day Mode →
+          </Link>
+          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>3,204 waited for this · Free while in launch</div>
         </div>
       </section>
 

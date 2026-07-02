@@ -95,6 +95,20 @@ export default function ExamSimPage() {
     }
   }, [phase, elapsed, timeLimit, timerRef]);
 
+  // Feed misses into the weak-topics ledger so Exam-Day Mode can drill them
+  useEffect(() => {
+    if (phase !== "result" || !examData) return;
+    try {
+      const missed = examData.questions.reduce<number>((acc, q, i) => acc + (answers[i] === q.answer ? 0 : 1), 0);
+      if (missed === 0) return;
+      const t = topic.trim() || subject;
+      const wt: Record<string, number> = JSON.parse(localStorage.getItem("ledger-weak-topics") || "{}");
+      wt[t] = (wt[t] || 0) + missed;
+      localStorage.setItem("ledger-weak-topics", JSON.stringify(wt));
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
   // Keyboard shortcuts during the exam: A–D / 1–4 answer, ←/→ navigate, F flag
   useEffect(() => {
     if (phase !== "exam") return;

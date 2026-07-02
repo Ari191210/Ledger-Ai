@@ -179,8 +179,8 @@ export default function FeaturesShowcase() {
           display: "flex", flexDirection: "column", justifyContent: "space-between",
         }}>
           <div>
-            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>
-              Coming Q3 2026
+            <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>
+              Now live
             </div>
             <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, fontWeight: 500, color: "var(--ink)", lineHeight: 1.25 }}>
               Exam-Day Mode
@@ -192,9 +192,19 @@ export default function FeaturesShowcase() {
               The morning of the paper, Ledger locks to a single-screen revision of only what you got wrong in the last 14 days. No distractions. No decisions. Just the gaps.
             </p>
           </div>
-          <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 16 }}>
-            Waitlist: 3,204
-          </div>
+          <Link
+            href="/tools/exam-day"
+            style={{
+              display: "inline-block", marginTop: 16,
+              fontFamily: "var(--mono)", fontSize: 10,
+              color: "var(--cinnabar-ink)", letterSpacing: "0.08em",
+              textDecoration: "none",
+              borderBottom: "1px solid var(--cinnabar-ink)",
+              paddingBottom: 1, alignSelf: "flex-start",
+            }}
+          >
+            Open tool →
+          </Link>
         </div>
       </div>
     </div>
