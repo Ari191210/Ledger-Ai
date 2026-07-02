@@ -1606,7 +1606,7 @@ export default function Home() {
           >
             Open Exam-Day Mode →
           </Link>
-          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>3,204 waited for this · Free while in launch</div>
+          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>Free while in launch · No sign-up wall — your gaps, your morning</div>
         </div>
       </section>
 
