@@ -86,6 +86,44 @@ export default function ExamSimPage() {
   const answered  = answers.filter(a => a !== null).length;
   const timeLimit = (examData?.timeMinutes ?? 30) * 60;
   const remaining = Math.max(0, timeLimit - elapsed);
+
+  // Time's up — hand in the paper, like a real exam hall
+  useEffect(() => {
+    if (phase === "exam" && elapsed >= timeLimit) {
+      if (timerRef) clearInterval(timerRef);
+      setPhase("result");
+    }
+  }, [phase, elapsed, timeLimit, timerRef]);
+
+  // Keyboard shortcuts during the exam: A–D / 1–4 answer, ←/→ navigate, F flag
+  useEffect(() => {
+    if (phase !== "exam") return;
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const k = e.key;
+      const optCount = examData?.questions[current]?.options.length ?? 0;
+      const letterIdx = ["a", "b", "c", "d"].indexOf(k.toLowerCase());
+      const digitIdx  = ["1", "2", "3", "4"].indexOf(k);
+      const idx = letterIdx !== -1 ? letterIdx : digitIdx;
+      if (idx !== -1 && idx < optCount) {
+        e.preventDefault();
+        setAnswers(a => { const n = [...a]; n[current] = idx; return n; });
+      } else if (k === "ArrowLeft") {
+        e.preventDefault();
+        setCurrent(c => Math.max(0, c - 1));
+      } else if (k === "ArrowRight") {
+        e.preventDefault();
+        setCurrent(c => Math.min((examData?.questions.length ?? 1) - 1, c + 1));
+      } else if (k.toLowerCase() === "f") {
+        e.preventDefault();
+        setFlagged(f => { const n = [...f]; n[current] = !n[current]; return n; });
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [phase, current, examData]);
   const score     = examData
     ? answers.reduce<number>((acc, a, i) => acc + (a !== null && a === examData.questions[i]?.answer ? 1 : 0), 0)
     : 0;
@@ -233,6 +271,14 @@ export default function ExamSimPage() {
                   <span className="mono" style={{ fontSize: 9, color: "var(--sage)" }}>■ Answered</span>
                   <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)" }}>■ Current</span>
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>□ Unanswered</span>
+                </div>
+              </div>
+              <div className="mob-hide" style={{ marginTop: 16, borderTop: "1px solid var(--rule)", paddingTop: 12 }}>
+                <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 4 }}>KEYS</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>A–D · answer</span>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>← → · move</span>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>F · flag</span>
                 </div>
               </div>
             </div>
