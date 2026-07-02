@@ -360,7 +360,7 @@ export function HeroInteractiveDemo() {
                   Get your full plan — free →
                 </Link>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.08em" }}>
-                  No card · Instant access · 55 tools
+                  No card · Instant access · 48 tools
                 </div>
               </motion.div>
             </motion.div>

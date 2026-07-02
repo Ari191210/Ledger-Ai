@@ -85,7 +85,7 @@ const FEATS = [
 
 
 const STATS = [
-  { big: "55",  suffix: "+",  sm: "AI tools for every exam task"                                    },
+  { big: "48",  suffix: "",   sm: "AI tools for every exam task"                                    },
   { big: "6",   suffix: "+",  sm: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT"          },
   { big: "Free",suffix: "",   sm: "To start — no credit card needed"                                },
 ] as const;
@@ -96,7 +96,7 @@ const TICKER = [
   "Every wrong answer becomes a scheduled revision",
   "Built for CBSE, ICSE, IB, IGCSE, A-Level, JEE, NEET, SAT",
   "One login. Every tool you need.",
-  "55+ tools — one score — one streak",
+  "48 tools — one score — one streak",
 ];
 
 const CATEGORIES = ["ALL", "PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"] as const;
@@ -913,7 +913,7 @@ export default function Home() {
         <h2 className="reveal-up" style={{ ...S.h2, textAlign: "center", marginBottom: 48 }}>Everything a serious student needs</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 1, border: S.borderInk, maxWidth: 900, margin: "0 auto" }}>
           {[
-            { stat: "55+",  label: "AI-powered tools", sub: "Notes, doubts, papers, career — all in one place",        cls: "reveal-left"  },
+            { stat: "48",  label: "AI-powered tools", sub: "Notes, doubts, papers, career — all in one place",        cls: "reveal-left"  },
             { stat: "1000", label: "Ledger Score",      sub: "Your readiness out of 1000, updated after every session", cls: "reveal-up"    },
             { stat: "6+",   label: "Exam boards",       sub: "CBSE · ICSE · IB · JEE · NEET · SAT and more",           cls: "reveal-right"  },
           ].map(({ stat, label, sub, cls }) => (
@@ -1043,7 +1043,7 @@ export default function Home() {
                   ["Past papers, AI-graded",          false, false, false, false, true],
                   ["AI that knows your syllabus",     false, false, false, false, true],
                   ["Tracks gaps across sessions",     false, false, false, false, true],
-                  ["55+ integrated study tools",      false, false, false, false, true],
+                  ["48 integrated study tools",      false, false, false, false, true],
                   ["Flashcard practice",              true,  false, false, false, true],
                   ["Works across all 6 boards",       false, false, true,  false, true],
                   ["Free to start",                   true,  true,  true,  true,  true],
@@ -1075,7 +1075,7 @@ export default function Home() {
       <div style={{ borderBottom: S.border, borderTop: S.border }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
           {[
-            { n: "55+",   label: "Tools for every exam task",     color: "var(--cream)",         cls: "reveal-left"  },
+            { n: "48",   label: "Tools for every exam task",     color: "var(--cream)",         cls: "reveal-left"  },
             { n: "6+",    label: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT", color: "var(--cinnabar-ink)", cls: "reveal-up" },
             { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)",    cls: "reveal-right" },
           ].map((s, i) => (
@@ -1373,7 +1373,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 56 }}>
             <h2 className="reveal-up" style={S.h2}>Three tools to start with.</h2>
             <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.12em", textTransform: "uppercase" as const, textDecoration: "none" }}>
-              Browse all 55+ →
+              Browse all 48 →
             </Link>
           </div>
 

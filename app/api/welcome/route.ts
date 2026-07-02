@@ -69,7 +69,7 @@ function buildWelcomeHtml(params: { name: string }) {
         Your student OS is ready.
       </h1>
       <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;line-height:1.7;margin:0 0 12px;">
-        Ledger is fifty-one tools for the serious student — exam planner, past papers, GPA simulator, weak topic tracker, AI essay coach, and more. All in one place. All talking to each other.
+        Ledger is forty-eight tools for the serious student — exam planner, past papers, GPA simulator, weak topic tracker, AI essay coach, and more. All in one place. All talking to each other.
       </p>
       <p style="font-family:Arial,sans-serif;font-size:13px;color:#555;line-height:1.7;margin:0;">
         Start with the four tools below. They do the most with the least effort, and they set up everything else.

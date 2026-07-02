@@ -12,7 +12,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "What is StudyLedger?",
-        a: "An AI-powered study platform for students preparing for board exams and entrance tests. Upload your syllabus, use 55+ AI study tools, and track your exam readiness with a live score that updates every session.",
+        a: "An AI-powered study platform for students preparing for board exams and entrance tests. Upload your syllabus, use 48 AI study tools, and track your exam readiness with a live score that updates every session.",
       },
       {
         q: "Which boards and exams are supported?",
@@ -20,7 +20,7 @@ const SECTIONS: Section[] = [
       },
       {
         q: "Is it really free?",
-        a: "Yes. The Free tier is free forever — no credit card needed. You get 10 core tools and 20 AI requests per day. Pro (₹199/month) unlocks all 55+ tools and removes daily AI limits.",
+        a: "Yes. The Free tier is free forever — no credit card needed. You get 10 core tools and 20 AI requests per day. Pro (₹199/month) unlocks all 48 tools and removes daily AI limits.",
       },
       {
         q: "Do I need to upload a syllabus to start?",
