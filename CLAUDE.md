@@ -3,6 +3,7 @@
 ## Rules
 
 - Do what has been asked; nothing more, nothing less
+- When telling the user to run a file (SQL migration, script, config) — ALWAYS paste the full file contents in chat so they can copy-paste directly. NEVER just give a file path and say "run this file".
 - NEVER create files unless absolutely necessary — prefer editing existing files
 - NEVER create documentation files unless explicitly requested
 - NEVER save working files or tests to root — use `/src`, `/tests`, `/docs`, `/config`, `/scripts`

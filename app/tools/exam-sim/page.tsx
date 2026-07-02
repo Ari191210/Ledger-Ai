@@ -16,6 +16,19 @@ function pad(n: number) { return String(n).padStart(2, "0"); }
 const SUBJECTS     = ["Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Statistics", "Further Maths", "Computer Science", "History", "Geography"];
 const LEVELS       = ["GCSE", "IGCSE", "A-Level", "IB", "CBSE Class 11", "CBSE Class 12", "JEE", "SAT"];
 const COUNTS       = ["5", "10", "15", "20"];
+
+const TOPIC_PLACEHOLDER: Record<string, string> = {
+  Mathematics:        "e.g. Integration, Matrices, Binomial theorem…",
+  Physics:            "e.g. Circular motion, Waves, Electromagnetic induction…",
+  Chemistry:          "e.g. Equilibrium, Organic mechanisms, Electrochemistry…",
+  Biology:            "e.g. Photosynthesis, Cell division, Genetics…",
+  Economics:          "e.g. Price elasticity, Market failure, Monetary policy…",
+  Statistics:         "e.g. Hypothesis testing, Normal distribution, Regression…",
+  "Further Maths":    "e.g. Complex numbers, Differential equations, Matrices…",
+  "Computer Science": "e.g. Sorting algorithms, Networks, Data structures…",
+  History:            "e.g. Causes of WWI, Cold War, Industrial Revolution…",
+  Geography:          "e.g. Plate tectonics, Urbanisation, Climate change…",
+};
 const DIFFICULTIES = [
   { id: "Easy",   label: "Easy",   desc: "Recall & recognition" },
   { id: "Medium", label: "Medium", desc: "Application & analysis" },
@@ -43,6 +56,7 @@ export default function ExamSimPage() {
 
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<AIError | string | null>(null);
+  const [reviewFilter, setReviewFilter] = useState<"all"|"missed">("all");
 
   async function startExam() {
     setLoading(true); setError(null);
@@ -66,7 +80,7 @@ export default function ExamSimPage() {
   }
 
   function submit() { if (timerRef) clearInterval(timerRef); setPhase("result"); }
-  function restart() { setPhase("setup"); setExamData(null); setError(null); }
+  function restart() { setPhase("setup"); setExamData(null); setError(null); setReviewFilter("all"); }
 
   const totalQ    = examData?.questions.length ?? 0;
   const answered  = answers.filter(a => a !== null).length;
@@ -128,7 +142,7 @@ export default function ExamSimPage() {
             <input
               value={topic}
               onChange={e => setTopic(e.target.value)}
-              placeholder="e.g. Integration, Organic Chemistry, World War II…"
+              placeholder={TOPIC_PLACEHOLDER[subject] || "e.g. Enter a topic or leave blank for mixed…"}
               style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper)", padding: "10px 12px", color: "var(--ink)", boxSizing: "border-box" }}
             />
           </div>
@@ -303,12 +317,33 @@ export default function ExamSimPage() {
             </div>
 
             {/* Per-question review */}
-            <div className="mono cin" style={{ marginBottom: 16 }}>Question review</div>
+            {(() => {
+              const missedCount = answers.reduce<number>((acc, a, i) => acc + (a === examData.questions[i]?.answer ? 0 : 1), 0);
+              return (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+                  <div className="mono cin">Question review</div>
+                  {missedCount > 0 && missedCount < totalQ && (
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {([["all", `All (${totalQ})`], ["missed", `Missed only (${missedCount})`]] as const).map(([id, label]) => {
+                        const active = reviewFilter === id;
+                        return (
+                          <button key={id} onClick={() => setReviewFilter(id)}
+                            style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 12px", border: `1px solid ${active ? "var(--ink)" : "var(--rule)"}`, background: active ? "var(--ink)" : "var(--paper)", color: active ? "var(--paper)" : "var(--ink-3)", cursor: "pointer" }}>
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {examData.questions.map((q, i) => {
                 const userAns    = answers[i];
                 const correct    = userAns === q.answer;
                 const unanswered = userAns === null;
+                if (reviewFilter === "missed" && correct) return null;
                 return (
                   <div key={i} style={{ border: "none", borderBottom: i < totalQ - 1 ? "none" : "1px solid var(--ink)", padding: "18px 20px" }}>
                     <div style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-start" }}>

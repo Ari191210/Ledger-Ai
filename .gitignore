@@ -48,5 +48,12 @@ stitch-assets/
 test.txt
 Studyledger/
 
+# OpenMontage — video production tool (not part of the Next.js app)
+/openmontage/
+
+# local tool artifacts
+ruvector.db
+.firecrawl/
+
 .vercel
 .env.local
