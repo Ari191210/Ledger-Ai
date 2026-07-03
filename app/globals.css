@@ -673,6 +673,10 @@ button:not(.btn):not([class*="ui-btn"]):disabled {
   transform-style: preserve-3d;
   will-change: transform;
   transition: box-shadow 300ms ease;
+  /* Resting float — borders removed from tilt cards, elevation carries the shape */
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--ink) 5%, transparent),
+    0 10px 26px color-mix(in srgb, var(--ink) 9%, transparent);
 }
 .bento-tilt:hover {
   box-shadow:

@@ -7,7 +7,7 @@ import { getRecentTools } from "@/lib/recent-tools";
 const QUICK_ACTIONS = [
   { name: "Dashboard",           path: "/dashboard",         category: "NAV", subtitle: "Your study overview" },
   { name: "Profile & Settings",  path: "/dashboard/profile", category: "NAV", subtitle: "Account and preferences" },
-  { name: "Ledger Score",        path: "/tools/score",       category: "NAV", subtitle: "Your real-time readiness" },
+  { name: "Ledger Score",        path: "/tools/grade-tracker",       category: "NAV", subtitle: "Your real-time readiness" },
   { name: "Themes",              path: "/tools/personalise", category: "NAV", subtitle: "Palette, mode, density" },
 ];
 

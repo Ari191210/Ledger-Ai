@@ -27,7 +27,7 @@ export default function FloatingTimer() {
   }, [running]);
 
   if (embedded) return null;
-  if (path === "/tools/focus") return null;
+  if (path === "/tools/focus-lab") return null;
   if (!running && seconds >= DURATIONS[mode]) return null;
   if (dismissed) return null;
 
@@ -98,7 +98,7 @@ export default function FloatingTimer() {
           <button onClick={toggleRunning} style={btnStyle} title={running ? "Pause" : "Resume"}>
             {running ? "⏸" : "▶"}
           </button>
-          <Link href="/tools/focus" style={{ ...btnStyle, textDecoration: "none", padding: "2px 6px" }} title="Open Focus">
+          <Link href="/tools/focus-lab" style={{ ...btnStyle, textDecoration: "none", padding: "2px 6px" }} title="Open Focus">
             ↗
           </Link>
           {/* Minimise — collapse to chip */}

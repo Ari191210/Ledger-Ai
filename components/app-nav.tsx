@@ -8,6 +8,7 @@ import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
 import CommandPalette from "./command-palette";
+import { TOOLS_REGISTRY, CAT_COLOR, type ToolCategory } from "@/lib/tools-registry";
 
 type Tool = { slug: string; full: string; sub: string };
 type Category = { label: string; color: string; tools: Tool[] };
@@ -15,81 +16,17 @@ type Category = { label: string; color: string; tools: Tool[] };
 // iOS-native drawer curve — feels like it grows from the trigger, not slides from a wall
 const DRAWER_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 
-const CATEGORIES: Category[] = [
-  {
-    label: "PLAN", color: "var(--sage)",
-    tools: [
-      { slug: "planner",      full: "Smart Study Planner",  sub: "Subjects in. Timetable out."          },
-      { slug: "focus",        full: "Focus Dashboard",      sub: "Pomodoro, streaks, tasks."            },
-      { slug: "habits",       full: "Habit Tracker",        sub: "Build study habits that stick."       },
-      { slug: "deadlines",    full: "Deadline Hub",         sub: "Every deadline. Never miss one."      },
-      { slug: "exam-planner", full: "Exam Season Planner",  sub: "Spaced repetition, automatically."    },
-    ],
-  },
-  {
-    label: "LEARN", color: "var(--slate)",
-    tools: [
-      { slug: "notes",        full: "Study Engine",         sub: "Simplify notes or learn any topic."   },
-      { slug: "doubt",        full: "Doubt Solver",         sub: "A question, a worked answer."         },
-      { slug: "syllabus",     full: "Syllabus Parser",      sub: "Upload PDF. Get your year mapped."    },
-      { slug: "mindmap",      full: "Mind Map Builder",     sub: "Any topic. Full concept breakdown."   },
-      { slug: "formula",      full: "Formula Sheet",        sub: "Chapter → complete reference card."   },
-      { slug: "lang-analyzer",full: "Language Analyzer",    sub: "Unseen text, fully decoded."          },
-      { slug: "vocab",        full: "Vocabulary Vault",     sub: "Deep word learning with memory hooks."},
-    ],
-  },
-  {
-    label: "WRITE", color: "var(--ochre)",
-    tools: [
-      { slug: "essay-blueprint",    full: "Essay Workshop",       sub: "Plan, argue, or grade any essay."    },
-      { slug: "research",           full: "Research Hub",         sub: "Deep research or plan your assignment."},
-      { slug: "grammar",            full: "Writing Polish",       sub: "Polish writing or score your statement."},
-      { slug: "presentation",       full: "Presentation Planner", sub: "Topic → full slide deck with notes."  },
-      { slug: "debate",             full: "Debate Coach",         sub: "Any motion. Arguments both ways."     },
-      { slug: "citation",           full: "Citation Generator",   sub: "APA, MLA, Chicago, Harvard."          },
-      { slug: "lab-report",         full: "Lab Report Builder",   sub: "Turn experiments into full reports."  },
-      { slug: "model-answer",       full: "Model Answer Factory", sub: "See what full marks looks like."      },
-    ],
-  },
-  {
-    label: "PRACTISE", color: "var(--cinnabar-ink)",
-    tools: [
-      { slug: "papers",        full: "Past Papers",         sub: "CBSE, JEE, NEET, SAT, IB."             },
-      { slug: "flashcards",    full: "AI Flashcards",       sub: "Topic or notes → flip cards."           },
-      { slug: "practice",      full: "Practice Suite",      sub: "Targeted questions. Timed exam mode."   },
-      { slug: "mark-scheme",   full: "Question Decoder",    sub: "Mark schemes and paper anatomy."        },
-      { slug: "crunch",        full: "48-Hour Crunch",      sub: "Exam tomorrow. Smart triage."           },
-      { slug: "dna",           full: "Mistake DNA",         sub: "See exactly where you go wrong."        },
-      { slug: "predict",       full: "Question Predictor",  sub: "Predict likely exam questions."         },
-      { slug: "memory-palace", full: "Memory Palace",       sub: "Walk through it. Never forget it."      },
-      { slug: "analogy",       full: "Analogy Engine",      sub: "Complex concepts, memorably explained." },
-    ],
-  },
-  {
-    label: "FUTURE", color: "var(--plum)",
-    tools: [
-      { slug: "admissions",   full: "Admissions Engine",   sub: "Your real odds. 60 universities."       },
-      { slug: "resume",       full: "Resume Builder",      sub: "For applications, not LinkedIn."        },
-      { slug: "interview",    full: "Interview Coach",     sub: "Practice. Get scored. Improve."         },
-      { slug: "uni-match",    full: "Future Finder",       sub: "Universities, subjects, your path."     },
-      { slug: "gpa-sim",      full: "GPA Simulator",       sub: "Model your grades. Plan your GPA."      },
-    ],
-  },
-  {
-    label: "TRACK", color: "var(--teal)",
-    tools: [
-      { slug: "marks",          full: "Marks Predictor",   sub: "The math of your report card."          },
-      { slug: "coach",          full: "Academic Coach",    sub: "Personal guidance, any subject."         },
-      { slug: "rooms",          full: "Study Rooms",       sub: "Silent accountability."                  },
-      { slug: "compare",        full: "Topic Comparer",    sub: "Two concepts, side by side."             },
-      { slug: "source",         full: "Text Analyst",      sub: "Source analysis and comprehension."      },
-      { slug: "case-study",     full: "Case Study Pro",    sub: "Business analysis in seconds."           },
-      { slug: "timeline",       full: "Timeline Builder",  sub: "Annotated timelines instantly."          },
-      { slug: "study-guide",    full: "Study Guide Builder",sub: "Complete revision guide in minutes."    },
-      { slug: "score",          full: "Ledger Score™",     sub: "Your real-time exam readiness."          },
-    ],
-  },
-];
+// Derived from the registry — the single source of truth for tool slugs.
+// A hardcoded copy here previously drifted after the June consolidation and
+// left 23 dead links in the sidebar.
+const CAT_ORDER: ToolCategory[] = ["PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"];
+const CATEGORIES: Category[] = CAT_ORDER.map(label => ({
+  label,
+  color: CAT_COLOR[label],
+  tools: TOOLS_REGISTRY
+    .filter(t => t.cat === label)
+    .map(t => ({ slug: t.slug, full: t.title, sub: t.subtitle })),
+}));
 
 const TOTAL_TOOLS = CATEGORIES.reduce((n, c) => n + c.tools.length, 0);
 
@@ -352,21 +289,21 @@ export default function AppNav() {
         </button>
 
         <Link
-          href="/tools/score"
+          href="/tools/grade-tracker"
           className="mob-hide"
-          onMouseEnter={() => setHoveredNav("/tools/score")}
+          onMouseEnter={() => setHoveredNav("/tools/grade-tracker")}
           onMouseLeave={() => setHoveredNav(null)}
           style={{
             textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 14px",
             borderRight: "1px solid var(--rule)",
-            background: path === "/tools/score" ? "var(--paper-2)" : hoveredNav === "/tools/score" ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent",
+            background: path === "/tools/grade-tracker" ? "var(--paper-2)" : hoveredNav === "/tools/grade-tracker" ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent",
             color: "var(--cinnabar-ink)",
             fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
             letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
             height: "100%",
             transition: "background 160ms ease, transform 160ms ease",
-            transform: hoveredNav === "/tools/score" && path !== "/tools/score" ? "translateY(-1px)" : undefined,
-            boxShadow: path === "/tools/score" ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
+            transform: hoveredNav === "/tools/grade-tracker" && path !== "/tools/grade-tracker" ? "translateY(-1px)" : undefined,
+            boxShadow: path === "/tools/grade-tracker" ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
           }}
         >
           <span>★</span><span>Score</span>

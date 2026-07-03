@@ -56,7 +56,7 @@ export default function RankWhisper() {
   // Hide conditions
   if (dismissed)              return null;
   if (!data?.inWindow)        return null;
-  if (path === "/tools/focus") return null;
+  if (path === "/tools/focus-lab") return null;
 
   const { awakeCount = 0, percentile = 0, istTime = "" } = data;
   const countStr = awakeCount.toLocaleString("en-IN");

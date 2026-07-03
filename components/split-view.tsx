@@ -5,34 +5,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useUI } from "./ui-context";
+import { TOOLS_REGISTRY } from "@/lib/tools-registry";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const TOOL_NAMES: Record<string, string> = {
-  planner: "Smart Study Planner",     marks: "Marks Predictor",
-  notes: "Notes Simplifier",          doubt: "Doubt Solver",
-  focus: "Focus Dashboard",           career: "Career Pathfinder",
-  papers: "Past Papers",              assignment: "Assignment Rescue",
-  resume: "Resume Builder",           rooms: "Study Rooms",
-  tutor: "Topic Tutor",               dna: "Mistake DNA",
-  crunch: "48-Hour Crunch",           syllabus: "Syllabus Parser",
-  formula: "Formula Sheet",           admissions: "Admissions Engine",
-  flashcards: "AI Flashcards",        "essay-grader": "Essay Grader",
-  "personal-statement": "Personal Statement", interview: "Interview Coach",
-  mindmap: "Mind Map Builder",        citation: "Citation Generator",
-  presentation: "Presentation Planner", debate: "Debate Coach",
-  habits: "Habit Tracker",            deadlines: "Deadline Hub",
-  "exam-sim": "Exam Simulator",       "gpa-sim": "GPA Simulator",
-  vocab: "Vocabulary Vault",          research: "Research Assistant",
-  score: "Ledger Score™",             coach: "AI Study Coach",
-  "mark-scheme": "Mark Scheme Trainer", "subject-picker": "Subject Picker",
-  "essay-blueprint": "Essay Blueprint", "concept-web": "Concept Web",
-  "exam-planner": "Exam Season Planner", "paper-dissector": "Paper Dissector",
-  "lang-analyzer": "Language Analyzer", "lab-report": "Lab Report Builder",
-  "uni-match": "University Match",    compare: "Comparison Chart",
-  source: "Source Analyzer",          practice: "Practice Problems",
-  argument: "Argument Builder",
-};
+// Slug → display name, derived from the registry so it can't drift
+const TOOL_NAMES: Record<string, string> = Object.fromEntries(
+  TOOLS_REGISTRY.map(t => [t.slug, t.title])
+);
 
 export default function SplitView({ children }: { children: React.ReactNode }) {
   const { splitSlug, setSplitSlug } = useUI();

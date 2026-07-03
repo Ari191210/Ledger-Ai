@@ -563,8 +563,9 @@ export default function Home() {
         });
       };
 
-      /* Bento cards */
-      gsap.utils.toArray<HTMLElement>(".bento-card").forEach(el =>
+      /* Bento cards — skip .bento-tilt ones: the 3D tilt block below owns their
+         hover, and doubled handlers overwrite each other's tweens (no tilt at all) */
+      gsap.utils.toArray<HTMLElement>(".bento-card:not(.bento-tilt)").forEach(el =>
         addHover(el,
           { y: -6, scale: 1.02, duration: 0.28, ease: "power2.out" },
           { y:  0, scale: 1,    duration: 0.5,  ease: "power3.out" }
@@ -911,13 +912,13 @@ export default function Home() {
       <section style={{ padding: "56px 44px", borderBottom: S.border, background: "var(--paper)" }}>
         <p className="reveal-up" style={{ ...S.cap, textAlign: "center", marginBottom: 12 }}>Product at a Glance</p>
         <h2 className="reveal-up" style={{ ...S.h2, textAlign: "center", marginBottom: 48 }}>Everything a serious student needs</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 1, border: S.borderInk, maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, maxWidth: 900, margin: "0 auto" }}>
           {[
             { stat: "48",  label: "AI-powered tools", sub: "Notes, doubts, papers, career — all in one place",        cls: "reveal-left"  },
             { stat: "1000", label: "Ledger Score",      sub: "Your readiness out of 1000, updated after every session", cls: "reveal-up"    },
             { stat: "6+",   label: "Exam boards",       sub: "CBSE · ICSE · IB · JEE · NEET · SAT and more",           cls: "reveal-right"  },
           ].map(({ stat, label, sub, cls }) => (
-            <div key={label} className={cls} style={{ padding: "36px 28px", background: "var(--paper)", borderRight: S.borderInk }}>
+            <div key={label} className={`${cls} bento-tilt`} style={{ padding: "36px 28px", background: "var(--paper)", borderRadius: 16 }}>
               <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(40px,5vw,64px)", color: "var(--cinnabar-ink)", lineHeight: 1, marginBottom: 8 }}>{stat}</div>
               <div style={{ fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink)", marginBottom: 8 }}>{label}</div>
               <div style={{ ...S.body, fontSize: 13 }}>{sub}</div>
@@ -962,7 +963,7 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }} className="mob-col">
             {/* ChatGPT column */}
-            <div className="reveal-left" style={{ borderRadius: 16, border: "1px solid var(--rule)", overflow: "hidden" }}>
+            <div className="reveal-left bento-tilt" style={{ borderRadius: 16, overflow: "hidden", background: "var(--paper)" }}>
               <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--rule)", background: "color-mix(in srgb, var(--ink) 3%, var(--paper))" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 4 }}>Generic AI</div>
                 <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink-2)" }}>ChatGPT / Gemini</div>
@@ -985,7 +986,7 @@ export default function Home() {
             </div>
 
             {/* Ledger column */}
-            <div className="reveal-right" style={{ borderRadius: 16, border: "1.5px solid var(--cinnabar-ink)", overflow: "hidden" }}>
+            <div className="reveal-right bento-tilt" style={{ borderRadius: 16, overflow: "hidden", background: "var(--paper)", boxShadow: "0 2px 4px color-mix(in srgb, var(--cinnabar-ink) 8%, transparent), 0 12px 32px color-mix(in srgb, var(--cinnabar-ink) 14%, transparent)" }}>
               <div style={{ padding: "20px 28px", borderBottom: "1px solid color-mix(in srgb, var(--cinnabar-ink) 25%, transparent)", background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)", marginBottom: 4 }}>Built for exams</div>
                 <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)" }}>StudyLedger</div>
@@ -1026,7 +1027,7 @@ export default function Home() {
             <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 12 }}>vs everything else</div>
             <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(22px,2.8vw,34px)" }}>Why not Quizlet, Notion, or Google Classroom?</h2>
           </div>
-          <div className="reveal-up" style={{ overflowX: "auto" as const }}>
+          <div className="reveal-up bento-tilt" style={{ overflowX: "auto" as const, borderRadius: 16, background: "var(--paper)", padding: "8px 4px" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" as const, fontFamily: "var(--sans)", fontSize: 13 }}>
               <thead>
                 <tr>
@@ -1101,7 +1102,7 @@ export default function Home() {
 
           <div className="bento-grid">
             {/* Big upload card — spans 8 cols */}
-            <div className="bento-3 bento-tilt reveal-left" style={{ padding: "60px", borderRadius: 16, minHeight: 300, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-3 bento-tilt reveal-left" style={{ padding: "60px", borderRadius: 16, minHeight: 300, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
               <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
               <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px", textWrap: "balance" }}>Your syllabus becomes your year.</h3>
@@ -1109,7 +1110,7 @@ export default function Home() {
             </div>
 
             {/* Boards stat card — spans 4 cols */}
-            <div className="bento-1 bento-tilt reveal-right" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-1 bento-tilt reveal-right" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
               <div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
@@ -1118,7 +1119,7 @@ export default function Home() {
             </div>
 
             {/* Study card — spans 6 */}
-            <div className="bento-2 bento-tilt reveal-left" style={{ padding: "56px", borderRadius: 16, minHeight: 260, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-2 bento-tilt reveal-left" style={{ padding: "56px", borderRadius: 16, minHeight: 260, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
               <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
               <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px", textWrap: "balance" }}>One login. Every tool you need.</h3>
@@ -1126,16 +1127,16 @@ export default function Home() {
             </div>
 
             {/* AI tools stat card — spans 6 */}
-            <div className="bento-2 bento-tilt reveal-right" style={{ padding: "52px 44px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-2 bento-tilt reveal-right" style={{ padding: "52px 44px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
               <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>55</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>48</div>
                 <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>Plan · Learn · Write · Practise · Future · Track</div>
               </div>
             </div>
 
             {/* Score card — full width */}
-            <div className="bento-4 bento-tilt reveal-up" style={{ padding: "60px 68px", borderRadius: 16, display: "flex", gap: 72, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))", border: "1px solid var(--rule)" }}>
+            <div className="bento-4 bento-tilt reveal-up" style={{ padding: "60px 68px", borderRadius: 16, display: "flex", gap: 72, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <div style={{ flex: "1 1 320px" }}>
                 <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
                 <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px", textWrap: "balance" }}>One number. Every insight.</h3>
@@ -1148,7 +1149,7 @@ export default function Home() {
                   { n: "20%", l: "Mistakes",      c: "var(--cream)" },
                   { n: "15%", l: "Consistency",   c: "var(--tan)" },
                 ].map((p, i) => (
-                  <div key={i} style={{ padding: "24px 20px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))`, border: `1px solid color-mix(in srgb, ${p.c} 25%, transparent)` }}>
+                  <div key={i} style={{ padding: "24px 20px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))` }}>
                     <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: p.c, lineHeight: 1 }}>{p.n}</div>
                     <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 8 }}>{p.l}</div>
                   </div>
