@@ -201,16 +201,23 @@ export default function AppNav() {
       return () => window.removeEventListener("scroll", onScroll);
     }
     setNavVisible(true);
-    let lastY = typeof window !== "undefined" ? window.scrollY : 0;
+    // Tool pages scroll inside .tool-main-panel (overflow-y: auto), not the
+    // window — listen to both so hide-on-scroll works everywhere.
+    const panel = document.querySelector<HTMLElement>(".tool-main-panel");
+    let lastY = panel ? panel.scrollTop : (typeof window !== "undefined" ? window.scrollY : 0);
     const onScroll = () => {
-      const y = window.scrollY;
+      const y = panel ? panel.scrollTop : window.scrollY;
       if (y < 80) { setNavVisible(true); }
       else if (y > lastY + 8) { setNavVisible(false); }
       else if (y < lastY - 8) { setNavVisible(true); }
       lastY = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    panel?.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      panel?.removeEventListener("scroll", onScroll);
+    };
   }, [path]);
 
   function toggleLightDark() {

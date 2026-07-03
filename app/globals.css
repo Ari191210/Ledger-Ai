@@ -239,53 +239,53 @@
 }
 
 /* --- Light mode overrides --------------------------------------------------------- */
-[data-mode=”light”] {
+[data-mode="light"] {
   --elev-1: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
   --elev-2: 0 4px 8px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
   --elev-3: 0 8px 16px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.03);
   --elev-4: 0 16px 32px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.02);
 }
-[data-mode=”light”] html,
-[data-mode=”light”] body { background: var(--paper); }
+[data-mode="light"] html,
+[data-mode="light"] body { background: var(--paper); }
 
-[data-mode=”light”] .gl-pane {
+[data-mode="light"] .gl-pane {
   background: color-mix(in srgb, var(--paper) 86%, transparent) !important;
   box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.04) !important;
 }
-[data-mode=”light”] .float-nav {
+[data-mode="light"] .float-nav {
   box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 6px rgba(0,0,0,0.06) !important;
 }
 .float-nav {
   box-shadow: 0 4px 24px color-mix(in srgb, var(--ink) 10%, transparent), 0 1px 6px color-mix(in srgb, var(--ink) 6%, transparent) !important;
 }
-[data-mode=”light”] .gl-pane-alt {
+[data-mode="light"] .gl-pane-alt {
   background: color-mix(in srgb, var(--paper) 92%, transparent) !important;
   box-shadow: none !important;
 }
-[data-mode=”light”] .glass-card {
+[data-mode="light"] .glass-card {
   background: color-mix(in srgb, var(--paper) 82%, transparent) !important;
   border-color: var(--rule) !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px var(--rule-2) !important;
 }
-[data-mode=”light”] .bento-tilt:hover {
+[data-mode="light"] .bento-tilt:hover {
   box-shadow: 0 12px 32px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.05),
               0 0 0 1px color-mix(in srgb, var(--cinnabar-ink) 20%, transparent) !important;
 }
-[data-mode=”light”] .btn {
+[data-mode="light"] .btn {
   background: var(--ink) !important;
   color: var(--paper) !important;
   border-color: var(--ink) !important;
 }
-[data-mode=”light”] .btn:hover {
+[data-mode="light"] .btn:hover {
   background: color-mix(in srgb, var(--ink) 85%, transparent) !important;
 }
-[data-mode=”light”] .scroll-cue span {
+[data-mode="light"] .scroll-cue span {
   background: color-mix(in srgb, var(--ink) 25%, transparent) !important;
 }
-[data-mode=”light”] .ticker-track {
+[data-mode="light"] .ticker-track {
   color: var(--ink-2) !important;
 }
-[data-mode=”light”] .hero-product-reveal {
+[data-mode="light"] .hero-product-reveal {
   background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%) !important;
 }
 
@@ -588,7 +588,7 @@ button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
 button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
   transform: scale(0.96);
 }
-button:not(.btn):not([class*=”ui-btn”]):disabled {
+button:not(.btn):not([class*="ui-btn"]):disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -1586,8 +1586,10 @@ main {
 .tool-split-wrap {
   display:  flex;
   overflow: hidden;
-  height: calc(100vh - 52px);    /* fallback: browsers without dvh support */
-  height: calc(100dvh - 52px);  /* preferred: dynamic viewport height      */
+  /* Nav spacer above is 76px (52px bar + 16px top offset + 8px clearance) —
+     matching it stops the 24px phantom body scroll under the tool panel */
+  height: calc(100vh - 76px);    /* fallback: browsers without dvh support */
+  height: calc(100dvh - 76px);  /* preferred: dynamic viewport height      */
 }
 
 /* â”€â”€â”€ Tool main panel: smooth scroll + subtle reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -2499,6 +2501,42 @@ select:focus {
     animation: none !important;
   }
   .hero-badge { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING CARDS — resting elevation so cards sit off the page, not on it
+   Hover states above already lift them higher; this is the resting state.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Every glass card floats slightly at rest */
+.glass-card {
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--ink) 5%, transparent),
+    0 6px 18px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+/* Dashboard cards float higher — they are the primary surface of the page */
+.dash-stat,
+.dash-tool,
+.score-widget {
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent),
+    0 12px 28px color-mix(in srgb, var(--ink) 10%, transparent) !important;
+}
+.dash-stat:hover,
+.dash-tool:hover,
+.score-widget:hover {
+  box-shadow:
+    0 4px 8px color-mix(in srgb, var(--ink) 8%, transparent),
+    0 20px 44px color-mix(in srgb, var(--ink) 16%, transparent) !important;
+}
+
+/* Landing bento cards: same resting float so the tilt starts from mid-air */
+.bento-card,
+.feat-card {
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--ink) 5%, transparent),
+    0 10px 26px color-mix(in srgb, var(--ink) 9%, transparent);
 }
 
 

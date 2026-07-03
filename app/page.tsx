@@ -1294,7 +1294,7 @@ export default function Home() {
 
             <div className="reveal-right mob-col" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
               {/* Score */}
-              <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card bento-tilt" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.capAccent}>Ledger Score</span>
                 <div>
                   <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>—</div>
@@ -1306,10 +1306,10 @@ export default function Home() {
               </div>
 
               {/* Toolkit */}
-              <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card bento-tilt" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Toolkit</span>
                 <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>55</div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>48</div>
                   <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.8 }}>
                     <li>· Study Engine</li>
                     <li>· Practice Suite</li>
@@ -1319,7 +1319,7 @@ export default function Home() {
               </div>
 
               {/* Streak */}
-              <div className="bento-card glass-card" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div className="bento-card glass-card bento-tilt" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <span style={S.cap}>Focus Streak</span>
                 <div>
                   <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>
