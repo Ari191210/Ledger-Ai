@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { GetStartedButton } from "@/components/ui/get-started-button";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import GlowHorizonFM from "@/components/ui/glow-horizon";
 import { ProductWalkthrough } from "@/components/ui/product-walkthrough";
@@ -25,69 +24,14 @@ const ElasticSlider = dynamic(
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
-const TOOLS = [
-  { n: "01", slug: "planner",         ttl: "Smart Study Planner",   sub: "Subjects in. Timetable out.",                    cat: "PLAN",     desc: "Enter subjects, exam dates, and the hours you can actually give. We return a day-by-day plan for every remaining day — not a calendar template you then spend two hours editing.",                                                                                                                  gets: ["14-day reactive schedule", "Adjusts when you miss a day", "Pre-fills from your syllabus"] },
-  { n: "02", slug: "marks",           ttl: "Marks Predictor",       sub: "The math of your report card.",                  cat: "TRACK",    desc: "Current scores, subject weightages, upcoming tests. Get your final weighted percentage, the CBSE grade it maps to, a 4.0 GPA, and the score you need in remaining subjects to hit your target.",                                                                                                           gets: ["Weighted average in real time", "What-if score slider per subject", "4.0 GPA + CBSE grade output"] },
-  { n: "03", slug: "notes",           ttl: "Study Engine",          sub: "Simplify chapters. Get a full lesson.",          cat: "LEARN",    desc: "Two modes in one: Simplify turns any chapter into plain-English notes, flashcards, and a graded quiz — saved to your library. Learn delivers a full board-calibrated lesson on any topic, with worked examples, key facts, and a practice quiz.",                                                              gets: ["Simplify: board-matched notes + flashcards + quiz", "Learn: full lesson on any topic", "Saved notes library across sessions"] },
-  { n: "04", slug: "doubt",           ttl: "Doubt Solver",          sub: "A question, a worked answer.",                   cat: "LEARN",    desc: "Type any problem. Receive a fully worked solution with the underlying concept, not just the answer. The AI explains it the way your board's marking scheme expects — step by step.",                                                                                                                  gets: ["Full worked solution", "Underlying principle explained", "Board-style step layout"] },
-  { n: "05", slug: "focus",           ttl: "Focus Dashboard",       sub: "Pomodoro, streaks, tasks.",                      cat: "PLAN",     desc: "A single screen: 25-minute timer, running task list, and a streak that persists across every tool. No social feed, no notifications you didn't ask for. Just the session and a counter.",                                                                                                              gets: ["25-min Pomodoro timer", "Cross-tool streak tracking", "Task list that doesn't disappear"] },
-  { n: "06", slug: "papers",          ttl: "Past Papers",           sub: "CBSE, JEE, NEET, SAT, IB.",                     cat: "PRACTISE", desc: "68 papers, 650+ questions. 10 random questions per session, or Timed Mode where the clock is running and you submit when it hits zero. Every wrong answer tags a weak topic.",                                                                                                                          gets: ["Timed mode with auto-submit", "Weak topic tagging per answer", "Session log with accuracy trend"] },
-  { n: "07", slug: "resume",          ttl: "Resume Builder",        sub: "For applications, not LinkedIn.",                cat: "FUTURE",   desc: "For internships, summer programs, university applications, and college essays. Enter activities and achievements; the tool assembles one polished PDF formatted for admissions committees.",                                                                                                              gets: ["College application format", "Achievement bullet writing", "One-page PDF output"] },
-  { n: "08", slug: "rooms",           ttl: "Study Rooms",           sub: "Silent accountability.",                         cat: "TRACK",    desc: "Private rooms with a shared timer and a shared task list. Enter a code, see who's in the session, and start the clock together. If one person bails, both streaks take the hit.",                                                                                                                     gets: ["Code-based rooms, no signup", "Shared Pomodoro timer", "Mutual streak accountability"] },
-  { n: "09", slug: "dna",             ttl: "Error Tracker",         sub: "See exactly where you go wrong.",                cat: "PRACTISE", desc: "Every wrong answer from Past Papers is categorised: Conceptual Gap, Calculation Slip, Misread, Rushed, or Memory Blank. Visualised by subject. The pattern becomes obvious within three sessions.",                                                                                                      gets: ["5-category mistake taxonomy", "Per-subject breakdown chart", "Recurring topic tracker"] },
-  { n: "10", slug: "crunch",          ttl: "48-Hour Crunch",        sub: "Exam tomorrow. Smart triage.",                   cat: "PRACTISE", desc: "Tell the AI what to skip and what to nail. Input your topics and their status (done / partial / not yet). Get a priority order, time estimates per topic, and an hour-by-hour schedule.",                                                                                                                gets: ["Priority triage of every topic", "Time estimates per chapter", "Hour-by-hour schedule"] },
-  { n: "11", slug: "syllabus",        ttl: "Syllabus Parser",       sub: "Upload PDF. Get your year mapped.",              cat: "LEARN",    desc: "Upload your school's PDF syllabus — or a photo of the printed sheet. AI extracts every subject, chapter, and topic into a clean structure that powers every other tool on Ledger automatically.",                                                                                                       gets: ["PDF + photo input", "Subjects, chapters, topics extracted", "Auto-powers all other tools"] },
-  { n: "12", slug: "formula",         ttl: "Formula Sheet",         sub: "Chapter -> complete reference card.",            cat: "LEARN",    desc: "Type any subject and chapter. Get every formula with variable definitions, SI units, dimensional analysis, and board-specific exam tips — formatted for one-click PDF export.",                                                                                                                         gets: ["Every formula for the chapter", "Variable meanings + SI units", "Board-specific exam tips, print-ready"] },
-  { n: "13", slug: "admissions",      ttl: "Admissions Engine",     sub: "Your real odds. 60 universities.",               cat: "FUTURE",   desc: "GPA, test scores, ECs, awards -> statistical admission probability for 60 top universities. AI strategy, gap analysis, essay angles, and deadline countdowns.",                                                                                                                                         gets: ["Probability at 60 real universities", "Safety / Match / Reach / Far Reach list", "AI strategy + essay angles + gap analysis"] },
-  { n: "14", slug: "flashcards",      ttl: "AI Flashcards",         sub: "Topic or notes -> flip cards.",                  cat: "PRACTISE", desc: "AI generates high-quality flashcards from any topic or your own notes. Track known/unknown per card and drill only what you haven't mastered.",                                                                                                                                                           gets: ["Paste your notes or name a topic", "Known / still-learning card tracking", "Flip to reveal, tap to categorise"] },
-  { n: "15", slug: "interview",       ttl: "Interview Coach",       sub: "Practice. Get scored. Improve.",                 cat: "FUTURE",   desc: "Pick your interview type, answer AI-generated questions, then get scored with strengths, gaps, a model answer, and a coaching tip per response.",                                                                                                                                                      gets: ["University, Job, Medicine, Scholarship modes", "Score + model answer per question", "Coaching tip after every response"] },
-  { n: "16", slug: "mindmap",         ttl: "Mind Map Builder",      sub: "Any topic. Full concept breakdown.",             cat: "LEARN",    desc: "AI generates a full collapsible mind map with depth levels. Branches collapse on click, colours by depth, printable to PDF in one click.",                                                                                                                                                           gets: ["Collapsible branch tree", "Brief / Standard / Deep dive modes", "Print to PDF in one click"] },
-  { n: "17", slug: "citation",        ttl: "Citation Generator",    sub: "APA, MLA, Chicago, Harvard.",                   cat: "WRITE",    desc: "Fill in source details and get a correctly formatted citation in any major style. Supports book, journal, website, newspaper, and video sources.",                                                                                                                                                   gets: ["5 source types supported", "APA 7, MLA 9, Chicago 17, Harvard, Vancouver", "One-click copy to clipboard"] },
-  { n: "18", slug: "presentation",    ttl: "Presentation Planner",  sub: "Topic -> full slide deck with notes.",           cat: "WRITE",    desc: "AI builds a slide-by-slide presentation with speaker notes, calibrated to your audience, duration, and style. Left panel navigation, print-ready.",                                                                                                                                                  gets: ["Slide panel + 16:9 preview", "Speaker notes for every slide", "Audience + duration + style controls"] },
-  { n: "19", slug: "debate",          ttl: "Debate Coach",          sub: "Any motion. Arguments both ways.",               cat: "WRITE",    desc: "Generate for and against arguments, evidence, rebuttals, key terms, and practice questions for any debate motion at any level.",                                                                                                                                                                   gets: ["3 arguments per side with evidence", "Rebuttal for each if challenged", "Key terms + practice questions"] },
-  { n: "20", slug: "habits",          ttl: "Habit Tracker",         sub: "Build study habits that stick.",                 cat: "PLAN",     desc: "Track daily study habits with a 14-day heatmap grid, per-habit streak counter, weekly score percentage, and the ability to add custom habits.",                                                                                                                                                   gets: ["14-day heatmap history", "Streak counter per habit", "Add custom habits with emoji"] },
-  { n: "21", slug: "deadlines",       ttl: "Deadline Hub",          sub: "Every deadline. Never miss one.",                cat: "PLAN",     desc: "Add exams, assignments, and applications with priority levels, categories, and notes. Overdue alerts, due-this-week counts, and category filters.",                                                                                                                                                 gets: ["Countdown to each deadline", "Category + priority + overdue alerts", "Filter by type or status"] },
-  { n: "22", slug: "gpa-sim",         ttl: "GPA Simulator",         sub: "Model your grades. Plan your GPA.",              cat: "FUTURE",   desc: "Add all your courses, choose your scale (4.0 / 5.0 / 7.0 / 100), toggle weighted or unweighted, and find out what grade you need to hit a target GPA.",                                                                                                                                           gets: ["4.0 / 5.0 / 7.0 / 100 scale support", "Weighted vs unweighted toggle", "What-do-I-need? calculator"] },
-  { n: "23", slug: "vocab",           ttl: "Vocabulary Vault",      sub: "Deep word learning with memory hooks.",          cat: "LEARN",    desc: "AI generates vocabulary sets with definition, part of speech, example sentence, etymology, synonyms, and a vivid memory hook. Card flip and list modes.",                                                                                                                                         gets: ["Memory hook per word", "Etymology + synonyms included", "Card flip + full list view"] },
-  { n: "24", slug: "research",        ttl: "Research Hub",          sub: "Research any topic. Plan any assignment.",       cat: "WRITE",    desc: "Two modes: Research generates a full briefing — sections, for/against arguments, statistics, and five essay angles. Plan Assignment (Pro) takes your brief and returns an outline, argument structure, and bibliography — plagiarism-safe guidance for building it yourself.",                         gets: ["Research mode: arguments, stats, 5 angles", "Plan mode: outline + bibliography (Pro)", "Board-matched academic style throughout"] },
-  { n: "25", slug: "essay-blueprint", ttl: "Essay Workshop",        sub: "Plan. Argue. Grade. One page.",                  cat: "WRITE",    desc: "Three tools in one flow: Blueprint plans your thesis and argument structure, Argue generates steel-manned arguments for any position, and Grade gives your essay a full examiner breakdown with a criteria-by-criteria score and concrete improvement actions.",                                       gets: ["Blueprint: thesis + structure in 3 minutes", "Argue: 3 arguments + rebuttals + structure map", "Grade: examiner score + improvement actions"] },
-  { n: "26", slug: "coach",           ttl: "Academic Coach",        sub: "Personal guidance, any subject.",                cat: "TRACK",    desc: "Your AI mentor that knows your grade, board, and exam targets. Ask anything: how to study for Chemistry, how to fix your essay structure, how to stop avoiding Maths.",                                                                                                                          gets: ["Board + grade aware coaching", "Study strategy per subject", "Honest, specific advice"] },
-  { n: "27", slug: "compare",         ttl: "Topic Comparer",        sub: "Two concepts. Side-by-side.",                    cat: "TRACK",    desc: "Enter two topics, theories, or periods and get a structured comparison: similarities, differences, key tensions, and a recommendation for which angle suits an essay question best.",                                                                                                              gets: ["Structured similarity/difference table", "Key tension analysis", "Essay angle recommendation"] },
-  { n: "28", slug: "exam-planner",    ttl: "Revision Planner",      sub: "All your exams. Spaced revision built in.",      cat: "PRACTISE", desc: "Two tools in one: Exam Planner builds a day-by-day revision timetable weighted by exam proximity, subject difficulty, and the hours you have. Spaced Revision resurfaces your weak topics on Ebbinghaus intervals — precisely when you're about to forget them.",                                    gets: ["Planner: weighted day-by-day timetable", "Spaced: Ebbinghaus-interval resurfacing", "Syncs with your syllabus and mistake history"] },
-  { n: "29", slug: "lab-report",      ttl: "Lab Report Writer",     sub: "Hypothesis to discussion, complete.",            cat: "WRITE",    desc: "Enter your experiment, hypothesis, results table, and observations. Get a complete lab report with method, analysis, uncertainty calculations, and discussion in IGCSE/IB/CBSE format.",                                                                                                           gets: ["Full report in your board's format", "Uncertainty + error analysis", "Discussion + evaluation section"] },
-  { n: "30", slug: "lang-analyzer",   ttl: "Literary Analysis",     sub: "Devices, tone, and theme from any passage.",     cat: "LEARN",    desc: "Paste any passage for literary device identification, tone and register mapping, theme extraction, and a stylistic analysis matching your exam board's rubric expectations.",                                                                                                                    gets: ["Literary devices identified + quoted", "Tone, register, theme analysis", "Exam rubric-matched commentary"] },
-  { n: "31", slug: "mark-scheme",     ttl: "Mark Scheme Reader",    sub: "Know exactly what earns marks — and why.",       cat: "PRACTISE", desc: "Two modes: Mark Scheme Decoder annotates every mark point in any mark scheme or question, showing exactly what earns marks and why. Paper Dissector analyses a full past paper — topic frequency, question difficulty, command words, and strategic advice.",                                        gets: ["Decode: mark-point breakdown + examiner intent", "Dissect: topic frequency + difficulty map", "Self-assessment checklist per question"] },
-  { n: "32", slug: "practice",        ttl: "Practice Suite",        sub: "Targeted questions. Timed exam mode.",           cat: "PRACTISE", desc: "Two modes: Practice Engine generates 10 custom questions — MCQ, short answer, and extended — with model answers for self-marking. Exam Simulator builds a full timed MCQ paper with a question map, flag-for-review, and detailed explanations on submission.",                                     gets: ["Practice mode: 10 custom questions + model answers", "Exam mode: timed AI MCQ with question map", "Board-calibrated for your subject and level"] },
-  { n: "33", slug: "source",          ttl: "Source Analyser",       sub: "Source analysis and reading comprehension.",     cat: "TRACK",    desc: "Two modes: Source Analyst runs a full OPCVL analysis on any primary source — Origin, Purpose, Content, Value, Limitation — formatted for IB, IGCSE, or A-Level history. Reading Companion summarises any passage with tone, theme, devices, and four-level comprehension questions.", gets: ["Source mode: full OPCVL in your board's format", "Reading mode: summary + devices + 4-level questions", "Contextual background auto-included"] },
-  { n: "34", slug: "uni-match",       ttl: "University Planner",    sub: "Universities, subjects, and your path forward.", cat: "FUTURE",   desc: "Three tools in one: University Matcher ranks universities by fit and entry grade, Subject Picker recommends your Grade 11 or A-Level choices based on strengths and goals, and Career Pathfinder maps streams, colleges, entrance exams, and a five-year roadmap.",                                 gets: ["Uni: ranked by fit + deadline countdowns", "Subject: ranked picks + career alignment", "Career: stream + roadmap + entrance exams"] },
-  { n: "35", slug: "predict",         ttl: "Question Predictor",    sub: "What will the examiner ask next?",               cat: "PRACTISE", desc: "Enter your subject, topic, and exam board. Get 6-8 predicted questions ranked by likelihood, with reasoning, hot-topic areas, and command words likely to appear this cycle.",                                                                                                                          gets: ["6-8 predicted questions ranked", "Likelihood reasoning per question", "Hot-topic + command word flags"] },
-  { n: "36", slug: "memory-palace",   ttl: "Memory Builder",        sub: "Remember any list — dates, formulas, vocab.",   cat: "PRACTISE", desc: "Pick any list to memorise — vocabulary, dates, formulas, case studies. Get a full memory palace with a familiar location, vivid station images, and a memorable story linking every item.",                                                                                                             gets: ["Full palace with location + stations", "Vivid image per item", "Story linking the whole sequence"] },
-  { n: "37", slug: "analogy",         ttl: "Concept Simplifier",    sub: "Turn any hard concept into something clear.",    cat: "PRACTISE", desc: "Type any difficult concept and get 3 analogies ranked from most intuitive to most surprising, each with a breakdown of where the comparison holds and where it breaks down.",                                                                                                                        gets: ["3 analogies: simple -> surprising", "Breakdown of where each holds", "Limitation of each analogy"] },
-  { n: "38", slug: "case-study",      ttl: "Case Study Pro",        sub: "Business scenarios, fully analysed.",            cat: "TRACK",    desc: "Enter a company, industry, or scenario. Get a complete business case study with SWOT, Porter's Five Forces, stakeholder map, and strategic recommendations in exam-ready format.",                                                                                                               gets: ["SWOT + Porter's 5 Forces analysis", "Stakeholder map + tensions", "Strategic recommendations"] },
-  { n: "39", slug: "timeline",        ttl: "Timeline Builder",      sub: "History, chronologically mapped.",               cat: "TRACK",    desc: "Enter any historical period or topic. Get 10-14 key events with dates, significance, causal links between them, and category tags — formatted for history exam essay structure.",                                                                                                               gets: ["10-14 annotated events", "Causal links between events", "Political / Economic / Social categories"] },
-  { n: "40", slug: "grammar",         ttl: "Writing Polish",        sub: "Grammar, style, and personal statement.",       cat: "WRITE",    desc: "Two modes: Grammar Coach scores and rewrites your academic writing with category-level feedback and 10 phrases to elevate your register. Personal Statement scores your application essay with hook analysis, paragraph-by-paragraph notes, and a rewritten opening.",                            gets: ["Grammar mode: quality score + corrected rewrite", "Statement mode: hook + tone + paragraph notes", "10 academic phrases to improve your register"] },
-  { n: "41", slug: "study-guide",     ttl: "Study Guide Builder",   sub: "Complete revision guide in minutes.",           cat: "TRACK",    desc: "Enter any topic or chapter. Get a full study guide: sections, must-know facts, common mistakes, exam tips, visual memory prompts, and a 60-second summary for last-minute review.",                                                                                                              gets: ["Structured sections with must-knows", "Common mistakes to avoid", "60-second last-minute summary"] },
-  { n: "42", slug: "exam-strategy",   ttl: "Exam Strategy",         sub: "How to work the paper on exam day.",            cat: "PRACTISE", desc: "Input your exam type, duration, and subject. Get time allocation per section, nerve-control techniques, last-minute revision priorities, and a personalised exam-day checklist.",                                                                                                                gets: ["Time allocation per section", "Nerve-control + focus techniques", "Personalised exam-day checklist"] },
-  { n: "43", slug: "concept-connect", ttl: "Cross-Topic Connector", sub: "Find links between ideas across subjects.",     cat: "TRACK",    desc: "Enter two concepts from any discipline. Get structural, causal, analogical, and historical connections — uncovering surprising links between ideas you thought were unrelated.",                                                                                                                  gets: ["Structural + causal connections", "Analogical + historical links", "Cross-subject insight map"] },
-  { n: "44", slug: "model-answer",    ttl: "Model Answer Factory",  sub: "Produce full-marks exemplars.",                 cat: "WRITE",    desc: "Paste any exam question. Get a model answer hitting every marking point, a structure guide showing how marks are distributed, and commentary on what makes this answer grade-band-A.",                                                                                                          gets: ["Full-marks model answer", "Mark-point distribution map", "Commentary on why it works"] },
-  { n: "★",  slug: "score",           ttl: "Ledger Score",          sub: "Your real-time exam readiness.",                cat: "TRACK",    desc: "A 0-1000 index built from four signals: past paper accuracy (40%), syllabus coverage (25%), how fast you correct errors (20%), and daily consistency (15%). Updates every time you use any tool.",                                                                                                    gets: ["Live 0-1000 readiness score", "4-pillar breakdown", "Top 3 actions to improve today"] },
-] as const;
-
 const FEATS = [
-  { tag: "α", ttl: "Chapter Gap Tracker",        body: "See exactly how many chapters you're behind — and how many hours of daily study it takes to close the gap before your exam.", extra: "Recalculates every time you log a session or skip one. Works backwards from your exam date to show the exact cost of procrastination in marks." },
-  { tag: "β", ttl: "Best Study Time Finder",     body: "We find the time of day when your focus peaks and schedule your hardest subject there — not some generic morning slot that doesn't work for you.", extra: "Students who studied at their personal focus peak consistently outperformed those using generic morning schedules in early testing." },
-  { tag: "γ", ttl: "Spaced Revision Engine",     body: "Past-paper questions come back exactly when you're about to forget them — not by date, not by topic, but by the moment your brain needs them most.", extra: "Each correct answer pushes the next review further out. Each wrong answer resets the interval. The same Ebbinghaus spaced repetition method used by medical students and high performers worldwide." },
-  { tag: "δ", ttl: "Peer Struggle Heatmap",      body: "A map of which chapters students on your board find hardest. You are not alone on Conic Sections.", extra: "Builds from struggle data as Ledger students complete sessions — the more the platform is used, the sharper it shows you where to focus." },
-  { tag: "ε", ttl: "Syllabus Parser",            body: "Upload your school's PDF syllabus. We read it and build your full year plan in seconds — not a template you then spend an hour editing.", extra: "Works on handwritten notes, scanned PDFs, and messy Word docs. Extracts chapters, topics, and exam dates even when the formatting is all over the place." },
-  { tag: "ζ", ttl: "Study Pact",                 body: "Lock a revision session with a friend. If either of you skips, both streaks reset. The only study feature that works because it is uncomfortable.", extra: "Pact sessions have a measurably higher completion rate than solo sessions. Letting someone else down turns out to be more motivating than personal discipline." },
-  { tag: "η", ttl: "Score → College Predictor",  body: "Score X on this week's test and these colleges move into reach. Score Y and they move out. Based on six years of actual cutoff data.", extra: "Covers 340 colleges across JEE, NEET, CUET, and board exams. Shows rolling percentile so you know if you are safely inside the cutoff or right on the margin." },
-] as const;
-
-
-const STATS = [
-  { big: "48",  suffix: "",   sm: "AI tools for every exam task"                                    },
-  { big: "6",   suffix: "+",  sm: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT"          },
-  { big: "Free",suffix: "",   sm: "To start — no credit card needed"                                },
+  { tag: "α", ttl: "Chapter Gap Tracker",        body: "See exactly how many chapters you're behind, and how many hours of daily study it takes to close the gap before your exam.", extra: "Recalculates every time you log a session or skip one. Works backwards from your exam date to show the exact cost of procrastination in marks." },
+  { tag: "β", ttl: "Best Study Time Finder",     body: "We find the time of day when your focus peaks and schedule your hardest subject there, not some generic morning slot that doesn't work for you.", extra: "Log a few sessions and Ledger learns when your accuracy actually peaks, then puts your hardest subject in that slot." },
+  { tag: "γ", ttl: "Spaced Revision Engine",     body: "Past-paper questions come back exactly when you're about to forget them. Not by date, not by topic, but by the moment your brain needs them most.", extra: "Each correct answer pushes the next review further out. Each wrong answer resets the interval. The same Ebbinghaus spaced repetition method used by medical students and high performers worldwide." },
+  { tag: "δ", ttl: "Peer Struggle Heatmap",      body: "A map of which chapters students on your board find hardest. You are not alone on Conic Sections.", extra: "Builds from struggle data as Ledger students complete sessions. The more the platform is used, the sharper it shows you where to focus." },
+  { tag: "ε", ttl: "Syllabus Parser",            body: "Upload your school's PDF syllabus. We read it and build your full year plan in seconds, not a template you then spend an hour editing.", extra: "Works on handwritten notes, scanned PDFs, and messy Word docs. Extracts chapters, topics, and exam dates even when the formatting is all over the place." },
+  { tag: "ζ", ttl: "Study Pact",                 body: "Lock a revision session with a friend. If either of you skips, both streaks reset. The only study feature that works because it is uncomfortable.", extra: "Letting someone else down turns out to be more motivating than personal discipline. That is the whole design." },
+  { tag: "η", ttl: "Score to College Predictor", body: "Score X on this week's test and these colleges move into reach. Score Y and they move out. Built on published cutoff data.", extra: "Covers JEE, NEET, CUET, and board exams. Shows rolling percentile so you know if you are safely inside the cutoff or right on the margin." },
 ] as const;
 
 const TICKER = [
@@ -96,10 +40,8 @@ const TICKER = [
   "Every wrong answer becomes a scheduled revision",
   "Built for CBSE, ICSE, IB, IGCSE, A-Level, JEE, NEET, SAT",
   "One login. Every tool you need.",
-  "48 tools — one score — one streak",
+  "48 tools · one score · one streak",
 ];
-
-const CATEGORIES = ["ALL", "PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"] as const;
 
 const CAT_COLOR: Record<string, string> = {
   PLAN:     "var(--sage)",
@@ -144,32 +86,8 @@ const S = {
   borderInk: "1px solid var(--ink)",
 };
 
-/* ── Hero variant system ── */
-type HeroVariant = "morning" | "day" | "evening" | "late" | "dead";
-
-function getVariant(): HeroVariant {
-  const h = new Date().getHours();
-  if (h >= 5  && h < 10) return "morning";
-  if (h >= 10 && h < 17) return "day";
-  if (h >= 17 && h < 22) return "evening";
-  if (h >= 22 || h < 2 ) return "late";
-  return "dead";
-}
-
-const HERO_COPY: Record<HeroVariant, { line1: string; line2: string; sub: string }> = {
-  morning: { line1: "Before the day",              line2: "decides what you'll be.",          sub: "Ledger. For the hours that compound." },
-  day:     { line1: "Stop guessing",                 line2: "what to study.",                   sub: "Upload your syllabus. Get a day-by-day plan, past papers, AI help — and your exam readiness score — in under 60 seconds. Free." },
-  evening: { line1: "The hours after coaching",     line2: "are the ones that matter.",        sub: "Ledger. Built for the second shift." },
-  late:    { line1: "",                             line2: "You're still here.",               sub: "So are we. Ledger is the only study OS designed for the hours nobody photographs." },
-  dead:    { line1: "Sleep.",                       line2: "We'll be here tomorrow.",          sub: "Ledger. The only edtech that will tell you to stop." },
-};
-
-/* ── Section label row ── */
-
 export default function Home() {
   const [today,          setToday]          = useState("");
-  const [selectedTool,   setSelectedTool]   = useState(0);
-  const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [expandedFeat,   setExpandedFeat]   = useState<number | null>(null);
   const [papers,         setPapers]         = useState(3);
   const [hasSyllabus,    setHasSyllabus]    = useState(false);
@@ -177,12 +95,7 @@ export default function Home() {
   const [streak,         setStreak]         = useState(5);
   const [toolSearch,     setToolSearch]     = useState("");
 
-  const [variant,      setVariant]      = useState<HeroVariant>("day");
-  const [clockTime,    setClockTime]    = useState("");
-  const [city,         setCity]         = useState<string | null>(null);
-  const [awakeCount,   setAwakeCount]   = useState<number | null>(null);
-  const [bookmarkHint, setBookmarkHint] = useState(false);
-  const [headline,     setHeadline]     = useState("Know exactly how ready you are for your exams");
+  const [headline,       setHeadline]       = useState("Know exactly how ready you are for your exams");
 
   // PostHog A/B: hero headline variant
   useEffect(() => {
@@ -198,68 +111,15 @@ export default function Home() {
   }, []);
 
 
-  // Clock + variant — ticks every second
-  useEffect(() => {
-    const tick = () => {
-      setVariant(getVariant());
-      setClockTime(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" }));
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // City detection — browser geolocation (precise to neighbourhood) → IP fallback
-  useEffect(() => {
-    function setFromIP() {
-      fetch("/api/city").then(r => r.json()).then(d => { if (d.city) setCity(d.city); }).catch(() => {});
-    }
-    if (!navigator.geolocation) { setFromIP(); return; }
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const { latitude: lat, longitude: lon } = pos.coords;
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`, {
-          headers: { "Accept-Language": "en" },
-        })
-          .then(r => r.json())
-          .then((d: { address?: Record<string, string> }) => {
-            const a = d.address ?? {};
-            const name = a.suburb ?? a.neighbourhood ?? a.city_district ?? a.town ?? a.city ?? null;
-            if (name) setCity(name); else setFromIP();
-          })
-          .catch(setFromIP);
-      },
-      setFromIP,
-      { timeout: 5000, maximumAge: 3_600_000 },
-    );
-  }, []);
-
-  // Late-night awake count — poll every 30 s only during the late variant
-  useEffect(() => {
-    if (variant !== "late") { setAwakeCount(null); return; }
-    const poll = () => fetch("/api/awake-count?stream=jee").then(r => r.json())
-      .then(d => setAwakeCount(d.inWindow ? d.awakeCount : null)).catch(() => {});
-    poll();
-    const id = setInterval(poll, 30_000);
-    return () => clearInterval(id);
-  }, [variant]);
-
   const containerRef  = useRef<HTMLDivElement>(null);
   const scoreNumRef   = useRef<HTMLDivElement>(null);
   const prevScoreRef  = useRef(scorePreviewCalc(3, false, 8, 5));
-
-  const filteredTools = activeCategory === "ALL"
-    ? TOOLS
-    : TOOLS.filter(t => t.cat === activeCategory);
-  const tool = filteredTools[Math.min(selectedTool, filteredTools.length - 1)] ?? filteredTools[0];
 
   const scorePreview = scorePreviewCalc(papers, hasSyllabus, mistakesPerWeek, streak);
 
   useEffect(() => {
     setToday(new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
   }, []);
-
-  useEffect(() => { setSelectedTool(0); }, [activeCategory]);
 
   /* Scroll progress bar */
   useEffect(() => {
@@ -318,17 +178,11 @@ export default function Home() {
       if (!reduceMotion) {
         gsap.set(".reveal-up",    { autoAlpha: 0, y: 48, clipPath: "inset(0 0 20% 0)" });
         gsap.set(".reveal-body",  { autoAlpha: 0, y: 40 });
-        gsap.set(".reveal-quote", { autoAlpha: 0, x: -50 });
-        gsap.set(".reveal-stat",  { autoAlpha: 0, y: 40, scale: 0.85 });
         gsap.set(".bento-card",   { autoAlpha: 0, y: 40, scale: 0.96 });
         gsap.set(".feat-card",    { autoAlpha: 0, y: 56,  scale: 0.9 });
-        gsap.set(".stat-card",    { autoAlpha: 0, y: 48,  scale: 0.88 });
-        gsap.set(".hiw-step",     { autoAlpha: 0, y: 50 });
-        gsap.set(".cat-tab",      { autoAlpha: 0, y: 20 });
         gsap.set(".tool-item",    { autoAlpha: 0, x: -32 });
         gsap.set(".footer-col",   { autoAlpha: 0, y: 44 });
         gsap.set(".anim-divider", { scaleX: 0, transformOrigin: "left center" });
-        gsap.set(".hiw-line",     { scaleX: 0, transformOrigin: "left center" });
         gsap.set(".cta-content > *", { autoAlpha: 0, y: 40 });
       }
 
@@ -388,19 +242,6 @@ export default function Home() {
         });
       });
 
-      /* ── Welcome section: scroll-triggered char reveal ── */
-      gsap.to(".welcome-eyebrow", {
-        autoAlpha: 1, duration: 0.6, ease: "power2.out",
-        scrollTrigger: { trigger: ".welcome-section", start: "top 80%", once: true },
-      });
-      gsap.utils.toArray<HTMLElement>(".welcome-char").forEach((el, i) => {
-        gsap.to(el, {
-          y: 0, autoAlpha: 1, duration: 0.7, ease: [0.16, 1, 0.3, 1] as unknown as string,
-          delay: i * 0.032,
-          scrollTrigger: { trigger: ".welcome-section", start: "top 75%", once: true },
-        });
-      });
-
       /* ── Section headings: clip-path reveal ── */
       gsap.utils.toArray<HTMLElement>(".reveal-up").forEach(el => {
         gsap.to(el, {
@@ -413,22 +254,6 @@ export default function Home() {
       gsap.utils.toArray<HTMLElement>(".reveal-body").forEach((el, i) => {
         gsap.to(el, {
           autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out", delay: i * 0.06,
-          scrollTrigger: { trigger: el, start: "top 92%", once: true },
-        });
-      });
-
-      /* ── Pull quotes slide from left ── */
-      gsap.utils.toArray<HTMLElement>(".reveal-quote").forEach(el => {
-        gsap.to(el, {
-          autoAlpha: 1, x: 0, duration: 1.1, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 90%", once: true },
-        });
-      });
-
-      /* ── Meta stat pops — back.out spring ── */
-      gsap.utils.toArray<HTMLElement>(".reveal-stat").forEach((el, i) => {
-        gsap.to(el, {
-          autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.8)", delay: i * 0.1,
           scrollTrigger: { trigger: el, start: "top 92%", once: true },
         });
       });
@@ -452,71 +277,13 @@ export default function Home() {
         });
       });
 
-      /* ── Stat cards ── */
-      gsap.utils.toArray<HTMLElement>(".stat-card").forEach((el, i) => {
-        gsap.to(el, {
-          autoAlpha: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.4)", delay: i * 0.12,
-          scrollTrigger: { trigger: el, start: "top 88%", once: true },
-          clearProps: "transform,opacity,visibility",
-        });
-      });
-
-      /* ── How It Works connecting line ── */
-      gsap.to(".hiw-line", {
-        scaleX: 1, duration: 1.4, ease: "power2.inOut",
-        scrollTrigger: { trigger: ".hiw-line", start: "top 87%", once: true },
-      });
-
-      /* ── How It Works steps — cascade ── */
-      gsap.utils.toArray<HTMLElement>(".hiw-step").forEach((el, i) => {
-        gsap.to(el, {
-          autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", delay: i * 0.18,
-          scrollTrigger: { trigger: el, start: "top 88%", once: true },
-        });
-      });
-
-      /* ── Category tabs ── */
-      gsap.to(".cat-tab", {
-        autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.07, ease: "power2.out",
-        scrollTrigger: { trigger: ".cat-tabs", start: "top 90%", once: true },
-      });
-
-      /* ── Tool list rows — scattered random-order slide ── */
+      /* ── Tool cards — scattered random-order slide ── */
       gsap.to(".tool-item", {
         autoAlpha: 1, x: 0, duration: 0.6,
         stagger: { each: 0.025, from: "random" },
         ease: "power2.out",
-        scrollTrigger: { trigger: ".cat-tabs", start: "top 80%", once: true },
+        scrollTrigger: { trigger: "#tools", start: "top 80%", once: true },
         clearProps: "opacity,transform,visibility",
-      });
-
-      /* ── Count-up numbers ── */
-      gsap.utils.toArray<HTMLElement>(".count-up").forEach(el => {
-        const target   = parseFloat(el.dataset.target   ?? "0");
-        const suffix   = el.dataset.suffix   ?? "";
-        const decimals = parseInt(el.dataset.decimals   ?? "0", 10);
-        const obj = { val: 0 };
-        gsap.to(obj, {
-          val: target, duration: 2.8, ease: "power2.out",
-          scrollTrigger: { trigger: el, start: "top 88%", once: true },
-          onUpdate() {
-            el.textContent = (decimals > 0 ? obj.val.toFixed(decimals) : Math.round(obj.val)) + suffix;
-          },
-          onComplete() {
-            /* Subtle bounce on the parent stat-card when count finishes */
-            const card = el.closest<HTMLElement>(".stat-card");
-            if (card) gsap.fromTo(card, { scale: 1.04 }, { scale: 1, duration: 0.45, ease: "back.out(2.5)" });
-          },
-        });
-      });
-
-      /* ── Progress bars ── */
-      gsap.utils.toArray<HTMLElement>(".progress-bar").forEach(el => {
-        const finalW = el.style.width;
-        gsap.fromTo(el, { width: 0 }, {
-          width: finalW, duration: 1.8, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 90%", once: true },
-        });
       });
 
       /* ── Section inner scrub parallax ── */
@@ -617,22 +384,6 @@ export default function Home() {
         });
       });
 
-      /* Hero stat rows */
-      gsap.utils.toArray<HTMLElement>(".hero-stat-row").forEach(el =>
-        addHover(el,
-          { y: -2, background: "color-mix(in srgb, var(--ink) 5%, transparent)", duration: 0.2, ease: "power2.out" },
-          { y:  0, background: "transparent", duration: 0.35, ease: "power3.out" }
-        )
-      );
-
-      /* Category tabs — scale flash */
-      gsap.utils.toArray<HTMLElement>(".cat-tab").forEach(el =>
-        addHover(el,
-          { scale: 1.03, duration: 0.18, ease: "power2.out" },
-          { scale: 1,    duration: 0.3,  ease: "power3.out" }
-        )
-      );
-
       /* Tool cube cards — 3D tilt on cursor move */
       if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.utils.toArray<HTMLElement>(".tool-item").forEach(el => {
@@ -687,14 +438,6 @@ export default function Home() {
           el.removeEventListener("mouseleave", onLeave);
         });
       });
-
-      /* Stat cards — lift on hover */
-      gsap.utils.toArray<HTMLElement>(".stat-card").forEach(el =>
-        addHover(el,
-          { y: -4, scale: 1.02, duration: 0.25, ease: "power2.out" },
-          { y:  0, scale: 1,    duration: 0.4,  ease: "power3.out" }
-        )
-      );
 
       /* CTA section buttons */
       gsap.utils.toArray<HTMLElement>(".cta-btn").forEach(el => {
@@ -784,7 +527,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
           <span style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 16, color: "var(--ink)", letterSpacing: "0.1em" }}>LEDGER</span>
           <nav style={{ display: "flex", gap: 28 }} className="mob-hide">
-            {[["#tools", "Tools"], ["#features", "Features"], ["#score", "Score"]].map(([href, label]) => (
+            {[["#how", "How it works"], ["#tools", "Tools"], ["#features", "Features"], ["#score", "Score"]].map(([href, label]) => (
               <a key={href} href={href} className="lp-nav-link" style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 500, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 180ms", display: "inline-block" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "var(--ink)")}
                 onMouseLeave={e => (e.currentTarget.style.color = "var(--ink-3)")}
@@ -832,7 +575,7 @@ export default function Home() {
               padding: "3px 9px", borderRadius: 99, lineHeight: 1.6,
             }}>New</span>
             <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", letterSpacing: "0.02em" }}>
-              Ledger Score — exam readiness in 60 seconds
+              Ledger Score: exam readiness in 60 seconds
             </span>
           </div>
 
@@ -844,7 +587,13 @@ export default function Home() {
           }}>
             {headline}
           </h1>
-          <div className="hero-ctas" style={{ display: "flex", justifyContent: "center", pointerEvents: "auto", marginTop: 32 }}>
+          <p style={{
+            fontFamily: "var(--sans)", fontSize: "clamp(14px, 1.6vw, 17px)", color: "var(--ink-2)",
+            lineHeight: 1.65, maxWidth: 520, margin: "0 auto", textWrap: "balance",
+          }}>
+            Upload your syllabus. Get a day-by-day plan, past papers, AI help, and a live readiness score out of 1000.
+          </p>
+          <div className="hero-ctas" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14, flexWrap: "wrap", pointerEvents: "auto", marginTop: 32 }}>
             <Link
               href="/auth"
               className="btn hero-cta-btn group"
@@ -859,11 +608,25 @@ export default function Home() {
               <span style={{ overflow: "hidden", height: 20, display: "block" }}>
                 <span className="flex flex-col transition-transform duration-500 group-hover:-translate-y-1/2"
                   style={{ transitionTimingFunction: "cubic-bezier(0.25,0.1,0.25,1)" }}>
-                  <span style={{ lineHeight: "20px" }}>Check my readiness &mdash; it&apos;s free</span>
-                  <span aria-hidden style={{ lineHeight: "20px" }}>Check my readiness &mdash; it&apos;s free</span>
+                  <span style={{ lineHeight: "20px" }}>Get my free readiness score</span>
+                  <span aria-hidden style={{ lineHeight: "20px" }}>Get my free readiness score</span>
                 </span>
               </span>
             </Link>
+            <a
+              href="#how"
+              className="btn ghost hero-cta-btn"
+              style={{
+                textDecoration: "none", fontSize: 13, letterSpacing: "0.08em",
+                padding: "13px 26px", display: "inline-flex", alignItems: "center",
+                borderRadius: 12, fontWeight: 600, fontFamily: "var(--sans)",
+              }}
+            >
+              See how it works
+            </a>
+          </div>
+          <div style={{ marginTop: 22, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            Free to start · No credit card · CBSE · ICSE · IB · IGCSE · A-Level · SAT
           </div>
         </div>
 
@@ -879,54 +642,6 @@ export default function Home() {
 
       </section>
 
-      {/* ─── Welcome ─── */}
-      <section className="welcome-section" style={{ padding: "120px 32px", textAlign: "center", borderBottom: S.border, background: "var(--paper)", overflow: "hidden" }}>
-        <div className="welcome-eyebrow" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 20, opacity: 0 }}>
-          Welcome to
-        </div>
-        <div style={{ overflow: "hidden" }}>
-          {"StudyLedger".split("").map((char, i) => (
-            <span
-              key={i}
-              className="welcome-char"
-              style={{
-                display: "inline-block",
-                fontFamily: "var(--serif)",
-                fontStyle: "italic",
-                fontWeight: 400,
-                fontSize: "clamp(56px, 10vw, 130px)",
-                color: "var(--ink)",
-                letterSpacing: "-0.025em",
-                lineHeight: 1.05,
-                transform: "translateY(110%)",
-                opacity: 0,
-              }}
-            >
-              {char}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Product at a Glance ─── */}
-      <section style={{ padding: "56px 44px", borderBottom: S.border, background: "var(--paper)" }}>
-        <p className="reveal-up" style={{ ...S.cap, textAlign: "center", marginBottom: 12 }}>Product at a Glance</p>
-        <h2 className="reveal-up" style={{ ...S.h2, textAlign: "center", marginBottom: 48 }}>Everything a serious student needs</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, maxWidth: 900, margin: "0 auto" }}>
-          {[
-            { stat: "48",  label: "AI-powered tools", sub: "Notes, doubts, papers, career — all in one place",        cls: "reveal-left"  },
-            { stat: "1000", label: "Ledger Score",      sub: "Your readiness out of 1000, updated after every session", cls: "reveal-up"    },
-            { stat: "6+",   label: "Exam boards",       sub: "CBSE · ICSE · IB · JEE · NEET · SAT and more",           cls: "reveal-right"  },
-          ].map(({ stat, label, sub, cls }) => (
-            <div key={label} className={`${cls} bento-tilt`} style={{ padding: "36px 28px", background: "var(--paper)", borderRadius: 16 }}>
-              <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(40px,5vw,64px)", color: "var(--cinnabar-ink)", lineHeight: 1, marginBottom: 8 }}>{stat}</div>
-              <div style={{ fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink)", marginBottom: 8 }}>{label}</div>
-              <div style={{ ...S.body, fontSize: 13 }}>{sub}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ─── Interactive Demo ─── */}
       <HeroInteractiveDemo />
 
@@ -938,7 +653,7 @@ export default function Home() {
               const tc = (["var(--cinnabar-ink)","var(--powder-blue)","var(--sage)","var(--plum)","var(--tan-brand)"] as const)[i % 5];
               return (
                 <span key={`${k}-${i}`} style={{ padding: "0 28px" }}>
-                  <span style={{ color: tc, marginRight: 12 }}>—</span>{item}
+                  <span style={{ color: tc, marginRight: 12 }}>·</span>{item}
                 </span>
               );
             }))}
@@ -949,151 +664,8 @@ export default function Home() {
       {/* ─── Product walkthrough ─── */}
       <ProductWalkthrough />
 
-      {/* ─── ChatGPT vs Ledger comparison ─── */}
-      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 64 }}>
-            <h2 className="reveal-up" style={S.h2}>Why not just use ChatGPT?</h2>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>
-              Students ask this every day
-            </span>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }} className="mob-col">
-            {/* ChatGPT column */}
-            <div className="reveal-left bento-tilt" style={{ borderRadius: 16, overflow: "hidden", background: "var(--paper)" }}>
-              <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--rule)", background: "color-mix(in srgb, var(--ink) 3%, var(--paper))" }}>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 4 }}>Generic AI</div>
-                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink-2)" }}>ChatGPT / Gemini</div>
-              </div>
-              {[
-                "Answers your question, then forgets it",
-                "Has no idea what board you're on",
-                "Doesn't know what chapters you're behind on",
-                "Can't track what you've covered",
-                "No readiness score — you can't measure progress",
-                "No exam date awareness",
-                "Generic study tips, not your specific syllabus",
-                "Starts fresh every session",
-              ].map((row, i) => (
-                <div key={i} style={{ padding: "14px 28px", borderBottom: i < 7 ? "1px solid var(--rule)" : "none", display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ color: "var(--ink-3)", fontSize: 14, flexShrink: 0 }}>✕</span>
-                  <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.4 }}>{row}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Ledger column */}
-            <div className="reveal-right bento-tilt" style={{ borderRadius: 16, overflow: "hidden", background: "var(--paper)", boxShadow: "0 2px 4px color-mix(in srgb, var(--cinnabar-ink) 8%, transparent), 0 12px 32px color-mix(in srgb, var(--cinnabar-ink) 14%, transparent)" }}>
-              <div style={{ padding: "20px 28px", borderBottom: "1px solid color-mix(in srgb, var(--cinnabar-ink) 25%, transparent)", background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))" }}>
-                <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)", marginBottom: 4 }}>Built for exams</div>
-                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)" }}>StudyLedger</div>
-              </div>
-              {[
-                "Remembers every session, every subject, every gap",
-                "Knows your board, grade, and exam date",
-                "Shows exactly how many chapters you're behind — and how long to catch up",
-                "Tracks syllabus coverage across every tool you use",
-                "Live 0–1000 readiness score, updated every session",
-                "Counts down to your exam and adjusts your plan daily",
-                "Everything calibrated to your actual uploaded syllabus",
-                "Your history, your score, your streak — always there",
-              ].map((row, i) => (
-                <div key={i} style={{ padding: "14px 28px", borderBottom: i < 7 ? "1px solid color-mix(in srgb, var(--cinnabar-ink) 15%, transparent)" : "none", display: "flex", alignItems: "center", gap: 12, background: i % 2 === 0 ? "color-mix(in srgb, var(--cinnabar-ink) 3%, var(--paper))" : "transparent" }}>
-                  <span style={{ color: "var(--cinnabar-ink)", fontSize: 14, flexShrink: 0 }}>✓</span>
-                  <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.4 }}>{row}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginTop: 40, textAlign: "center" }}>
-            <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "clamp(16px,2vw,22px)", color: "var(--ink-2)", margin: "0 0 24px" }}>
-              ChatGPT answers questions. Ledger builds a system around your syllabus.
-            </p>
-            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>
-              Upload your syllabus — free →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Competitive table: Quizlet / Notion / GCR ─── */}
-      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "100px 56px 80px" }}>
-          <div style={{ marginBottom: 48 }}>
-            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 12 }}>vs everything else</div>
-            <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(22px,2.8vw,34px)" }}>Why not Quizlet, Notion, or Google Classroom?</h2>
-          </div>
-          <div className="reveal-up bento-tilt" style={{ overflowX: "auto" as const, borderRadius: 16, background: "var(--paper)", padding: "8px 4px" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" as const, fontFamily: "var(--sans)", fontSize: 13 }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "left" as const, padding: "14px 20px", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", borderBottom: "1px solid var(--rule)", fontWeight: 500 }}>Feature</th>
-                  {(["Quizlet", "Notion", "Google Classroom", "ChatGPT", "Ledger"] as const).map((tool, i) => (
-                    <th key={tool} style={{ textAlign: "center" as const, padding: "14px 16px", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: i === 4 ? "var(--cinnabar-ink)" : "var(--ink-3)", borderBottom: "1px solid var(--rule)", fontWeight: i === 4 ? 700 : 500 }}>{tool}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {([
-                  ["Board-aware study plan",          false, false, false, false, true],
-                  ["Real-time exam readiness score",  false, false, false, false, true],
-                  ["Past papers, AI-graded",          false, false, false, false, true],
-                  ["AI that knows your syllabus",     false, false, false, false, true],
-                  ["Tracks gaps across sessions",     false, false, false, false, true],
-                  ["48 integrated study tools",      false, false, false, false, true],
-                  ["Flashcard practice",              true,  false, false, false, true],
-                  ["Works across all 6 boards",       false, false, true,  false, true],
-                  ["Free to start",                   true,  true,  true,  true,  true],
-                ] as const).map(([feat, ...vals], ri) => (
-                  <tr key={String(feat)} style={{ background: ri % 2 === 0 ? "color-mix(in srgb, var(--ink) 2%, transparent)" : "transparent" }}>
-                    <td style={{ padding: "13px 20px", color: "var(--ink-2)", lineHeight: 1.4 }}>{feat}</td>
-                    {vals.map((v, ci) => (
-                      <td key={ci} style={{ textAlign: "center" as const, padding: "13px 16px", fontSize: 14 }}>
-                        {v
-                          ? <span style={{ color: ci === 4 ? "var(--cinnabar-ink)" : "var(--sage)" }}>✓</span>
-                          : <span style={{ color: "var(--ink-3)", opacity: 0.4 }}>—</span>
-                        }
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div style={{ marginTop: 32, textAlign: "center" as const }}>
-            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>
-              Try Ledger free →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Trust strip ─── */}
-      <div style={{ borderBottom: S.border, borderTop: S.border }}>
-        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }} className="mob-col">
-          {[
-            { n: "48",   label: "Tools for every exam task",     color: "var(--cream)",         cls: "reveal-left"  },
-            { n: "6+",    label: "Exam boards: CBSE · ICSE · IB · IGCSE · A-Level · SAT", color: "var(--cinnabar-ink)", cls: "reveal-up" },
-            { n: "Free",  label: "to start — no card needed",    color: "var(--powder-blue)",    cls: "reveal-right" },
-          ].map((s, i) => (
-            <div key={i} className={`trust-strip-item ${s.cls}`} style={{
-              padding: "48px 40px",
-              borderRight: i < 2 ? S.border : "none",
-              display: "flex", flexDirection: "column", gap: 8,
-            }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: s.color, lineHeight: 1, letterSpacing: "-0.03em" }}>{s.n}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* ─── 01 / Upload → Study → Score workflow ─── */}
-      <section className="gl-pane-alt" style={{ borderBottom: S.border }}>
+      <section id="how" className="gl-pane-alt" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "180px 56px 160px" }}>
           <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
           <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(24px,3vw,40px)", letterSpacing: "-0.02em", marginBottom: 56 }}>
@@ -1104,9 +676,9 @@ export default function Home() {
             {/* Big upload card — spans 8 cols */}
             <div className="bento-3 bento-tilt reveal-left" style={{ padding: "60px", borderRadius: 16, minHeight: 300, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,202,175,0.18) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
-              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 — Upload</span>
+              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)" }}>01 · Upload</span>
               <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 20px", textWrap: "balance" }}>Your syllabus becomes your year.</h3>
-              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7, maxWidth: 460 }}>Upload a PDF — or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in 6 seconds.</p>
+              <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7, maxWidth: 460 }}>Upload a PDF, or a photo of the printed sheet. Ledger reads every subject, chapter, and topic automatically. The whole year, mapped in seconds.</p>
             </div>
 
             {/* Boards stat card — spans 4 cols */}
@@ -1121,7 +693,7 @@ export default function Home() {
             {/* Study card — spans 6 */}
             <div className="bento-2 bento-tilt reveal-left" style={{ padding: "56px", borderRadius: 16, minHeight: 260, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <div aria-hidden style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(167,190,211,0.20) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" }} />
-              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 — Study</span>
+              <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--powder-blue)" }}>02 · Study</span>
               <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px,3vw,40px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "16px 0 16px", textWrap: "balance" }}>One login. Every tool you need.</h3>
               <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.7 }}>Doubt solver, essay workshop, past papers, prediction engine. All tools share the same score, same streak, same profile.</p>
             </div>
@@ -1138,9 +710,9 @@ export default function Home() {
             {/* Score card — full width */}
             <div className="bento-4 bento-tilt reveal-up" style={{ padding: "60px 68px", borderRadius: 16, display: "flex", gap: 72, alignItems: "center", flexWrap: "wrap" as const, background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
               <div style={{ flex: "1 1 320px" }}>
-                <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 — Score</span>
+                <span className="reveal-up" style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--tan)" }}>03 · Score</span>
                 <h3 className="reveal-up" style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px,3.5vw,48px)", fontStyle: "italic", color: "var(--ink)", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "16px 0 16px", textWrap: "balance" }}>One number. Every insight.</h3>
-                <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7 }}>Ledger Score runs on four signals — past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency — updated every time you use any tool.</p>
+                <p className="reveal-body" style={{ fontFamily: "var(--sans)", fontSize: 16, color: "var(--ink-2)", lineHeight: 1.7 }}>Ledger Score runs on four signals: past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency. It updates every time you use any tool.</p>
               </div>
               <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[
@@ -1167,7 +739,7 @@ export default function Home() {
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 48 }}>
             <h2 className="reveal-up" style={S.h2}>What would your readiness score be right now?</h2>
-            <div style={{ ...S.cap, fontSize: 9 }}>Tool — · Live preview</div>
+            <div style={{ ...S.cap, fontSize: 9 }}>Live preview</div>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 20 }} className="mob-col">
@@ -1254,17 +826,17 @@ export default function Home() {
               <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 6 }}>
                 {!hasSyllabus && (
                   <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+250 pts</span> — Upload your syllabus
+                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+250 pts</span> · Upload your syllabus
                   </div>
                 )}
                 {papers < 5 && (
                   <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((5 - papers) * 18)} pts</span> — Do {5 - papers} more past paper sessions
+                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((5 - papers) * 18)} pts</span> · Do {5 - papers} more past paper sessions
                   </div>
                 )}
                 {streak < 7 && (
                   <div style={{ padding: "8px 12px", background: "color-mix(in srgb, var(--paper) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", borderRadius: 8, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((7 - streak) * 7.5)} pts</span> — Build a 7-day streak
+                    <span style={{ color: "var(--cinnabar-ink)", fontWeight: 700 }}>+{Math.round((7 - streak) * 7.5)} pts</span> · Build a 7-day streak
                   </div>
                 )}
               </div>
@@ -1272,67 +844,6 @@ export default function Home() {
               <Link href="/auth" className="btn" style={{ textDecoration: "none", marginTop: 24, display: "inline-flex", alignSelf: "flex-start", fontSize: 10, letterSpacing: "0.12em" }}>
                 See your real score →
               </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 03 / The System ─── */}
-      <section className="gl-pane" style={{ borderBottom: S.border }}>
-        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
-          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
-
-          <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 72, alignItems: "start" }} className="mob-col">
-            <div className="reveal-left">
-              <h2 className="reveal-up" style={S.h2}>
-                Every session moves the number.
-              </h2>
-              <div className="anim-divider" style={{ ...S.rule, margin: "28px 0" }} />
-              <p className="reveal-body" style={{ ...S.body, fontStyle: "italic" }}>
-                Your Ledger Score accounts for past paper accuracy, syllabus coverage, how fast you correct errors, and daily consistency — updated in real time.
-              </p>
-            </div>
-
-            <div className="reveal-right mob-col" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-              {/* Score */}
-              <div className="bento-card glass-card bento-tilt" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <span style={S.capAccent}>Ledger Score</span>
-                <div>
-                  <div className="count-up" data-target="842" style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>—</div>
-                  <div style={{ marginTop: 14, height: 3, background: "var(--rule)" }}>
-                    <div className="progress-bar" style={{ height: "100%", width: "84%", background: "var(--cinnabar-ink)" }} />
-                  </div>
-                  <div style={{ ...S.cap, marginTop: 8, fontSize: 9 }}>Exam Ready tier · +12% this week</div>
-                </div>
-              </div>
-
-              {/* Toolkit */}
-              <div className="bento-card glass-card bento-tilt" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <span style={S.cap}>Toolkit</span>
-                <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>48</div>
-                  <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", lineHeight: 1.8 }}>
-                    <li>· Study Engine</li>
-                    <li>· Practice Suite</li>
-                    <li>· Essay Workshop</li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Streak */}
-              <div className="bento-card glass-card bento-tilt" style={{ padding: "36px 28px", minHeight: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <span style={S.cap}>Focus Streak</span>
-                <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 64, fontStyle: "normal", fontWeight: 700, color: "var(--ink)", letterSpacing: "0.02em", lineHeight: 1, marginTop: 12 }}>
-                    <span className="count-up" data-target="142">0</span>
-                    <span style={{ fontSize: 28, color: "var(--ink-3)" }}>d</span>
-                  </div>
-                  <div style={{ marginTop: 14, height: 3, background: "var(--rule)" }}>
-                    <div className="progress-bar" style={{ height: "100%", width: "95%", background: "var(--ink)" }} />
-                  </div>
-                  <div style={{ ...S.cap, marginTop: 8, fontSize: 9 }}>Consecutive study days</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1383,7 +894,7 @@ export default function Home() {
             <GooeyInput
               value={toolSearch}
               onChange={setToolSearch}
-              placeholder="Search tools — planner, essays, past papers…"
+              placeholder="Search tools: planner, essays, past papers…"
               style={{ width: "100%", maxWidth: 520 }}
             />
           </div>
@@ -1392,7 +903,7 @@ export default function Home() {
           {(() => {
             const ALL_TOOLS = [
               { n: "03", slug: "notes",  ttl: "Study Engine",  sub: "Upload a chapter. Get a full structured lesson, simplified.",  cat: "LEARN",    icon: "◎" },
-              { n: "06", slug: "papers", ttl: "Past Papers",   sub: "CBSE, JEE, NEET, SAT, IB — graded by AI, tracked in score.",   cat: "PRACTISE", icon: "◆" },
+              { n: "06", slug: "papers", ttl: "Past Papers",   sub: "CBSE, JEE, NEET, SAT, IB. Graded by AI, tracked in your score.",   cat: "PRACTISE", icon: "◆" },
               { n: "★",  slug: "score",  ttl: "Ledger Score",  sub: "Your real-time exam readiness across every topic you study.",   cat: "TRACK",    icon: "★" },
             ] as const;
             const q = toolSearch.trim().toLowerCase();
@@ -1487,7 +998,7 @@ export default function Home() {
                 </div>
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--rule)" }}>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-3)", marginTop: 3, lineHeight: 1.5 }}>
-                    {["Every tracked gap becomes a scheduled revision session — nothing slips silently", "Schedules work around your focus peak instead of a generic timetable", "The Ebbinghaus spaced repetition method — used by top students and medical trainees worldwide"][i]}
+                    {["Every tracked gap becomes a scheduled revision session. Nothing slips silently.", "Schedules work around your focus peak instead of a generic timetable", "The Ebbinghaus spaced repetition method, used by top students and medical trainees worldwide"][i]}
                   </div>
                 </div>
               </div>
@@ -1538,14 +1049,137 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── ChatGPT vs Ledger comparison ─── */}
+      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "160px 56px 144px" }}>
+          <div className="anim-divider" style={{ height: 1, background: "var(--rule)", marginBottom: 72 }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 64 }}>
+            <h2 className="reveal-up" style={S.h2}>Why not just use ChatGPT?</h2>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>
+              Students ask this every day
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }} className="mob-col">
+            {/* ChatGPT column */}
+            <div className="reveal-left bento-tilt" style={{ borderRadius: 16, overflow: "hidden", background: "var(--paper)" }}>
+              <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--rule)", background: "color-mix(in srgb, var(--ink) 3%, var(--paper))" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 4 }}>Generic AI</div>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink-2)" }}>ChatGPT / Gemini</div>
+              </div>
+              {[
+                "Answers your question, then forgets it",
+                "Has no idea what board you're on",
+                "Doesn't know what chapters you're behind on",
+                "Can't track what you've covered",
+                "No readiness score, no way to measure progress",
+                "No exam date awareness",
+                "Generic study tips, not your specific syllabus",
+                "Starts fresh every session",
+              ].map((row, i) => (
+                <div key={i} style={{ padding: "14px 28px", borderBottom: i < 7 ? "1px solid var(--rule)" : "none", display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ color: "var(--ink-3)", fontSize: 14, flexShrink: 0 }}>✕</span>
+                  <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.4 }}>{row}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Ledger column */}
+            <div className="reveal-right bento-tilt" style={{ borderRadius: 16, overflow: "hidden", background: "var(--paper)", boxShadow: "0 2px 4px color-mix(in srgb, var(--cinnabar-ink) 8%, transparent), 0 12px 32px color-mix(in srgb, var(--cinnabar-ink) 14%, transparent)" }}>
+              <div style={{ padding: "20px 28px", borderBottom: "1px solid color-mix(in srgb, var(--cinnabar-ink) 25%, transparent)", background: "color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper))" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--cinnabar-ink)", marginBottom: 4 }}>Built for exams</div>
+                <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: "var(--ink)" }}>StudyLedger</div>
+              </div>
+              {[
+                "Remembers every session, every subject, every gap",
+                "Knows your board, grade, and exam date",
+                "Shows exactly how many chapters you're behind, and how long to catch up",
+                "Tracks syllabus coverage across every tool you use",
+                "Live 0-1000 readiness score, updated every session",
+                "Counts down to your exam and adjusts your plan daily",
+                "Everything calibrated to your actual uploaded syllabus",
+                "Your history, your score, your streak, always there",
+              ].map((row, i) => (
+                <div key={i} style={{ padding: "14px 28px", borderBottom: i < 7 ? "1px solid color-mix(in srgb, var(--cinnabar-ink) 15%, transparent)" : "none", display: "flex", alignItems: "center", gap: 12, background: i % 2 === 0 ? "color-mix(in srgb, var(--cinnabar-ink) 3%, var(--paper))" : "transparent" }}>
+                  <span style={{ color: "var(--cinnabar-ink)", fontSize: 14, flexShrink: 0 }}>✓</span>
+                  <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.4 }}>{row}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 40, textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "clamp(16px,2vw,22px)", color: "var(--ink-2)", margin: "0 0 24px" }}>
+              ChatGPT answers questions. Ledger builds a system around your syllabus.
+            </p>
+            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>
+              Upload your syllabus free →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Competitive table: Quizlet / Notion / GCR ─── */}
+      <section style={{ borderBottom: S.border, background: "var(--paper)" }}>
+        <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "100px 56px 80px" }}>
+          <div style={{ marginBottom: 48 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", marginBottom: 12 }}>vs everything else</div>
+            <h2 className="reveal-up" style={{ ...S.h2, fontSize: "clamp(22px,2.8vw,34px)" }}>Why not Quizlet, Notion, or Google Classroom?</h2>
+          </div>
+          <div className="reveal-up bento-tilt" style={{ overflowX: "auto" as const, borderRadius: 16, background: "var(--paper)", padding: "8px 4px" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" as const, fontFamily: "var(--sans)", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "left" as const, padding: "14px 20px", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "var(--ink-3)", borderBottom: "1px solid var(--rule)", fontWeight: 500 }}>Feature</th>
+                  {(["Quizlet", "Notion", "Google Classroom", "ChatGPT", "Ledger"] as const).map((tool, i) => (
+                    <th key={tool} style={{ textAlign: "center" as const, padding: "14px 16px", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: i === 4 ? "var(--cinnabar-ink)" : "var(--ink-3)", borderBottom: "1px solid var(--rule)", fontWeight: i === 4 ? 700 : 500 }}>{tool}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {([
+                  ["Board-aware study plan",          false, false, false, false, true],
+                  ["Real-time exam readiness score",  false, false, false, false, true],
+                  ["Past papers, AI-graded",          false, false, false, false, true],
+                  ["AI that knows your syllabus",     false, false, false, false, true],
+                  ["Tracks gaps across sessions",     false, false, false, false, true],
+                  ["48 integrated study tools",      false, false, false, false, true],
+                  ["Flashcard practice",              true,  false, false, false, true],
+                  ["Works across all 6 boards",       false, false, true,  false, true],
+                  ["Free to start",                   true,  true,  true,  true,  true],
+                ] as const).map(([feat, ...vals], ri) => (
+                  <tr key={String(feat)} style={{ background: ri % 2 === 0 ? "color-mix(in srgb, var(--ink) 2%, transparent)" : "transparent" }}>
+                    <td style={{ padding: "13px 20px", color: "var(--ink-2)", lineHeight: 1.4 }}>{feat}</td>
+                    {vals.map((v, ci) => (
+                      <td key={ci} style={{ textAlign: "center" as const, padding: "13px 16px", fontSize: 14 }}>
+                        {v
+                          ? <span style={{ color: ci === 4 ? "var(--cinnabar-ink)" : "var(--sage)" }}>✓</span>
+                          : <span style={{ color: "var(--ink-3)", opacity: 0.35 }}>✕</span>
+                        }
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ marginTop: 32, textAlign: "center" as const }}>
+            <Link href="/dashboard" className="btn" style={{ textDecoration: "none", fontSize: 11, letterSpacing: "0.10em" }}>
+              Try Ledger free →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <BeforeAfterSection />
       <StudentJourneySection />
 
       {/* ─── Waitlist ─── */}
       <section style={{ borderBottom: S.border, background: "color-mix(in oklch, var(--paper) 55%, transparent)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
         <div style={{ maxWidth: 680, margin: "0 auto", padding: "120px 24px 100px", textAlign: "center" }}>
-          <div style={{ ...S.capAccent, marginBottom: 20 }}>Exam-Day Mode — Now live</div>
-          <h2 style={{ fontFamily: "var(--sans)", fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 800, color: "var(--ink)", lineHeight: 1.2, marginBottom: 12 }}>
+          <div style={{ ...S.capAccent, marginBottom: 20 }}>Now live</div>
+          <h2 style={{ ...S.h2, marginBottom: 12 }}>
             Exam-Day Mode is here.
           </h2>
           <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", lineHeight: 1.7, marginBottom: 36 }}>
@@ -1565,7 +1199,7 @@ export default function Home() {
           >
             Open Exam-Day Mode →
           </Link>
-          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>Free while in launch · No sign-up wall — your gaps, your morning</div>
+          <div style={{ marginTop: 20, fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" as const }}>Free while in launch · No sign-up wall · Your gaps, your morning</div>
         </div>
       </section>
 
@@ -1573,7 +1207,7 @@ export default function Home() {
       <section className="cta-section gl-pane-alt" style={{ borderBottom: S.border }}>
         <div className="lp-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "96px 40px" }}>
           <div className="cta-content" style={{ textAlign: "center", maxWidth: 680, margin: "0 auto" }}>
-            <div style={{ ...S.capAccent, marginBottom: 28 }}>Start today — free, no credit card</div>
+            <div style={{ ...S.capAccent, marginBottom: 28 }}>Start today · Free · No credit card</div>
             <h2 style={{
               fontFamily: "var(--serif)", fontStyle: "normal", fontWeight: 700,
               fontSize: "clamp(32px,5.5vw,64px)", color: "var(--ink)", letterSpacing: "0.04em", lineHeight: 1.05,
