@@ -1,8 +1,8 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import TierGate from "@/components/tier-gate";
-import ElasticSlider from "@/components/ui/elastic-slider";
-import { PAPERS, type Paper, type Question } from "@/lib/papers-data";
+import ElasticSlider from "@/components/ui/elastic-slider-lazy";
+import type { Paper, Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
 import { useAuth } from "@/components/auth-provider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
@@ -200,12 +200,30 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   );
 }
 
+// papers-data is ~130 KB of source shipped to first load when imported
+// statically — fetch it after mount instead; the browser has it within ms.
+let PAPERS_CACHE: Paper[] | null = null;
+function usePapers(): Paper[] | null {
+  const [papers, setPapers] = useState<Paper[] | null>(PAPERS_CACHE);
+  useEffect(() => {
+    if (papers) return;
+    let alive = true;
+    import("@/lib/papers-data").then(m => {
+      PAPERS_CACHE = m.PAPERS;
+      if (alive) setPapers(m.PAPERS);
+    });
+    return () => { alive = false; };
+  }, [papers]);
+  return papers;
+}
+
 function PapersTab() {
   const { user } = useAuth();
   const [practice, setPractice] = useState<PracticeState | null>(null);
   const [board, setBoard]     = useState("All");
   const [subject, setSubject] = useState("All");
   const [diff, setDiff]       = useState("All");
+  const PAPERS   = usePapers() ?? [];
   const boards   = ["All", ...Array.from(new Set(PAPERS.map(p => p.board)))];
   const subjects = ["All", ...Array.from(new Set(PAPERS.map(p => p.subject)))];
   const diffs    = ["All", "Easy", "Medium", "Hard"];
@@ -232,7 +250,7 @@ function PapersTab() {
       <div>
         <div style={{ padding: "12px 44px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between" }}>
           <span className="mono" style={{ color: "var(--ink-3)" }}>Past Papers</span>
-          <span className="mono" style={{ color: "var(--ink-3)" }}>{PAPERS.length} papers · {PAPERS.reduce((s, p) => s + p.questions.length, 0)} questions</span>
+          <span className="mono" style={{ color: "var(--ink-3)" }}>{PAPERS.length === 0 ? "Loading papers…" : `${PAPERS.length} papers · ${PAPERS.reduce((s, p) => s + p.questions.length, 0)} questions`}</span>
         </div>
         <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ display: "flex", gap: 0, marginBottom: 32 }}>

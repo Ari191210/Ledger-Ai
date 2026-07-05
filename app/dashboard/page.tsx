@@ -14,7 +14,13 @@ import FeaturesShowcase from "@/components/features-showcase";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import EmptyChair from "@/components/empty-chair";
-import { LiveActivityCard } from "@/components/live-activity-card";
+import dynamic from "next/dynamic";
+// AnimatedList/NumberTicker/BorderBeam inside pull the motion lib (~45 KB gz);
+// the card sits below the fold, so split it out of first load.
+const LiveActivityCard = dynamic(
+  () => import("@/components/live-activity-card").then(m => m.LiveActivityCard),
+  { ssr: false, loading: () => null },
+);
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";

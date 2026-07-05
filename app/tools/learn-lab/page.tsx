@@ -11,7 +11,15 @@ import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
 import SaveOutputButton from "@/components/save-output-button";
-import { PhysicsSim, type SimType } from "@/components/physics-sim";
+import dynamic from "next/dynamic";
+import type { SimType } from "@/components/physics-sim";
+
+// Only renders when the AI returns a sim — keep the 70KB sim engine (and the
+// motion lib its sliders pull in) out of the page's first load.
+const PhysicsSim = dynamic(() => import("@/components/physics-sim").then(m => m.PhysicsSim), {
+  ssr: false,
+  loading: () => <div className="mono" style={{ padding: 24, color: "var(--ink-3)", fontSize: 10 }}>Loading simulation…</div>,
+});
 
 // ─── Doubt Solver types ──────────────────────────────────────────────────────
 type DoubtSim = { type: SimType; label?: string; params?: Record<string, number> };

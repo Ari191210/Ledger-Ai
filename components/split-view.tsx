@@ -1,18 +1,44 @@
 "use client";
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { useUI } from "./ui-context";
 import { TOOLS_REGISTRY } from "@/lib/tools-registry";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // Slug → display name, derived from the registry so it can't drift
 const TOOL_NAMES: Record<string, string> = Object.fromEntries(
   TOOLS_REGISTRY.map(t => [t.slug, t.title])
 );
+
+// WAAPI equivalents of the gsap eases this file used before the rewrite.
+// gsap itself was 44 KB gz shipped to every tool page via this layout component.
+const POWER3_OUT = "cubic-bezier(0.215, 0.61, 0.355, 1)";
+const POWER2_OUT = "cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+const POWER2_IN  = "cubic-bezier(0.55, 0.085, 0.68, 0.53)";
+
+type Keyframe2 = Record<string, string | number>;
+
+// Animate from `from` to the element's natural style, leaving no inline residue.
+function enter(el: HTMLElement, from: Keyframe2, opts: KeyframeAnimationOptions) {
+  return el.animate([from, {}], {
+    easing: POWER3_OUT,
+    fill: "backwards", // first keyframe applies during any delay — no flash
+    ...opts,
+  });
+}
+
+// Hide now (inline), reveal later. Returns the reveal trigger.
+function hideThenEnter(el: HTMLElement, from: Keyframe2, opts: KeyframeAnimationOptions) {
+  const prev = { opacity: el.style.opacity, transform: el.style.transform, filter: el.style.filter };
+  if (from.opacity !== undefined)   el.style.opacity   = String(from.opacity);
+  if (from.transform !== undefined) el.style.transform = String(from.transform);
+  if (from.filter !== undefined)    el.style.filter    = String(from.filter);
+  return () => {
+    el.style.opacity   = prev.opacity;
+    el.style.transform = prev.transform;
+    el.style.filter    = prev.filter;
+    return enter(el, from, opts);
+  };
+}
 
 export default function SplitView({ children }: { children: React.ReactNode }) {
   const { splitSlug, setSplitSlug } = useUI();
@@ -20,26 +46,24 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Re-runs on every route change so each tool page gets a fresh entrance.
-  useGSAP(() => {
+  // useLayoutEffect so hides apply before paint — no flash of unanimated content.
+  useLayoutEffect(() => {
     // ── Respect prefers-reduced-motion ─────────────────────────────────────
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const root = mainRef.current;
+    const cleanup: Array<() => void> = [];
 
     // ── 1. Header slides down + fades in ──────────────────────────────────
-    tl.fromTo(
-      "header",
-      { autoAlpha: 0, y: -22 },
-      { autoAlpha: 1, y: 0, duration: 0.44, clearProps: "opacity,transform,visibility" }
-    );
+    const header = document.querySelector<HTMLElement>("header");
+    if (header) enter(header, { opacity: 0, transform: "translateY(-22px)" }, { duration: 440 });
 
     // ── 2. Cascade the content panels ─────────────────────────────────────
     // Most tool pages: main > div (grid) > [input, output].
     // If main has exactly one child whose children are the real panels, go one
     // level deeper so input and output enter with separate stagger beats.
     // Fallback: animate direct children of main as a single beat.
-    const mainEl = mainRef.current?.querySelector<HTMLElement>("main");
+    const mainEl = root?.querySelector<HTMLElement>("main");
     if (mainEl) {
       const direct = Array.from(mainEl.children) as HTMLElement[];
       const cascadeTargets: HTMLElement[] =
@@ -47,101 +71,110 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
           ? (Array.from(direct[0].children) as HTMLElement[])
           : direct;
 
-      // Pre-hide before animating to prevent flash
-      gsap.set(cascadeTargets, { autoAlpha: 0, y: 48, scale: 0.983 });
-
-      tl.to(
-        cascadeTargets,
-        {
-          autoAlpha: 1, y: 0, scale: 1,
-          duration: 0.68,
-          stagger: 0.13,
-          clearProps: "opacity,transform,visibility,scale",
-        },
-        "-=0.26"
-      );
+      cascadeTargets.forEach((el, i) => {
+        enter(el, { opacity: 0, transform: "translateY(48px) scale(0.983)" }, {
+          duration: 680,
+          delay: 180 + i * 130, // overlaps the header beat like the old timeline's "-=0.26"
+        });
+      });
     }
 
-    // ── 3. Scroll reveals for .gsap-reveal elements (existing) ─────────────
-    const scroller = mainRef.current ?? undefined;
-
-    ScrollTrigger.batch(".gsap-reveal", {
-      scroller,
-      onEnter: els => gsap.from(els, {
-        opacity: 0, y: 20, duration: 0.5, stagger: 0.07,
-        ease: "power2.out", clearProps: "opacity,transform",
-      }),
-      start: "top 90%", once: true,
-    });
-
-    // ── 4. Scroll reveals for section headings (h2, h3 inside main) ────────
-    const headings = mainRef.current?.querySelectorAll<HTMLElement>("main h2, main h3") ?? [];
-    headings.forEach(el => {
-      gsap.set(el, { autoAlpha: 0, y: 28, filter: "blur(4px)" });
-      ScrollTrigger.create({
-        trigger: el, scroller,
-        start: "top 92%", once: true,
-        onEnter: () => gsap.to(el, {
-          autoAlpha: 1, y: 0, filter: "blur(0px)",
-          duration: 0.7, ease: "power3.out",
-          clearProps: "opacity,transform,visibility,filter",
-        }),
+    // ── 3 + 4 + 5. Scroll reveals (.gsap-reveal, headings, .glass-card) ────
+    // One IntersectionObserver per group, rooted on the scrolling panel.
+    const makeObserver = (
+      els: HTMLElement[],
+      from: Keyframe2,
+      opts: (i: number, batchIndex: number) => KeyframeAnimationOptions,
+      preHide: boolean,
+    ) => {
+      if (els.length === 0) return;
+      const reveals = new Map<Element, () => void>();
+      els.forEach((el, i) => {
+        if (preHide) reveals.set(el, hideThenEnter(el, from, opts(i, 0)));
       });
-    });
-
-    // ── 5. Smooth-fade cards on scroll ────────────────────────────────────
-    // .glass-card elements that appear below the fold
-    const cards = mainRef.current?.querySelectorAll<HTMLElement>("main .glass-card") ?? [];
-    cards.forEach((el, i) => {
-      gsap.set(el, { autoAlpha: 0, y: 36, scale: 0.97 });
-      ScrollTrigger.create({
-        trigger: el, scroller,
-        start: "top 93%", once: true,
-        onEnter: () => gsap.to(el, {
-          autoAlpha: 1, y: 0, scale: 1,
-          duration: 0.65, ease: "power3.out", delay: (i % 4) * 0.07,
-          clearProps: "opacity,transform,visibility,scale",
-        }),
+      let seen = 0;
+      const io = new IntersectionObserver(entries => {
+        let batchIndex = 0;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          io.unobserve(el);
+          if (preHide) {
+            reveals.get(el)?.();
+            reveals.delete(el);
+          } else {
+            enter(el, from, opts(seen, batchIndex));
+          }
+          seen++; batchIndex++;
+        }
+      }, { root, rootMargin: "0px 0px -8% 0px" });
+      els.forEach(el => io.observe(el));
+      cleanup.push(() => {
+        io.disconnect();
+        // Anything still hidden must be restored, or it stays invisible forever.
+        reveals.forEach(reveal => reveal());
+        reveals.clear();
       });
-    });
+    };
+
+    // .gsap-reveal elements: visible in DOM, animate in on first view, batch-staggered
+    makeObserver(
+      Array.from(root?.querySelectorAll<HTMLElement>(".gsap-reveal") ?? []),
+      { opacity: 0, transform: "translateY(20px)" },
+      (_i, batchIndex) => ({ duration: 500, delay: batchIndex * 70, easing: POWER2_OUT }),
+      false,
+    );
+
+    // Section headings: pre-hidden with blur, reveal on scroll
+    makeObserver(
+      Array.from(root?.querySelectorAll<HTMLElement>("main h2, main h3") ?? []),
+      { opacity: 0, transform: "translateY(28px)", filter: "blur(4px)" },
+      () => ({ duration: 700 }),
+      true,
+    );
+
+    // .glass-card elements below the fold
+    makeObserver(
+      Array.from(root?.querySelectorAll<HTMLElement>("main .glass-card") ?? []),
+      { opacity: 0, transform: "translateY(36px) scale(0.97)" },
+      i => ({ duration: 650, delay: (i % 4) * 70 }),
+      true,
+    );
 
     // ── 6. .btn hover micro-interactions ──────────────────────────────────
-    const hoverCleanup: Array<() => void> = [];
-
-    const btns = mainRef.current?.querySelectorAll<HTMLElement>("main .btn") ?? [];
+    // CSS transitions interrupt gracefully, matching gsap's overwrite:"auto".
+    const btns = Array.from(root?.querySelectorAll<HTMLElement>("main .btn") ?? []);
     btns.forEach(btn => {
-      const onEnter = () => gsap.to(btn, { y: -2, scale: 1.03, duration: 0.2, ease: "power2.out", overwrite: "auto" });
-      const onLeave = () => gsap.to(btn, { y:  0, scale: 1,    duration: 0.35, ease: "power3.out", overwrite: "auto" });
-      const onDown  = () => gsap.to(btn, { scale: 0.97, duration: 0.1, ease: "power2.in", overwrite: "auto" });
-      const onUp    = () => gsap.to(btn, { scale: 1.03, duration: 0.15, ease: "power2.out", overwrite: "auto" });
+      const move = (transform: string, dur: number, ease: string) => {
+        btn.style.transition = `transform ${dur}ms ${ease}`;
+        btn.style.transform = transform;
+      };
+      const onEnter = () => move("translateY(-2px) scale(1.03)", 200, POWER2_OUT);
+      const onLeave = () => move("translateY(0) scale(1)",       350, POWER3_OUT);
+      const onDown  = () => move("scale(0.97)",                  100, POWER2_IN);
+      const onUp    = () => move("scale(1.03)",                  150, POWER2_OUT);
       btn.addEventListener("mouseenter", onEnter);
       btn.addEventListener("mouseleave", onLeave);
       btn.addEventListener("mousedown",  onDown);
       btn.addEventListener("mouseup",    onUp);
-      hoverCleanup.push(() => {
+      cleanup.push(() => {
         btn.removeEventListener("mouseenter", onEnter);
         btn.removeEventListener("mouseleave", onLeave);
         btn.removeEventListener("mousedown",  onDown);
         btn.removeEventListener("mouseup",    onUp);
+        btn.style.transition = "";
+        btn.style.transform = "";
       });
     });
 
     // ── 7. Tool header (the mono breadcrumb bar at top of each tool) ────────
-    const toolHeader = mainRef.current?.querySelector<HTMLElement>("main > div > header, main > header");
-    if (toolHeader) {
-      gsap.set(toolHeader, { autoAlpha: 0, y: -16 });
-      gsap.to(toolHeader, {
-        autoAlpha: 1, y: 0, duration: 0.45, ease: "power3.out",
-        clearProps: "opacity,transform,visibility",
-      });
-    }
+    const toolHeader = root?.querySelector<HTMLElement>("main > div > header, main > header");
+    if (toolHeader) enter(toolHeader, { opacity: 0, transform: "translateY(-16px)" }, { duration: 450 });
 
     // ── 8. Progress / result areas fade up when they appear in DOM ─────────
     // These are generated after AI responds — we watch for them with a MutationObserver.
-    const mainEl2 = mainRef.current?.querySelector<HTMLElement>("main");
-    let observer: MutationObserver | null = null;
-    if (mainEl2) {
-      observer = new MutationObserver(mutations => {
+    if (mainEl) {
+      const observer = new MutationObserver(mutations => {
         mutations.forEach(m => {
           m.addedNodes.forEach(node => {
             if (!(node instanceof HTMLElement)) return;
@@ -152,25 +185,17 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
               node.tagName === "SECTION" ||
               (node.style && parseFloat(node.style.marginTop || "0") > 20);
             if (isResult) {
-              gsap.fromTo(node,
-                { autoAlpha: 0, y: 24, filter: "blur(4px)" },
-                { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.55, ease: "power3.out",
-                  clearProps: "opacity,transform,visibility,filter" }
-              );
+              enter(node, { opacity: 0, transform: "translateY(24px)", filter: "blur(4px)" }, { duration: 550 });
             }
           });
         });
       });
-      observer.observe(mainEl2, { childList: true, subtree: true });
+      observer.observe(mainEl, { childList: true, subtree: true });
+      cleanup.push(() => observer.disconnect());
     }
 
-    ScrollTrigger.refresh();
-
-    return () => {
-      hoverCleanup.forEach(fn => fn());
-      observer?.disconnect();
-    };
-  }, { scope: mainRef, dependencies: [pathname], revertOnUpdate: true });
+    return () => { cleanup.forEach(fn => fn()); };
+  }, [pathname]);
 
   return (
     <div className="tool-split-wrap">

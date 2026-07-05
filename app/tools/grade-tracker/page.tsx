@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import ElasticSlider from "@/components/ui/elastic-slider-lazy";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
