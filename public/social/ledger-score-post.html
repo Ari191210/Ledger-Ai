@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyLedger — Ledger Score Post</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 60px;
+      padding: 60px 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: -40px;
+      align-self: flex-start;
+      margin-left: calc(50% - 540px);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       POST A — Y2K CHROME (primary Instagram post, 1080×1350)
+    ───────────────────────────────────────────────────────────── */
+    .post-a {
+      width: 1080px;
+      height: 1350px;
+      background: #08090c;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    /* iridescent chrome blobs */
+    .post-a::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 90% 60% at 15% 20%, rgba(129,140,248,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 15%, rgba(34,211,238,0.28) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 55% at 50% 90%, rgba(244,114,182,0.30) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 80% 65%, rgba(239,68,68,0.20) 0%, transparent 45%),
+        radial-gradient(ellipse 50% 35% at 10% 75%, rgba(163,230,53,0.15) 0%, transparent 45%);
+      animation: iri-drift 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes iri-drift {
+      0%   { opacity: 0.9; transform: scale(1) rotate(0deg); }
+      100% { opacity: 1;   transform: scale(1.04) rotate(1.5deg); }
+    }
+
+    /* noise grain overlay */
+    .post-a::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.055;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .post-a .inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 0 80px;
+    }
+
+    .post-a .wordmark {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 60px;
+    }
+
+    .post-a .hook {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 52px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      line-height: 1.15;
+      text-align: center;
+      margin-bottom: 64px;
+      letter-spacing: -1px;
+    }
+
+    .post-a .hook em {
+      font-style: normal;
+      color: #ff7c5c;
+    }
+
+    /* score ring */
+    .ring-wrap {
+      position: relative;
+      width: 420px;
+      height: 420px;
+      margin-bottom: 52px;
+    }
+
+    .ring-wrap svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .ring-track {
+      fill: none;
+      stroke: rgba(255,255,255,0.07);
+      stroke-width: 10;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke: url(#scoreGrad);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 1068;
+      stroke-dashoffset: 322; /* 1068 * (1 - 0.698) ≈ 322 for 698/1000 → using 743 */
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-center .score-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 108px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -3px;
+      text-shadow:
+        0 0 40px rgba(255,124,92,0.5),
+        0 0 80px rgba(129,140,248,0.3);
+    }
+
+    .ring-center .score-denom {
+      font-family: 'Orbitron', monospace;
+      font-size: 26px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .ring-center .tier-badge {
+      margin-top: 16px;
+      background: linear-gradient(135deg, #ff7c5c, #ef4444);
+      color: #fff;
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      padding: 7px 24px;
+      border-radius: 100px;
+      box-shadow: 0 8px 32px rgba(239,68,68,0.45);
+    }
+
+    /* stat pills */
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 52px;
+    }
+
+    .stat-pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px 28px;
+      text-align: center;
+      min-width: 160px;
+    }
+
+    .stat-pill .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+      margin-bottom: 10px;
+    }
+
+    .stat-pill .stat-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .stat-pill .stat-unit {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* colour the stat values */
+    .stat-pill:nth-child(1) .stat-val { color: #818cf8; }
+    .stat-pill:nth-child(2) .stat-val { color: #a3e635; }
+    .stat-pill:nth-child(3) .stat-val { color: #22d3ee; }
+    .stat-pill:nth-child(4) .stat-val { color: #f472b6; }
+
+    /* question CTA */
+    .post-a .cta-q {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .post-a .cta-link {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ff7c5c;
+      letter-spacing: 3px;
+      text-decoration: none;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       POST B — Story size 1080×1920 (optional bonus)
+    ───────────────────────────────────────────────────────────── */
+    .post-b {
+      width: 1080px;
+      height: 1920px;
+      background: #08090c;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .post-b::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 100% 50% at 50% 0%, rgba(129,140,248,0.30) 0%, transparent 55%),
+        radial-gradient(ellipse 80% 40% at 20% 100%, rgba(244,114,182,0.28) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 40% at 80% 60%, rgba(34,211,238,0.22) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 35% at 60% 30%, rgba(239,68,68,0.18) 0%, transparent 45%);
+    }
+
+    .post-b .inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 100px;
+      width: 100%;
+    }
+
+    .post-b .wordmark {
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 10px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 80px;
+    }
+
+    .post-b .big-q {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 64px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+
+    .post-b .big-q em {
+      font-style: normal;
+      color: #ff7c5c;
+    }
+
+    .post-b .sub-q {
+      font-size: 26px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    /* big score number for story */
+    .post-b .score-hero {
+      font-family: 'Orbitron', monospace;
+      font-size: 260px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 0.85;
+      letter-spacing: -8px;
+      text-shadow:
+        0 0 60px rgba(255,124,92,0.55),
+        0 0 120px rgba(129,140,248,0.35),
+        0 0 200px rgba(34,211,238,0.20);
+      margin-bottom: 16px;
+    }
+
+    .post-b .score-of {
+      font-family: 'Orbitron', monospace;
+      font-size: 40px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 4px;
+      margin-bottom: 40px;
+    }
+
+    .post-b .tier-pill {
+      background: linear-gradient(135deg, #ff7c5c, #ef4444);
+      color: #fff;
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      padding: 12px 36px;
+      border-radius: 100px;
+      box-shadow: 0 12px 48px rgba(239,68,68,0.5);
+      margin-bottom: 80px;
+    }
+
+    .post-b .breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 80px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .breakdown-row .br-label {
+      font-size: 20px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      width: 240px;
+    }
+
+    .breakdown-row .br-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      margin: 0 24px;
+      overflow: hidden;
+    }
+
+    .breakdown-row .br-bar {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .breakdown-row .br-pct {
+      font-family: 'Orbitron', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      width: 70px;
+      text-align: right;
+    }
+
+    .breakdown-row:nth-child(1) .br-bar { background: #818cf8; width: 78%; }
+    .breakdown-row:nth-child(1) .br-pct { color: #818cf8; }
+    .breakdown-row:nth-child(2) .br-bar { background: #a3e635; width: 65%; }
+    .breakdown-row:nth-child(2) .br-pct { color: #a3e635; }
+    .breakdown-row:nth-child(3) .br-bar { background: #f472b6; width: 87%; }
+    .breakdown-row:nth-child(3) .br-pct { color: #f472b6; }
+    .breakdown-row:nth-child(4) .br-bar { background: #22d3ee; width: 72%; }
+    .breakdown-row:nth-child(4) .br-pct { color: #22d3ee; }
+
+    .post-b .cta-link {
+      font-family: 'Orbitron', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ff7c5c;
+      letter-spacing: 4px;
+    }
+
+    /* util */
+    .hint {
+      color: rgba(255,255,255,0.25);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label">Post A — Feed 1080×1350 (Y2K Chrome)</div>
+
+  <!-- ── POST A ── -->
+  <div class="post-a">
+    <div class="inner">
+      <div class="wordmark">StudyLedger</div>
+
+      <div class="hook">
+        Your study habits<br>have a <em>credit score.</em>
+      </div>
+
+      <!-- SVG ring -->
+      <div class="ring-wrap">
+        <svg viewBox="0 0 360 360">
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#818cf8"/>
+              <stop offset="35%"  stop-color="#ff7c5c"/>
+              <stop offset="70%"  stop-color="#f472b6"/>
+              <stop offset="100%" stop-color="#22d3ee"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-track"  cx="180" cy="180" r="170"/>
+          <circle class="ring-fill"   cx="180" cy="180" r="170"/>
+        </svg>
+        <div class="ring-center">
+          <div class="score-num">743</div>
+          <div class="score-denom">/ 1000</div>
+          <div class="tier-badge">STRONG</div>
+        </div>
+      </div>
+
+      <!-- stat pills -->
+      <div class="stats-row">
+        <div class="stat-pill">
+          <div class="stat-label">PYQ Accuracy</div>
+          <div class="stat-val">78%</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-label">Syllabus</div>
+          <div class="stat-val">65%</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-label">Streak</div>
+          <div class="stat-val">12</div>
+          <div class="stat-unit">days</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-label">Mistakes↓</div>
+          <div class="stat-val">↓34%</div>
+        </div>
+      </div>
+
+      <div class="cta-q">What&rsquo;s yours?</div>
+      <div class="cta-link">studyledger.in</div>
+    </div>
+  </div>
+
+  <div class="label">Post B — Story 1080×1920 (Score Breakdown)</div>
+
+  <!-- ── POST B ── -->
+  <div class="post-b">
+    <div class="inner">
+      <div class="wordmark">StudyLedger</div>
+
+      <div class="big-q">
+        What&rsquo;s your<br><em>Ledger Score?</em>
+      </div>
+      <div class="sub-q">most students start at 200 · toppers hit 850+</div>
+
+      <div class="score-hero">743</div>
+      <div class="score-of">/ 1000</div>
+      <div class="tier-pill">STRONG TIER</div>
+
+      <div class="breakdown">
+        <div class="breakdown-row">
+          <div class="br-label">PYQ Accuracy</div>
+          <div class="br-bar-wrap"><div class="br-bar"></div></div>
+          <div class="br-pct">78%</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Syllabus</div>
+          <div class="br-bar-wrap"><div class="br-bar"></div></div>
+          <div class="br-pct">65%</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Consistency</div>
+          <div class="br-bar-wrap"><div class="br-bar"></div></div>
+          <div class="br-pct">87%</div>
+        </div>
+        <div class="breakdown-row">
+          <div class="br-label">Mistake Velocity</div>
+          <div class="br-bar-wrap"><div class="br-bar"></div></div>
+          <div class="br-pct">72%</div>
+        </div>
+      </div>
+
+      <div class="cta-link">studyledger.in · free</div>
+    </div>
+  </div>
+
+  <p class="hint">open in browser · zoom to 100% · screenshot each post at 1080px wide</p>
+
+</body>
+</html>

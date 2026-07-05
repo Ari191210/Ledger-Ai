@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>StudyLedger — Instagram PFP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #3a3a3a; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+  .frame {
+    width: 1080px;
+    height: 1080px;
+    border-radius: 50%;
+    background: #08090c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Warm ambient glow behind the L */
+  .frame::before {
+    content: '';
+    position: absolute;
+    width: 700px;
+    height: 680px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,154,128,0.09) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-54%, -54%);
+  }
+
+  /* Vignette */
+  .frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, transparent 38%, rgba(8,9,12,0.55) 100%);
+    pointer-events: none;
+  }
+
+  .letter {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 640px;
+    color: #f1ffc4;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    position: relative;
+    z-index: 1;
+    margin-top: 60px;
+    opacity: 0.94;
+    text-shadow: 0 0 120px rgba(241,255,196,0.04);
+  }
+
+  /* Cinnabar dot — typographic accent */
+  .dot {
+    position: absolute;
+    top: 212px;
+    left: 598px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e89a80;
+    z-index: 2;
+    box-shadow:
+      0 0 0 16px rgba(232,154,128,0.12),
+      0 0 0 32px rgba(232,154,128,0.05);
+  }
+  .dot::after {
+    content: '';
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffcaaf;
+    opacity: 0.6;
+  }
+
+  .rule {
+    width: 500px;
+    height: 1px;
+    background: rgba(232,154,128,0.35);
+    margin-top: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .wordmark {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 44px;
+    color: #e89a80;
+    letter-spacing: 14px;
+    text-transform: uppercase;
+    margin-top: 28px;
+    opacity: 0.7;
+    position: relative;
+    z-index: 1;
+    padding-left: 14px; /* compensate letter-spacing shift */
+  }
+
+  /* Screenshot guide overlay — remove before screenshotting */
+  .guide {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="dot"></div>
+    <div class="letter">L</div>
+    <div class="rule"></div>
+    <div class="wordmark">Ledger</div>
+  </div>
+  <div class="guide">
+    Open DevTools → Device toolbar → set 1080×1080 → screenshot the circle only
+  </div>
+</body>
+</html>

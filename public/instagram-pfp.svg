@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <!-- Grain texture filter -->
+    <filter id="grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grey"/>
+      <feBlend in="SourceGraphic" in2="grey" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+    <!-- Radial glow for the cinnabar dot -->
+    <radialGradient id="dot-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e89a80" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#e89a80" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Subtle vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="#08090c" stop-opacity="0.55"/>
+    </radialGradient>
+    <!-- Clip to circle for Instagram -->
+    <clipPath id="circle-clip">
+      <circle cx="540" cy="540" r="540"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <circle cx="540" cy="540" r="540" fill="#08090c"/>
+
+  <!-- Very subtle warm centre glow behind L -->
+  <ellipse cx="500" cy="510" rx="320" ry="300"
+    fill="color-mix(in srgb, #e89a80 5%, transparent)"
+    opacity="0.18"
+    clip-path="url(#circle-clip)"/>
+
+  <!-- The L — using system Georgia italic as closest match to Cormorant -->
+  <text
+    x="520" y="690"
+    font-family="'Cormorant Garamond', 'Playfair Display', Georgia, serif"
+    font-style="italic"
+    font-weight="500"
+    font-size="640"
+    fill="#f1ffc4"
+    text-anchor="middle"
+    opacity="0.95"
+    clip-path="url(#circle-clip)"
+  >L</text>
+
+  <!-- Cinnabar dot — typographic accent, upper-right of L -->
+  <!-- Glow halo -->
+  <circle cx="728" cy="262" r="52" fill="url(#dot-glow)"/>
+  <!-- Dot itself -->
+  <circle cx="728" cy="262" r="22" fill="#e89a80"/>
+  <!-- Inner highlight -->
+  <circle cx="720" cy="254" r="7" fill="#ffcaaf" opacity="0.65"/>
+
+  <!-- Hairline rule below L -->
+  <line x1="290" y1="755" x2="790" y2="755" stroke="#e89a80" stroke-width="1.5" opacity="0.5" clip-path="url(#circle-clip)"/>
+
+  <!-- LEDGER wordmark — all caps mono, bottom quarter -->
+  <text
+    x="540" y="840"
+    font-family="'Space Mono', 'Courier New', monospace"
+    font-size="44"
+    font-weight="400"
+    fill="#e89a80"
+    text-anchor="middle"
+    letter-spacing="14"
+    opacity="0.75"
+    clip-path="url(#circle-clip)"
+  >LEDGER</text>
+
+  <!-- Vignette overlay -->
+  <circle cx="540" cy="540" r="540" fill="url(#vignette)"/>
+
+  <!-- Grain texture layer -->
+  <rect width="1080" height="1080" fill="#08090c" opacity="0.06" filter="url(#grain)" clip-path="url(#circle-clip)"/>
+</svg>
