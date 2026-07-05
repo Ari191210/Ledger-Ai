@@ -178,7 +178,18 @@ export default function RootLayout({
         <meta name="theme-color" content="#18241b" />
         <link rel="apple-touch-icon" href="/icon.svg" />
         <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="" />
-        <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
+        <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="" />
+        {/* Orsiri (primary font) loads async so the stylesheet never blocks first paint;
+            display=swap in the URL means text renders in fallbacks until it arrives. */}
+        <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap';document.head.appendChild(l);})();`,
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
+        </noscript>
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}` }} />
       </head>
       <body>

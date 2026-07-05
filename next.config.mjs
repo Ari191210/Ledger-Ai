@@ -7,8 +7,9 @@ const CSP = [
   // ACCEPTED RISK: unsafe-eval weakens XSS protection. Scoped to WebGL use only;
   // do not add new eval() dependencies. Remove when Spline/Three.js is eliminated.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  // api.fontshare.com serves the Orsiri stylesheet; cdn.fontshare.com serves its font files
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
+  "font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com",
   // data: for base64 image uploads (doubt tool), blob: for WebGL textures
   "img-src 'self' data: blob:",
   [
