@@ -10,6 +10,7 @@ type ParentData = {
   weakTopics?: Record<string, number>;
   papersCount?: number;
   parentName?: string;
+  score?: { total: number; tier: string; pqa: number; syllabus: number; mistakes: number; consistency: number };
 };
 
 function daysUntil(dateStr: string) {
@@ -84,6 +85,41 @@ export default function ParentPage({ params }: { params: Promise<{ code: string 
             </div>
           ))}
         </div>
+
+        {/* Ledger Score */}
+        {data.score && (
+          <div style={{ border: "1px solid #222", marginBottom: 24 }}>
+            <div style={{ padding: "12px 18px", background: "#f0ebe0", borderBottom: "1px solid #e0d8ce", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontFamily: "monospace", fontSize: 10, color: "#b83c1a", letterSpacing: "0.08em", textTransform: "uppercase" }}>Ledger Score</span>
+              <span style={{ fontFamily: "monospace", fontSize: 10, color: "#888", letterSpacing: "0.08em", textTransform: "uppercase" }}>{data.score.tier}</span>
+            </div>
+            <div style={{ padding: "20px 18px", display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+              <div style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700, fontSize: 56, lineHeight: 1, color: "#222" }}>
+                {data.score.total}
+                <span style={{ fontSize: 18, color: "#888", fontWeight: 400 }}> / 1000</span>
+              </div>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                {[
+                  { label: "Past-paper accuracy", value: data.score.pqa,         max: 400 },
+                  { label: "Syllabus coverage",   value: data.score.syllabus,    max: 250 },
+                  { label: "Mistake control",     value: data.score.mistakes,    max: 200 },
+                  { label: "Consistency",         value: data.score.consistency, max: 150 },
+                ].map(part => (
+                  <div key={part.label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    <div style={{ fontFamily: "monospace", fontSize: 9, color: "#888", width: 130, letterSpacing: "0.04em", textTransform: "uppercase" }}>{part.label}</div>
+                    <div style={{ flex: 1, height: 5, background: "#e0d8ce" }}>
+                      <div style={{ width: `${(part.value / part.max) * 100}%`, height: "100%", background: "#222" }} />
+                    </div>
+                    <div style={{ fontFamily: "monospace", fontSize: 9, color: "#222", width: 56, textAlign: "right" }}>{part.value}/{part.max}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ padding: "10px 18px", borderTop: "1px solid #e0d8ce", fontFamily: "monospace", fontSize: 9, color: "#888", letterSpacing: "0.04em" }}>
+              A single 0–1000 measure of exam readiness: past-paper accuracy, syllabus coverage, mistake control, and daily consistency.
+            </div>
+          </div>
+        )}
 
         {/* Exam countdown */}
         {exams.length > 0 && (

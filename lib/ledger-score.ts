@@ -26,13 +26,38 @@ function safeGet<T>(key: string, fallback: T): T {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
 }
 
+// Everything the score needs, decoupled from localStorage so the server can
+// compute it from the synced user_data.blob (see lib/sync.ts SYNC_KEYS).
+export type ScoreInputs = {
+  papersLog: Array<{ score: number; total: number; subject: string; date: string }>;
+  syllabusSubjects: string[];
+  syllabusUploaded: boolean;
+  notesHistory: Array<{ subject?: string }>;
+  mistakes: Array<{ date: string }>;
+  streak: number;
+};
+
 export function computeLedgerScore(): ScoreBreakdown {
   if (typeof window === "undefined") return EMPTY;
   try {
+    const syllabusSubjects: string[] = safeGet("ledger-syllabus-subjects", []);
+    return computeScoreFromInputs({
+      papersLog:        safeGet("ledger-papers-log", []),
+      syllabusSubjects,
+      syllabusUploaded: syllabusSubjects.length > 0 || !!localStorage.getItem("ledger-syllabus"),
+      notesHistory:     safeGet("ledger-notes-history", []),
+      mistakes:         safeGet("ledger-mistakes", []),
+      streak:           parseInt(localStorage.getItem("ledger-focus-streak") ?? "0", 10) || 0,
+    });
+  } catch { return EMPTY; }
+}
+
+export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
+  try {
+
+  const { papersLog, syllabusSubjects, syllabusUploaded, notesHistory, mistakes, streak } = inputs;
 
   // --- 1. PYQ Accuracy (0–400) ---
-  const papersLog: Array<{ score: number; total: number; subject: string; date: string }> =
-    safeGet("ledger-papers-log", []);
   const papersCount = papersLog.length;
   let totalCorrect = 0, totalAnswered = 0;
   papersLog.forEach(p => { totalCorrect += p.score; totalAnswered += p.total; });
@@ -53,9 +78,6 @@ export function computeLedgerScore(): ScoreBreakdown {
     .sort((a, b) => a.accuracy - b.accuracy);
 
   // --- 2. Syllabus Coverage (0–250) ---
-  const syllabusSubjects: string[] = safeGet("ledger-syllabus-subjects", []);
-  const syllabusUploaded = syllabusSubjects.length > 0 || !!localStorage.getItem("ledger-syllabus");
-  const notesHistory: Array<{ subject?: string }> = safeGet("ledger-notes-history", []);
   const coveredSet = new Set(
     notesHistory.map(n => (n.subject || "").toLowerCase().trim()).filter(Boolean)
   );
@@ -78,7 +100,6 @@ export function computeLedgerScore(): ScoreBreakdown {
   syllabusScore = Math.min(250, syllabusScore);
 
   // --- 3. Mistake Velocity (0–200) ---
-  const mistakes: Array<{ date: string }> = safeGet("ledger-mistakes", []);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const recentMistakes = mistakes.filter(m => new Date(m.date).getTime() > sevenDaysAgo).length;
   let mistakeScore: number;
@@ -89,7 +110,6 @@ export function computeLedgerScore(): ScoreBreakdown {
   }
 
   // --- 4. Consistency (0–150) ---
-  const streak = parseInt(localStorage.getItem("ledger-focus-streak") ?? "0", 10) || 0;
   const consistencyScore = Math.min(150, Math.round(streak * 7.5));
 
   const total = Math.min(1000, pqaScore + syllabusScore + mistakeScore + consistencyScore);
