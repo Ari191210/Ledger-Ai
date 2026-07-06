@@ -2517,9 +2517,12 @@ export async function POST(req: Request) {
 
   // ── Rate limiting ─────────────────────────────────────────────────────────
   // Tracking starts now; enforcement activates 2026-10-08.
+  // Pro/Max plans (app_metadata.tier, service-role-written) are exempt from
+  // the daily cap — that's the paid unlimited-AI promise. Calls still count.
   const RATE_LIMIT_DATE = new Date("2026-10-08T00:00:00Z");
   const DAILY_LIMIT     = 20;
-  const enforcing       = new Date() >= RATE_LIMIT_DATE;
+  const paidTier        = authedUser.app_metadata?.tier === "pro" || authedUser.app_metadata?.tier === "max";
+  const enforcing       = new Date() >= RATE_LIMIT_DATE && !paidTier;
 
   if (rateLimitUserId) {
     const { data: ud } = await supabaseServer

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData, saveUserData, patchUserData, type AiProfile } from "@/lib/user-data";
 import { supabase } from "@/lib/supabase";
+import { userTier, TIER_LABELS } from "@/lib/tier";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
@@ -237,10 +238,18 @@ export default function ProfilePage() {
             { label: "Email",        value: user?.email || "—" },
             { label: "User ID",      value: (user?.id?.slice(0, 8) + "…") || "—" },
             { label: "Member since", value: joinedDate },
+            { label: "Plan",         value: TIER_LABELS[userTier(user)] },
           ].map((row, i, arr) => (
             <div key={row.label} className="profile-detail-row" style={{ display: "flex", justifyContent: "space-between", padding: "12px 18px", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}>
               <div className="mono" style={{ color: "var(--ink-3)" }}>{row.label}</div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>{row.value}</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>
+                {row.value}
+                {row.label === "Plan" && userTier(user) === "free" && (
+                  <Link href="/pricing" className="mono" style={{ marginLeft: 10, fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    Upgrade →
+                  </Link>
+                )}
+              </div>
             </div>
           ))}
         </div>

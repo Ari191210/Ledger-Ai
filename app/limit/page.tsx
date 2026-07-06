@@ -32,6 +32,23 @@ export default function LimitPage() {
           {hoursLeft !== null ? ` · ${hoursLeft}h away` : ""}
         </p>
 
+        <div style={{ marginBottom: 40 }}>
+          <Link
+            href="/pricing"
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase",
+              background: "var(--ink)", color: "var(--paper)",
+              padding: "13px 26px", textDecoration: "none", border: "1px solid var(--ink)",
+            }}
+          >
+            Upgrade to Pro — unlimited AI →
+          </Link>
+          <p style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 10 }}>
+            ₹199/month. No caps, all 48 tools.
+          </p>
+        </div>
+
         <div style={{ borderTop: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", paddingTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
           <p style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 8 }}>
             In the meantime
@@ -65,12 +82,6 @@ export default function LimitPage() {
           </div>
         </div>
 
-        <div className="glass-card" style={{ marginTop: 48, padding: "20px 24px" }}>
-          <p style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 6 }}>Coming October 2026</p>
-          <p style={{ fontFamily: "var(--prose)", fontSize: 14, lineHeight: 1.6, color: "var(--ink-2)", margin: 0 }}>
-            Pro plans with unlimited AI queries. Free tier stays at 20/day.
-          </p>
-        </div>
       </div>
     </main>
   );
