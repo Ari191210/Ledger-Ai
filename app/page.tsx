@@ -682,12 +682,11 @@ export default function Home() {
             </div>
 
             {/* Boards stat card — spans 4 cols */}
-            <div className="bento-1 bento-tilt reveal-right" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
+            <div className="bento-1 bento-tilt reveal-right" style={{ padding: "40px 32px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "center", gap: 14, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
+              <span aria-hidden style={{ position: "absolute", top: -18, right: -6, fontFamily: "var(--serif)", fontSize: 160, fontWeight: 700, lineHeight: 1, color: "var(--ink)", opacity: 0.04, pointerEvents: "none", userSelect: "none" }}>6</span>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>Boards supported</span>
-              <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>CBSE · ICSE · IB · IGCSE · A-Level · SAT</div>
-              </div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>6+</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>CBSE · ICSE · IB · IGCSE · A-Level · SAT</div>
             </div>
 
             {/* Study card — spans 6 */}
@@ -699,12 +698,11 @@ export default function Home() {
             </div>
 
             {/* AI tools stat card — spans 6 */}
-            <div className="bento-2 bento-tilt reveal-right" style={{ padding: "52px 44px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
+            <div className="bento-2 bento-tilt reveal-right" style={{ padding: "52px 44px", borderRadius: 16, display: "flex", flexDirection: "column", justifyContent: "center", gap: 14, position: "relative", overflow: "hidden", background: "color-mix(in srgb, var(--ink) 5%, var(--paper))" }}>
+              <span aria-hidden style={{ position: "absolute", top: -24, right: -10, fontFamily: "var(--serif)", fontSize: 180, fontWeight: 700, lineHeight: 1, color: "var(--ink)", opacity: 0.04, pointerEvents: "none", userSelect: "none" }}>48</span>
               <span style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)" }}>AI tools</span>
-              <div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cream)", lineHeight: 1 }}>48</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", marginTop: 8 }}>Plan · Learn · Write · Practise · Future · Track</div>
-              </div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(32px,4vw,52px)", fontWeight: 700, color: "var(--cinnabar-ink)", lineHeight: 1 }}>48</div>
+              <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>Plan · Learn · Write · Practise · Future · Track</div>
             </div>
 
             {/* Score card — full width */}
@@ -716,13 +714,18 @@ export default function Home() {
               </div>
               <div style={{ flex: "0 0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[
-                  { n: "40%", l: "PYQ Accuracy", c: "var(--cinnabar-ink)" },
-                  { n: "25%", l: "Syllabus",      c: "var(--powder-blue)" },
-                  { n: "20%", l: "Mistakes",      c: "var(--cream)" },
-                  { n: "15%", l: "Consistency",   c: "var(--tan)" },
+                  { n: "40%", l: "PYQ Accuracy" },
+                  { n: "25%", l: "Syllabus" },
+                  { n: "20%", l: "Mistakes" },
+                  { n: "15%", l: "Consistency" },
                 ].map((p, i) => (
-                  <div key={i} style={{ padding: "24px 20px", borderRadius: 12, background: `color-mix(in srgb, ${p.c} 10%, var(--paper))` }}>
-                    <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: p.c, lineHeight: 1 }}>{p.n}</div>
+                  <div key={i} style={{
+                    padding: "22px 20px 20px", borderRadius: 12, position: "relative", overflow: "hidden",
+                    background: "color-mix(in srgb, var(--ink) 4%, var(--paper))",
+                    border: S.border,
+                  }}>
+                    <span aria-hidden style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 3, background: "var(--cinnabar-ink)", opacity: 0.3 + (parseInt(p.n) / 40) * 0.7 }} />
+                    <div style={{ fontFamily: "var(--serif)", fontWeight: 700, fontSize: 28, color: "var(--ink)", lineHeight: 1 }}>{p.n}</div>
                     <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 8 }}>{p.l}</div>
                   </div>
                 ))}
