@@ -10,7 +10,7 @@ Grade 9–12 students (primarily India, CBSE/ICSE/IB/A-level), aged 14–18. Usi
 
 ## Product Purpose
 
-StudyLedger is the student's operating system — 55 AI-powered tools covering every academic task: essay writing, exam prep, flashcards, research, paper analysis, study planning, and more. The Ledger Score gamifies consistency. Study Rooms add human accountability via a bail-pact mechanic. Success = a student opens the app daily because it genuinely helps them study better, not because of dark patterns.
+StudyLedger is the student's operating system — 48 tool pages covering 85 distinct AI capabilities across every academic task: essay writing, exam prep, flashcards, research, paper analysis, study planning, and more. The Ledger Score gamifies consistency. Study Rooms add human accountability via a bail-pact mechanic. Success = a student opens the app daily because it genuinely helps them study better, not because of dark patterns.
 
 ## Brand Personality
 
