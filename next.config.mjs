@@ -30,6 +30,13 @@ const CSP = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Consolidated tools — permanent redirects keep old bookmarks and any
+  // indexed URLs working. dna's UI is post-exam's DNA tab; cremator's flow
+  // is exam-triage's cremator tab (same "cremator" prompt template).
+  redirects: async () => [
+    { source: "/tools/dna",      destination: "/tools/post-exam?tab=dna",        permanent: true },
+    { source: "/tools/cremator", destination: "/tools/exam-triage?tab=cremator", permanent: true },
+  ],
   headers: async () => [
     {
       source: "/_next/static/:path*",

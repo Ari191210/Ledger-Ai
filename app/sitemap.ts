@@ -16,7 +16,7 @@ const TOOL_SLUGS = [
   // PRACTISE
   "exam-practice", "recall-studio", "exam-planner", "exam-triage", "practice",
   "post-exam", "memory-toolkit", "flashcards", "exam-sim", "forgetting-forecast",
-  "calibration", "dna", "cremator", "paper-pattern", "papers", "paper-triage",
+  "calibration", "paper-pattern", "papers", "paper-triage",
   "crunch", "mark-scheme", "formula", "formula-recall", "predict",
   "memory-palace", "analogy", "exam-strategy", "last-night",
   // FUTURE

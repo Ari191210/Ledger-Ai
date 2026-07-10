@@ -411,6 +411,14 @@ function ExamStrategyTab() {
 export default function PostExamPage() {
   const [tab, setTab] = useState<Tab>("dna");
 
+  // Deep-linkable tabs — /tools/dna redirects here with ?tab=dna.
+  // Read from location on mount (client page; avoids the useSearchParams
+  // Suspense requirement).
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t === "dna" || t === "debrief" || t === "strategy") setTab(t);
+  }, []);
+
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>

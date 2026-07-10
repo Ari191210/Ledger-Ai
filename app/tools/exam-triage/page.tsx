@@ -696,6 +696,12 @@ function LastNightTab() {
 export default function ExamTriagePage() {
   const [tab, setTab] = useState<Tab>("crunch");
 
+  // Deep-linkable tabs — /tools/cremator redirects here with ?tab=cremator.
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t === "crunch" || t === "cremator" || t === "lastnight") setTab(t);
+  }, []);
+
   return (
     <div>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
