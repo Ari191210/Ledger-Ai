@@ -1,7 +1,7 @@
 {
   "name": "StudyLedger",
   "short_name": "Ledger",
-  "description": "The Student's Operating System — 55+ AI tools for exam prep",
+  "description": "The Student's Operating System — 48 tool pages, 85 AI capabilities for exam prep",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#08090c",
@@ -17,7 +17,7 @@
   ],
   "shortcuts": [
     { "name": "Dashboard", "url": "/dashboard", "description": "Go to your study dashboard" },
-    { "name": "Planner", "url": "/tools/planner", "description": "Open study planner" },
-    { "name": "Past Papers", "url": "/tools/papers", "description": "Practice past papers" }
+    { "name": "Planner", "url": "/tools/study-command", "description": "Open study planner" },
+    { "name": "Past Papers", "url": "/tools/exam-practice", "description": "Practice past papers" }
   ]
 }
