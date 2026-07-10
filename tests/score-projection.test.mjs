@@ -21,6 +21,7 @@ const outDir = path.join(root, ".test-build");
 
 let engine;      // compiled lib/ledger-score
 let projection;  // compiled lib/score-projection
+let stripeTier;  // compiled lib/stripe-tier
 
 before(() => {
   execFileSync(
@@ -39,6 +40,7 @@ before(() => {
 test("setup imports", async () => {
   engine = await import(path.join(outDir, "ledger-score.js"));
   projection = await import(path.join(outDir, "score-projection.js"));
+  stripeTier = await import(path.join(outDir, "stripe-tier.js"));
 });
 
 const EMPTY_INPUTS = () => ({
@@ -241,6 +243,54 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(r.kind, "real");
     assert.equal(r.total, 0); // proving the diagnostic computation left no trace
     assert.notEqual(t.total, r.total);
+  });
+
+  test("stripe-tier: price mapping and tier resolution", () => {
+    const prices = { proMonthly: "price_pm", proYearly: "price_py", maxMonthly: "price_mm", maxYearly: "price_my" };
+    assert.equal(stripeTier.priceIdFor(prices, "pro", "monthly"), "price_pm");
+    assert.equal(stripeTier.priceIdFor(prices, "max", "yearly"), "price_my");
+    assert.equal(stripeTier.priceIdFor({}, "pro", "monthly"), null);
+    assert.equal(stripeTier.tierForPrice(prices, "price_py"), "pro");
+    assert.equal(stripeTier.tierForPrice(prices, "price_mm"), "max");
+    assert.equal(stripeTier.tierForPrice(prices, "price_unknown"), null);
+    // unset env must never match an empty/undefined price id
+    assert.equal(stripeTier.tierForPrice({}, ""), null);
+  });
+
+  test("stripe-tier: webhook reducer covers the full lifecycle", () => {
+    const prices = { proMonthly: "price_pm", proYearly: "price_py", maxMonthly: "price_mm", maxYearly: "price_my" };
+    const decide = (type, object) => stripeTier.decideTierAction(prices, { type, data: { object } });
+
+    // checkout completed → set tier from metadata
+    const done = decide("checkout.session.completed",
+      { metadata: { userId: "u1", tier: "pro" }, customer: "cus_1", subscription: "sub_1" });
+    assert.deepEqual(done, { type: "set-tier", userId: "u1", customerId: "cus_1", tier: "pro", subscriptionId: "sub_1", status: "active" });
+
+    // checkout with no tier metadata → ignored, not a crash
+    assert.equal(decide("checkout.session.completed", { metadata: {}, customer: "cus_1" }).type, "ignore");
+
+    // plan switch → tier re-derived from the price id
+    const switched = decide("customer.subscription.updated",
+      { id: "sub_1", customer: "cus_1", status: "active", items: { data: [{ price: { id: "price_my" } }] } });
+    assert.equal(switched.type, "set-tier");
+    assert.equal(switched.tier, "max");
+
+    // unknown price → ignored (protects against foreign products on the account)
+    assert.equal(decide("customer.subscription.updated",
+      { id: "sub_1", customer: "cus_1", items: { data: [{ price: { id: "price_other" } }] } }).type, "ignore");
+
+    // cancellation lands as deletion → downgrade to free
+    const del = decide("customer.subscription.deleted", { id: "sub_1", customer: "cus_1" });
+    assert.equal(del.type, "set-tier");
+    assert.equal(del.tier, "free");
+    assert.equal(del.status, "canceled");
+
+    // payment failure → status only, tier untouched (dunning owns retries)
+    const failed = decide("invoice.payment_failed", { customer: "cus_1" });
+    assert.deepEqual(failed, { type: "record-status", customerId: "cus_1", status: "past_due" });
+
+    // forward compatibility
+    assert.equal(decide("some.future.event", {}).type, "ignore");
   });
 
   test("projections never mutate the caller's inputs", () => {

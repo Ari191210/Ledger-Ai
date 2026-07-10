@@ -4,6 +4,7 @@ import Link from "next/link";
 import NumberFlow from "@number-flow/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useId, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 
 const FREE_FEATURES = [
   "Study Engine & Doubt Solver",
@@ -109,7 +110,7 @@ function FeatureRow({ text, dim }: { text: string; dim?: boolean }) {
 
 function TierCard({
   label, badge, price, isNumeric, period, yearNote, desc,
-  features, cta, ctaHref, highlighted, externalCta,
+  features, cta, ctaHref, highlighted, externalCta, onCta, ctaBusy,
 }: {
   label: string; badge?: string;
   price: number | string; isNumeric?: boolean;
@@ -117,6 +118,8 @@ function TierCard({
   desc: string; features: string[];
   cta: string; ctaHref: string;
   highlighted: boolean; externalCta?: boolean;
+  /** When set, the CTA is an action (checkout) instead of a link. */
+  onCta?: () => void; ctaBusy?: boolean;
 }) {
   return (
     <div style={{
@@ -200,7 +203,23 @@ function TierCard({
         ))}
       </ul>
 
-      {externalCta ? (
+      {onCta ? (
+        <button
+          onClick={onCta}
+          disabled={ctaBusy}
+          style={{
+            fontFamily: "var(--mono)", fontSize: 11, letterSpacing: "0.1em",
+            textTransform: "uppercase", padding: "12px 20px",
+            border: `1px solid ${highlighted ? "var(--cinnabar-ink)" : "var(--rule)"}`,
+            background: highlighted ? "var(--cinnabar-ink)" : "transparent",
+            color: highlighted ? "var(--paper)" : "var(--ink)",
+            display: "block", width: "100%", textAlign: "center", borderRadius: 3,
+            cursor: ctaBusy ? "wait" : "pointer", opacity: ctaBusy ? 0.6 : 1,
+          }}
+        >
+          {ctaBusy ? "Opening checkout…" : cta}
+        </button>
+      ) : externalCta ? (
         <a
           href={ctaHref}
           style={{
@@ -234,6 +253,31 @@ function TierCard({
 
 export function PricingCards() {
   const [yearly, setYearly] = useState(false);
+  const { session } = useAuth();
+  const [busyTier, setBusyTier] = useState<"pro" | "max" | null>(null);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  // Signed-in users go straight to Stripe Checkout; the webhook grants the
+  // tier after payment. Signed-out users keep the /auth link.
+  async function startCheckout(tier: "pro" | "max") {
+    if (!session) return;
+    setBusyTier(tier); setCheckoutError("");
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ tier, interval: yearly ? "yearly" : "monthly" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) { window.location.assign(data.url); return; }
+      setCheckoutError(data.error || "Could not start checkout. Please try again.");
+    } catch {
+      setCheckoutError("Network error. Please try again.");
+    } finally {
+      setBusyTier(null);
+    }
+  }
+
   const proMonthly = 199;
   const proYearlyPerMonth = 125; // ₹1,499/yr
   const maxMonthly = 499;
@@ -284,6 +328,8 @@ export function PricingCards() {
           features={PRO_FEATURES}
           cta="Get Pro →"
           ctaHref="/auth"
+          onCta={session ? () => startCheckout("pro") : undefined}
+          ctaBusy={busyTier === "pro"}
           highlighted
         />
         <TierCard
@@ -296,9 +342,19 @@ export function PricingCards() {
           features={MAX_FEATURES}
           cta="Get Max →"
           ctaHref="/auth"
+          onCta={session ? () => startCheckout("max") : undefined}
+          ctaBusy={busyTier === "max"}
           highlighted={false}
         />
       </div>
+      {checkoutError && (
+        <p role="alert" style={{
+          fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em",
+          color: "var(--cinnabar-ink)", textAlign: "center", marginBottom: 24,
+        }}>
+          {checkoutError}
+        </p>
+      )}
     </>
   );
 }
