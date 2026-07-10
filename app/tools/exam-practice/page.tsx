@@ -1,6 +1,8 @@
 ﻿"use client";
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import TierGate from "@/components/tier-gate";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, realizedExamPracticeImpact } from "@/lib/score-projection";
 import ElasticSlider from "@/components/ui/elastic-slider-lazy";
 import type { Paper, Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
@@ -123,6 +125,17 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.timeLimit, done]);
 
+  // Session's realized score movement. Computed once when `done` flips —
+  // saveSessionResults has already written ledger-papers-log by then (both
+  // completion paths save before setting done), so the log's head entry IS
+  // this session. Deliberately not recomputed after mistake tagging, so the
+  // headline delta stays the session's own movement.
+  const sessionImpact = useMemo(() => {
+    if (!done) return null;
+    const inputs = currentInputs();
+    return inputs ? realizedExamPracticeImpact(inputs) : null;
+  }, [done]);
+
   const CATS = ["Conceptual", "Slip", "Misread", "Rushed", "Blanked"] as const;
   const CAT_FULL: Record<string, string> = { Conceptual: "Conceptual Gap", Slip: "Calculation Slip", Misread: "Misread Question", Rushed: "Time Pressure", Blanked: "Memory Blank" };
   const wrongIdxs = answers.map((a, i) => a !== paper.questions[i].ans ? i : -1).filter(i => i >= 0);
@@ -157,6 +170,16 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
       <div style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", marginTop: 8 }}>
         {Math.round(score / paper.questions.length * 100)}% · {score === paper.questions.length ? "Perfect score." : score >= paper.questions.length * 0.8 ? "Strong performance." : "Keep practising."}
       </div>
+      {sessionImpact && (
+        <div style={{ marginTop: 20 }}>
+          <ScoreImpactStrip
+            currentScore={sessionImpact.current}
+            scoreDelta={sessionImpact.delta}
+            affectedPillar="accuracy"
+            realized
+          />
+        </div>
+      )}
       <div style={{ marginTop: 32, border: "none" }}>
         {paper.questions.map((q2, i) => (
           <QuestionReviewRow

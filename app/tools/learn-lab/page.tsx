@@ -11,6 +11,9 @@ import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
 import SaveOutputButton from "@/components/save-output-button";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, type ScoreProjection } from "@/lib/score-projection";
+import { computeScoreFromInputs } from "@/lib/ledger-score";
 import dynamic from "next/dynamic";
 import type { SimType } from "@/components/physics-sim";
 
@@ -41,18 +44,31 @@ const FEYNMAN_SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "Eco
 type Flashcard = { q: string; a: string };
 type QuizItem = { q: string; opts: string[]; ans: number };
 type NotesOutput = { explanation: string; summary: string[]; flashcards: Flashcard[]; quiz: QuizItem[] };
-type HistoryEntry = { id: number; title: string; date: string; input: string; output: NotesOutput };
+// `subject` feeds the Ledger Score's Syllabus Coverage pillar — the scoring
+// engine reads notesHistory[].subject (lib/ledger-score.ts). Entries saved
+// before this field existed simply don't count toward coverage.
+type HistoryEntry = { id: number; title: string; date: string; input: string; output: NotesOutput; subject?: string };
 type NotesExample = { title: string; setup: string; solution: string };
 type NotesPracticeQ = { q: string; opts: string[]; ans: number };
 type Lesson = { title: string; concept: string; keyPoints: string[]; examples: NotesExample[]; commonMistakes: string[]; practice: NotesPracticeQ[] };
 const NOTES_SUBJECTS = ["Mathematics","Physics","Chemistry","Biology","Computer Science","English Literature","History","Geography","Economics","Psychology","Accountancy","Political Science","Sociology","Physical Education"];
 
-function saveToHistory(input: string, output: NotesOutput) {
+function saveToHistory(input: string, output: NotesOutput, subject?: string) {
   try {
     const existing: HistoryEntry[] = JSON.parse(localStorage.getItem("ledger-notes-history") || "[]");
-    const entry: HistoryEntry = { id: Date.now(), title: input.trim().slice(0, 60), date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" }), input, output };
+    const entry: HistoryEntry = { id: Date.now(), title: input.trim().slice(0, 60), date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" }), input, output, subject };
     localStorage.setItem("ledger-notes-history", JSON.stringify([entry, ...existing].slice(0, 10)));
   } catch {}
+}
+
+// Which subject does this note cover? Syllabus subjects take priority (they
+// are what the coverage pillar is measured against), then the generic list.
+function detectSubject(input: string, syllabusSubjects: string[]): string | undefined {
+  const text = input.toLowerCase();
+  return (
+    syllabusSubjects.find(s => text.includes(s.toLowerCase())) ??
+    NOTES_SUBJECTS.find(s => text.includes(s.toLowerCase()))
+  );
 }
 
 // ─── Mind Map types ──────────────────────────────────────────────────────────
@@ -610,6 +626,7 @@ function NotesTab() {
   const [learnLoading, setLearnLoading] = useState(false);
   const [learnError, setLearnError] = useState<AIError | string | null>(null);
   const [learnProfile, setLearnProfile] = useState<{ grade?: string; board?: string; stream?: string; interests?: string[]; targetExam?: string }>({});
+  const [scoreImpact, setScoreImpact] = useState<(ScoreProjection & { nextAction?: string }) | null>(null);
 
   useEffect(() => {
     try {
@@ -632,10 +649,26 @@ function NotesTab() {
     setNotesLoading(true); setNotesError(null); setNotesOut(null);
     try {
       const syllabusSubjects = (() => { try { return JSON.parse(localStorage.getItem("ledger-syllabus-subjects") || "[]"); } catch { return []; } })();
+      // Snapshot the score before saving so the strip can show what this
+      // note actually moved (coverage only rises when the note's subject
+      // is a syllabus subject not already covered).
+      const before = currentInputs();
+      const beforeTotal = before ? computeScoreFromInputs(before).total : null;
       const data = await callAIOrThrow<NotesOutput>({ tool: "notes", content: input, ...profile, syllabusSubjects });
       setNotesOut(data); setNotesTab("explanation");
-      saveToHistory(input, data);
+      saveToHistory(input, data, detectSubject(input, syllabusSubjects));
       setHistory(JSON.parse(localStorage.getItem("ledger-notes-history") || "[]"));
+      const after = currentInputs();
+      if (after && beforeTotal !== null) {
+        const breakdown = computeScoreFromInputs(after);
+        setScoreImpact({
+          current: breakdown.total,
+          projected: breakdown.total,
+          delta: breakdown.total - beforeTotal,
+          pillar: "coverage",
+          nextAction: breakdown.total - beforeTotal === 0 ? breakdown.actions[0] : undefined,
+        });
+      }
     } catch (err) { setNotesError(err instanceof AIError ? err : "Something went wrong. Please try again."); }
     finally { setNotesLoading(false); }
   }
@@ -711,6 +744,17 @@ function NotesTab() {
             )}
             {notesOut && !notesLoading && (
               <div>
+                {scoreImpact && (
+                  <div style={{ marginBottom: 14 }}>
+                    <ScoreImpactStrip
+                      currentScore={scoreImpact.current}
+                      scoreDelta={scoreImpact.delta}
+                      affectedPillar="coverage"
+                      nextAction={scoreImpact.nextAction}
+                      realized
+                    />
+                  </div>
+                )}
                 <div style={{ display: "flex", gap: 8, background: "color-mix(in srgb, var(--ink) 7%, transparent)", borderRadius: 12, padding: "6px", overflowX: "auto" as const }}>
                   {NOTES_TABS_LIST.map((t) => (
                     <button key={t.id} onClick={() => setNotesTab(t.id)}

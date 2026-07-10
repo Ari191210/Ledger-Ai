@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useFocus, DURATIONS, MODE_LABELS } from "@/lib/focus-context";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, projectFocusImpact, type ScoreProjection } from "@/lib/score-projection";
 
 // ── Tab: Focus Timer ───────────────────────────────────────────────────────────
 
@@ -14,6 +16,19 @@ type FocusMode = "work" | "break" | "longbreak";
 function FocusTab() {
   const { mode, seconds, running, sessions, tasks, streak, switchMode, toggleRunning, reset, setTasks } = useFocus();
   const [newTask, setNewTask] = useState("");
+
+  // Consistency projection: what today's first completed work session adds.
+  // Effect (not render) because it reads localStorage — keyed on `streak`
+  // so it clears itself the moment focus-context counts today.
+  const [streakImpact, setStreakImpact] = useState<ScoreProjection | null>(null);
+  useEffect(() => {
+    try {
+      const todayCounted = localStorage.getItem("ledger-focus-last") === new Date().toDateString();
+      if (todayCounted) { setStreakImpact(null); return; }
+      const inputs = currentInputs();
+      setStreakImpact(inputs ? projectFocusImpact(inputs, 1) : null);
+    } catch { setStreakImpact(null); }
+  }, [streak]);
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
@@ -71,6 +86,18 @@ function FocusTab() {
               </div>
             ))}
           </div>
+
+          {streakImpact && streakImpact.delta > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <ScoreImpactStrip
+                currentScore={streakImpact.current}
+                projectedScore={streakImpact.projected}
+                scoreDelta={streakImpact.delta}
+                affectedPillar="consistency"
+                nextAction="Complete one work session today to extend your streak."
+              />
+            </div>
+          )}
         </div>
 
         {/* Task list */}

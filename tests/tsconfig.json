@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "../.test-build",
+    "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "skipLibCheck": true,
+    "types": []
+  },
+  "files": ["../lib/ledger-score.ts", "../lib/score-projection.ts"]
+}

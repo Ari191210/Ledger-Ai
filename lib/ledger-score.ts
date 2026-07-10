@@ -37,19 +37,28 @@ export type ScoreInputs = {
   streak: number;
 };
 
-export function computeLedgerScore(): ScoreBreakdown {
-  if (typeof window === "undefined") return EMPTY;
+// Single source of truth for reading score inputs off this device.
+// The projection layer (lib/score-projection.ts) reuses this so simulated
+// deltas are computed from exactly the same data the real score uses.
+export function readScoreInputs(): ScoreInputs | null {
+  if (typeof window === "undefined") return null;
   try {
     const syllabusSubjects: string[] = safeGet("ledger-syllabus-subjects", []);
-    return computeScoreFromInputs({
+    return {
       papersLog:        safeGet("ledger-papers-log", []),
       syllabusSubjects,
       syllabusUploaded: syllabusSubjects.length > 0 || !!localStorage.getItem("ledger-syllabus"),
       notesHistory:     safeGet("ledger-notes-history", []),
       mistakes:         safeGet("ledger-mistakes", []),
       streak:           parseInt(localStorage.getItem("ledger-focus-streak") ?? "0", 10) || 0,
-    });
-  } catch { return EMPTY; }
+    };
+  } catch { return null; }
+}
+
+export function computeLedgerScore(): ScoreBreakdown {
+  const inputs = readScoreInputs();
+  if (!inputs) return EMPTY;
+  return computeScoreFromInputs(inputs);
 }
 
 export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {

@@ -5,6 +5,8 @@ import ElasticSlider from "@/components/ui/elastic-slider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, projectMistakeReductionImpact, type ScoreProjection } from "@/lib/score-projection";
 
 type Tab = "dna" | "debrief" | "strategy";
 
@@ -38,8 +40,18 @@ function saveEntry(e: DebriefEntry) { const ex = loadHistory(); localStorage.set
 
 function DNATab() {
   const [mistakes, setMistakes] = useState<MistakeEntry[]>([]);
+  const [scoreImpact, setScoreImpact] = useState<ScoreProjection | null>(null);
 
-  useEffect(() => { try { setMistakes(JSON.parse(localStorage.getItem("ledger-mistakes") || "[]")); } catch {} }, []);
+  useEffect(() => {
+    try {
+      setMistakes(JSON.parse(localStorage.getItem("ledger-mistakes") || "[]"));
+      const inputs = currentInputs();
+      if (inputs) {
+        const p = projectMistakeReductionImpact(inputs, inputs.mistakes.length);
+        setScoreImpact(p.delta > 0 ? p : null);
+      }
+    } catch {}
+  }, []);
 
   if (mistakes.length === 0) return (
     <div style={{ maxWidth: 560 }}>
@@ -67,6 +79,17 @@ function DNATab() {
 
   return (
     <div>
+      {scoreImpact && (
+        <div style={{ marginBottom: 24 }}>
+          <ScoreImpactStrip
+            currentScore={scoreImpact.current}
+            projectedScore={scoreImpact.projected}
+            scoreDelta={scoreImpact.delta}
+            affectedPillar="mistakes"
+            nextAction="Resolve this week's recurring mistakes — drill them until they stop repeating."
+          />
+        </div>
+      )}
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 28 }}>
         <div style={{ padding: "28px 24px", borderRight: "1px solid var(--rule)" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Biggest Leak</div>

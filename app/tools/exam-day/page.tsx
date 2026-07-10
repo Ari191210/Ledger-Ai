@@ -5,6 +5,8 @@ import { callAIOrThrow, type AIError } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
 import { useUserLevel } from "@/hooks/use-user-level";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, projectMistakeReductionImpact, type ScoreProjection } from "@/lib/score-projection";
 
 type Question = { q: string; options: string[]; answer: number; explanation: string };
 type ExamData = { title: string; timeMinutes: number; questions: Question[] };
@@ -97,11 +99,20 @@ export default function ExamDayPage() {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<AIError | string | null>(null);
 
+  const [scoreImpact, setScoreImpact] = useState<ScoreProjection | null>(null);
+
   useEffect(() => {
     const e = getTodayExam();
     setExam(e);
     const g = getGaps(e?.name);
     setGaps(g.gaps); setMisses(g.misses); setSource(g.source);
+    // What clearing these gaps is worth: the sweep drills recent misses,
+    // so project the score once they stop recurring.
+    const inputs = currentInputs();
+    if (inputs) {
+      const p = projectMistakeReductionImpact(inputs, inputs.mistakes.length);
+      setScoreImpact(p.delta > 0 ? p : null);
+    }
     setReady(true);
   }, []);
 
@@ -196,6 +207,17 @@ export default function ExamDayPage() {
 
             {gaps.length > 0 ? (
               <>
+                {scoreImpact && (
+                  <div style={{ marginBottom: 20 }}>
+                    <ScoreImpactStrip
+                      currentScore={scoreImpact.current}
+                      projectedScore={scoreImpact.projected}
+                      scoreDelta={scoreImpact.delta}
+                      affectedPillar="mistakes"
+                      nextAction="Sweeping these gaps is how this week's misses stop costing you points."
+                    />
+                  </div>
+                )}
                 <div style={{ borderTop: "1px solid var(--ink)" }}>
                   {gaps.map((g, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "14px 2px", borderBottom: "1px solid var(--rule)" }}>

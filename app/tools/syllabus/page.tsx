@@ -1,11 +1,13 @@
 ﻿"use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData } from "@/lib/user-data";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, projectSyllabusImpact } from "@/lib/score-projection";
 
 type Chapter  = { name: string; topics: string[] };
 type Subject  = { name: string; chapters: Chapter[] };
@@ -114,6 +116,16 @@ export default function SyllabusPage() {
   function toggleExpand(i: number) {
     setExpanded(p => ({ ...p, [i]: !p[i] }));
   }
+
+  // Projected score movement if this parse is saved. `syllabus` only becomes
+  // non-null via effect or user action, so this never runs during SSR.
+  // Recomputes on save so the delta collapses to the strip's persistent form.
+  const scoreImpact = useMemo(() => {
+    if (!syllabus || syllabus.subjects.length === 0) return null;
+    const inputs = currentInputs();
+    if (!inputs) return null;
+    return projectSyllabusImpact(inputs, syllabus.subjects.map(s => s.name));
+  }, [syllabus, saved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalChapters = syllabus?.subjects.reduce((n, s) => n + s.chapters.length, 0) ?? 0;
 
@@ -299,6 +311,18 @@ export default function SyllabusPage() {
                 <div style={{ border: "1px solid var(--rule)", padding: "14px 20px", marginBottom: 20, background: "var(--paper-2)" }}>
                   <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>Additional notes from your syllabus</div>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>{syllabus.notes}</div>
+                </div>
+              )}
+
+              {scoreImpact && (
+                <div style={{ marginBottom: 20 }}>
+                  <ScoreImpactStrip
+                    currentScore={scoreImpact.current}
+                    projectedScore={scoreImpact.projected}
+                    scoreDelta={scoreImpact.delta}
+                    affectedPillar="coverage"
+                    nextAction={!saved && scoreImpact.delta > 0 ? "Save to profile to lock in these points." : undefined}
+                  />
                 </div>
               )}
 

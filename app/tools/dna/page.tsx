@@ -1,6 +1,8 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import ScoreImpactStrip from "@/components/score-impact-strip";
+import { currentInputs, projectMistakeReductionImpact, type ScoreProjection } from "@/lib/score-projection";
 
 type MistakeEntry = { date: string; subject: string; topic: string; category: string };
 
@@ -16,10 +18,19 @@ const CAT_DESC: Record<string, string> = {
 
 export default function DNAPage() {
   const [mistakes, setMistakes] = useState<MistakeEntry[]>([]);
+  const [scoreImpact, setScoreImpact] = useState<ScoreProjection | null>(null);
 
   useEffect(() => {
     try {
-      setMistakes(JSON.parse(localStorage.getItem("ledger-mistakes") || "[]"));
+      const loaded: MistakeEntry[] = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
+      setMistakes(loaded);
+      // Projection: score if this week's misses stop recurring. Same
+      // localStorage read serves both the page and the projection.
+      const inputs = currentInputs();
+      if (inputs) {
+        const p = projectMistakeReductionImpact(inputs, inputs.mistakes.length);
+        setScoreImpact(p.delta > 0 ? p : null);
+      }
     } catch {}
   }, []);
 
@@ -71,6 +82,18 @@ export default function DNAPage() {
       </header>
 
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
+
+        {scoreImpact && (
+          <div style={{ marginBottom: 28 }}>
+            <ScoreImpactStrip
+              currentScore={scoreImpact.current}
+              projectedScore={scoreImpact.projected}
+              scoreDelta={scoreImpact.delta}
+              affectedPillar="mistakes"
+              nextAction="Resolve this week's recurring mistakes — drill them until they stop repeating."
+            />
+          </div>
+        )}
 
         {/* Biggest Leak + Breakdown */}
         <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 32 }}>
