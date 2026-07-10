@@ -2,39 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PALETTE_IDS, PALETTE_META, applyPalette, getActivePalette, type PaletteId } from "@/lib/palette";
+import {
+  BASE_IDS, BASE_META, ACCENT_IDS, ACCENT_META,
+  applyTheme, getActiveBase, getActiveAccent, resolveTheme,
+  type BaseId, type AccentId,
+} from "@/lib/palette";
 import { getDensity, applyDensity, type Density } from "@/lib/density";
 import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { FontPicker } from "./_font-picker";
-import { ColorBuilder } from "./_color-builder";
 import ElasticSlider from "@/components/ui/elastic-slider";
-
-const PALETTE_DESC: Record<PaletteId, string> = {
-  ledger:        "Dark charcoal · warm peach & cream",
-  paper:         "Warm white · violet accent",
-  "paper-rose":  "Blush white · rose red accent",
-  "paper-frost": "Ice white · sky blue accent",
-  "paper-forest":"Cream white · forest green accent",
-  "paper-amber": "Warm cream · golden amber accent",
-  "paper-ember": "Warm white · burnt orange accent",
-  "paper-plum":  "Soft white · fuchsia plum accent",
-  "paper-slate": "Cool gray-white · slate accent",
-  void:          "AMOLED black · electric violet",
-  dusk:          "Deep navy · soft indigo",
-  amber:         "Warm dark · golden amber",
-  rose:          "Deep dark · rose pink",
-  frost:         "Arctic dark · sky blue",
-  forest:        "Forest dark · mint green",
-  ember:         "Deep dark · burnt orange",
-  midnight:      "Deep black · electric violet",
-  ocean:         "Abyssal dark · ice blue",
-  sage:          "Forest dark · emerald",
-  crimson:       "Dark · deep crimson red",
-  gold:          "Rich dark · antique gold",
-  slate:         "Near-black · cool slate",
-  copper:        "Dark · burnished copper",
-  plum:          "Dark · vivid fuchsia",
-};
 
 const DENSITY_OPTIONS: { id: Density; label: string; sub: string }[] = [
   { id: "compact",     label: "Compact",     sub: "More on screen" },
@@ -75,7 +51,8 @@ function SectionHead({ n, label, right }: { n: string; label: string; right?: st
 }
 
 export default function PersonalisePage() {
-  const [active,  setActive]  = useState<PaletteId>("ledger");
+  const [activeBase,   setActiveBase]   = useState<BaseId>("obsidian");
+  const [activeAccent, setActiveAccent] = useState<AccentId>("cinnabar");
   const [density, setDensity] = useState<Density>("default");
   const [layout,  setLayout]  = useState<DashLayout>(DASH_DEFAULTS);
   const [radius,  setRadius]  = useState(12);
@@ -83,7 +60,8 @@ export default function PersonalisePage() {
   const [speed,   setSpeed]   = useState<"reduced"|"normal"|"fast">("normal");
 
   useEffect(() => {
-    setActive(getActivePalette());
+    setActiveBase(getActiveBase());
+    setActiveAccent(getActiveAccent());
     setDensity(getDensity());
     setLayout(getDashLayout());
     const saved = localStorage.getItem("ledger-radius");
@@ -92,12 +70,16 @@ export default function PersonalisePage() {
     if (savedW) setWidth(savedW);
     const savedS = localStorage.getItem("ledger-anim-speed") as "reduced"|"normal"|"fast" | null;
     if (savedS) setSpeed(savedS);
-    const onP = (e: Event) => setActive((e as CustomEvent<PaletteId>).detail);
-    window.addEventListener("ledger-palette", onP);
-    return () => window.removeEventListener("ledger-palette", onP);
+    const onT = (e: Event) => {
+      const detail = (e as CustomEvent<{ base: BaseId; accent: AccentId }>).detail;
+      setActiveBase(detail.base); setActiveAccent(detail.accent);
+    };
+    window.addEventListener("ledger-theme", onT);
+    return () => window.removeEventListener("ledger-theme", onT);
   }, []);
 
-  function pick(p: PaletteId) { setActive(p); applyPalette(p); }
+  function pickBase(b: BaseId) { setActiveBase(b); applyTheme(b, activeAccent); }
+  function pickAccent(a: AccentId) { setActiveAccent(a); applyTheme(activeBase, a); }
   function pickDensity(d: Density) { setDensity(d); applyDensity(d); }
   function toggleSection(id: DashSection) {
     const next = { ...layout, [id]: !layout[id] };
@@ -121,7 +103,7 @@ export default function PersonalisePage() {
     localStorage.setItem("ledger-anim-speed", s);
   }
 
-  const m = PALETTE_META[active];
+  const activeTheme = resolveTheme(activeBase, activeAccent);
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -130,8 +112,8 @@ export default function PersonalisePage() {
       <div style={{ borderBottom: "1px solid var(--rule)", padding: "0 44px", height: 48, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div className="mono" style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--ink-3)" }}>Personalise · Ledger Studio</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: m.accent, boxShadow: `0 0 10px ${m.accent}99`, transition: "background 300ms" }} />
-          <div className="mono" style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--ink-2)" }}>{m.name} · {density}</div>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: activeTheme.accent, boxShadow: `0 0 10px ${activeTheme.accent}99`, transition: "background 300ms" }} />
+          <div className="mono" style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--ink-2)" }}>{BASE_META[activeBase].name} · {ACCENT_META[activeAccent].name} · {density}</div>
         </div>
       </div>
 
@@ -140,29 +122,27 @@ export default function PersonalisePage() {
         {/* 01 · Colour */}
         <section style={{ paddingTop: 56, marginBottom: 8 }}>
           <div style={CARD}>
-            <SectionHead n="01 · Colour Palette" label="Make Ledger yours." right={`${PALETTE_IDS.length} themes · applies instantly`} />
+            <SectionHead n="01 · Colour" label="Make Ledger yours." right={`${BASE_IDS.length} themes × ${ACCENT_IDS.length} accents · applies instantly`} />
 
-            {/* Light palettes */}
-            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>☀ Light</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10, marginBottom: 28 }}>
-              {PALETTE_IDS.filter(p => PALETTE_META[p].isLight).map((p) => {
-                const pm = PALETTE_META[p];
-                const isAct = active === p;
+            {/* Base surface */}
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>☀ Light surfaces</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, marginBottom: 28 }}>
+              {BASE_IDS.filter(b => BASE_META[b].isLight).map((b) => {
+                const bm = BASE_META[b];
+                const isAct = activeBase === b;
                 return (
-                  <button key={p} onClick={() => pick(p)} style={{
+                  <button key={b} onClick={() => pickBase(b)} style={{
                     border: "none", padding: 0, cursor: "pointer", textAlign: "left", background: "transparent",
-                    outline: isAct ? `2px solid ${pm.accent}` : "2px solid transparent",
+                    outline: isAct ? `2px solid ${activeTheme.accent}` : "2px solid transparent",
                     outlineOffset: 2, borderRadius: 12, transition: "outline-color 180ms",
                   }}>
-                    <div style={{ background: pm.paper, borderRadius: 12, padding: "20px 18px", minHeight: 110, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: pm.accent }} />
-                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: pm.ink, lineHeight: 1, marginBottom: 10, letterSpacing: "-0.02em" }}>{pm.name}</div>
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: pm.ink, opacity: 0.38, lineHeight: 1.5 }}>{PALETTE_DESC[p]}</div>
-                      <div style={{ display: "flex", gap: 4, marginTop: 12, alignItems: "center" }}>
-                        <div style={{ width: 14, height: 14, borderRadius: "50%", background: pm.accent }} />
-                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: pm.ink, opacity: 0.7 }} />
-                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: pm.ink, opacity: 0.3 }} />
-                        {isAct && <div style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 7, background: pm.accent, color: pm.paper, padding: "2px 6px" }}>✓</div>}
+                    <div style={{ background: bm.paper, borderRadius: 12, padding: "18px 16px", minHeight: 92, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
+                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 20, color: bm.ink, lineHeight: 1, marginBottom: 8, letterSpacing: "-0.02em" }}>{bm.name}</div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: bm.ink, opacity: 0.38, lineHeight: 1.5 }}>{bm.description}</div>
+                      <div style={{ display: "flex", gap: 4, marginTop: 10, alignItems: "center" }}>
+                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: bm.ink, opacity: 0.7 }} />
+                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: bm.ink2, opacity: 0.6 }} />
+                        {isAct && <div style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 7, background: activeTheme.accent, color: bm.paper, padding: "2px 6px" }}>✓</div>}
                       </div>
                     </div>
                   </button>
@@ -170,29 +150,52 @@ export default function PersonalisePage() {
               })}
             </div>
 
-            {/* Dark palettes */}
-            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>☾ Dark</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-              {PALETTE_IDS.filter(p => !PALETTE_META[p].isLight).map((p) => {
-                const pm = PALETTE_META[p];
-                const isAct = active === p;
+            {/* Dark surfaces */}
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>☾ Dark surfaces</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, marginBottom: 28 }}>
+              {BASE_IDS.filter(b => !BASE_META[b].isLight).map((b) => {
+                const bm = BASE_META[b];
+                const isAct = activeBase === b;
                 return (
-                  <button key={p} onClick={() => pick(p)} style={{
+                  <button key={b} onClick={() => pickBase(b)} style={{
                     border: "none", padding: 0, cursor: "pointer", textAlign: "left", background: "transparent",
-                    outline: isAct ? `2px solid ${pm.accent}` : "2px solid transparent",
+                    outline: isAct ? `2px solid ${activeTheme.accent}` : "2px solid transparent",
                     outlineOffset: 2, borderRadius: 12, transition: "outline-color 180ms",
                   }}>
-                    <div style={{ background: pm.paper, borderRadius: 12, padding: "20px 18px", minHeight: 110, position: "relative", overflow: "hidden" }}>
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: pm.accent }} />
-                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 22, color: pm.ink, lineHeight: 1, marginBottom: 10, letterSpacing: "-0.02em" }}>{pm.name}</div>
-                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: pm.ink, opacity: 0.38, lineHeight: 1.5 }}>{PALETTE_DESC[p]}</div>
-                      <div style={{ display: "flex", gap: 4, marginTop: 12, alignItems: "center" }}>
-                        <div style={{ width: 14, height: 14, borderRadius: "50%", background: pm.accent }} />
-                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: pm.ink, opacity: 0.7 }} />
-                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: pm.ink, opacity: 0.3 }} />
-                        {isAct && <div style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 7, background: pm.accent, color: pm.paper, padding: "2px 6px" }}>✓</div>}
+                    <div style={{ background: bm.paper, borderRadius: 12, padding: "18px 16px", minHeight: 92, position: "relative", overflow: "hidden" }}>
+                      <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 20, color: bm.ink, lineHeight: 1, marginBottom: 8, letterSpacing: "-0.02em" }}>{bm.name}</div>
+                      <div style={{ fontFamily: "var(--mono)", fontSize: 7, color: bm.ink, opacity: 0.38, lineHeight: 1.5 }}>{bm.description}</div>
+                      <div style={{ display: "flex", gap: 4, marginTop: 10, alignItems: "center" }}>
+                        <div style={{ width: 10, height: 10, borderRadius: "50%", background: bm.ink, opacity: 0.7 }} />
+                        <div style={{ width: 7, height: 7, borderRadius: "50%", background: bm.ink2, opacity: 0.6 }} />
+                        {isAct && <div style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 7, background: activeTheme.accent, color: bm.paper, padding: "2px 6px" }}>✓</div>}
                       </div>
                     </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Accent */}
+            <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 12 }}>◆ Accent</div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {ACCENT_IDS.map((a) => {
+                const am = ACCENT_META[a];
+                const isAct = activeAccent === a;
+                return (
+                  <button key={a} onClick={() => pickAccent(a)} aria-label={am.name} title={am.name} style={{
+                    border: "none", padding: 0, cursor: "pointer", background: "transparent",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: "50%",
+                      background: `linear-gradient(145deg, ${am.accent}, ${am.accentMid})`,
+                      outline: isAct ? "2px solid var(--ink)" : "2px solid transparent",
+                      outlineOffset: 3,
+                      boxShadow: isAct ? `0 0 14px ${am.accent}80` : "0 1px 3px rgba(0,0,0,0.3)",
+                      transition: "outline-color 150ms, box-shadow 150ms",
+                    }} />
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 7, letterSpacing: "0.06em", textTransform: "uppercase", color: isAct ? "var(--ink)" : "var(--ink-3)" }}>{am.name}</div>
                   </button>
                 );
               })}
@@ -273,12 +276,9 @@ export default function PersonalisePage() {
           </div>
         </section>
 
-        {/* 05 · Custom accent */}
-        <ColorBuilder />
-
-        {/* 06 · Dashboard layout */}
+        {/* 05 · Dashboard layout */}
         <section style={CARD}>
-          <SectionHead n="06 · Dashboard Layout" label="Your command centre, your way." right={`${Object.values(layout).filter(Boolean).length}/${LAYOUT_SECTIONS.length} shown`} />
+          <SectionHead n="05 · Dashboard Layout" label="Your command centre, your way." right={`${Object.values(layout).filter(Boolean).length}/${LAYOUT_SECTIONS.length} shown`} />
           <div style={{ border: "1px solid var(--rule)", borderRadius: 10, overflow: "hidden" }}>
             {LAYOUT_SECTIONS.map((s, i) => {
               const on = layout[s.id];
@@ -304,7 +304,7 @@ export default function PersonalisePage() {
         {/* Footer */}
         <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Link href="/dashboard" className="mono" style={{ fontSize: 10, color: "var(--ink-3)", textDecoration: "none" }}>← Dashboard</Link>
-          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em" }}>Ledger Studio · {PALETTE_IDS.length} themes</div>
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.12em" }}>Ledger Studio · {BASE_IDS.length}×{ACCENT_IDS.length} themes</div>
         </div>
 
       </div>

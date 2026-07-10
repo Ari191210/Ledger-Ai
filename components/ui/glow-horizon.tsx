@@ -38,7 +38,7 @@ export default function GlowHorizonFM({ className, variant = "top" }: GlowHorizo
       <Arc variant={variant} color="#FFFFFF" size="132%" boxShadow="0px -4px 23px 0px #ffffffb5" delay={1.2} />
       <Arc variant={variant} color="#A558FB" size="120%" initialOffset="10%" blur={31} delay={0.6} />
       <Arc variant={variant} color="#4922E5" size="124%" initialOffset="10%" blur={21} delay={0}   />
-      <Arc variant={variant} color="#000"    size="120%" initialOffset="10%" blur={51} delay={0}   />
+      <Arc variant={variant} color="var(--paper)" size="120%" initialOffset="10%" blur={51} delay={0}   />
     </motion.div>
   );
 }

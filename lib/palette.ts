@@ -1,13 +1,17 @@
-export const PALETTE_IDS = [
-  "ledger", "paper", "paper-rose", "paper-frost", "paper-forest",
-  "paper-amber", "paper-ember", "paper-plum", "paper-slate",
-  "void", "dusk", "amber", "rose", "frost", "forest", "ember",
-  "midnight", "ocean", "sage", "crimson", "gold", "slate", "copper", "plum",
+// ── Theme system: 15 base surfaces × 15 accent colours = 225 combinations ──
+// A "base" defines the neutral surface (paper/ink hierarchy, light or dark).
+// An "accent" defines the single expressive colour (buttons, glows, highlights).
+// They're independent — any base can pair with any accent — so ink colours in
+// each base are deliberately neutral, not tinted toward one fixed accent.
+
+export const BASE_IDS = [
+  "obsidian", "void", "graphite", "ink-navy", "deep-forest",
+  "espresso", "wine", "violet-night", "slate-storm", "charcoal-warm",
+  "paper", "linen", "fog", "porcelain", "bone",
 ] as const
+export type BaseId = (typeof BASE_IDS)[number]
 
-export type PaletteId = (typeof PALETTE_IDS)[number]
-
-export interface PaletteDef {
+export interface BaseDef {
   name: string
   description: string
   paper: string
@@ -15,301 +19,132 @@ export interface PaletteDef {
   ink: string
   ink2: string
   ink3: string
-  accent: string
-  accentMid: string
-  rule: string
-  rule2: string
-  glowA: string
-  glowB: string
-  highlight: string
   isLight?: boolean
 }
 
-export const PALETTE_META: Record<PaletteId, PaletteDef> = {
-  ledger: {
-    name: "Ledger",
-    description: "Dark charcoal with warm peach and cream",
-    paper: "#08090c",    paper2: "#0f1016",
-    ink: "#f1ffc4",      ink2: "#dab894",       ink3: "#a7bed3",
-    accent: "#ffcaaf",   accentMid: "#e89a80",
-    rule: "rgba(167,190,211,0.20)", rule2: "rgba(167,190,211,0.08)",
-    glowA: "rgba(255,202,175,0.20)", glowB: "rgba(167,190,211,0.12)",
-    highlight: "rgba(255,202,175,0.16)",
-  },
-  paper: {
-    name: "Paper",
-    description: "Warm white with violet accent — clean studio light",
-    paper: "#fafaf9",    paper2: "#f5f5f4",
-    ink: "#1c1917",      ink2: "#57534e",       ink3: "#a8a29e",
-    accent: "#7c3aed",   accentMid: "#6d28d9",
-    rule: "rgba(28,25,23,0.09)", rule2: "rgba(28,25,23,0.05)",
-    glowA: "rgba(124,58,237,0.12)", glowB: "rgba(109,40,217,0.06)",
-    highlight: "rgba(124,58,237,0.09)",
-    isLight: true,
-  },
-  "paper-rose": {
-    name: "Rose Light",
-    description: "Warm blush white with rose red accent",
-    paper: "#fff9fb",    paper2: "#fef2f5",
-    ink: "#1c0810",      ink2: "#7a4858",       ink3: "#b08898",
-    accent: "#e11d48",   accentMid: "#be123c",
-    rule: "rgba(28,8,16,0.08)",  rule2: "rgba(28,8,16,0.04)",
-    glowA: "rgba(225,29,72,0.12)", glowB: "rgba(190,18,60,0.06)",
-    highlight: "rgba(225,29,72,0.09)",
-    isLight: true,
-  },
-  "paper-frost": {
-    name: "Frost Light",
-    description: "Cool ice white with sky blue accent",
-    paper: "#f8fbff",    paper2: "#eef5ff",
-    ink: "#0a1624",      ink2: "#3a5878",       ink3: "#6888a8",
-    accent: "#0284c7",   accentMid: "#0369a1",
-    rule: "rgba(10,22,36,0.08)", rule2: "rgba(10,22,36,0.04)",
-    glowA: "rgba(2,132,199,0.12)", glowB: "rgba(3,105,161,0.06)",
-    highlight: "rgba(2,132,199,0.09)",
-    isLight: true,
-  },
-  "paper-forest": {
-    name: "Forest Light",
-    description: "Cream white with forest green accent",
-    paper: "#f8fdf9",    paper2: "#eefaf2",
-    ink: "#0a1c10",      ink2: "#3a6448",       ink3: "#68a080",
-    accent: "#15803d",   accentMid: "#166534",
-    rule: "rgba(10,28,16,0.08)", rule2: "rgba(10,28,16,0.04)",
-    glowA: "rgba(21,128,61,0.12)", glowB: "rgba(22,101,52,0.06)",
-    highlight: "rgba(21,128,61,0.09)",
-    isLight: true,
-  },
-  "paper-amber": {
-    name: "Amber Light",
-    description: "Warm cream with golden amber accent",
-    paper: "#fffdf5",    paper2: "#fef9e7",
-    ink: "#1c1502",      ink2: "#6a5010",       ink3: "#a88848",
-    accent: "#d97706",   accentMid: "#b45309",
-    rule: "rgba(28,21,2,0.08)",  rule2: "rgba(28,21,2,0.04)",
-    glowA: "rgba(217,119,6,0.12)", glowB: "rgba(180,83,9,0.06)",
-    highlight: "rgba(217,119,6,0.09)",
-    isLight: true,
-  },
-  "paper-ember": {
-    name: "Ember Light",
-    description: "Warm white with burnt orange accent",
-    paper: "#fff8f5",    paper2: "#fff0e8",
-    ink: "#1c0a02",      ink2: "#7a3018",       ink3: "#b07058",
-    accent: "#ea580c",   accentMid: "#c2410c",
-    rule: "rgba(28,10,2,0.08)",  rule2: "rgba(28,10,2,0.04)",
-    glowA: "rgba(234,88,12,0.12)", glowB: "rgba(194,65,12,0.06)",
-    highlight: "rgba(234,88,12,0.09)",
-    isLight: true,
-  },
-  "paper-plum": {
-    name: "Plum Light",
-    description: "Soft white with vivid fuchsia accent",
-    paper: "#fdf8ff",    paper2: "#f8eeff",
-    ink: "#180820",      ink2: "#683488",       ink3: "#a870c0",
-    accent: "#a21caf",   accentMid: "#86198f",
-    rule: "rgba(24,8,32,0.08)",  rule2: "rgba(24,8,32,0.04)",
-    glowA: "rgba(162,28,175,0.12)", glowB: "rgba(134,25,143,0.06)",
-    highlight: "rgba(162,28,175,0.09)",
-    isLight: true,
-  },
-  "paper-slate": {
-    name: "Slate Light",
-    description: "Cool gray-white with deep slate accent",
-    paper: "#f8fafc",    paper2: "#f1f5f9",
-    ink: "#0f172a",      ink2: "#475569",       ink3: "#94a3b8",
-    accent: "#334155",   accentMid: "#1e293b",
-    rule: "rgba(15,23,42,0.08)", rule2: "rgba(15,23,42,0.04)",
-    glowA: "rgba(51,65,85,0.12)", glowB: "rgba(30,41,59,0.06)",
-    highlight: "rgba(51,65,85,0.09)",
-    isLight: true,
-  },
-  void: {
-    name: "Void",
-    description: "AMOLED true black with electric violet",
-    paper: "#000000",    paper2: "#0a0a0a",
-    ink: "#f0f0f8",      ink2: "#9090b0",       ink3: "#505070",
-    accent: "#a78bfa",   accentMid: "#7c3aed",
-    rule: "rgba(167,150,255,0.18)", rule2: "rgba(167,150,255,0.07)",
-    glowA: "rgba(167,139,250,0.22)", glowB: "rgba(124,58,237,0.10)",
-    highlight: "rgba(167,139,250,0.18)",
-  },
-  dusk: {
-    name: "Dusk",
-    description: "Deep navy with soft indigo",
-    paper: "#06070f",    paper2: "#090b18",
-    ink: "#e8ecf8",      ink2: "#8890b8",       ink3: "#606888",
-    accent: "#818cf8",   accentMid: "#6366f1",
-    rule: "rgba(130,140,248,0.20)", rule2: "rgba(130,140,248,0.08)",
-    glowA: "rgba(129,140,248,0.20)", glowB: "rgba(99,102,241,0.10)",
-    highlight: "rgba(129,140,248,0.18)",
-  },
-  amber: {
-    name: "Amber",
-    description: "Warm dark with golden amber",
-    paper: "#0e0a02",    paper2: "#120d03",
-    ink: "#fff8e6",      ink2: "#c8a060",       ink3: "#886840",
-    accent: "#fbbf24",   accentMid: "#d97706",
-    rule: "rgba(251,191,36,0.20)", rule2: "rgba(251,191,36,0.08)",
-    glowA: "rgba(251,191,36,0.20)", glowB: "rgba(217,119,6,0.10)",
-    highlight: "rgba(251,191,36,0.16)",
-  },
-  rose: {
-    name: "Rose",
-    description: "Deep dark with rose pink",
-    paper: "#100608",    paper2: "#18090c",
-    ink: "#f8eef2",      ink2: "#c08898",       ink3: "#806070",
-    accent: "#fb7185",   accentMid: "#e11d48",
-    rule: "rgba(251,113,133,0.20)", rule2: "rgba(251,113,133,0.08)",
-    glowA: "rgba(251,113,133,0.20)", glowB: "rgba(225,29,72,0.10)",
-    highlight: "rgba(251,113,133,0.18)",
-  },
-  frost: {
-    name: "Frost",
-    description: "Arctic dark with sky blue",
-    paper: "#040a14",    paper2: "#070e1e",
-    ink: "#eef5ff",      ink2: "#90b8d8",       ink3: "#6090b0",
-    accent: "#38bdf8",   accentMid: "#0284c7",
-    rule: "rgba(56,189,248,0.20)", rule2: "rgba(56,189,248,0.08)",
-    glowA: "rgba(56,189,248,0.20)", glowB: "rgba(2,132,199,0.10)",
-    highlight: "rgba(56,189,248,0.18)",
-  },
-  forest: {
-    name: "Forest",
-    description: "Forest dark with mint green",
-    paper: "#040e06",    paper2: "#071208",
-    ink: "#e8f5ea",      ink2: "#80c888",       ink3: "#507058",
-    accent: "#4ade80",   accentMid: "#16a34a",
-    rule: "rgba(74,222,128,0.18)", rule2: "rgba(74,222,128,0.07)",
-    glowA: "rgba(74,222,128,0.18)", glowB: "rgba(22,163,74,0.10)",
-    highlight: "rgba(74,222,128,0.15)",
-  },
-  ember: {
-    name: "Ember",
-    description: "Deep dark with burnt orange",
-    paper: "#120400",    paper2: "#1a0600",
-    ink: "#fff0e8",      ink2: "#d08060",       ink3: "#906040",
-    accent: "#f97316",   accentMid: "#c2410c",
-    rule: "rgba(249,115,22,0.20)", rule2: "rgba(249,115,22,0.08)",
-    glowA: "rgba(249,115,22,0.20)", glowB: "rgba(194,65,12,0.10)",
-    highlight: "rgba(249,115,22,0.16)",
-  },
-  midnight: {
-    name: "Midnight",
-    description: "Deep black with electric violet",
-    paper: "#040408",    paper2: "#0c0c14",
-    ink: "#e8e0ff",      ink2: "#b8b0d8",       ink3: "#787098",
-    accent: "#8b5cf6",   accentMid: "#7c3aed",
-    rule: "rgba(232,224,255,0.18)", rule2: "rgba(232,224,255,0.07)",
-    glowA: "rgba(139,92,246,0.22)", glowB: "rgba(124,58,237,0.10)",
-    highlight: "rgba(139,92,246,0.16)",
-  },
-  ocean: {
-    name: "Ocean",
-    description: "Abyssal dark with ice blue",
-    paper: "#020d18",    paper2: "#061422",
-    ink: "#bae6fd",      ink2: "#7cbad0",       ink3: "#4a88a0",
-    accent: "#0ea5e9",   accentMid: "#0284c7",
-    rule: "rgba(186,230,253,0.18)", rule2: "rgba(186,230,253,0.07)",
-    glowA: "rgba(14,165,233,0.22)", glowB: "rgba(2,132,199,0.10)",
-    highlight: "rgba(14,165,233,0.16)",
-  },
-  sage: {
-    name: "Sage",
-    description: "Forest dark with emerald",
-    paper: "#040a06",    paper2: "#081410",
-    ink: "#d1fae5",      ink2: "#90d4b0",       ink3: "#508870",
-    accent: "#10b981",   accentMid: "#059669",
-    rule: "rgba(209,250,229,0.18)", rule2: "rgba(209,250,229,0.07)",
-    glowA: "rgba(16,185,129,0.20)", glowB: "rgba(5,150,105,0.10)",
-    highlight: "rgba(16,185,129,0.15)",
-  },
-  crimson: {
-    name: "Crimson",
-    description: "Dark with deep crimson red",
-    paper: "#0f0406",    paper2: "#180609",
-    ink: "#ffe4e6",      ink2: "#d0b0b8",       ink3: "#907080",
-    accent: "#e11d48",   accentMid: "#be123c",
-    rule: "rgba(255,228,230,0.18)", rule2: "rgba(255,228,230,0.07)",
-    glowA: "rgba(225,29,72,0.22)", glowB: "rgba(190,18,60,0.10)",
-    highlight: "rgba(225,29,72,0.16)",
-  },
-  gold: {
-    name: "Gold",
-    description: "Rich dark with antique gold",
-    paper: "#0a0800",    paper2: "#140e00",
-    ink: "#fef3c7",      ink2: "#d4c090",       ink3: "#948050",
-    accent: "#f59e0b",   accentMid: "#d97706",
-    rule: "rgba(254,243,199,0.18)", rule2: "rgba(254,243,199,0.07)",
-    glowA: "rgba(245,158,11,0.22)", glowB: "rgba(217,119,6,0.10)",
-    highlight: "rgba(245,158,11,0.16)",
-  },
-  slate: {
-    name: "Slate",
-    description: "Near-black with cool slate",
-    paper: "#020408",    paper2: "#080c14",
-    ink: "#e2e8f0",      ink2: "#a0b0c0",       ink3: "#607080",
-    accent: "#64748b",   accentMid: "#475569",
-    rule: "rgba(226,232,240,0.18)", rule2: "rgba(226,232,240,0.07)",
-    glowA: "rgba(100,116,139,0.22)", glowB: "rgba(71,85,105,0.10)",
-    highlight: "rgba(100,116,139,0.16)",
-  },
-  copper: {
-    name: "Copper",
-    description: "Dark with burnished copper",
-    paper: "#0c0600",    paper2: "#160a00",
-    ink: "#fed7aa",      ink2: "#d0a070",       ink3: "#906040",
-    accent: "#ea580c",   accentMid: "#c2410c",
-    rule: "rgba(254,215,170,0.18)", rule2: "rgba(254,215,170,0.07)",
-    glowA: "rgba(234,88,12,0.22)", glowB: "rgba(194,65,12,0.10)",
-    highlight: "rgba(234,88,12,0.16)",
-  },
-  plum: {
-    name: "Plum",
-    description: "Dark with vivid fuchsia",
-    paper: "#0a0208",    paper2: "#12040f",
-    ink: "#f0abfc",      ink2: "#c080d8",       ink3: "#805098",
-    accent: "#d946ef",   accentMid: "#a21caf",
-    rule: "rgba(240,171,252,0.18)", rule2: "rgba(240,171,252,0.07)",
-    glowA: "rgba(217,70,239,0.22)", glowB: "rgba(162,28,175,0.10)",
-    highlight: "rgba(217,70,239,0.16)",
-  },
+export const BASE_META: Record<BaseId, BaseDef> = {
+  obsidian:      { name: "Obsidian",     description: "Neutral near-black, warm undertone",   paper: "#0a0a0d", paper2: "#101014", ink: "#f2f1ed", ink2: "#a6a49e", ink3: "#68665f" },
+  void:          { name: "Void",         description: "True AMOLED black",                    paper: "#000000", paper2: "#0a0a0a", ink: "#f0f0f0", ink2: "#999999", ink3: "#5c5c5c" },
+  graphite:      { name: "Graphite",     description: "Cool dark gray, understated",           paper: "#0d0e11", paper2: "#15171b", ink: "#edeef0", ink2: "#9ba0a8", ink3: "#61666e" },
+  "ink-navy":    { name: "Ink Navy",     description: "Deep blue-black",                       paper: "#06080f", paper2: "#0c1019", ink: "#e7ecf6", ink2: "#8d94ab", ink3: "#545b72" },
+  "deep-forest": { name: "Deep Forest",  description: "Dark green-black",                      paper: "#070b09", paper2: "#0d130f", ink: "#e6f0ea", ink2: "#8ba796", ink3: "#52685a" },
+  espresso:      { name: "Espresso",     description: "Warm brown-black",                      paper: "#0d0906", paper2: "#150f0a", ink: "#f2ebe3", ink2: "#ab9a89", ink3: "#6c5f51" },
+  wine:          { name: "Wine",         description: "Dark burgundy-black",                   paper: "#0c0709", paper2: "#140b0e", ink: "#f2e8ea", ink2: "#a68d92", ink3: "#6a555a" },
+  "violet-night":{ name: "Violet Night", description: "Dark purple-black",                     paper: "#0a0810", paper2: "#120e1c", ink: "#ece8f5", ink2: "#a29aba", ink3: "#675f80" },
+  "slate-storm": { name: "Slate Storm",  description: "Dark blue-gray",                        paper: "#090b0f", paper2: "#0f131a", ink: "#e9ecf1", ink2: "#9aa1ad", ink3: "#5f6672" },
+  "charcoal-warm":{ name: "Charcoal",    description: "Warm neutral dark",                     paper: "#0b0a08", paper2: "#14120e", ink: "#f0ede6", ink2: "#a29c8d", ink3: "#666256" },
+  paper:         { name: "Paper",        description: "Warm off-white, studio light",          paper: "#faf9f7", paper2: "#f3f1ee", ink: "#1a1917", ink2: "#5c5952", ink3: "#9a968c", isLight: true },
+  linen:         { name: "Linen",        description: "Warm cream",                            paper: "#faf7ef", paper2: "#f4efe2", ink: "#201a0f", ink2: "#61543d", ink3: "#a2937a", isLight: true },
+  fog:           { name: "Fog",          description: "Cool gray-white",                       paper: "#f7f8fa", paper2: "#eef0f3", ink: "#14171c", ink2: "#4d545e", ink3: "#8b93a0", isLight: true },
+  porcelain:     { name: "Porcelain",    description: "Cool blue-white",                       paper: "#f5f8fb", paper2: "#eaf1f7", ink: "#0f1a24", ink2: "#445868", ink3: "#7d95a6", isLight: true },
+  bone:          { name: "Bone",         description: "Warm neutral white",                    paper: "#f8f7f4", paper2: "#f0ede7", ink: "#1c1a16", ink2: "#58544a", ink3: "#948e80", isLight: true },
 }
 
-const CSS_VARS: Array<[keyof PaletteDef, string]> = [
-  ["paper",     "--paper"],
-  ["paper2",    "--paper-2"],
-  ["ink",       "--ink"],
-  ["ink2",      "--ink-2"],
-  ["ink3",      "--ink-3"],
-  ["accent",    "--cinnabar-ink"],
-  ["accentMid", "--cinnabar"],
-  ["rule",      "--rule"],
-  ["rule2",     "--rule-2"],
-  ["glowA",     "--page-glow-a"],
-  ["glowB",     "--page-glow-b"],
-  ["highlight", "--highlight"],
+export const ACCENT_IDS = [
+  "cinnabar", "amber", "saffron", "sage", "emerald",
+  "teal", "sky", "indigo", "violet", "plum",
+  "rose", "crimson", "copper", "slate", "bronze",
+] as const
+export type AccentId = (typeof ACCENT_IDS)[number]
+
+export interface AccentDef {
+  name: string
+  accent: string
+  accentMid: string
+}
+
+export const ACCENT_META: Record<AccentId, AccentDef> = {
+  cinnabar: { name: "Cinnabar", accent: "#ff7c5c", accentMid: "#e8623f" },
+  amber:    { name: "Amber",    accent: "#f59e0b", accentMid: "#d97706" },
+  saffron:  { name: "Saffron",  accent: "#eab308", accentMid: "#ca8a04" },
+  sage:     { name: "Sage",     accent: "#a3e635", accentMid: "#84cc16" },
+  emerald:  { name: "Emerald",  accent: "#10b981", accentMid: "#059669" },
+  teal:     { name: "Teal",     accent: "#14b8a6", accentMid: "#0d9488" },
+  sky:      { name: "Sky",      accent: "#0ea5e9", accentMid: "#0284c7" },
+  indigo:   { name: "Indigo",   accent: "#6366f1", accentMid: "#4f46e5" },
+  violet:   { name: "Violet",   accent: "#8b5cf6", accentMid: "#7c3aed" },
+  plum:     { name: "Plum",     accent: "#d946ef", accentMid: "#a21caf" },
+  rose:     { name: "Rose",     accent: "#f43f5e", accentMid: "#e11d48" },
+  crimson:  { name: "Crimson",  accent: "#dc2626", accentMid: "#b91c1c" },
+  copper:   { name: "Copper",   accent: "#ea580c", accentMid: "#c2410c" },
+  slate:    { name: "Slate",    accent: "#64748b", accentMid: "#475569" },
+  bronze:   { name: "Bronze",   accent: "#b45309", accentMid: "#92400e" },
+}
+
+export const DEFAULT_BASE: BaseId = "obsidian"
+export const DEFAULT_ACCENT: AccentId = "cinnabar"
+
+function hexToRgb(hex: string): [number, number, number] {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!m) return [0, 0, 0]
+  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)]
+}
+
+function rgba([r, g, b]: [number, number, number], a: number): string {
+  return `rgba(${r},${g},${b},${a})`
+}
+
+export interface ResolvedTheme {
+  paper: string; paper2: string; ink: string; ink2: string; ink3: string
+  accent: string; accentMid: string
+  rule: string; rule2: string; glowA: string; glowB: string; highlight: string
+  isLight?: boolean
+}
+
+// Border/rule stays neutral (derived from the base's own ink3) so it reads
+// as structure, not colour. Glow/highlight carry the accent — that's the
+// "personality" layer, and it's what actually changes when you swap accents.
+export function resolveTheme(base: BaseId, accent: AccentId): ResolvedTheme {
+  const b = BASE_META[base]
+  const a = ACCENT_META[accent]
+  const ink3Rgb = hexToRgb(b.ink3)
+  const accentRgb = hexToRgb(a.accent)
+  const accentMidRgb = hexToRgb(a.accentMid)
+  return {
+    paper: b.paper, paper2: b.paper2, ink: b.ink, ink2: b.ink2, ink3: b.ink3,
+    accent: a.accent, accentMid: a.accentMid,
+    rule: rgba(ink3Rgb, 0.20),
+    rule2: rgba(ink3Rgb, 0.08),
+    glowA: rgba(accentRgb, 0.20),
+    glowB: rgba(accentMidRgb, 0.10),
+    highlight: rgba(accentRgb, 0.16),
+    isLight: b.isLight,
+  }
+}
+
+const CSS_VARS: Array<[keyof ResolvedTheme, string]> = [
+  ["paper", "--paper"], ["paper2", "--paper-2"],
+  ["ink", "--ink"], ["ink2", "--ink-2"], ["ink3", "--ink-3"],
+  ["accent", "--cinnabar-ink"], ["accentMid", "--cinnabar"],
+  ["rule", "--rule"], ["rule2", "--rule-2"],
+  ["glowA", "--page-glow-a"], ["glowB", "--page-glow-b"], ["highlight", "--highlight"],
 ]
 
-export function applyPalette(p: PaletteId) {
-  const def = PALETTE_META[p]
+export function applyTheme(base: BaseId, accent: AccentId) {
+  const t = resolveTheme(base, accent)
   const root = document.documentElement
-  for (const [key, cssVar] of CSS_VARS) {
-    root.style.setProperty(cssVar, def[key] as string)
-  }
-  root.dataset.palette = p
-  if (def.isLight) root.dataset.mode = "light"
+  for (const [key, cssVar] of CSS_VARS) root.style.setProperty(cssVar, t[key] as string)
+  root.dataset.base = base
+  root.dataset.accent = accent
+  root.dataset.palette = base // kept for components/CSS still keying off data-palette as a cache/scope key
+  if (t.isLight) root.dataset.mode = "light"
   else delete root.dataset.mode
-  localStorage.setItem("palette", p)
-  window.dispatchEvent(new CustomEvent("ledger-palette", { detail: p }))
+  localStorage.setItem("theme-base", base)
+  localStorage.setItem("theme-accent", accent)
+  window.dispatchEvent(new CustomEvent("ledger-theme", { detail: { base, accent } }))
 }
 
-export function getActivePalette(): PaletteId {
-  const saved = localStorage.getItem("palette") as PaletteId | null
-  return saved && (PALETTE_IDS as readonly string[]).includes(saved) ? saved : "ledger"
+export function getActiveBase(): BaseId {
+  const saved = localStorage.getItem("theme-base") as BaseId | null
+  return saved && (BASE_IDS as readonly string[]).includes(saved) ? saved : DEFAULT_BASE
 }
 
-export function initPalette() {
+export function getActiveAccent(): AccentId {
+  const saved = localStorage.getItem("theme-accent") as AccentId | null
+  return saved && (ACCENT_IDS as readonly string[]).includes(saved) ? saved : DEFAULT_ACCENT
+}
+
+export function initTheme() {
   if (typeof window === "undefined") return
-  applyPalette(getActivePalette())
+  applyTheme(getActiveBase(), getActiveAccent())
 }

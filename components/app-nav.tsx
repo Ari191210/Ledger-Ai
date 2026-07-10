@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Sun, Moon } from "lucide-react";
-import { applyPalette, getActivePalette, PALETTE_META, type PaletteId } from "@/lib/palette";
+import { applyTheme, getActiveBase, getActiveAccent, BASE_META, type BaseId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
@@ -85,7 +85,7 @@ export default function AppNav() {
   const [open, setOpen]               = useState(false);
   const [hoveredNav, setHoveredNav]   = useState<string | null>(null);
   const [logoHovered, setLogoHovered] = useState(false);
-  const [activeTheme, setActiveTheme] = useState<PaletteId>("ledger");
+  const [activeBase, setActiveBase]   = useState<BaseId>("obsidian");
   const [navVisible,  setNavVisible]  = useState(false);
   const [isLight, setIsLight]         = useState(false);
 
@@ -111,21 +111,21 @@ export default function AppNav() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    setActiveTheme(getActivePalette());
+    setActiveBase(getActiveBase());
     const handler = (e: Event) => {
-      const detail = (e as CustomEvent<PaletteId>).detail;
-      setActiveTheme(detail);
-      if (PALETTE_META[detail]?.isLight) localStorage.setItem("ledger-last-light", detail);
+      const detail = (e as CustomEvent<{ base: BaseId; accent: string }>).detail;
+      setActiveBase(detail.base);
+      if (BASE_META[detail.base]?.isLight) localStorage.setItem("ledger-last-light", detail.base);
     };
-    window.addEventListener("ledger-palette", handler);
-    return () => window.removeEventListener("ledger-palette", handler);
+    window.addEventListener("ledger-theme", handler);
+    return () => window.removeEventListener("ledger-theme", handler);
   }, []);
 
   useEffect(() => {
     const mode = localStorage.getItem("ledger-theme-mode");
     if (mode === "light") {
       setIsLight(true);
-      applyPalette("paper");
+      applyTheme("paper", getActiveAccent());
     }
   }, []);
 
@@ -158,21 +158,22 @@ export default function AppNav() {
   }, [path]);
 
   function toggleLightDark() {
+    const accent = getActiveAccent();
     if (isLight) {
-      // Switch to dark: restore saved dark palette
+      // Switch to dark: restore saved dark base, keep the accent unchanged
       localStorage.setItem("ledger-theme-mode", "dark");
       setIsLight(false);
-      const saved = localStorage.getItem("ledger-palette") as PaletteId | null;
-      const target = saved || "ledger";
-      applyPalette(target);
-      setActiveTheme(target);
+      const saved = localStorage.getItem("ledger-base") as BaseId | null;
+      const target = saved || "obsidian";
+      applyTheme(target, accent);
+      setActiveBase(target);
     } else {
-      // Switch to light: save current dark palette, apply porcelain ("paper")
+      // Switch to light: save current dark base, apply the "paper" light base
       localStorage.setItem("ledger-theme-mode", "light");
-      localStorage.setItem("ledger-palette", activeTheme);
+      localStorage.setItem("ledger-base", activeBase);
       setIsLight(true);
-      applyPalette("paper");
-      setActiveTheme("paper");
+      applyTheme("paper", accent);
+      setActiveBase("paper");
     }
   }
 

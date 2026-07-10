@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
     if (typeof window !== "undefined") {
       const keep = new Set([
-        "palette", "palette-custom-accent",
-        "ledger-mode", "ledger-density", "ledger-theme-mode", "ledger-palette",
+        "theme-base", "theme-accent", "palette-custom-accent",
+        "ledger-mode", "ledger-density", "ledger-theme-mode", "ledger-base",
         "ledger-last-light", "ledger-font-sans", "ledger-font-serif",
         "ledger-font-mono", "ledger-radius", "ledger-width", "ledger-anim-speed",
         "ledger-dash-layout",

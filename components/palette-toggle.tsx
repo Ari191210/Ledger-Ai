@@ -4,11 +4,12 @@ import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import {
-  PALETTE_IDS,
-  PALETTE_META,
-  applyPalette,
-  getActivePalette,
-  type PaletteId,
+  ACCENT_IDS,
+  ACCENT_META,
+  applyTheme,
+  getActiveBase,
+  getActiveAccent,
+  type AccentId,
 } from "@/lib/palette";
 import AnimatedThemeToggler from "@/components/animated-theme-toggler";
 import { sounds } from "@/lib/sounds";
@@ -16,20 +17,19 @@ import { sounds } from "@/lib/sounds";
 gsap.registerPlugin(useGSAP);
 
 export default function PaletteToggle() {
-  const [active,    setActive]    = useState<PaletteId>("ledger");
-  const [hovered,   setHovered]   = useState<PaletteId | null>(null);
+  const [active,    setActive]    = useState<AccentId>("cinnabar");
+  const [hovered,   setHovered]   = useState<AccentId | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
   const panelRef  = useRef<HTMLDivElement>(null);
-  const swatchMap = useRef<Partial<Record<PaletteId, HTMLButtonElement>>>({});
+  const swatchMap = useRef<Partial<Record<AccentId, HTMLButtonElement>>>({});
 
   useEffect(() => {
-    setActive(getActivePalette());
-    document.documentElement.dataset.palette = getActivePalette();
+    setActive(getActiveAccent());
     const handler = (e: Event) =>
-      setActive((e as CustomEvent<PaletteId>).detail);
-    window.addEventListener("ledger-palette", handler);
-    return () => window.removeEventListener("ledger-palette", handler);
+      setActive((e as CustomEvent<{ base: string; accent: AccentId }>).detail.accent);
+    window.addEventListener("ledger-theme", handler);
+    return () => window.removeEventListener("ledger-theme", handler);
   }, []);
 
   /* Entrance — slide in from bottom-right */
@@ -43,38 +43,39 @@ export default function PaletteToggle() {
 
   const { contextSafe } = useGSAP({ scope: panelRef });
 
-  const onEnter = contextSafe((p: PaletteId) => {
-    const el = swatchMap.current[p];
+  const onEnter = contextSafe((a: AccentId) => {
+    const el = swatchMap.current[a];
     if (!el) return;
     gsap.to(el, { scale: 1.1, duration: 0.18, ease: "power2.out" });
-    setHovered(p);
+    setHovered(a);
   });
 
-  const onLeave = contextSafe((p: PaletteId) => {
-    const el = swatchMap.current[p];
+  const onLeave = contextSafe((a: AccentId) => {
+    const el = swatchMap.current[a];
     if (!el) return;
     gsap.to(el, { scale: 1.0, duration: 0.22, ease: "power3.out" });
     setHovered(null);
   });
 
-  const pickPalette = contextSafe((p: PaletteId) => {
-    setActive(p);
-    applyPalette(p);
+  const pickAccent = contextSafe((a: AccentId) => {
+    setActive(a);
+    applyTheme(getActiveBase(), a);
     sounds.select();
-    const el = swatchMap.current[p];
+    const el = swatchMap.current[a];
     if (!el) return;
     gsap.timeline()
       .to(el,  { scale: 0.88, duration: 0.10, ease: "power2.in" })
       .to(el,  { scale: 1.0,  duration: 0.45, ease: "elastic.out(1.2,0.4)" });
   });
 
-  const displayName = PALETTE_META[hovered ?? active].name.toUpperCase();
-  const displayAccent = PALETTE_META[hovered ?? active].accent;
+  const displayName = ACCENT_META[hovered ?? active].name.toUpperCase();
+  const displayAccent = ACCENT_META[hovered ?? active].accent;
 
-  const rows: [PaletteId[], PaletteId[]] = [
-    PALETTE_IDS.slice(0, 4) as PaletteId[],
-    PALETTE_IDS.slice(4) as PaletteId[],
+  const rows: [AccentId[], AccentId[]] = [
+    ACCENT_IDS.slice(0, 5) as AccentId[],
+    ACCENT_IDS.slice(5, 10) as AccentId[],
   ];
+  const extraRow = ACCENT_IDS.slice(10) as AccentId[];
 
   if (collapsed) return (
     <button
@@ -97,14 +98,14 @@ export default function PaletteToggle() {
     <div
       ref={panelRef}
       role="group"
-      aria-label="Theme and palette selector"
+      aria-label="Theme and accent selector"
       className="palette-panel"
       style={{
         position: "fixed",
         bottom: 24,
         right: 24,
         zIndex: 2000,
-        width: 188,
+        width: 210,
         display: "flex",
         flexDirection: "column",
         background: "color-mix(in srgb, var(--paper) 80%, transparent)",
@@ -147,7 +148,7 @@ export default function PaletteToggle() {
         </div>
       </div>
 
-      {/* ── Row 2: palette label + live name ──────────────────────── */}
+      {/* ── Row 2: accent label + live name ───────────────────────── */}
       <div style={{
         display: "flex",
         alignItems: "center",
@@ -161,7 +162,7 @@ export default function PaletteToggle() {
           textTransform: "uppercase",
           color: "var(--ink-3)",
         }}>
-          Palette
+          Accent
         </span>
         <span style={{
           fontFamily: "var(--mono)",
@@ -175,10 +176,10 @@ export default function PaletteToggle() {
         </span>
       </div>
 
-      {/* ── Row 3: swatch grid ────────────────────────────────────── */}
+      {/* ── Row 3: swatch grid — quick accent pick, full theme picker lives in Personalise ── */}
       <div
         role="radiogroup"
-        aria-label="Color palette"
+        aria-label="Accent colour"
         style={{
           display: "flex",
           flexDirection: "column",
@@ -186,29 +187,29 @@ export default function PaletteToggle() {
           padding: "4px 10px 12px",
         }}
       >
-        {rows.map((row, ri) => (
+        {[...rows, extraRow].map((row, ri) => (
           <div key={ri} style={{ display: "flex", gap: 4 }}>
-            {row.map((p) => {
-              const meta    = PALETTE_META[p];
-              const isActive = active === p;
+            {row.map((a) => {
+              const meta    = ACCENT_META[a];
+              const isActive = active === a;
               return (
                 <button
-                  key={p}
-                  ref={el => { swatchMap.current[p] = el ?? undefined; }}
+                  key={a}
+                  ref={el => { swatchMap.current[a] = el ?? undefined; }}
                   role="radio"
                   aria-checked={isActive}
                   aria-label={meta.name}
-                  onClick={() => pickPalette(p)}
-                  onMouseEnter={() => onEnter(p)}
-                  onMouseLeave={() => onLeave(p)}
+                  onClick={() => pickAccent(a)}
+                  onMouseEnter={() => onEnter(a)}
+                  onMouseLeave={() => onLeave(a)}
                   style={{
                     flex: 1,
-                    height: 30,
+                    height: 26,
                     borderRadius: 4,
                     border: isActive
                       ? `2px solid ${meta.accent}`
                       : "2px solid transparent",
-                    background: `linear-gradient(145deg, ${meta.paper} 20%, ${meta.accent} 130%)`,
+                    background: `linear-gradient(145deg, ${meta.accent} 20%, ${meta.accentMid} 130%)`,
                     cursor: "pointer",
                     padding: 0,
                     outline: "none",
@@ -222,14 +223,13 @@ export default function PaletteToggle() {
                     overflow: "hidden",
                   }}
                 >
-                  {/* Inner accent flash at top edge */}
                   {isActive && (
                     <span style={{
                       position: "absolute",
                       top: 0, left: 0, right: 0,
                       height: 2,
-                      background: meta.accent,
-                      opacity: 0.9,
+                      background: "#fff",
+                      opacity: 0.7,
                     }} />
                   )}
                 </button>
