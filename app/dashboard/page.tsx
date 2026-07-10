@@ -193,17 +193,18 @@ function useLiveActivity() {
   useEffect(() => {
     async function load() {
       const fifteenAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-      const { count } = await supabase
-        .from("ai_history")
-        .select("user_id", { count: "exact", head: true })
-        .gte("created_at", fifteenAgo);
+      const [{ count }, { data }] = await Promise.all([
+        supabase
+          .from("ai_history")
+          .select("user_id", { count: "exact", head: true })
+          .gte("created_at", fifteenAgo),
+        supabase
+          .from("ai_history")
+          .select("tool, created_at")
+          .order("created_at", { ascending: false })
+          .limit(8),
+      ]);
       setActiveCount(count ?? 0);
-
-      const { data } = await supabase
-        .from("ai_history")
-        .select("tool, created_at")
-        .order("created_at", { ascending: false })
-        .limit(8);
       setFeed(data ?? []);
     }
     load();

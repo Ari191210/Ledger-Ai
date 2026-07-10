@@ -75,7 +75,25 @@ export function getLocalProfile(): UserProfile {
   return { grade: p.grade, board: p.board, stream: p.stream, interests: p.interests, targetExam: p.targetExam, aiProfile: p.aiProfile };
 }
 
+// Dedup concurrent loadUserData calls for the same user. The dashboard mounts
+// several independent components (main page, ExamSchedule, SharePanel) that
+// each called this on mount, firing 3 identical Supabase queries per load.
+// Short TTL — this is a same-render-cycle dedup, not a data cache; writes
+// invalidate it immediately below so no caller ever sees stale data.
+const inflightLoads = new Map<string, { promise: Promise<UserData | null>; ts: number }>();
+const LOAD_DEDUP_MS = 3000;
+
 export async function loadUserData(userId: string): Promise<UserData | null> {
+  const cached = inflightLoads.get(userId);
+  if (cached && Date.now() - cached.ts < LOAD_DEDUP_MS) {
+    return cached.promise;
+  }
+  const promise = fetchUserData(userId);
+  inflightLoads.set(userId, { promise, ts: Date.now() });
+  return promise;
+}
+
+async function fetchUserData(userId: string): Promise<UserData | null> {
   const { data, error } = await supabase
     .from("user_data")
     .select("*")
@@ -106,6 +124,7 @@ export async function saveUserData(userId: string, updates: Partial<UserData>): 
     ...updates,
     updated_at: new Date().toISOString(),
   });
+  if (!error) inflightLoads.delete(userId);
   return { error: error?.message ?? null };
 }
 
