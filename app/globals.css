@@ -555,8 +555,6 @@ hr.rule-double { border-top: 3px double var(--ink); }
   color: var(--ink);
 }
 .btn.ghost:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ink) 14%, transparent);
-  color: var(--ink);
   transform: translateY(-2px) scale(1.01);
 }
 .btn.ghost:active:not(:disabled) {
@@ -2097,8 +2095,8 @@ main { animation: page-in 280ms var(--ease-out-expo) both; }
 
 /* â”€â”€â”€ Ghost button: cinnabar tint on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn.ghost:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper-2)) !important;
-  color: var(--cinnabar-ink) !important;
+  background: color-mix(in srgb, var(--cinnabar-ink) 8%, var(--paper-2));
+  color: var(--cinnabar-ink);
 }
 
 /* â”€â”€â”€ Sidebar nav links: animated left bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
