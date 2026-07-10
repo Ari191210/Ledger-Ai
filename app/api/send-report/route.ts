@@ -3,7 +3,7 @@ import { Resend } from "resend";
 
 export const dynamic = "force-dynamic";
 import Anthropic from "@anthropic-ai/sdk";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseServer } from "@/lib/supabase-server";
 
 const anthropic = new Anthropic();
 
@@ -217,11 +217,29 @@ export async function POST(req: Request) {
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: "RESEND_API_KEY not set." }, { status: 500 });
   }
+
+  // ── Authentication required ──────────────────────────────────────────────
+  // Two legitimate callers: (1) the signed-in user's own "send now" button,
+  // (2) the internal cron job runner (lib/jobs.ts) dispatching a queued
+  // report using the shared CRON_SECRET. Anyone else is rejected — this
+  // route previously trusted a client-supplied userId/email with no auth
+  // check at all, letting anyone email any student's academic data to any
+  // address on request.
+  const authHeader = req.headers.get("Authorization");
+  const isCronCaller = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  let sessionUserId: string | null = null;
+  if (!isCronCaller) {
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const { data: { user: authedUser } } = token
+      ? await supabaseServer.auth.getUser(token)
+      : { data: { user: null } };
+    if (!authedUser) {
+      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+    sessionUserId = authedUser.id;
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   let userId: string, userEmail: string, userName: string;
   try {
@@ -233,8 +251,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
+  if (sessionUserId && sessionUserId !== userId) {
+    return NextResponse.json({ error: "Cannot send a report for another account." }, { status: 403 });
+  }
+
   // Load user data from Supabase
-  const { data } = await supabaseAdmin.from("user_data").select("*").eq("id", userId).single();
+  const { data } = await supabaseServer.from("user_data").select("*").eq("id", userId).single();
   const ud = (data || {}) as UserData;
 
   if (!ud.emailEnabled) {

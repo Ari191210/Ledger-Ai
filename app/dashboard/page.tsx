@@ -288,9 +288,13 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
     setSending(true);
     setSendMsg("");
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch("/api/send-report", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({ userId, email: userEmail, name: userName }),
       });
       const json = await res.json();

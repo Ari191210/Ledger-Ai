@@ -49,7 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             "there";
           fetch("/api/jobs/enqueue", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(session.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+            },
             body: JSON.stringify({ type: "send-welcome", payload: { userId: u.id, name: displayName } }),
           }).catch(() => {});
         }
