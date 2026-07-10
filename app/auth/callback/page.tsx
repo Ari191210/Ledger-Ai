@@ -60,7 +60,10 @@ export default function AuthCallbackPage() {
             "there";
           await fetch("/api/welcome", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
+            },
             body: JSON.stringify({ userId: u.id, name: displayName }),
           }).catch(() => {});
         }
@@ -88,7 +91,10 @@ export default function AuthCallbackPage() {
             "there";
           await fetch("/api/welcome", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
+            },
             body: JSON.stringify({ userId: u.id, name: displayName }),
           }).catch(() => {});
         }

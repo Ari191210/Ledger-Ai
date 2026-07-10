@@ -14,9 +14,14 @@ interface RateRule {
 }
 
 const RULES: RateRule[] = [
-  { prefix: "/api/ai",          limit: 20, windowMs: 60_000 }, // 20/min — AI calls
-  { prefix: "/api/auth/google", limit: 5,  windowMs: 60_000 }, // 5/min  — OAuth exchange
-  { prefix: "/api/welcome",     limit: 3,  windowMs: 60_000 }, // 3/min  — email sends
+  { prefix: "/api/ai",                    limit: 20, windowMs: 60_000 }, // 20/min — AI calls
+  { prefix: "/api/auth/google",           limit: 5,  windowMs: 60_000 }, // 5/min  — OAuth exchange
+  { prefix: "/api/welcome",               limit: 3,  windowMs: 60_000 }, // 3/min  — email sends
+  { prefix: "/api/send-report",           limit: 5,  windowMs: 60_000 }, // 5/min  — email + billable AI call
+  { prefix: "/api/parent",                limit: 10, windowMs: 60_000 }, // 10/min — unauth'd, code-guessing guard
+  { prefix: "/api/admin/generate-hash",   limit: 2,  windowMs: 60_000 }, // 2/min  — unauth'd, expensive scrypt hash
+  { prefix: "/api/track",                 limit: 60, windowMs: 60_000 }, // 60/min — client analytics beacon
+  { prefix: "/api/errors",                limit: 30, windowMs: 60_000 }, // 30/min — client error-log beacon
 ];
 
 function getIp(req: NextRequest): string {
@@ -48,6 +53,15 @@ export async function middleware(req: NextRequest) {
   const rule = RULES.find(r => pathname.startsWith(r.prefix));
   if (!rule) return NextResponse.next();
 
+  // Trusted internal callers (the cron job runner, authenticated via the
+  // same CRON_SECRET the target routes themselves require) bypass the IP
+  // guard — a single batch run can legitimately fire many requests from
+  // one server-side origin and shouldn't trip a per-IP abuse limit meant
+  // for untrusted traffic.
+  if (process.env.CRON_SECRET && req.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.next();
+  }
+
   const ip = getIp(req);
   const key = `${rule.prefix}:${ip}`;
   const { ok, remaining, resetAt } = checkLimit(key, rule.limit, rule.windowMs);
@@ -75,5 +89,14 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/ai/:path*", "/api/auth/:path*", "/api/welcome"],
+  matcher: [
+    "/api/ai/:path*",
+    "/api/auth/:path*",
+    "/api/welcome",
+    "/api/send-report",
+    "/api/parent/:path*",
+    "/api/admin/generate-hash",
+    "/api/track",
+    "/api/errors",
+  ],
 };

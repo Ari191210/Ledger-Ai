@@ -90,7 +90,7 @@ async function dispatch(job: JobRow, base: string): Promise<void> {
     case "send-welcome": {
       const res = await fetch(`${base}/api/welcome`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${process.env.CRON_SECRET}` },
         body: JSON.stringify(job.payload),
       });
       if (!res.ok) {

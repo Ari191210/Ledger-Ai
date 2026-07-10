@@ -446,7 +446,10 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
         if (ud?.parentCode) {
           setParentCode(ud.parentCode);
         } else {
-          const code = Math.random().toString(36).slice(2, 10);
+          // crypto.getRandomValues, not Math.random — this code is a bearer
+          // secret for a student's exam/marks data, not just a display id.
+          const bytes = crypto.getRandomValues(new Uint8Array(8));
+          const code = Array.from(bytes, b => (b % 36).toString(36)).join("");
           setParentCode(code);
           await patchUserData(userId, "parentCode", code).catch(() => {});
           await patchUserData(userId, "parentName", userName).catch(() => {});

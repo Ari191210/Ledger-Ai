@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseServer } from "@/lib/supabase-server";
 import { computeScoreFromInputs, scoreTier } from "@/lib/ledger-score";
 
 export const dynamic = "force-dynamic";
@@ -13,14 +13,10 @@ function blobJSON<T>(blob: Record<string, string> | null, key: string, fallback:
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ code: string }> }) {
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
   const { code } = await params;
   if (!code) return NextResponse.json({ error: "No code" }, { status: 400 });
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabaseServer
     .from("user_data")
     .select("exams, marks, focus, weakTopics, papersCount, parentName, blob")
     .eq("parentCode", code)

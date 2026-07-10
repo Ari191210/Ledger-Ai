@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseServer } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +116,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "RESEND_API_KEY not set." }, { status: 500 });
   }
 
+  // ── Authentication required ──────────────────────────────────────────────
+  // Same pattern as /api/send-report and /api/jobs/enqueue: either the
+  // signed-in user themselves (right after their own login callback) or the
+  // internal cron job runner via CRON_SECRET. Previously unauthenticated —
+  // anyone who knew a userId could trigger a welcome email for that account.
+  const authHeader = req.headers.get("Authorization");
+  const isCronCaller = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  let sessionUserId: string | null = null;
+  if (!isCronCaller) {
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const { data: { user: authedUser } } = token
+      ? await supabaseServer.auth.getUser(token)
+      : { data: { user: null } };
+    if (!authedUser) {
+      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+    sessionUserId = authedUser.id;
+  }
+
   let userId: string, displayName: string;
   try {
     const body = await req.json();
@@ -126,13 +145,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  if (sessionUserId && sessionUserId !== userId) {
+    return NextResponse.json({ error: "Cannot send a welcome email for another account." }, { status: 403 });
+  }
 
   // Fetch user from Supabase auth — source of truth for email and sent-flag
-  const { data: { user: authUser }, error: userErr } = await supabaseAdmin.auth.admin.getUserById(userId);
+  const { data: { user: authUser }, error: userErr } = await supabaseServer.auth.admin.getUserById(userId);
   if (userErr || !authUser) {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
@@ -162,7 +180,7 @@ export async function POST(req: Request) {
   if (sendErr) return NextResponse.json({ error: sendErr.message }, { status: 500 });
 
   // Mark sent so this never fires again for this account
-  await supabaseAdmin.auth.admin.updateUserById(userId, {
+  await supabaseServer.auth.admin.updateUserById(userId, {
     app_metadata: { ...authUser.app_metadata, welcomeSent: true },
   });
 
