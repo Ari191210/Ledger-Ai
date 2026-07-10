@@ -165,6 +165,100 @@ export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
   } catch { return EMPTY; }
 }
 
+// ── Temporary (cold-start) score ─────────────────────────────────────────────
+//
+// A student opening Exam-Day Mode with zero history gets a Temporary Ledger
+// Score from a 5-minute self-report diagnostic. It is computed by feeding a
+// SYNTHETIC ScoreInputs through the same computeScoreFromInputs engine — no
+// separate formula — and it is NEVER written to localStorage or Supabase, so
+// it cannot pollute the real score. The discriminated `kind` field keeps the
+// two from ever being mixed at the type level.
+
+export type RealLedgerScore = ScoreBreakdown & { kind: "real" };
+
+export type TemporaryLedgerScore = {
+  kind: "temporary";
+  total: number;
+  pqaScore: number;
+  syllabusScore: number;
+  mistakeScore: number;
+  consistencyScore: number;
+  /** Topics to drill right now, weakest first. */
+  gapTopics: string[];
+  actions: string[];
+};
+
+export type LedgerScoreValue = RealLedgerScore | TemporaryLedgerScore;
+
+export function realLedgerScore(): RealLedgerScore {
+  return { ...computeLedgerScore(), kind: "real" };
+}
+
+export type Confidence = "shaky" | "ok" | "solid";
+
+export type DiagnosticInputs = {
+  board: string;
+  grade: string;
+  /** The subject being sat today. */
+  subject: string;
+  /** Self-rated confidence per topic in that subject. */
+  topicConfidence: Array<{ topic: string; confidence: Confidence }>;
+  /** Most recent marks in this subject, as a percentage. Optional. */
+  recentMarksPercent?: number;
+  /** Free-form weak areas the student already knows about. */
+  weakAreas: string[];
+};
+
+export function computeTemporaryScore(diag: DiagnosticInputs): TemporaryLedgerScore {
+  const topics = diag.topicConfidence;
+  const rated = topics.length;
+
+  // Accuracy evidence: real marks if given, else confidence self-report
+  // (shaky 30% / ok 60% / solid 90%) — expressed as ONE synthetic 20-mark
+  // paper so the engine's session bonus stays at first-session level.
+  const confidenceAccuracy = rated > 0
+    ? topics.reduce((a, t) => a + ({ shaky: 0.3, ok: 0.6, solid: 0.9 } as const)[t.confidence], 0) / rated
+    : 0.5;
+  const accuracy = diag.recentMarksPercent != null
+    ? Math.min(1, Math.max(0, diag.recentMarksPercent / 100))
+    : confidenceAccuracy;
+
+  // Known weaknesses count as this week's open mistakes.
+  const shakyTopics = topics.filter(t => t.confidence === "shaky").map(t => t.topic);
+  const weakSet = [...new Set([...shakyTopics, ...diag.weakAreas.filter(Boolean)])];
+  const now = new Date().toISOString();
+
+  const synthetic: ScoreInputs = {
+    papersLog: [{ score: Math.round(accuracy * 20), total: 20, subject: diag.subject, date: now }],
+    syllabusSubjects: [diag.subject],
+    syllabusUploaded: true, // the diagnostic itself declares the syllabus subject
+    // Coverage credit only when the majority of the subject's topics are solid
+    notesHistory: rated > 0 && topics.filter(t => t.confidence === "solid").length * 2 >= rated
+      ? [{ subject: diag.subject }] : [],
+    mistakes: weakSet.map(() => ({ date: now })),
+    streak: 0, // no history — consistency cannot be self-reported
+  };
+
+  const b = computeScoreFromInputs(synthetic);
+  const okTopics = topics.filter(t => t.confidence === "ok").map(t => t.topic);
+
+  return {
+    kind: "temporary",
+    total: b.total,
+    pqaScore: b.pqaScore,
+    syllabusScore: b.syllabusScore,
+    mistakeScore: b.mistakeScore,
+    consistencyScore: b.consistencyScore,
+    gapTopics: [...weakSet, ...okTopics.filter(t => !weakSet.includes(t))].slice(0, 6),
+    actions: [
+      weakSet.length > 0
+        ? `Sweep your ${weakSet.length} weakest topic${weakSet.length === 1 ? "" : "s"} before the paper`
+        : "Do a quick sweep to confirm your strong topics hold under exam pressure",
+      "After today: log a real past paper — your real Ledger Score starts there",
+    ],
+  };
+}
+
 export function scoreTier(score: number): { label: string; next: string; nextAt: number } {
   if (score >= 800) return { label: "Exam Ready",   next: "Peak",       nextAt: 1000 };
   if (score >= 600) return { label: "Strong",       next: "Exam Ready", nextAt: 800  };

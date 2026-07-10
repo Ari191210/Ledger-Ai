@@ -7,10 +7,12 @@ import { AIErrorDisplay } from "@/components/ai-error";
 import { useUserLevel } from "@/hooks/use-user-level";
 import ScoreImpactStrip from "@/components/score-impact-strip";
 import { currentInputs, projectMistakeReductionImpact, type ScoreProjection } from "@/lib/score-projection";
+import ExamDayDiagnostic from "@/components/exam-day-diagnostic";
+import type { DiagnosticInputs, TemporaryLedgerScore } from "@/lib/ledger-score";
 
 type Question = { q: string; options: string[]; answer: number; explanation: string };
 type ExamData = { title: string; timeMinutes: number; questions: Question[] };
-type Phase = "brief" | "sweep" | "done";
+type Phase = "brief" | "diagnostic" | "sweep" | "done";
 
 type Mistake = { date: string; subject: string; topic: string; category: string };
 type Gap = { topic: string; count: number; topCategory: string | null };
@@ -101,6 +103,12 @@ export default function ExamDayPage() {
 
   const [scoreImpact, setScoreImpact] = useState<ScoreProjection | null>(null);
 
+  // Cold start: a zero-history student gets a Temporary Ledger Score from the
+  // diagnostic (kind: "temporary" — computed but never persisted, so the real
+  // score stays untouched until real evidence exists).
+  const [tempScore,   setTempScore]   = useState<TemporaryLedgerScore | null>(null);
+  const [diagSubject, setDiagSubject] = useState<string | null>(null);
+
   useEffect(() => {
     const e = getTodayExam();
     setExam(e);
@@ -116,7 +124,15 @@ export default function ExamDayPage() {
     setReady(true);
   }, []);
 
-  const subject = exam?.name ?? mostMissedSubject() ?? "General";
+  const subject = diagSubject ?? exam?.name ?? mostMissedSubject() ?? "General";
+
+  function onDiagnosticComplete(diag: DiagnosticInputs, temp: TemporaryLedgerScore) {
+    setTempScore(temp);
+    setDiagSubject(diag.subject);
+    setGaps(temp.gapTopics.map(topic => ({ topic, count: 1, topCategory: null })));
+    setMisses(temp.gapTopics.length);
+    setPhase("brief");
+  }
   const topics  = useMemo(() => gaps.map(g => g.topic).join(", "), [gaps]);
 
   async function beginSweep() {
@@ -198,12 +214,47 @@ export default function ExamDayPage() {
                 : "No paper on the schedule."}
             </h1>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 44 }}>
-              {gaps.length > 0
-                ? source === "recent"
-                  ? `Last ${WINDOW_DAYS} days · ${misses} miss${misses === 1 ? "" : "es"} · ${gaps.length} gap${gaps.length === 1 ? "" : "s"}. No decisions — just these.`
-                  : `Nothing missed in ${WINDOW_DAYS} days — falling back to your all-time weak topics.`
-                : "Nothing logged yet."}
+              {tempScore
+                ? "From your 5-minute diagnostic. No decisions — just these."
+                : gaps.length > 0
+                  ? source === "recent"
+                    ? `Last ${WINDOW_DAYS} days · ${misses} miss${misses === 1 ? "" : "es"} · ${gaps.length} gap${gaps.length === 1 ? "" : "s"}. No decisions — just these.`
+                    : `Nothing missed in ${WINDOW_DAYS} days — falling back to your all-time weak topics.`
+                  : "Nothing logged yet."}
             </div>
+
+            {tempScore && (
+              <div style={{ border: "1px solid var(--rule)", borderLeft: "3px solid var(--cinnabar-ink)", background: "var(--paper-2)", padding: "16px 20px", marginBottom: 24 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+                  <span className="mono" style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)" }}>
+                    Temporary Ledger Score
+                  </span>
+                  <span className="mono" style={{ fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)", padding: "1px 7px" }}>
+                    Estimate — not saved
+                  </span>
+                </div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 44, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "6px 0 12px" }}>
+                  {tempScore.total}<span style={{ fontSize: 18, color: "var(--ink-3)" }}> / 1000</span>
+                </div>
+                {([
+                  ["PYQ Accuracy", tempScore.pqaScore, 400],
+                  ["Syllabus Coverage", tempScore.syllabusScore, 250],
+                  ["Mistake Velocity", tempScore.mistakeScore, 200],
+                  ["Consistency", tempScore.consistencyScore, 150],
+                ] as const).map(([name, val, max]) => (
+                  <div key={name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    <span className="mono" style={{ fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", width: 130, flexShrink: 0 }}>{name}</span>
+                    <div style={{ flex: 1, height: 5, background: "var(--paper)", border: "1px solid var(--rule)", overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${Math.round((val / max) * 100)}%`, background: "var(--cinnabar)" }} />
+                    </div>
+                    <span className="mono" style={{ fontSize: 9, color: "var(--ink-2)", width: 58, textAlign: "right", flexShrink: 0 }}>{val} / {max}</span>
+                  </div>
+                ))}
+                <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 10, lineHeight: 1.7 }}>
+                  {tempScore.actions.map((a, i) => <div key={i}>→ {a}</div>)}
+                </div>
+              </div>
+            )}
 
             {gaps.length > 0 ? (
               <>
@@ -242,16 +293,35 @@ export default function ExamDayPage() {
             ) : (
               <div style={{ borderTop: "1px solid var(--ink)", paddingTop: 24 }}>
                 <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.7, color: "var(--ink-2)", margin: "0 0 24px" }}>
-                  Exam-Day Mode drills only what you&apos;ve been getting wrong. Do a past paper or a mock first — your misses land here automatically.
+                  No history yet — that&apos;s fine. Five questions about today&apos;s paper build you a temporary readiness score and a targeted sweep, right now.
+                </p>
+                <button className="btn" onClick={() => setPhase("diagnostic")} style={{ width: "100%", marginBottom: 16 }}>
+                  Build today&apos;s plan — 5 minutes →
+                </button>
+                <p style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.7, color: "var(--ink-3)", margin: "0 0 12px" }}>
+                  Or build real history first — your misses land here automatically:
                 </p>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <Link href="/tools/exam-practice" className="btn">Past Papers →</Link>
+                  <Link href="/tools/exam-practice" className="btn ghost">Past Papers →</Link>
                   <Link href="/tools/exam-sim" className="btn ghost">Exam Simulator →</Link>
                 </div>
               </div>
             )}
           </>
         )}
+      </div>
+    </div>
+  );
+
+  // ── Diagnostic — cold start, no history required ──
+  if (phase === "diagnostic") return (
+    <div style={overlay}>
+      <div className="mob-p" style={{ maxWidth: 620, margin: "0 auto", padding: "56px 24px 80px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 48 }}>
+          <div className="mono cin">Exam-Day Mode</div>
+          <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
+        </div>
+        <ExamDayDiagnostic onComplete={onDiagnosticComplete} onCancel={() => setPhase("brief")} />
       </div>
     </div>
   );

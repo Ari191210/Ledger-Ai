@@ -185,6 +185,64 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(p.delta, 0);
   });
 
+  test("temporary score: discriminated kind, engine-derived, consistency always 0", () => {
+    const diag = {
+      board: "CBSE", grade: "Class 12", subject: "Physics",
+      topicConfidence: [
+        { topic: "Optics", confidence: "shaky" },
+        { topic: "Electrostatics", confidence: "ok" },
+        { topic: "Magnetism", confidence: "solid" },
+      ],
+      weakAreas: ["Numericals"],
+    };
+    const t = engine.computeTemporaryScore(diag);
+    assert.equal(t.kind, "temporary");
+    assert.equal(t.consistencyScore, 0); // no history → never self-reported
+    assert.ok(t.total > 0 && t.total < 1000);
+    // Gap list leads with the known weaknesses (shaky + declared weak areas)
+    assert.ok(t.gapTopics.includes("Optics"));
+    assert.ok(t.gapTopics.includes("Numericals"));
+    assert.ok(t.gapTopics.indexOf("Optics") < t.gapTopics.indexOf("Electrostatics"));
+  });
+
+  test("temporary score: real marks override confidence-derived accuracy", () => {
+    const base = {
+      board: "CBSE", grade: "Class 10", subject: "Maths",
+      topicConfidence: [
+        { topic: "Algebra", confidence: "shaky" },
+        { topic: "Trigonometry", confidence: "shaky" },
+        { topic: "Geometry", confidence: "shaky" },
+      ],
+      weakAreas: [],
+    };
+    const fromConfidence = engine.computeTemporaryScore(base);
+    const fromMarks = engine.computeTemporaryScore({ ...base, recentMarksPercent: 95 });
+    assert.ok(fromMarks.pqaScore > fromConfidence.pqaScore,
+      `marks 95% should beat all-shaky confidence (${fromMarks.pqaScore} vs ${fromConfidence.pqaScore})`);
+  });
+
+  test("temporary score: all-solid beats all-shaky", () => {
+    const mk = (confidence) => engine.computeTemporaryScore({
+      board: "IB", grade: "Class 11", subject: "Chemistry",
+      topicConfidence: ["A", "B", "C", "D"].map(topic => ({ topic, confidence })),
+      weakAreas: [],
+    });
+    assert.ok(mk("solid").total > mk("shaky").total);
+  });
+
+  test("temporary vs real: kinds are distinct and real score is untouched", () => {
+    const t = engine.computeTemporaryScore({
+      board: "CBSE", grade: "Class 9", subject: "Biology",
+      topicConfidence: [{ topic: "Cells", confidence: "ok" }, { topic: "Tissues", confidence: "ok" }, { topic: "Genetics", confidence: "ok" }],
+      weakAreas: [],
+    });
+    const r = engine.realLedgerScore(); // no window in node → EMPTY real score
+    assert.equal(t.kind, "temporary");
+    assert.equal(r.kind, "real");
+    assert.equal(r.total, 0); // proving the diagnostic computation left no trace
+    assert.notEqual(t.total, r.total);
+  });
+
   test("projections never mutate the caller's inputs", () => {
     const inputs = {
       ...EMPTY_INPUTS(),

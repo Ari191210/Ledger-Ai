@@ -5,11 +5,8 @@ import { useAuth } from "@/components/auth-provider";
 import { saveUserData, loadUserData } from "@/lib/user-data";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { GRADES, BOARDS, STREAMS } from "@/lib/onboarding-constants";
 gsap.registerPlugin(useGSAP);
-
-const GRADES = ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "First Year (College)", "Second Year+ (College)"];
-const BOARDS = ["CBSE", "ICSE", "IB (International Baccalaureate)", "IGCSE / Cambridge", "State Board", "Home School / Other"];
-const STREAMS = ["Science — PCM (Physics, Chemistry, Maths)", "Science — PCB (Physics, Chemistry, Biology)", "Commerce", "Arts / Humanities", "Not applicable yet"];
 const INTERESTS = [
   "Mathematics", "Physics", "Chemistry", "Biology",
   "Computer Science", "Psychology", "History", "Geography",
