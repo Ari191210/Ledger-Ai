@@ -87,7 +87,6 @@ export default function AnimatedThemeToggler({ size = 30 }: { size?: number }) {
         color: "var(--ink-2)",
         transition: "border-color 160ms ease, background 160ms ease, color 160ms ease",
         flexShrink: 0,
-        outline: "none",
       }}
     >
       <svg

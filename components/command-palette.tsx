@@ -52,6 +52,7 @@ export default function CommandPalette() {
   const inputRef  = useRef<HTMLInputElement>(null);
   const listRef   = useRef<HTMLDivElement>(null);
   const itemRefs  = useRef<(HTMLButtonElement | null)[]>([]);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   // Build a merged+sorted item list
   const allTools: Item[] = TOOLS_REGISTRY.map(t => ({
@@ -88,6 +89,7 @@ export default function CommandPalette() {
     setOpen(false);
     setQuery("");
     setCursor(0);
+    triggerRef.current?.focus?.();
   }, []);
 
   const go = useCallback((item: Item) => {
@@ -115,6 +117,7 @@ export default function CommandPalette() {
 
   useEffect(() => {
     if (open) {
+      triggerRef.current = document.activeElement as HTMLElement | null;
       setRecents(getRecentTools());
       setTimeout(() => inputRef.current?.focus(), 30);
     }

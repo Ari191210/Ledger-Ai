@@ -212,7 +212,6 @@ export default function PaletteToggle() {
                     background: `linear-gradient(145deg, ${meta.accent} 20%, ${meta.accentMid} 130%)`,
                     cursor: "pointer",
                     padding: 0,
-                    outline: "none",
                     boxShadow: isActive
                       ? `0 0 12px ${meta.accent}60`
                       : "0 1px 3px rgba(0,0,0,0.3)",

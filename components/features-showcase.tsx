@@ -103,7 +103,6 @@ export default function FeaturesShowcase() {
                 padding: "22px 20px",
                 textAlign: "left",
                 transition: "background 200ms ease",
-                outline: "none",
               }}
             >
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>

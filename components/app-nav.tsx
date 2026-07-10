@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Sun, Moon } from "lucide-react";
 import { applyTheme, getActiveBase, getActiveAccent, BASE_META, type BaseId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
@@ -100,10 +100,15 @@ export default function AppNav() {
     });
   }, [user]);
 
-  const closeSidebar = useCallback(() => { setOpen(false); }, []);
+  const sidebarTriggerRef = useRef<HTMLElement | null>(null);
+  const closeSidebar = useCallback(() => {
+    setOpen(false);
+    sidebarTriggerRef.current?.focus?.();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
+    sidebarTriggerRef.current = document.activeElement as HTMLElement | null;
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") closeSidebar(); }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

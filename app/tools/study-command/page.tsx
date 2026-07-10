@@ -366,6 +366,7 @@ function PlannerTab() {
                     </td>
                     <td style={{ padding: "10px 0", textAlign: "right" }}>
                       <button onClick={() => setSubjects(subjects.filter((_, k) => k !== i))}
+                        aria-label={`Remove subject "${s.name}"`}
                         style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)" }}>
                         ✕
                       </button>
@@ -407,7 +408,7 @@ function PlannerTab() {
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={addSubject} className="btn" style={{ padding: "6px 14px", fontSize: 11 }}>Add</button>
-                <button onClick={() => setShowAdd(false)} className="btn ghost" style={{ padding: "6px 10px", fontSize: 11 }}>✕</button>
+                <button onClick={() => setShowAdd(false)} className="btn ghost" aria-label="Cancel adding subject" style={{ padding: "6px 10px", fontSize: 11 }}>✕</button>
               </div>
             </div>
           ) : (
@@ -647,7 +648,7 @@ function DeadlinesTab() {
             const color = CAT_COLORS[d.category];
             return (
               <div key={d.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px", border: "none", borderBottom: i < visible.length - 1 ? "none" : "1px solid var(--ink)", background: d.done ? "var(--paper-2)" : "var(--paper)", opacity: d.done ? 0.6 : 1 }}>
-                <button onClick={() => toggle(d.id)} style={{ width: 20, height: 20, border: `2px solid ${d.done ? "var(--sage)" : "var(--ink)"}`, background: d.done ? "var(--sage)" : "transparent", cursor: "pointer", flexShrink: 0, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 11 }}>
+                <button onClick={() => toggle(d.id)} aria-label={d.done ? `Mark "${d.title}" as not done` : `Mark "${d.title}" as done`} aria-pressed={d.done} style={{ width: 20, height: 20, border: `2px solid ${d.done ? "var(--sage)" : "var(--ink)"}`, background: d.done ? "var(--sage)" : "transparent", cursor: "pointer", flexShrink: 0, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--paper)", fontSize: 11 }}>
                   {d.done ? "✓" : ""}
                 </button>
                 <div style={{ flex: 1 }}>
@@ -665,7 +666,7 @@ function DeadlinesTab() {
                     {d.notes && <span style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>{d.notes}</span>}
                   </div>
                 </div>
-                <button onClick={() => remove(d.id)} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", padding: "4px 6px", flexShrink: 0 }}>✕</button>
+                <button onClick={() => remove(d.id)} aria-label={`Delete "${d.title}"`} style={{ fontFamily: "var(--mono)", fontSize: 10, background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", padding: "4px 6px", flexShrink: 0 }}>✕</button>
               </div>
             );
           })}

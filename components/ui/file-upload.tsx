@@ -73,7 +73,6 @@ export function FileUpload({ onChange, accept, multiple = true }: FileUploadProp
           gap: 12,
           cursor: "pointer",
           transition: "border-color 220ms ease, background 220ms ease",
-          outline: "none",
           userSelect: "none",
         }}
       >
