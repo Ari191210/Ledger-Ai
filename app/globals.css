@@ -548,8 +548,11 @@ hr.rule-double { border-top: 3px double var(--ink); }
 }
 .btn.ghost {
   --glass-reflex-light: 0.38;
-  background: color-mix(in srgb, var(--ink) 7%, transparent);
-  color: var(--ink-2);
+  /* Scrims toward --paper so text stays legible over bright background art
+     (e.g. the hero aurora glow), not just over flat dark sections. */
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  color: var(--ink);
 }
 .btn.ghost:hover:not(:disabled) {
   background: color-mix(in srgb, var(--ink) 14%, transparent);
