@@ -1,5 +1,5 @@
 ﻿"use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import TierGate from "@/components/tier-gate";
 import ElasticSlider from "@/components/ui/elastic-slider-lazy";
 import type { Paper, Question } from "@/lib/papers-data";
@@ -36,6 +36,65 @@ function saveSessionResults(paper: Paper, answers: (number | null)[], userId?: s
   } catch {}
 }
 
+// Measured (see session notes): with 30 questions and no memoization,
+// clicking "Explain" on one row re-rendered all 30 — every row shares the
+// parent's `explains` state object, so any update to it re-renders the
+// whole list. React.memo alone doesn't fix this — onExplain must also be a
+// stable callback (useCallback), otherwise every row still gets a fresh
+// function reference each render and memo's shallow comparison never
+// bails out. With both together, measured re-renders dropped to exactly
+// the 1 row that changed (30 -> 1, ~97% fewer row renders per click).
+const QuestionReviewRow = memo(function QuestionReviewRow({
+  i, q2, given, isCorrect, isLast, explainState, onExplain,
+}: {
+  i: number;
+  q2: Question;
+  given: number | null;
+  isCorrect: boolean;
+  isLast: boolean;
+  explainState: { loading: boolean; result: ExplainResult | null } | undefined;
+  onExplain: (i: number, q2: Question) => void;
+}) {
+  return (
+    <div style={{ padding: "16px 20px", borderBottom: isLast ? "none" : "1px solid var(--rule)", background: isCorrect ? "var(--paper)" : "var(--paper-2)" }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+        <span className="mono" style={{ color: isCorrect ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>{isCorrect ? "✓" : "✗"}</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{q2.q}</div>
+          <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>
+            Your: {given !== null ? q2.opts[given] : "—"} · Correct: {q2.opts[q2.ans]}
+            {!isCorrect && <span style={{ color: "var(--cinnabar-ink)" }}> · {q2.topic}</span>}
+          </div>
+          {!isCorrect && (
+            <div style={{ marginTop: 10 }}>
+              {!explainState && (
+                <button className="btn ghost" style={{ fontSize: 11, padding: "4px 12px" }}
+                  onClick={() => onExplain(i, q2)}>Explain →</button>
+              )}
+              {explainState?.loading && <div style={{ marginTop: 8 }}><AIThinking /></div>}
+              {explainState?.result && (
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--rule)" }}>
+                  <AIOutput text={explainState.result.explanation} />
+                  <div style={{ marginTop: 10, display: "flex", gap: 16, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 180 }}>
+                      <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>KEY CONCEPT</div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5 }}>{explainState.result.keyConcept}</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 180 }}>
+                      <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>EXAM TIP</div>
+                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontStyle: "italic", color: "var(--ink-2)", lineHeight: 1.5 }}>{explainState.result.examTip}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 function PracticeMode({ state, setState, userId }: { state: PracticeState; setState: (s: PracticeState | null) => void; userId?: string }) {
   const { paper, current, answers, done } = state;
   const q: Question = paper.questions[current];
@@ -68,6 +127,17 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   const CAT_FULL: Record<string, string> = { Conceptual: "Conceptual Gap", Slip: "Calculation Slip", Misread: "Misread Question", Rushed: "Time Pressure", Blanked: "Memory Blank" };
   const wrongIdxs = answers.map((a, i) => a !== paper.questions[i].ans ? i : -1).filter(i => i >= 0);
 
+  // Stable reference (empty deps) so QuestionReviewRow's React.memo can
+  // actually bail out — without this every row gets a new onExplain
+  // function each render and memo never skips anything (measured).
+  const handleExplain = useCallback(async (i: number, q2: Question) => {
+    setExplains(p => ({ ...p, [i]: { loading: true, result: null } }));
+    try {
+      const r = await callAIOrThrow<ExplainResult>({ tool: "papers_explain", question: q2.q, correct: q2.opts[q2.ans], topic: q2.topic });
+      setExplains(p => ({ ...p, [i]: { loading: false, result: r } }));
+    } catch { setExplains(p => ({ ...p, [i]: { loading: false, result: null } })); }
+  }, []);
+
   function logMistakes() {
     try {
       const existing = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
@@ -89,48 +159,16 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
       </div>
       <div style={{ marginTop: 32, border: "none" }}>
         {paper.questions.map((q2, i) => (
-          <div key={i} style={{ padding: "16px 20px", borderBottom: i < paper.questions.length - 1 ? "1px solid var(--rule)" : "none", background: answers[i] === q2.ans ? "var(--paper)" : "var(--paper-2)" }}>
-            <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-              <span className="mono" style={{ color: answers[i] === q2.ans ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>{answers[i] === q2.ans ? "✓" : "✗"}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.5 }}>{q2.q}</div>
-                <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>
-                  Your: {answers[i] !== null ? q2.opts[answers[i]!] : "—"} · Correct: {q2.opts[q2.ans]}
-                  {answers[i] !== q2.ans && <span style={{ color: "var(--cinnabar-ink)" }}> · {q2.topic}</span>}
-                </div>
-                {answers[i] !== q2.ans && (
-                  <div style={{ marginTop: 10 }}>
-                    {!explains[i] && (
-                      <button className="btn ghost" style={{ fontSize: 11, padding: "4px 12px" }}
-                        onClick={async () => {
-                          setExplains(p => ({ ...p, [i]: { loading: true, result: null } }));
-                          try {
-                            const r = await callAIOrThrow<ExplainResult>({ tool: "papers_explain", question: q2.q, correct: q2.opts[q2.ans], topic: q2.topic });
-                            setExplains(p => ({ ...p, [i]: { loading: false, result: r } }));
-                          } catch { setExplains(p => ({ ...p, [i]: { loading: false, result: null } })); }
-                        }}>Explain →</button>
-                    )}
-                    {explains[i]?.loading && <div style={{ marginTop: 8 }}><AIThinking /></div>}
-                    {explains[i]?.result && (
-                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--rule)" }}>
-                        <AIOutput text={explains[i]!.result!.explanation} />
-                        <div style={{ marginTop: 10, display: "flex", gap: 16, flexWrap: "wrap" }}>
-                          <div style={{ flex: 1, minWidth: 180 }}>
-                            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>KEY CONCEPT</div>
-                            <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", lineHeight: 1.5 }}>{explains[i]!.result!.keyConcept}</div>
-                          </div>
-                          <div style={{ flex: 1, minWidth: 180 }}>
-                            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginBottom: 4 }}>EXAM TIP</div>
-                            <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontStyle: "italic", color: "var(--ink-2)", lineHeight: 1.5 }}>{explains[i]!.result!.examTip}</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <QuestionReviewRow
+            key={i}
+            i={i}
+            q2={q2}
+            given={answers[i]}
+            isCorrect={answers[i] === q2.ans}
+            isLast={i === paper.questions.length - 1}
+            explainState={explains[i]}
+            onExplain={handleExplain}
+          />
         ))}
       </div>
       {wrongIdxs.length > 0 && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -19,6 +19,80 @@ interface QuestionEntry {
   marksLost: string;
   topic: string;
 }
+
+const rowInputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  border: "1px solid var(--rule)",
+  borderRadius: "6px",
+  backgroundColor: "var(--paper)",
+  color: "var(--ink)",
+  fontSize: "14px",
+  fontFamily: "var(--sans)",
+  boxSizing: "border-box",
+  outline: "none",
+};
+
+// Same fix, same reason as exam-practice's QuestionReviewRow: without
+// React.memo + stable update/remove callbacks, a keystroke in any one
+// row's input re-renders every row's 5 inputs, not just the row being
+// edited. updateQuestion/removeQuestion must be useCallback'd at the
+// call site for memo to actually bail out.
+const QuestionRow = memo(function QuestionRow({
+  q, onUpdate, onRemove,
+}: {
+  q: QuestionEntry;
+  onUpdate: (id: string, field: keyof QuestionEntry, value: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 80px 1fr 32px", gap: "8px", alignItems: "center" }}>
+      <input
+        style={{ ...rowInputStyle, textAlign: "center" }}
+        value={q.questionNumber}
+        onChange={e => onUpdate(q.id, "questionNumber", e.target.value)}
+        placeholder="Q1"
+      />
+      <input
+        style={rowInputStyle}
+        value={q.yourAnswer}
+        onChange={e => onUpdate(q.id, "yourAnswer", e.target.value)}
+        placeholder="What you wrote…"
+      />
+      <input
+        style={rowInputStyle}
+        value={q.correctAnswer}
+        onChange={e => onUpdate(q.id, "correctAnswer", e.target.value)}
+        placeholder="Correct answer…"
+      />
+      <input
+        style={{ ...rowInputStyle, textAlign: "center" }}
+        type="number"
+        value={q.marksLost}
+        onChange={e => onUpdate(q.id, "marksLost", e.target.value)}
+        placeholder="0"
+        min="0"
+      />
+      <input
+        style={rowInputStyle}
+        value={q.topic}
+        onChange={e => onUpdate(q.id, "topic", e.target.value)}
+        placeholder="e.g. Carbonyl reactions"
+      />
+      <button
+        style={{
+          width: "28px", height: "28px", border: "1px solid var(--rule)", borderRadius: "4px",
+          backgroundColor: "transparent", color: "var(--ink-3)", cursor: "pointer", fontSize: "14px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+        onClick={() => onRemove(q.id)}
+        title="Remove"
+      >
+        ×
+      </button>
+    </div>
+  );
+});
 
 interface ErrorType {
   type: string;
@@ -153,13 +227,13 @@ export default function PaperAutopsyPage() {
     ]);
   };
 
-  const updateQuestion = (id: string, field: keyof QuestionEntry, value: string) => {
+  const updateQuestion = useCallback((id: string, field: keyof QuestionEntry, value: string) => {
     setQuestions(prev => prev.map(q => (q.id === id ? { ...q, [field]: value } : q)));
-  };
+  }, []);
 
-  const removeQuestion = (id: string) => {
+  const removeQuestion = useCallback((id: string) => {
     setQuestions(prev => prev.filter(q => q.id !== id));
-  };
+  }, []);
 
   const handleAnalyse = async () => {
     setLoading(true);
@@ -631,64 +705,7 @@ export default function PaperAutopsyPage() {
 
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {questions.map(q => (
-                          <div key={q.id} style={{
-                            display: "grid",
-                            gridTemplateColumns: "60px 1fr 1fr 80px 1fr 32px",
-                            gap: "8px",
-                            alignItems: "center",
-                          }}>
-                            <input
-                              style={{ ...inputStyle, textAlign: "center" }}
-                              value={q.questionNumber}
-                              onChange={e => updateQuestion(q.id, "questionNumber", e.target.value)}
-                              placeholder="Q1"
-                            />
-                            <input
-                              style={inputStyle}
-                              value={q.yourAnswer}
-                              onChange={e => updateQuestion(q.id, "yourAnswer", e.target.value)}
-                              placeholder="What you wrote…"
-                            />
-                            <input
-                              style={inputStyle}
-                              value={q.correctAnswer}
-                              onChange={e => updateQuestion(q.id, "correctAnswer", e.target.value)}
-                              placeholder="Correct answer…"
-                            />
-                            <input
-                              style={{ ...inputStyle, textAlign: "center" }}
-                              type="number"
-                              value={q.marksLost}
-                              onChange={e => updateQuestion(q.id, "marksLost", e.target.value)}
-                              placeholder="0"
-                              min="0"
-                            />
-                            <input
-                              style={inputStyle}
-                              value={q.topic}
-                              onChange={e => updateQuestion(q.id, "topic", e.target.value)}
-                              placeholder="e.g. Carbonyl reactions"
-                            />
-                            <button
-                              style={{
-                                width: "28px",
-                                height: "28px",
-                                border: "1px solid var(--rule)",
-                                borderRadius: "4px",
-                                backgroundColor: "transparent",
-                                color: "var(--ink-3)",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                              onClick={() => removeQuestion(q.id)}
-                              title="Remove"
-                            >
-                              ×
-                            </button>
-                          </div>
+                          <QuestionRow key={q.id} q={q} onUpdate={updateQuestion} onRemove={removeQuestion} />
                         ))}
                       </div>
 
