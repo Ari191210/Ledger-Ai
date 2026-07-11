@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
+import { completeSessionStreak, resolveStreak, shieldAvailable } from "@/lib/streak";
 
 type Mode = "work" | "break" | "longbreak";
 export type FocusTask = { id: number; text: string; done: boolean };
@@ -16,6 +17,8 @@ export type FocusCtx = {
   sessions: number;
   tasks: FocusTask[];
   streak: number;
+  /** One missed day per month is auto-covered; true while unspent. */
+  shieldAvailable: boolean;
   switchMode: (m: Mode) => void;
   toggleRunning: () => void;
   reset: () => void;
@@ -37,6 +40,7 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
     { id: _tid++, text: "Solve 5 past-paper questions", done: false },
   ]);
   const [streak, setStreak] = useState(0);
+  const [shieldFree, setShieldFree] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Refs so tick callback never goes stale
@@ -45,15 +49,40 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
   const userRef = useRef(user);
   userRef.current = user;
 
-  // Load streak from Supabase / localStorage
+  // Load streak from Supabase / localStorage, then normalize it against the
+  // calendar (resolveStreak): a lapsed streak resets, a single missed day
+  // consumes the monthly shield. Storage is canonical — the score engine
+  // reads ledger-focus-streak directly, so it must never hold a stale value.
   useEffect(() => {
     async function load() {
+      let stored = 0;
       if (user) {
         const data = await loadUserData(user.id);
-        if (data?.focus) { setStreak((data.focus as { streak: number }).streak ?? 0); return; }
+        if (data?.focus) stored = (data.focus as { streak: number }).streak ?? 0;
       }
-      const s = localStorage.getItem("ledger-focus-streak");
-      if (s) setStreak(parseInt(s, 10));
+      if (!stored) {
+        const s = localStorage.getItem("ledger-focus-streak");
+        if (s) stored = parseInt(s, 10) || 0;
+      }
+      try {
+        const resolved = resolveStreak({
+          streak: stored,
+          lastDate: localStorage.getItem("ledger-focus-last"),
+          shieldUsedMonth: localStorage.getItem("ledger-focus-shield"),
+        });
+        if (resolved.broke || resolved.usedShield) {
+          localStorage.setItem("ledger-focus-streak", String(resolved.streak));
+          if (resolved.lastDate) localStorage.setItem("ledger-focus-last", resolved.lastDate);
+          else localStorage.removeItem("ledger-focus-last");
+          if (resolved.shieldUsedMonth) localStorage.setItem("ledger-focus-shield", resolved.shieldUsedMonth);
+          const u = userRef.current;
+          if (u) patchUserData(u.id, "focus", { streak: resolved.streak, lastDate: resolved.lastDate ?? "" });
+        }
+        setStreak(resolved.streak);
+        setShieldFree(shieldAvailable(resolved.shieldUsedMonth));
+      } catch {
+        setStreak(stored);
+      }
     }
     load();
   }, [user]);
@@ -98,16 +127,19 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
             const next = n + 1;
             if (next % 4 === 0) setMode("longbreak"); else setMode("break");
             try {
-              const today = new Date().toDateString();
-              const last = localStorage.getItem("ledger-focus-last");
-              const strk = parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10);
-              if (last !== today) {
-                const ns = strk + 1;
-                localStorage.setItem("ledger-focus-streak", String(ns));
-                localStorage.setItem("ledger-focus-last", today);
-                setStreak(ns);
+              const result = completeSessionStreak({
+                streak: parseInt(localStorage.getItem("ledger-focus-streak") || "0", 10) || 0,
+                lastDate: localStorage.getItem("ledger-focus-last"),
+                shieldUsedMonth: localStorage.getItem("ledger-focus-shield"),
+              });
+              if (result.counted || result.broke || result.usedShield) {
+                localStorage.setItem("ledger-focus-streak", String(result.streak));
+                if (result.lastDate) localStorage.setItem("ledger-focus-last", result.lastDate);
+                if (result.shieldUsedMonth) localStorage.setItem("ledger-focus-shield", result.shieldUsedMonth);
+                setStreak(result.streak);
+                setShieldFree(shieldAvailable(result.shieldUsedMonth));
                 const u = userRef.current;
-                if (u) patchUserData(u.id, "focus", { streak: ns, lastDate: today });
+                if (u) patchUserData(u.id, "focus", { streak: result.streak, lastDate: result.lastDate ?? "" });
               }
             } catch {}
             return next;
@@ -132,7 +164,7 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
   const reset = () => { setRunning(false); setSeconds(DURATIONS[mode]); };
 
   return (
-    <FocusContext.Provider value={{ mode, seconds, running, sessions, tasks, streak, switchMode, toggleRunning, reset, setTasks }}>
+    <FocusContext.Provider value={{ mode, seconds, running, sessions, tasks, streak, shieldAvailable: shieldFree, switchMode, toggleRunning, reset, setTasks }}>
       {children}
     </FocusContext.Provider>
   );

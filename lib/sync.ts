@@ -6,6 +6,7 @@ export const SYNC_KEYS = [
   "ledger-onboarding-done",
   "ledger-focus-streak",
   "ledger-focus-last",
+  "ledger-focus-shield",
   "ledger-habits-list",
   "ledger-habits-log",
   "ledger-weak-topics",

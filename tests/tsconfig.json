@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": []
   },
-  "files": ["../lib/ledger-score.ts", "../lib/score-projection.ts", "../lib/stripe-tier.ts", "../lib/parent-digest.ts"]
+  "files": ["../lib/ledger-score.ts", "../lib/score-projection.ts", "../lib/stripe-tier.ts", "../lib/parent-digest.ts", "../lib/streak.ts"]
 }

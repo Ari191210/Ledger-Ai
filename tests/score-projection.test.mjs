@@ -23,6 +23,7 @@ let engine;      // compiled lib/ledger-score
 let projection;  // compiled lib/score-projection
 let stripeTier;  // compiled lib/stripe-tier
 let parentDigest; // compiled lib/parent-digest
+let streakLib;   // compiled lib/streak
 
 before(() => {
   execFileSync(
@@ -42,6 +43,7 @@ test("setup imports", async () => {
   projection = await import(path.join(outDir, "score-projection.js"));
   stripeTier = await import(path.join(outDir, "stripe-tier.js"));
   parentDigest = await import(path.join(outDir, "parent-digest.js"));
+  streakLib = await import(path.join(outDir, "streak.js"));
 });
 
 const EMPTY_INPUTS = () => ({
@@ -357,6 +359,52 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.ok(html.includes("streak is at risk"), "alert banner present in inactivity mode");
     const digestHtml = parentDigest.buildParentEmailHtml("digest", d, {});
     assert.ok(!digestHtml.includes("streak is at risk"), "no alert banner in plain digest");
+  });
+
+  test("streak: yesterday continues, same-day repeat doesn't double-count", () => {
+    const today = new Date(2026, 6, 11);
+    const yest = new Date(2026, 6, 10).toDateString();
+    const r = streakLib.completeSessionStreak({ streak: 4, lastDate: yest, shieldUsedMonth: null }, today);
+    assert.equal(r.streak, 5);
+    assert.equal(r.counted, true);
+    const again = streakLib.completeSessionStreak({ streak: 5, lastDate: today.toDateString(), shieldUsedMonth: null }, today);
+    assert.equal(again.streak, 5);
+    assert.equal(again.counted, false);
+  });
+
+  test("streak: one missed day consumes the monthly shield, streak survives", () => {
+    const today = new Date(2026, 6, 11);
+    const twoDaysAgo = new Date(2026, 6, 9).toDateString();
+    const r = streakLib.resolveStreak({ streak: 9, lastDate: twoDaysAgo, shieldUsedMonth: null }, today);
+    assert.equal(r.usedShield, true);
+    assert.equal(r.streak, 9);
+    assert.equal(r.shieldUsedMonth, "2026-07");
+    // A session today then continues normally
+    const done = streakLib.completeSessionStreak({ streak: r.streak, lastDate: r.lastDate, shieldUsedMonth: r.shieldUsedMonth }, today);
+    assert.equal(done.streak, 10);
+  });
+
+  test("streak: shield already used this month → the streak breaks", () => {
+    const today = new Date(2026, 6, 11);
+    const twoDaysAgo = new Date(2026, 6, 9).toDateString();
+    const r = streakLib.resolveStreak({ streak: 9, lastDate: twoDaysAgo, shieldUsedMonth: "2026-07" }, today);
+    assert.equal(r.broke, true);
+    assert.equal(r.streak, 0);
+  });
+
+  test("streak: 2+ missed days break regardless of shield; new month restores shield", () => {
+    const today = new Date(2026, 7, 2); // Aug 2
+    const fourDaysAgo = new Date(2026, 6, 29).toDateString();
+    const r = streakLib.resolveStreak({ streak: 30, lastDate: fourDaysAgo, shieldUsedMonth: "2026-07" }, today);
+    assert.equal(r.broke, true);
+    assert.equal(r.streak, 0);
+    assert.equal(streakLib.shieldAvailable("2026-07", today), true); // July's spend doesn't cover August
+  });
+
+  test("streak: garbage lastDate resets safely instead of throwing", () => {
+    const r = streakLib.resolveStreak({ streak: 7, lastDate: "not-a-date", shieldUsedMonth: null });
+    assert.equal(r.broke, true);
+    assert.equal(r.streak, 0);
   });
 
   test("projections never mutate the caller's inputs", () => {

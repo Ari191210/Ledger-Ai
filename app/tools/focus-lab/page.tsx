@@ -14,7 +14,7 @@ import { currentInputs, projectFocusImpact, type ScoreProjection } from "@/lib/s
 type FocusMode = "work" | "break" | "longbreak";
 
 function FocusTab() {
-  const { mode, seconds, running, sessions, tasks, streak, switchMode, toggleRunning, reset, setTasks } = useFocus();
+  const { mode, seconds, running, sessions, tasks, streak, shieldAvailable, switchMode, toggleRunning, reset, setTasks } = useFocus();
   const [newTask, setNewTask] = useState("");
 
   // Consistency projection: what today's first completed work session adds.
@@ -85,6 +85,10 @@ function FocusTab() {
                 <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{val}</div>
               </div>
             ))}
+          </div>
+
+          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", padding: "4px 20px 0" }}>
+            Streak shield: {shieldAvailable ? "available — one missed day this month won't break your streak." : "used this month — don't miss a day."}
           </div>
 
           {streakImpact && streakImpact.delta > 0 && (
