@@ -1,7 +1,7 @@
 {
   "name": "StudyLedger",
   "short_name": "Ledger",
-  "description": "The Student's Operating System — 48 tool pages, 85 AI capabilities for exam prep",
+  "description": "The Student's Operating System — one Ledger Score that tracks your exam readiness, and every tool that moves it",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#08090c",

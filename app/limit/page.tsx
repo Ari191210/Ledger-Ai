@@ -45,7 +45,7 @@ export default function LimitPage() {
             Upgrade to Pro — unlimited AI →
           </Link>
           <p style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 10 }}>
-            ₹199/month. No caps, all 48 tools.
+            ₹199/month. No caps, every tool.
           </p>
         </div>
 

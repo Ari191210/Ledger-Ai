@@ -15,7 +15,7 @@ const TIER_PITCH: Record<"pro" | "max", { headline: string; points: string[] }> 
   pro: {
     headline: "Part of the Pro ledger.",
     points: [
-      "All 48 tools unlocked",
+      "Every tool unlocked",
       "Unlimited AI requests",
       "Unlimited syllabus uploads",
       "Score history & analytics",

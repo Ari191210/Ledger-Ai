@@ -19,7 +19,7 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   "Everything in Free",
-  "All 48 tools unlocked",
+  "Every tool unlocked",
   "Unlimited AI requests",
   "Unlimited syllabus uploads",
   "Score history & analytics",

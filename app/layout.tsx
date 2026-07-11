@@ -53,7 +53,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "StudyLedger | The Student's Operating System",
   description:
-    "48 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, exam simulator, and more - calibrated to your board, grade, and exam date.",
+    "Know exactly how ready you are for your exams. One live Ledger Score out of 1000, moved by every study session — past papers, planner, doubt solver, flashcards, exam simulator — calibrated to your board, grade, and exam date.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://studyledger.in"),
   alternates: {
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "StudyLedger | The Student's Operating System",
     description:
-      "48 AI-powered tools for students. Study planner, past papers, marks predictor, doubt solver, flashcards, and more - calibrated to your board, grade, and exam date.",
+      "One live exam-readiness score, moved by every study session. Past papers, planner, doubt solver, flashcards - calibrated to your board, grade, and exam date.",
     url: "https://studyledger.in",
     siteName: "StudyLedger",
     type: "website",
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "StudyLedger | The Student's Operating System",
     description:
-      "48 AI-powered tools for students. Calibrated to your board, grade, and exam date.",
+      "One live exam-readiness score, moved by every study session. Calibrated to your board, grade, and exam date.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -124,7 +124,7 @@ export default function RootLayout({
               "name": "StudyLedger",
               "url": "https://studyledger.in",
               "logo": "https://studyledger.in/icon-512.png",
-              "description": "AI-powered student OS with 48 tools for Indian board exam preparation",
+              "description": "AI-powered student OS with a live Ledger Score for Indian board exam preparation",
               "contactPoint": {
                 "@type": "ContactPoint",
                 "email": "hello@studyledger.in",
@@ -145,7 +145,7 @@ export default function RootLayout({
                   "name": "What is StudyLedger?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "StudyLedger is an AI-powered student operating system with 48 tools including a study planner, past paper analyser, Ledger Score readiness tracker, flashcards, and doubt solver - board-aware for CBSE, ICSE, IB, IGCSE and more.",
+                    "text": "StudyLedger is an AI-powered student operating system built around the Ledger Score - a live exam-readiness score out of 1000 - with a study planner, past paper analyser, flashcards, and doubt solver, board-aware for CBSE, ICSE, IB, IGCSE and more.",
                   },
                 },
                 {
@@ -153,7 +153,7 @@ export default function RootLayout({
                   "name": "Is StudyLedger free?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. The Free plan includes 20 AI requests/day and core tools. Pro (₹199/month) unlocks all 48 tools and unlimited AI.",
+                    "text": "Yes. The Free plan includes 20 AI requests/day and core tools. Pro (₹199/month) unlocks every tool and unlimited AI.",
                   },
                 },
                 {

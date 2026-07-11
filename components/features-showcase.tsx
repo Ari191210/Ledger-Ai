@@ -81,7 +81,7 @@ export default function FeaturesShowcase() {
           <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>Click any card to read more</div>
         </div>
         <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.65, marginTop: 8, maxWidth: 620 }}>
-          The 48 tools above are the price of entry. These seven are the reason you stay. None of them are available in another student app — we looked, and then we built them.
+          The tools above are the price of entry. These seven are the reason you stay. None of them are available in another student app — we looked, and then we built them.
         </p>
       </div>
 

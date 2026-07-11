@@ -40,7 +40,7 @@ const TICKER = [
   "Every wrong answer becomes a scheduled revision",
   "Built for CBSE, ICSE, IB, IGCSE, A-Level, JEE, NEET, SAT",
   "One login. Every tool you need.",
-  "48 tools · one score · one streak",
+  "Every session moves your score",
 ];
 
 const CAT_COLOR: Record<string, string> = {
@@ -888,7 +888,7 @@ export default function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap" as const, gap: 12, marginBottom: 56 }}>
             <h2 className="reveal-up" style={S.h2}>Three tools to start with.</h2>
             <Link href="/dashboard" style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.12em", textTransform: "uppercase" as const, textDecoration: "none" }}>
-              Browse all 48 →
+              Browse the full archive →
             </Link>
           </div>
 
@@ -1147,7 +1147,7 @@ export default function Home() {
                   ["Past papers, AI-graded",          false, false, false, false, true],
                   ["AI that knows your syllabus",     false, false, false, false, true],
                   ["Tracks gaps across sessions",     false, false, false, false, true],
-                  ["48 integrated study tools",      false, false, false, false, true],
+                  ["Tells you exactly what to fix next", false, false, false, false, true],
                   ["Flashcard practice",              true,  false, false, false, true],
                   ["Works across all 6 boards",       false, false, true,  false, true],
                   ["Free to start",                   true,  true,  true,  true,  true],
