@@ -38,6 +38,8 @@ export type UserData = {
   parentDigestEnabled?: boolean;
   /** Cron-managed alert cooldown markers (service-role writes only). */
   parentAlerts?: { inactivityAt?: string; examAlerts?: Record<string, string> };
+  /** Push notification engine state (service-role writes only) — see lib/notifications.ts. */
+  notifState?: { sent?: Record<string, string>; lastHighPriorityDay?: string; lastMilestone?: number };
   referralCode?: string;
   username?: string;
   // Onboarding profile

@@ -13,6 +13,7 @@ import { track } from "@/lib/posthog";
 import FeaturesShowcase from "@/components/features-showcase";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
+import PushOptIn from "@/components/push-opt-in";
 import EmptyChair from "@/components/empty-chair";
 import dynamic from "next/dynamic";
 // AnimatedList/NumberTicker/BorderBeam inside pull the motion lib (~45 KB gz);
@@ -1323,7 +1324,10 @@ export default function Dashboard() {
 
       {/* Share with parent + referral */}
       {user && (
-        <SharePanel userId={user.id} userName={name} />
+        <>
+          <PushOptIn />
+          <SharePanel userId={user.id} userName={name} />
+        </>
       )}
 
       {/* Features nobody else ships */}

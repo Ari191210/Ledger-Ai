@@ -33,13 +33,16 @@ self.addEventListener('fetch', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  const data = event.data?.json() ?? {}
+  let data = {}
+  try { data = event.data?.json() ?? {} } catch {}
   event.waitUntil(
     self.registration.showNotification(data.title || 'StudyLedger', {
       body: data.body || 'You have a study reminder',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
-      tag: 'studyledger-notification',
+      // Per-type tags: a new exam alert replaces the previous exam alert,
+      // but never clobbers a pending streak or risk notification.
+      tag: 'studyledger-' + (data.type || 'general'),
       data: { url: data.url || '/dashboard' },
     })
   )
@@ -47,7 +50,18 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
+  const url = event.notification.data?.url || '/dashboard'
   event.waitUntil(
-    clients.openWindow(event.notification.data?.url || '/dashboard')
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+      // Focus an existing app window and navigate it, instead of stacking
+      // new windows on every click.
+      for (const win of wins) {
+        if ('focus' in win) {
+          win.navigate(url).catch(() => {})
+          return win.focus()
+        }
+      }
+      return clients.openWindow(url)
+    })
   )
 })

@@ -24,6 +24,7 @@ let projection;  // compiled lib/score-projection
 let stripeTier;  // compiled lib/stripe-tier
 let parentDigest; // compiled lib/parent-digest
 let streakLib;   // compiled lib/streak
+let notif;       // compiled lib/notifications
 
 before(() => {
   execFileSync(
@@ -44,6 +45,7 @@ test("setup imports", async () => {
   stripeTier = await import(path.join(outDir, "stripe-tier.js"));
   parentDigest = await import(path.join(outDir, "parent-digest.js"));
   streakLib = await import(path.join(outDir, "streak.js"));
+  notif = await import(path.join(outDir, "notifications.js"));
 });
 
 const EMPTY_INPUTS = () => ({
@@ -405,6 +407,109 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     const r = streakLib.resolveStreak({ streak: 7, lastDate: "not-a-date", shieldUsedMonth: null });
     assert.equal(r.broke, true);
     assert.equal(r.streak, 0);
+  });
+
+  test("notifications: quiet hours and chronotype windows gate delivery", () => {
+    assert.equal(notif.inQuietHours(23), true);
+    assert.equal(notif.inQuietHours(7), true);
+    assert.equal(notif.inQuietHours(9), false);
+    assert.equal(notif.inDeliveryWindow("Morning lark", 9), true);
+    assert.equal(notif.inDeliveryWindow("Morning lark", 18), false);
+    assert.equal(notif.inDeliveryWindow(undefined, 18), true);
+    assert.equal(notif.inDeliveryWindow(undefined, 9), false);
+    assert.equal(notif.inDeliveryWindow(undefined, 23), false); // quiet beats window
+  });
+
+  const notifBase = () => ({
+    breakdown: engine.computeScoreFromInputs(EMPTY_INPUTS()),
+    streak: 0, lastDate: null, shieldUsedMonth: null,
+    exams: [], chronotype: undefined, state: {},
+  });
+  const at = (h, dayOffset = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + dayOffset);
+    d.setHours(h, 0, 0, 0);
+    return d;
+  };
+  const inDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString(); };
+
+  test("notifications: streak reminder only when it breaks tonight, unshielded", () => {
+    const now = at(18);
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toDateString();
+    const shieldSpent = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    // Shield spent → reminder fires
+    const r1 = notif.decideNotifications({ ...notifBase(), streak: 6, lastDate: yesterday, shieldUsedMonth: shieldSpent, now });
+    assert.equal(r1.send.length, 1);
+    assert.equal(r1.send[0].type, "streak");
+
+    // Shield still available → the miss is covered, no nudge
+    const r2 = notif.decideNotifications({ ...notifBase(), streak: 6, lastDate: yesterday, shieldUsedMonth: null, now });
+    assert.equal(r2.send.filter(n => n.type === "streak").length, 0);
+
+    // Already studied today → nothing to save
+    const r3 = notif.decideNotifications({ ...notifBase(), streak: 6, lastDate: now.toDateString(), shieldUsedMonth: shieldSpent, now });
+    assert.equal(r3.send.length, 0);
+  });
+
+  test("notifications: exam countdown fires at T-milestones with dedup keys", () => {
+    const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: inDays(7) }], now: at(18) });
+    assert.equal(r.send.length, 1);
+    assert.equal(r.send[0].type, "exam");
+    assert.match(r.send[0].key, /T-7$/);
+
+    // Same milestone never sends twice
+    const again = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: inDays(7) }], state: r.nextState, now: at(19) });
+    assert.equal(again.send.length, 0);
+
+    // T-5 is not a milestone
+    const t5 = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: inDays(5) }], now: at(18) });
+    assert.equal(t5.send.length, 0);
+  });
+
+  test("notifications: exam-day and T-1 use the morning window and bypass the daily cap", () => {
+    const state = { lastHighPriorityDay: `${at(9).getFullYear()}-${String(at(9).getMonth() + 1).padStart(2, "0")}-${String(at(9).getDate()).padStart(2, "0")}` };
+    const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Maths", date: inDays(0) }], state, now: at(9) });
+    assert.equal(r.send.length, 1, "exam today must bypass the high-priority daily cap");
+    assert.equal(r.send[0].url, "/tools/exam-day");
+    // …but not in the evening (morning-of window is 8-10)
+    const evening = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Maths", date: inDays(0) }], now: at(18) });
+    assert.equal(evening.send.length, 0);
+  });
+
+  test("notifications: milestone fires once per boundary, never for small gains", () => {
+    const strong = engine.computeScoreFromInputs({
+      papersLog: Array.from({ length: 10 }, () => ({ score: 9, total: 10, subject: "P", date: daysAgo(1) })),
+      syllabusSubjects: ["P"], syllabusUploaded: true, notesHistory: [{ subject: "P" }], mistakes: [], streak: 20,
+    });
+    const r = notif.decideNotifications({ ...notifBase(), breakdown: strong, now: at(18) });
+    assert.equal(r.send.length, 1);
+    assert.equal(r.send[0].type, "milestone");
+    assert.equal(r.nextState.lastMilestone, 800);
+    // Re-run with updated state: no repeat
+    const again = notif.decideNotifications({ ...notifBase(), breakdown: strong, state: r.nextState, now: at(18) });
+    assert.equal(again.send.length, 0);
+  });
+
+  test("notifications: at most one send per run, exams outrank everything", () => {
+    const risky = engine.computeScoreFromInputs({
+      ...EMPTY_INPUTS(),
+      papersLog: [{ score: 3, total: 10, subject: "P", date: daysAgo(1) }],
+      mistakes: Array.from({ length: 8 }, () => ({ date: daysAgo(1) })),
+    });
+    const r = notif.decideNotifications({
+      ...notifBase(), breakdown: risky,
+      exams: [{ name: "Chem", date: inDays(3) }],
+      now: at(18),
+    });
+    assert.equal(r.send.length, 1, "one per run");
+    assert.equal(r.send[0].type, "exam", "exam outranks risk");
+  });
+
+  test("notifications: sent-key ledger is pruned to a bounded size", () => {
+    const state = { sent: Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`old:${i}`, new Date(2020, 0, 1 + (i % 28)).toISOString()])) };
+    const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "X", date: inDays(14) }], state, now: at(18) });
+    assert.ok(Object.keys(r.nextState.sent).length <= notif.MAX_SENT_KEYS);
   });
 
   test("projections never mutate the caller's inputs", () => {
