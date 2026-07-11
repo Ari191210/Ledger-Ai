@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { enqueueJob } from "@/lib/jobs";
 import { computeScoreFromInputs, scoreInputsFromBlob } from "@/lib/ledger-score";
 import { computeRiskFlags, INACTIVITY_COOLDOWN_DAYS } from "@/lib/parent-digest";
+import { isInternalCaller } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ type Row = {
 // prevent repeats — inactivity re-alerts at most weekly, exam alerts fire
 // once per exam occurrence.
 export async function GET(req: Request) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isInternalCaller(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

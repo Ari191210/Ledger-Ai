@@ -4,6 +4,7 @@ import { Resend } from "resend";
 export const dynamic = "force-dynamic";
 import Anthropic from "@anthropic-ai/sdk";
 import { supabaseServer } from "@/lib/supabase-server";
+import { isInternalCaller } from "@/lib/cron-auth";
 
 const anthropic = new Anthropic();
 
@@ -226,7 +227,7 @@ export async function POST(req: Request) {
   // check at all, letting anyone email any student's academic data to any
   // address on request.
   const authHeader = req.headers.get("Authorization");
-  const isCronCaller = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  const isCronCaller = isInternalCaller(req);
   let sessionUserId: string | null = null;
   if (!isCronCaller) {
     const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;

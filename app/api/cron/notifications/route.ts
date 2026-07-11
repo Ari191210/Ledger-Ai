@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { computeScoreFromInputs, scoreInputsFromBlob } from "@/lib/ledger-score";
 import { decideNotifications, type NotifState } from "@/lib/notifications";
 import { isPushConfigured, sendToUser } from "@/lib/push";
+import { isInternalCaller } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -20,7 +21,7 @@ type Row = {
 // daily caps) lives in lib/notifications.ts against the user's LOCAL time —
 // this route only converts server time via the subscription's stored tz.
 export async function GET(req: Request) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isInternalCaller(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (!isPushConfigured()) {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseServer } from "@/lib/supabase-server";
+import { isInternalCaller } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -122,7 +123,7 @@ export async function POST(req: Request) {
   // internal cron job runner via CRON_SECRET. Previously unauthenticated —
   // anyone who knew a userId could trigger a welcome email for that account.
   const authHeader = req.headers.get("Authorization");
-  const isCronCaller = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  const isCronCaller = isInternalCaller(req);
   let sessionUserId: string | null = null;
   if (!isCronCaller) {
     const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;

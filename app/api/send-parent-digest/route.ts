@@ -8,6 +8,7 @@ import {
   digestSubject,
   type DigestMode,
 } from "@/lib/parent-digest";
+import { isInternalCaller } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
   }
 
   const authHeader = req.headers.get("Authorization");
-  const isCronCaller = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  const isCronCaller = isInternalCaller(req);
   let sessionUserId: string | null = null;
   if (!isCronCaller) {
     const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { enqueueJob } from "@/lib/jobs";
+import { isInternalCaller } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isInternalCaller(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

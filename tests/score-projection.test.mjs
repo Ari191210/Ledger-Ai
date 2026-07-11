@@ -12,7 +12,7 @@
 import { test, describe, before } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -25,11 +25,16 @@ let stripeTier;  // compiled lib/stripe-tier
 let parentDigest; // compiled lib/parent-digest
 let streakLib;   // compiled lib/streak
 let notif;       // compiled lib/notifications
+let cronAuth;    // compiled lib/cron-auth
 
 before(() => {
+  // Invoke the compiler via node + typescript's real entry point rather than
+  // the node_modules/.bin/tsc shim — the shim is tsc.cmd on Windows and bare
+  // tsc on POSIX, and execFileSync can't resolve the extensionless name on
+  // Windows (ENOENT). This path is stable across platforms.
   execFileSync(
-    path.join(root, "node_modules", ".bin", "tsc"),
-    ["-p", "tests/tsconfig.json"],
+    process.execPath,
+    [path.join(root, "node_modules", "typescript", "bin", "tsc"), "-p", "tests/tsconfig.json"],
     { cwd: root },
   );
   // tsc doesn't rewrite path aliases — point "@/lib/x" imports at siblings.
@@ -39,13 +44,18 @@ before(() => {
   }
 });
 
+// Dynamic import() needs a file:// URL, not a raw path — a Windows path like
+// C:\...\x.js is otherwise read as an (unsupported) URL scheme.
+const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
+
 test("setup imports", async () => {
-  engine = await import(path.join(outDir, "ledger-score.js"));
-  projection = await import(path.join(outDir, "score-projection.js"));
-  stripeTier = await import(path.join(outDir, "stripe-tier.js"));
-  parentDigest = await import(path.join(outDir, "parent-digest.js"));
-  streakLib = await import(path.join(outDir, "streak.js"));
-  notif = await import(path.join(outDir, "notifications.js"));
+  engine = await load("ledger-score.js");
+  projection = await load("score-projection.js");
+  stripeTier = await load("stripe-tier.js");
+  parentDigest = await load("parent-digest.js");
+  streakLib = await load("streak.js");
+  notif = await load("notifications.js");
+  cronAuth = await load("cron-auth.js");
 });
 
 const EMPTY_INPUTS = () => ({
@@ -510,6 +520,35 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     const state = { sent: Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`old:${i}`, new Date(2020, 0, 1 + (i % 28)).toISOString()])) };
     const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "X", date: inDays(14) }], state, now: at(18) });
     assert.ok(Object.keys(r.nextState.sent).length <= notif.MAX_SENT_KEYS);
+  });
+
+  test("cron-auth: fails closed and only accepts the exact bearer secret", () => {
+    const reqWith = (authValue) => ({
+      headers: { get: (k) => (k.toLowerCase() === "authorization" ? authValue : null) },
+    });
+    const saved = process.env.CRON_SECRET;
+    try {
+      // Fail closed: no secret set → nobody is authorized, including the
+      // notorious "Bearer undefined" that the old inline check accepted.
+      delete process.env.CRON_SECRET;
+      assert.equal(cronAuth.isInternalCaller(reqWith("Bearer undefined")), false);
+      assert.equal(cronAuth.isInternalCaller(reqWith("Bearer ")), false);
+      assert.equal(cronAuth.isInternalCaller(reqWith(null)), false);
+
+      process.env.CRON_SECRET = "";
+      assert.equal(cronAuth.isInternalCaller(reqWith("Bearer ")), false, "empty secret still fails closed");
+
+      // With a real secret: exact match only.
+      process.env.CRON_SECRET = "s3cr3t-value";
+      assert.equal(cronAuth.isInternalCaller(reqWith("Bearer s3cr3t-value")), true);
+      assert.equal(cronAuth.isInternalCaller(reqWith("Bearer wrong")), false);
+      assert.equal(cronAuth.isInternalCaller(reqWith("s3cr3t-value")), false, "must include Bearer prefix");
+      assert.equal(cronAuth.isInternalCaller(reqWith(null)), false);
+      assert.equal(cronAuth.isInternalCaller(reqWith("Bearer s3cr3t-value ")), false, "no trailing slack");
+    } finally {
+      if (saved === undefined) delete process.env.CRON_SECRET;
+      else process.env.CRON_SECRET = saved;
+    }
   });
 
   test("projections never mutate the caller's inputs", () => {
