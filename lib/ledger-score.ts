@@ -61,6 +61,28 @@ export function computeLedgerScore(): ScoreBreakdown {
   return computeScoreFromInputs(inputs);
 }
 
+// Server-side twin of readScoreInputs: the synced user_data.blob stores raw
+// localStorage strings (lib/sync.ts), so any server surface (parent report,
+// parent digest, cron risk alerts) derives ScoreInputs from it through this
+// one mapping instead of re-implementing it.
+export function scoreInputsFromBlob(blob: Record<string, string> | null): ScoreInputs {
+  const parse = <T,>(key: string, fallback: T): T => {
+    try {
+      const v = blob?.[key];
+      return v ? (JSON.parse(v) as T) : fallback;
+    } catch { return fallback; }
+  };
+  const syllabusSubjects = parse<string[]>("ledger-syllabus-subjects", []);
+  return {
+    papersLog:        parse("ledger-papers-log", []),
+    syllabusSubjects,
+    syllabusUploaded: syllabusSubjects.length > 0 || !!blob?.["ledger-syllabus"],
+    notesHistory:     parse("ledger-notes-history", []),
+    mistakes:         parse("ledger-mistakes", []),
+    streak:           parseInt(blob?.["ledger-focus-streak"] ?? "0", 10) || 0,
+  };
+}
+
 export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
   try {
 

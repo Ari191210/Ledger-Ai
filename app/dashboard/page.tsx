@@ -442,10 +442,26 @@ function ExamSchedule({ userId, userEmail, userName }: { userId: string; userEma
 function SharePanel({ userId, userName }: { userId: string; userName: string }) {
   const [parentCode, setParentCode] = useState("");
   const [copied, setCopied] = useState<"parent" | "ref" | null>(null);
+  const [parentEmail, setParentEmail]         = useState("");
+  const [digestEnabled, setDigestEnabled]     = useState(false);
+  const [digestSaved, setDigestSaved]         = useState<"idle" | "saving" | "saved" | "error">("idle");
+
+  async function saveDigest(enabled: boolean) {
+    const email = parentEmail.trim();
+    if (enabled && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setDigestSaved("error"); return; }
+    setDigestSaved("saving");
+    const r1 = await patchUserData(userId, "parentEmail", enabled ? email : parentEmail.trim() || undefined);
+    const r2 = await patchUserData(userId, "parentDigestEnabled", enabled);
+    setDigestEnabled(enabled);
+    setDigestSaved(r1.error || r2.error ? "error" : "saved");
+    setTimeout(() => setDigestSaved("idle"), 2500);
+  }
 
   useEffect(() => {
     loadUserData(userId)
       .then(async (ud) => {
+        if (ud?.parentEmail) setParentEmail(ud.parentEmail);
+        if (ud?.parentDigestEnabled) setDigestEnabled(true);
         if (ud?.parentCode) {
           setParentCode(ud.parentCode);
         } else {
@@ -489,6 +505,37 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
             style={{ padding: "6px 14px", fontSize: 11, flexShrink: 0 }}>
             {copied === "parent" ? "Copied!" : "Copy →"}
           </button>
+        </div>
+
+        {/* Weekly digest + risk alerts, emailed to a parent */}
+        <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--rule)" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <input
+              type="email"
+              value={parentEmail}
+              onChange={e => setParentEmail(e.target.value)}
+              placeholder="parent@email.com"
+              aria-label="Parent email for weekly digest"
+              style={{ flex: 1, minWidth: 160, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink)" }}
+            />
+            <button
+              className="btn ghost"
+              onClick={() => saveDigest(!digestEnabled)}
+              disabled={digestSaved === "saving"}
+              style={{ padding: "6px 14px", fontSize: 11, flexShrink: 0 }}
+            >
+              {digestEnabled ? "Digest on ✓" : "Email weekly digest →"}
+            </button>
+          </div>
+          <div className="mono" style={{ fontSize: 9, color: digestSaved === "error" ? "var(--cinnabar-ink)" : "var(--ink-3)", marginTop: 6 }}>
+            {digestSaved === "error"
+              ? "Enter a valid email address."
+              : digestSaved === "saved"
+                ? "Saved."
+                : digestEnabled
+                  ? "Weekly report + risk alerts go to this address. Click to turn off."
+                  : "Optional: weekly report + risk alerts (streak breaks, exams at low readiness)."}
+          </div>
         </div>
       </div>
 

@@ -32,6 +32,12 @@ export type UserData = {
   emailEnabled?: boolean;
   parentCode?: string;
   parentName?: string;
+  /** Where the weekly parent digest and risk alerts go. Set by the student
+   *  in the dashboard SharePanel — same trust model as the share code. */
+  parentEmail?: string;
+  parentDigestEnabled?: boolean;
+  /** Cron-managed alert cooldown markers (service-role writes only). */
+  parentAlerts?: { inactivityAt?: string; examAlerts?: Record<string, string> };
   referralCode?: string;
   username?: string;
   // Onboarding profile

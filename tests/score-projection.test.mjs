@@ -22,6 +22,7 @@ const outDir = path.join(root, ".test-build");
 let engine;      // compiled lib/ledger-score
 let projection;  // compiled lib/score-projection
 let stripeTier;  // compiled lib/stripe-tier
+let parentDigest; // compiled lib/parent-digest
 
 before(() => {
   execFileSync(
@@ -29,18 +30,18 @@ before(() => {
     ["-p", "tests/tsconfig.json"],
     { cwd: root },
   );
-  // tsc doesn't rewrite path aliases — point the import at the sibling file.
-  const projPath = path.join(outDir, "score-projection.js");
-  fs.writeFileSync(
-    projPath,
-    fs.readFileSync(projPath, "utf8").replace("@/lib/ledger-score", "./ledger-score.js"),
-  );
+  // tsc doesn't rewrite path aliases — point "@/lib/x" imports at siblings.
+  for (const f of fs.readdirSync(outDir).filter(f => f.endsWith(".js"))) {
+    const p = path.join(outDir, f);
+    fs.writeFileSync(p, fs.readFileSync(p, "utf8").replace(/@\/lib\/([\w-]+)/g, "./$1.js"));
+  }
 });
 
 test("setup imports", async () => {
   engine = await import(path.join(outDir, "ledger-score.js"));
   projection = await import(path.join(outDir, "score-projection.js"));
   stripeTier = await import(path.join(outDir, "stripe-tier.js"));
+  parentDigest = await import(path.join(outDir, "parent-digest.js"));
 });
 
 const EMPTY_INPUTS = () => ({
@@ -291,6 +292,71 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
 
     // forward compatibility
     assert.equal(decide("some.future.event", {}).type, "ignore");
+  });
+
+  test("parent-digest: risk flags fire on inactivity and imminent low-readiness exams", () => {
+    const breakdown = engine.computeScoreFromInputs({
+      ...EMPTY_INPUTS(),
+      papersLog: [{ score: 4, total: 10, subject: "Maths", date: daysAgo(10) }],
+    });
+    assert.ok(breakdown.total < 400, "fixture should be below Developing");
+
+    // Inactivity: streak was established (>=5) but last session is 6 days old
+    const flags = parentDigest.computeRiskFlags({
+      breakdown,
+      streak: 8,
+      lastStudied: daysAgo(6),
+      exams: [{ name: "Physics Board", date: new Date(Date.now() + 3 * 86400000).toISOString() }],
+    });
+    assert.equal(flags.inactiveDays, 6);
+    assert.equal(flags.examSoon?.name, "Physics Board");
+    assert.equal(flags.examSoon?.days, 3);
+
+    // No flags when active and no imminent exam
+    const quiet = parentDigest.computeRiskFlags({
+      breakdown, streak: 8, lastStudied: daysAgo(0),
+      exams: [{ name: "Finals", date: new Date(Date.now() + 60 * 86400000).toISOString() }],
+    });
+    assert.equal(quiet.inactiveDays, undefined);
+    assert.equal(quiet.examSoon, undefined);
+
+    // Short streaks never trigger inactivity (nothing established to lose)
+    const newbie = parentDigest.computeRiskFlags({
+      breakdown, streak: 2, lastStudied: daysAgo(10), exams: [],
+    });
+    assert.equal(newbie.inactiveDays, undefined);
+  });
+
+  test("parent-digest: exam risk clears once readiness passes the threshold", () => {
+    const strong = engine.computeScoreFromInputs({
+      papersLog: Array.from({ length: 10 }, () => ({ score: 9, total: 10, subject: "Physics", date: daysAgo(1) })),
+      syllabusSubjects: ["Physics"], syllabusUploaded: true,
+      notesHistory: [{ subject: "Physics" }], mistakes: [], streak: 20,
+    });
+    assert.ok(strong.total >= 400);
+    const flags = parentDigest.computeRiskFlags({
+      breakdown: strong, streak: 20, lastStudied: daysAgo(0),
+      exams: [{ name: "Physics Board", date: new Date(Date.now() + 2 * 86400000).toISOString() }],
+    });
+    assert.equal(flags.examSoon, undefined);
+  });
+
+  test("parent-digest: subjects and HTML reflect the mode", () => {
+    const breakdown = engine.computeScoreFromInputs(EMPTY_INPUTS());
+    const d = {
+      studentName: "Aarav", parentCode: "abc123", breakdown,
+      streak: 6, lastStudied: daysAgo(6),
+      exams: [], marks: [], weakTopics: [],
+    };
+    const flags = { inactiveDays: 6 };
+    assert.match(parentDigest.digestSubject("inactivity", d, flags), /hasn't studied in 6 days/);
+    assert.match(parentDigest.digestSubject("digest", d, {}), /weekly study report/);
+    const html = parentDigest.buildParentEmailHtml("inactivity", d, flags);
+    assert.ok(html.includes("Aarav"), "student name present");
+    assert.ok(html.includes("/parent/abc123"), "live report link present");
+    assert.ok(html.includes("streak is at risk"), "alert banner present in inactivity mode");
+    const digestHtml = parentDigest.buildParentEmailHtml("digest", d, {});
+    assert.ok(!digestHtml.includes("streak is at risk"), "no alert banner in plain digest");
   });
 
   test("projections never mutate the caller's inputs", () => {

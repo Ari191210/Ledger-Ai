@@ -15,10 +15,9 @@ export async function GET(req: Request) {
     .eq("emailEnabled", true);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!optedIn?.length) return NextResponse.json({ enqueued: 0 });
 
   let enqueued = 0;
-  for (const row of optedIn) {
+  for (const row of optedIn ?? []) {
     const { data: authUser } = await supabaseServer.auth.admin.getUserById(row.id);
     const email = authUser?.user?.email;
     if (!email) continue;
@@ -26,5 +25,18 @@ export async function GET(req: Request) {
     enqueued++;
   }
 
-  return NextResponse.json({ enqueued });
+  // Parent weekly digests — independent opt-in (student adds a parent email
+  // in the dashboard SharePanel).
+  const { data: parentOptIn } = await supabaseServer
+    .from("user_data")
+    .select("id")
+    .eq("parentDigestEnabled", true)
+    .not("parentEmail", "is", null);
+  let parentEnqueued = 0;
+  for (const row of parentOptIn ?? []) {
+    await enqueueJob("send-parent-digest", { userId: row.id, mode: "digest" });
+    parentEnqueued++;
+  }
+
+  return NextResponse.json({ enqueued, parentEnqueued });
 }

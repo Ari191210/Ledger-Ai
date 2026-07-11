@@ -1,6 +1,6 @@
 import { supabaseServer } from "./supabase-server";
 
-export type JobType = "send-report" | "send-welcome" | "weekly-report-batch";
+export type JobType = "send-report" | "send-welcome" | "weekly-report-batch" | "send-parent-digest";
 
 interface JobRow {
   id: string;
@@ -84,6 +84,18 @@ async function dispatch(job: JobRow, base: string): Promise<void> {
       if (!res.ok) {
         const json = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(json.error ?? `send-report HTTP ${res.status}`);
+      }
+      return;
+    }
+    case "send-parent-digest": {
+      const res = await fetch(`${base}/api/send-parent-digest`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${process.env.CRON_SECRET}` },
+        body: JSON.stringify(job.payload),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(json.error ?? `send-parent-digest HTTP ${res.status}`);
       }
       return;
     }
