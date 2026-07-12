@@ -543,7 +543,7 @@ function SharePanel({ userId, userName }: { userId: string; userName: string }) 
       <div className="glass-card" style={{ padding: "20px" }}>
         <div className="mono cin" style={{ marginBottom: 6 }}>Refer a friend</div>
         <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 14, lineHeight: 1.5 }}>
-          Share your referral link. When they sign up, both of you get 1 month Pro free once billing is live.
+          Share your referral link so friends land straight on Studyledger. Referral rewards are coming — nothing is credited yet.
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <div style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 11, border: "1px solid var(--rule)", padding: "8px 10px", background: "var(--paper-2)", color: "var(--ink-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "text", transition: "background 200ms" }}

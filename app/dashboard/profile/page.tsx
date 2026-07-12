@@ -31,7 +31,30 @@ const COMMS = [
 ] as const;
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+
+  // Billing portal — the manage/cancel surface. Stripe hosts it; changes
+  // come back to us as customer.subscription.* webhook events.
+  const [portalBusy,  setPortalBusy]  = useState(false);
+  const [portalError, setPortalError] = useState("");
+
+  async function openBillingPortal() {
+    if (!session) return;
+    setPortalBusy(true); setPortalError("");
+    try {
+      const res = await fetch("/api/billing-portal", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) { window.location.assign(data.url); return; }
+      setPortalError(data.error || "Could not open the billing portal.");
+    } catch {
+      setPortalError("Network error. Please try again.");
+    } finally {
+      setPortalBusy(false);
+    }
+  }
 
   // Username
   const [username,  setUsername]  = useState("");
@@ -249,9 +272,24 @@ export default function ProfilePage() {
                     Upgrade →
                   </Link>
                 )}
+                {row.label === "Plan" && userTier(user) !== "free" && (
+                  <button
+                    onClick={openBillingPortal}
+                    disabled={portalBusy}
+                    className="mono"
+                    style={{ marginLeft: 10, fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.06em", textTransform: "uppercase", background: "none", border: "none", padding: 0, cursor: portalBusy ? "default" : "pointer", opacity: portalBusy ? 0.4 : 1 }}
+                  >
+                    {portalBusy ? "Opening…" : "Manage →"}
+                  </button>
+                )}
               </div>
             </div>
           ))}
+          {portalError && (
+            <div style={{ padding: "12px 18px", borderTop: "1px solid var(--rule)", fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>
+              {portalError}
+            </div>
+          )}
         </div>
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
