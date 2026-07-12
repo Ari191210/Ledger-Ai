@@ -1,0 +1,58 @@
+name: Hourly notification engine
+
+# Vercel Hobby cannot run a cron more than once per day — an hourly schedule
+# in vercel.json FAILS THE DEPLOYMENT outright ("Hobby accounts are limited to
+# daily cron jobs"). The notification engine genuinely needs hourly cadence:
+# lib/notifications.ts only sends when the user's LOCAL hour falls inside their
+# chronotype delivery window, so a once-a-day run at a fixed UTC hour would
+# match almost nobody and send almost nothing — silently.
+#
+# So the hourly trigger lives here instead. GitHub Actions schedules are free.
+# The endpoint itself is unchanged and still authenticates with CRON_SECRET
+# (lib/cron-auth.ts, fail-closed), exactly as Vercel's own cron would.
+#
+# Setup: add CRON_SECRET to the repo's Actions secrets —
+#   Settings → Secrets and variables → Actions → New repository secret
+# It must match the CRON_SECRET set in Vercel.
+
+on:
+  schedule:
+    # Top of every hour (UTC). GitHub may delay this under load; that is fine —
+    # the engine dedups by semantic key, so a late or skipped run cannot double-send.
+    - cron: "0 * * * *"
+  workflow_dispatch: # lets you trigger a run by hand to test
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger notification engine
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET is not set in this repo's Actions secrets."
+            echo "The endpoint is fail-closed, so every call would 401. Add it under"
+            echo "Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" \
+            --max-time 60 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "https://studyledger.in/api/cron/notifications")
+
+          echo "HTTP $code"
+          cat /tmp/out.json || true
+          echo
+
+          # Fail loudly. A silently-dead notification engine is the exact bug
+          # this workflow exists to prevent.
+          if [ "$code" = "401" ]; then
+            echo "::error::401 — CRON_SECRET here does not match the one in Vercel."
+            exit 1
+          fi
+          if [ "$code" != "200" ]; then
+            echo "::error::Expected 200, got $code."
+            exit 1
+          fi
