@@ -141,13 +141,7 @@ export default function CommandPalette() {
 
   return (
     <>
-      {/* Keyframe injection */}
       <style>{`
-        @keyframes cp-backdrop-in  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes cp-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
-        @keyframes cp-panel-in  { from { opacity: 0; transform: scale(0.96) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes cp-panel-out { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.96) translateY(-8px); } }
-
         .cp-backdrop {
           position: fixed; inset: 0; z-index: 9990;
           display: flex; align-items: flex-start; justify-content: center;
@@ -156,9 +150,6 @@ export default function CommandPalette() {
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
         }
-        .cp-backdrop[data-open="true"]  { animation: cp-backdrop-in  180ms ease-out forwards; }
-        .cp-backdrop[data-open="false"] { animation: cp-backdrop-out 140ms ease-in  forwards; }
-
         .cp-panel {
           position: relative; z-index: 1;
           width: 100%; max-width: 560px;
@@ -170,9 +161,6 @@ export default function CommandPalette() {
           overflow: hidden;
           box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
         }
-        .cp-panel[data-open="true"]  { animation: cp-panel-in  180ms ease-out forwards; }
-        .cp-panel[data-open="false"] { animation: cp-panel-out 140ms ease-in  forwards; }
-
         .cp-search-wrap {
           display: flex; align-items: center; gap: 10;
           padding: 0 20px;
@@ -280,13 +268,11 @@ export default function CommandPalette() {
       {open && (
         <div
           className="cp-backdrop"
-          data-open="true"
           onClick={close}
           role="presentation"
         >
           <div
             className="cp-panel"
-            data-open="true"
             role="dialog"
             aria-label="Command palette"
             aria-modal="true"
