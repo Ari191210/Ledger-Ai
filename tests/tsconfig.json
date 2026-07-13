@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "files": ["../lib/ledger-score.ts", "../lib/score-projection.ts", "../lib/stripe-tier.ts", "../lib/parent-digest.ts", "../lib/streak.ts", "../lib/notifications.ts", "../lib/cron-auth.ts"]
+  "files": ["../lib/ledger-score.ts", "../lib/score-projection.ts", "../lib/stripe-tier.ts", "../lib/parent-digest.ts", "../lib/streak.ts", "../lib/notifications.ts", "../lib/cron-auth.ts", "../lib/score-market.ts"]
 }

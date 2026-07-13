@@ -26,6 +26,7 @@ let parentDigest; // compiled lib/parent-digest
 let streakLib;   // compiled lib/streak
 let notif;       // compiled lib/notifications
 let cronAuth;    // compiled lib/cron-auth
+let market;      // compiled lib/score-market
 
 before(() => {
   // Invoke the compiler via node + typescript's real entry point rather than
@@ -56,6 +57,7 @@ test("setup imports", async () => {
   streakLib = await load("streak.js");
   notif = await load("notifications.js");
   cronAuth = await load("cron-auth.js");
+  market = await load("score-market.js");
 });
 
 const EMPTY_INPUTS = () => ({
@@ -566,5 +568,215 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     projection.projectMistakeReductionImpact(inputs, 1);
     projection.realizedExamPracticeImpact(inputs);
     assert.equal(JSON.stringify(inputs), snapshot);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// lib/score-market.ts — the Ledger Score as a tracked instrument.
+//
+// This module writes the words a student reads on the front page. If it claims
+// a rise that did not happen, or invents a trend from a single data point, the
+// product is lying to them. These tests exist to make that impossible.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Build a snapshot N days before "today", so the series is always relative.
+const day = (daysAgo, total, over = {}) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return {
+    captured_on: d.toISOString().slice(0, 10),
+    total,
+    pqa: over.pqa ?? 0,
+    syllabus: over.syllabus ?? 0,
+    mistakes: over.mistakes ?? 0,
+    consistency: over.consistency ?? 0,
+    streak: over.streak ?? 0,
+    papers_count: over.papers_count ?? 0,
+    recent_mistakes: over.recent_mistakes ?? 0,
+  };
+};
+
+describe("score-market: movement", () => {
+  test("computes delta, percent and direction", () => {
+    const m = market.movement(800, 842);
+    assert.equal(m.delta, 42);
+    assert.equal(m.direction, "up");
+    assert.ok(Math.abs(m.pct - 5.25) < 0.001);
+  });
+
+  test("a fall is reported as down with a negative delta", () => {
+    const m = market.movement(842, 800);
+    assert.equal(m.delta, -42);
+    assert.equal(m.direction, "down");
+    assert.ok(m.pct < 0);
+  });
+
+  test("no change is flat, never a rounding artefact", () => {
+    const m = market.movement(500, 500);
+    assert.equal(m.delta, 0);
+    assert.equal(m.direction, "flat");
+    assert.equal(m.pct, 0);
+  });
+
+  test("a rise from zero does NOT produce Infinity percent", () => {
+    // 0 -> 40 is a 40-point gain, not an infinite one. The UI leads with points.
+    const m = market.movement(0, 40);
+    assert.equal(m.delta, 40);
+    assert.equal(m.pct, 0);
+    assert.ok(Number.isFinite(m.pct));
+  });
+});
+
+describe("score-market: report", () => {
+  test("an empty series is newly listed, not an error and not a zero", () => {
+    const r = market.buildMarketReport([]);
+    assert.equal(r.isNewlyListed, true);
+    assert.equal(r.current, null);
+    assert.equal(r.daily, null);
+    assert.equal(r.weekly, null);
+    assert.equal(r.sessions, 0);
+    assert.deepEqual(r.series, []);
+  });
+
+  test("a SINGLE close is newly listed — one data point is not a trend", () => {
+    const r = market.buildMarketReport([day(0, 620)]);
+    assert.equal(r.isNewlyListed, true);
+    assert.equal(r.sessions, 1);
+    assert.equal(r.current.total, 620);
+    assert.equal(r.daily, null, "there is no previous close to compare against");
+    assert.equal(r.weekly, null);
+  });
+
+  test("orders a shuffled series and reports the newest as current", () => {
+    const r = market.buildMarketReport([day(3, 700), day(0, 842), day(7, 650)]);
+    assert.equal(r.current.total, 842);
+    assert.equal(r.isNewlyListed, false);
+    // sparkline runs oldest -> newest
+    assert.deepEqual(r.series.map(p => p.value), [650, 700, 842]);
+  });
+
+  test("daily and weekly movement are measured against the right closes", () => {
+    const r = market.buildMarketReport([day(0, 842), day(1, 830), day(7, 800)]);
+    assert.equal(r.daily.delta, 12);   // vs previous close
+    assert.equal(r.weekly.delta, 42);  // vs 7 days ago
+  });
+
+  test("all-time high and low are tracked, and a new high is flagged", () => {
+    const r = market.buildMarketReport([day(0, 900), day(5, 700), day(10, 400)]);
+    assert.equal(r.allTimeHigh.value, 900);
+    assert.equal(r.allTimeLow.value, 400);
+    assert.equal(r.atAllTimeHigh, true);
+  });
+
+  test("sitting below the peak is NOT reported as an all-time high", () => {
+    const r = market.buildMarketReport([day(0, 800), day(5, 900)]);
+    assert.equal(r.allTimeHigh.value, 900);
+    assert.equal(r.atAllTimeHigh, false);
+  });
+
+  test("counts consecutive advancing sessions", () => {
+    // Closes oldest -> newest: 900, 830, 840, 850.
+    // Transitions:            900->830 DOWN, 830->840 UP, 840->850 UP.
+    // So the current advance is TWO sessions long, not three — the number of
+    // up-MOVES, not the number of closes involved in them. Getting this wrong
+    // would have the front page claim a longer run than actually happened.
+    const r = market.buildMarketReport([day(0, 850), day(1, 840), day(2, 830), day(3, 900)]);
+    assert.equal(r.streakSessions.direction, "up");
+    assert.equal(r.streakSessions.count, 2);
+  });
+
+  test("a run is broken by a single down session", () => {
+    const r = market.buildMarketReport([day(0, 900), day(1, 880), day(2, 890)]);
+    assert.equal(r.streakSessions.direction, "up"); // 880 -> 900
+    assert.equal(r.streakSessions.count, 1);        // 890 -> 880 was a fall
+  });
+
+  test("sector moves are ranked by the size of the move, largest first", () => {
+    const now  = day(0, 842, { pqa: 350, syllabus: 200, mistakes: 180, consistency: 112 });
+    const week = day(7, 800, { pqa: 300, syllabus: 198, mistakes: 190, consistency: 112 });
+    const r = market.buildMarketReport([now, week]);
+    assert.equal(r.sectorMoves[0].key, "pqa");           // +50, the biggest mover
+    assert.equal(r.sectorMoves[0].move.delta, 50);
+    assert.equal(r.sectorMoves.at(-1).key, "consistency"); // unchanged, ranked last
+    assert.equal(r.sectorMoves.at(-1).move.delta, 0);
+  });
+});
+
+describe("score-market: commentary must never lie", () => {
+  test("with no data it says so rather than printing a zero", () => {
+    const c = market.writeCommentary(market.buildMarketReport([]));
+    assert.equal(c.verdict, "UNLISTED");
+    assert.match(c.headline, /AWAITING FIRST CLOSE/);
+    assert.doesNotMatch(c.standfirst, /\bclimb|rise|fell|gain|loss\b/i);
+  });
+
+  test("a single close claims NO trend — this is the core honesty guarantee", () => {
+    const c = market.writeCommentary(market.buildMarketReport([day(0, 620)]));
+    assert.equal(c.verdict, "NEWLY LISTED");
+    assert.match(c.headline, /OPENS AT 620/);
+    // It must not describe movement it cannot possibly know about.
+    assert.doesNotMatch(c.standfirst, /\bclimbs?|rose|rises?|surge|slide|advance of\b/i);
+  });
+
+  test("a real rise is reported as a rise, with the true figure", () => {
+    const c = market.writeCommentary(market.buildMarketReport([
+      day(0, 842, { pqa: 350 }), day(7, 800, { pqa: 308 }),
+    ]));
+    assert.equal(c.verdict, "ADVANCING");
+    assert.match(c.headline, /842/);
+    assert.match(c.standfirst, /42 points/);
+  });
+
+  test("a fall is reported as a fall — no spin", () => {
+    const c = market.writeCommentary(market.buildMarketReport([
+      day(0, 700, { pqa: 250 }), day(7, 800, { pqa: 350 }),
+    ]));
+    assert.equal(c.verdict, "RETREATING");
+    assert.match(c.headline, /EASES TO 700|SLIDES TO 700/);
+    assert.match(c.standfirst, /100 points/);
+    assert.match(c.standfirst, /given up/);
+  });
+
+  test("a flat week says unchanged and does not manufacture a story", () => {
+    const c = market.writeCommentary(market.buildMarketReport([day(0, 700), day(7, 700)]));
+    assert.equal(c.verdict, "UNCHANGED");
+    assert.match(c.headline, /HOLDS AT 700/);
+    assert.match(c.standfirst, /unchanged/i);
+  });
+
+  test("a large move earns stronger language than a small one", () => {
+    const small = market.writeCommentary(market.buildMarketReport([day(0, 810), day(7, 800)]));
+    const large = market.writeCommentary(market.buildMarketReport([day(0, 950), day(7, 700)]));
+    assert.match(small.headline, /CLIMBS TO/);
+    assert.match(large.headline, /SURGES TO/);
+  });
+
+  test("names the sector actually responsible for the move", () => {
+    const c = market.writeCommentary(market.buildMarketReport([
+      day(0, 842, { pqa: 300, syllabus: 250 }),
+      day(7, 800, { pqa: 300, syllabus: 208 }),
+    ]));
+    // Coverage moved (+42); Examination did not. It must credit Coverage.
+    assert.match(c.standfirst, /Coverage/);
+    assert.doesNotMatch(c.standfirst, /Examination leads/);
+  });
+});
+
+describe("score-market: edition metadata", () => {
+  test("edition number increments once per day and is never zero or negative", () => {
+    const a = market.editionNumber(new Date("2026-01-01T12:00:00Z"));
+    const b = market.editionNumber(new Date("2026-01-02T12:00:00Z"));
+    assert.equal(a, 1);
+    assert.equal(b, 2);
+    // A clock before the first edition must not produce a nonsense issue number.
+    assert.ok(market.editionNumber(new Date("2020-01-01T00:00:00Z")) >= 1);
+  });
+
+  test("dateline reads like a newspaper, not an ISO string", () => {
+    const d = market.dateline(new Date("2026-07-13T09:00:00Z"));
+    assert.match(d, /Monday/);
+    assert.match(d, /July/);
+    assert.match(d, /2026/);
+    assert.doesNotMatch(d, /\d{4}-\d{2}-\d{2}/);
   });
 });
