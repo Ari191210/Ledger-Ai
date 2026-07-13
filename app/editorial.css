@@ -1,0 +1,556 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE EDITORIAL LAYER
+   StudyLedger, redesigned as a financial publication.
+
+   Loaded AFTER globals.css and deliberately overrides it. globals.css is 124 KB
+   of an accreted SaaS vocabulary — glass panels, aurora meshes, page glows,
+   bounce easings, 30 palettes. Rewriting it in one pass would be a week of
+   risk. Instead this file:
+
+     1. redefines the base tokens every existing page already reads
+        (--paper, --ink, --sans, --serif, --mono …), so the whole app moves
+        to the new identity at once rather than page by page;
+     2. neutralises the decorative vocabulary by name (§6);
+     3. adds the newspaper mechanics the redesign needs (§7 onward).
+
+   globals.css gets deleted down to nothing once every page is on the system.
+
+   COLOUR: OKLCH and color-mix only. Never rgba(). This is a standing project
+   anti-goal and the reason light/dark stay perceptually even.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ── 1. STOCK & INK ────────────────────────────────────────────────────────
+   Two editions. Not two themes — a theme is a preference, an edition is a
+   printing. Same paper, same press, different time of day.                  */
+
+:root,
+:root[data-edition="print"] {
+  /* The stock. Warm cream, the colour of newsprint that cost something.     */
+  --paper:        oklch(0.966 0.012 85);
+  --paper-2:      oklch(0.940 0.017 84);   /* section tint, sidebars, tables */
+  --paper-3:      oklch(0.908 0.022 82);   /* pull-quote / masthead band     */
+
+  /* The ink. Warm near-black — true #000 on cream reads cheap and vibrates. */
+  --ink:          oklch(0.205 0.010 62);
+  --ink-2:        oklch(0.435 0.012 62);   /* secondary copy, bylines        */
+  --ink-3:        oklch(0.630 0.012 62);   /* captions, metadata, kickers    */
+
+  /* Rules. A newspaper is built from hairlines, not shadows.                */
+  --rule:         color-mix(in srgb, var(--ink) 22%, transparent);
+  --rule-2:       color-mix(in srgb, var(--ink) 11%, transparent);
+  --rule-heavy:   color-mix(in srgb, var(--ink) 78%, transparent);
+
+  /* The market. Restrained — these are the only saturated colours in the
+     entire product, which is exactly why a moving number draws the eye.     */
+  --advancing:    oklch(0.455 0.105 158);  /* index up   */
+  --retreating:   oklch(0.487 0.168  27);  /* index down */
+  --unchanged:    var(--ink-3);
+
+  /* The one brand accent: the salmon of a financial paper. Used for section
+     tints and the masthead rule. Never for buttons, never for glow.         */
+  --salmon:       oklch(0.895 0.048 46);
+  --salmon-ink:   oklch(0.560 0.130 34);
+
+  --edition-shadow: none;
+  color-scheme: light;
+}
+
+:root[data-edition="evening"] {
+  --paper:        oklch(0.170 0.008 72);
+  --paper-2:      oklch(0.212 0.010 72);
+  --paper-3:      oklch(0.258 0.012 70);
+
+  --ink:          oklch(0.935 0.010 86);
+  --ink-2:        oklch(0.720 0.012 82);
+  --ink-3:        oklch(0.545 0.012 82);
+
+  --rule:         color-mix(in srgb, var(--ink) 24%, transparent);
+  --rule-2:       color-mix(in srgb, var(--ink) 12%, transparent);
+  --rule-heavy:   color-mix(in srgb, var(--ink) 80%, transparent);
+
+  /* Lifted for legibility on dark stock — same hue, higher lightness.       */
+  --advancing:    oklch(0.740 0.140 158);
+  --retreating:   oklch(0.685 0.170  27);
+
+  --salmon:       oklch(0.330 0.040 42);
+  --salmon-ink:   oklch(0.760 0.110 36);
+
+  color-scheme: dark;
+}
+
+
+/* ── 2. THE THREE VOICES ───────────────────────────────────────────────────
+   Set in app/layout.tsx via next/font. The legacy aliases below exist because
+   47 tool pages still read --sans / --serif / --mono; they now all resolve to
+   the publication's typefaces, so those pages inherit the redesign for free
+   instead of rendering in a font that no longer loads.                      */
+
+:root {
+  --display: var(--font-display), "Playfair Display", Georgia, serif;
+  --body:    var(--font-body),    "Source Serif 4", Georgia, serif;
+  --data:    var(--font-data),    "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Legacy aliases — every one of these used to point somewhere else.
+     --sans in particular pointed at DM Sans loaded into a variable called
+     --font-inter. There is no sans-serif in this publication; body copy IS
+     the serif, and anything that asked for "sans" wanted running text.      */
+  --sans:  var(--body);
+  --serif: var(--body);
+  --mono:  var(--data);
+  --font-orbitron:   var(--font-display);   /* was Instrument Serif  */
+  --font-inter:      var(--font-body);      /* was DM Sans           */
+  --font-space-mono: var(--font-data);
+  --font-lora:       var(--font-body);
+
+  /* Print geometry. A newspaper has square corners.                          */
+  --radius:      0px;
+  --radius-sm:   0px;
+  --content-max: 1280px;
+  --gutter:      clamp(16px, 3.2vw, 40px);
+  --col-gap:     clamp(20px, 2.4vw, 34px);
+
+  --anim-speed:  1;
+}
+
+
+/* ── 3. THE PAGE ───────────────────────────────────────────────────────────*/
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.58;
+  font-feature-settings: "kern" 1, "liga" 1, "onum" 1;   /* old-style figures */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle stock texture. A single repeating gradient at ~1.5% opacity — enough
+   that the paper is not a flat digital field, cheap enough to cost nothing.
+   Fixed attachment so it reads as the sheet, not as content that scrolls.   */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--ink) 2%, transparent) 0 1px,
+      transparent 1px 3px
+    );
+  mix-blend-mode: multiply;
+}
+:root[data-edition="evening"] body::before { mix-blend-mode: screen; opacity: 0.28; }
+
+/* Everything real sits above the stock. */
+body > * { position: relative; z-index: 1; }
+
+
+/* ── 4. TYPE SCALE ─────────────────────────────────────────────────────────
+   A front page has exactly one voice at maximum volume. The scale is steep on
+   purpose: the gap between the index headline and everything else IS the
+   hierarchy. Sizes are fluid so a phone gets a front page, not a squeezed one. */
+
+.ed-masthead {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(38px, 8.2vw, 92px);
+  line-height: 0.94;
+  letter-spacing: -0.028em;
+  text-transform: uppercase;
+}
+
+.ed-headline {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 62px);
+  line-height: 1.03;
+  letter-spacing: -0.021em;
+  text-wrap: balance;
+}
+
+.ed-headline--lead {           /* the single biggest thing on the page */
+  font-size: clamp(36px, 7.4vw, 84px);
+  line-height: 0.99;
+  letter-spacing: -0.026em;
+}
+
+.ed-headline--section {
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.12;
+  letter-spacing: -0.014em;
+  font-weight: 700;
+}
+
+/* The standfirst: the sentence under the headline that explains the move. */
+.ed-standfirst {
+  font-family: var(--body);
+  font-size: clamp(17px, 1.65vw, 21px);
+  line-height: 1.48;
+  color: var(--ink-2);
+  font-weight: 400;
+  text-wrap: pretty;
+  max-width: 62ch;
+}
+
+/* The kicker: the small caps label above a headline. Mono, tracked, quiet. */
+.ed-kicker {
+  font-family: var(--data);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ed-dateline {
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ed-byline {
+  font-family: var(--body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.ed-body { max-width: 68ch; }
+.ed-body p { margin: 0 0 1.05em; }
+.ed-body p:first-of-type::first-letter {
+  /* Drop cap. One per article, and only in the lead column. */
+  float: left;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 3.35em;
+  line-height: 0.82;
+  padding: 0.04em 0.1em 0 0;
+  color: var(--ink);
+}
+
+.ed-pullquote {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.28;
+  color: var(--ink);
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  margin: 26px 0;
+}
+
+
+/* ── 5. FIGURES ────────────────────────────────────────────────────────────
+   Every number in the product is monospaced and tabular. Two reasons: figures
+   align in a column exactly as they do on a financial page, and a ticking
+   value cannot make the row beside it reflow.                               */
+
+.ed-figure,
+.ed-num {
+  font-family: var(--data);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.01em;
+}
+
+/* The index itself. The largest number in the product, and the only one that
+   is set in the display face — because it is the headline, not a statistic. */
+.ed-index {
+  font-family: var(--display);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 800;
+  font-size: clamp(64px, 13vw, 168px);
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+}
+
+.ed-up      { color: var(--advancing); }
+.ed-down    { color: var(--retreating); }
+.ed-flat    { color: var(--unchanged); }
+
+/* The triangle before a delta. A caret, not an emoji, not an icon font. */
+.ed-up::before   { content: "▲ "; font-size: 0.72em; }
+.ed-down::before { content: "▼ "; font-size: 0.72em; }
+.ed-flat::before { content: "— "; }
+
+
+/* ── 6. SUPPRESSION ────────────────────────────────────────────────────────
+   globals.css still defines the SaaS vocabulary and 47 tool pages still use
+   its class names. Rather than edit 47 files today, neutralise the decoration
+   here. Each of these is a named thing the brief rules out.
+
+   These rules are LOAD-BEARING during the migration and get deleted, along
+   with their targets, once every page is on the editorial system.           */
+
+.glass-card, .gl-pane, .gl-pane-alt, .float-nav, .bento-tilt, .tool-cube,
+.feat-card, .glass, .card-glass {
+  background: var(--paper) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: 1px solid var(--rule-2) !important;
+}
+
+/* Kill every glow, mesh, aurora and blob by name. */
+.mesh-blob, .page-glow, .aurora, .hero-orb, .glow, .film-grain,
+.page-gradient, .tools-background {
+  display: none !important;
+}
+
+/* No lift, no tilt, no scale on hover. A newspaper does not levitate. */
+.tool-cube:hover, .bento-tilt:hover, .feat-card:hover, .glass-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* globals.css:571 gives EVERY bare <button> in the product a translucent glass
+   fill, a backdrop-filter, a rounded radius and a -1px hover lift. It is the
+   single most pervasive piece of the SaaS vocabulary in the codebase — it was
+   putting a frosted grey pill behind the edition toggle in the masthead.
+   A button in a newspaper is ink and a rule. Same selector as globals, and this
+   file loads after it, so it wins without !important. */
+button:not(.btn):not([class*="ui-btn"]) {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+  /* The glass rule also carries an inset white highlight and a drop shadow.
+     Zeroing the background alone leaves a floating grey card behind the text. */
+  box-shadow: none;
+  font-family: var(--data);
+}
+button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
+  background: transparent;
+  transform: none;
+}
+button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
+  transform: none;
+}
+
+/* Buttons: rules and ink, not glass and shimmer. */
+.btn, button.btn, a.btn {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--data) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+
+/* ── 7. THE GRID ───────────────────────────────────────────────────────────
+   Real multi-column, and it must degrade to a reading experience on a phone
+   rather than a stack of cards.                                             */
+
+.ed-page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.ed-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--col-gap);
+}
+
+/* Vertical rules between columns — the defining mark of a broadsheet. */
+.ed-rule-left  { border-left:  1px solid var(--rule); padding-left:  var(--col-gap); }
+.ed-rule-right { border-right: 1px solid var(--rule); padding-right: var(--col-gap); }
+.ed-rule-top   { border-top:   1px solid var(--rule); padding-top:   18px; }
+
+/* The heavy rule under a masthead or above a major section. */
+.ed-rule-heavy { border-top: 3px solid var(--ink); }
+.ed-rule-hair  { border-top: 1px solid var(--rule-2); }
+
+.ed-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--ink);
+  padding-top: 10px;
+  margin-bottom: 18px;
+}
+
+/* Running text in true columns — the browser does the typesetting. */
+.ed-columns {
+  column-count: 2;
+  column-gap: var(--col-gap);
+  column-rule: 1px solid var(--rule-2);
+}
+.ed-columns-3 { column-count: 3; }
+.ed-columns > *:first-child { margin-top: 0; }
+
+@media (max-width: 900px) {
+  .ed-columns, .ed-columns-3 { column-count: 1; column-rule: none; }
+}
+
+
+/* ── 8. TABLES — the financial page ────────────────────────────────────────
+   Sector performance, subject reports, movers. Dense, ruled, no card chrome. */
+
+.ed-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.ed-table thead th {
+  font-family: var(--data);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: left;
+  padding: 0 12px 8px 0;
+  border-bottom: 1px solid var(--ink);
+  white-space: nowrap;
+}
+.ed-table tbody td {
+  padding: 11px 12px 11px 0;
+  border-bottom: 1px solid var(--rule-2);
+  vertical-align: baseline;
+}
+.ed-table tbody tr:last-child td { border-bottom: 0; }
+
+/* Numeric columns right-align and go tabular. Non-negotiable in a table of
+   figures: a ragged right edge on numbers is the mark of an amateur page.   */
+.ed-table .num {
+  text-align: right;
+  font-family: var(--data);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+}
+.ed-table tbody tr:hover td { background: var(--paper-2); }
+
+/* Sector bar — a rule, not a rounded pill. */
+.ed-bar {
+  height: 3px;
+  background: var(--rule-2);
+  position: relative;
+  overflow: hidden;
+}
+.ed-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ink);
+  transform-origin: left center;
+}
+
+
+/* ── 9. THE TICKER ─────────────────────────────────────────────────────────
+   The band under the masthead. Constant motion, so per the motion rules it is
+   linear and it does not stop, start, ease or bounce.                        */
+
+.ed-ticker {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper-2);
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 7px 0;
+}
+.ed-ticker__track {
+  display: inline-flex;
+  gap: 40px;
+  padding-left: 100%;
+  animation: ed-ticker-run 42s linear infinite;
+  will-change: transform;
+}
+.ed-ticker__item {
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+@keyframes ed-ticker-run {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-100%, 0, 0); }
+}
+
+
+/* ── 10. MOTION ────────────────────────────────────────────────────────────
+   "Motion should communicate seriousness and trust."
+
+   So: opacity and small translations only. No scale, no spring, no bounce, no
+   stagger theatre. A page turns; it does not perform. One curve, one duration,
+   used everywhere — repetition is what makes it read as a house style rather
+   than as effects.                                                          */
+
+:root {
+  --ed-ease: cubic-bezier(0.22, 0.61, 0.36, 1);   /* a plain, honest ease-out */
+  --ed-fast: 140ms;
+  --ed-base: 220ms;
+}
+
+.ed-fade    { animation: ed-fade var(--ed-base) var(--ed-ease) both; }
+.ed-fade-up { animation: ed-fade-up var(--ed-base) var(--ed-ease) both; }
+
+@keyframes ed-fade    { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ed-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Links: the underline is the interaction. It thickens; nothing else happens. */
+.ed-link {
+  color: var(--ink);
+  text-decoration: none;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  transition: background-size var(--ed-fast) var(--ed-ease);
+  padding-bottom: 1px;
+}
+.ed-link:hover { background-size: 100% 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-ticker__track { animation: none; padding-left: 0; }
+  .ed-fade, .ed-fade-up { animation: none; opacity: 1; transform: none; }
+}
+
+
+/* ── 11. FOCUS ─────────────────────────────────────────────────────────────*/
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+
+/* ── 12. MOBILE ────────────────────────────────────────────────────────────
+   Equal priority, per the brief. The phone gets a front page — a narrower one,
+   with the same hierarchy — not a column of stacked cards. The grid collapses
+   to a single measure and the type scale carries the structure.             */
+
+@media (max-width: 760px) {
+  body { font-size: 16.5px; }
+  .ed-grid { grid-template-columns: repeat(4, 1fr); }
+  .ed-rule-left, .ed-rule-right {
+    border-left: 0; border-right: 0;
+    padding-left: 0; padding-right: 0;
+  }
+  /* On a phone, a vertical rule between columns becomes a horizontal one
+     between stacked sections — the separation survives the reflow.          */
+  .ed-rule-left  { border-top: 1px solid var(--rule); padding-top: 18px; }
+  .ed-table { font-size: 13.5px; }
+  .ed-table thead th { font-size: 9px; letter-spacing: 0.14em; }
+}
