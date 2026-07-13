@@ -9,7 +9,7 @@ import {
   useTransform,
   AnimatePresence,
   type MotionValue,
-} from "framer-motion"
+} from "motion/react"
 
 interface DockItem {
   title: string

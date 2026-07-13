@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { motion, useReducedMotion, type Easing } from "framer-motion"
+import { motion, useReducedMotion, type Easing } from "motion/react"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
 
