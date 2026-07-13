@@ -310,6 +310,44 @@ body > * { position: relative; z-index: 1; }
   display: none !important;
 }
 
+/* ── RESTORE THE POINTER ───────────────────────────────────────────────────
+   globals.css:346 hides the NATIVE cursor outright:
+
+     @media (pointer: fine) { *, *::before, *::after { cursor: none !important; } }
+
+   That was only ever safe because <Cursor /> painted a dot-and-ring replacement
+   on every mousemove. Unmounting that component (see app/layout.tsx) therefore
+   left the app with NO CURSOR AT ALL on any mouse — not a cosmetic regression,
+   an unusable one.
+
+   The rule cannot simply be deleted from globals.css yet: that file is still
+   shared with 47 unmigrated pages and this is the safe place to correct it.
+   Equal specificity, both !important, and this file loads second — so this wins.
+
+   Give the pointer its meaning back: a hand over what is clickable, a beam over
+   what is editable, an arrow over everything else. A newspaper does not need a
+   bespoke cursor; it needs one that tells the truth about what it is over.     */
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: auto !important; }
+
+  a[href], button, [role="button"], summary,
+  label[for], select, [onclick] {
+    cursor: pointer !important;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+  textarea,
+  [contenteditable="true"] {
+    cursor: text !important;
+  }
+
+  :disabled, [aria-disabled="true"] { cursor: not-allowed !important; }
+  [type="range"] { cursor: grab !important; }
+}
+
+/* The dot and ring themselves, in case anything still renders them. */
+.cur-dot, .cur-ring { display: none !important; }
+
 /* No lift, no tilt, no scale on hover. A newspaper does not levitate. */
 .tool-cube:hover, .bento-tilt:hover, .feat-card:hover, .glass-card:hover {
   transform: none !important;
