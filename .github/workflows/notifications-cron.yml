@@ -37,10 +37,17 @@ jobs:
             exit 1
           fi
 
+          # Must be the CANONICAL host (www). The apex 308-redirects to www, and
+          # curl deliberately DROPS the Authorization header when a redirect
+          # crosses hosts — so adding -L would not fix it, it would turn every
+          # run into a 401. Call www directly.
+          #
+          # This is not hypothetical: every scheduled run from the apex URL
+          # failed with "Expected 200, got 308" and the engine sent nothing.
           code=$(curl -sS -o /tmp/out.json -w "%{http_code}" \
             --max-time 60 \
             -H "Authorization: Bearer $CRON_SECRET" \
-            "https://studyledger.in/api/cron/notifications")
+            "https://www.studyledger.in/api/cron/notifications")
 
           echo "HTTP $code"
           cat /tmp/out.json || true
@@ -50,6 +57,11 @@ jobs:
           # this workflow exists to prevent.
           if [ "$code" = "401" ]; then
             echo "::error::401 — CRON_SECRET here does not match the one in Vercel."
+            exit 1
+          fi
+          if [ "$code" = "308" ] || [ "$code" = "301" ] || [ "$code" = "302" ]; then
+            echo "::error::$code — the canonical host moved. Update the URL above;"
+            echo "do NOT add -L, curl strips the Authorization header across hosts."
             exit 1
           fi
           if [ "$code" != "200" ]; then
