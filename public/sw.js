@@ -1,13 +1,23 @@
-const CACHE_NAME = 'studyledger-v1'
-const STATIC_ASSETS = [
-  '/',
-  '/dashboard',
-  '/manifest.json',
-]
+const CACHE_NAME = 'studyledger-v2'
+
+// Precached one URL at a time, each failure swallowed — deliberately NOT
+// cache.addAll(). addAll() is atomic: a single failing URL (a redirect, a 401,
+// a cold 500) rejects the whole install, the worker never activates, and every
+// `navigator.serviceWorker.ready` in the app then hangs forever.
+//
+// That is what killed push. The opt-in card awaited `ready` before deciding to
+// render, so it never rendered, so nobody could subscribe, so
+// `push_subscriptions` stayed empty and the notification engine sent nothing.
+// '/dashboard' was in this list: an auth-gated route, the most redirect-prone
+// URL on the site. Precaching is a nice-to-have. It must never block activation.
+const STATIC_ASSETS = ['/', '/manifest.json', '/icon-192.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => Promise.all(STATIC_ASSETS.map((url) => cache.add(url).catch(() => {}))))
+      .catch(() => {})
   )
   self.skipWaiting()
 })
@@ -22,14 +32,40 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
-  // Network-first for API routes, cache-first for static assets
-  if (event.request.url.includes('/api/')) {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)))
+  const req = event.request
+  if (req.method !== 'GET') return
+
+  // Documents are network-first. A Next.js HTML document references
+  // content-hashed chunks; serving a stale one from the cache after a deploy
+  // points the browser at chunk URLs that no longer exist on the CDN and the
+  // app boots into a blank screen. Cache is the offline fallback only.
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok && res.type === 'basic' && !res.redirected) {
+            const copy = res.clone()
+            caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {})
+          }
+          return res
+        })
+        .catch(() =>
+          caches.match(req).then((cached) => cached || caches.match('/').then((root) => root || Response.error()))
+        )
+    )
     return
   }
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
-  )
+
+  // API: always the network. The cache is a last resort, never a shortcut.
+  if (req.url.includes('/api/')) {
+    event.respondWith(
+      fetch(req).catch(() => caches.match(req).then((cached) => cached || Response.error()))
+    )
+    return
+  }
+
+  // Everything else (content-hashed chunks, fonts, images) — cache-first is safe.
+  event.respondWith(caches.match(req).then((cached) => cached || fetch(req)))
 })
 
 self.addEventListener('push', (event) => {
