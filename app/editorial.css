@@ -109,17 +109,47 @@
   --body:    var(--font-body),    "Source Serif 4", Georgia, serif;
   --data:    var(--font-data),    "IBM Plex Mono", ui-monospace, monospace;
 
-  /* Legacy aliases — every one of these used to point somewhere else.
-     --sans in particular pointed at DM Sans loaded into a variable called
-     --font-inter. There is no sans-serif in this publication; body copy IS
-     the serif, and anything that asked for "sans" wanted running text.      */
+  /* Legacy aliases, remapped INSIDE the shell so any markup that still asks for
+     the old names lands on the right voice instead of a font that no longer
+     loads. Every one of these used to point somewhere else.
+
+     The mapping is not arbitrary — it follows what each alias was USED for:
+
+       --serif  headings, in globals.css. So it takes the DISPLAY face. Mapping
+                it to the body face (as this file first did) is why every heading
+                on the front page rendered in Source Serif and the publication
+                had no display voice at all.
+       --sans   body copy, despite the name. There is no sans-serif in this
+                publication: anything that asked for "sans" wanted running text.
+       --prose  long-form copy. Body.
+       --mono   figures and metadata. Data.                                    */
   --sans:  var(--body);
-  --serif: var(--body);
+  --serif: var(--display);
+  --prose: var(--body);
   --mono:  var(--data);
   --font-orbitron:   var(--font-display);   /* was Instrument Serif  */
   --font-inter:      var(--font-body);      /* was DM Sans           */
   --font-space-mono: var(--font-data);
   --font-lora:       var(--font-body);
+
+  /* ── THE CORAL IS RETIRED, INSIDE THE SHELL ──────────────────────────────
+     globals.css:196-197 defines --cinnabar-ink: #ff7c5c — a coral that appears
+     70+ times in that file alone and is the single loudest "AI startup, 2025"
+     signal left in the product. It is also a raw hex, which the project's own
+     anti-goals forbid.
+
+     It is NOT redefined globally. A legacy route's coral is that route's
+     design, and it stays until that route migrates — retiring it document-wide
+     would restyle 46 pages, which is precisely the bleed Phase 0.5 removed.
+
+     In here, the accent is ink. A newspaper's emphasis is weight and rule, not
+     hue; the only saturated colours in the publication are the market's, and
+     that is exactly why a moving figure catches the eye.                      */
+  --cinnabar:     var(--ink);
+  --cinnabar-ink: var(--ink);
+  --highlight:    color-mix(in srgb, var(--ink) 10%, transparent);
+  --page-glow-a:  transparent;
+  --page-glow-b:  transparent;
 
   /* Print geometry. A newspaper has square corners.                          */
   --radius:      0px;
@@ -182,6 +212,80 @@
 /* Everything real sits above the stock. */
 .ed-root > * { position: relative; z-index: 1; }
 
+
+/* ── 3b. BASE HIERARCHY ────────────────────────────────────────────────────
+   PHASE 1. The publication's voice applied to bare elements, not just to
+   hand-tagged .ed-* classes.
+
+   Without this, an <h2> inside the shell inherits the body face and a migrated
+   page has no display voice unless every heading is manually classed. A design
+   system that only works when you remember to invoke it is not a system — it is
+   a suggestion. Markup that says "this is a heading" should get the heading.
+
+   Scoped, like everything else here: a legacy <h2> is untouched.             */
+
+[data-ui="editorial"] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  line-height: 1.12;
+  text-wrap: balance;               /* no orphaned last word in a headline */
+  color: var(--ink);
+  margin: 0 0 0.4em;
+}
+
+/* A steep scale. The gap between levels IS the hierarchy — a flat scale is why
+   SaaS pages read as undifferentiated. Fluid, so a phone gets a front page
+   rather than a squeezed one. */
+[data-ui="editorial"] h1 { font-size: clamp(30px, 5.2vw, 58px); line-height: 1.03; letter-spacing: -0.024em; font-weight: 800; }
+[data-ui="editorial"] h2 { font-size: clamp(24px, 3.2vw, 36px); letter-spacing: -0.02em; }
+[data-ui="editorial"] h3 { font-size: clamp(19px, 2.1vw, 24px); }
+[data-ui="editorial"] h4 { font-size: clamp(17px, 1.7vw, 19px); }
+[data-ui="editorial"] :is(h5, h6) {
+  font-family: var(--data);         /* the small labels are metadata, not headlines */
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+[data-ui="editorial"] :is(p, li, dd, blockquote) {
+  font-family: var(--body);
+  color: var(--ink);
+}
+[data-ui="editorial"] p { margin: 0 0 1.05em; max-width: 72ch; }
+
+/* Figures are monospaced and tabular everywhere, so a column of numbers aligns
+   and a ticking value cannot reflow the row beside it. */
+[data-ui="editorial"] :is(code, kbd, samp, time, data) {
+  font-family: var(--data);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+[data-ui="editorial"] :is(th, td) { font-variant-numeric: tabular-nums lining-nums; }
+
+[data-ui="editorial"] a { color: var(--ink); }
+
+[data-ui="editorial"] small {
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+
+/* ── SECTION DIVIDERS ──────────────────────────────────────────────────────
+   A newspaper is built from hairlines, not shadows. Three weights, and they are
+   the ONLY structural device: a heavy rule opens a section, a hairline
+   separates items within it, and a vertical rule divides columns.            */
+
+[data-ui="editorial"] hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 26px 0;
+}
+[data-ui="editorial"] hr.heavy  { border-top: 2px solid var(--ink); }
+[data-ui="editorial"] hr.hair   { border-top: 1px solid var(--rule-2); }
 
 /* ── 4. TYPE SCALE ─────────────────────────────────────────────────────────
    A front page has exactly one voice at maximum volume. The scale is steep on
