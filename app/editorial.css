@@ -24,8 +24,17 @@
    Two editions. Not two themes — a theme is a preference, an edition is a
    printing. Same paper, same press, different time of day.                  */
 
-:root,
-:root[data-edition="print"] {
+/* SCOPED. These tokens live on the shell, NOT on :root.
+
+   On :root they redefined --paper / --ink / --sans / --serif / --mono / --radius
+   for the whole document, which is what silently changed the type and squared
+   the corners on all 46 un-migrated routes. Declared here instead, they resolve
+   only for the shell and its descendants: a custom property is inherited from
+   the NEAREST ancestor that declares it, so inside the shell these win, and
+   outside it the legacy palette script's values on :root still do.
+
+   The two systems are therefore invisible to each other, by construction.     */
+[data-ui="editorial"] {
   /* The stock. Warm cream, the colour of newsprint that cost something.     */
   --paper:        oklch(0.966 0.012 85);
   --paper-2:      oklch(0.940 0.017 84);   /* section tint, sidebars, tables */
@@ -56,7 +65,11 @@
   color-scheme: light;
 }
 
-:root[data-edition="evening"] {
+/* The evening edition. data-edition lives on <html> (stamped pre-paint); the
+   scope marker lives on the shell. Combining them means the edition only ever
+   repaints the editorial system — a legacy route carries the attribute and is
+   entirely unaffected by it. */
+:root[data-edition="evening"] [data-ui="editorial"] {
   --paper:        oklch(0.170 0.008 72);
   --paper-2:      oklch(0.212 0.010 72);
   --paper-3:      oklch(0.258 0.012 70);
@@ -86,7 +99,12 @@
    the publication's typefaces, so those pages inherit the redesign for free
    instead of rendering in a font that no longer loads.                      */
 
-:root {
+/* SCOPED. On :root, the --sans / --serif / --mono remaps below silently changed
+   the typeface on every one of the 46 un-migrated routes — globals.css:178-181
+   composes those three from Orsiri and the legacy Google faces, and this block
+   was overwriting them document-wide. Confined to the shell, the legacy
+   definitions survive untouched outside it. */
+[data-ui="editorial"] {
   --display: var(--font-display), "Playfair Display", Georgia, serif;
   --body:    var(--font-body),    "Source Serif 4", Georgia, serif;
   --data:    var(--font-data),    "IBM Plex Mono", ui-monospace, monospace;
@@ -116,9 +134,21 @@
 
 /* ── 3. THE PAGE ───────────────────────────────────────────────────────────*/
 
-html { -webkit-text-size-adjust: 100%; }
+/* THE SHELL PAINTS THE PAPER — not <body>.
 
-body {
+   <body> is declared in the root layout and shared with all 46 un-migrated
+   routes, whose background comes from globals.css and the legacy palette script.
+   Styling <body> here would therefore repaint every legacy page: it is exactly
+   how the cream stock leaked across the whole app.
+
+   So the shell covers the viewport and carries the stock itself. The body
+   underneath is never seen. The one honest edge: during overscroll rubber-band,
+   a sliver of body colour can show at the extremes. 100dvh makes that the only
+   place it is reachable.                                                       */
+.ed-root {
+  min-height: 100dvh;
+  position: relative;
+  isolation: isolate;               /* own stacking context; nothing leaks out */
   background: var(--paper);
   color: var(--ink);
   font-family: var(--body);
@@ -127,12 +157,12 @@ body {
   font-feature-settings: "kern" 1, "liga" 1, "onum" 1;   /* old-style figures */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Subtle stock texture. A single repeating gradient at ~1.5% opacity — enough
-   that the paper is not a flat digital field, cheap enough to cost nothing.
-   Fixed attachment so it reads as the sheet, not as content that scrolls.   */
-body::before {
+   that the paper is not a flat digital field, cheap enough to cost nothing.  */
+.ed-root::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -147,10 +177,10 @@ body::before {
     );
   mix-blend-mode: multiply;
 }
-:root[data-edition="evening"] body::before { mix-blend-mode: screen; opacity: 0.28; }
+:root[data-edition="evening"] .ed-root::before { mix-blend-mode: screen; opacity: 0.28; }
 
 /* Everything real sits above the stock. */
-body > * { position: relative; z-index: 1; }
+.ed-root > * { position: relative; z-index: 1; }
 
 
 /* ── 4. TYPE SCALE ─────────────────────────────────────────────────────────
@@ -287,15 +317,24 @@ body > * { position: relative; z-index: 1; }
 
 
 /* ── 6. SUPPRESSION ────────────────────────────────────────────────────────
-   globals.css still defines the SaaS vocabulary and 47 tool pages still use
-   its class names. Rather than edit 47 files today, neutralise the decoration
-   here. Each of these is a named thing the brief rules out.
+   ALL SCOPED. Every rule below is confined to [data-ui="editorial"].
 
-   These rules are LOAD-BEARING during the migration and get deleted, along
-   with their targets, once every page is on the editorial system.           */
+   These previously matched document-wide. That is what flattened cards, killed
+   glows, restyled every button, and — most damagingly — overrode the cursor on
+   46 pages that had never been migrated and still NEED the vocabulary these
+   rules destroy. A legacy page's glass card is not a defect; it is that page's
+   design, and it stays until that page is migrated.
 
-.glass-card, .gl-pane, .gl-pane-alt, .float-nav, .bento-tilt, .tool-cube,
-.feat-card, .glass, .card-glass {
+   If a migrated page still carries a legacy class (mid-migration, some will),
+   these neutralise it INSIDE the shell only.
+
+   All of it — these rules and their targets — is deleted when the last route
+   has migrated and globals.css goes with it.                                  */
+
+[data-ui="editorial"] :is(
+  .glass-card, .gl-pane, .gl-pane-alt, .float-nav, .bento-tilt, .tool-cube,
+  .feat-card, .glass, .card-glass
+) {
   background: var(--paper) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -304,63 +343,64 @@ body > * { position: relative; z-index: 1; }
   border: 1px solid var(--rule-2) !important;
 }
 
-/* Kill every glow, mesh, aurora and blob by name. */
-.mesh-blob, .page-glow, .aurora, .hero-orb, .glow, .film-grain,
-.page-gradient, .tools-background {
+/* Kill every glow, mesh, aurora and blob by name — inside the shell only. */
+[data-ui="editorial"] :is(
+  .mesh-blob, .page-glow, .aurora, .hero-orb, .glow, .film-grain,
+  .page-gradient, .tools-background
+) {
   display: none !important;
 }
 
-/* ── RESTORE THE POINTER ───────────────────────────────────────────────────
+/* ── THE POINTER ───────────────────────────────────────────────────────────
    globals.css:346 hides the NATIVE cursor outright:
 
      @media (pointer: fine) { *, *::before, *::after { cursor: none !important; } }
 
-   That was only ever safe because <Cursor /> painted a dot-and-ring replacement
-   on every mousemove. Unmounting that component (see app/layout.tsx) therefore
-   left the app with NO CURSOR AT ALL on any mouse — not a cosmetic regression,
-   an unusable one.
+   That is correct ON A LEGACY ROUTE, because <Cursor /> paints a dot-and-ring
+   replacement there. It is fatal on an editorial route, which mounts no such
+   component — the earlier global unmount of <Cursor /> combined with that rule
+   left the entire app with NO CURSOR AT ALL.
 
-   The rule cannot simply be deleted from globals.css yet: that file is still
-   shared with 47 unmigrated pages and this is the safe place to correct it.
-   Equal specificity, both !important, and this file loads second — so this wins.
+   So: legacy routes keep cursor:none AND get <Cursor /> back (see
+   components/legacy-chrome.tsx). Editorial routes get a real pointer, restored
+   here, scoped. Each system is now internally consistent.
 
-   Give the pointer its meaning back: a hand over what is clickable, a beam over
-   what is editable, an arrow over everything else. A newspaper does not need a
-   bespoke cursor; it needs one that tells the truth about what it is over.     */
+   The descendant selector raises specificity above globals' bare `*`, and the
+   !important matches theirs — so inside the shell this wins.                  */
 @media (pointer: fine) {
-  *, *::before, *::after { cursor: auto !important; }
+  [data-ui="editorial"],
+  [data-ui="editorial"] *,
+  [data-ui="editorial"] *::before,
+  [data-ui="editorial"] *::after { cursor: auto !important; }
 
-  a[href], button, [role="button"], summary,
-  label[for], select, [onclick] {
-    cursor: pointer !important;
-  }
+  [data-ui="editorial"] :is(
+    a[href], button, [role="button"], summary, label[for], select, [onclick]
+  ) { cursor: pointer !important; }
 
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
-  textarea,
-  [contenteditable="true"] {
-    cursor: text !important;
-  }
+  [data-ui="editorial"] :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+    textarea,
+    [contenteditable="true"]
+  ) { cursor: text !important; }
 
-  :disabled, [aria-disabled="true"] { cursor: not-allowed !important; }
-  [type="range"] { cursor: grab !important; }
+  [data-ui="editorial"] :is(:disabled, [aria-disabled="true"]) { cursor: not-allowed !important; }
+  [data-ui="editorial"] [type="range"] { cursor: grab !important; }
 }
 
-/* The dot and ring themselves, in case anything still renders them. */
-.cur-dot, .cur-ring { display: none !important; }
+/* The dot and ring, should a legacy component ever render inside the shell. */
+[data-ui="editorial"] :is(.cur-dot, .cur-ring) { display: none !important; }
 
 /* No lift, no tilt, no scale on hover. A newspaper does not levitate. */
-.tool-cube:hover, .bento-tilt:hover, .feat-card:hover, .glass-card:hover {
+[data-ui="editorial"] :is(.tool-cube, .bento-tilt, .feat-card, .glass-card):hover {
   transform: none !important;
   box-shadow: none !important;
 }
 
 /* globals.css:571 gives EVERY bare <button> in the product a translucent glass
-   fill, a backdrop-filter, a rounded radius and a -1px hover lift. It is the
-   single most pervasive piece of the SaaS vocabulary in the codebase — it was
-   putting a frosted grey pill behind the edition toggle in the masthead.
-   A button in a newspaper is ink and a rule. Same selector as globals, and this
-   file loads after it, so it wins without !important. */
-button:not(.btn):not([class*="ui-btn"]) {
+   fill, a backdrop-filter, a rounded radius and a -1px hover lift. Scoped, it
+   only reshapes buttons inside the shell; a legacy page keeps its own buttons,
+   which is that page's design until it migrates. */
+[data-ui="editorial"] button:not(.btn):not([class*="ui-btn"]) {
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -370,16 +410,16 @@ button:not(.btn):not([class*="ui-btn"]) {
   box-shadow: none;
   font-family: var(--data);
 }
-button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
+[data-ui="editorial"] button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
   background: transparent;
   transform: none;
 }
-button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
+[data-ui="editorial"] button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
   transform: none;
 }
 
 /* Buttons: rules and ink, not glass and shimmer. */
-.btn, button.btn, a.btn {
+[data-ui="editorial"] :is(.btn, button.btn, a.btn) {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-radius: 0 !important;
@@ -534,7 +574,8 @@ button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
    used everywhere — repetition is what makes it read as a house style rather
    than as effects.                                                          */
 
-:root {
+/* SCOPED, like every other token block in this file. */
+[data-ui="editorial"] {
   --ed-ease: cubic-bezier(0.22, 0.61, 0.36, 1);   /* a plain, honest ease-out */
   --ed-fast: 140ms;
   --ed-base: 220ms;
@@ -567,7 +608,9 @@ button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
 
 /* ── 11. FOCUS ─────────────────────────────────────────────────────────────*/
 
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+/* SCOPED. Unscoped, this replaced the focus ring on all 46 legacy routes —
+   including squaring it off, which globals.css does not do. */
+[data-ui="editorial"] :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
   border-radius: 0;
@@ -580,7 +623,9 @@ button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
    to a single measure and the type scale carries the structure.             */
 
 @media (max-width: 760px) {
-  body { font-size: 16.5px; }
+  /* .ed-root, not body — on body this shrank the base type on every legacy
+     route at phone width. */
+  .ed-root { font-size: 16.5px; }
   .ed-grid { grid-template-columns: repeat(4, 1fr); }
   .ed-rule-left, .ed-rule-right {
     border-left: 0; border-right: 0;

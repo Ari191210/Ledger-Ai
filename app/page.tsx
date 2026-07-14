@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { EditorialShell } from "@/components/editorial/shell";
 import { Masthead, EditionBar, SectionStrip } from "@/components/editorial/masthead";
 import { IndexReport, Sparkline } from "@/components/editorial/index-report";
 import { buildMarketReport, type ScoreSnapshot } from "@/lib/score-market";
@@ -73,7 +74,13 @@ const TICKER = [
 export default function FrontPage() {
   const report = buildMarketReport(SPECIMEN);
 
+  // <EditorialShell> emits data-ui="editorial" — the marker every rule in
+  // app/editorial.css is scoped beneath. Without it this page would render with
+  // the legacy design system, exactly as the other 46 routes still do.
+  // This route is listed in lib/editorial-routes.ts, which is also what tells
+  // <LegacyChrome /> not to mount the cursor, shader and gradient here.
   return (
+    <EditorialShell>
     <main id="main-content">
       <div className="ed-page">
         <Masthead />
@@ -331,5 +338,6 @@ export default function FrontPage() {
         }
       `}</style>
     </main>
+    </EditorialShell>
   );
 }
