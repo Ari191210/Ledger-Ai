@@ -1,5 +1,11 @@
 # Ruflo — Claude Code Configuration
 
+## ⚖️ Product Constitution — READ FIRST
+
+**Before any UI work, redesign, new page or surface, or any change to the dashboard, homepage, or editorial system: read [`PRODUCT_CONSTITUTION.md`](./PRODUCT_CONSTITUTION.md) and comply with it.**
+
+It is a permanent, binding rule set — no AI clichés (glassmorphism, glowing gradients, orbs, particles, custom cursors, sci-fi visuals), no AI-SaaS copy ("unlock your potential", "supercharge"), no fabricated intelligence (honest empty states when data is absent), editorial / financial-publication typography, and "academic intelligence platform" — never "AI study assistant". **Violating any rule requires explicit founder approval; do not ship a violation and mention it afterward.** Apply the decision test before shipping: *would the Financial Times / Bloomberg / The Economist ship this?* If no, don't build it.
+
 ## Rules
 
 - Do what has been asked; nothing more, nothing less
