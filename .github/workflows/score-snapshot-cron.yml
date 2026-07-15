@@ -1,0 +1,57 @@
+name: Daily score close
+
+# Writes one Ledger Score snapshot per user per day into score_history.
+# Without this, the score is a point-in-time number with no past — no movement,
+# no trend, no momentum, no highs or lows. The entire "index" identity of the
+# product depends on this job actually running.
+#
+# It lives here rather than in vercel.json because Vercel Hobby caps cron count
+# and frequency, and vercel.json already declares three. GitHub Actions
+# schedules are free. Same CRON_SECRET as the notification engine.
+#
+# Setup: Settings → Secrets and variables → Actions → CRON_SECRET
+# (must match the CRON_SECRET set in Vercel).
+
+on:
+  schedule:
+    # 18:30 UTC = midnight IST. The close should land at the end of the
+    # student's day, not the middle of it — most study activity is logged in
+    # the evening, and a snapshot taken at 00:00 UTC would cut the day in half.
+    - cron: "30 18 * * *"
+  workflow_dispatch: # run by hand to test or to backfill today
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Take the daily close
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET is not set in this repo's Actions secrets."
+            echo "The endpoint is fail-closed, so every call would 401 and the"
+            echo "score series would silently never build. Add it under"
+            echo "Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" \
+            --max-time 300 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "https://studyledger.in/api/cron/score-snapshot")
+
+          echo "HTTP $code"
+          cat /tmp/out.json || true
+          echo
+
+          # Fail loudly. A silently-missing close leaves a hole in the series
+          # that can never be backfilled — the inputs are current-state only.
+          if [ "$code" = "401" ]; then
+            echo "::error::401 — CRON_SECRET here does not match the one in Vercel."
+            exit 1
+          fi
+          if [ "$code" != "200" ]; then
+            echo "::error::Expected 200, got $code."
+            exit 1
+          fi
