@@ -10,19 +10,15 @@ import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import { track } from "@/lib/posthog";
-import FeaturesShowcase from "@/components/features-showcase";
 import { GooeyInput } from "@/components/ui/gooey-input";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import PushOptIn from "@/components/push-opt-in";
 import EmptyChair from "@/components/empty-chair";
 import PersonalEdition from "@/components/dashboard/personal-edition";
-import dynamic from "next/dynamic";
-// AnimatedList/NumberTicker/BorderBeam inside pull the motion lib (~45 KB gz);
-// the card sits below the fold, so split it out of first load.
-const LiveActivityCard = dynamic(
-  () => import("@/components/live-activity-card").then(m => m.LiveActivityCard),
-  { ssr: false, loading: () => null },
-);
+import ByTheNumbers from "@/components/dashboard/by-the-numbers";
+import AcademicMarkets from "@/components/dashboard/academic-markets";
+// Phase 3A: Features Showcase and Live Activity are no longer mounted on the
+// dashboard. Their component files are unchanged — only the mounts were removed.
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -188,35 +184,6 @@ function timeAgo(iso: string) {
   if (m < 1) return "just now";
   if (m < 60) return `${m}m ago`;
   return `${Math.floor(m / 60)}h ago`;
-}
-
-function useLiveActivity() {
-  const [activeCount, setActiveCount] = useState<number | null>(null);
-  const [feed, setFeed] = useState<{ tool: string; created_at: string }[]>([]);
-
-  useEffect(() => {
-    async function load() {
-      const fifteenAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-      const [{ count }, { data }] = await Promise.all([
-        supabase
-          .from("ai_history")
-          .select("user_id", { count: "exact", head: true })
-          .gte("created_at", fifteenAgo),
-        supabase
-          .from("ai_history")
-          .select("tool, created_at")
-          .order("created_at", { ascending: false })
-          .limit(8),
-      ]);
-      setActiveCount(count ?? 0);
-      setFeed(data ?? []);
-    }
-    load();
-    const t = setInterval(load, 60000);
-    return () => clearInterval(t);
-  }, []);
-
-  return { activeCount, feed };
 }
 
 function usePersonalisedOrder(userId: string | undefined) {
@@ -1037,8 +1004,7 @@ export default function Dashboard() {
       })
       .catch(() => {});
   }, [user]);
-  const { streak, bestStreak, sessionsToday, weakTopics, nextExam, notesCount, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
-  const { activeCount, feed } = useLiveActivity();
+  const { streak, bestStreak, sessionsToday, weakTopics, nextExam, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
   const toolFreq = usePersonalisedOrder(user?.id);
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -1179,7 +1145,23 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Jump back in — recently used tools, at the top of the dashboard */}
+      {/* Personal Edition — the lead story, first content section (Phase 3A).
+          Academic Markets + The Archive render directly beneath it. */}
+      {dashLayout.score &&
+        (user ? (
+          <PersonalEdition
+            userId={user.id}
+            createdAt={user.created_at}
+            fallback={<LedgerScoreWidget />}
+          />
+        ) : (
+          <LedgerScoreWidget />
+        ))}
+
+      {/* Academic Markets + The Archive — editorial desks (Phase 3A) */}
+      {user && <AcademicMarkets userId={user.id} />}
+
+      {/* Jump back in — recently used tools */}
       {(() => {
         const allTools = TOOL_CATEGORIES.flatMap(c => c.tools);
         const recent = recentSlugs.slice(0, 6)
@@ -1253,32 +1235,16 @@ export default function Dashboard() {
         );
       })()}
 
-      {/* Stats bar — 5 bento cells */}
-      <div className="mob-stats" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 32 }}>
-        {[
-          { label: "Study streak",    value: streak > 0 ? `${streak}d` : "—",     sub: streak === 0 ? "Start today" : streak === 1 ? "Keep it up" : "On a roll", hot: streak >= 3 },
-          { label: "Sessions today",  value: String(sessionsToday),                sub: sessionsToday === 0 ? "None yet" : `${sessionsToday * 25} min focused`, hot: false },
-          { label: "Notes saved",     value: String(notesCount),                   sub: notesCount === 0 ? "Generate your first" : "In your library", hot: false },
-          { label: "Papers done",     value: String(papersCount),                  sub: papersCount === 0 ? "Start practising" : "Sessions completed", hot: false },
-          { label: "Next exam",       value: nextExam ? `${nextExam.days}d` : "—", sub: nextExam ? nextExam.name : "Add below", hot: !!nextExam && nextExam.days <= 7 },
-        ].map((s, i) => (
-          <div key={i} className="dash-stat glass-card" style={{ padding: "18px 20px", borderLeft: s.hot ? "2px solid var(--cinnabar)" : undefined }}>
-            <div className="mono" style={{ color: s.hot ? "var(--cinnabar-ink)" : "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>{s.label}</div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.025em", lineHeight: 1, marginTop: 6, color: s.hot ? "var(--cinnabar-ink)" : "var(--ink)" }}>{s.value}</div>
-            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 4 }}>{s.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Live activity section */}
-      <LiveActivityCard
-        activeCount={activeCount}
-        feed={feed}
-        toolLabel={(slug) =>
-          TOOL_CATEGORIES.flatMap(c => c.tools).find(t => t.slug === slug)?.ttl
-          ?? slug.replace(/-/g, " ")
-        }
+      {/* By the Numbers — the stats strip reframed as a ruled newspaper band
+          (Phase 3A). Replaces the glass bento with the same real metrics. */}
+      <ByTheNumbers
+        streak={streak}
+        papers={papersCount}
+        sessionsToday={sessionsToday}
+        nextExam={nextExam}
       />
+
+      {/* Live Activity removed from the dashboard (Phase 3A). */}
 
       {/* Weak topics strip */}
       {weakTopics.length > 0 && (
@@ -1311,19 +1277,6 @@ export default function Dashboard() {
 
       {/* Recently used — now shown at top, skip here */}
 
-      {/* Ledger Score — the Personal Edition market report (state A/B), with the
-          legacy point-in-time widget as the error/offline fallback (state C). */}
-      {dashLayout.score &&
-        (user ? (
-          <PersonalEdition
-            userId={user.id}
-            createdAt={user.created_at}
-            fallback={<LedgerScoreWidget />}
-          />
-        ) : (
-          <LedgerScoreWidget />
-        ))}
-
       {/* Exam schedule */}
       {dashLayout.exams && user && (
         <ExamSchedule
@@ -1342,7 +1295,7 @@ export default function Dashboard() {
       )}
 
       {/* Features nobody else ships */}
-      {dashLayout.features && <FeaturesShowcase />}
+      {/* Features Showcase removed from the dashboard (Phase 3A). */}
 
       {/* Favorites strip */}
       {favSlugs.size > 0 && (() => {
