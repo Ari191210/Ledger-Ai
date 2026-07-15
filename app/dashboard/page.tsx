@@ -15,6 +15,7 @@ import { GooeyInput } from "@/components/ui/gooey-input";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import PushOptIn from "@/components/push-opt-in";
 import EmptyChair from "@/components/empty-chair";
+import PersonalEdition from "@/components/dashboard/personal-edition";
 import dynamic from "next/dynamic";
 // AnimatedList/NumberTicker/BorderBeam inside pull the motion lib (~45 KB gz);
 // the card sits below the fold, so split it out of first load.
@@ -1310,8 +1311,18 @@ export default function Dashboard() {
 
       {/* Recently used — now shown at top, skip here */}
 
-      {/* Ledger Score */}
-      {dashLayout.score && <LedgerScoreWidget />}
+      {/* Ledger Score — the Personal Edition market report (state A/B), with the
+          legacy point-in-time widget as the error/offline fallback (state C). */}
+      {dashLayout.score &&
+        (user ? (
+          <PersonalEdition
+            userId={user.id}
+            createdAt={user.created_at}
+            fallback={<LedgerScoreWidget />}
+          />
+        ) : (
+          <LedgerScoreWidget />
+        ))}
 
       {/* Exam schedule */}
       {dashLayout.exams && user && (
