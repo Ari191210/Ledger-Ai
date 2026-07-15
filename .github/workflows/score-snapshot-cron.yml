@@ -39,7 +39,7 @@ jobs:
           code=$(curl -sS -o /tmp/out.json -w "%{http_code}" \
             --max-time 300 \
             -H "Authorization: Bearer $CRON_SECRET" \
-            "https://studyledger.in/api/cron/score-snapshot")
+            "https://www.studyledger.in/api/cron/score-snapshot")
 
           echo "HTTP $code"
           cat /tmp/out.json || true
