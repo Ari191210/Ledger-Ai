@@ -158,7 +158,7 @@ export default function RootLayout({
               "name": "StudyLedger",
               "url": "https://studyledger.in",
               "logo": "https://studyledger.in/icon-512.png",
-              "description": "AI-powered student OS with a live Ledger Score for Indian board exam preparation",
+              "description": "An academic intelligence platform built around a live Ledger Score — a 0–1000 exam-readiness score — for Indian board exam preparation",
               "contactPoint": {
                 "@type": "ContactPoint",
                 "email": "hello@studyledger.in",
@@ -179,7 +179,7 @@ export default function RootLayout({
                   "name": "What is StudyLedger?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "StudyLedger is an AI-powered student operating system built around the Ledger Score - a live exam-readiness score out of 1000 - with a study planner, past paper analyser, flashcards, and doubt solver, board-aware for CBSE, ICSE, IB, IGCSE and more.",
+                    "text": "StudyLedger is an academic intelligence platform built around the Ledger Score - a live exam-readiness score out of 1000 - with a study planner, past paper analyser, flashcards, and doubt solver, board-aware for CBSE, ICSE, IB, IGCSE and more.",
                   },
                 },
                 {

@@ -12,7 +12,7 @@ const SECTIONS: Section[] = [
     items: [
       {
         q: "What is StudyLedger?",
-        a: "An AI-powered study platform for students preparing for board exams and entrance tests. Upload your syllabus, study with the full AI toolkit, and track your exam readiness with a live Ledger Score that updates every session.",
+        a: "An academic intelligence platform for students preparing for board exams and entrance tests. Upload your syllabus, work through the full study toolkit, and track your exam readiness with a live Ledger Score that updates every session.",
       },
       {
         q: "Which boards and exams are supported?",
