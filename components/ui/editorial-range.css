@@ -1,0 +1,82 @@
+/* Editorial range input — flat, financial-publication slider.
+   No glass, no bounce. Cinnabar fill on a hairline rule track. */
+
+.erange {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.erange-icon {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.erange-value {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  flex-shrink: 0;
+  min-width: 2.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.erange-input {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  margin: 8px 0;
+  border-radius: 0;
+  cursor: pointer;
+  outline: none;
+  backdrop-filter: none;
+  background: linear-gradient(
+    to right,
+    var(--cinnabar-ink) 0%,
+    var(--cinnabar-ink) var(--erange-pct, 0%),
+    var(--rule) var(--erange-pct, 0%),
+    var(--rule) 100%
+  );
+}
+
+/* Thumb — small flat editorial marker */
+.erange-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 11px;
+  height: 16px;
+  border: none;
+  border-radius: 0;
+  background: var(--cinnabar-ink);
+  cursor: pointer;
+}
+.erange-input::-moz-range-thumb {
+  width: 11px;
+  height: 16px;
+  border: none;
+  border-radius: 0;
+  background: var(--cinnabar-ink);
+  cursor: pointer;
+}
+.erange-input::-moz-range-track {
+  height: 4px;
+  background: transparent;
+}
+
+.erange-input:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cinnabar-ink) 28%, transparent);
+}
+.erange-input:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cinnabar-ink) 28%, transparent);
+}

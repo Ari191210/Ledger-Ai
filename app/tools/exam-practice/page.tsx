@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import TierGate from "@/components/tier-gate";
 import ScoreImpactStrip from "@/components/score-impact-strip";
 import { currentInputs, realizedExamPracticeImpact } from "@/lib/score-projection";
-import ElasticSlider from "@/components/ui/elastic-slider-lazy";
+import EditorialRange from "@/components/ui/editorial-range";
 import type { Paper, Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
 import { useAuth } from "@/components/auth-provider";
@@ -568,7 +568,7 @@ function PaperTriageTab() {
                 <label style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>{label}</label>
                 <div className="mono" style={{ fontSize: 14, fontWeight: 700 }}>{val}h</div>
               </div>
-              <ElasticSlider defaultValue={val} startingValue={min} maxValue={max} isStepped stepSize={1} onChange={set} />
+              <EditorialRange defaultValue={val} startingValue={min} maxValue={max} isStepped stepSize={1} onChange={set} />
             </div>
           ))}
           <div style={{ padding: "14px 18px", background: "var(--paper-2)", border: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
@@ -664,7 +664,7 @@ function CrunchTab() {
                 <span style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1 }}>{hoursLeft}</span>
                 <span className="mono" style={{ color: "var(--ink-3)" }}>hours left</span>
               </div>
-              <ElasticSlider defaultValue={hoursLeft} startingValue={4} maxValue={48} isStepped stepSize={1} onChange={setHoursLeft} />
+              <EditorialRange defaultValue={hoursLeft} startingValue={4} maxValue={48} isStepped stepSize={1} onChange={setHoursLeft} />
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>4h</span>
                 <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>48h</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 
 export type SimType =
   | "projectile" | "pendulum" | "wave" | "spring" | "electric" | "orbital" | "optics" | "gas"
@@ -1478,7 +1478,7 @@ export function PhysicsSim({ sim }: { sim: SimConfig }) {
                   {(sliders[ctrl.key] ?? ctrl.default).toFixed(ctrl.step < 0.1 ? 2 : ctrl.step < 1 ? 1 : 0)}{ctrl.unit}
                 </span>
               </div>
-              <ElasticSlider defaultValue={sliders[ctrl.key] ?? ctrl.default} startingValue={ctrl.min} maxValue={ctrl.max} isStepped stepSize={ctrl.step} onChange={v => handleSlider(ctrl.key, v)} />
+              <EditorialRange defaultValue={sliders[ctrl.key] ?? ctrl.default} startingValue={ctrl.min} maxValue={ctrl.max} isStepped stepSize={ctrl.step} onChange={v => handleSlider(ctrl.key, v)} />
             </div>
           ))}
         </div>

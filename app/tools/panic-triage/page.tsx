@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -487,7 +487,7 @@ export default function PanicTriagePage() {
         {selectedExam && (
           <section style={{ marginBottom: "2rem" }}>
             <StepLabel number={2} text={`Hours remaining: ${hoursRemaining}h`} />
-            <ElasticSlider defaultValue={hoursRemaining} startingValue={1} maxValue={12} isStepped stepSize={0.5} onChange={setHoursRemaining} />
+            <EditorialRange defaultValue={hoursRemaining} startingValue={1} maxValue={12} isStepped stepSize={0.5} onChange={setHoursRemaining} />
             <p
               style={{
                 textAlign: "center",

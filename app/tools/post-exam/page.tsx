@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -270,7 +270,7 @@ function DebriefTab() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 8, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Sleep the night before</div>
-          <ElasticSlider defaultValue={parseFloat(form.sleepHours)} startingValue={3} maxValue={10} isStepped stepSize={0.5} onChange={(v) => setForm(f => ({ ...f, sleepHours: String(v) }))} />
+          <EditorialRange defaultValue={parseFloat(form.sleepHours)} startingValue={3} maxValue={10} isStepped stepSize={0.5} onChange={(v) => setForm(f => ({ ...f, sleepHours: String(v) }))} />
         </div>
         <div>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 8, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Anxiety level</div>
@@ -381,7 +381,7 @@ function ExamStrategyTab() {
       </div>
       <div style={{ marginBottom: 14 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Duration: {duration} minutes</div>
-        <ElasticSlider defaultValue={duration} startingValue={30} maxValue={360} isStepped stepSize={15} onChange={setDuration} />
+        <EditorialRange defaultValue={duration} startingValue={30} maxValue={360} isStepped stepSize={15} onChange={setDuration} />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>30 min</span>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>6 hours</span>

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import Link from "next/link";
 import { useFocus, DURATIONS, MODE_LABELS } from "@/lib/focus-context";
 import { callAIOrThrow } from "@/lib/ai-fetch";
@@ -443,7 +443,7 @@ function DebtMeterTab() {
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>Completion</span>
                   <span className="mono" style={{ fontSize: 9, color: "var(--ink)" }}>{s.completion}%</span>
                 </div>
-                <ElasticSlider defaultValue={s.completion} startingValue={0} maxValue={100} isStepped stepSize={1} onChange={v => update(s.id, "completion", v)} />
+                <EditorialRange defaultValue={s.completion} startingValue={0} maxValue={100} isStepped stepSize={1} onChange={v => update(s.id, "completion", v)} />
               </div>
               <div>
                 <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 6 }}>Exam date</div>

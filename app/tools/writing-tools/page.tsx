@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -132,7 +132,7 @@ function EssayBlueprintTab({ subject, level, onArgue }: { subject: string; level
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Word limit: {words}</div>
-        <ElasticSlider defaultValue={Number(words)} startingValue={400} maxValue={3000} isStepped stepSize={100} onChange={v => setWords(String(v))} />
+        <EditorialRange defaultValue={Number(words)} startingValue={400} maxValue={3000} isStepped stepSize={100} onChange={v => setWords(String(v))} />
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>400</span>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>3000 words</span>

@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIOutput } from "@/components/ai-output";
@@ -252,7 +252,7 @@ function CrunchTab() {
             <span style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1 }}>{hoursLeft}</span>
             <span className="mono" style={{ color: "var(--ink-3)" }}>hours left</span>
           </div>
-          <ElasticSlider defaultValue={hoursLeft} startingValue={4} maxValue={48} isStepped stepSize={1} onChange={setHoursLeft} />
+          <EditorialRange defaultValue={hoursLeft} startingValue={4} maxValue={48} isStepped stepSize={1} onChange={setHoursLeft} />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>4h</span>
             <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>48h</span>
@@ -452,7 +452,7 @@ function CrematorTab() {
       </div>
       <div style={{ marginBottom: 20 }}>
         <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Hours per day</label>
-        <ElasticSlider defaultValue={parseFloat(form.hoursPerDay)} startingValue={1} maxValue={16} isStepped stepSize={0.5} onChange={(v) => setForm(f => ({ ...f, hoursPerDay: String(v) }))} />
+        <EditorialRange defaultValue={parseFloat(form.hoursPerDay)} startingValue={1} maxValue={16} isStepped stepSize={0.5} onChange={(v) => setForm(f => ({ ...f, hoursPerDay: String(v) }))} />
         {form.examDate && <div className="mono cin" style={{ fontSize: 10, marginTop: 6 }}>{days} day{days !== 1 ? "s" : ""} remaining · {Math.round(days * (parseFloat(form.hoursPerDay) || 6))}h total</div>}
       </div>
       <div style={{ marginBottom: 20 }}>
@@ -616,7 +616,7 @@ function LastNightTab() {
           </div>
           <div style={{ marginBottom: 36 }}>
             <label style={{ display: "block", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>Hours Until Exam</label>
-            <ElasticSlider defaultValue={hoursRemaining} startingValue={4} maxValue={14} isStepped stepSize={0.5} onChange={setHoursRemaining} />
+            <EditorialRange defaultValue={hoursRemaining} startingValue={4} maxValue={14} isStepped stepSize={0.5} onChange={setHoursRemaining} />
           </div>
           {error && <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--cinnabar)", marginBottom: 16 }}>{error}</div>}
           <button onClick={goToStep2} className="btn">Continue →</button>

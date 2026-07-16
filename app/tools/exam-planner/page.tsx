@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { useUserLevel } from "@/hooks/use-user-level";
 import { AIThinking } from "@/components/ai-thinking";
@@ -416,7 +416,7 @@ export default function RevisionPlannerPage() {
             </div>
             <div style={{ marginBottom: 12 }}>
               <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Current confidence: {form.confidence}%</div>
-              <ElasticSlider defaultValue={form.confidence} startingValue={10} maxValue={90} isStepped stepSize={1} onChange={v => setForm(f => ({ ...f, confidence: v }))} />
+              <EditorialRange defaultValue={form.confidence} startingValue={10} maxValue={90} isStepped stepSize={1} onChange={v => setForm(f => ({ ...f, confidence: v }))} />
             </div>
             <button className="btn" onClick={addExam} style={{ width: "100%" }}>+ Add exam</button>
           </div>

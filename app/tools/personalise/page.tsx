@@ -10,7 +10,7 @@ import {
 import { getDensity, applyDensity, type Density } from "@/lib/density";
 import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { FontPicker } from "./_font-picker";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 
 const DENSITY_OPTIONS: { id: Density; label: string; sub: string }[] = [
   { id: "compact",     label: "Compact",     sub: "More on screen" },
@@ -233,7 +233,7 @@ export default function PersonalisePage() {
             {/* Radius */}
             <div>
               <div className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginBottom: 10, letterSpacing: "0.1em" }}>BORDER RADIUS · {radius}px</div>
-              <ElasticSlider
+              <EditorialRange
                 startingValue={0}
                 maxValue={24}
                 defaultValue={radius}

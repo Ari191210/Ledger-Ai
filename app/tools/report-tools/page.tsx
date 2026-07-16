@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUserLevel } from "@/hooks/use-user-level";
-import ElasticSlider from "@/components/ui/elastic-slider";
+import EditorialRange from "@/components/ui/editorial-range";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
@@ -265,7 +265,7 @@ function ModelAnswerTab() {
       </div>
       <div style={{ marginBottom: 20 }}>
         <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Marks: {marks}</div>
-        <ElasticSlider defaultValue={marks} startingValue={1} maxValue={25} isStepped stepSize={1} onChange={setMarks} />
+        <EditorialRange defaultValue={marks} startingValue={1} maxValue={25} isStepped stepSize={1} onChange={setMarks} />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>1</span>
           <span className="mono" style={{ fontSize: 9, color: "var(--ink-3)" }}>25</span>
