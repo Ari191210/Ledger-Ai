@@ -17,6 +17,9 @@ import EmptyChair from "@/components/empty-chair";
 import PersonalEdition from "@/components/dashboard/personal-edition";
 import ByTheNumbers from "@/components/dashboard/by-the-numbers";
 import AcademicMarkets from "@/components/dashboard/academic-markets";
+import DashboardMasthead from "@/components/dashboard/masthead";
+import Coverage from "@/components/dashboard/coverage";
+import RecommendedAction from "@/components/dashboard/recommended-action";
 // Phase 3A: Features Showcase and Live Activity are no longer mounted on the
 // dashboard. Their component files are unchanged — only the mounts were removed.
 import gsap from "gsap";
@@ -1007,62 +1010,20 @@ export default function Dashboard() {
   const { streak, bestStreak, sessionsToday, weakTopics, nextExam, papersCount, recentSlugs, favSlugs, toggleFav } = useStats();
   const toolFreq = usePersonalisedOrder(user?.id);
 
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   if (authLoading) return <DashboardSkeleton />;
   if (showChair)   return <EmptyChair daysSince={chairDaysSince} onDismiss={() => setShowChair(false)} />;
 
   return (
-    <main ref={containerRef} id="main-content" tabIndex={-1} className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto", position: "relative" }}>
+    <main ref={containerRef} id="main-content" tabIndex={-1} data-ui="editorial" className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto", position: "relative", background: "var(--paper)", color: "var(--ink)" }}>
 
-      {/* Atmospheric orbs — subtle, behind all content */}
-      <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
-        <div style={{
-          position: "absolute", width: 700, height: 700, borderRadius: "50%",
-          background: "radial-gradient(circle, color-mix(in srgb, var(--cinnabar) 8%, transparent) 0%, transparent 70%)",
-          filter: "blur(100px)", top: "-15%", right: "-5%",
-          animation: "hero-orb-drift 22s ease-in-out infinite",
-        }} />
-        <div style={{
-          position: "absolute", width: 500, height: 500, borderRadius: "50%",
-          background: "radial-gradient(circle, color-mix(in srgb, var(--ink-2) 6%, transparent) 0%, transparent 70%)",
-          filter: "blur(90px)", bottom: "10%", left: "-5%",
-          animation: "float-orb 28s ease-in-out infinite reverse",
-        }} />
-      </div>
+      {/* Atmospheric orbs removed — a newspaper carries no ambient glow (Phase 3B).
+          All glass-card / glow decoration inside this data-ui="editorial" scope is
+          neutralised by editorial.css §6, so the whole dashboard reads as one paper. */}
 
-      {/* Command Centre header */}
-      <div className="dash-header" style={{ borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)", paddingBottom: 24, marginBottom: 32 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
-          <div>
-            <div className="mono" style={{ color: "var(--ink-3)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 10 }}>
-              Command Centre · {today.toUpperCase()}
-            </div>
-            <h1 className="mob-heading" style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 1.0, margin: 0, color: "var(--ink)" }}>
-              {greeting}, {name}.
-            </h1>
-          </div>
-          {/* Streak badge */}
-          {streak > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, paddingTop: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 20px", borderRadius: 9999, border: "1.5px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", background: "color-mix(in srgb, var(--cinnabar) 7%, transparent)", backdropFilter: "blur(8px)" }}>
-                {/* SVG flame */}
-                <svg width="18" height="22" viewBox="0 0 18 22" fill="none" aria-hidden="true">
-                  <path d="M9 0C9 0 4 5 4 10C4 12.5 5.5 14.5 7 15.5C7 13 8 11 9 10C10 11 11 13 11 15.5C12.5 14.5 14 12.5 14 10C14 5 9 0 9 0Z" fill="var(--cinnabar)" opacity="0.9"/>
-                  <ellipse cx="9" cy="17" rx="4" ry="5" fill="color-mix(in oklch, var(--cinnabar) 60%, var(--paper))" opacity="0.8"/>
-                </svg>
-                <span style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", color: "var(--cinnabar-ink)", lineHeight: 1 }}>{streak}</span>
-                <span className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", opacity: 0.8 }}>day streak</span>
-              </div>
-              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                {bestStreak > streak && (
-                  <span className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>Best: {bestStreak}d</span>
-                )}
-                <span className="mono" style={{ fontSize: 8, color: "var(--ink-3)" }}>{streak >= 7 ? "On a serious roll" : streak >= 3 ? "Building momentum" : "Keep it going"}</span>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* Masthead — nameplate, dateline, edition, greeting, streak (Phase 3B) */}
+      <div className="dash-header" style={{ borderBottom: "1px solid var(--rule)", paddingBottom: 24, marginBottom: 32 }}>
+        <DashboardMasthead greeting={greeting} name={name} streak={streak} bestStreak={bestStreak} />
 
         {/* Quick-launch pills */}
         <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" }}>
@@ -1101,12 +1062,6 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-
-      {/* Sticky session strip — shows intention + running timer while scrolling */}
-      <FocusStrip />
-
-      {/* Today's Intention */}
-      <TodayIntention />
 
       {/* Profile setup banner */}
       {showProfileBanner && (
@@ -1160,6 +1115,18 @@ export default function Dashboard() {
 
       {/* Academic Markets + The Archive — editorial desks (Phase 3A) */}
       {user && <AcademicMarkets userId={user.id} />}
+
+      {/* Coverage Report — static completion + pending subjects (Phase 3B) */}
+      <Coverage />
+
+      {/* Recommended Action — one high-confidence move, projected (Phase 3B) */}
+      <RecommendedAction />
+
+      {/* ── Utilities ─────────────────────────────────────────────────────── */}
+
+      {/* Session strip + today's intention (moved into utilities, Phase 3B) */}
+      <FocusStrip />
+      <TodayIntention />
 
       {/* Jump back in — recently used tools */}
       {(() => {
@@ -1262,18 +1229,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Daily recommendation */}
-      {dashLayout.recommendation && weakTopics.length > 0 && (
-        <div className="recommend-strip" style={{ marginBottom: 32, border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap", borderRadius: 14, background: "color-mix(in srgb, var(--cinnabar) 5%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
-          <div>
-            <div className="mono cin" style={{ fontSize: 9, letterSpacing: "0.16em", marginBottom: 6 }}>Recommended now</div>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 15, fontStyle: "italic", color: "var(--ink)", lineHeight: 1.4 }}>
-              You&apos;ve missed <strong style={{ fontStyle: "normal" }}>{weakTopics[0].topic}</strong> {weakTopics[0].count}× in practice. Run Exam Simulator on it.
-            </div>
-          </div>
-          <Link href="/tools/exam-sim" className="btn" style={{ padding: "8px 18px", fontSize: 11, flexShrink: 0, textDecoration: "none" }}>Open →</Link>
-        </div>
-      )}
+      {/* Daily recommendation strip removed — superseded by the projected
+          Recommended Action desk above (Phase 3B). */}
 
       {/* Recently used — now shown at top, skip here */}
 
