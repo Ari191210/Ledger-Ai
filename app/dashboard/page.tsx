@@ -10,7 +10,6 @@ import { CAT_COLOR } from "@/lib/tools-registry";
 import { getDashLayout, type DashLayout, DASH_DEFAULTS } from "@/lib/dash-layout";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import { track } from "@/lib/posthog";
-import { GooeyInput } from "@/components/ui/gooey-input";
 import DashboardSkeleton from "@/components/dashboard-skeleton";
 import PushOptIn from "@/components/push-opt-in";
 import EmptyChair from "@/components/empty-chair";
@@ -683,8 +682,7 @@ function FocusStrip() {
       position: "sticky", top: 76, zIndex: 50,
       display: "flex", alignItems: "center", gap: 16,
       padding: "9px 16px", marginBottom: 32,
-      background: "color-mix(in srgb, var(--paper) 94%, transparent)",
-      backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+      background: "var(--paper)",
       borderTop: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
       borderBottom: "1px solid color-mix(in srgb, var(--ink) 8%, transparent)",
     }}>
@@ -1065,7 +1063,7 @@ export default function Dashboard() {
 
       {/* Profile setup banner */}
       {showProfileBanner && (
-        <div style={{ marginBottom: 24, padding: "14px 20px", border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", borderRadius: 12, background: "color-mix(in srgb, var(--paper) 60%, transparent)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ marginBottom: 24, padding: "14px 20px", border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)", borderRadius: 12, background: "var(--paper)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <div>
             <span className="mono cin" style={{ marginRight: 10 }}>Profile incomplete</span>
             <span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>Set your grade, board and interests so every tool is personalised for you.</span>
@@ -1342,11 +1340,23 @@ export default function Dashboard() {
 
         {/* Tool search */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
-          <GooeyInput
+          <input
+            type="search"
             value={toolQuery}
-            onChange={setToolQuery}
+            onChange={(e) => setToolQuery(e.target.value)}
             placeholder={`Search ${TOOL_COUNT} tools…`}
-            style={{ flex: 1 }}
+            aria-label={`Search ${TOOL_COUNT} tools`}
+            style={{
+              flex: 1,
+              height: 44,
+              padding: "0 14px",
+              background: "var(--paper)",
+              border: "1px solid var(--rule)",
+              borderRadius: 0,
+              fontFamily: "var(--sans)",
+              fontSize: 14,
+              color: "var(--ink)",
+            }}
           />
           {toolQuery && (
             <span
@@ -1467,8 +1477,7 @@ export default function Dashboard() {
           <div style={{
             position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
             zIndex: 90, display: "flex", alignItems: "center", gap: 4,
-            background: "color-mix(in srgb, var(--paper-2) 96%, transparent)",
-            backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+            background: "var(--paper-2)",
             border: "1px solid var(--rule)",
             padding: "6px 10px 6px 14px",
             maxWidth: "calc(100vw - 48px)",

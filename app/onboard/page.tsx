@@ -42,7 +42,7 @@ function OptionPill({ label, sub, selected, onClick }: { label: string; sub?: st
         padding: sub ? "16px 20px" : "15px 20px",
         borderRadius: 14,
         border: `1.5px solid ${selected ? "var(--cinnabar)" : "var(--rule)"}`,
-        background: selected ? "color-mix(in srgb, var(--cinnabar) 9%, transparent)" : "color-mix(in srgb, var(--ink) 3%, transparent)",
+        background: selected ? "color-mix(in srgb, var(--cinnabar) 9%, var(--paper))" : "color-mix(in srgb, var(--ink) 3%, var(--paper))",
         color: "var(--ink)",
         cursor: "pointer",
         textAlign: "left",
@@ -51,8 +51,6 @@ function OptionPill({ label, sub, selected, onClick }: { label: string; sub?: st
         alignItems: "center",
         gap: 12,
         transition: "border-color 160ms ease, background 160ms ease",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
       }}
     >
       <div>

@@ -84,9 +84,8 @@ export default function PaletteToggle() {
       style={{
         position: "fixed", bottom: "calc(56px + env(safe-area-inset-bottom, 0px) + 12px)", right: 16,
         zIndex: 2000, width: 36, height: 36,
-        background: "color-mix(in srgb, var(--paper) 85%, transparent)",
+        background: "var(--paper)",
         border: "1px solid var(--rule)", borderRadius: 6,
-        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
         boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
         color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: 14,
@@ -108,13 +107,11 @@ export default function PaletteToggle() {
         width: 210,
         display: "flex",
         flexDirection: "column",
-        background: "color-mix(in srgb, var(--paper) 80%, transparent)",
+        background: "var(--paper)",
         border: "1px solid var(--rule)",
-        backdropFilter: "blur(28px)",
-        WebkitBackdropFilter: "blur(28px)",
         borderRadius: 8,
         overflow: "hidden",
-        boxShadow: "0 12px 48px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06)",
+        boxShadow: "0 12px 48px rgba(0,0,0,0.42)",
       }}
     >
       {/* ── Row 1: mode toggle ─────────────────────────────────────── */}

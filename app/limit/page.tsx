@@ -72,8 +72,7 @@ export default function LimitPage() {
                   border: "1px solid color-mix(in srgb, var(--cinnabar) 40%, transparent)",
                   padding: "8px 16px",
                   borderRadius: 8,
-                  background: "color-mix(in srgb, var(--cinnabar) 5%, transparent)",
-                  backdropFilter: "blur(12px)",
+                  background: "color-mix(in srgb, var(--cinnabar) 5%, var(--paper))",
                 }}
               >
                 {label} →

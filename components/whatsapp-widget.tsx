@@ -33,12 +33,10 @@ export function WhatsAppWidget() {
         borderRadius: 9999,
         textDecoration: "none",
         overflow: "hidden",
-        background: "color-mix(in srgb, var(--paper) 62%, transparent)",
-        backdropFilter: "blur(20px) saturate(160%)",
-        WebkitBackdropFilter: "blur(20px) saturate(160%)",
-        border: "1px solid color-mix(in srgb, var(--ink) 14%, transparent)",
+        background: "var(--paper)",
+        border: "1px solid var(--rule)",
         boxShadow:
-          "0 4px 24px color-mix(in srgb, black 35%, transparent), inset 0 1px 0 color-mix(in srgb, white 8%, transparent)",
+          "0 2px 10px color-mix(in srgb, black 18%, transparent)",
       }}
     >
       <span
