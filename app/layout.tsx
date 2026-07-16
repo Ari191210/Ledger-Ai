@@ -10,7 +10,6 @@ import ErrorBoundary from "@/components/error-boundary";
 import ErrorLogger from "@/components/error-logger";
 import PostHogProvider from "@/components/posthog-provider";
 import { LegacyChromeWhisper } from "@/components/legacy-chrome";
-import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -230,23 +229,6 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}` }} />
       </head>
       <body>
-        {/* LEGACY: liquid-glass displacement filter, referenced by
-            backdrop-filter: url(#global-liquid-glass) in globals.css .btn.
-            An inert <defs>; it costs nothing on an editorial route, which never
-            references it. */}
-        <svg
-          aria-hidden="true"
-          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden", pointerEvents: "none" }}
-        >
-          <defs>
-            <filter id="global-liquid-glass" primitiveUnits="objectBoundingBox">
-              <feImage result="map" width="1" height="1" x="0" y="0" href={GLASS_DISPLACEMENT_MAP} preserveAspectRatio="none" />
-              <feGaussianBlur in="SourceGraphic" stdDeviation="0.01" result="blurred" />
-              <feDisplacementMap in="blurred" in2="map" scale="0.5" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-          </defs>
-        </svg>
-
         {/* Legacy decorative chrome (custom cursor, WebGL aurora, page gradient,
             click shimmer) removed per Product Constitution §1/§6. Only the rank
             whisper remains, on legacy routes — see components/legacy-chrome.tsx. */}
