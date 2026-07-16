@@ -344,25 +344,7 @@
 
 /* â”€â”€â”€ Custom cursor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Native cursor everywhere. The custom cursor system (cursor:none + <Cursor/>)
-   was removed per Product Constitution §6. */
-
-/* ── Dot + lagging ring cursor ── */
-.cur-dot {
-  position: fixed; top: -4px; left: -4px;
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #ff7c5c;
-  pointer-events: none; z-index: 99999;
-  opacity: 0; will-change: transform;
-  transition: background 300ms ease;
-}
-.cur-ring {
-  position: fixed; top: -16px; left: -16px;
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 1.5px solid #ff7c5c;
-  pointer-events: none; z-index: 99998;
-  opacity: 0; will-change: transform;
-  transition: border-color 300ms ease, opacity 200ms ease;
-}
+   and its .cur-dot / .cur-ring styles were removed per Product Constitution §6. */
 
 /* â”€â”€â”€ Base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 html {
