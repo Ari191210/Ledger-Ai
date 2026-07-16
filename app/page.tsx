@@ -24,9 +24,14 @@ export const metadata: Metadata = {
 // and the entire premise here is that the figures can be trusted.
 //
 // So the front page is a SPECIMEN EDITION — a real publishing convention: the
-// sample copy a paper prints to show what a subscriber receives. It is labelled
-// as such in the masthead bar and again beneath the chart. It demonstrates the
-// form without claiming to be anyone's actual record.
+// sample copy a paper prints to show what a subscriber receives. It demonstrates
+// the form without claiming to be anyone's actual record.
+//
+// The specimen is governed by PRODUCT_CONSTITUTION.md §8: every surface that
+// renders a specimen-derived number labels itself within the same visual unit
+// (masthead chip, pinned ticker label, tag beside the figure, marker inside the
+// chart frame), the series draws DASHED where a real record draws solid, and
+// time is measured in sessions, not calendar dates.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const SPECIMEN: ScoreSnapshot[] = (() => {
@@ -90,6 +95,7 @@ export default function FrontPage() {
 
       {/* ── The ticker band ───────────────────────────────────────────────── */}
       <div className="ed-ticker" style={{ marginTop: 0 }} aria-hidden="true">
+        <span className="ed-ticker__label">Specimen</span>
         <div className="ed-ticker__track">
           {[...TICKER, ...TICKER].map((t, i) => (
             <span key={i} className="ed-ticker__item">{t}</span>
@@ -104,7 +110,7 @@ export default function FrontPage() {
           style={{ paddingTop: 34, paddingBottom: 40 }}
         >
           <div style={{ gridColumn: "span 8" }} className="lead-col">
-            <IndexReport report={report} />
+            <IndexReport report={report} specimen />
 
             <p
               className="ed-byline"
@@ -282,7 +288,7 @@ export default function FrontPage() {
 
             <div style={{ gridColumn: "span 5" }} className="ed-rule-left">
               <div className="ed-kicker" style={{ marginBottom: 10 }}>Specimen · 14 sessions</div>
-              <Sparkline series={report.series} height={110} />
+              <Sparkline series={report.series} height={110} specimen />
               <p className="ed-byline" style={{ marginTop: 10 }}>
                 Note the fall on session five. A real index does not only rise, and a
                 chart that did would be worth nothing to you.

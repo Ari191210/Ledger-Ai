@@ -86,6 +86,20 @@ StudyLedger is **not** "an AI study assistant." StudyLedger is **"an academic in
 
 AI is infrastructure. AI is not the product. Users should think about **performance, scores, history, and track record** — not models.
 
+## 8. The specimen edition
+
+The front page may print a **specimen** — a labelled illustration of the report, in the tradition of a newspaper's sample copy. It is the only permitted exception to rule 3, and it exists strictly under these conditions:
+
+1. **Specimen data is a hardcoded constant.** Never generated, never randomized, never fetched, never dressed as live.
+2. **Specimen figures must include visible imperfection.** A chart that only rises is marketing, not data.
+3. **Every surface that renders a specimen-derived number carries the label within the same visual unit** — the masthead chip, the ticker's pinned label, the tag beside the index figure, the marker inside the chart frame. No disclosure at a distance.
+4. **Specimen series render dashed; real records render solid.** The stroke itself declares which is which, even in a cropped screenshot.
+5. **No superlative or social-proof claim may be derived from specimen data** outside a labelled unit.
+6. **Specimen data never appears** inside the authenticated product, in social/OG imagery without an embedded label, or in advertising.
+7. **Specimen time is measured in sessions, not calendar dates.** Rolling real dates dress an illustration as a live record.
+
+If a disclosure is ever considered too ugly to ship, the specimen is removed entirely. The label never shrinks.
+
 ---
 
 ## The decision test
@@ -105,3 +119,4 @@ Before shipping anything, ask:
 This document changes only by explicit founder decision. When it changes, note the date and what changed below.
 
 - 2026-07-15 — Constitution ratified.
+- 2026-07-16 — §8 added: the specimen edition and its disclosure rules. Founder ruling: the homepage specimen chart stays (Option B), conditional on the hardening §8 codifies; the fallback for any softened disclosure is removal, never a smaller label.

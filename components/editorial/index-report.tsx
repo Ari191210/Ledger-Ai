@@ -51,9 +51,13 @@ export function Delta({ move, label }: { move: Movement | null; label: string })
 export function Sparkline({
   series,
   height = 96,
+  specimen = false,
 }: {
   series: Array<{ date: string; value: number }>;
   height?: number;
+  /** Constitution §8: specimen series render dashed and carry a marker inside
+      the chart frame, so the label travels with any screenshot. */
+  specimen?: boolean;
 }) {
   if (series.length < 2) return null;
 
@@ -75,14 +79,14 @@ export function Sparkline({
   const last = series[series.length - 1].value;
   const stroke = last > first ? "var(--advancing)" : last < first ? "var(--retreating)" : "var(--ink-2)";
 
-  return (
+  const svg = (
     <svg
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="none"
       width="100%"
       height={H}
       role="img"
-      aria-label={`Index from ${fmt(first)} to ${fmt(last)} over ${series.length} sessions`}
+      aria-label={`${specimen ? "Specimen illustration: index" : "Index"} from ${fmt(first)} to ${fmt(last)} over ${series.length} sessions`}
       style={{ display: "block", overflow: "visible" }}
     >
       {/* Baseline at the opening value — so the reader sees gain vs loss, not
@@ -100,6 +104,8 @@ export function Sparkline({
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        /* §8: dashed stroke = specimen; a real record always draws solid. */
+        strokeDasharray={specimen ? "7 4" : undefined}
       />
       {/* The close. A single tick, not a dot. */}
       <line
@@ -107,6 +113,33 @@ export function Sparkline({
         stroke={stroke} strokeWidth={1.5} vectorEffect="non-scaling-stroke"
       />
     </svg>
+  );
+
+  if (!specimen) return svg;
+
+  // §8: the marker sits INSIDE the chart frame so a cropped screenshot still
+  // carries it. Rendered as an overlay pinned within the frame rather than an
+  // SVG <text> node because preserveAspectRatio="none" would distort glyphs.
+  return (
+    <div style={{ position: "relative" }}>
+      {svg}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 2,
+          left: 0,
+          fontFamily: "var(--data)",
+          fontSize: 9,
+          letterSpacing: "0.16em",
+          textTransform: "uppercase",
+          color: "var(--salmon-ink)",
+          pointerEvents: "none",
+        }}
+      >
+        Specimen
+      </span>
+    </div>
   );
 }
 
@@ -160,14 +193,24 @@ export function SectorTable({ report }: { report: MarketReport }) {
  * earned yet, and the first time they notice, they stop trusting every other
  * number in the product.
  */
-export function IndexReport({ report }: { report: MarketReport }) {
+export function IndexReport({
+  report,
+  specimen = false,
+}: {
+  report: MarketReport;
+  /** Constitution §8: a specimen report labels itself in the kicker, beside
+      the index figure, and inside the chart — never at a distance. */
+  specimen?: boolean;
+}) {
   const c = writeCommentary(report);
   const { current, daily, weekly, monthly, allTimeHigh, streakSessions, sessions } = report;
 
   return (
     <section aria-labelledby="index-headline">
       <div className="ed-kicker" style={{ marginBottom: 10 }}>
-        Academic Performance Index · {c.verdict}
+        Academic Performance Index ·{" "}
+        {specimen && <span style={{ color: "var(--salmon-ink)" }}>Specimen · </span>}
+        {c.verdict}
       </div>
 
       <h2 id="index-headline" className="ed-headline ed-headline--lead" style={{ margin: "0 0 14px" }}>
@@ -193,6 +236,14 @@ export function IndexReport({ report }: { report: MarketReport }) {
             <div>
               <div className="ed-index">{fmt(current.total)}</div>
               <div className="ed-kicker" style={{ marginTop: 4 }}>of 1,000</div>
+              {specimen && (
+                <div
+                  className="ed-kicker"
+                  style={{ marginTop: 6, color: "var(--salmon-ink)" }}
+                >
+                  Specimen — no such student exists
+                </div>
+              )}
             </div>
 
             <div
@@ -215,19 +266,22 @@ export function IndexReport({ report }: { report: MarketReport }) {
 
           {report.series.length >= 2 ? (
             <div style={{ marginTop: 22, borderTop: "1px solid var(--rule-2)", paddingTop: 14 }}>
-              <Sparkline series={report.series} />
+              <Sparkline series={report.series} specimen={specimen} />
               <div
                 className="ed-dateline"
                 style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}
               >
-                <span>{report.series[0].date}</span>
+                {/* §8: specimen time is measured in sessions, not calendar
+                    dates — rolling real dates would dress the illustration
+                    as a live record. */}
+                <span>{specimen ? "Session 1" : report.series[0].date}</span>
                 <span>
                   {sessions} session{sessions === 1 ? "" : "s"} on record
                   {streakSessions.count >= 3 &&
                     ` · ${streakSessions.count} consecutive ${streakSessions.direction === "up" ? "gains" : "falls"}`}
                   {allTimeHigh && report.atAllTimeHigh && " · at all-time high"}
                 </span>
-                <span>{report.series[report.series.length - 1].date}</span>
+                <span>{specimen ? `Session ${report.series.length}` : report.series[report.series.length - 1].date}</span>
               </div>
             </div>
           ) : (
