@@ -9,10 +9,7 @@ import SyncManager from "@/components/sync-manager";
 import ErrorBoundary from "@/components/error-boundary";
 import ErrorLogger from "@/components/error-logger";
 import PostHogProvider from "@/components/posthog-provider";
-import {
-  LegacyChromeEffects, LegacyChromeCanvas,
-  LegacyChromeGradient, LegacyChromeWhisper,
-} from "@/components/legacy-chrome";
+import { LegacyChromeWhisper } from "@/components/legacy-chrome";
 import { GLASS_DISPLACEMENT_MAP } from "@/lib/glass-displacement-map";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Toaster } from "@/components/ui/sonner";
@@ -250,24 +247,14 @@ export default function RootLayout({
           </defs>
         </svg>
 
-        {/* The legacy chrome sits in FOUR slots, reproducing master's DOM order
-            exactly. It is not cosmetic pedantry: the WhatsApp widget carries
-            backdrop-filter: blur(20px) and samples whatever is painted behind
-            it, so hoisting <PageGradient /> out of <AuthProvider> measurably
-            changed 135 pixels on every legacy page. The screenshot gate caught
-            it. See components/legacy-chrome.tsx.
-
-            Every slot renders null on a route in lib/editorial-routes.ts. */}
-        <LegacyChromeEffects />
-
+        {/* Legacy decorative chrome (custom cursor, WebGL aurora, page gradient,
+            click shimmer) removed per Product Constitution §1/§6. Only the rank
+            whisper remains, on legacy routes — see components/legacy-chrome.tsx. */}
         <a href="#main-content" className="skip-link">Skip to main content</a>
-
-        <LegacyChromeCanvas />
 
         <AuthProvider>
           <PostHogProvider />
           <ErrorLogger />
-          <LegacyChromeGradient />
           <Tracker />
           <SyncManager />
           <ErrorBoundary>
