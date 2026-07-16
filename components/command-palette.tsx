@@ -152,9 +152,7 @@ export default function CommandPalette() {
           position: fixed; inset: 0; z-index: 9990;
           display: flex; align-items: flex-start; justify-content: center;
           padding-top: 80px;
-          background: rgba(8, 8, 8, 0.60);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          background: rgba(8, 8, 8, 0.72);
         }
         .cp-backdrop[data-open="true"]  { animation: cp-backdrop-in  180ms ease-out forwards; }
         .cp-backdrop[data-open="false"] { animation: cp-backdrop-out 140ms ease-in  forwards; }
