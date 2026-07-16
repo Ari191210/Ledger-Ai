@@ -128,7 +128,7 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
     // Section headings: pre-hidden with blur, reveal on scroll
     makeObserver(
       Array.from(root?.querySelectorAll<HTMLElement>("main h2, main h3") ?? []),
-      { opacity: 0, transform: "translateY(28px)", filter: "blur(4px)" },
+      { opacity: 0, transform: "translateY(28px)" },
       () => ({ duration: 700 }),
       true,
     );
@@ -185,7 +185,7 @@ export default function SplitView({ children }: { children: React.ReactNode }) {
               node.tagName === "SECTION" ||
               (node.style && parseFloat(node.style.marginTop || "0") > 20);
             if (isResult) {
-              enter(node, { opacity: 0, transform: "translateY(24px)", filter: "blur(4px)" }, { duration: 550 });
+              enter(node, { opacity: 0, transform: "translateY(24px)" }, { duration: 550 });
             }
           });
         });

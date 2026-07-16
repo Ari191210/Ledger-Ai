@@ -104,27 +104,6 @@
   transform-origin: top center;
 }
 
-/* â”€â”€â”€ Tools page ambient background â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-@keyframes tools-drift-a {
-  0%,100% { transform: translate(0%, 0%) scale(1); }
-  35%     { transform: translate(4%, 6%) scale(1.06); }
-  68%     { transform: translate(-3%, -4%) scale(0.95); }
-}
-@keyframes tools-drift-b {
-  0%,100% { transform: translate(0%, 0%) scale(1); }
-  42%     { transform: translate(-5%, 3%) scale(1.04); }
-  74%     { transform: translate(3%, -5%) scale(1.07); }
-}
-
-.tools-bg-blob-a {
-  background: radial-gradient(ellipse 65% 50% at 20% 85%, var(--page-glow-a), transparent 70%);
-  animation: tools-drift-a 38s ease-in-out infinite;
-}
-.tools-bg-blob-b {
-  background: radial-gradient(ellipse 55% 45% at 80% 18%, var(--page-glow-b), transparent 70%);
-  animation: tools-drift-b 44s ease-in-out infinite;
-}
-
 /* â”€â”€â”€ Border-radius scale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* â”€â”€â”€ Severity tier tokens (Paper Trauma Map + future severity UI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
@@ -1512,12 +1491,10 @@ main {
   from {
     opacity:   0;
     transform: translateY(16px);
-    filter:    blur(4px);
   }
   to {
     opacity:   1;
     transform: translateY(0);
-    filter:    blur(0px);
   }
 }
 .tool-result-reveal {
@@ -2362,15 +2339,6 @@ select:focus {
   transition: box-shadow 300ms ease !important;
 }
 
-/* â”€â”€â”€ Hero badge: subtle pulse on idle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-@keyframes badge-breathe {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cinnabar) 0%, transparent); }
-  50%       { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--cinnabar) 12%, transparent); }
-}
-.hero-badge {
-  animation: badge-breathe 4s ease-in-out infinite;
-}
-
 /* â”€â”€â”€ Live activity feed: pulsing green dot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 3px color-mix(in oklch, oklch(0.65 0.22 145) 25%, transparent); }
@@ -2408,7 +2376,6 @@ select:focus {
     transform: none !important;
     animation: none !important;
   }
-  .hero-badge { animation: none !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

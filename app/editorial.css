@@ -500,17 +500,16 @@
   box-shadow: none !important;
 }
 
-/* globals.css:571 gives EVERY bare <button> in the product a translucent glass
-   fill, a backdrop-filter, a rounded radius and a -1px hover lift. Scoped, it
-   only reshapes buttons inside the shell; a legacy page keeps its own buttons,
-   which is that page's design until it migrates. */
+/* The global bare-<button> base (globals.css) is now flat — a solid ink tint,
+   a small radius and no glass. The editorial shell tightens it further: fully
+   transparent, square, data-mono. A legacy page keeps its own buttons until it
+   migrates. */
 [data-ui="editorial"] button:not(.btn):not([class*="ui-btn"]) {
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-radius: 0;
-  /* The glass rule also carries an inset white highlight and a drop shadow.
-     Zeroing the background alone leaves a floating grey card behind the text. */
+  /* Zero any residual background/shadow so shell buttons are pure ink. */
   box-shadow: none;
   font-family: var(--data);
 }

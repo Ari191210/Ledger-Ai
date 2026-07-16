@@ -558,7 +558,6 @@ function ScoreRing({ score, size = 160 }: { score: number; size?: number }) {
         fill="none" stroke="url(#ring-grad)" strokeWidth={10}
         strokeDasharray={circumference} strokeDashoffset={circumference}
         strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ filter: "drop-shadow(0 0 8px var(--cinnabar))" }}
       />
       <text x={size / 2} y={size / 2 - 6} textAnchor="middle"
         style={{ fontFamily: "var(--serif)", fontSize: 32, fontWeight: 700, fill: "var(--ink)" }}>{score}</text>
