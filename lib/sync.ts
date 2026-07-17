@@ -20,6 +20,9 @@ export const SYNC_KEYS = [
   "ledger-formula-history",
   "ledger-career-answers",
   "ledger-career-output",
+  // Integrity Sprint (v2 engine): coverage proof checks + active-day stamp.
+  "ledger-checks",
+  "ledger-last-event",
 ] as const;
 
 type SyncKey = (typeof SYNC_KEYS)[number];
