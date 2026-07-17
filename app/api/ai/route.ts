@@ -247,7 +247,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map" | "redemption_set";
 
 // Required params per tool — missing any → 400, prevents silent blank AI output
 const REQUIRED_PARAMS: Partial<Record<ToolName, string[]>> = {
@@ -292,6 +292,7 @@ const REQUIRED_PARAMS: Partial<Record<ToolName, string[]>> = {
   concept_connect:      ["conceptA", "conceptB"],
   model_answer:         ["question"],
   papers_explain:       ["question", "correct"],
+  redemption_set:       ["subject", "topic"],
   argument:             ["claim"],
   cremator:             ["syllabusText"],
   formula_recall:       ["topic"],
@@ -1215,6 +1216,18 @@ Question: ${params.question}`,
 Question: ${params.question}
 Correct answer: ${params.correct}
 Topic: ${params.topic || "general"}`,
+      };
+
+    case "redemption_set":
+      // Recovery system (Integrity Sprint): 3 fresh questions on a topic the
+      // student previously got wrong. Passing ≥2 clears the open mistakes on
+      // that topic — the v2 engine scores the clearing.
+      return {
+        system: `${SAFETY_PREAMBLE}You are an expert ${params.subject} examiner writing short targeted re-tests. Always respond with valid JSON only — no markdown fences.`,
+        userText: `Write exactly 3 multiple-choice questions testing "${params.topic}" in ${params.subject}${params.board ? ` (${params.board} style)` : ""}. The student previously answered this topic wrong — the questions must genuinely test understanding, not recall of one phrasing. Vary the angle across the 3 questions. Respond with exactly this JSON:
+{"questions":[{"q":"the question text","opts":["option A","option B","option C","option D"],"ans":0,"topic":"${params.topic}"}]}
+
+ans is the 0-based index of the correct option. Exactly 3 questions, exactly 4 options each. Make distractors plausible — common misconceptions, not obviously wrong answers.`,
       };
 
     case "argument":
@@ -2450,7 +2463,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map", "marks_obituary"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map", "marks_obituary", "redemption_set"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useRef, useCallback, useEffect } f
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
 import { completeSessionStreak, resolveStreak, shieldAvailable } from "@/lib/streak";
+import { stampQualifyingEvent } from "@/lib/active-close";
 
 type Mode = "work" | "break" | "longbreak";
 export type FocusTask = { id: number; text: string; done: boolean };
@@ -132,6 +133,7 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
                 lastDate: localStorage.getItem("ledger-focus-last"),
                 shieldUsedMonth: localStorage.getItem("ledger-focus-shield"),
               });
+              if (result.counted) stampQualifyingEvent("focus_session");
               if (result.counted || result.broke || result.usedShield) {
                 localStorage.setItem("ledger-focus-streak", String(result.streak));
                 if (result.lastDate) localStorage.setItem("ledger-focus-last", result.lastDate);

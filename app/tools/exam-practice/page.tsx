@@ -6,6 +6,7 @@ import { currentInputs, realizedExamPracticeImpact } from "@/lib/score-projectio
 import EditorialRange from "@/components/ui/editorial-range";
 import type { Paper, Question } from "@/lib/papers-data";
 import { patchUserData } from "@/lib/user-data";
+import { stampQualifyingEvent } from "@/lib/active-close";
 import { useAuth } from "@/components/auth-provider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -35,6 +36,37 @@ function saveSessionResults(paper: Paper, answers: (number | null)[], userId?: s
     log.unshift({ date: new Date().toISOString(), subject: paper.subject, board: paper.board, score, total: paper.questions.length });
     localStorage.setItem("ledger-papers-log", JSON.stringify(log.slice(0, 50)));
     if (userId) { patchUserData(userId, "weakTopics", wt); patchUserData(userId, "papersCount", log.length); }
+
+    // ── Recovery auto-clear (Integrity Sprint) ─────────────────────────────
+    // Topics answered correctly ≥2 times in this session redeem their open
+    // mistakes: demonstrated mastery closes the loop the engine now scores.
+    const correctByTopic: Record<string, number> = {};
+    paper.questions.forEach((q, i) => { if (answers[i] === q.ans) correctByTopic[q.topic] = (correctByTopic[q.topic] || 0) + 1; });
+    const mastered = new Set(
+      Object.entries(correctByTopic).filter(([, n]) => n >= 2).map(([t]) => t.toLowerCase().trim()),
+    );
+    if (mastered.size > 0) {
+      const mistakes = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]") as Array<{ topic?: string; status?: string; clearedDate?: string }>;
+      let clearedAny = false;
+      const nowIso = new Date().toISOString();
+      for (const m of mistakes) {
+        // Only entries the recovery system owns (explicit "open") are cleared.
+        // Legacy unstatused entries stay archived — the engine ignores them,
+        // and clearing them here would fabricate recovery credit.
+        if (m.status === "open" && m.topic && mastered.has(m.topic.toLowerCase().trim())) {
+          m.status = "cleared";
+          m.clearedDate = nowIso;
+          clearedAny = true;
+        }
+      }
+      if (clearedAny) {
+        localStorage.setItem("ledger-mistakes", JSON.stringify(mistakes));
+        stampQualifyingEvent("mistake_cleared");
+      }
+    }
+
+    // Active-day stamp: a graded session of ≥5 questions is a qualifying event.
+    if (paper.questions.length >= 5) stampQualifyingEvent("practice_session");
   } catch {}
 }
 
@@ -154,7 +186,17 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   function logMistakes() {
     try {
       const existing = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
-      const entries = Object.entries(mistakeTags).map(([idx, cat]) => ({ date: new Date().toISOString(), subject: paper.subject, topic: paper.questions[+idx].topic, category: CAT_FULL[cat] || cat }));
+      // Recovery lifecycle (Integrity Sprint): every new mistake opens with
+      // status "open" and stays open until demonstrably cleared — the v2
+      // engine scores the clearing, never the concealment.
+      const entries = Object.entries(mistakeTags).map(([idx, cat]) => ({
+        id: `${Date.now()}-${idx}`,
+        date: new Date().toISOString(),
+        subject: paper.subject,
+        topic: paper.questions[+idx].topic,
+        category: CAT_FULL[cat] || cat,
+        status: "open" as const,
+      }));
       localStorage.setItem("ledger-mistakes", JSON.stringify([...entries, ...existing].slice(0, 500)));
       setLogged(true);
     } catch {}

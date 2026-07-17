@@ -5,6 +5,7 @@ import Link from "next/link";
 import TierGate from "@/components/tier-gate";
 import { useAuth } from "@/components/auth-provider";
 import { loadUserData, type UserProfile } from "@/lib/user-data";
+import { stampQualifyingEvent } from "@/lib/active-close";
 import { useUserLevel } from "@/hooks/use-user-level";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
@@ -127,10 +128,28 @@ function QuizView({ items }: { items: QuizItem[] }) {
   );
 }
 
-function PracticeView({ items }: { items: NotesPracticeQ[] }) {
+function PracticeView({ items, subject }: { items: NotesPracticeQ[]; subject?: string }) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const done = Object.keys(answers).length === items.length;
   const score = done ? Object.entries(answers).filter(([i, a]) => a === items[+i].ans).length : 0;
+
+  // Coverage proof (Integrity Sprint): a completed practice set is a CHECK —
+  // the v2 engine treats a pass (≥70% on ≥5 questions) as demonstrated
+  // understanding of the subject, which is what Coverage now scores. Written
+  // once per completion; failures are recorded too (they prove nothing but
+  // keep the record honest).
+  const wroteCheck = useRef(false);
+  useEffect(() => {
+    if (!done || wroteCheck.current || !subject?.trim() || items.length === 0) return;
+    wroteCheck.current = true;
+    try {
+      const checks = JSON.parse(localStorage.getItem("ledger-checks") || "[]");
+      checks.unshift({ subject: subject.trim(), correct: score, total: items.length, date: new Date().toISOString() });
+      localStorage.setItem("ledger-checks", JSON.stringify(checks.slice(0, 100)));
+      if (items.length >= 5 && score / items.length >= 0.7) stampQualifyingEvent("coverage_check");
+    } catch {}
+  }, [done, score, items.length, subject]);
+
   return (
     <div>
       {items.map((item, i) => {
@@ -872,7 +891,7 @@ function NotesTab() {
                     ))}
                   </ul>
                 )}
-                {lessonTab === "practice" && <PracticeView items={lesson.practice} />}
+                {lessonTab === "practice" && <PracticeView items={lesson.practice} subject={subject} />}
               </div>
             </div>
           )}
