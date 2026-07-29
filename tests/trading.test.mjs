@@ -871,6 +871,29 @@ describe("format", () => {
     assert.equal(fmt.superscript(-3), "⁻³");
   });
 
+  test("multipleParts splits the exponent out for markup typesetting", () => {
+    const big = fmt.multipleParts(2.23e10);
+    assert.equal(big.mantissa, "2.2 × 10");
+    assert.equal(big.exponent, 10);
+    // No Unicode superscript in the parts form — that is the caller's job.
+    assert.doesNotMatch(big.mantissa, /[⁰¹²³⁴⁵⁶⁷⁸⁹]/);
+  });
+
+  test("multipleParts leaves small figures without an exponent", () => {
+    const small = fmt.multipleParts(7.8);
+    assert.equal(small.exponent, null);
+    assert.equal(small.mantissa, "7.8×");
+  });
+
+  test("multipleParts handles non-finite input", () => {
+    assert.deepEqual(fmt.multipleParts(NaN), { mantissa: "—", exponent: null });
+  });
+
+  test("multipleParts and multiple agree on the value", () => {
+    const parts = fmt.multipleParts(2.23e10);
+    assert.equal(`${parts.mantissa}${fmt.superscript(parts.exponent)}`, fmt.multiple(2.23e10));
+  });
+
   test("large multiples drop the trailing times sign, small ones keep it", () => {
     assert.ok(fmt.multiple(2.23e10).endsWith("¹⁰"));
     assert.ok(fmt.multiple(7.84, 2).endsWith("×"));

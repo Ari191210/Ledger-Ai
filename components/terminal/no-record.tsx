@@ -1,60 +1,71 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// THE TRACK RECORD — EMPTY
+// MODULE 02 — TRACK RECORD, EMPTY
 //
-// §3: if the data does not exist, show an honest empty state.
+// No broker is connected, so there is no trading record.
 //
-// No broker is connected, so there is no trading record. The temptation on a
-// terminal is to fill this space with the simulation and let the reader
-// assume — the numbers are right there, they render nicely, and nobody would
-// immediately notice. That is precisely the substitution §3 exists to stop:
-// "a number that was decoration makes every other number in the product
-// suspect."
-//
-// So the section stays empty, states why, and says what would fill it. An
-// empty state that explains itself is a stronger claim about the product's
-// honesty than any chart could be.
+// The visual language changed; this rule did not. The temptation on a
+// device-like page is stronger, if anything — an empty module looks like a
+// fault, and the simulation is right there and would fill it convincingly.
+// It stays empty and says why. A number that was decoration makes every
+// other number on the panel suspect.
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function NoRecord() {
   return (
-    <section style={{ marginBottom: 40 }}>
-      <div className="ed-section-head" style={{ marginBottom: 6 }}>
-        <h2 className="ed-headline ed-headline--section" style={{ margin: 0 }}>
-          Track record
-        </h2>
+    <section className="te-module">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 16,
+        }}
+      >
+        <span className="te-chip">02</span>
+        <h2 className="te-title">Track record</h2>
       </div>
 
       <div
         style={{
-          borderTop: "3px solid var(--ink)",
-          borderBottom: "1px solid var(--rule)",
-          padding: "30px 0 26px",
+          border: "2px dashed var(--te-line)",
+          borderRadius: "var(--te-radius-sm)",
+          padding: "clamp(18px, 3vw, 28px)",
+          textAlign: "center",
+          background: "color-mix(in srgb, var(--te-ink) 2.5%, transparent)",
         }}
       >
-        <div className="ed-kicker" style={{ marginBottom: 12 }}>
-          No record
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 12,
+          }}
+        >
+          <span className="te-led" aria-hidden="true" />
+          <span className="te-label">No signal · nothing connected</span>
         </div>
 
         <p
-          className="ed-standfirst"
-          style={{ margin: "0 0 14px", color: "var(--ink)", maxWidth: "58ch" }}
+          style={{
+            fontSize: "clamp(16px, 2vw, 19px)",
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+            margin: "0 auto 12px",
+            maxWidth: "42ch",
+            lineHeight: 1.35,
+          }}
         >
           The agent has never traded. No broker account is connected, no orders
           have been placed, and no capital is at risk.
         </p>
 
-        <div className="ed-body" style={{ fontSize: 15, color: "var(--ink-2)", maxWidth: "68ch" }}>
-          <p style={{ marginTop: 0 }}>
-            This section stays empty until a live adapter is connected and the
-            agent has settled sessions to report. The simulation below is not a
-            substitute for it and is never promoted into this space.
-          </p>
-          <p style={{ marginBottom: 0 }}>
-            Connecting a funded account is a deliberate step, with its own
-            credential handling and its own review. It is not a configuration
-            flag.
-          </p>
-        </div>
+        <p className="te-note" style={{ margin: "0 auto", maxWidth: "56ch" }}>
+          This module stays empty until a live adapter is connected and the
+          agent has settled sessions to report. The simulation below is not a
+          substitute and is never promoted into this space. Connecting a funded
+          account is a deliberate step with its own review — not a config flag.
+        </p>
       </div>
     </section>
   );

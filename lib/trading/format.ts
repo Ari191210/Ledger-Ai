@@ -81,6 +81,28 @@ export function multiple(value: number, dp = 1): string {
   return `${mantissa.toFixed(dp)} × 10${superscript(exponent)}`;
 }
 
+export interface SciParts {
+  mantissa: string;
+  /** Null when the figure is small enough to print without an exponent. */
+  exponent: number | null;
+}
+
+/**
+ * The same figure as `multiple`, split so a caller can typeset the exponent
+ * with markup instead of Unicode superscript glyphs.
+ *
+ * Needed because monospace faces give ¹ and ⁰ full-width cells, so "10¹⁰"
+ * sets as "10¹ ⁰" with a gap down the middle of the exponent. Unicode
+ * superscripts are fine in proportional body copy and wrong in a mono
+ * readout; this lets each surface pick.
+ */
+export function multipleParts(value: number, dp = 1): SciParts {
+  if (!Number.isFinite(value)) return { mantissa: "—", exponent: null };
+  if (value < 1000) return { mantissa: `${value.toFixed(dp)}×`, exponent: null };
+  const exponent = Math.floor(Math.log10(value));
+  return { mantissa: `${(value / Math.pow(10, exponent)).toFixed(dp)} × 10`, exponent };
+}
+
 /** The editorial direction class for a signed figure. */
 export function direction(fraction: number): "ed-up" | "ed-down" | "ed-flat" {
   if (fraction > 0) return "ed-up";

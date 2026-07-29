@@ -1,0 +1,387 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE DESK — a hardware faceplate, not a newspaper.
+
+   Scoped entirely beneath [data-ui="te"]. Nothing here touches the editorial
+   system or the 46 legacy routes; the two vocabularies are invisible to each
+   other by construction, exactly as editorial.css is scoped from globals.css.
+
+   The reference is Teenage Engineering's instrument design language: a grey
+   machined body, modules with screen-printed labels, saturated signal colour
+   used functionally rather than decoratively, generous corner radii, and
+   numerals treated as a readout rather than as typography.
+
+   COLOUR RULE: accents are signals. Orange means the agent, red means a stop,
+   green means a fill, blue means arithmetic, yellow means a caution. A colour
+   never appears because a module looked empty without it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. THE BODY ──────────────────────────────────────────────────────────
+   Warm machined grey. Two panel depths, a hairline, and seven signals.     */
+
+[data-ui="te"] {
+  --te-bg:        #e4e2dd;   /* the chassis                                */
+  --te-panel:     #f4f2ee;   /* a module faceplate                         */
+  --te-panel-2:   #fffffe;   /* a recessed readout                         */
+  --te-well:      #16161a;   /* an LCD well — dark in both editions        */
+
+  --te-ink:       #16161a;
+  --te-ink-2:     #56565f;
+  --te-ink-3:     #8b8b95;
+  --te-line:      #cbc8c2;
+  --te-line-2:    #dedbd5;
+
+  --te-orange:    #ff5c00;   /* the agent                                  */
+  --te-red:       #e0341c;   /* stop, loss, destruction                    */
+  --te-green:     #00a35d;   /* gain, fill                                 */
+  --te-blue:      #1b52f0;   /* arithmetic, configuration                  */
+  --te-yellow:    #ffc400;   /* caution, simulation                        */
+  --te-pink:      #ff4d8d;   /* friction, cost                             */
+  --te-cyan:      #00b3c8;
+
+  --te-radius:    14px;
+  --te-radius-sm: 8px;
+
+  --te-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --te-mono: var(--font-space-mono), ui-monospace, "SF Mono", monospace;
+
+  color-scheme: light;
+}
+
+/* The night edition. The chassis goes to anodised black; the signals lift so
+   they stay legible without turning neon. */
+@media (prefers-color-scheme: dark) {
+  [data-ui="te"] {
+    --te-bg:      #131316;
+    --te-panel:   #1e1e23;
+    --te-panel-2: #27272e;
+    --te-well:    #0b0b0d;
+
+    --te-ink:     #f3f2ef;
+    --te-ink-2:   #a6a6b0;
+    --te-ink-3:   #71717d;
+    --te-line:    #35353e;
+    --te-line-2:  #2a2a32;
+
+    --te-orange:  #ff7a2f;
+    --te-red:     #ff5a45;
+    --te-green:   #1fc77e;
+    --te-blue:    #5b86ff;
+    --te-yellow:  #ffd23d;
+    --te-pink:    #ff6fa4;
+    --te-cyan:    #2ad3e8;
+
+    color-scheme: dark;
+  }
+}
+
+/* An explicit edition choice outranks the OS preference. The app stamps
+   data-edition on <html> pre-paint, so this is the same switch the rest of
+   the product already answers to — not a second, parallel theme system. */
+:root[data-edition="evening"] [data-ui="te"] {
+  --te-bg:      #131316;
+  --te-panel:   #1e1e23;
+  --te-panel-2: #27272e;
+  --te-well:    #0b0b0d;
+
+  --te-ink:     #f3f2ef;
+  --te-ink-2:   #a6a6b0;
+  --te-ink-3:   #71717d;
+  --te-line:    #35353e;
+  --te-line-2:  #2a2a32;
+
+  --te-orange:  #ff7a2f;
+  --te-red:     #ff5a45;
+  --te-green:   #1fc77e;
+  --te-blue:    #5b86ff;
+  --te-yellow:  #ffd23d;
+  --te-pink:    #ff6fa4;
+  --te-cyan:    #2ad3e8;
+
+  color-scheme: dark;
+}
+
+:root[data-edition="print"] [data-ui="te"],
+:root[data-edition="morning"] [data-ui="te"] {
+  --te-bg:      #e4e2dd;
+  --te-panel:   #f4f2ee;
+  --te-panel-2: #fffffe;
+  --te-well:    #16161a;
+
+  --te-ink:     #16161a;
+  --te-ink-2:   #56565f;
+  --te-ink-3:   #8b8b95;
+  --te-line:    #cbc8c2;
+  --te-line-2:  #dedbd5;
+
+  --te-orange:  #ff5c00;
+  --te-red:     #e0341c;
+  --te-green:   #00a35d;
+  --te-blue:    #1b52f0;
+  --te-yellow:  #ffc400;
+  --te-pink:    #ff4d8d;
+  --te-cyan:    #00b3c8;
+
+  color-scheme: light;
+}
+
+/* ── 2. THE CHASSIS ───────────────────────────────────────────────────── */
+
+.te-root {
+  min-height: 100dvh;
+  background: var(--te-bg);
+  color: var(--te-ink);
+  font-family: var(--te-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: clamp(14px, 3vw, 30px);
+}
+
+.te-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ── 3. MODULES ───────────────────────────────────────────────────────────
+   A module is a faceplate: rounded, flat, hairlined. No shadow — these are
+   screen-printed panels, not floating cards.                              */
+
+.te-module {
+  background: var(--te-panel);
+  border: 1px solid var(--te-line);
+  border-radius: var(--te-radius);
+  padding: clamp(14px, 2.2vw, 22px);
+  position: relative;
+}
+
+/* The colour-coded index chip in a module's corner. Functional: it names the
+   module's signal so the eye can navigate the faceplate by colour. */
+.te-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 5px;
+  font-family: var(--te-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--te-ink-3);
+}
+
+.te-chip--orange { background: var(--te-orange); }
+.te-chip--blue   { background: var(--te-blue); }
+.te-chip--green  { background: var(--te-green); }
+.te-chip--red    { background: var(--te-red); }
+.te-chip--pink   { background: var(--te-pink); }
+.te-chip--yellow { background: var(--te-yellow); color: #16161a; }
+
+/* ── 4. TYPE ──────────────────────────────────────────────────────────────
+   Two voices. A tight grotesque for anything a human reads, and a mono for
+   anything the machine printed on the panel.                              */
+
+.te-label {
+  font-family: var(--te-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--te-ink-3);
+}
+
+.te-title {
+  font-family: var(--te-sans);
+  font-weight: 700;
+  font-size: clamp(19px, 2.4vw, 26px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.te-wordmark {
+  font-family: var(--te-sans);
+  font-weight: 700;
+  font-size: clamp(30px, 5.6vw, 54px);
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.te-note {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--te-ink-2);
+  margin: 0;
+}
+
+/* The readout. Numerals are a display, so they get the well treatment:
+   recessed dark panel, tabular figures, signal colour. */
+.te-readout {
+  background: var(--te-well);
+  border-radius: var(--te-radius-sm);
+  padding: 14px 16px;
+  font-family: var(--te-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--te-orange);
+}
+
+.te-readout__value {
+  font-size: clamp(26px, 4.4vw, 44px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.te-readout__unit {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a7a86;
+  margin-top: 7px;
+}
+
+.te-figure {
+  font-family: var(--te-sans);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Monospace figures reset the tracking. A mono face already carries its own
+   advance width, so the grotesque's -0.02em pulls glyphs into each other —
+   at bold weight the 1 and the 0 in "10.00%" visibly collide. */
+.te-figure--mono {
+  font-family: var(--te-mono);
+  letter-spacing: 0;
+}
+
+/* ── 5. THE LED ───────────────────────────────────────────────────────────
+   A status lamp, flat. It is the only element allowed to be purely a signal
+   with no text of its own — and it never appears without a label beside it. */
+
+.te-led {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--te-ink-3);
+  border: 1px solid rgb(0 0 0 / 0.18);
+}
+
+.te-led--on    { background: var(--te-green); }
+.te-led--warn  { background: var(--te-yellow); }
+.te-led--fault { background: var(--te-red); }
+
+/* ── 6. THE METER ─────────────────────────────────────────────────────────
+   A segmented level meter. Used where a proportion is the point — how many
+   sessions cleared the target, how far a figure sits from its limit.      */
+
+.te-meter {
+  display: flex;
+  gap: 3px;
+  align-items: stretch;
+  height: 22px;
+}
+
+.te-meter__seg {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--te-line-2);
+  border: 1px solid var(--te-line);
+}
+
+.te-meter__seg--lit { background: var(--te-green); border-color: transparent; }
+.te-meter__seg--hot { background: var(--te-red);   border-color: transparent; }
+
+/* ── 7. THE TABLE ─────────────────────────────────────────────────────────
+   Dense machine output. Mono figures, zebra rows, no borders between cells. */
+
+.te-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.te-table thead th {
+  font-family: var(--te-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--te-ink-3);
+  text-align: left;
+  padding: 0 10px 9px 0;
+  white-space: nowrap;
+}
+
+.te-table tbody td {
+  padding: 8px 10px 8px 0;
+  border-top: 1px solid var(--te-line-2);
+  white-space: nowrap;
+}
+
+.te-table tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--te-ink) 3.5%, transparent);
+}
+
+.te-table .num {
+  text-align: right;
+  font-family: var(--te-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.te-up   { color: var(--te-green); }
+.te-down { color: var(--te-red); }
+.te-flat { color: var(--te-ink-3); }
+
+/* ── 8. LAYOUT ────────────────────────────────────────────────────────────
+   A faceplate is a grid of modules. auto-fit so a phone gets a stacked
+   device rather than a squeezed one.                                      */
+
+.te-grid {
+  display: grid;
+  gap: clamp(10px, 1.6vw, 16px);
+}
+
+.te-grid--2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.te-grid--4 { grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); }
+
+.te-stack { display: grid; gap: clamp(10px, 1.6vw, 16px); }
+
+/* ── 9. THE TOGGLE ────────────────────────────────────────────────────── */
+
+.te-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--te-panel);
+  border: 1px solid var(--te-line);
+  border-radius: 999px;
+  padding: 5px 12px 5px 9px;
+  font-family: var(--te-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--te-ink-2);
+  cursor: pointer;
+}
+
+.te-switch:hover { border-color: var(--te-ink-3); color: var(--te-ink); }
+
+.te-switch:focus-visible {
+  outline: 2px solid var(--te-blue);
+  outline-offset: 2px;
+}
+
+/* Motion is limited to state feedback. Nothing on this page animates to be
+   noticed — the Constitution's ban on decorative motion is a good rule and
+   survives the change of visual language. */
+@media (prefers-reduced-motion: reduce) {
+  .te-switch { transition: none; }
+}
