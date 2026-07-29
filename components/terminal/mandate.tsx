@@ -60,7 +60,6 @@ export default function Mandate({
           marginBottom: 16,
         }}
       >
-        <span className="te-chip">01</span>
         <h2 className="te-title">The mandate</h2>
       </div>
 

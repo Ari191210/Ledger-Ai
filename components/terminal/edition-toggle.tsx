@@ -50,10 +50,6 @@ export default function EditionToggle() {
       aria-label={`Switch to ${isNight ? "day" : "night"} edition`}
       disabled={edition === null}
     >
-      <span
-        className={`te-led ${isNight ? "te-led--warn" : "te-led--on"}`}
-        aria-hidden="true"
-      />
       {edition === null ? "—" : isNight ? "Night" : "Day"}
     </button>
   );

@@ -1,33 +1,20 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// THE FACEPLATE
+// THE HEADER
 //
-// The device header: wordmark, model designation, status lamp, edition
-// switch. Modelled on an instrument's top panel rather than an app bar —
-// the state lamp is the only thing here that reports rather than labels.
+// Wordmark, what the desk is, and the agent's state.
 //
-// The lamp never appears alone. A colour is not an accessible status on its
-// own, so the state always prints in words beside it.
+// The state was a coloured lamp beside the word it duplicated. The word was
+// always doing the work — a colour is not a status anyone can read aloud —
+// so the lamp went and the word took the accent instead.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import type { AgentState } from "@/lib/trading/kill-switch";
 import EditionToggle from "./edition-toggle";
 
-const STATE: Record<AgentState, { label: string; lamp: string; note: string }> = {
-  RUNNING: {
-    label: "Running",
-    lamp: "te-led--on",
-    note: "accepting signals",
-  },
-  HALTED_FOR_DAY: {
-    label: "Halted",
-    lamp: "te-led--warn",
-    note: "loss limit hit — flat until next session",
-  },
-  DESTROYED: {
-    label: "Destroyed",
-    lamp: "te-led--fault",
-    note: "kill switch engaged — will not restart",
-  },
+const STATE: Record<AgentState, { label: string; note: string }> = {
+  RUNNING: { label: "Running", note: "accepting signals" },
+  HALTED_FOR_DAY: { label: "Halted", note: "loss limit hit — flat until next session" },
+  DESTROYED: { label: "Destroyed", note: "kill switch engaged — will not restart" },
 };
 
 export default function Faceplate({
@@ -51,11 +38,8 @@ export default function Faceplate({
         }}
       >
         <div>
-          <div
-            style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}
-          >
-            <span className="te-chip te-chip--accent">TD-1</span>
-            <span className="te-label">Ruflo · Trading Desk</span>
+          <div className="te-label" style={{ marginBottom: 12 }}>
+            Ruflo · Trading Desk
           </div>
 
           <h1 className="te-display">The&nbsp;Desk</h1>
@@ -82,24 +66,15 @@ export default function Faceplate({
             </div>
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                justifyContent: "flex-end",
+                fontFamily: "var(--te-mono)",
+                fontSize: 15,
+                fontWeight: 500,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: state === "DESTROYED" ? "var(--te-accent)" : "var(--te-ink)",
               }}
             >
-              <span className={`te-led ${status.lamp}`} aria-hidden="true" />
-              <span
-                style={{
-                  fontFamily: "var(--te-mono)",
-                  fontSize: 15,
-                  fontWeight: 700,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {status.label}
-              </span>
+              {status.label}
             </div>
             <div className="te-label" style={{ marginTop: 5, letterSpacing: "0.06em" }}>
               {status.note}

@@ -21,7 +21,6 @@ export default function NoRecord() {
           marginBottom: 16,
         }}
       >
-        <span className="te-chip">02</span>
         <h2 className="te-title">Track record</h2>
       </div>
 
@@ -34,16 +33,8 @@ export default function NoRecord() {
           background: "color-mix(in srgb, var(--te-ink) 2.5%, transparent)",
         }}
       >
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            marginBottom: 12,
-          }}
-        >
-          <span className="te-led" aria-hidden="true" />
-          <span className="te-label">No signal · nothing connected</span>
+        <div className="te-label" style={{ marginBottom: 14 }}>
+          Nothing connected
         </div>
 
         <p

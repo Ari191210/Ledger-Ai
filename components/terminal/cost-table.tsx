@@ -36,7 +36,6 @@ export default function CostTable({
           flexWrap: "wrap",
         }}
       >
-        <span className="te-chip">04</span>
         <h2 className="te-title">Friction</h2>
       </div>
 

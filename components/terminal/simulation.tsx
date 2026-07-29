@@ -70,7 +70,6 @@ export default function Simulation({
           flexWrap: "wrap",
         }}
       >
-        <span className="te-chip">03</span>
         <h2 className="te-title">The simulation</h2>
         <span className="te-label" style={{ marginLeft: "auto" }}>
           {MARKER}
