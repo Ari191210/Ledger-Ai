@@ -29,6 +29,7 @@ import Faceplate from "@/components/terminal/faceplate";
 import Mandate from "@/components/terminal/mandate";
 import NoRecord from "@/components/terminal/no-record";
 import Simulation from "@/components/terminal/simulation";
+import Evidence from "@/components/terminal/evidence";
 import CostTable from "@/components/terminal/cost-table";
 import { buildTerminalReport } from "@/lib/trading/terminal-data";
 
@@ -60,6 +61,7 @@ export default function TerminalPage() {
             unconstrained={report.unconstrained}
             target={report.killSwitch.dailyReturnTarget}
           />
+          <Evidence result={report.evidence} />
           <CostTable
             costs={report.costs}
             target={report.killSwitch.dailyReturnTarget}

@@ -29,6 +29,7 @@
     "../lib/trading/synthetic.ts",
     "../lib/trading/terminal-data.ts",
     "../lib/trading/format.ts",
-    "../lib/trading/guard.ts"
+    "../lib/trading/guard.ts",
+    "../lib/trading/falsify.ts"
   ]
 }

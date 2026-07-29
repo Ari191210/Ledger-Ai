@@ -17,7 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, ".test-build", "lib", "trading");
 
 let types, costs, killSwitch, calendar, risk, strategy, paper, backtest;
-let synthetic, terminal, fmt, guard;
+let synthetic, terminal, fmt, guard, falsify;
 
 before(async () => {
   // Invoke the compiler via node + typescript's real entry point rather than
@@ -47,7 +47,7 @@ before(async () => {
   fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 
   const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
-  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt, guard] =
+  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt, guard, falsify] =
     await Promise.all(
       [
         "types.js",
@@ -62,6 +62,7 @@ before(async () => {
         "terminal-data.js",
         "format.js",
         "guard.js",
+        "falsify.js",
       ].map(load),
     );
 });
@@ -1194,5 +1195,126 @@ describe("broker enforcement", () => {
     const broker = new paper.PaperBroker(cash(), noFriction);
     broker.setPrice("X", 100);
     assert.doesNotThrow(() => broker.marketOrder("X", "BUY", 10, 0));
+  });
+});
+
+// ── falsification ──────────────────────────────────────────────────────────
+
+describe("null model", () => {
+  const ist = (y, m, d, hh, mm) => Date.UTC(y, m - 1, d, hh - 5, mm - 30);
+  const bars = (n, at) =>
+    Array.from({ length: n }, (_, i) => ({
+      time: at + i * 300_000,
+      open: 100,
+      high: 101,
+      low: 99,
+      close: 100 + (i % 3),
+      volume: 1,
+    }));
+
+  test("never fires before its warmup", () => {
+    const fn = falsify.randomEntrySignal(1, 7, 14, 1.5, 30);
+    const signal = fn({ symbol: "X", candles: bars(10, ist(2025, 1, 15, 9, 15)), inPosition: false });
+    assert.equal(signal.kind, "HOLD");
+  });
+
+  test("never opens a second position", () => {
+    const fn = falsify.randomEntrySignal(1, 7, 14, 1.5, 5);
+    const signal = fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 9, 15)), inPosition: true });
+    assert.equal(signal.kind, "HOLD");
+  });
+
+  test("exits at square-off like the strategy does", () => {
+    // 09:15 + 361 minutes is past the 15:15 bell.
+    const late = bars(60, ist(2025, 1, 15, 15, 20));
+    const fn = falsify.randomEntrySignal(1, 7, 14, 1.5, 5);
+    assert.equal(fn({ symbol: "X", candles: late, inPosition: true }).kind, "EXIT");
+    assert.equal(fn({ symbol: "X", candles: late, inPosition: false }).kind, "HOLD");
+  });
+
+  test("a rate of zero never enters", () => {
+    const fn = falsify.randomEntrySignal(0, 7, 14, 1.5, 5);
+    for (let i = 0; i < 50; i++) {
+      const s = fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 10, 0)), inPosition: false });
+      assert.equal(s.kind, "HOLD");
+    }
+  });
+
+  test("entries always carry a protective stop on the correct side", () => {
+    const fn = falsify.randomEntrySignal(1, 3, 14, 1.5, 5);
+    let entries = 0;
+    for (let i = 0; i < 40; i++) {
+      const s = fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 10, 0)), inPosition: false });
+      if (s.kind === "ENTER_LONG") { entries++; assert.ok(s.stop < s.price); }
+      if (s.kind === "ENTER_SHORT") { entries++; assert.ok(s.stop > s.price); }
+    }
+    assert.ok(entries > 0, "a rate of 1 should produce entries");
+  });
+
+  test("is deterministic for a seed", () => {
+    const draw = (seed) => {
+      const fn = falsify.randomEntrySignal(0.5, seed, 14, 1.5, 5);
+      return Array.from({ length: 20 }, () =>
+        fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 10, 0)), inPosition: false }).kind);
+    };
+    assert.deepEqual(draw(9), draw(9));
+    assert.notDeepEqual(draw(9), draw(10));
+  });
+});
+
+describe("falsify", () => {
+  const small = { tapeSeeds: [11, 23], nullTrialsPerTape: 6, tape: { sessions: 6 } };
+
+  test("the strategy does not separate from random entry", () => {
+    // The headline claim of the whole engine, under test. If this ever flips,
+    // the change that flipped it needs explaining before it is trusted.
+    const r = falsify.falsify(small);
+    assert.equal(r.verdict, "INDISTINGUISHABLE_FROM_CHANCE");
+    assert.ok(r.pValue > r.alpha, `p=${r.pValue} should exceed alpha=${r.alpha}`);
+  });
+
+  test("runs every tape and every trial", () => {
+    const r = falsify.falsify(small);
+    assert.equal(r.tapes, 2);
+    assert.equal(r.strategyReturns.length, 2);
+    assert.equal(r.nullReturns.length, 12);
+    assert.equal(r.trials, 12);
+  });
+
+  test("the p-value is a probability and never exactly zero", () => {
+    const r = falsify.falsify(small);
+    assert.ok(r.pValue > 0, "the +1 correction must keep it above zero");
+    assert.ok(r.pValue <= 1);
+  });
+
+  test("an alpha of 1 always rejects the null — a sanity check on the comparison", () => {
+    const r = falsify.falsify({ ...small, alpha: 1 });
+    assert.equal(r.verdict, "SEPARATES_FROM_CHANCE");
+  });
+
+  test("the null actually trades — an idle null would prove nothing", () => {
+    const r = falsify.falsify(small);
+    assert.ok(r.meanEntries > 0, "the strategy must open positions for the test to mean anything");
+    assert.ok(
+      r.nullReturns.some((x) => x !== 0),
+      "a null that never traded would return exactly 0 every time",
+    );
+  });
+
+  test("is deterministic — the same config gives the same verdict twice", () => {
+    const a = falsify.falsify(small);
+    const b = falsify.falsify(small);
+    assert.equal(a.pValue, b.pValue);
+    assert.deepEqual(a.strategyReturns, b.strategyReturns);
+  });
+
+  test("reports what would overturn the verdict", () => {
+    const r = falsify.falsify(small);
+    assert.ok(r.whatWouldChangeIt.length > 40);
+  });
+
+  test("multiple tapes are used, not one — single-path results are selection bias", () => {
+    const r = falsify.falsify(small);
+    assert.ok(new Set(r.strategyReturns).size > 1, "independent tapes should differ");
   });
 });

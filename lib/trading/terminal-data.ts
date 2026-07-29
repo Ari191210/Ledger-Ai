@@ -22,6 +22,7 @@ import { ChargeBreakdown, chargesForOrder, roundTripCostPct } from "./costs";
 import { DEFAULT_KILL_SWITCH, KillSwitchConfig } from "./kill-switch";
 import { BacktestReport, backtest } from "./backtest";
 import { syntheticTape, DEFAULT_TAPE, TapeConfig } from "./synthetic";
+import { FalsificationResult, falsify } from "./falsify";
 
 /** NSE sessions in a typical calendar year, after weekends and holidays. */
 export const SESSIONS_PER_YEAR = 250;
@@ -166,6 +167,12 @@ export interface TerminalReport {
   /** The same tape with the target rule disabled, so the run completes. */
   unconstrained: SimulationSummary;
   /**
+   * Whether the strategy's return separates from random entry. Carried on
+   * the report because a return printed without it is a number with no
+   * claim attached.
+   */
+  evidence: FalsificationResult;
+  /**
    * A real trading record from a connected broker. Always null: no live
    * adapter exists, and the terminal must not imply one does.
    */
@@ -195,9 +202,18 @@ export function buildTerminalReport(
     killSwitch: { ...killSwitch, destroyOnTargetMiss: false },
   });
 
+  // Smaller than the default sweep: this runs at build time, and the verdict
+  // is stable well below the sample the CLI uses.
+  const evidence = falsify({
+    tapeSeeds: [11, 23, 42],
+    nullTrialsPerTape: 12,
+    tape,
+  });
+
   return {
     killSwitch,
     startingCapital,
+    evidence,
     mandate: mandateArithmetic(killSwitch.dailyReturnTarget, startingCapital),
     costs: costModel(100_000, killSwitch.dailyReturnTarget),
     underMandate: summarise(underMandate, killSwitch.dailyReturnTarget, tape),

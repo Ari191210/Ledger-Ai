@@ -14,7 +14,7 @@
 import { Candle, Paise, SessionResult, toPaise, rupees } from "./types";
 import { PaperBroker, PaperBrokerConfig } from "./paper-broker";
 import { DEFAULT_RISK, RiskConfig, equityOf, sizePosition } from "./risk";
-import { DEFAULT_STRATEGY, StrategyConfig, evaluate } from "./strategy";
+import { DEFAULT_STRATEGY, StrategyConfig, StrategyContext, evaluate } from "./strategy";
 import {
   DEFAULT_KILL_SWITCH,
   KillSwitchConfig,
@@ -34,9 +34,18 @@ export interface SymbolSeries {
   lotSize?: number;
 }
 
+/** A decision rule. Injectable so the engine can be run against a null. */
+export type SignalFn = (ctx: StrategyContext) => Signal;
+
 export interface BacktestConfig {
   startingCapital: Paise;
   strategy: StrategyConfig;
+  /**
+   * Overrides the strategy. Exists so falsify.ts can drive this same engine
+   * with a random-entry rule — the comparison is only fair if both run
+   * through identical sizing, costs, slippage and square-off.
+   */
+  signal?: SignalFn;
   risk: RiskConfig;
   killSwitch: KillSwitchConfig;
   broker: Partial<PaperBrokerConfig>;
@@ -52,6 +61,8 @@ export const DEFAULT_BACKTEST: BacktestConfig = {
 
 export interface BacktestReport {
   sessions: SessionResult[];
+  /** Positions opened. The quantity a null model has to match. */
+  entries: number;
   startingEquity: Paise;
   finalEquity: Paise;
   totalReturnPct: number;
@@ -76,6 +87,8 @@ export function backtest(
   overrides: Partial<BacktestConfig> = {},
 ): BacktestReport {
   const config: BacktestConfig = { ...DEFAULT_BACKTEST, ...overrides };
+  const decide: SignalFn =
+    config.signal ?? ((ctx) => evaluate(ctx, config.strategy));
   const broker = new PaperBroker(config.startingCapital, config.broker);
   let killSwitch = initKillSwitch(config.startingCapital);
 
@@ -104,6 +117,7 @@ export function backtest(
   let sessionCharges = broker.portfolio().charges;
   let sessionTrades = 0;
   let destroyedOn: string | undefined;
+  let entries = 0;
 
   const closeSession = (date: string, at: number): boolean => {
     flattenAll(broker, at);
@@ -154,6 +168,7 @@ export function backtest(
       if (pending && canTrade(killSwitch)) {
         if (openFromSignal(broker, pending, candle.open, time, state, config, killSwitch)) {
           sessionTrades++;
+          entries++;
         }
       }
     }
@@ -194,10 +209,11 @@ export function backtest(
     for (const { symbol, candle } of bars) {
       const state = states.get(symbol)!;
       const position = broker.position(symbol);
-      const signal = evaluate(
-        { symbol, candles: state.history, inPosition: !!position && position.quantity !== 0 },
-        config.strategy,
-      );
+      const signal = decide({
+        symbol,
+        candles: state.history,
+        inPosition: !!position && position.quantity !== 0,
+      });
 
       if (signal.kind === "EXIT" && position) {
         flatten(broker, symbol, candle.close, time);
@@ -222,6 +238,7 @@ export function backtest(
 
   return {
     sessions,
+    entries,
     startingEquity: config.startingCapital,
     finalEquity,
     totalReturnPct: (finalEquity - config.startingCapital) / config.startingCapital,
