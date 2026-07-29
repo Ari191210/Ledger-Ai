@@ -60,7 +60,7 @@ export default function Mandate({
           marginBottom: 16,
         }}
       >
-        <span className="te-chip te-chip--blue">01</span>
+        <span className="te-chip">01</span>
         <h2 className="te-title">The mandate</h2>
       </div>
 
@@ -69,25 +69,25 @@ export default function Mandate({
           label="Daily target"
           value={pct(config.dailyReturnTarget)}
           note="every session"
-          colour="var(--te-orange)"
+          colour="var(--te-glass-line)"
         />
         <Param
           label="Grace"
           value={String(config.graceDays)}
           note={config.graceDays === 0 ? "no misses" : "misses allowed"}
-          colour="var(--te-yellow)"
+          colour="var(--te-glass-line)"
         />
         <Param
           label="Loss limit"
           value={pct(config.maxDailyLossPct)}
           note="halts the session"
-          colour="var(--te-pink)"
+          colour="var(--te-glass-line)"
         />
         <Param
           label="Max drawdown"
           value={pct(config.maxDrawdownPct)}
           note="destroys the agent"
-          colour="var(--te-red)"
+          colour="var(--te-accent)"
         />
       </div>
 
@@ -95,7 +95,7 @@ export default function Mandate({
         className="te-grid"
         style={{ gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}
       >
-        <div className="te-readout" style={{ color: "var(--te-yellow)" }}>
+        <div className="te-readout">
           <div className="te-readout__value">
             {(() => {
               // Typeset with <sup> rather than Unicode superscripts: the

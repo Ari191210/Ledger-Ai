@@ -54,7 +54,7 @@ export default function Faceplate({
           <div
             style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}
           >
-            <span className="te-chip te-chip--orange">TD-1</span>
+            <span className="te-chip te-chip--accent">TD-1</span>
             <span className="te-label">Ruflo · Trading Desk</span>
           </div>
 

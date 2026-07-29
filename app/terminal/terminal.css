@@ -1,17 +1,23 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   THE DESK — frosted instrument panels on a lit canvas.
+   THE DESK — machined panels on an aluminium chassis.
 
    Scoped entirely beneath [data-ui="te"]. Nothing here touches the editorial
    system or the 46 legacy routes.
 
-   Three references, deliberately blended:
-     · Teenage Engineering — module chips, LEDs, dials, segmented meters,
-       mono labels, colour used as signal rather than decoration.
-     · Premium SaaS — generous vertical rhythm, restrained palette, one
-       confident accent per surface.
-     · Apple — an optical type scale where tracking tightens as size grows,
-       high contrast, and hierarchy carried by size and weight, never by
-       decoration.
+   Reference: the EP-133 K.O. II and the OP-1 field. Both are greyscale
+   objects — anodised aluminium, black rubber, off-white keys — carrying
+   exactly ONE accent, orange, on the few controls that matter: the record
+   key, one knob, a handful of LEDs.
+
+   That single-accent discipline is the whole rule here. An earlier pass ran
+   six signal colours and read as a dashboard rather than an instrument. The
+   palette below is greyscale plus orange, and orange is rationed: agent
+   state, the readout digits, the dial, a lit meter, and a losing plot line.
+   Nothing else may take it. If a new element needs colour to be understood,
+   it needs a better label instead.
+
+   Type follows Apple's optical logic — tracking tightens as size grows,
+   hierarchy carried by size and weight rather than decoration.
 
    NOTE ON GLASS. PRODUCT_CONSTITUTION.md §1 bans glassmorphism, and commits
    18732ab / 9e2e193 / b641d6f removed it from this codebase on purpose. It is
@@ -27,42 +33,27 @@
 /* ── 1. TOKENS ────────────────────────────────────────────────────────── */
 
 [data-ui="te"] {
-  --te-canvas:    #eceaf3;
-  --te-tint-a:    #ff5c00;   /* the three lights behind the glass */
-  --te-tint-b:    #1b52f0;
-  --te-tint-c:    #00b3c8;
-  --te-tint-alpha: 0.20;
+  --te-canvas:    #d7d5d1;   /* aluminium chassis */
 
-  --te-glass:       rgb(255 255 255 / 0.66);
-  --te-glass-2:     rgb(255 255 255 / 0.48);
-  --te-glass-edge:  rgb(255 255 255 / 0.85);
-  --te-glass-line:  rgb(16 16 26 / 0.10);
-  --te-shadow:      0 1px 2px rgb(16 16 26 / 0.04), 0 12px 32px rgb(16 16 26 / 0.07);
+  --te-glass:       rgb(255 255 255 / 0.52);
+  --te-glass-2:     rgb(255 255 255 / 0.34);
+  --te-glass-edge:  rgb(255 255 255 / 0.80);
+  --te-glass-line:  rgb(20 20 22 / 0.14);
+  --te-shadow:      0 1px 1px rgb(20 20 22 / 0.05), 0 10px 26px rgb(20 20 22 / 0.08);
 
-  --te-well:      #101018;   /* the LCD — dark in both editions */
+  --te-well:      #121214;   /* the LCD — black in both editions */
+  --te-tag:       #e6e4e0;   /* opaque backing for labels over a plot */
 
-  --te-ink:       #14141c;
-  --te-ink-2:     #4d4d5c;
-  --te-ink-3:     #7c7c8c;
+  --te-ink:       #17171a;
+  --te-ink-2:     #55555c;
+  --te-ink-3:     #8a8a90;
 
-  --te-orange:    #e64f00;
-  --te-red:       #d32b16;
-  --te-green:     #00874d;
-  --te-blue:      #1540d8;
-  --te-yellow:    #a97400;
-  --te-pink:      #d81b60;
+  /* The one accent. Rationed — see the header note. */
+  --te-accent:      #ec4a1e;
+  --te-accent-fill: #f04e23;
 
-  /* Chip fills stay saturated even where the text colour is darkened for
-     contrast on light glass. */
-  --te-orange-fill: #ff5c00;
-  --te-red-fill:    #e0341c;
-  --te-green-fill:  #00a35d;
-  --te-blue-fill:   #1b52f0;
-  --te-yellow-fill: #ffc400;
-  --te-pink-fill:   #ff4d8d;
-
-  --te-radius:    20px;
-  --te-radius-sm: 12px;
+  --te-radius:    14px;
+  --te-radius-sm: 7px;
 
   --te-sans: var(--font-inter), "SF Pro Display", -apple-system, "Helvetica Neue", sans-serif;
   --te-mono: var(--font-space-mono), ui-monospace, "SF Mono", monospace;
@@ -70,97 +61,77 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  [data-ui="te"] { --te-dark: 1; }
-}
-
-/* The night edition. Glass reads best here — the lights behind it have
-   somewhere to fall. */
+/* The night edition — anodised black. */
 @media (prefers-color-scheme: dark) {
   [data-ui="te"] {
-    --te-canvas:   #08080c;
-    --te-tint-alpha: 0.30;
+    --te-canvas:   #0e0e10;
 
     --te-glass:      rgb(255 255 255 / 0.055);
-    --te-glass-2:    rgb(255 255 255 / 0.035);
-    --te-glass-edge: rgb(255 255 255 / 0.14);
-    --te-glass-line: rgb(255 255 255 / 0.10);
-    --te-shadow:     0 1px 2px rgb(0 0 0 / 0.30), 0 16px 40px rgb(0 0 0 / 0.42);
+    --te-glass-2:    rgb(255 255 255 / 0.032);
+    --te-glass-edge: rgb(255 255 255 / 0.13);
+    --te-glass-line: rgb(255 255 255 / 0.11);
+    --te-shadow:     0 1px 1px rgb(0 0 0 / 0.34), 0 14px 34px rgb(0 0 0 / 0.46);
 
-    --te-well:     #05050a;
+    --te-well:     #08080a;
+    --te-tag:      #1b1b1e;
 
-    --te-ink:      #f4f3f8;
-    --te-ink-2:    #adadbd;
-    --te-ink-3:    #7a7a8c;
+    --te-ink:      #f0efec;
+    --te-ink-2:    #a0a0a6;
+    --te-ink-3:    #6e6e76;
 
-    --te-orange:   #ff8a45;
-    --te-red:      #ff6a54;
-    --te-green:    #34d98d;
-    --te-blue:     #7ba0ff;
-    --te-yellow:   #ffd45c;
-    --te-pink:     #ff86b3;
+    --te-accent:      #ff5f2e;
+    --te-accent-fill: #ff5c2b;
 
     color-scheme: dark;
   }
 }
 
 :root[data-edition="evening"] [data-ui="te"] {
-  --te-canvas:   #08080c;
-  --te-tint-alpha: 0.30;
+  --te-canvas:   #0e0e10;
 
   --te-glass:      rgb(255 255 255 / 0.055);
-  --te-glass-2:    rgb(255 255 255 / 0.035);
-  --te-glass-edge: rgb(255 255 255 / 0.14);
-  --te-glass-line: rgb(255 255 255 / 0.10);
-  --te-shadow:     0 1px 2px rgb(0 0 0 / 0.30), 0 16px 40px rgb(0 0 0 / 0.42);
+  --te-glass-2:    rgb(255 255 255 / 0.032);
+  --te-glass-edge: rgb(255 255 255 / 0.13);
+  --te-glass-line: rgb(255 255 255 / 0.11);
+  --te-shadow:     0 1px 1px rgb(0 0 0 / 0.34), 0 14px 34px rgb(0 0 0 / 0.46);
 
-  --te-well:     #05050a;
+  --te-well:     #08080a;
+  --te-tag:      #1b1b1e;
 
-  --te-ink:      #f4f3f8;
-  --te-ink-2:    #adadbd;
-  --te-ink-3:    #7a7a8c;
+  --te-ink:      #f0efec;
+  --te-ink-2:    #a0a0a6;
+  --te-ink-3:    #6e6e76;
 
-  --te-orange:   #ff8a45;
-  --te-red:      #ff6a54;
-  --te-green:    #34d98d;
-  --te-blue:     #7ba0ff;
-  --te-yellow:   #ffd45c;
-  --te-pink:     #ff86b3;
+  --te-accent:      #ff5f2e;
+  --te-accent-fill: #ff5c2b;
 
   color-scheme: dark;
 }
 
 :root[data-edition="print"] [data-ui="te"],
 :root[data-edition="morning"] [data-ui="te"] {
-  --te-canvas:   #eceaf3;
-  --te-tint-alpha: 0.20;
+  --te-canvas:   #d7d5d1;
 
-  --te-glass:      rgb(255 255 255 / 0.66);
-  --te-glass-2:    rgb(255 255 255 / 0.48);
-  --te-glass-edge: rgb(255 255 255 / 0.85);
-  --te-glass-line: rgb(16 16 26 / 0.10);
-  --te-shadow:     0 1px 2px rgb(16 16 26 / 0.04), 0 12px 32px rgb(16 16 26 / 0.07);
+  --te-glass:      rgb(255 255 255 / 0.52);
+  --te-glass-2:    rgb(255 255 255 / 0.34);
+  --te-glass-edge: rgb(255 255 255 / 0.80);
+  --te-glass-line: rgb(20 20 22 / 0.14);
+  --te-shadow:     0 1px 1px rgb(20 20 22 / 0.05), 0 10px 26px rgb(20 20 22 / 0.08);
 
-  --te-well:     #101018;
+  --te-well:     #121214;
+  --te-tag:      #e6e4e0;
 
-  --te-ink:      #14141c;
-  --te-ink-2:    #4d4d5c;
-  --te-ink-3:    #7c7c8c;
+  --te-ink:      #17171a;
+  --te-ink-2:    #55555c;
+  --te-ink-3:    #8a8a90;
 
-  --te-orange:   #e64f00;
-  --te-red:      #d32b16;
-  --te-green:    #00874d;
-  --te-blue:     #1540d8;
-  --te-yellow:   #a97400;
-  --te-pink:     #d81b60;
+  --te-accent:      #ec4a1e;
+  --te-accent-fill: #f04e23;
 
   color-scheme: light;
 }
 
-/* ── 2. THE CANVAS ────────────────────────────────────────────────────────
-   Three wide, soft lights. Fixed, so panels slide over them as the page
-   scrolls and the frosting has something to actually refract. They are large
-   and low-contrast on purpose — this is a lit surface, not an orb field.  */
+/* ── 2. THE CHASSIS ─────────────────────────────────────────────────────── */
 
 .te-root {
   min-height: 100dvh;
@@ -176,22 +147,46 @@
   isolation: isolate;
 }
 
+/* The chassis finish. A single neutral sheen from the top left and a fine
+   horizontal grain — brushed metal, not a light show. The previous version
+   put orange, blue and cyan lights back here, which is what made the page
+   read as a dashboard instead of an instrument. Nothing on this layer is
+   allowed to carry hue. */
 .te-root::before {
   content: "";
   position: fixed;
-  inset: -20%;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(38vw 38vw at 12% 8%,
-      color-mix(in srgb, var(--te-tint-a) calc(var(--te-tint-alpha) * 100%), transparent),
-      transparent 70%),
-    radial-gradient(44vw 44vw at 88% 22%,
-      color-mix(in srgb, var(--te-tint-b) calc(var(--te-tint-alpha) * 100%), transparent),
-      transparent 70%),
-    radial-gradient(40vw 40vw at 50% 92%,
-      color-mix(in srgb, var(--te-tint-c) calc(var(--te-tint-alpha) * 80%), transparent),
-      transparent 70%);
+    radial-gradient(70vw 55vw at 18% -8%, rgb(255 255 255 / 0.30), transparent 68%),
+    repeating-linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.014) 0 1px,
+      transparent 1px 3px
+    );
+}
+
+:root[data-edition="evening"] .te-root::before,
+:root:not([data-edition]) .te-root::before {
+  background:
+    radial-gradient(70vw 55vw at 18% -8%, rgb(255 255 255 / 0.055), transparent 68%),
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 0.012) 0 1px,
+      transparent 1px 3px
+    );
+}
+
+:root[data-edition="print"] .te-root::before,
+:root[data-edition="morning"] .te-root::before {
+  background:
+    radial-gradient(70vw 55vw at 18% -8%, rgb(255 255 255 / 0.30), transparent 68%),
+    repeating-linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.014) 0 1px,
+      transparent 1px 3px
+    );
 }
 
 .te-page {
@@ -211,8 +206,8 @@
   border-radius: var(--te-radius);
   box-shadow: var(--te-shadow);
   padding: clamp(18px, 2.6vw, 32px);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
   overflow: hidden;
 }
 
@@ -327,7 +322,7 @@
   padding: 18px 20px;
   font-family: var(--te-mono);
   font-variant-numeric: tabular-nums lining-nums;
-  color: var(--te-orange);
+  color: var(--te-accent);
 }
 
 .te-readout__value {
@@ -363,12 +358,9 @@
   background: var(--te-ink-3);
 }
 
-.te-chip--orange { background: var(--te-orange-fill); }
-.te-chip--blue   { background: var(--te-blue-fill); }
-.te-chip--green  { background: var(--te-green-fill); }
-.te-chip--red    { background: var(--te-red-fill); }
-.te-chip--pink   { background: var(--te-pink-fill); }
-.te-chip--yellow { background: var(--te-yellow-fill); color: #14141c; }
+/* One hot chip, everything else machined grey — the EP-133 has exactly two
+   orange keys on a face of thirty. */
+.te-chip--accent { background: var(--te-accent-fill); }
 
 .te-led {
   width: 10px;
@@ -378,9 +370,11 @@
   background: var(--te-ink-3);
 }
 
-.te-led--on    { background: var(--te-green-fill); }
-.te-led--warn  { background: var(--te-yellow-fill); }
-.te-led--fault { background: var(--te-red-fill); }
+/* Lamps are off (recessed grey) or lit (orange). There is no green lamp on
+   the reference hardware and there is not one here. */
+.te-led--on    { background: var(--te-ink-2); }
+.te-led--warn  { background: var(--te-accent-fill); opacity: 0.55; }
+.te-led--fault { background: var(--te-accent-fill); }
 
 .te-meter { display: flex; gap: 3px; height: 20px; }
 
@@ -391,8 +385,20 @@
   border: 1px solid var(--te-glass-line);
 }
 
-.te-meter__seg--lit { background: var(--te-green-fill); border-color: transparent; }
-.te-meter__seg--hot { background: var(--te-red-fill);   border-color: transparent; }
+.te-meter__seg--lit { background: var(--te-accent-fill); border-color: transparent; }
+.te-meter__seg--hot { background: var(--te-accent-fill); border-color: transparent; }
+
+/* A label sitting on top of a plot. Needs an opaque backing — over the dot
+   grid the text was reading as struck through. */
+.te-plot__tag {
+  position: absolute;
+  top: 9px;
+  left: 11px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: var(--te-tag);
+  border: 1px solid var(--te-glass-line);
+}
 
 /* ── 7. THE TABLE ────────────────────────────────────────────────────── */
 
@@ -422,8 +428,11 @@
   font-variant-numeric: tabular-nums lining-nums;
 }
 
-.te-up   { color: var(--te-green); }
-.te-down { color: var(--te-red); }
+/* Direction is carried by contrast and by the explicit +/− sign already in
+   the figure, not by hue. Two saturated colours in a forty-row blotter would
+   spend the whole accent budget on rows nobody is looking at. */
+.te-up   { color: var(--te-ink); font-weight: 700; }
+.te-down { color: var(--te-ink-3); }
 .te-flat { color: var(--te-ink-3); }
 
 /* ── 8. LAYOUT ───────────────────────────────────────────────────────── */
@@ -466,15 +475,15 @@
   text-transform: uppercase;
   color: var(--te-ink-2);
   cursor: pointer;
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   transition: color 0.16s ease, border-color 0.16s ease;
 }
 
 [data-ui="te"] button.te-switch:not(.btn):hover { color: var(--te-ink); border-color: var(--te-ink-3); }
 
 [data-ui="te"] button.te-switch:not(.btn):focus-visible {
-  outline: 2px solid var(--te-blue);
+  outline: 2px solid var(--te-accent);
   outline-offset: 3px;
 }
 

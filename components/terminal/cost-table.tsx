@@ -36,7 +36,7 @@ export default function CostTable({
           flexWrap: "wrap",
         }}
       >
-        <span className="te-chip te-chip--pink">04</span>
+        <span className="te-chip">04</span>
         <h2 className="te-title">Friction</h2>
       </div>
 
@@ -82,7 +82,7 @@ export default function CostTable({
                 style={{
                   width: `${Math.max((line.amount / peak) * 100, 1.5)}%`,
                   height: "100%",
-                  background: "var(--te-pink)",
+                  background: "var(--te-ink-2)",
                   borderRadius: 3,
                 }}
               />
@@ -98,7 +98,7 @@ export default function CostTable({
         className="te-grid"
         style={{ gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))" }}
       >
-        <div className="te-readout" style={{ color: "var(--te-pink)" }}>
+        <div className="te-readout">
           <div className="te-readout__value">{inr(costs.totalRoundTrip, true)}</div>
           <div className="te-readout__unit">
             round trip · {pct(costs.roundTripPct, 3)} of capital

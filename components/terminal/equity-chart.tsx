@@ -42,7 +42,7 @@ export default function EquityChart({
   const first = values[0];
   const last = values[values.length - 1];
   const colour =
-    last > first ? "var(--te-green)" : last < first ? "var(--te-red)" : "var(--te-ink-3)";
+    last < first ? "var(--te-accent)" : "var(--te-ink)";
 
   return (
     <figure style={{ margin: 0 }}>
@@ -80,7 +80,7 @@ export default function EquityChart({
             x2={W}
             y1={y(first)}
             y2={y(first)}
-            stroke="var(--te-blue)"
+            stroke="var(--te-ink-3)"
             strokeWidth={1.5}
             strokeDasharray="2 5"
             vectorEffect="non-scaling-stroke"
@@ -111,19 +111,7 @@ export default function EquityChart({
         </svg>
 
         {/* The marker lives inside the frame, not in the caption. */}
-        <span
-          className="te-label"
-          style={{
-            position: "absolute",
-            top: 10,
-            left: 12,
-            background: "var(--te-glass-2)",
-            padding: "0 6px 0 0",
-            color: "var(--te-ink-3)",
-          }}
-        >
-          {label}
-        </span>
+        <span className="te-label te-plot__tag">{label}</span>
       </div>
 
       <figcaption

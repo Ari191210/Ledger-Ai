@@ -90,7 +90,7 @@ export default function Simulation({
           flexWrap: "wrap",
         }}
       >
-        <span className="te-chip te-chip--yellow">03</span>
+        <span className="te-chip">03</span>
         <h2 className="te-title">The simulation</h2>
         <span className="te-label" style={{ marginLeft: "auto" }}>
           {MARKER}
@@ -108,7 +108,7 @@ export default function Simulation({
       <div
         style={{
           border: "1px solid var(--te-glass-line)",
-          borderLeft: "4px solid var(--te-red)",
+          borderLeft: "3px solid var(--te-accent)",
           borderRadius: "var(--te-radius-sm)",
           padding: "14px 15px",
           marginBottom: 18,
@@ -128,7 +128,7 @@ export default function Simulation({
         >
           <Dial
             fraction={(underMandate.best?.returnPct ?? 0) / target}
-            colour="var(--te-red)"
+            colour="var(--te-accent)"
             value={underMandate.best ? signedPct(underMandate.best.returnPct) : "—"}
             caption={`best vs ${pct(target)} target`}
           />
@@ -150,8 +150,8 @@ export default function Simulation({
                 }
                 colour={
                   underMandate.report.killSwitch.state === "DESTROYED"
-                    ? "var(--te-red)"
-                    : "var(--te-green)"
+                    ? "var(--te-accent)"
+                    : "var(--te-ink)"
                 }
               />
             </div>
@@ -179,8 +179,8 @@ export default function Simulation({
           value={signedPct(unconstrained.report.totalReturnPct)}
           colour={
             unconstrained.report.totalReturnPct >= 0
-              ? "var(--te-green)"
-              : "var(--te-red)"
+              ? "var(--te-ink)"
+              : "var(--te-accent)"
           }
         />
         <Readout label="Median session" value={signedPct(unconstrained.medianReturn)} />
@@ -188,7 +188,6 @@ export default function Simulation({
         <Readout
           label="Charges"
           value={inr(rupees(unconstrained.report.totalCharges), true)}
-          colour="var(--te-pink)"
         />
       </div>
 
