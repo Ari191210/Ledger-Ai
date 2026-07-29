@@ -27,9 +27,56 @@ function play(
   } catch {}
 }
 
+/**
+ * A mechanical key click: a short noise burst through a bandpass, decaying
+ * fast. Not a tone — a sine beep reads as a notification, and what a control
+ * surface wants is the sound of a switch closing.
+ *
+ * Synthesised rather than loaded from a file: it is a few hundred bytes of
+ * maths against a ~10 KB asset plus a request, and it cannot fail to load.
+ */
+function playClick(gain: number, centre: number) {
+  try {
+    const ac = getCtx()
+    const length = Math.max(1, Math.floor(ac.sampleRate * 0.028))
+    const buffer = ac.createBuffer(1, length, ac.sampleRate)
+    const samples = buffer.getChannelData(0)
+    for (let i = 0; i < length; i++) {
+      // White noise under a steep exponential decay — the steeper the power,
+      // the more it reads as a click rather than a hiss.
+      samples[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 9)
+    }
+
+    const source = ac.createBufferSource()
+    source.buffer = buffer
+
+    const band = ac.createBiquadFilter()
+    band.type = "bandpass"
+    band.frequency.setValueAtTime(centre, ac.currentTime)
+    band.Q.setValueAtTime(1.1, ac.currentTime)
+
+    const env = ac.createGain()
+    env.gain.setValueAtTime(gain, ac.currentTime)
+
+    source.connect(band)
+    band.connect(env)
+    env.connect(ac.destination)
+    source.start(ac.currentTime)
+    source.stop(ac.currentTime + 0.05)
+  } catch {}
+}
+
 export const sounds = {
   click() {
     play("sine", 800, 0.04, 0.08)
+  },
+  /** Key down — brighter and louder than the release. */
+  keyDown() {
+    playClick(0.085, 2100)
+  },
+  /** Key up — the switch returning. Quieter and duller, as on real hardware. */
+  keyUp() {
+    playClick(0.045, 1350)
   },
   toggleOn() {
     play("sine", 520, 0.06, 0.12)

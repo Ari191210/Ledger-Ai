@@ -14,11 +14,13 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from "react";
+import { useKeyClick } from "./use-key-click";
 
 type Edition = "print" | "evening";
 
 export default function EditionToggle() {
   const [edition, setEdition] = useState<Edition | null>(null);
+  const keyClick = useKeyClick();
 
   useEffect(() => {
     const current = document.documentElement.dataset.edition;
@@ -42,6 +44,7 @@ export default function EditionToggle() {
     <button
       type="button"
       onClick={flip}
+      {...keyClick}
       className="te-switch"
       aria-pressed={isNight}
       aria-label={`Switch to ${isNight ? "day" : "night"} edition`}

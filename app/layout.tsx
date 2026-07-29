@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {
   Instrument_Serif, DM_Sans, Space_Mono, Lora,     // legacy design system
   Playfair_Display, Source_Serif_4, IBM_Plex_Mono, // editorial design system
-  Poiret_One,                                     // the desk's display face
+  Poiret_One, DM_Mono,                            // the desk's display + data faces
 } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
@@ -81,6 +81,15 @@ const poiretOne = Poiret_One({
   variable: "--font-deco", display: "swap", preload: false,
 });
 
+// The desk's data face. Geometric circular bowls echo Poiret One, and it is
+// the same superfamily as DM Sans (already the body face), so the three
+// voices cohere. Tops out at 500 — there is no bold cut, so terminal.css
+// never asks for one.
+const dmMono = DM_Mono({
+  subsets: ["latin"], weight: ["300", "400", "500"],
+  variable: "--font-figure", display: "swap", preload: false,
+});
+
 export const metadata: Metadata = {
   title: "StudyLedger | The Student's Operating System",
   description:
@@ -121,7 +130,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable} ${playfair.variable} ${sourceSerif.variable} ${plexMono.variable} ${poiretOne.variable}`}
+      className={`${instrumentSerif.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable} ${playfair.variable} ${sourceSerif.variable} ${plexMono.variable} ${poiretOne.variable} ${dmMono.variable}`}
       // Both pre-paint scripts below stamp attributes on <html>, so the server's
       // markup and the client's necessarily differ. That is the point — it is how
       // the flash of a wrong-palette page is avoided. Scoped to this one element;

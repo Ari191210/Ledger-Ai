@@ -41,8 +41,18 @@
   --te-glass-line:  rgb(20 20 22 / 0.14);
   --te-shadow:      0 1px 1px rgb(20 20 22 / 0.05), 0 10px 26px rgb(20 20 22 / 0.08);
 
-  --te-well:      #121214;   /* the LCD — black in both editions */
+  /* The readout. On the day edition it is a light panel with dark type —
+     nothing on this edition is dark except the type itself. */
+  --te-well:      #e9e7e3;
+  --te-well-line: rgb(20 20 22 / 0.16);
+  --te-well-ink:  #7c7c82;
   --te-tag:       #e6e4e0;   /* opaque backing for labels over a plot */
+
+  /* Neutral chips are outlined on light, filled on dark — a filled grey chip
+     is a dark block, which the day edition does not get. */
+  --te-chip-bg:   transparent;
+  --te-chip-ink:  var(--te-ink-2);
+  --te-chip-line: rgb(20 20 22 / 0.28);
 
   --te-ink:       #17171a;
   --te-ink-2:     #55555c;
@@ -56,7 +66,7 @@
   --te-radius-sm: 7px;
 
   --te-sans: var(--font-inter), "SF Pro Display", -apple-system, "Helvetica Neue", sans-serif;
-  --te-mono: var(--font-space-mono), ui-monospace, "SF Mono", monospace;
+  --te-mono: var(--font-figure), ui-monospace, "SF Mono", monospace;
   --te-deco: var(--font-deco), "Poiret One", var(--font-inter), sans-serif;
 
   color-scheme: light;
@@ -74,7 +84,12 @@
     --te-shadow:     0 1px 1px rgb(0 0 0 / 0.34), 0 14px 34px rgb(0 0 0 / 0.46);
 
     --te-well:     #08080a;
+    --te-well-line: rgb(255 255 255 / 0.08);
+    --te-well-ink: #6f6f78;
     --te-tag:      #1b1b1e;
+    --te-chip-bg:   rgb(255 255 255 / 0.10);
+    --te-chip-ink:  var(--te-ink-2);
+    --te-chip-line: transparent;
 
     --te-ink:      #f0efec;
     --te-ink-2:    #a0a0a6;
@@ -97,7 +112,12 @@
   --te-shadow:     0 1px 1px rgb(0 0 0 / 0.34), 0 14px 34px rgb(0 0 0 / 0.46);
 
   --te-well:     #08080a;
+  --te-well-line: rgb(255 255 255 / 0.08);
+  --te-well-ink: #6f6f78;
   --te-tag:      #1b1b1e;
+  --te-chip-bg:   rgb(255 255 255 / 0.10);
+  --te-chip-ink:  var(--te-ink-2);
+  --te-chip-line: transparent;
 
   --te-ink:      #f0efec;
   --te-ink-2:    #a0a0a6;
@@ -119,8 +139,13 @@
   --te-glass-line: rgb(20 20 22 / 0.14);
   --te-shadow:     0 1px 1px rgb(20 20 22 / 0.05), 0 10px 26px rgb(20 20 22 / 0.08);
 
-  --te-well:     #121214;
+  --te-well:     #e9e7e3;
+  --te-well-line: rgb(20 20 22 / 0.16);
+  --te-well-ink: #7c7c82;
   --te-tag:      #e6e4e0;
+  --te-chip-bg:   transparent;
+  --te-chip-ink:  var(--te-ink-2);
+  --te-chip-line: rgb(20 20 22 / 0.28);
 
   --te-ink:      #17171a;
   --te-ink-2:    #55555c;
@@ -297,8 +322,8 @@
 .te-label {
   font-family: var(--te-mono);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-weight: 500;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--te-ink-3);
 }
@@ -317,6 +342,7 @@
    weight the 1 and the 0 in "10.00%" visibly overlap. */
 .te-figure--mono {
   font-family: var(--te-mono);
+  font-weight: 500;
   letter-spacing: 0;
   font-size: 22px;
 }
@@ -327,7 +353,7 @@
 
 .te-readout {
   background: var(--te-well);
-  border: 1px solid rgb(255 255 255 / 0.07);
+  border: 1px solid var(--te-well-line);
   border-radius: var(--te-radius-sm);
   padding: 18px 20px;
   font-family: var(--te-mono);
@@ -337,17 +363,17 @@
 
 .te-readout__value {
   font-size: clamp(28px, 4.6vw, 46px);
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   letter-spacing: -0.015em;
 }
 
 .te-readout__unit {
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-weight: 500;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #6f6f80;
+  color: var(--te-well-ink);
   margin-top: 10px;
 }
 
@@ -363,14 +389,19 @@
   border-radius: 6px;
   font-family: var(--te-mono);
   font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-  background: var(--te-ink-3);
+  font-weight: 500;
+  color: var(--te-chip-ink);
+  background: var(--te-chip-bg);
+  border: 1px solid var(--te-chip-line);
 }
 
 /* One hot chip, everything else machined grey — the EP-133 has exactly two
    orange keys on a face of thirty. */
-.te-chip--accent { background: var(--te-accent-fill); }
+.te-chip--accent {
+  background: var(--te-accent-fill);
+  border-color: transparent;
+  color: #fff;
+}
 
 .te-led {
   width: 10px;
@@ -417,8 +448,8 @@
 .te-table thead th {
   font-family: var(--te-mono);
   font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.13em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--te-ink-3);
   text-align: left;
@@ -441,7 +472,7 @@
 /* Direction is carried by contrast and by the explicit +/− sign already in
    the figure, not by hue. Two saturated colours in a forty-row blotter would
    spend the whole accent budget on rows nobody is looking at. */
-.te-up   { color: var(--te-ink); font-weight: 700; }
+.te-up   { color: var(--te-ink); font-weight: 500; }
 .te-down { color: var(--te-ink-3); }
 .te-flat { color: var(--te-ink-3); }
 
@@ -480,8 +511,8 @@
   padding: 7px 15px 7px 11px;
   font-family: var(--te-mono);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.13em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--te-ink-2);
   cursor: pointer;
