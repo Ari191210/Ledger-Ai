@@ -8,7 +8,7 @@ type Section = { label: string; items: FAQ[] };
 
 const SECTIONS: Section[] = [
   {
-    label: "Getting Started",
+    label: "First Week",
     items: [
       {
         q: "What is StudyLedger?",

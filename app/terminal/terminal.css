@@ -237,22 +237,6 @@
   overflow: hidden;
 }
 
-/* The catch light along the top edge. */
-.te-module::after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--te-glass-edge) 18%,
-    var(--te-glass-edge) 82%,
-    transparent
-  );
-  pointer-events: none;
-}
-
 /* An inner pane — a tile inside a module. Lighter, so the nesting reads. */
 .te-pane {
   background: var(--te-glass-2);
@@ -417,30 +401,6 @@
 .te-led--warn  { background: var(--te-accent-fill); opacity: 0.55; }
 .te-led--fault { background: var(--te-accent-fill); }
 
-.te-meter { display: flex; gap: 3px; height: 20px; }
-
-.te-meter__seg {
-  flex: 1;
-  border-radius: 3px;
-  background: var(--te-glass-2);
-  border: 1px solid var(--te-glass-line);
-}
-
-.te-meter__seg--lit { background: var(--te-accent-fill); border-color: transparent; }
-.te-meter__seg--hot { background: var(--te-accent-fill); border-color: transparent; }
-
-/* A label sitting on top of a plot. Needs an opaque backing — over the dot
-   grid the text was reading as struck through. */
-.te-plot__tag {
-  position: absolute;
-  top: 9px;
-  left: 11px;
-  padding: 3px 7px;
-  border-radius: 5px;
-  background: var(--te-tag);
-  border: 1px solid var(--te-glass-line);
-}
-
 /* ── 7. THE TABLE ────────────────────────────────────────────────────── */
 
 .te-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -518,7 +478,6 @@
   cursor: pointer;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  transition: color 0.16s ease, border-color 0.16s ease;
 }
 
 [data-ui="te"] button.te-switch:not(.btn):hover { color: var(--te-ink); border-color: var(--te-ink-3); }
@@ -526,8 +485,4 @@
 [data-ui="te"] button.te-switch:not(.btn):focus-visible {
   outline: 2px solid var(--te-accent);
   outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .te-switch { transition: none; }
 }

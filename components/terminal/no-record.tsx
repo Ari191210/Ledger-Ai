@@ -48,23 +48,21 @@ export default function NoRecord() {
 
         <p
           style={{
-            fontSize: "clamp(16px, 2vw, 19px)",
-            fontWeight: 600,
-            letterSpacing: "-0.01em",
-            margin: "0 auto 12px",
-            maxWidth: "42ch",
+            fontSize: "clamp(17px, 2.1vw, 21px)",
+            fontWeight: 500,
+            letterSpacing: "-0.012em",
+            margin: "0 auto 10px",
+            maxWidth: "40ch",
             lineHeight: 1.35,
           }}
         >
-          The agent has never traded. No broker account is connected, no orders
-          have been placed, and no capital is at risk.
+          The agent has never traded. No account is connected and no capital is
+          at risk.
         </p>
 
-        <p className="te-note" style={{ margin: "0 auto", maxWidth: "56ch" }}>
-          This module stays empty until a live adapter is connected and the
-          agent has settled sessions to report. The simulation below is not a
-          substitute and is never promoted into this space. Connecting a funded
-          account is a deliberate step with its own review — not a config flag.
+        <p className="te-note" style={{ margin: "0 auto", maxWidth: "48ch" }}>
+          The simulation below is not a substitute and is never promoted into
+          this space.
         </p>
       </div>
     </section>

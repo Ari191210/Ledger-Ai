@@ -20,7 +20,6 @@ import type { SimulationSummary } from "@/lib/trading/terminal-data";
 import { rupees } from "@/lib/trading/types";
 import { inr, pct, signedPct } from "@/lib/trading/format";
 import EquityChart from "./equity-chart";
-import Dial from "./dial";
 
 const MARKER = "Simulation · not a trading record";
 
@@ -48,24 +47,6 @@ function Readout({
   );
 }
 
-/** A segmented level meter. `lit` of `total` segments, capped at 40 slots. */
-function Meter({ lit, total, hot }: { lit: number; total: number; hot?: boolean }) {
-  const slots = Math.min(total, 40);
-  const on = total > 0 ? Math.round((lit / total) * slots) : 0;
-  return (
-    <div className="te-meter" role="presentation">
-      {Array.from({ length: slots }, (_, i) => (
-        <span
-          key={i}
-          className={`te-meter__seg ${
-            i < on ? (hot ? "te-meter__seg--hot" : "te-meter__seg--lit") : ""
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function Simulation({
   underMandate,
   unconstrained,
@@ -77,7 +58,6 @@ export default function Simulation({
 }) {
   const tombstone = underMandate.report.killSwitch.tombstone;
   const sessions = unconstrained.report.sessions;
-  const best = unconstrained.best?.returnPct ?? 0;
 
   return (
     <section className="te-module">
@@ -118,55 +98,25 @@ export default function Simulation({
           Under the mandate · target rule active
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "clamp(14px, 3vw, 34px)",
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
+        <p
+          className="te-display"
+          style={{ fontSize: "clamp(26px, 3.4vw, 40px)", marginBottom: 10 }}
         >
-          <Dial
-            fraction={(underMandate.best?.returnPct ?? 0) / target}
-            colour="var(--te-accent)"
-            value={underMandate.best ? signedPct(underMandate.best.returnPct) : "—"}
-            caption={`best vs ${pct(target)} target`}
-          />
+          {underMandate.report.killSwitch.state === "DESTROYED"
+            ? `Destroyed on session ${underMandate.report.sessions.length}.`
+            : `Running after ${underMandate.report.sessions.length} sessions.`}
+        </p>
 
-          <div style={{ flex: "1 1 260px", display: "grid", gap: 10 }}>
-            <div className="te-grid te-grid--4">
-              <Readout
-                label="Survived"
-                value={`${underMandate.report.sessions.length} ${
-                  underMandate.report.sessions.length === 1 ? "session" : "sessions"
-                }`}
-              />
-              <Readout
-                label="Outcome"
-                value={
-                  underMandate.report.killSwitch.state === "DESTROYED"
-                    ? "Destroyed"
-                    : "Running"
-                }
-                colour={
-                  underMandate.report.killSwitch.state === "DESTROYED"
-                    ? "var(--te-accent)"
-                    : "var(--te-ink)"
-                }
-              />
-            </div>
-            {tombstone && (
-              <p className="te-note" style={{ fontSize: 13 }}>
-                {tombstone.detail}.
-              </p>
-            )}
-          </div>
-        </div>
+        <p className="te-note" style={{ maxWidth: "62ch" }}>
+          Best session {underMandate.best ? signedPct(underMandate.best.returnPct) : "—"}{" "}
+          against a {pct(target)} target.
+          {tombstone ? ` ${tombstone.detail}.` : ""}
+        </p>
       </div>
 
       {/* ── Rule off ──────────────────────────────────────────────────── */}
       <div className="te-label" style={{ marginBottom: 10 }}>
-        Same tape · target rule off · {MARKER}
+        Same tape · target rule off
       </div>
 
       <div style={{ marginBottom: 16 }}>
@@ -184,24 +134,10 @@ export default function Simulation({
           }
         />
         <Readout label="Median session" value={signedPct(unconstrained.medianReturn)} />
-        <Readout label="Best session" value={signedPct(best)} />
         <Readout
           label="Charges"
           value={inr(rupees(unconstrained.report.totalCharges), true)}
         />
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <div
-          className="te-label"
-          style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}
-        >
-          <span>Sessions clearing the {pct(target)} target</span>
-          <span>
-            {unconstrained.sessionsAtTarget} of {sessions.length}
-          </span>
-        </div>
-        <Meter lit={unconstrained.sessionsAtTarget} total={sessions.length} />
       </div>
 
       {/* ── The blotter ───────────────────────────────────────────────── */}

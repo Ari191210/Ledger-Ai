@@ -12,7 +12,7 @@
 
 import type { KillSwitchConfig } from "@/lib/trading/kill-switch";
 import type { MandateArithmetic } from "@/lib/trading/terminal-data";
-import { inr, magnitude, multiple, multipleParts, pct } from "@/lib/trading/format";
+import { inr, magnitude, multipleParts, pct } from "@/lib/trading/format";
 
 function Param({
   label,
@@ -123,17 +123,12 @@ export default function Mandate({
           <div className="te-label" style={{ marginBottom: 8 }}>
             What the target compounds to
           </div>
-          <p className="te-note" style={{ marginBottom: 10 }}>
-            {pct(config.dailyReturnTarget)} a session, reinvested, multiplies
-            capital by <strong>{multiple(arithmetic.yearMultiple)}</strong> over
-            one NSE trading year. From {inr(arithmetic.startingCapital / 100)},
-            that is <strong>{magnitude(arithmetic.impliedCapitalAfterYear)}</strong>.
-          </p>
-          <p className="te-note">
-            It reaches ₹1 crore in{" "}
-            <strong>{arithmetic.sessionsToOneCrore} sessions</strong>. This is
-            arithmetic on the rule, not a projection of the agent — it holds
-            whatever the strategy does.
+          <p className="te-note" style={{ maxWidth: "44ch" }}>
+            Reinvested every session, {pct(config.dailyReturnTarget)} reaches ₹1
+            crore from {inr(arithmetic.startingCapital / 100)} in{" "}
+            <strong>{arithmetic.sessionsToOneCrore} sessions</strong>, and{" "}
+            <strong>{magnitude(arithmetic.impliedCapitalAfterYear)}</strong> in a
+            year. That is arithmetic on the rule, not a claim about the agent.
           </p>
         </div>
       </div>

@@ -74,7 +74,7 @@ export default function ParentPage({ params }: { params: Promise<{ code: string 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", border: "1px solid #222", marginBottom: 32 }}>
           {[
-            { label: "Study Streak", value: `${streak}d`, note: streak >= 7 ? "Excellent consistency" : streak >= 3 ? "Building momentum" : "Just getting started" },
+            { label: "Study Streak", value: `${streak}d`, note: streak >= 7 ? "Excellent consistency" : streak >= 3 ? "Building momentum" : "First days" },
             { label: "Papers Done", value: String(papersCount), note: papersCount >= 10 ? "Strong practice" : "Needs more practice" },
             { label: "Next Exam", value: nextExam ? `${daysUntil(nextExam.date)}d` : "—", note: nextExam ? nextExam.name : "No exams added" },
           ].map((s, i) => (

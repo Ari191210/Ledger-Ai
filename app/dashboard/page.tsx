@@ -93,7 +93,7 @@ const TOOL_CATEGORIES: DashCat[] = [
   {
     label: "TRACK",
     tools: [
-      { slug: "grade-tracker",  ttl: "Grade Tracker",           sub: "Marks, score, heatmap, debrief.",      tier: "Free", desc: "Weighted grade predictor, Ledger Score™ breakdown, peer performance heatmap, and post-exam debrief — all in one hub." },
+      { slug: "grade-tracker",  ttl: "Grade Tracker",           sub: "Marks, score, heatmap, debrief.",      tier: "Free", desc: "Weighted grade predictor, Ledger Score™ breakdown, peer performance heatmap, and post-exam debrief." },
       { slug: "rooms",          ttl: "Study Rooms",             sub: "Silent accountability.",               tier: "Pro+", desc: "Shared timer and tasks with friends. Code-based rooms, no sign-up needed for guests." },
       { slug: "compare",        ttl: "Comparison Chart",        sub: "Any concepts, side by side.",          tier: "Free", desc: "Compare 2–4 items across 6–8 criteria. Similarities, differences, and a clear verdict in a clean table." },
       { slug: "source",         ttl: "Source Analyser",         sub: "Analyse any source.",                  tier: "Free", desc: "Deconstruct any primary or secondary source: origin, purpose, value, limitation, and historical context." },

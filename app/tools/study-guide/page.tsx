@@ -102,7 +102,7 @@ export default function StudyGuidePage() {
         <div className="mono" style={{ color: "var(--ink-3)" }}>Study Guide Builder</div>
       </header>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 640, margin: "0 auto" }}>
-        <div className="mono cin" style={{ marginBottom: 8 }}>Everything you need. Nothing you don&apos;t.</div>
+        <div className="mono cin" style={{ marginBottom: 8 }}>Built from your syllabus. Nothing borrowed.</div>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 28, fontWeight: 500, fontStyle: "italic", margin: "0 0 28px" }}>Instant comprehensive study guide for any topic.</h2>
         <div style={{ marginBottom: 14 }}>
           <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 6 }}>Topic or chapter <span style={{ color: "var(--cinnabar-ink)" }}>*</span></div>

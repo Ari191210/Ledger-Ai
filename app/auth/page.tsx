@@ -158,7 +158,7 @@ export default function AuthPage() {
           )}
 
           <div className="auth-heading" style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 24 }}>
-            {mode === "signin" ? "Welcome back." : mode === "signup" ? "Start your ledger." : "Reset password."}
+            {mode === "signin" ? "Pick up where you left off." : mode === "signup" ? "Start your ledger." : "Reset password."}
           </div>
 
           {mode === "forgot" ? (
