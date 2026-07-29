@@ -19,6 +19,9 @@
     "../lib/trading/risk.ts",
     "../lib/trading/strategy.ts",
     "../lib/trading/paper-broker.ts",
-    "../lib/trading/backtest.ts"
+    "../lib/trading/backtest.ts",
+    "../lib/trading/synthetic.ts",
+    "../lib/trading/terminal-data.ts",
+    "../lib/trading/format.ts"
   ]
 }

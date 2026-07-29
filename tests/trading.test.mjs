@@ -17,6 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, ".test-build", "lib", "trading");
 
 let types, costs, killSwitch, calendar, risk, strategy, paper, backtest;
+let synthetic, terminal, fmt;
 
 before(async () => {
   // Invoke the compiler via node + typescript's real entry point rather than
@@ -46,18 +47,22 @@ before(async () => {
   fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 
   const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
-  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest] = await Promise.all(
-    [
-      "types.js",
-      "costs.js",
-      "kill-switch.js",
-      "market-calendar.js",
-      "risk.js",
-      "strategy.js",
-      "paper-broker.js",
-      "backtest.js",
-    ].map(load),
-  );
+  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt] =
+    await Promise.all(
+      [
+        "types.js",
+        "costs.js",
+        "kill-switch.js",
+        "market-calendar.js",
+        "risk.js",
+        "strategy.js",
+        "paper-broker.js",
+        "backtest.js",
+        "synthetic.js",
+        "terminal-data.js",
+        "format.js",
+      ].map(load),
+    );
 });
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -762,5 +767,214 @@ describe("backtest", () => {
     const text = backtest.formatReport(backtest.backtest(trendingWeek()));
     assert.match(text, /DESTROYED/);
     assert.match(text, /DAILY_TARGET_MISSED/);
+  });
+});
+
+// ── synthetic tape ─────────────────────────────────────────────────────────
+
+describe("synthetic tape", () => {
+  test("is deterministic for a given seed", () => {
+    const a = synthetic.syntheticTape({ sessions: 3, seed: 7 });
+    const b = synthetic.syntheticTape({ sessions: 3, seed: 7 });
+    assert.deepEqual(a, b);
+  });
+
+  test("a different seed produces a different tape", () => {
+    const a = synthetic.syntheticTape({ sessions: 3, seed: 7 });
+    const b = synthetic.syntheticTape({ sessions: 3, seed: 8 });
+    assert.notDeepEqual(a, b);
+  });
+
+  test("emits the expected bar count per session", () => {
+    // 09:15–15:30 is 375 minutes; at 5-minute bars that is 75 per session.
+    const candles = synthetic.syntheticTape({ sessions: 4, barMinutes: 5 });
+    assert.equal(candles.length, 4 * 75);
+  });
+
+  test("every session falls on a weekday", () => {
+    const candles = synthetic.syntheticTape({ sessions: 10, barMinutes: 5 });
+    for (const candle of candles) {
+      assert.equal(calendar.isTradingDay(candle.time), true);
+    }
+  });
+
+  test("every bar lands inside continuous trading hours", () => {
+    const candles = synthetic.syntheticTape({ sessions: 5, barMinutes: 5 });
+    for (const candle of candles) {
+      assert.equal(calendar.isMarketOpen(candle.time), true);
+    }
+  });
+
+  test("candles are OHLC-consistent and strictly positive", () => {
+    for (const c of synthetic.syntheticTape({ sessions: 6, barMinutes: 5 })) {
+      assert.ok(c.high >= Math.max(c.open, c.close), "high must top open and close");
+      assert.ok(c.low <= Math.min(c.open, c.close), "low must sit under open and close");
+      assert.ok(c.low > 0 && c.open > 0 && c.close > 0);
+    }
+  });
+
+  test("bars are strictly ordered in time", () => {
+    const candles = synthetic.syntheticTape({ sessions: 5, barMinutes: 5 });
+    for (let i = 1; i < candles.length; i++) {
+      assert.ok(candles[i].time > candles[i - 1].time);
+    }
+  });
+
+  test("carries no exploitable drift — the strategy's edge must come from the tape, not the generator", () => {
+    // Mean bar return should be indistinguishable from zero. If this fails,
+    // the generator is handing the breakout strategy its own answer.
+    const candles = synthetic.syntheticTape({ sessions: 60, barMinutes: 5, seed: 3 });
+    const returns = candles.map((c) => (c.close - c.open) / c.open);
+    const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+    assert.ok(Math.abs(mean) < 2e-4, `mean bar return ${mean} is too far from zero`);
+  });
+
+  test("rejects a non-positive bar interval", () => {
+    assert.throws(() => synthetic.syntheticTape({ barMinutes: 0 }), RangeError);
+  });
+
+  test("zero sessions yields an empty tape", () => {
+    assert.deepEqual(synthetic.syntheticTape({ sessions: 0 }), []);
+  });
+});
+
+// ── formatting ─────────────────────────────────────────────────────────────
+
+describe("format", () => {
+  test("uses Indian digit grouping", () => {
+    assert.match(fmt.inr(100000), /1,00,000/);
+    assert.match(fmt.inr(10000000), /1,00,00,000/);
+  });
+
+  test("signed percentages carry an explicit sign", () => {
+    assert.equal(fmt.signedPct(0.0029), "+0.29%");
+    assert.equal(fmt.signedPct(-0.0114), "−1.14%");
+    assert.equal(fmt.signedPct(0), "0.00%");
+  });
+
+  test("non-finite figures render as an em dash, never as NaN", () => {
+    assert.equal(fmt.inr(NaN), "—");
+    assert.equal(fmt.signedPct(Infinity), "—");
+    assert.equal(fmt.magnitude(NaN), "—");
+    assert.equal(fmt.multiple(NaN), "—");
+  });
+
+  test("very large figures render with real superscript glyphs, not carets", () => {
+    assert.equal(fmt.magnitude(2.23e15), "₹2.23 × 10¹⁵");
+    assert.equal(fmt.multiple(2.23e10), "2.2 × 10¹⁰");
+    assert.doesNotMatch(fmt.magnitude(2.23e15), /\^/);
+  });
+
+  test("superscript typesets each digit", () => {
+    assert.equal(fmt.superscript(0), "⁰");
+    assert.equal(fmt.superscript(15), "¹⁵");
+    assert.equal(fmt.superscript(-3), "⁻³");
+  });
+
+  test("large multiples drop the trailing times sign, small ones keep it", () => {
+    assert.ok(fmt.multiple(2.23e10).endsWith("¹⁰"));
+    assert.ok(fmt.multiple(7.84, 2).endsWith("×"));
+  });
+
+  test("ordinary multiples stay decimal", () => {
+    assert.equal(fmt.multiple(7.84, 2), "7.84×");
+  });
+
+  test("direction maps to the editorial market classes", () => {
+    assert.equal(fmt.direction(0.01), "ed-up");
+    assert.equal(fmt.direction(-0.01), "ed-down");
+    assert.equal(fmt.direction(0), "ed-flat");
+  });
+});
+
+// ── terminal data ──────────────────────────────────────────────────────────
+
+describe("terminal data", () => {
+  test("mandate arithmetic compounds the target across a trading year", () => {
+    const m = terminal.mandateArithmetic(0.1, types.toPaise(100_000));
+    // 1.1^250 is ~2.2e10.
+    assert.ok(m.yearMultiple > 1e10 && m.yearMultiple < 1e11, `got ${m.yearMultiple}`);
+    assert.equal(m.sessionsPerYear, 250);
+  });
+
+  test("a 1% target compounds to a far smaller multiple than 10%", () => {
+    const modest = terminal.mandateArithmetic(0.01, types.toPaise(100_000));
+    const steep = terminal.mandateArithmetic(0.1, types.toPaise(100_000));
+    assert.ok(modest.yearMultiple < steep.yearMultiple / 1e6);
+  });
+
+  test("sessions-to-a-crore is consistent with the target", () => {
+    const m = terminal.mandateArithmetic(0.1, types.toPaise(100_000));
+    // ₹1L → ₹1cr is 100×; log(100)/log(1.1) ≈ 48.3, so 49 sessions.
+    assert.equal(m.sessionsToOneCrore, 49);
+    assert.ok(Math.pow(1.1, m.sessionsToOneCrore) * 100_000 >= 10_000_000);
+  });
+
+  test("a zero target never reaches a crore", () => {
+    const m = terminal.mandateArithmetic(0, types.toPaise(100_000));
+    assert.equal(m.sessionsToOneCrore, Infinity);
+    assert.equal(m.yearMultiple, 1);
+  });
+
+  test("the cost model itemises every statutory charge", () => {
+    const model = terminal.costModel(100_000, 0.1);
+    const labels = model.lines.map((l) => l.label);
+    for (const required of ["Brokerage", "STT", "Stamp duty", "GST"]) {
+      assert.ok(labels.includes(required), `missing ${required}`);
+    }
+    assert.ok(model.totalRoundTrip > 0);
+  });
+
+  test("cost lines sum to the reported round trip", () => {
+    const model = terminal.costModel(100_000, 0.1);
+    const sum = model.lines.reduce((a, l) => a + l.amount, 0);
+    assert.ok(Math.abs(sum - model.totalRoundTrip) < 0.05, `${sum} vs ${model.totalRoundTrip}`);
+  });
+
+  test("gross needed exceeds the target by the modelled friction", () => {
+    const model = terminal.costModel(100_000, 0.1);
+    assert.ok(model.grossNeededForTarget > 0.1);
+    assert.ok(model.grossNeededForTarget < 0.11, "friction should be bps, not points");
+  });
+
+  test("the terminal report never claims a live record", () => {
+    const report = terminal.buildTerminalReport({ tape: { sessions: 6 } });
+    assert.equal(report.liveRecord, null);
+  });
+
+  test("under the mandate the agent is destroyed", () => {
+    const report = terminal.buildTerminalReport({ tape: { sessions: 6 } });
+    assert.equal(report.underMandate.report.killSwitch.state, "DESTROYED");
+    assert.equal(
+      report.underMandate.report.killSwitch.tombstone.reason,
+      "DAILY_TARGET_MISSED",
+    );
+  });
+
+  test("with the rule disabled the run completes and no session hits the target", () => {
+    const report = terminal.buildTerminalReport({ tape: { sessions: 8 } });
+    assert.equal(report.unconstrained.report.sessions.length, 8);
+    assert.equal(report.unconstrained.sessionsAtTarget, 0);
+  });
+
+  test("the equity series starts at the opening capital and tracks each session", () => {
+    const report = terminal.buildTerminalReport({ tape: { sessions: 8 } });
+    const equity = report.unconstrained.equity;
+    assert.equal(equity.length, 9); // session 0 plus eight closes
+    assert.equal(equity[0].session, 0);
+    assert.equal(equity[0].value, types.rupees(report.startingCapital));
+  });
+
+  test("the summary's best and worst bracket the median", () => {
+    const { unconstrained } = terminal.buildTerminalReport({ tape: { sessions: 10 } });
+    assert.ok(unconstrained.best.returnPct >= unconstrained.medianReturn);
+    assert.ok(unconstrained.worst.returnPct <= unconstrained.medianReturn);
+  });
+
+  test("is deterministic — the same config renders the same page twice", () => {
+    const a = terminal.buildTerminalReport({ tape: { sessions: 6 } });
+    const b = terminal.buildTerminalReport({ tape: { sessions: 6 } });
+    assert.deepEqual(a.unconstrained.equity, b.unconstrained.equity);
+    assert.equal(a.mandate.yearMultiple, b.mandate.yearMultiple);
   });
 });

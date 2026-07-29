@@ -76,78 +76,6 @@ function build() {
   fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 }
 
-/** Deterministic PRNG so a given --seed always reproduces the same tape. */
-function mulberry32(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/** Box-Muller, for normally distributed returns. */
-function gaussian(rand) {
-  const u = Math.max(rand(), 1e-12);
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rand());
-}
-
-/** Epoch ms for an IST wall-clock time. IST is UTC+5:30. */
-const ist = (y, m, d, hh, mm) => Date.UTC(y, m - 1, d, hh - 5, mm - 30);
-
-/**
- * `days` sessions of 1-minute candles, 09:15–15:29 IST, skipping weekends.
- * ~1.4% daily volatility, near-martingale.
- *
- * The momentum term is deliberately tiny. An earlier version used a strongly
- * autocorrelated drift, and the breakout strategy "earned" several hundred
- * percent a year on it — not because the strategy is good, but because the
- * generator had been handed the exact pattern the strategy looks for. A
- * simulator that bakes in the edge you are testing for cannot tell you
- * anything. Real minute bars are close to unpredictable, so this one is too.
- */
-function syntheticTape(days, seed) {
-  const rand = mulberry32(seed);
-  const BARS = 375;
-  const minuteVol = 0.014 / Math.sqrt(BARS);
-  const candles = [];
-
-  let price = 1500;
-  let momentum = 0;
-  const cursor = new Date(Date.UTC(2025, 0, 1));
-
-  for (let d = 0; d < days; ) {
-    const day = cursor.getUTCDay();
-    if (day === 0 || day === 6) {
-      cursor.setUTCDate(cursor.getUTCDate() + 1);
-      continue;
-    }
-    const [y, m, dd] = [cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, cursor.getUTCDate()];
-    const open = ist(y, m, dd, 9, 15);
-
-    for (let bar = 0; bar < BARS; bar++) {
-      momentum = momentum * 0.7 + gaussian(rand) * minuteVol * 0.05;
-      const shock = gaussian(rand) * minuteVol + momentum;
-      const prev = price;
-      price = Math.max(price * (1 + shock), 1);
-      const wick = Math.abs(gaussian(rand)) * price * minuteVol * 0.5;
-      candles.push({
-        time: open + bar * 60_000,
-        open: prev,
-        high: Math.max(prev, price) + wick,
-        low: Math.max(Math.min(prev, price) - wick, 0.01),
-        close: price,
-        volume: Math.round(5_000 + rand() * 20_000),
-      });
-    }
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-    d++;
-  }
-
-  return [{ symbol: "SYNTH", candles }];
-}
-
 function loadCsv(file) {
   const rows = fs.readFileSync(file, "utf8").trim().split(/\r?\n/);
   const header = rows[0].split(",").map((h) => h.trim().toLowerCase());
@@ -197,11 +125,22 @@ async function main() {
   build();
 
   const load = (n) => import(pathToFileURL(path.join(outDir, n)).href);
-  const [{ toPaise, rupees }, killSwitchMod, backtestMod] = await Promise.all([
-    load("types.js"), load("kill-switch.js"), load("backtest.js"),
+  const [{ toPaise, rupees }, killSwitchMod, backtestMod, syntheticMod] = await Promise.all([
+    load("types.js"), load("kill-switch.js"), load("backtest.js"), load("synthetic.js"),
   ]);
 
-  const series = args.csv ? loadCsv(args.csv) : syntheticTape(args.days, args.seed);
+  // Minute bars from the CLI: slower than the terminal's five-minute tape, but
+  // this is the surface where a slow, faithful run is the point.
+  const series = args.csv
+    ? loadCsv(args.csv)
+    : [{
+        symbol: "SYNTH",
+        candles: syntheticMod.syntheticTape({
+          sessions: args.days,
+          barMinutes: 1,
+          seed: args.seed,
+        }),
+      }];
   const bars = series.reduce((n, s) => n + s.candles.length, 0);
 
   console.log(
