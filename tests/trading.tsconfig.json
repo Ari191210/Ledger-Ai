@@ -6,10 +6,16 @@
     "target": "es2020",
     "moduleResolution": "node",
     "baseUrl": "..",
-    "paths": { "@/*": ["./*"] },
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     "strict": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "files": [
     "../lib/trading/types.ts",
@@ -22,6 +28,7 @@
     "../lib/trading/backtest.ts",
     "../lib/trading/synthetic.ts",
     "../lib/trading/terminal-data.ts",
-    "../lib/trading/format.ts"
+    "../lib/trading/format.ts",
+    "../lib/trading/guard.ts"
   ]
 }

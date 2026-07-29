@@ -1,332 +1,419 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   THE DESK — a hardware faceplate, not a newspaper.
+   THE DESK — frosted instrument panels on a lit canvas.
 
    Scoped entirely beneath [data-ui="te"]. Nothing here touches the editorial
-   system or the 46 legacy routes; the two vocabularies are invisible to each
-   other by construction, exactly as editorial.css is scoped from globals.css.
+   system or the 46 legacy routes.
 
-   The reference is Teenage Engineering's instrument design language: a grey
-   machined body, modules with screen-printed labels, saturated signal colour
-   used functionally rather than decoratively, generous corner radii, and
-   numerals treated as a readout rather than as typography.
+   Three references, deliberately blended:
+     · Teenage Engineering — module chips, LEDs, dials, segmented meters,
+       mono labels, colour used as signal rather than decoration.
+     · Premium SaaS — generous vertical rhythm, restrained palette, one
+       confident accent per surface.
+     · Apple — an optical type scale where tracking tightens as size grows,
+       high contrast, and hierarchy carried by size and weight, never by
+       decoration.
 
-   COLOUR RULE: accents are signals. Orange means the agent, red means a stop,
-   green means a fill, blue means arithmetic, yellow means a caution. A colour
-   never appears because a module looked empty without it.
+   NOTE ON GLASS. PRODUCT_CONSTITUTION.md §1 bans glassmorphism, and commits
+   18732ab / 9e2e193 / b641d6f removed it from this codebase on purpose. It is
+   reintroduced here on explicit founder instruction, and confined to this
+   route: no token below is shared with editorial.css or globals.css, so the
+   product's other surfaces stay flat.
+
+   Legibility is the constraint that keeps it from being the 2021 version:
+   panels sit at high enough opacity that body copy holds contrast, and every
+   pane has a solid fallback where backdrop-filter is unavailable.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── 1. THE BODY ──────────────────────────────────────────────────────────
-   Warm machined grey. Two panel depths, a hairline, and seven signals.     */
+/* ── 1. TOKENS ────────────────────────────────────────────────────────── */
 
 [data-ui="te"] {
-  --te-bg:        #e4e2dd;   /* the chassis                                */
-  --te-panel:     #f4f2ee;   /* a module faceplate                         */
-  --te-panel-2:   #fffffe;   /* a recessed readout                         */
-  --te-well:      #16161a;   /* an LCD well — dark in both editions        */
+  --te-canvas:    #eceaf3;
+  --te-tint-a:    #ff5c00;   /* the three lights behind the glass */
+  --te-tint-b:    #1b52f0;
+  --te-tint-c:    #00b3c8;
+  --te-tint-alpha: 0.20;
 
-  --te-ink:       #16161a;
-  --te-ink-2:     #56565f;
-  --te-ink-3:     #8b8b95;
-  --te-line:      #cbc8c2;
-  --te-line-2:    #dedbd5;
+  --te-glass:       rgb(255 255 255 / 0.66);
+  --te-glass-2:     rgb(255 255 255 / 0.48);
+  --te-glass-edge:  rgb(255 255 255 / 0.85);
+  --te-glass-line:  rgb(16 16 26 / 0.10);
+  --te-shadow:      0 1px 2px rgb(16 16 26 / 0.04), 0 12px 32px rgb(16 16 26 / 0.07);
 
-  --te-orange:    #ff5c00;   /* the agent                                  */
-  --te-red:       #e0341c;   /* stop, loss, destruction                    */
-  --te-green:     #00a35d;   /* gain, fill                                 */
-  --te-blue:      #1b52f0;   /* arithmetic, configuration                  */
-  --te-yellow:    #ffc400;   /* caution, simulation                        */
-  --te-pink:      #ff4d8d;   /* friction, cost                             */
-  --te-cyan:      #00b3c8;
+  --te-well:      #101018;   /* the LCD — dark in both editions */
 
-  --te-radius:    14px;
-  --te-radius-sm: 8px;
+  --te-ink:       #14141c;
+  --te-ink-2:     #4d4d5c;
+  --te-ink-3:     #7c7c8c;
 
-  --te-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --te-orange:    #e64f00;
+  --te-red:       #d32b16;
+  --te-green:     #00874d;
+  --te-blue:      #1540d8;
+  --te-yellow:    #a97400;
+  --te-pink:      #d81b60;
+
+  /* Chip fills stay saturated even where the text colour is darkened for
+     contrast on light glass. */
+  --te-orange-fill: #ff5c00;
+  --te-red-fill:    #e0341c;
+  --te-green-fill:  #00a35d;
+  --te-blue-fill:   #1b52f0;
+  --te-yellow-fill: #ffc400;
+  --te-pink-fill:   #ff4d8d;
+
+  --te-radius:    20px;
+  --te-radius-sm: 12px;
+
+  --te-sans: var(--font-inter), "SF Pro Display", -apple-system, "Helvetica Neue", sans-serif;
   --te-mono: var(--font-space-mono), ui-monospace, "SF Mono", monospace;
 
   color-scheme: light;
 }
 
-/* The night edition. The chassis goes to anodised black; the signals lift so
-   they stay legible without turning neon. */
+@media (prefers-color-scheme: dark) {
+  [data-ui="te"] { --te-dark: 1; }
+}
+
+/* The night edition. Glass reads best here — the lights behind it have
+   somewhere to fall. */
 @media (prefers-color-scheme: dark) {
   [data-ui="te"] {
-    --te-bg:      #131316;
-    --te-panel:   #1e1e23;
-    --te-panel-2: #27272e;
-    --te-well:    #0b0b0d;
+    --te-canvas:   #08080c;
+    --te-tint-alpha: 0.30;
 
-    --te-ink:     #f3f2ef;
-    --te-ink-2:   #a6a6b0;
-    --te-ink-3:   #71717d;
-    --te-line:    #35353e;
-    --te-line-2:  #2a2a32;
+    --te-glass:      rgb(255 255 255 / 0.055);
+    --te-glass-2:    rgb(255 255 255 / 0.035);
+    --te-glass-edge: rgb(255 255 255 / 0.14);
+    --te-glass-line: rgb(255 255 255 / 0.10);
+    --te-shadow:     0 1px 2px rgb(0 0 0 / 0.30), 0 16px 40px rgb(0 0 0 / 0.42);
 
-    --te-orange:  #ff7a2f;
-    --te-red:     #ff5a45;
-    --te-green:   #1fc77e;
-    --te-blue:    #5b86ff;
-    --te-yellow:  #ffd23d;
-    --te-pink:    #ff6fa4;
-    --te-cyan:    #2ad3e8;
+    --te-well:     #05050a;
+
+    --te-ink:      #f4f3f8;
+    --te-ink-2:    #adadbd;
+    --te-ink-3:    #7a7a8c;
+
+    --te-orange:   #ff8a45;
+    --te-red:      #ff6a54;
+    --te-green:    #34d98d;
+    --te-blue:     #7ba0ff;
+    --te-yellow:   #ffd45c;
+    --te-pink:     #ff86b3;
 
     color-scheme: dark;
   }
 }
 
-/* An explicit edition choice outranks the OS preference. The app stamps
-   data-edition on <html> pre-paint, so this is the same switch the rest of
-   the product already answers to — not a second, parallel theme system. */
 :root[data-edition="evening"] [data-ui="te"] {
-  --te-bg:      #131316;
-  --te-panel:   #1e1e23;
-  --te-panel-2: #27272e;
-  --te-well:    #0b0b0d;
+  --te-canvas:   #08080c;
+  --te-tint-alpha: 0.30;
 
-  --te-ink:     #f3f2ef;
-  --te-ink-2:   #a6a6b0;
-  --te-ink-3:   #71717d;
-  --te-line:    #35353e;
-  --te-line-2:  #2a2a32;
+  --te-glass:      rgb(255 255 255 / 0.055);
+  --te-glass-2:    rgb(255 255 255 / 0.035);
+  --te-glass-edge: rgb(255 255 255 / 0.14);
+  --te-glass-line: rgb(255 255 255 / 0.10);
+  --te-shadow:     0 1px 2px rgb(0 0 0 / 0.30), 0 16px 40px rgb(0 0 0 / 0.42);
 
-  --te-orange:  #ff7a2f;
-  --te-red:     #ff5a45;
-  --te-green:   #1fc77e;
-  --te-blue:    #5b86ff;
-  --te-yellow:  #ffd23d;
-  --te-pink:    #ff6fa4;
-  --te-cyan:    #2ad3e8;
+  --te-well:     #05050a;
+
+  --te-ink:      #f4f3f8;
+  --te-ink-2:    #adadbd;
+  --te-ink-3:    #7a7a8c;
+
+  --te-orange:   #ff8a45;
+  --te-red:      #ff6a54;
+  --te-green:    #34d98d;
+  --te-blue:     #7ba0ff;
+  --te-yellow:   #ffd45c;
+  --te-pink:     #ff86b3;
 
   color-scheme: dark;
 }
 
 :root[data-edition="print"] [data-ui="te"],
 :root[data-edition="morning"] [data-ui="te"] {
-  --te-bg:      #e4e2dd;
-  --te-panel:   #f4f2ee;
-  --te-panel-2: #fffffe;
-  --te-well:    #16161a;
+  --te-canvas:   #eceaf3;
+  --te-tint-alpha: 0.20;
 
-  --te-ink:     #16161a;
-  --te-ink-2:   #56565f;
-  --te-ink-3:   #8b8b95;
-  --te-line:    #cbc8c2;
-  --te-line-2:  #dedbd5;
+  --te-glass:      rgb(255 255 255 / 0.66);
+  --te-glass-2:    rgb(255 255 255 / 0.48);
+  --te-glass-edge: rgb(255 255 255 / 0.85);
+  --te-glass-line: rgb(16 16 26 / 0.10);
+  --te-shadow:     0 1px 2px rgb(16 16 26 / 0.04), 0 12px 32px rgb(16 16 26 / 0.07);
 
-  --te-orange:  #ff5c00;
-  --te-red:     #e0341c;
-  --te-green:   #00a35d;
-  --te-blue:    #1b52f0;
-  --te-yellow:  #ffc400;
-  --te-pink:    #ff4d8d;
-  --te-cyan:    #00b3c8;
+  --te-well:     #101018;
+
+  --te-ink:      #14141c;
+  --te-ink-2:    #4d4d5c;
+  --te-ink-3:    #7c7c8c;
+
+  --te-orange:   #e64f00;
+  --te-red:      #d32b16;
+  --te-green:    #00874d;
+  --te-blue:     #1540d8;
+  --te-yellow:   #a97400;
+  --te-pink:     #d81b60;
 
   color-scheme: light;
 }
 
-/* ── 2. THE CHASSIS ───────────────────────────────────────────────────── */
+/* ── 2. THE CANVAS ────────────────────────────────────────────────────────
+   Three wide, soft lights. Fixed, so panels slide over them as the page
+   scrolls and the frosting has something to actually refract. They are large
+   and low-contrast on purpose — this is a lit surface, not an orb field.  */
 
 .te-root {
   min-height: 100dvh;
-  background: var(--te-bg);
+  background: var(--te-canvas);
   color: var(--te-ink);
   font-family: var(--te-sans);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  padding: clamp(14px, 3vw, 30px);
+  -moz-osx-font-smoothing: grayscale;
+  padding: clamp(16px, 3.5vw, 44px) clamp(14px, 3vw, 32px) clamp(40px, 6vw, 80px);
+  position: relative;
+  isolation: isolate;
+}
+
+.te-root::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38vw 38vw at 12% 8%,
+      color-mix(in srgb, var(--te-tint-a) calc(var(--te-tint-alpha) * 100%), transparent),
+      transparent 70%),
+    radial-gradient(44vw 44vw at 88% 22%,
+      color-mix(in srgb, var(--te-tint-b) calc(var(--te-tint-alpha) * 100%), transparent),
+      transparent 70%),
+    radial-gradient(40vw 40vw at 50% 92%,
+      color-mix(in srgb, var(--te-tint-c) calc(var(--te-tint-alpha) * 80%), transparent),
+      transparent 70%);
 }
 
 .te-page {
-  max-width: 1180px;
+  max-width: 1120px;
   margin: 0 auto;
 }
 
-/* ── 3. MODULES ───────────────────────────────────────────────────────────
-   A module is a faceplate: rounded, flat, hairlined. No shadow — these are
-   screen-printed panels, not floating cards.                              */
+/* ── 3. GLASS ─────────────────────────────────────────────────────────────
+   A pane: frosted fill, hairline, and a single bright top edge where the
+   light catches. The edge is what stops it reading as a flat translucent
+   rectangle.                                                              */
 
 .te-module {
-  background: var(--te-panel);
-  border: 1px solid var(--te-line);
-  border-radius: var(--te-radius);
-  padding: clamp(14px, 2.2vw, 22px);
   position: relative;
+  background: var(--te-glass);
+  border: 1px solid var(--te-glass-line);
+  border-radius: var(--te-radius);
+  box-shadow: var(--te-shadow);
+  padding: clamp(18px, 2.6vw, 32px);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  overflow: hidden;
 }
 
-/* The colour-coded index chip in a module's corner. Functional: it names the
-   module's signal so the eye can navigate the faceplate by colour. */
-.te-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 26px;
-  height: 20px;
-  padding: 0 7px;
-  border-radius: 5px;
-  font-family: var(--te-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #fff;
-  background: var(--te-ink-3);
+/* The catch light along the top edge. */
+.te-module::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--te-glass-edge) 18%,
+    var(--te-glass-edge) 82%,
+    transparent
+  );
+  pointer-events: none;
 }
 
-.te-chip--orange { background: var(--te-orange); }
-.te-chip--blue   { background: var(--te-blue); }
-.te-chip--green  { background: var(--te-green); }
-.te-chip--red    { background: var(--te-red); }
-.te-chip--pink   { background: var(--te-pink); }
-.te-chip--yellow { background: var(--te-yellow); color: #16161a; }
+/* An inner pane — a tile inside a module. Lighter, so the nesting reads. */
+.te-pane {
+  background: var(--te-glass-2);
+  border: 1px solid var(--te-glass-line);
+  border-radius: var(--te-radius-sm);
+  padding: 14px 16px;
+}
+
+/* Where the browser cannot frost, fall back to opaque panels rather than
+   leaving unreadable transparent text over a gradient. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .te-module { background: color-mix(in srgb, var(--te-canvas) 82%, #fff 18%); }
+  .te-pane   { background: color-mix(in srgb, var(--te-canvas) 90%, #fff 10%); }
+}
 
 /* ── 4. TYPE ──────────────────────────────────────────────────────────────
-   Two voices. A tight grotesque for anything a human reads, and a mono for
-   anything the machine printed on the panel.                              */
+   An optical scale: the larger the size, the tighter the tracking.        */
+
+.te-display {
+  font-family: var(--te-sans);
+  font-weight: 700;
+  font-size: clamp(38px, 7vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.038em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.te-title {
+  font-family: var(--te-sans);
+  font-weight: 650;
+  font-size: clamp(21px, 2.6vw, 30px);
+  letter-spacing: -0.024em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.te-lede {
+  font-size: clamp(17px, 1.9vw, 21px);
+  line-height: 1.45;
+  letter-spacing: -0.014em;
+  color: var(--te-ink-2);
+  margin: 0;
+  text-wrap: pretty;
+  max-width: 56ch;
+}
+
+.te-note {
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.006em;
+  color: var(--te-ink-2);
+  margin: 0;
+}
+
+.te-note strong { color: var(--te-ink); font-weight: 650; }
 
 .te-label {
   font-family: var(--te-mono);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--te-ink-3);
 }
 
-.te-title {
+.te-figure {
   font-family: var(--te-sans);
-  font-weight: 700;
-  font-size: clamp(19px, 2.4vw, 26px);
-  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 650;
+  font-size: 25px;
+  letter-spacing: -0.026em;
   line-height: 1.1;
-  margin: 0;
 }
 
-.te-wordmark {
-  font-family: var(--te-sans);
-  font-weight: 700;
-  font-size: clamp(30px, 5.6vw, 54px);
-  letter-spacing: -0.045em;
-  line-height: 0.95;
-  margin: 0;
+/* Monospace figures reset the tracking. A mono face carries its own advance
+   width, so the grotesque's negative tracking collides glyphs — at bold
+   weight the 1 and the 0 in "10.00%" visibly overlap. */
+.te-figure--mono {
+  font-family: var(--te-mono);
+  letter-spacing: 0;
+  font-size: 22px;
 }
 
-.te-note {
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--te-ink-2);
-  margin: 0;
-}
+/* ── 5. THE READOUT ───────────────────────────────────────────────────────
+   The one opaque surface. A display is a display: it does not transmit the
+   room behind it.                                                         */
 
-/* The readout. Numerals are a display, so they get the well treatment:
-   recessed dark panel, tabular figures, signal colour. */
 .te-readout {
   background: var(--te-well);
+  border: 1px solid rgb(255 255 255 / 0.07);
   border-radius: var(--te-radius-sm);
-  padding: 14px 16px;
+  padding: 18px 20px;
   font-family: var(--te-mono);
   font-variant-numeric: tabular-nums lining-nums;
   color: var(--te-orange);
 }
 
 .te-readout__value {
-  font-size: clamp(26px, 4.4vw, 44px);
+  font-size: clamp(28px, 4.6vw, 46px);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
 }
 
 .te-readout__unit {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #7a7a86;
-  margin-top: 7px;
-}
-
-.te-figure {
-  font-family: var(--te-sans);
-  font-variant-numeric: tabular-nums lining-nums;
+  font-size: 10px;
   font-weight: 700;
-  font-size: 24px;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6f6f80;
+  margin-top: 10px;
 }
 
-/* Monospace figures reset the tracking. A mono face already carries its own
-   advance width, so the grotesque's -0.02em pulls glyphs into each other —
-   at bold weight the 1 and the 0 in "10.00%" visibly collide. */
-.te-figure--mono {
+/* ── 6. HARDWARE ─────────────────────────────────────────────────────── */
+
+.te-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 27px;
+  height: 21px;
+  padding: 0 8px;
+  border-radius: 6px;
   font-family: var(--te-mono);
-  letter-spacing: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--te-ink-3);
 }
 
-/* ── 5. THE LED ───────────────────────────────────────────────────────────
-   A status lamp, flat. It is the only element allowed to be purely a signal
-   with no text of its own — and it never appears without a label beside it. */
+.te-chip--orange { background: var(--te-orange-fill); }
+.te-chip--blue   { background: var(--te-blue-fill); }
+.te-chip--green  { background: var(--te-green-fill); }
+.te-chip--red    { background: var(--te-red-fill); }
+.te-chip--pink   { background: var(--te-pink-fill); }
+.te-chip--yellow { background: var(--te-yellow-fill); color: #14141c; }
 
 .te-led {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
   background: var(--te-ink-3);
-  border: 1px solid rgb(0 0 0 / 0.18);
 }
 
-.te-led--on    { background: var(--te-green); }
-.te-led--warn  { background: var(--te-yellow); }
-.te-led--fault { background: var(--te-red); }
+.te-led--on    { background: var(--te-green-fill); }
+.te-led--warn  { background: var(--te-yellow-fill); }
+.te-led--fault { background: var(--te-red-fill); }
 
-/* ── 6. THE METER ─────────────────────────────────────────────────────────
-   A segmented level meter. Used where a proportion is the point — how many
-   sessions cleared the target, how far a figure sits from its limit.      */
-
-.te-meter {
-  display: flex;
-  gap: 3px;
-  align-items: stretch;
-  height: 22px;
-}
+.te-meter { display: flex; gap: 3px; height: 20px; }
 
 .te-meter__seg {
   flex: 1;
-  border-radius: 2px;
-  background: var(--te-line-2);
-  border: 1px solid var(--te-line);
+  border-radius: 3px;
+  background: var(--te-glass-2);
+  border: 1px solid var(--te-glass-line);
 }
 
-.te-meter__seg--lit { background: var(--te-green); border-color: transparent; }
-.te-meter__seg--hot { background: var(--te-red);   border-color: transparent; }
+.te-meter__seg--lit { background: var(--te-green-fill); border-color: transparent; }
+.te-meter__seg--hot { background: var(--te-red-fill);   border-color: transparent; }
 
-/* ── 7. THE TABLE ─────────────────────────────────────────────────────────
-   Dense machine output. Mono figures, zebra rows, no borders between cells. */
+/* ── 7. THE TABLE ────────────────────────────────────────────────────── */
 
-.te-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
+.te-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
 .te-table thead th {
   font-family: var(--te-mono);
   font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--te-ink-3);
   text-align: left;
-  padding: 0 10px 9px 0;
+  padding: 0 12px 10px 0;
   white-space: nowrap;
 }
 
 .te-table tbody td {
-  padding: 8px 10px 8px 0;
-  border-top: 1px solid var(--te-line-2);
+  padding: 9px 12px 9px 0;
+  border-top: 1px solid var(--te-glass-line);
   white-space: nowrap;
-}
-
-.te-table tbody tr:nth-child(even) td {
-  background: color-mix(in srgb, var(--te-ink) 3.5%, transparent);
 }
 
 .te-table .num {
@@ -339,49 +426,58 @@
 .te-down { color: var(--te-red); }
 .te-flat { color: var(--te-ink-3); }
 
-/* ── 8. LAYOUT ────────────────────────────────────────────────────────────
-   A faceplate is a grid of modules. auto-fit so a phone gets a stacked
-   device rather than a squeezed one.                                      */
+/* ── 8. LAYOUT ───────────────────────────────────────────────────────── */
 
-.te-grid {
-  display: grid;
-  gap: clamp(10px, 1.6vw, 16px);
+.te-grid { display: grid; gap: clamp(10px, 1.4vw, 16px); }
+.te-grid--2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.te-grid--4 { grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); }
+
+.te-stack { display: grid; gap: clamp(14px, 2vw, 22px); }
+
+/* ── 9. THE SWITCH ───────────────────────────────────────────────────── */
+
+/* globals.css:462 styles bare buttons through
+   `button:not(.btn):not([class*="ui-btn"])` — specificity (0,2,1), which
+   outranks a plain `.te-switch` (0,1,0) no matter the load order. It was
+   repainting the toggle in the legacy palette's ink and Orsiri, which on the
+   day edition rendered near-white text on white glass.
+   editorial.css:507 solves this the same way. Both rules below clear (0,2,1)
+   so the outcome does not depend on which stylesheet loads last. */
+[data-ui="te"] button:not(.btn):not([class*="ui-btn"]) {
+  font-family: var(--te-sans);
+  color: var(--te-ink);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
-.te-grid--2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.te-grid--4 { grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); }
-
-.te-stack { display: grid; gap: clamp(10px, 1.6vw, 16px); }
-
-/* ── 9. THE TOGGLE ────────────────────────────────────────────────────── */
-
-.te-switch {
+[data-ui="te"] button.te-switch:not(.btn) {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  background: var(--te-panel);
-  border: 1px solid var(--te-line);
+  gap: 8px;
+  background: var(--te-glass);
+  border: 1px solid var(--te-glass-line);
   border-radius: 999px;
-  padding: 5px 12px 5px 9px;
+  padding: 7px 15px 7px 11px;
   font-family: var(--te-mono);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--te-ink-2);
   cursor: pointer;
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  transition: color 0.16s ease, border-color 0.16s ease;
 }
 
-.te-switch:hover { border-color: var(--te-ink-3); color: var(--te-ink); }
+[data-ui="te"] button.te-switch:not(.btn):hover { color: var(--te-ink); border-color: var(--te-ink-3); }
 
-.te-switch:focus-visible {
+[data-ui="te"] button.te-switch:not(.btn):focus-visible {
   outline: 2px solid var(--te-blue);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* Motion is limited to state feedback. Nothing on this page animates to be
-   noticed — the Constitution's ban on decorative motion is a good rule and
-   survives the change of visual language. */
 @media (prefers-reduced-motion: reduce) {
   .te-switch { transition: none; }
 }

@@ -19,6 +19,15 @@ import {
   toPaise,
 } from "./types";
 import { ChargeSchedule, DEFAULT_CHARGES, chargesForOrder } from "./costs";
+import type { TradingGuard } from "./guard";
+
+/** Thrown when the guard refuses an order. Never swallowed silently. */
+export class OrderRejected extends Error {
+  constructor(readonly reason: string) {
+    super(`Order rejected: ${reason}`);
+    this.name = "OrderRejected";
+  }
+}
 
 export interface Broker {
   /** Execute immediately at the current market. */
@@ -68,9 +77,37 @@ export class PaperBroker implements Broker {
   private orderSeq = 0;
   readonly fills: Fill[] = [];
 
-  constructor(startingCash: Paise, config: Partial<PaperBrokerConfig> = {}) {
+  /**
+   * @param guard Optional, but this is where the kill switch becomes real.
+   *              With a guard attached, no caller can open a position while
+   *              the agent is destroyed or halted — including a caller that
+   *              never checks the switch itself.
+   */
+  constructor(
+    startingCash: Paise,
+    config: Partial<PaperBrokerConfig> = {},
+    private readonly guard?: TradingGuard,
+  ) {
     this.state = emptyPortfolio(startingCash);
     this.config = { ...DEFAULT_PAPER_BROKER, ...config };
+  }
+
+  /**
+   * True when an order strictly reduces an open position.
+   *
+   * Reducing orders bypass the guard, deliberately. A destroyed agent must
+   * still be able to flatten — trapping it in an open position would leave
+   * live risk on the book with nothing permitted to close it, which is a
+   * worse failure than the one the kill switch exists to prevent.
+   */
+  private isReducing(symbol: string, side: Side, quantity: number): boolean {
+    const position = this.state.positions.get(symbol);
+    if (!position || position.quantity === 0) return false;
+    const signed = side === "BUY" ? quantity : -quantity;
+    return (
+      Math.sign(signed) !== Math.sign(position.quantity) &&
+      Math.abs(signed) <= Math.abs(position.quantity)
+    );
   }
 
   /** Feed the current market price. Must be called before ordering. */
@@ -97,6 +134,17 @@ export class PaperBroker implements Broker {
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new RangeError(`quantity must be a positive integer, got ${quantity}`);
     }
+
+    // The gate. Opening risk requires permission; closing it never does.
+    // assertMayOpen throws on a destroyed agent and returns false on a halt.
+    if (this.guard && !this.isReducing(symbol, side, quantity)) {
+      if (!this.guard.assertMayOpen()) {
+        throw new OrderRejected(
+          `agent is ${this.guard.state.state}; new positions are not permitted`,
+        );
+      }
+    }
+
     const reference = this.lastPrice.get(symbol);
     if (reference === undefined) {
       throw new Error(`no market price for ${symbol}; call setPrice first`);

@@ -84,7 +84,7 @@ export default function Dial({
         <path
           d={arcPath(cx, cy, rArc, START, START + SWEEP)}
           fill="none"
-          stroke="var(--te-line)"
+          stroke="var(--te-glass-line)"
           strokeWidth={5}
           strokeLinecap="round"
         />
@@ -105,8 +105,8 @@ export default function Dial({
           cx={cx}
           cy={cy}
           r={hub}
-          fill="var(--te-panel-2)"
-          stroke="var(--te-line)"
+          fill="var(--te-glass-2)"
+          stroke="var(--te-glass-line)"
           strokeWidth={1}
         />
         <line

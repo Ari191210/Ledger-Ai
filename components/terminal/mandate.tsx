@@ -26,15 +26,7 @@ function Param({
   colour: string;
 }) {
   return (
-    <div
-      style={{
-        background: "var(--te-panel-2)",
-        border: "1px solid var(--te-line)",
-        borderRadius: "var(--te-radius-sm)",
-        padding: "12px 13px",
-        borderTop: `3px solid ${colour}`,
-      }}
-    >
+    <div className="te-pane" style={{ borderTop: `3px solid ${colour}` }}>
       <div className="te-label" style={{ marginBottom: 7 }}>
         {label}
       </div>

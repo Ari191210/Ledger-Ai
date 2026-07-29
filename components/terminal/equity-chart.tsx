@@ -49,8 +49,8 @@ export default function EquityChart({
       <div
         style={{
           position: "relative",
-          background: "var(--te-panel-2)",
-          border: "1px solid var(--te-line)",
+          background: "var(--te-glass-2)",
+          border: "1px solid var(--te-glass-line)",
           borderRadius: "var(--te-radius-sm)",
           padding: "10px 12px 8px",
         }}
@@ -117,7 +117,7 @@ export default function EquityChart({
             position: "absolute",
             top: 10,
             left: 12,
-            background: "var(--te-panel-2)",
+            background: "var(--te-glass-2)",
             padding: "0 6px 0 0",
             color: "var(--te-ink-3)",
           }}

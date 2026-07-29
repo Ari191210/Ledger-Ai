@@ -17,7 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, ".test-build", "lib", "trading");
 
 let types, costs, killSwitch, calendar, risk, strategy, paper, backtest;
-let synthetic, terminal, fmt;
+let synthetic, terminal, fmt, guard;
 
 before(async () => {
   // Invoke the compiler via node + typescript's real entry point rather than
@@ -47,7 +47,7 @@ before(async () => {
   fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 
   const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
-  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt] =
+  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt, guard] =
     await Promise.all(
       [
         "types.js",
@@ -61,6 +61,7 @@ before(async () => {
         "synthetic.js",
         "terminal-data.js",
         "format.js",
+        "guard.js",
       ].map(load),
     );
 });
@@ -999,5 +1000,199 @@ describe("terminal data", () => {
     const b = terminal.buildTerminalReport({ tape: { sessions: 6 } });
     assert.deepEqual(a.unconstrained.equity, b.unconstrained.equity);
     assert.equal(a.mandate.yearMultiple, b.mandate.yearMultiple);
+  });
+});
+
+// ── guard: enforcement ─────────────────────────────────────────────────────
+
+describe("guard", () => {
+  const cfg = () => ({ ...killSwitch.DEFAULT_KILL_SWITCH });
+  const start = () => types.toPaise(100_000);
+
+  const losingSession = (returnPct) => ({
+    date: "2025-01-15",
+    openingEquity: start(),
+    closingEquity: start() + types.toPaise(100_000 * returnPct),
+    returnPct,
+    charges: 0,
+    trades: 1,
+  });
+
+  test("a fresh guard permits opening", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start() });
+    assert.equal(g.canOpen(), true);
+    assert.equal(g.assertMayOpen(), true);
+  });
+
+  test("a missed target destroys and blocks opening", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start() });
+    g.closeSession(losingSession(0.01));
+    assert.equal(g.state.state, "DESTROYED");
+    assert.equal(g.canOpen(), false);
+    assert.throws(() => g.assertMayOpen(), (e) => e.name === "AgentDestroyedError");
+  });
+
+  test("a halt blocks opening without throwing", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start() });
+    g.markEquity(types.toPaise(97_000)); // past the 2% daily loss limit
+    assert.equal(g.state.state, "HALTED_FOR_DAY");
+    assert.equal(g.assertMayOpen(), false, "a halt is an ordinary event, not an exception");
+  });
+
+  test("destruction persists to the store", () => {
+    const store = new guard.MemoryTombstoneStore();
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start(), store });
+    g.closeSession(losingSession(0.0));
+    assert.ok(store.read(), "the tombstone must reach the store");
+    assert.equal(store.read().reason, "DAILY_TARGET_MISSED");
+  });
+
+  test("a destroyed agent stays destroyed across a restart", () => {
+    // This is the hole the guard exists to close: state used to live only in
+    // memory, so a new process started a destroyed agent up again.
+    const store = new guard.MemoryTombstoneStore();
+    const first = new guard.TradingGuard({ config: cfg(), startingEquity: start(), store });
+    first.closeSession(losingSession(0.0));
+    assert.equal(first.state.state, "DESTROYED");
+
+    const reborn = new guard.TradingGuard({ config: cfg(), startingEquity: start(), store });
+    assert.equal(reborn.state.state, "DESTROYED", "a restart must not revive the agent");
+    assert.equal(reborn.canOpen(), false);
+    assert.throws(() => reborn.assertMayOpen(), (e) => e.name === "AgentDestroyedError");
+  });
+
+  test("the store keeps the original cause of death", () => {
+    const store = new guard.MemoryTombstoneStore();
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start(), store });
+    g.closeSession(losingSession(0.0));
+    const original = store.read().reason;
+    store.write({ ...store.read(), reason: "MANUAL", detail: "overwritten" });
+    assert.equal(store.read().reason, original, "first writer must win");
+  });
+
+  test("a manual stop is recorded like any other destruction", () => {
+    const store = new guard.MemoryTombstoneStore();
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start(), store });
+    g.destroyManually("operator pulled it", start());
+    assert.equal(g.state.state, "DESTROYED");
+    assert.equal(store.read().reason, "MANUAL");
+  });
+
+  test("sessions after destruction change nothing", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: start() });
+    g.closeSession(losingSession(0.0));
+    g.closeSession(losingSession(0.5)); // a spectacular session, too late
+    assert.equal(g.state.state, "DESTROYED");
+  });
+
+  test("rejects a configuration that could never fire", () => {
+    assert.throws(
+      () => new guard.TradingGuard({
+        config: { ...cfg(), maxDrawdownPct: 2 },
+        startingEquity: start(),
+      }),
+      (e) => e.name === "InvalidKillSwitchConfig",
+    );
+  });
+
+  test("rejects non-positive and fractional limits", () => {
+    assert.ok(guard.validateKillSwitchConfig({ ...cfg(), maxDailyLossPct: 0 }).length);
+    assert.ok(guard.validateKillSwitchConfig({ ...cfg(), maxDrawdownPct: -0.1 }).length);
+    assert.ok(guard.validateKillSwitchConfig({ ...cfg(), graceDays: 1.5 }).length);
+    assert.ok(guard.validateKillSwitchConfig({ ...cfg(), graceDays: -1 }).length);
+    assert.equal(guard.validateKillSwitchConfig(cfg()).length, 0);
+  });
+});
+
+// ── guard: enforcement at the broker ───────────────────────────────────────
+
+describe("broker enforcement", () => {
+  const cfg = () => ({ ...killSwitch.DEFAULT_KILL_SWITCH });
+  const cash = () => types.toPaise(100_000);
+  const noFriction = { slippagePct: 0, tickSize: 0.05 };
+
+  function destroyedGuard() {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+    g.destroyManually("test", cash());
+    return g;
+  }
+
+  test("a guarded broker accepts orders while running", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+    const broker = new paper.PaperBroker(cash(), noFriction, g);
+    broker.setPrice("X", 100);
+    assert.ok(broker.marketOrder("X", "BUY", 10, 0));
+  });
+
+  test("a destroyed agent cannot open a position through the broker", () => {
+    // The orchestrator is bypassed entirely here — this calls the broker
+    // directly, which is exactly the hole the guard closes.
+    const broker = new paper.PaperBroker(cash(), noFriction, destroyedGuard());
+    broker.setPrice("X", 100);
+    assert.throws(
+      () => broker.marketOrder("X", "BUY", 10, 0),
+      (e) => e.name === "AgentDestroyedError",
+    );
+    assert.equal(broker.position("X"), undefined, "no position may exist");
+  });
+
+  test("a destroyed agent cannot open a short either", () => {
+    const broker = new paper.PaperBroker(cash(), noFriction, destroyedGuard());
+    broker.setPrice("X", 100);
+    assert.throws(() => broker.marketOrder("X", "SELL", 10, 0), (e) => e.name === "AgentDestroyedError");
+  });
+
+  test("a destroyed agent can still flatten an open position", () => {
+    // Trapping a destroyed agent in live risk would be worse than the failure
+    // the kill switch prevents, so reducing orders always pass.
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+    const broker = new paper.PaperBroker(cash(), noFriction, g);
+    broker.setPrice("X", 100);
+    broker.marketOrder("X", "BUY", 10, 0);
+
+    g.destroyManually("mid-position", cash());
+    assert.doesNotThrow(() => broker.marketOrder("X", "SELL", 10, 1));
+    assert.equal(broker.position("X"), undefined);
+  });
+
+  test("a partial reduction is permitted while destroyed", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+    const broker = new paper.PaperBroker(cash(), noFriction, g);
+    broker.setPrice("X", 100);
+    broker.marketOrder("X", "BUY", 10, 0);
+    g.destroyManually("mid-position", cash());
+    assert.doesNotThrow(() => broker.marketOrder("X", "SELL", 4, 1));
+    assert.equal(broker.position("X").quantity, 6);
+  });
+
+  test("a reversal beyond the held quantity is not a reduction and is blocked", () => {
+    // Selling 25 against a 10 long would close 10 and open a 15 short. That
+    // second half is new risk, so the whole order must be refused.
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+    const broker = new paper.PaperBroker(cash(), noFriction, g);
+    broker.setPrice("X", 100);
+    broker.marketOrder("X", "BUY", 10, 0);
+    g.destroyManually("mid-position", cash());
+    assert.throws(() => broker.marketOrder("X", "SELL", 25, 1), (e) => e.name === "AgentDestroyedError");
+    assert.equal(broker.position("X").quantity, 10, "position must be untouched");
+  });
+
+  test("a halted agent is refused new positions but not flattening", () => {
+    const g = new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+    const broker = new paper.PaperBroker(cash(), noFriction, g);
+    broker.setPrice("X", 100);
+    broker.marketOrder("X", "BUY", 10, 0);
+    g.markEquity(types.toPaise(97_000));
+    assert.equal(g.state.state, "HALTED_FOR_DAY");
+
+    assert.throws(() => broker.marketOrder("Y", "BUY", 1, 1), (e) => e.name === "OrderRejected");
+    broker.setPrice("X", 99);
+    assert.doesNotThrow(() => broker.marketOrder("X", "SELL", 10, 2));
+  });
+
+  test("an unguarded broker is unchanged — the guard is opt-in", () => {
+    const broker = new paper.PaperBroker(cash(), noFriction);
+    broker.setPrice("X", 100);
+    assert.doesNotThrow(() => broker.marketOrder("X", "BUY", 10, 0));
   });
 });

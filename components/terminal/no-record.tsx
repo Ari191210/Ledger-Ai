@@ -27,7 +27,7 @@ export default function NoRecord() {
 
       <div
         style={{
-          border: "2px dashed var(--te-line)",
+          border: "2px dashed var(--te-glass-line)",
           borderRadius: "var(--te-radius-sm)",
           padding: "clamp(18px, 3vw, 28px)",
           textAlign: "center",

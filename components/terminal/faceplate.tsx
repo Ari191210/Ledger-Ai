@@ -58,11 +58,9 @@ export default function Faceplate({
             <span className="te-label">Ruflo · Trading Desk</span>
           </div>
 
-          <h1 className="te-wordmark">
-            THE&nbsp;DESK
-          </h1>
+          <h1 className="te-display">The&nbsp;Desk</h1>
 
-          <p className="te-note" style={{ marginTop: 10, maxWidth: "46ch" }}>
+          <p className="te-lede" style={{ marginTop: 14 }}>
             An NSE intraday equity agent, the rule it trades under, and what
             that rule costs.
           </p>
@@ -117,7 +115,7 @@ export default function Faceplate({
           flexWrap: "wrap",
           marginTop: 18,
           paddingTop: 12,
-          borderTop: "1px solid var(--te-line-2)",
+          borderTop: "1px solid var(--te-glass-line)",
         }}
       >
         <span className="te-label">NSE · Equity intraday</span>

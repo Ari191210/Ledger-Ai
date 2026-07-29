@@ -74,7 +74,7 @@ export default function CostTable({
               style={{
                 height: 7,
                 borderRadius: 3,
-                background: "var(--te-line-2)",
+                background: "var(--te-glass-line)",
                 overflow: "hidden",
               }}
             >

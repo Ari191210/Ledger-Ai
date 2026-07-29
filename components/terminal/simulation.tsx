@@ -34,14 +34,7 @@ function Readout({
   colour?: string;
 }) {
   return (
-    <div
-      style={{
-        background: "var(--te-panel-2)",
-        border: "1px solid var(--te-line)",
-        borderRadius: "var(--te-radius-sm)",
-        padding: "11px 12px",
-      }}
-    >
+    <div className="te-pane">
       <div className="te-label" style={{ marginBottom: 6 }}>
         {label}
       </div>
@@ -114,7 +107,7 @@ export default function Simulation({
       {/* ── Under the mandate ─────────────────────────────────────────── */}
       <div
         style={{
-          border: "1px solid var(--te-line)",
+          border: "1px solid var(--te-glass-line)",
           borderLeft: "4px solid var(--te-red)",
           borderRadius: "var(--te-radius-sm)",
           padding: "14px 15px",
