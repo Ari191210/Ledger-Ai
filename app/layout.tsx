@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {
   Instrument_Serif, DM_Sans, Space_Mono, Lora,     // legacy design system
   Playfair_Display, Source_Serif_4, IBM_Plex_Mono, // editorial design system
+  Poiret_One,                                     // the desk's display face
 } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
 import Tracker from "@/components/tracker";
@@ -71,6 +72,15 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-data", display: "swap", preload: false,
 });
 
+// ── The desk's display face. Consumed only under [data-ui="te"].
+// Poiret One ships a single weight (400) and no italic — any bold applied to
+// it would be a synthesised fake. app/terminal/terminal.css therefore sets
+// font-weight: 400 wherever this is used.
+const poiretOne = Poiret_One({
+  subsets: ["latin"], weight: ["400"],
+  variable: "--font-deco", display: "swap", preload: false,
+});
+
 export const metadata: Metadata = {
   title: "StudyLedger | The Student's Operating System",
   description:
@@ -111,7 +121,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSerif.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable} ${playfair.variable} ${sourceSerif.variable} ${plexMono.variable}`}
+      className={`${instrumentSerif.variable} ${dmSans.variable} ${spaceMono.variable} ${lora.variable} ${playfair.variable} ${sourceSerif.variable} ${plexMono.variable} ${poiretOne.variable}`}
       // Both pre-paint scripts below stamp attributes on <html>, so the server's
       // markup and the client's necessarily differ. That is the point — it is how
       // the flash of a wrong-palette page is avoided. Scoped to this one element;

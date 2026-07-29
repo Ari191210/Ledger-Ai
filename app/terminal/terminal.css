@@ -57,6 +57,7 @@
 
   --te-sans: var(--font-inter), "SF Pro Display", -apple-system, "Helvetica Neue", sans-serif;
   --te-mono: var(--font-space-mono), ui-monospace, "SF Mono", monospace;
+  --te-deco: var(--font-deco), "Poiret One", var(--font-inter), sans-serif;
 
   color-scheme: light;
 }
@@ -245,21 +246,30 @@
 /* ── 4. TYPE ──────────────────────────────────────────────────────────────
    An optical scale: the larger the size, the tighter the tracking.        */
 
+/* Poiret One. A single-weight Art Deco face: geometric circles, hairline
+   strokes, no italic. Two consequences it dictates rather than suggests:
+     · font-weight stays 400. There is no bold cut, so any heavier value
+       would be a browser-synthesised fake — smeared outlines on a face whose
+       whole character is the thinness.
+     · it is used large only. At body size the hairlines disappear, and it
+       carries no tabular figures, so the data layer stays monospaced. */
 .te-display {
-  font-family: var(--te-sans);
-  font-weight: 700;
-  font-size: clamp(38px, 7vw, 76px);
-  line-height: 1.02;
-  letter-spacing: -0.038em;
+  font-family: var(--te-deco);
+  font-weight: 400;
+  font-size: clamp(44px, 8vw, 88px);
+  line-height: 1.0;
+  /* Positive tracking: the negative value here was tuned for a bold
+     grotesque and closed up Poiret's wide geometric bowls. */
+  letter-spacing: 0.005em;
   margin: 0;
   text-wrap: balance;
 }
 
 .te-title {
-  font-family: var(--te-sans);
-  font-weight: 650;
-  font-size: clamp(21px, 2.6vw, 30px);
-  letter-spacing: -0.024em;
+  font-family: var(--te-deco);
+  font-weight: 400;
+  font-size: clamp(25px, 3vw, 36px);
+  letter-spacing: 0.01em;
   line-height: 1.15;
   margin: 0;
 }
