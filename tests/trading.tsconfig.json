@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "outDir": "../.test-build",
+    "rootDir": "..",
+    "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/trading/types.ts",
+    "../lib/trading/costs.ts",
+    "../lib/trading/kill-switch.ts",
+    "../lib/trading/market-calendar.ts",
+    "../lib/trading/risk.ts",
+    "../lib/trading/strategy.ts",
+    "../lib/trading/paper-broker.ts",
+    "../lib/trading/backtest.ts"
+  ]
+}
