@@ -18,26 +18,31 @@ function Param({
   label,
   value,
   note,
-  accent,
+  channel,
 }: {
   label: string;
   value: string;
   note: string;
-  /** The limit that ends the agent. Marked on the figure, not with an edge —
-      a border strip is a foreign object on a single-material surface. */
-  accent?: boolean;
+  /**
+   * Which encoder this setting sits under, 1–4. The colour identifies the
+   * parameter the way an OP-1 knob cap does — it carries no severity and no
+   * judgement, so the figure itself stays in ink.
+   */
+  channel: 1 | 2 | 3 | 4;
 }) {
   return (
     <div className="te-pane">
-      <div className="te-label" style={{ marginBottom: 7 }}>
-        {label}
-      </div>
       <div
-        className="te-figure te-figure--mono"
-        style={accent ? { color: "var(--te-accent)" } : undefined}
+        style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}
       >
-        {value}
+        <span
+          className="te-knob"
+          style={{ ["--te-knob" as string]: `var(--te-c${channel})` }}
+          aria-hidden="true"
+        />
+        <span className="te-label">{label}</span>
       </div>
+      <div className="te-figure te-figure--mono">{value}</div>
       <div
         className="te-label"
         style={{ marginTop: 5, letterSpacing: "0.05em", color: "var(--te-ink-3)" }}
@@ -71,24 +76,27 @@ export default function Mandate({
       <div className="te-grid te-grid--4" style={{ marginBottom: 18 }}>
         <Param
           label="Daily target"
+          channel={1}
           value={pct(config.dailyReturnTarget)}
           note="every session"
         />
         <Param
           label="Grace"
+          channel={2}
           value={String(config.graceDays)}
           note={config.graceDays === 0 ? "no misses" : "misses allowed"}
         />
         <Param
           label="Loss limit"
+          channel={3}
           value={pct(config.maxDailyLossPct)}
           note="halts the session"
         />
         <Param
           label="Max drawdown"
+          channel={4}
           value={pct(config.maxDrawdownPct)}
           note="destroys the agent"
-          accent
         />
       </div>
 

@@ -11,9 +11,18 @@
    rationed. Greyscale everywhere else. Density where there is something to
    read and emptiness where there is not. Those survive; the props are gone.
 
-   Orange appears in four places and nowhere else: the agent's state, the
-   readout digits, the drawdown limit that ends the agent, and a losing plot
-   line. If a new element seems to need colour, it needs a better label.
+   COLOUR IS CHANNEL IDENTITY. The OP-1 carries four coloured encoders on a
+   grey body: the colour tells you which parameter your hand is on, not that
+   the product is cheerful. Same job here — the mandate's four settings take
+   the four encoder hues, and the colour lives on a small raised cap rather
+   than a fill, so the body stays grey and the total coloured area stays
+   about four dots wide.
+
+   Beyond that, colour is spent only where direction is the information: a
+   gaining session reads green, a losing one orange, in the blotter and on
+   the plot. Everything else is grey. An earlier pass ran six hues across
+   chips, bars, borders and lamps and read as a dashboard; the discipline is
+   not the number of colours, it is that each one answers a question.
 
    ONE MATERIAL. Every surface here is the same grey. There are no borders
    and no second panel colour: an element is legible because it rises out of
@@ -80,6 +89,14 @@
   --te-accent:      #ec4a1e;
   --te-accent-fill: #f04e23;
 
+  /* The four encoder caps, in OP-1 order. Channel identity, not decoration.
+     Day values are darkened enough that the two used for text — green and
+     orange — clear 4.5:1 on the sheet. */
+  --te-c1: #2f6fd0;   /* blue   */
+  --te-c2: #c98a00;   /* amber  */
+  --te-c3: #2f7d4f;   /* green  */
+  --te-c4: #d1440f;   /* orange */
+
   --te-radius:    26px;
   --te-radius-sm: 16px;
 
@@ -114,6 +131,11 @@
     --te-accent:      #ff5f2e;
     --te-accent-fill: #ff5c2b;
 
+    --te-c1: #6a9bff;
+    --te-c2: #ffc247;
+    --te-c3: #5fc46a;
+    --te-c4: #ff7a52;
+
     color-scheme: dark;
   }
 }
@@ -139,6 +161,11 @@
 
   --te-accent:      #ff5f2e;
   --te-accent-fill: #ff5c2b;
+
+  --te-c1: #6a9bff;
+  --te-c2: #ffc247;
+  --te-c3: #5fc46a;
+  --te-c4: #ff7a52;
 
   color-scheme: dark;
 }
@@ -372,6 +399,35 @@
   margin-top: 10px;
 }
 
+/* ── 6. MARKS ─────────────────────────────────────────────────────────── */
+
+/* An encoder cap: a small coloured disc raised off the sheet, the way a knob
+   sits on an aluminium body. It carries the channel's colour and nothing
+   else — it is 11px across, which is the whole point. */
+.te-knob {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--te-knob, var(--te-ink-3));
+  box-shadow:
+    -1px -1px 2px var(--te-hi),
+     1px  1px 3px var(--te-lo);
+}
+
+/* A label sitting on top of a plot. Needs an opaque backing — over the dot
+   grid the text was reading as struck through. */
+.te-plot__tag {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--te-tag);
+  box-shadow: var(--te-raised-sm);
+}
+
 /* ── 7. THE TABLE ────────────────────────────────────────────────────── */
 
 .te-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -414,8 +470,11 @@
 /* Direction is carried by contrast and by the explicit +/− sign already in
    the figure, not by hue. Two saturated colours in a forty-row blotter would
    spend the whole accent budget on rows nobody is looking at. */
-.te-up   { color: var(--te-ink); font-weight: 500; }
-.te-down { color: var(--te-ink-3); }
+/* Direction is the one thing in the blotter a reader scans for, so it gets
+   hue rather than contrast. The explicit +/− sign stays either way — colour
+   is never the only carrier. */
+.te-up   { color: var(--te-c3); }
+.te-down { color: var(--te-c4); }
 .te-flat { color: var(--te-ink-3); }
 
 /* ── 8. LAYOUT ───────────────────────────────────────────────────────── */

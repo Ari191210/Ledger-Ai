@@ -41,8 +41,9 @@ export default function EquityChart({
 
   const first = values[0];
   const last = values[values.length - 1];
-  const colour =
-    last < first ? "var(--te-accent)" : "var(--te-ink)";
+  // Same two hues the blotter uses for direction, so a reader who learns the
+  // column learns the plot for free.
+  const colour = last < first ? "var(--te-c4)" : "var(--te-c3)";
 
   return (
     <figure style={{ margin: 0 }}>
