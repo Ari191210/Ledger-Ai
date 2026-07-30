@@ -24,14 +24,11 @@ export default function NoRecord() {
         <h2 className="te-title">Track record</h2>
       </div>
 
+      {/* A recess, not a dashed rectangle. An empty slot in a sheet is the
+          honest shape for a section with nothing in it. */}
       <div
-        style={{
-          border: "2px dashed var(--te-glass-line)",
-          borderRadius: "var(--te-radius-sm)",
-          padding: "clamp(18px, 3vw, 28px)",
-          textAlign: "center",
-          background: "color-mix(in srgb, var(--te-ink) 2.5%, transparent)",
-        }}
+        className="te-recess"
+        style={{ padding: "clamp(24px, 4vw, 40px)", textAlign: "center" }}
       >
         <div className="te-label" style={{ marginBottom: 14 }}>
           Nothing connected

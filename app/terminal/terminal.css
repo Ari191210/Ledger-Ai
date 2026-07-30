@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   THE DESK — machined panels on an aluminium chassis.
+   THE DESK — one sheet, pressed.
 
    Scoped entirely beneath [data-ui="te"]. Nothing here touches the editorial
    system or the 46 legacy routes.
@@ -15,9 +15,23 @@
    readout digits, the drawdown limit that ends the agent, and a losing plot
    line. If a new element seems to need colour, it needs a better label.
 
-   SURFACES ARE FLAT. No translucency, no blur, no gradient behind the
-   panels. A panel is a solid tone a step away from the chassis, separated by
-   a hairline — the material difference does the work a shadow used to.
+   ONE MATERIAL. Every surface here is the same grey. There are no borders
+   and no second panel colour: an element is legible because it rises out of
+   the sheet or sinks into it, and nothing else. A raised thing catches light
+   top-left and casts bottom-right; an inset thing does the reverse. Nesting
+   reads as raised-holding-inset, which is why a tile inside a module is a
+   recess rather than a lighter rectangle.
+
+   The rule that keeps this honest: depth means state, never importance. A
+   pressed control goes inset because it *is* pressed. An empty slot is a
+   recess because there is nothing in it. Nothing is extruded to look
+   expensive.
+
+   CONTRAST IS THE KNOWN COST. Shadow-only boundaries are the reason this
+   style fails accessibility audits. Two guards: body text stays near-black
+   on light grey rather than the grey-on-grey of the reference shots, and
+   `prefers-contrast: more` restores real hairlines for anyone who asks the
+   OS for them.
 
    Type follows an optical scale: tracking tightens as size grows, hierarchy
    carried by size and weight rather than decoration.
@@ -26,18 +40,36 @@
 /* ── 1. TOKENS ────────────────────────────────────────────────────────── */
 
 [data-ui="te"] {
-  --te-canvas:    #d7d5d1;   /* aluminium chassis */
+  --te-canvas:    #e2e5ea;   /* the sheet everything is pressed from */
 
-  --te-glass:       #e5e3df;   /* panel: one step off the chassis */
-  --te-glass-2:     #edebe7;   /* pane: one step off the panel     */
-  --te-glass-line:  rgb(20 20 22 / 0.16);
+  /* One material. Panels, panes and the chassis are the same grey; only the
+     shadows differ. These stay as tokens because components reference them
+     inline, but they all resolve to the sheet. */
+  --te-glass:       var(--te-canvas);
+  --te-glass-2:     var(--te-canvas);
+  --te-glass-line:  transparent;
 
-  /* The readout. On the day edition it is a light panel with dark type —
-     nothing on this edition is dark except the type itself. */
-  --te-well:      #e9e7e3;
-  --te-well-line: rgb(20 20 22 / 0.16);
+  /* The two lights. Everything raised or inset is built from this pair. */
+  --te-hi:  #ffffff;
+  --te-lo:  #b9bcc4;
+
+  --te-raised:
+    -7px -7px 16px var(--te-hi),
+     7px  7px 16px var(--te-lo);
+  --te-raised-sm:
+    -3px -3px 7px var(--te-hi),
+     3px  3px 7px var(--te-lo);
+  --te-inset:
+    inset  5px  5px 11px var(--te-lo),
+    inset -5px -5px 11px var(--te-hi);
+  --te-inset-sm:
+    inset  3px  3px 6px var(--te-lo),
+    inset -3px -3px 6px var(--te-hi);
+
+  --te-well:      var(--te-canvas);
+  --te-well-line: transparent;
   --te-well-ink:  #7c7c82;
-  --te-tag:       #e6e4e0;   /* opaque backing for labels over a plot */
+  --te-tag:       var(--te-canvas);
 
 
   --te-ink:       #17171a;
@@ -48,8 +80,8 @@
   --te-accent:      #ec4a1e;
   --te-accent-fill: #f04e23;
 
-  --te-radius:    14px;
-  --te-radius-sm: 7px;
+  --te-radius:    26px;
+  --te-radius-sm: 16px;
 
   --te-sans: var(--font-inter), "SF Pro Display", -apple-system, "Helvetica Neue", sans-serif;
   --te-mono: var(--font-figure), ui-monospace, "SF Mono", monospace;
@@ -61,16 +93,19 @@
 /* The night edition — anodised black. */
 @media (prefers-color-scheme: dark) {
   [data-ui="te"] {
-    --te-canvas:   #0e0e10;
+    --te-canvas:   #2b2e34;
 
-    --te-glass:      #17171a;
-    --te-glass-2:    #1e1e22;
-    --te-glass-line: rgb(255 255 255 / 0.10);
+    --te-glass:      var(--te-canvas);
+    --te-glass-2:    var(--te-canvas);
+    --te-glass-line: transparent;
 
-    --te-well:     #08080a;
-    --te-well-line: rgb(255 255 255 / 0.08);
-    --te-well-ink: #6f6f78;
-    --te-tag:      #1b1b1e;
+    --te-hi: rgb(255 255 255 / 0.055);
+    --te-lo: rgb(0 0 0 / 0.62);
+
+    --te-well:     var(--te-canvas);
+    --te-well-line: transparent;
+    --te-well-ink: #83838d;
+    --te-tag:      var(--te-canvas);
 
     --te-ink:      #f0efec;
     --te-ink-2:    #a0a0a6;
@@ -84,16 +119,19 @@
 }
 
 :root[data-edition="evening"] [data-ui="te"] {
-  --te-canvas:   #0e0e10;
+  --te-canvas:   #2b2e34;
 
-  --te-glass:      #17171a;
-  --te-glass-2:    #1e1e22;
-  --te-glass-line: rgb(255 255 255 / 0.10);
+  --te-glass:      var(--te-canvas);
+  --te-glass-2:    var(--te-canvas);
+  --te-glass-line: transparent;
 
-  --te-well:     #08080a;
-  --te-well-line: rgb(255 255 255 / 0.08);
-  --te-well-ink: #6f6f78;
-  --te-tag:      #1b1b1e;
+  --te-hi: rgb(255 255 255 / 0.055);
+  --te-lo: rgb(0 0 0 / 0.62);
+
+  --te-well:     var(--te-canvas);
+  --te-well-line: transparent;
+  --te-well-ink: #83838d;
+  --te-tag:      var(--te-canvas);
 
   --te-ink:      #f0efec;
   --te-ink-2:    #a0a0a6;
@@ -107,16 +145,19 @@
 
 :root[data-edition="print"] [data-ui="te"],
 :root[data-edition="morning"] [data-ui="te"] {
-  --te-canvas:   #d7d5d1;
+  --te-canvas:   #e2e5ea;
 
-  --te-glass:      #e5e3df;
-  --te-glass-2:    #edebe7;
-  --te-glass-line: rgb(20 20 22 / 0.16);
+  --te-glass:      var(--te-canvas);
+  --te-glass-2:    var(--te-canvas);
+  --te-glass-line: transparent;
 
-  --te-well:     #e9e7e3;
-  --te-well-line: rgb(20 20 22 / 0.16);
+  --te-hi: #ffffff;
+  --te-lo: #b9bcc4;
+
+  --te-well:     var(--te-canvas);
+  --te-well-line: transparent;
   --te-well-ink: #7c7c82;
-  --te-tag:      #e6e4e0;
+  --te-tag:      var(--te-canvas);
 
   --te-ink:      #17171a;
   --te-ink-2:    #55555c;
@@ -176,20 +217,49 @@
 
 /* ── 3. SURFACES ─────────────────────────────────────────────────────── */
 
+/* A module rises out of the sheet. */
 .te-module {
   position: relative;
-  background: var(--te-glass);
-  border: 1px solid var(--te-glass-line);
+  background: var(--te-canvas);
+  border: 0;
   border-radius: var(--te-radius);
-  padding: clamp(18px, 2.6vw, 32px);
+  box-shadow: var(--te-raised);
+  padding: clamp(20px, 2.8vw, 34px);
 }
 
-/* An inner pane — a tile inside a module. Lighter, so the nesting reads. */
+/* A pane sinks into the module holding it. Raised-inside-raised reads as two
+   objects stacked; raised-holding-inset reads as one object with a recess,
+   which is what a tile in a panel actually is. */
 .te-pane {
-  background: var(--te-glass-2);
-  border: 1px solid var(--te-glass-line);
+  background: var(--te-canvas);
+  border: 0;
   border-radius: var(--te-radius-sm);
-  padding: 14px 16px;
+  box-shadow: var(--te-inset-sm);
+  padding: 15px 17px;
+}
+
+/* A deeper recess, for things that hold data rather than label it — the plot
+   frame and the empty slot in the track record. */
+.te-recess {
+  background: var(--te-canvas);
+  border: 0;
+  border-radius: var(--te-radius-sm);
+  box-shadow: var(--te-inset);
+}
+
+/* The known failure mode of a shadow-only interface is that the boundaries
+   vanish for anyone who needs contrast. When the OS asks, give them edges. */
+@media (prefers-contrast: more) {
+  [data-ui="te"] {
+    --te-glass-line: currentColor;
+  }
+  .te-module,
+  .te-pane,
+  .te-recess,
+  .te-readout {
+    box-shadow: none;
+    border: 1px solid var(--te-ink-3);
+  }
 }
 
 /* ── 4. TYPE ──────────────────────────────────────────────────────────────
@@ -276,10 +346,11 @@
    room behind it.                                                         */
 
 .te-readout {
-  background: var(--te-well);
-  border: 1px solid var(--te-well-line);
+  background: var(--te-canvas);
+  border: 0;
   border-radius: var(--te-radius-sm);
-  padding: 18px 20px;
+  box-shadow: var(--te-inset);
+  padding: 22px 24px;
   font-family: var(--te-mono);
   font-variant-numeric: tabular-nums lining-nums;
   color: var(--te-accent);
@@ -318,9 +389,20 @@
 }
 
 .te-table tbody td {
-  padding: 9px 12px 9px 0;
-  border-top: 1px solid var(--te-glass-line);
+  padding: 10px 12px;
   white-space: nowrap;
+}
+
+/* Rows alternate by a faint press into the sheet rather than by a rule —
+   a 1px line on a single material reads as a scratch in it. */
+.te-table tbody tr:nth-child(odd) td {
+  background: color-mix(in srgb, var(--te-lo) 22%, transparent);
+}
+.te-table tbody tr:nth-child(odd) td:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.te-table tbody tr:nth-child(odd) td:last-child {
+  border-radius: 0 8px 8px 0;
 }
 
 .te-table .num {
@@ -365,10 +447,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--te-glass);
-  border: 1px solid var(--te-glass-line);
+  background: var(--te-canvas);
+  border: 0;
   border-radius: 999px;
-  padding: 7px 15px 7px 11px;
+  box-shadow: var(--te-raised-sm);
+  padding: 9px 17px;
   font-family: var(--te-mono);
   font-size: 10px;
   font-weight: 500;
@@ -378,7 +461,12 @@
   cursor: pointer;
 }
 
-[data-ui="te"] button.te-switch:not(.btn):hover { color: var(--te-ink); border-color: var(--te-ink-3); }
+[data-ui="te"] button.te-switch:not(.btn):hover { color: var(--te-ink); }
+
+/* Pressed goes inset. The depth is reporting the press, not decorating it. */
+[data-ui="te"] button.te-switch:not(.btn):active {
+  box-shadow: var(--te-inset-sm);
+}
 
 [data-ui="te"] button.te-switch:not(.btn):focus-visible {
   outline: 2px solid var(--te-accent);

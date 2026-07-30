@@ -47,13 +47,8 @@ export default function EquityChart({
   return (
     <figure style={{ margin: 0 }}>
       <div
-        style={{
-          position: "relative",
-          background: "var(--te-glass-2)",
-          border: "1px solid var(--te-glass-line)",
-          borderRadius: "var(--te-radius-sm)",
-          padding: "10px 12px 8px",
-        }}
+        className="te-recess"
+        style={{ position: "relative", padding: "14px 16px 10px" }}
       >
         <svg
           viewBox={`0 0 ${W} ${height}`}

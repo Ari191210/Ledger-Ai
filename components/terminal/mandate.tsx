@@ -18,19 +18,24 @@ function Param({
   label,
   value,
   note,
-  colour,
+  accent,
 }: {
   label: string;
   value: string;
   note: string;
-  colour: string;
+  /** The limit that ends the agent. Marked on the figure, not with an edge —
+      a border strip is a foreign object on a single-material surface. */
+  accent?: boolean;
 }) {
   return (
-    <div className="te-pane" style={{ borderTop: `3px solid ${colour}` }}>
+    <div className="te-pane">
       <div className="te-label" style={{ marginBottom: 7 }}>
         {label}
       </div>
-      <div className="te-figure te-figure--mono">
+      <div
+        className="te-figure te-figure--mono"
+        style={accent ? { color: "var(--te-accent)" } : undefined}
+      >
         {value}
       </div>
       <div
@@ -68,25 +73,22 @@ export default function Mandate({
           label="Daily target"
           value={pct(config.dailyReturnTarget)}
           note="every session"
-          colour="var(--te-glass-line)"
         />
         <Param
           label="Grace"
           value={String(config.graceDays)}
           note={config.graceDays === 0 ? "no misses" : "misses allowed"}
-          colour="var(--te-glass-line)"
         />
         <Param
           label="Loss limit"
           value={pct(config.maxDailyLossPct)}
           note="halts the session"
-          colour="var(--te-glass-line)"
         />
         <Param
           label="Max drawdown"
           value={pct(config.maxDrawdownPct)}
           note="destroys the agent"
-          colour="var(--te-accent)"
+          accent
         />
       </div>
 

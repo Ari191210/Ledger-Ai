@@ -71,18 +71,19 @@ export default function CostTable({
             </div>
             <div
               style={{
-                height: 7,
-                borderRadius: 3,
-                background: "var(--te-glass-line)",
-                overflow: "hidden",
+                height: 10,
+                borderRadius: 999,
+                background: "var(--te-canvas)",
+                boxShadow: "var(--te-inset-sm)",
+                padding: 2,
               }}
             >
               <div
                 style={{
-                  width: `${Math.max((line.amount / peak) * 100, 1.5)}%`,
+                  width: `${Math.max((line.amount / peak) * 100, 2)}%`,
                   height: "100%",
-                  background: "var(--te-ink-2)",
-                  borderRadius: 3,
+                  background: "var(--te-ink-3)",
+                  borderRadius: 999,
                 }}
               />
             </div>
