@@ -7,6 +7,8 @@
 // keep P&L arithmetic exact. Prices coming off an exchange feed stay as
 // rupee floats because that is how every Indian broker API reports them.
 
+import type { SignalAssessment } from "./evidence";
+
 /** Integer paise. 100 paise = ₹1. */
 export type Paise = number;
 
@@ -50,6 +52,13 @@ export interface Signal {
   stop?: number;
   /** Free-text reason, surfaced in the trade log. */
   reason: string;
+  /**
+   * Present only for ENTER_LONG / ENTER_SHORT. HOLD and EXIT carry no
+   * recommendation to assess — HOLD is the absence of a call, and EXIT
+   * defers to the stop the entry was already sized against — so neither
+   * gets an assessment. See lib/trading/evidence.ts.
+   */
+  assessment?: SignalAssessment;
 }
 
 export interface Order {

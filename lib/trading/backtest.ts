@@ -293,6 +293,10 @@ function openFromSignal(
       equity: equityOf(portfolio, broker.marks()),
       portfolio,
       lotSize: state.lotSize,
+      // A signal with no assessment (a custom SignalFn that doesn't build
+      // one) sizes at sizePosition's own default rather than at zero — see
+      // that default's docstring in lib/trading/risk.ts.
+      confidence: signal.assessment?.confidence,
     },
     config.risk,
   );

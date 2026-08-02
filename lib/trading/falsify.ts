@@ -26,7 +26,7 @@
 // verdict below is worded to keep that distinction.
 
 import { Candle, Signal } from "./types";
-import { StrategyContext, atr } from "./strategy";
+import { StrategyContext, atr, strategyEntryConfidence } from "./strategy";
 import { BacktestConfig, SignalFn, backtest } from "./backtest";
 import { DEFAULT_KILL_SWITCH } from "./kill-switch";
 import { DEFAULT_TAPE, TapeConfig, mulberry32, syntheticTape } from "./synthetic";
@@ -58,6 +58,14 @@ export const DEFAULT_FALSIFY: FalsifyConfig = {
  * A random-entry rule. Fires with probability `rate` per eligible bar and
  * picks its direction by coin flip, then defers to the same ATR stop and the
  * same square-off the strategy uses.
+ *
+ * `confidence` pins the assessment attached to every entry this null
+ * produces, defaulting to strategyEntryConfidence() — the same value the
+ * real strategy's entries carry. This matters because confidence now feeds
+ * position sizing (lib/trading/risk.ts): if the null sized at a different
+ * confidence than the strategy, the comparison would be measuring position
+ * size, not entry timing, which is the one thing this test is supposed to
+ * isolate.
  */
 export function randomEntrySignal(
   rate: number,
@@ -65,6 +73,7 @@ export function randomEntrySignal(
   atrPeriod: number,
   atrStopMultiple: number,
   warmupBars: number,
+  confidence: number = strategyEntryConfidence(),
 ): SignalFn {
   const rand = mulberry32(seed);
 
@@ -105,6 +114,25 @@ export function randomEntrySignal(
       price,
       stop: long ? price - distance : price + distance,
       reason: "random entry (null model)",
+      // Deliberately thin: this is a coin flip, and the assessment says so
+      // rather than fabricating reasoning it doesn't have. The confidence
+      // number exists purely to keep sizing matched to the strategy under
+      // test — see the docstring above.
+      assessment: {
+        confidence,
+        evidence: [
+          {
+            kind: "assumption",
+            statement:
+              "confidence is pinned to the strategy's value so position sizing is matched for a fair comparison; this entry carries no reasoning of its own",
+          },
+        ],
+        invalidation: "not applicable — this is a coin flip, not a call to invalidate",
+        alternative: "not applicable",
+        missingInformation: "not applicable",
+        knownRisk:
+          "sizing this null at the strategy's confidence rather than at full size is itself a modelling choice, made explicit here rather than left implicit",
+      },
     };
   };
 }

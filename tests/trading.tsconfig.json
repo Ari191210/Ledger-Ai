@@ -30,6 +30,7 @@
     "../lib/trading/terminal-data.ts",
     "../lib/trading/format.ts",
     "../lib/trading/guard.ts",
-    "../lib/trading/falsify.ts"
+    "../lib/trading/falsify.ts",
+    "../lib/trading/evidence.ts"
   ]
 }

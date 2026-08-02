@@ -21,6 +21,14 @@ export interface RiskConfig {
    * to 1 to size as if unleveraged.
    */
   maxLeverage: number;
+  /**
+   * Confidence, 0–1, below which an entry is refused outright rather than
+   * merely sized down. Law 14 — "if uncertainty increases, position size
+   * decreases" — has a floor: below this line, sizing the position small
+   * would still be pretending the signal carries some support. It doesn't,
+   * so there is nothing to size.
+   */
+  minConfidence: number;
 }
 
 export const DEFAULT_RISK: RiskConfig = {
@@ -28,6 +36,7 @@ export const DEFAULT_RISK: RiskConfig = {
   maxOpenPositions: 3,
   maxPositionNotionalPct: 0.3,
   maxLeverage: 1,
+  minConfidence: 0.15,
 };
 
 export type RejectReason =
@@ -36,7 +45,8 @@ export type RejectReason =
   | "TOO_MANY_POSITIONS"
   | "ALREADY_IN_POSITION"
   | "SIZE_ROUNDS_TO_ZERO"
-  | "INSUFFICIENT_BUYING_POWER";
+  | "INSUFFICIENT_BUYING_POWER"
+  | "LOW_CONFIDENCE";
 
 export type SizingResult =
   | { ok: true; quantity: number; riskAmount: Paise; notional: number }
@@ -69,14 +79,46 @@ export function sizePosition(
     equity: Paise;
     portfolio: Portfolio;
     lotSize?: number;
+    /**
+     * How much independent support the signal carries, 0–1 — see
+     * lib/trading/evidence.ts. Defaults to 1 (full risk budget) for callers
+     * that are not exercising the confidence path, mainly unit tests of
+     * sizing mechanics in isolation. lib/trading/backtest.ts always supplies
+     * the real value from the signal's assessment.
+     */
+    confidence?: number;
   },
   config: RiskConfig = DEFAULT_RISK,
 ): SizingResult {
   const { symbol, side, entry, stop, equity, portfolio } = params;
   const lotSize = params.lotSize ?? 1;
+  // Omitted (undefined) means "this caller isn't exercising the confidence
+  // path" and defaults to full budget — see the param's docstring. Provided
+  // but not a finite number (NaN, ±Infinity) is a different case: something
+  // upstream produced garbage, and that is treated as zero trust rather than
+  // thrown — sizePosition never throws for a business-logic problem, only
+  // returns ok:false, and a garbled confidence number is exactly that.
+  // Number.isFinite alone can't tell these apart, since it is false for
+  // both undefined and NaN.
+  const confidence =
+    params.confidence === undefined
+      ? 1
+      : Number.isFinite(params.confidence)
+        ? Math.max(0, Math.min(1, params.confidence))
+        : 0;
 
   if (stop === undefined || !Number.isFinite(stop)) {
     return { ok: false, reason: "NO_STOP", detail: "entries require a protective stop" };
+  }
+
+  if (confidence < config.minConfidence) {
+    return {
+      ok: false,
+      reason: "LOW_CONFIDENCE",
+      detail:
+        `confidence ${confidence.toFixed(2)} is below the ` +
+        `${config.minConfidence.toFixed(2)} minimum required to size a position`,
+    };
   }
 
   const existing = portfolio.positions.get(symbol);
@@ -106,7 +148,12 @@ export function sizePosition(
     };
   }
 
-  const riskRupees = rupees(equity) * config.riskPerTradePct;
+  // Confidence scales the risk budget directly: half the support, half the
+  // rupees put at risk. The notional cap and buying-power clamp below are
+  // hard constraints on capital and stay independent of confidence — a
+  // less-supported call gets a smaller slice of the same limits, not a
+  // loosened limit.
+  const riskRupees = rupees(equity) * config.riskPerTradePct * confidence;
   let quantity = Math.floor(riskRupees / stopDistance / lotSize) * lotSize;
 
   // Clamp to the per-position notional cap.

@@ -13,6 +13,7 @@
 
 import { Candle, Signal } from "./types";
 import { isPastSquareOff, minutesSinceOpen } from "./market-calendar";
+import { EvidenceLine, confidenceFromEvidence } from "./evidence";
 
 export interface StrategyConfig {
   /** Minutes after the open that define the range, e.g. 15. */
@@ -161,28 +162,103 @@ export function evaluate(
   const stopDistance = volatility * config.atrStopMultiple;
 
   if (price > range.high + buffer && price > trend) {
+    const stop = price - stopDistance;
+    // Two facts, one correlation group: the breakout and the EMA read are
+    // both proxies for the same underlying claim — price is trending up —
+    // so confidenceFromEvidence credits them once, not twice.
+    const evidence: EvidenceLine[] = [
+      {
+        kind: "fact",
+        statement: `price ${price.toFixed(2)} closed above the opening-range high of ${range.high.toFixed(2)}`,
+        correlationGroup: "trend",
+      },
+      {
+        kind: "fact",
+        statement: `price is above EMA${config.emaPeriod} (${trend.toFixed(2)})`,
+        correlationGroup: "trend",
+      },
+      {
+        kind: "assumption",
+        statement: "a breakout aligned with the prevailing trend continues rather than reverts",
+      },
+    ];
     return {
       kind: "ENTER_LONG",
       symbol,
       price,
-      stop: price - stopDistance,
+      stop,
       reason:
         `broke ${range.high.toFixed(2)} opening-range high with trend ` +
         `(EMA${config.emaPeriod} ${trend.toFixed(2)})`,
+      assessment: {
+        confidence: confidenceFromEvidence(evidence),
+        evidence,
+        invalidation: `price closes back inside the range, below ${range.high.toFixed(2)}, before the stop at ${stop.toFixed(2)} is hit`,
+        alternative:
+          "this is a liquidity sweep through the range high that reverts, not a genuine trend continuation — common in the first minutes of an NSE session, and this strategy has no way to tell the two apart",
+        missingInformation:
+          "order-book depth, traded volume relative to the trailing average, and a higher-timeframe trend read",
+        knownRisk:
+          "the falsification harness (lib/trading/falsify.ts) found this entry rule indistinguishable from random-timing entry on a synthetic tape; this score describes the reasoning structure, not a demonstrated edge",
+      },
     };
   }
 
   if (price < range.low - buffer && price < trend) {
+    const stop = price + stopDistance;
+    const evidence: EvidenceLine[] = [
+      {
+        kind: "fact",
+        statement: `price ${price.toFixed(2)} closed below the opening-range low of ${range.low.toFixed(2)}`,
+        correlationGroup: "trend",
+      },
+      {
+        kind: "fact",
+        statement: `price is below EMA${config.emaPeriod} (${trend.toFixed(2)})`,
+        correlationGroup: "trend",
+      },
+      {
+        kind: "assumption",
+        statement: "a breakdown aligned with the prevailing trend continues rather than reverts",
+      },
+    ];
     return {
       kind: "ENTER_SHORT",
       symbol,
       price,
-      stop: price + stopDistance,
+      stop,
       reason:
         `broke ${range.low.toFixed(2)} opening-range low with trend ` +
         `(EMA${config.emaPeriod} ${trend.toFixed(2)})`,
+      assessment: {
+        confidence: confidenceFromEvidence(evidence),
+        evidence,
+        invalidation: `price closes back inside the range, above ${range.low.toFixed(2)}, before the stop at ${stop.toFixed(2)} is hit`,
+        alternative:
+          "this is a liquidity sweep through the range low that reverts, not a genuine trend continuation — common in the first minutes of an NSE session, and this strategy has no way to tell the two apart",
+        missingInformation:
+          "order-book depth, traded volume relative to the trailing average, and a higher-timeframe trend read",
+        knownRisk:
+          "the falsification harness (lib/trading/falsify.ts) found this entry rule indistinguishable from random-timing entry on a synthetic tape; this score describes the reasoning structure, not a demonstrated edge",
+      },
     };
   }
 
   return { kind: "HOLD", symbol, price, reason: "inside opening range" };
+}
+
+/**
+ * The confidence every entry this strategy produces carries. Constant
+ * because the evidence *shape* — two facts in one correlation group — never
+ * changes between entries; only the price levels in their statements do,
+ * and confidenceFromEvidence does not read statement text. Exported so
+ * lib/trading/falsify.ts can pin its null model's sizing to the same value:
+ * the falsification comparison is only fair if position size is matched,
+ * and confidence now feeds into position size (see lib/trading/risk.ts).
+ */
+export function strategyEntryConfidence(): number {
+  return confidenceFromEvidence([
+    { kind: "fact", statement: "breakout direction", correlationGroup: "trend" },
+    { kind: "fact", statement: "trend direction", correlationGroup: "trend" },
+  ]);
 }

@@ -17,7 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, ".test-build", "lib", "trading");
 
 let types, costs, killSwitch, calendar, risk, strategy, paper, backtest;
-let synthetic, terminal, fmt, guard, falsify;
+let synthetic, terminal, fmt, guard, falsify, evidence;
 
 before(async () => {
   // Invoke the compiler via node + typescript's real entry point rather than
@@ -47,7 +47,7 @@ before(async () => {
   fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 
   const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
-  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt, guard, falsify] =
+  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt, guard, falsify, evidence] =
     await Promise.all(
       [
         "types.js",
@@ -63,6 +63,7 @@ before(async () => {
         "format.js",
         "guard.js",
         "falsify.js",
+        "evidence.js",
       ].map(load),
     );
 });
@@ -475,6 +476,183 @@ describe("risk sizing", () => {
     const marks = new Map([["X", 490]]);
     assert.equal(types.rupees(risk.equityOf(portfolio, marks)), 101_000);
   });
+
+  // ── confidence-scaled sizing (Law 14) ────────────────────────────────────
+
+  test("omitting confidence sizes at full budget, unchanged from before", () => {
+    const wide = { ...risk.DEFAULT_RISK, maxPositionNotionalPct: 1 };
+    const result = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat() },
+      wide,
+    );
+    assert.equal(result.ok, true);
+    assert.equal(result.quantity, 100);
+  });
+
+  test("half confidence halves the risk budget and so the quantity", () => {
+    const wide = { ...risk.DEFAULT_RISK, maxPositionNotionalPct: 1 };
+    const full = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 1 },
+      wide,
+    );
+    const half = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 0.5 },
+      wide,
+    );
+    assert.equal(full.quantity, 100);
+    assert.equal(half.quantity, 50);
+  });
+
+  test("confidence below the configured minimum is refused, not just shrunk", () => {
+    const result = risk.sizePosition({
+      symbol: "X",
+      side: "LONG",
+      entry: 500,
+      stop: 495,
+      equity,
+      portfolio: flat(),
+      confidence: 0.05,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "LOW_CONFIDENCE");
+  });
+
+  test("confidence exactly at the minimum is accepted; just under it is not", () => {
+    const config = { ...risk.DEFAULT_RISK, minConfidence: 0.2 };
+    const atLine = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 0.2 },
+      config,
+    );
+    const underLine = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 0.199 },
+      config,
+    );
+    assert.equal(atLine.ok, true);
+    assert.equal(underLine.ok, false);
+  });
+
+  test("out-of-range confidence is clamped rather than thrown", () => {
+    const wide = { ...risk.DEFAULT_RISK, maxPositionNotionalPct: 1 };
+    assert.doesNotThrow(() =>
+      risk.sizePosition(
+        { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 5 },
+        wide,
+      ),
+    );
+    const over = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 5 },
+      wide,
+    );
+    const exactlyOne = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 1 },
+      wide,
+    );
+    assert.equal(over.quantity, exactlyOne.quantity, "confidence > 1 must not size beyond full budget");
+  });
+
+  test("NaN confidence is treated as zero trust and refused", () => {
+    const result = risk.sizePosition({
+      symbol: "X",
+      side: "LONG",
+      entry: 500,
+      stop: 495,
+      equity,
+      portfolio: flat(),
+      confidence: NaN,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "LOW_CONFIDENCE");
+  });
+
+  test("the notional cap and buying power stay independent of confidence", () => {
+    // A tight cap should bind identically regardless of how little the
+    // signal is trusted — confidence shrinks the risk budget, never the
+    // hard limits on capital.
+    const tightCap = { ...risk.DEFAULT_RISK, maxPositionNotionalPct: 0.05 };
+    const full = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 1 },
+      tightCap,
+    );
+    const half = risk.sizePosition(
+      { symbol: "X", side: "LONG", entry: 500, stop: 495, equity, portfolio: flat(), confidence: 0.5 },
+      tightCap,
+    );
+    assert.equal(full.ok, true);
+    assert.equal(half.ok, true);
+    assert.equal(full.quantity, half.quantity, "both are pinned by the same notional cap");
+  });
+});
+
+// ── evidence & confidence ────────────────────────────────────────────────────
+
+describe("evidence", () => {
+  test("a single fact yields the fact weight", () => {
+    assert.equal(
+      evidence.confidenceFromEvidence([{ kind: "fact", statement: "x" }]),
+      0.5,
+    );
+  });
+
+  test("two facts in the same correlation group score the same as one", () => {
+    const grouped = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a", correlationGroup: "trend" },
+      { kind: "fact", statement: "b", correlationGroup: "trend" },
+    ]);
+    const single = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a", correlationGroup: "trend" },
+    ]);
+    assert.equal(grouped, single, "correlated evidence must not stack — Law 9");
+  });
+
+  test("two facts in different groups score higher than either alone", () => {
+    const two = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a", correlationGroup: "trend" },
+      { kind: "fact", statement: "b", correlationGroup: "volume" },
+    ]);
+    const one = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a", correlationGroup: "trend" },
+    ]);
+    assert.ok(two > one, "genuinely independent evidence should add confidence");
+  });
+
+  test("ungrouped lines each count as their own independent group", () => {
+    const two = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a" },
+      { kind: "fact", statement: "b" },
+    ]);
+    const one = evidence.confidenceFromEvidence([{ kind: "fact", statement: "a" }]);
+    assert.ok(two > one);
+  });
+
+  test("assumptions never add confidence", () => {
+    const withAssumption = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a", correlationGroup: "trend" },
+      { kind: "assumption", statement: "premise" },
+    ]);
+    const factOnly = evidence.confidenceFromEvidence([
+      { kind: "fact", statement: "a", correlationGroup: "trend" },
+    ]);
+    assert.equal(withAssumption, factOnly);
+  });
+
+  test("inferences count for less than facts", () => {
+    const fact = evidence.confidenceFromEvidence([{ kind: "fact", statement: "a" }]);
+    const inference = evidence.confidenceFromEvidence([{ kind: "inference", statement: "a" }]);
+    assert.ok(inference < fact);
+  });
+
+  test("confidence never exceeds MAX_CONFIDENCE regardless of evidence volume", () => {
+    const many = Array.from({ length: 10 }, (_, i) => ({
+      kind: "fact",
+      statement: `fact ${i}`,
+      correlationGroup: `group-${i}`,
+    }));
+    assert.equal(evidence.confidenceFromEvidence(many), evidence.MAX_CONFIDENCE);
+  });
+
+  test("no evidence yields zero confidence", () => {
+    assert.equal(evidence.confidenceFromEvidence([]), 0);
+  });
 });
 
 // ── indicators & strategy ──────────────────────────────────────────────────
@@ -550,6 +728,65 @@ describe("strategy", () => {
     const signal = strategy.evaluate({ symbol: "X", candles, inPosition: false });
     assert.equal(signal.kind, "ENTER_SHORT");
     assert.ok(signal.stop > signal.price, "short entries need a stop above the entry");
+  });
+
+  // ── evidence and confidence on entries ───────────────────────────────────
+
+  test("every entry carries an assessment; HOLD and EXIT do not", () => {
+    const long = strategy.evaluate({
+      symbol: "X",
+      candles: session([2025, 1, 15], chopThenRamp(100, 20, 25, 0.4), 0.2),
+      inPosition: false,
+    });
+    assert.equal(long.kind, "ENTER_LONG");
+    assert.ok(long.assessment, "an entry is a recommendation and must carry an assessment");
+
+    const hold = strategy.evaluate({
+      symbol: "X",
+      candles: session([2025, 1, 15], [100, 101, 102]),
+      inPosition: false,
+    });
+    assert.equal(hold.kind, "HOLD");
+    assert.equal(hold.assessment, undefined, "a HOLD is not a call to assess");
+  });
+
+  test("an entry's two indicators are one correlation group, not two", () => {
+    const signal = strategy.evaluate({
+      symbol: "X",
+      candles: session([2025, 1, 15], chopThenRamp(100, 20, 25, 0.4), 0.2),
+      inPosition: false,
+    });
+    const groups = new Set(
+      signal.assessment.evidence
+        .filter((e) => e.kind !== "assumption")
+        .map((e) => e.correlationGroup),
+    );
+    assert.equal(groups.size, 1, "the breakout and the EMA read are the same underlying claim");
+    assert.equal(signal.assessment.confidence, strategy.strategyEntryConfidence());
+  });
+
+  test("an entry's assessment discloses invalidation, an alternative reading, and a known risk", () => {
+    const signal = strategy.evaluate({
+      symbol: "X",
+      candles: session([2025, 1, 15], chopThenRamp(100, 20, 25, 0.4), 0.2),
+      inPosition: false,
+    });
+    for (const field of ["invalidation", "alternative", "missingInformation", "knownRisk"]) {
+      assert.ok(
+        typeof signal.assessment[field] === "string" && signal.assessment[field].length > 10,
+        `assessment.${field} should be a substantial string`,
+      );
+    }
+  });
+
+  test("confidence is bounded strictly between zero and one for a real entry", () => {
+    const signal = strategy.evaluate({
+      symbol: "X",
+      candles: session([2025, 1, 15], chopThenRamp(100, 20, 25, 0.4), 0.2),
+      inPosition: false,
+    });
+    assert.ok(signal.assessment.confidence > 0);
+    assert.ok(signal.assessment.confidence < 1, "a single-thesis strategy should never claim near-certainty");
   });
 
   test("does not re-enter while a position is open", () => {
@@ -1259,6 +1496,42 @@ describe("null model", () => {
     };
     assert.deepEqual(draw(9), draw(9));
     assert.notDeepEqual(draw(9), draw(10));
+  });
+
+  test("entries default to the strategy's confidence, so sizing stays matched", () => {
+    const fn = falsify.randomEntrySignal(1, 3, 14, 1.5, 5);
+    for (let i = 0; i < 40; i++) {
+      const s = fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 10, 0)), inPosition: false });
+      if (s.kind === "ENTER_LONG" || s.kind === "ENTER_SHORT") {
+        assert.equal(s.assessment.confidence, strategy.strategyEntryConfidence());
+        return;
+      }
+    }
+    assert.fail("expected at least one entry at rate 1");
+  });
+
+  test("an explicit confidence overrides the matched default", () => {
+    const fn = falsify.randomEntrySignal(1, 3, 14, 1.5, 5, 0.9);
+    for (let i = 0; i < 40; i++) {
+      const s = fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 10, 0)), inPosition: false });
+      if (s.kind === "ENTER_LONG" || s.kind === "ENTER_SHORT") {
+        assert.equal(s.assessment.confidence, 0.9);
+        return;
+      }
+    }
+    assert.fail("expected at least one entry at rate 1");
+  });
+
+  test("the null's assessment says plainly that it carries no reasoning", () => {
+    const fn = falsify.randomEntrySignal(1, 3, 14, 1.5, 5);
+    for (let i = 0; i < 40; i++) {
+      const s = fn({ symbol: "X", candles: bars(60, ist(2025, 1, 15, 10, 0)), inPosition: false });
+      if (s.kind === "ENTER_LONG" || s.kind === "ENTER_SHORT") {
+        assert.match(s.assessment.evidence[0].statement, /no reasoning of its own/);
+        return;
+      }
+    }
+    assert.fail("expected at least one entry at rate 1");
   });
 });
 
