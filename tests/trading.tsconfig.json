@@ -31,6 +31,11 @@
     "../lib/trading/format.ts",
     "../lib/trading/guard.ts",
     "../lib/trading/falsify.ts",
-    "../lib/trading/evidence.ts"
+    "../lib/trading/evidence.ts",
+    "../lib/trading/kite/types.ts",
+    "../lib/trading/kite/auth.ts",
+    "../lib/trading/kite/rate-limiter.ts",
+    "../lib/trading/kite/http.ts",
+    "../lib/trading/kite/broker.ts"
   ]
 }

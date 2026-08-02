@@ -16,13 +16,12 @@
 // engine, not to predict anything — treat any number it produces as a
 // property of the simulator, not of the market.
 
-import { execFileSync } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fs from "node:fs";
+import { compileTradingModules, loadTradingModule } from "./lib/build-trading.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const outDir = path.join(root, ".test-build", "lib", "trading");
 
 function parseArgs(argv) {
   const args = {
@@ -56,24 +55,6 @@ function parseArgs(argv) {
     }
   }
   return args;
-}
-
-function build() {
-  execFileSync(
-    process.execPath,
-    [path.join(root, "node_modules", "typescript", "bin", "tsc"), "-p", "tests/trading.tsconfig.json"],
-    { cwd: root, stdio: "inherit" },
-  );
-  for (const file of fs.readdirSync(outDir).filter((f) => f.endsWith(".js"))) {
-    const p = path.join(outDir, file);
-    fs.writeFileSync(
-      p,
-      fs.readFileSync(p, "utf8").replace(/(from\s+")(\.\/[\w-]+)(")/g, "$1$2.js$3"),
-    );
-  }
-  // Nearest-package-json wins, so this marks only this output directory as
-  // ESM without changing how the rest of .test-build is interpreted.
-  fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 }
 
 function loadCsv(file) {
@@ -122,11 +103,13 @@ function loadCsv(file) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  build();
+  compileTradingModules();
 
-  const load = (n) => import(pathToFileURL(path.join(outDir, n)).href);
   const [{ toPaise, rupees }, killSwitchMod, backtestMod, syntheticMod] = await Promise.all([
-    load("types.js"), load("kill-switch.js"), load("backtest.js"), load("synthetic.js"),
+    loadTradingModule("types.js"),
+    loadTradingModule("kill-switch.js"),
+    loadTradingModule("backtest.js"),
+    loadTradingModule("synthetic.js"),
   ]);
 
   // Minute bars from the CLI: slower than the terminal's five-minute tape, but

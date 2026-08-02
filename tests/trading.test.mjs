@@ -18,6 +18,25 @@ const outDir = path.join(root, ".test-build", "lib", "trading");
 
 let types, costs, killSwitch, calendar, risk, strategy, paper, backtest;
 let synthetic, terminal, fmt, guard, falsify, evidence;
+let kiteAuth, kiteRateLimiter, kiteHttp, kiteBroker;
+
+/**
+ * All .js files under `dir`, recursively. The rewrite step below has to
+ * reach every compiled file including ones tsc emits into subdirectories —
+ * lib/trading/kite/*.ts is the first thing in this suite to live one level
+ * deeper than lib/trading/ itself, and a plain (non-recursive) readdirSync
+ * would silently skip it, leaving its extensionless imports unrewritten and
+ * failing at import() time with ERR_MODULE_NOT_FOUND.
+ */
+function jsFilesRecursive(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...jsFilesRecursive(p));
+    else if (entry.name.endsWith(".js")) out.push(p);
+  }
+  return out;
+}
 
 before(async () => {
   // Invoke the compiler via node + typescript's real entry point rather than
@@ -35,11 +54,14 @@ before(async () => {
 
   // tsc emits ES modules but leaves import specifiers extensionless, which
   // Node's ESM resolver rejects. Add the extension the resolver needs.
-  for (const file of fs.readdirSync(outDir).filter((f) => f.endsWith(".js"))) {
-    const p = path.join(outDir, file);
+  // Matches "./x", "../x", "../../x" and so on — not just "./x" — since
+  // lib/trading/kite/*.ts imports both sideways ("./http") and up
+  // ("../guard"), and the previous version of this regex only handled the
+  // former.
+  for (const p of jsFilesRecursive(outDir)) {
     fs.writeFileSync(
       p,
-      fs.readFileSync(p, "utf8").replace(/(from\s+")(\.\/[\w-]+)(")/g, "$1$2.js$3"),
+      fs.readFileSync(p, "utf8").replace(/(from\s+")((?:\.\.?\/)+[\w-]+)(")/g, "$1$2.js$3"),
     );
   }
   // Nearest-package-json wins, so this marks only this output directory as
@@ -47,7 +69,11 @@ before(async () => {
   fs.writeFileSync(path.join(outDir, "package.json"), '{"type":"module"}\n');
 
   const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
-  [types, costs, killSwitch, calendar, risk, strategy, paper, backtest, synthetic, terminal, fmt, guard, falsify, evidence] =
+  [
+    types, costs, killSwitch, calendar, risk, strategy, paper, backtest,
+    synthetic, terminal, fmt, guard, falsify, evidence,
+    kiteAuth, kiteRateLimiter, kiteHttp, kiteBroker,
+  ] =
     await Promise.all(
       [
         "types.js",
@@ -64,6 +90,10 @@ before(async () => {
         "guard.js",
         "falsify.js",
         "evidence.js",
+        "kite/auth.js",
+        "kite/rate-limiter.js",
+        "kite/http.js",
+        "kite/broker.js",
       ].map(load),
     );
 });
@@ -1589,5 +1619,378 @@ describe("falsify", () => {
   test("multiple tapes are used, not one — single-path results are selection bias", () => {
     const r = falsify.falsify(small);
     assert.ok(new Set(r.strategyReturns).size > 1, "independent tapes should differ");
+  });
+});
+
+// ── kite: auth ───────────────────────────────────────────────────────────
+//
+// This checksum vector was computed independently via node's crypto module
+// directly (sha256 of "test_api_key"+"test_request_token"+"test_api_secret"),
+// not by calling kiteAuth.kiteChecksum itself — a fixed vector, not a
+// tautology.
+
+describe("kite auth", () => {
+  test("kiteChecksum matches an independently computed SHA-256 vector", () => {
+    const result = kiteAuth.kiteChecksum("test_api_key", "test_request_token", "test_api_secret");
+    assert.equal(result, "db7982386217016217ea3d380e90d51dc63978441969b4f101ec3302f80bd06d");
+  });
+
+  test("kiteLoginUrl embeds the api key", () => {
+    assert.match(kiteAuth.kiteLoginUrl("abc123"), /api_key=abc123/);
+  });
+
+  test("kiteLoginUrl rejects an empty api key", () => {
+    assert.throws(() => kiteAuth.kiteLoginUrl(""), RangeError);
+  });
+
+  test("parseRequestToken reads request_token from a full redirect URL", () => {
+    const url = "https://myapp.example/callback?action=login&status=success&request_token=xyz789";
+    assert.equal(kiteAuth.parseRequestToken(url), "xyz789");
+  });
+
+  test("parseRequestToken reads request_token from a bare query string", () => {
+    assert.equal(kiteAuth.parseRequestToken("status=success&request_token=abc"), "abc");
+  });
+
+  test("parseRequestToken throws when Kite reports a non-success status", () => {
+    assert.throws(() => kiteAuth.parseRequestToken("status=failed&request_token=x"), /did not succeed/);
+  });
+
+  test("parseRequestToken throws when no token is present", () => {
+    assert.throws(() => kiteAuth.parseRequestToken("status=success"), /no request_token/);
+  });
+
+  test("exchangeRequestToken posts the checksum and returns the session on success", async () => {
+    let captured;
+    const fetchImpl = async (url, init) => {
+      captured = { url, init };
+      return { json: async () => ({ status: "success", data: { access_token: "tok123", user_id: "AB1234" } }) };
+    };
+    const session = await kiteAuth.exchangeRequestToken(
+      { apiKey: "k", apiSecret: "s", requestToken: "rt" },
+      fetchImpl,
+    );
+    assert.equal(session.accessToken, "tok123");
+    assert.equal(session.userId, "AB1234");
+    assert.equal(captured.url, "https://api.kite.trade/session/token");
+    const bodyStr = captured.init.body.toString();
+    assert.match(bodyStr, /api_key=k/);
+    assert.match(bodyStr, /request_token=rt/);
+    assert.match(bodyStr, /checksum=/);
+  });
+
+  test("exchangeRequestToken surfaces Kite's error message and never leaks apiSecret", async () => {
+    const fetchImpl = async () => ({
+      json: async () => ({ status: "error", message: "invalid checksum", error_type: "TokenException" }),
+    });
+    await assert.rejects(
+      () => kiteAuth.exchangeRequestToken({ apiKey: "k", apiSecret: "SUPERSECRET", requestToken: "rt" }, fetchImpl),
+      (e) => e.message.includes("invalid checksum") && !e.message.includes("SUPERSECRET"),
+    );
+  });
+});
+
+// ── kite: rate limiter ─────────────────────────────────────────────────────
+
+function fakeClock(start = 0) {
+  let t = start;
+  return {
+    now: () => t,
+    sleep: async (ms) => { t += ms; },
+    advance: (ms) => { t += ms; },
+  };
+}
+
+describe("kite rate limiter", () => {
+  test("the first call never waits", async () => {
+    const clock = fakeClock();
+    const rl = new kiteRateLimiter.RateLimiter(100, clock);
+    await rl.acquire();
+    assert.equal(clock.now(), 0);
+  });
+
+  test("back-to-back calls are spaced by the configured interval", async () => {
+    const clock = fakeClock();
+    const rl = new kiteRateLimiter.RateLimiter(100, clock);
+    await rl.acquire();
+    await rl.acquire();
+    await rl.acquire();
+    // First call free, then two waits of 100ms each, enforced via sleep().
+    assert.equal(clock.now(), 200);
+  });
+
+  test("a call that arrives late needs no artificial wait", async () => {
+    const clock = fakeClock();
+    const rl = new kiteRateLimiter.RateLimiter(100, clock);
+    await rl.acquire();
+    clock.advance(150);
+    await rl.acquire();
+    // No sleep should have been injected — clock.now() only moved by the
+    // manual advance(150), nothing more.
+    assert.equal(clock.now(), 150);
+  });
+
+  test("rejects a negative interval", () => {
+    assert.throws(() => new kiteRateLimiter.RateLimiter(-1), RangeError);
+  });
+});
+
+// ── kite: http ───────────────────────────────────────────────────────────
+
+/** A queued fake fetch. Once exhausted, it repeats the last entry forever —
+    useful for "keeps polling" tests that don't want to hand-count calls. */
+function queuedFetch(responses) {
+  const calls = [];
+  let i = 0;
+  return {
+    calls,
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      const next = responses[Math.min(i, responses.length - 1)];
+      i++;
+      if (next.hang) {
+        return new Promise((_resolve, reject) => {
+          init.signal.addEventListener("abort", () => {
+            const err = new Error("aborted");
+            err.name = "AbortError";
+            reject(err);
+          });
+        });
+      }
+      return { status: next.status ?? 200, json: async () => next.body };
+    },
+  };
+}
+
+describe("kite http", () => {
+  test("sends the documented Authorization header", async () => {
+    const { fetchImpl, calls } = queuedFetch([{ body: { status: "success", data: { ok: true } } }]);
+    const http = new kiteHttp.KiteHttp({ apiKey: "k", accessToken: "t", fetchImpl });
+    await http.get("/x");
+    assert.equal(calls[0].init.headers.Authorization, "token k:t");
+    assert.equal(calls[0].init.headers["X-Kite-Version"], "3");
+  });
+
+  test("an error envelope becomes a KiteApiError carrying Kite's message and type", async () => {
+    const { fetchImpl } = queuedFetch([
+      { status: 400, body: { status: "error", message: "insufficient margin", error_type: "MarginException" } },
+    ]);
+    const http = new kiteHttp.KiteHttp({ apiKey: "k", accessToken: "t", fetchImpl });
+    await assert.rejects(
+      () => http.get("/x"),
+      (e) => e.name === "KiteApiError" && e.message === "insufficient margin" && e.errorType === "MarginException",
+    );
+  });
+
+  test("a request that never responds becomes a KiteTimeoutError, not a hang", async () => {
+    const { fetchImpl } = queuedFetch([{ hang: true }]);
+    const http = new kiteHttp.KiteHttp({ apiKey: "k", accessToken: "t", fetchImpl, timeoutMs: 20 });
+    await assert.rejects(() => http.get("/x"), (e) => e.name === "KiteTimeoutError");
+  });
+
+  test("requests are spaced by the configured minimum interval", async () => {
+    const clock = fakeClock();
+    const { fetchImpl } = queuedFetch([{ body: { status: "success", data: {} } }]);
+    const http = new kiteHttp.KiteHttp({ apiKey: "k", accessToken: "t", fetchImpl, minIntervalMs: 50, clock });
+    await http.get("/a");
+    await http.get("/b");
+    assert.equal(clock.now(), 50);
+  });
+
+  test("constructing without an apiKey or accessToken is rejected", () => {
+    assert.throws(() => new kiteHttp.KiteHttp({ apiKey: "", accessToken: "t" }), RangeError);
+    assert.throws(() => new kiteHttp.KiteHttp({ apiKey: "k", accessToken: "" }), RangeError);
+  });
+});
+
+// ── kite: broker ───────────────────────────────────────────────────────────
+
+describe("kite broker", () => {
+  const cfg = () => ({ ...killSwitch.DEFAULT_KILL_SWITCH });
+  const cash = () => types.toPaise(100_000);
+
+  function freshGuard() {
+    return new guard.TradingGuard({ config: cfg(), startingEquity: cash() });
+  }
+  function destroyedGuard() {
+    const g = freshGuard();
+    g.destroyManually("test", cash());
+    return g;
+  }
+  function haltedGuard() {
+    const g = freshGuard();
+    g.markEquity(types.toPaise(97_000)); // past the 2% default daily loss limit
+    return g;
+  }
+
+  test("refuses to construct without the literal liveTradingAcknowledged: true", () => {
+    assert.throws(() => new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: false,
+    }));
+    assert.throws(() => new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(),
+    }));
+  });
+
+  test("an OPEN order on a destroyed agent throws AgentDestroyedError and touches no network", async () => {
+    const { fetchImpl, calls } = queuedFetch([]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: destroyedGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    await assert.rejects(
+      () => broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 10, intent: "OPEN", tag: "t1" }),
+      (e) => e.name === "AgentDestroyedError",
+    );
+    assert.equal(calls.length, 0, "a destroyed agent must not reach the network for a new position");
+  });
+
+  test("an OPEN order on a halted agent is REJECTED without touching the network", async () => {
+    const { fetchImpl, calls } = queuedFetch([]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: haltedGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    const outcome = await broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 10, intent: "OPEN", tag: "t1" });
+    assert.equal(outcome.kind, "REJECTED");
+    assert.equal(calls.length, 0);
+  });
+
+  test("a REDUCE order proceeds even on a destroyed agent — flattening is never blocked", async () => {
+    const { fetchImpl } = queuedFetch([
+      { body: { status: "success", data: { order_id: "1" } } },
+      { body: { status: "success", data: [{ order_id: "1", status: "COMPLETE", average_price: 100, filled_quantity: 5 }] } },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      // A tiny minIntervalMs here: this test is about the poll logic across
+      // two HTTP calls, not about the rate limiter (covered separately in
+      // "kite http" / "kite rate limiter"), and the default 350ms spacing
+      // would otherwise dominate the test's running time for no reason.
+      apiKey: "k", accessToken: "t", guard: destroyedGuard(), liveTradingAcknowledged: true, fetchImpl, minIntervalMs: 1,
+    });
+    const outcome = await broker.placeMarketOrder({ symbol: "X", side: "SELL", quantity: 5, intent: "REDUCE", tag: "exit1" });
+    assert.equal(outcome.kind, "PLACED");
+    assert.equal(outcome.result.status, "COMPLETE");
+  });
+
+  test("a successful order reports the terminal price and quantity from the poll", async () => {
+    const { fetchImpl } = queuedFetch([
+      { body: { status: "success", data: { order_id: "42" } } },
+      { body: { status: "success", data: [{ order_id: "42", status: "COMPLETE", average_price: 2510.5, filled_quantity: 10 }] } },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl, minIntervalMs: 1,
+    });
+    const outcome = await broker.placeMarketOrder({ symbol: "RELIANCE", side: "BUY", quantity: 10, intent: "OPEN", tag: "e1" });
+    assert.equal(outcome.kind, "PLACED");
+    assert.equal(outcome.result.orderId, "42");
+    assert.equal(outcome.result.averagePrice, 2510.5);
+    assert.equal(outcome.result.filledQuantity, 10);
+  });
+
+  test("Kite rejecting the order maps to a REJECTED outcome carrying Kite's message", async () => {
+    const { fetchImpl } = queuedFetch([
+      { status: 400, body: { status: "error", message: "insufficient margin", error_type: "MarginException" } },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    const outcome = await broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 10, intent: "OPEN", tag: "e1" });
+    assert.equal(outcome.kind, "REJECTED");
+    assert.match(outcome.reason, /insufficient margin/);
+  });
+
+  test("a request that times out before Kite answers is AMBIGUOUS, never silently retried", async () => {
+    const { fetchImpl } = queuedFetch([{ hang: true }]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl, timeoutMs: 15,
+    });
+    const outcome = await broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 10, intent: "OPEN", tag: "e1" });
+    assert.equal(outcome.kind, "AMBIGUOUS");
+  });
+
+  test("an order that never reaches a terminal state within the poll deadline is AMBIGUOUS", async () => {
+    const { fetchImpl } = queuedFetch([
+      { body: { status: "success", data: { order_id: "9" } } },
+      { body: { status: "success", data: [{ order_id: "9", status: "OPEN", average_price: 0, filled_quantity: 0 }] } },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      // minIntervalMs: 1 so this actually exercises several poll iterations
+      // within pollTimeoutMs, rather than the default 350ms rate-limit
+      // spacing swallowing the whole deadline after a single poll.
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+      pollTimeoutMs: 15, pollIntervalMs: 3, minIntervalMs: 1,
+    });
+    const outcome = await broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 10, intent: "OPEN", tag: "e1" });
+    assert.equal(outcome.kind, "AMBIGUOUS");
+  });
+
+  test("a non-integer or non-positive quantity is rejected before any network call", async () => {
+    const { fetchImpl, calls } = queuedFetch([]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    const a = await broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 1.5, intent: "OPEN", tag: "e1" });
+    const b = await broker.placeMarketOrder({ symbol: "X", side: "BUY", quantity: 0, intent: "OPEN", tag: "e2" });
+    assert.equal(a.kind, "REJECTED");
+    assert.equal(b.kind, "REJECTED");
+    assert.equal(calls.length, 0);
+  });
+
+  test("positions() keeps only NSE MIS entries and maps their fields", async () => {
+    const { fetchImpl } = queuedFetch([
+      {
+        body: {
+          status: "success",
+          data: {
+            net: [
+              { tradingsymbol: "RELIANCE", exchange: "NSE", product: "MIS", quantity: 10, average_price: 2500 },
+              { tradingsymbol: "TCS", exchange: "NSE", product: "CNC", quantity: 5, average_price: 3500 },
+              { tradingsymbol: "AAPL", exchange: "NASDAQ", product: "MIS", quantity: 1, average_price: 150 },
+            ],
+            day: [],
+          },
+        },
+      },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    const positions = await broker.positions();
+    assert.equal(positions.length, 1);
+    assert.equal(positions[0].symbol, "RELIANCE");
+    assert.equal(positions[0].quantity, 10);
+    assert.equal(positions[0].averagePrice, 2500);
+  });
+
+  test("funds() converts rupees to paise", async () => {
+    const { fetchImpl } = queuedFetch([
+      { body: { status: "success", data: { equity: { available: { cash: 54321.5 } } } } },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    assert.equal(await broker.funds(), types.toPaise(54321.5));
+  });
+
+  test("ltp() maps back to bare symbols and drops missing entries", async () => {
+    const { fetchImpl, calls } = queuedFetch([
+      { body: { status: "success", data: { "NSE:RELIANCE": { instrument_token: 1, last_price: 2510.5 } } } },
+    ]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    const marks = await broker.ltp(["RELIANCE", "MISSING"]);
+    assert.equal(marks.get("RELIANCE"), 2510.5);
+    assert.equal(marks.has("MISSING"), false);
+    assert.match(calls[0].url, /i=NSE%3ARELIANCE/);
+  });
+
+  test("ltp() with no symbols makes no network call", async () => {
+    const { fetchImpl, calls } = queuedFetch([]);
+    const broker = new kiteBroker.KiteBroker({
+      apiKey: "k", accessToken: "t", guard: freshGuard(), liveTradingAcknowledged: true, fetchImpl,
+    });
+    const marks = await broker.ltp([]);
+    assert.equal(marks.size, 0);
+    assert.equal(calls.length, 0);
   });
 });
