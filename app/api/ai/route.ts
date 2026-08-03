@@ -6,6 +6,13 @@ import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 
+// This route makes two sequential model calls — the Haiku moderation classifier
+// and then the Sonnet tool call at up to 6000 max_tokens — so it regularly needs
+// far more than the platform's default function timeout, which killed long
+// answers mid-generation. 60s is the ceiling on Vercel Hobby and well within
+// Pro's, so it is the safe value on either plan.
+export const maxDuration = 60;
+
 const client = new Anthropic();
 
 // ── Content moderation ──────────────────────────────────────────────────────

@@ -16,6 +16,10 @@ interface RateRule {
 const RULES: RateRule[] = [
   { prefix: "/api/ai",                    limit: 20, windowMs: 60_000 }, // 20/min — AI calls
   { prefix: "/api/auth/google",           limit: 5,  windowMs: 60_000 }, // 5/min  — OAuth exchange
+  // Unauthenticated, and every call sends a real email via Resend. The matcher
+  // below already covers /api/auth/:path*, but no RULE prefix matched this path,
+  // so the lookup fell through and the route ran with no limit at all.
+  { prefix: "/api/auth/send-reset",       limit: 3,  windowMs: 600_000 }, // 3/10min — unauth'd password-reset email
   { prefix: "/api/welcome",               limit: 3,  windowMs: 60_000 }, // 3/min  — email sends
   { prefix: "/api/send-report",           limit: 5,  windowMs: 60_000 }, // 5/min  — email + billable AI call
   { prefix: "/api/parent",                limit: 10, windowMs: 60_000 }, // 10/min — unauth'd, code-guessing guard
