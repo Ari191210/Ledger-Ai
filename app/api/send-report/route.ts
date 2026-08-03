@@ -58,6 +58,18 @@ Generate 5 specific, actionable study tips for this student this week. Be concre
   ];
 }
 
+// Every value below is user-authored (display name, exam and subject names,
+// weak-topic labels, mark subject names) or model-authored (tips), and is
+// interpolated into an HTML email. Escape it.
+function esc(v: unknown): string {
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function buildEmailHtml(params: {
   name: string;
   email: string;
@@ -75,8 +87,8 @@ function buildEmailHtml(params: {
     ? upcoming.map(e => {
         const d = daysUntil(e.date);
         return `<tr>
-          <td style="padding:10px 16px;border-bottom:1px solid #e0d8ce;font-family:Georgia,serif;font-size:15px;font-weight:600;">${e.name}</td>
-          <td style="padding:10px 16px;border-bottom:1px solid #e0d8ce;font-family:monospace;font-size:12px;color:#888;">${e.subject}</td>
+          <td style="padding:10px 16px;border-bottom:1px solid #e0d8ce;font-family:Georgia,serif;font-size:15px;font-weight:600;">${esc(e.name)}</td>
+          <td style="padding:10px 16px;border-bottom:1px solid #e0d8ce;font-family:monospace;font-size:12px;color:#888;">${esc(e.subject)}</td>
           <td style="padding:10px 16px;border-bottom:1px solid #e0d8ce;font-family:monospace;font-size:12px;color:#888;">${new Date(e.date).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</td>
           <td style="padding:10px 16px;border-bottom:1px solid #e0d8ce;font-family:monospace;font-size:13px;font-weight:700;color:${d<=7?"#b83c1a":"#222"};">${d}d</td>
         </tr>`;
@@ -85,14 +97,14 @@ function buildEmailHtml(params: {
 
   const weakRows = weakTopics.length
     ? weakTopics.slice(0, 5).map(wt => `<tr>
-        <td style="padding:8px 16px;border-bottom:1px solid #e0d8ce;font-family:Georgia,serif;font-size:14px;">${wt.topic}</td>
+        <td style="padding:8px 16px;border-bottom:1px solid #e0d8ce;font-family:Georgia,serif;font-size:14px;">${esc(wt.topic)}</td>
         <td style="padding:8px 16px;border-bottom:1px solid #e0d8ce;font-family:monospace;font-size:12px;color:#b83c1a;">${wt.count} wrong</td>
       </tr>`).join("")
     : `<tr><td colspan="2" style="padding:12px 16px;font-family:monospace;font-size:12px;color:#aaa;">No practice data yet. Try a paper session.</td></tr>`;
 
   const marksRows = marks.length
     ? marks.map(m => `<tr>
-        <td style="padding:8px 16px;border-bottom:1px solid #e0d8ce;font-family:Georgia,serif;font-size:14px;">${m.name}</td>
+        <td style="padding:8px 16px;border-bottom:1px solid #e0d8ce;font-family:Georgia,serif;font-size:14px;">${esc(m.name)}</td>
         <td style="padding:8px 16px;border-bottom:1px solid #e0d8ce;font-family:monospace;font-size:13px;font-weight:700;color:${m.score>=m.target?"#1a7a3c":"#b83c1a"};">${m.score}%</td>
       </tr>`).join("")
     : `<tr><td colspan="2" style="padding:12px 16px;font-family:monospace;font-size:12px;color:#aaa;">No marks entered yet.</td></tr>`;
@@ -118,9 +130,9 @@ function buildEmailHtml(params: {
 
     <!-- Greeting -->
     <div style="padding:28px 24px 20px;border-bottom:1px solid #e0d8ce;">
-      <div style="font-family:monospace;font-size:10px;color:#b83c1a;letter-spacing:0.08em;text-transform:uppercase;">Weekly Dispatch · ${name}</div>
+      <div style="font-family:monospace;font-size:10px;color:#b83c1a;letter-spacing:0.08em;text-transform:uppercase;">Weekly Dispatch · ${esc(name)}</div>
       <h1 style="font-family:Georgia,serif;font-size:26px;font-style:italic;font-weight:400;color:#222;margin:10px 0 0;line-height:1.2;">
-        Here is where you stand, ${name}.
+        Here is where you stand, ${esc(name)}.
       </h1>
       <p style="font-family:Arial,sans-serif;font-size:13px;color:#666;line-height:1.6;margin:12px 0 0;">
         Your weekly study report from Ledger. Below you will find your exam countdown, weak topics to address, marks summary, and five specific things to do this week.
@@ -192,7 +204,7 @@ function buildEmailHtml(params: {
         ${tips.map((tip, i) => `
         <div style="display:flex;gap:14px;margin-bottom:${i < tips.length - 1 ? "14px" : "0"};padding-bottom:${i < tips.length - 1 ? "14px" : "0"};border-bottom:${i < tips.length - 1 ? "1px solid #444" : "none"};">
           <span style="font-family:monospace;font-size:11px;color:#b83c1a;flex-shrink:0;margin-top:2px;">${String(i+1).padStart(2,"0")}</span>
-          <span style="font-family:Arial,sans-serif;font-size:13px;color:#e8e0d0;line-height:1.55;">${tip}</span>
+          <span style="font-family:Arial,sans-serif;font-size:13px;color:#e8e0d0;line-height:1.55;">${esc(tip)}</span>
         </div>`).join("")}
       </div>
     </div>
@@ -242,12 +254,11 @@ export async function POST(req: Request) {
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  let userId: string, userEmail: string, userName: string;
+  let userId: string, bodyName: unknown;
   try {
     const body = await req.json();
     userId = body.userId;
-    userEmail = body.email;
-    userName = body.name || userEmail.split("@")[0];
+    bodyName = body.name;
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
@@ -255,6 +266,17 @@ export async function POST(req: Request) {
   if (sessionUserId && sessionUserId !== userId) {
     return NextResponse.json({ error: "Cannot send a report for another account." }, { status: 403 });
   }
+
+  // The recipient is resolved from the account, never from the request. Taking
+  // body.email meant an authenticated caller could pass ownership on their own
+  // userId while directing the mail anywhere — an open relay sending arbitrary
+  // content from reports@studyledger.in, a domain carrying our SPF/DKIM.
+  const { data: targetUser } = await supabaseServer.auth.admin.getUserById(userId);
+  const userEmail = targetUser?.user?.email;
+  if (!userEmail) {
+    return NextResponse.json({ error: "No email on file for this account." }, { status: 404 });
+  }
+  const userName = (typeof bodyName === "string" && bodyName.trim() ? bodyName : userEmail.split("@")[0]).slice(0, 80);
 
   // Load user data from Supabase
   const { data } = await supabaseServer.from("user_data").select("*").eq("id", userId).single();
