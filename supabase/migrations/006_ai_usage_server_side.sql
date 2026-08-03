@@ -49,12 +49,21 @@ CREATE POLICY ai_rate_limits_select_own
 -- ── Preserve history: carry existing counts over, once ──────────────────────
 -- ON CONFLICT DO NOTHING keeps this safe to re-run and never overwrites a
 -- count the new system has already started tracking.
+--
+-- user_data.id is TEXT in the live database, not the UUID that
+-- 000_initial_schema.sql declares, so it must be cast — and because it is text
+-- it carries no foreign key to auth.users. Two guards follow from that: skip
+-- anything that is not a well-formed UUID (the cast would abort the migration),
+-- and skip ids with no matching auth user (the FK on user_id would reject them).
+-- The ::text comparison avoids depending on which side is uuid.
 INSERT INTO ai_rate_limits (user_id, ai_calls_today, ai_calls_reset_at)
-SELECT id,
-       COALESCE(ai_calls_today, 0),
-       COALESCE(ai_calls_reset_at, now())
-FROM user_data
-WHERE id IS NOT NULL
+SELECT ud.id::uuid,
+       COALESCE(ud.ai_calls_today, 0),
+       COALESCE(ud.ai_calls_reset_at, now())
+FROM user_data ud
+WHERE ud.id IS NOT NULL
+  AND ud.id::text ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+  AND EXISTS (SELECT 1 FROM auth.users au WHERE au.id::text = ud.id::text)
 ON CONFLICT (user_id) DO NOTHING;
 
 -- ── Atomic consume: day rollover + increment in one statement ───────────────
