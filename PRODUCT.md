@@ -1,3 +1,18 @@
+> ---
+> ## ⚠️ DEPRECATED — 2026-08-04
+>
+> **This document has been superseded by [`CONSOLE.md`](./CONSOLE.md).**
+>
+> It is retained for historical context and design rationale only.
+>
+> **Do not use this document for implementation, design, engineering, UX, or product
+> decisions.** All future work must follow `CONSOLE.md`.
+>
+> Its visual direction is void: the aurora WebGL background, the glass vocabulary, the
+> "OKLCH only" rule and the anti-reference list no longer govern anything. The audience
+> definition and product purpose below remain accurate as background reading.
+> ---
+
 # Product
 
 ## Register

@@ -1,10 +1,16 @@
 # Ruflo — Claude Code Configuration
 
-## ⚖️ Product Constitution — READ FIRST
+## ⚖️ CONSOLE — READ FIRST
 
-**Before any UI work, redesign, new page or surface, or any change to the dashboard, homepage, or editorial system: read [`PRODUCT_CONSTITUTION.md`](./PRODUCT_CONSTITUTION.md) and comply with it.**
+**Before any UI work, redesign, new page or surface, or any change to the dashboard, homepage, or design system: read [`CONSOLE.md`](./CONSOLE.md) and comply with it.**
 
-It is a permanent, binding rule set — no AI clichés (glassmorphism, glowing gradients, orbs, particles, custom cursors, sci-fi visuals), no AI-SaaS copy ("unlock your potential", "supercharge"), no fabricated intelligence (honest empty states when data is absent), editorial / financial-publication typography, and "academic intelligence platform" — never "AI study assistant". **Violating any rule requires explicit founder approval; do not ship a violation and mention it afterward.** Apply the decision test before shipping: *would the Financial Times / Bloomberg / The Economist ship this?* If no, don't build it.
+`CONSOLE.md` is the **single source of truth** for design, UX, motion, and product decisions, ratified 2026-08-04. `PRODUCT_CONSTITUTION.md`, `PRODUCT.md` and `DESIGN.md` are **DEPRECATED** — retained for historical rationale only. They contradicted each other, which is what produced the newspaper-vs-slop oscillation. Do not follow them.
+
+The load-bearing rules: nothing is decorative · the interface is hardware (weight, travel, springs) · colour is information, never mood — 8 greys plus **one** signal (Electric Lime) used only for progress/completion/focus/active/positive-trend · depth is tone, never shadow or blur · four motions only (press, slide, roll, fill) — nothing fades · numerals are the heroes, set in **IBM Plex Mono** · never gamify, always reward honestly · **never fabricate** data, trends or encouragement · never shame the student. Banned permanently: glassmorphism, aurora/animated backgrounds, gradients-as-decoration, glow, confetti, badges, XP, newspaper layouts, and the Inter/Geist/Space Grotesk/Manrope/Outfit/DM Sans/Poppins family of faces.
+
+Type stack: ABC Diatype (preferred, licensed) → Söhne (alt, licensed) → **IBM Plex Sans** (open fallback, ships today) for interface; **IBM Plex Mono** for every figure. Resolve through tokens so the licensed swap is one line.
+
+**Violating any rule requires explicit founder approval; do not ship a violation and mention it afterward.** Decision test before shipping — all four must be yes: is every element load-bearing? does it respond like a physical object? would a 16-year-old screenshot it? **with the wordmark removed, is it still recognisably StudyLedger and recognisably nothing else?** Study the references' reasoning, never their appearance.
 
 ## Rules
 

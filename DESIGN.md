@@ -81,6 +81,23 @@ components:
     padding: "10px 14px"
 ---
 
+> ---
+> ## ⚠️ DEPRECATED — 2026-08-04
+>
+> **This document has been superseded by [`CONSOLE.md`](./CONSOLE.md).**
+>
+> It is retained for historical context and design rationale only.
+>
+> **Do not use this document for implementation, design, engineering, UX, or product
+> decisions.** All future work must follow `CONSOLE.md`.
+>
+> Void: the tonal-plus-glass elevation vocabulary, the aurora, and the Orbitron/Inter/
+> Space Mono/Lora type stack. Console replaces the type ramp entirely
+> (ABC Diatype → Söhne → IBM Plex Sans, with IBM Plex Mono owning all figures) and
+> replaces glass with opaque graphite tone-stepping. The No-Drop-Shadow Rule survives in
+> spirit — Console §2.4 states borders over shadows, always.
+> ---
+
 # Design System: StudyLedger
 
 ## 1. Overview
