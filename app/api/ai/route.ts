@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { hasAccess, type Tier } from "@/lib/tier";
 import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
@@ -2446,6 +2447,48 @@ Respond with exactly this JSON:
   }
 }
 
+// ── Server-side entitlement registry ────────────────────────────────────────
+// The authoritative tool→tier map. Client `<TierGate requires=…>` props only
+// withhold JSX and are trivially bypassed by calling this route directly, so
+// they are never consulted here.
+//
+// Source of truth is the pricing page (components/ui/pricing-cards.tsx), which
+// is what students were actually sold:
+//   Free — study engine & doubt solver, past papers, flashcards & focus,
+//          planner/habits/deadlines, formula sheet & resume  (+ the daily cap)
+//   Pro  — "Every tool unlocked", unlimited AI
+//   Max  — "Personalised AI tutor sessions" (+ parent dashboard, projections,
+//          which are not AI tools)
+//
+// Anything absent from FREE_TOOLS therefore requires Pro, matching the Pro
+// promise. NOTE: where the pricing page and a client gate disagreed (Resume
+// Builder is advertised Free but gated pro-plus in app/tools/resume/page.tsx),
+// the pricing page wins by founder ruling — the stale gate should be corrected
+// separately.
+const FREE_TOOLS: ReadonlySet<string> = new Set([
+  // Study Engine & Doubt Solver
+  "doubt", "doubt_cross_question", "doubt_cross_eval", "notes",
+  // Past Papers — CBSE, JEE, NEET, SAT, IB
+  "papers_explain", "mark_scheme", "mark_scheme_eval",
+  // AI Flashcards & Focus Dashboard
+  "flashcards", "recall_studio", "focus_lab", "brain_budget", "circuit_breaker",
+  // Planner, Habit Tracker & Deadline Hub (Study Command incl. its coach)
+  "study_command", "coach_briefing", "coach_chat",
+  // Formula Sheet
+  "formula", "formula_recall", "formula_decoder",
+]);
+
+// Reserved for Max. Everything else that is not free resolves to Pro.
+const MAX_TOOLS: ReadonlySet<string> = new Set([
+  "tutor", // "Personalised AI tutor sessions"
+]);
+
+function requiredTierFor(tool: string): Tier {
+  if (FREE_TOOLS.has(tool)) return "free";
+  if (MAX_TOOLS.has(tool)) return "max";
+  return "pro";
+}
+
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
@@ -2497,6 +2540,19 @@ export async function POST(req: Request) {
   }
   const rateLimitUserId = authedUser.id;
 
+  // ── Entitlement ───────────────────────────────────────────────────────────
+  // The single server-side choke point for paid access. hasAccess() carries the
+  // TIER_ENFORCEMENT_DATE window and the NEXT_PUBLIC_TIER_ENFORCEMENT override,
+  // so this is inert until the paywall date and flips on with the client gates
+  // — no business logic is duplicated here.
+  const needTier = requiredTierFor(tool);
+  if (!hasAccess(authedUser, needTier)) {
+    return NextResponse.json(
+      { error: `This tool requires ${needTier === "max" ? "Max" : "Pro"}. Upgrade to continue.` },
+      { status: 402 }
+    );
+  }
+
   // ── Strike / ban check ────────────────────────────────────────────────────
   const strikes = await getUserStrikeCount(rateLimitUserId);
   if (strikes >= 3) {
@@ -2538,18 +2594,25 @@ export async function POST(req: Request) {
   const enforcing       = new Date() >= RATE_LIMIT_DATE && !paidTier;
 
   if (rateLimitUserId) {
-    const { data: ud } = await supabaseServer
-      .from("user_data")
-      .select("ai_calls_today, ai_calls_reset_at")
-      .eq("id", rateLimitUserId)
-      .single();
+    // The counter lives in ai_rate_limits, which has no write policy — only the
+    // service role can touch it (migration 006). It used to live on
+    // user_data.ai_calls_today, a row the user can UPDATE under their own RLS
+    // policy, so the cap was self-resettable from devtools.
+    //
+    // consume_ai_call() does the midnight rollover and the increment in one
+    // atomic statement and returns the count INCLUDING this call, which also
+    // removes the old read-modify-write race.
+    const { data: usedAfterThisCall, error: usageError } = await supabaseServer
+      .rpc("consume_ai_call", { p_user_id: rateLimitUserId });
 
-    const now      = new Date();
-    const resetAt  = ud?.ai_calls_reset_at ? new Date(ud.ai_calls_reset_at) : null;
-    const needsReset = !resetAt || resetAt < new Date(now.toDateString()); // midnight reset
-    const currentCount = needsReset ? 0 : (ud?.ai_calls_today ?? 0);
-
-    if (enforcing && currentCount >= DAILY_LIMIT) {
+    if (usageError) {
+      // Fail open on counter failure — never block a paying student because the
+      // meter broke. Surfaced to Sentry so it cannot fail silently forever.
+      Sentry.captureException(usageError, {
+        tags: { route: "api/ai", phase: "rate_limit_increment", tool },
+      });
+    } else if (enforcing && (usedAfterThisCall ?? 0) > DAILY_LIMIT) {
+      const now = new Date();
       const midnight = new Date(now);
       midnight.setUTCHours(24, 0, 0, 0);
       const hoursLeft = Math.ceil((midnight.getTime() - now.getTime()) / 3600000);
@@ -2558,18 +2621,6 @@ export async function POST(req: Request) {
         { status: 429 }
       );
     }
-
-    // Increment counter (non-blocking)
-    supabaseServer
-      .from("user_data")
-      .update({
-        ai_calls_today: currentCount + 1,
-        ai_calls_reset_at: needsReset ? now.toISOString() : (ud?.ai_calls_reset_at ?? now.toISOString()),
-      })
-      .eq("id", rateLimitUserId)
-      .then(() => {}, (err) => {
-        Sentry.captureException(err, { tags: { route: "api/ai", phase: "rate_limit_increment", tool } });
-      });
   }
   // ── End rate limiting ──────────────────────────────────────────────────────
 

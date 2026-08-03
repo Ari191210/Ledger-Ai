@@ -4,6 +4,17 @@ import { supabaseServer } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
+// Job types a browser client may request. Everything else is internal: the
+// cron routes enqueue them by calling enqueueJob() directly, which does not
+// pass through this endpoint at all.
+//
+// Ownership alone was not enough. `type` was cast straight to JobType, so an
+// authenticated user could queue "weekly-report-batch" with their own userId.
+// Its dispatcher (lib/jobs.ts) calls /api/cron/weekly-report with CRON_SECRET
+// — a confused deputy that fans out an email plus a Sonnet call to EVERY user
+// with email enabled, once per request.
+const CLIENT_ENQUEUEABLE = new Set<JobType>(["send-welcome"]);
+
 export async function POST(req: Request) {
   // ── Authentication required ──────────────────────────────────────────────
   // This route previously accepted any type/payload from anyone, with no
@@ -28,6 +39,10 @@ export async function POST(req: Request) {
     if (!type || !payload) throw new Error("missing fields");
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+
+  if (!CLIENT_ENQUEUEABLE.has(type as JobType)) {
+    return NextResponse.json({ error: "Unsupported job type." }, { status: 400 });
   }
 
   if (payload.userId !== authedUser.id) {

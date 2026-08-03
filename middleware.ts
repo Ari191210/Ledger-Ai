@@ -22,6 +22,7 @@ const RULES: RateRule[] = [
   { prefix: "/api/admin/generate-hash",   limit: 2,  windowMs: 60_000 }, // 2/min  — unauth'd, expensive scrypt hash
   { prefix: "/api/track",                 limit: 60, windowMs: 60_000 }, // 60/min — client analytics beacon
   { prefix: "/api/errors",                limit: 30, windowMs: 60_000 }, // 30/min — client error-log beacon
+  { prefix: "/api/jobs/enqueue",          limit: 5,  windowMs: 60_000 }, // 5/min  — queues background email work
 ];
 
 function getIp(req: NextRequest): string {
@@ -98,5 +99,6 @@ export const config = {
     "/api/admin/generate-hash",
     "/api/track",
     "/api/errors",
+    "/api/jobs/enqueue",
   ],
 };
