@@ -25,6 +25,18 @@ export default function AuthPage() {
     if (searchParams.get("forgot") === "1") setMode("forgot");
   }, [searchParams]);
 
+  // Where to go after sign-in. AuthGuard sets ?next=<intended path> so a gated
+  // link (e.g. /dashboard?v2=1) returns intact. Same-origin paths only — reject
+  // absolute URLs and protocol-relative ("//host") to avoid an open redirect.
+  function postLoginDest(): string {
+    const n = searchParams.get("next");
+    // Same-origin paths only. "//host" is protocol-relative, and browsers
+    // normalise "\" to "/", so "/\evil.com" would also escape the origin —
+    // reject backslashes outright rather than trying to enumerate variants.
+    const safe = !!n && n.startsWith("/") && !n.startsWith("//") && !n.includes("\\");
+    return safe ? n! : "/dashboard";
+  }
+
   useGSAP(() => {
     if (!formRef.current) return;
     gsap.from(formRef.current.children, {
@@ -87,7 +99,7 @@ export default function AuthPage() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      router.push("/dashboard");
+      router.push(postLoginDest());
     }
     setLoading(false);
   }

@@ -19,6 +19,7 @@ import AcademicMarkets from "@/components/dashboard/academic-markets";
 import DashboardMasthead from "@/components/dashboard/masthead";
 import Coverage from "@/components/dashboard/coverage";
 import RecommendedAction from "@/components/dashboard/recommended-action";
+import DashboardV2 from "@/components/dashboard/dashboard-v2";
 // Phase 3A: Features Showcase and Live Activity are no longer mounted on the
 // dashboard. Their component files are unchanged — only the mounts were removed.
 import gsap from "gsap";
@@ -797,7 +798,38 @@ function TodayIntention() {
   );
 }
 
+// ── V2 flag router (Wiring Step 4) ──────────────────────────────────────────
+// Renders EITHER the constitutional DashboardV2 (off-by-default flag) OR the
+// existing dashboard — never both — so only the chosen component's hooks run
+// (a naive early-return would let the classic effects clobber ledger:lastVisit
+// before V2 reads it, breaking the re-engagement gate). The flag is read after
+// mount so SSR and first client render agree. The flag is STICKY: ?v2=1 turns
+// V2 on and persists it to localStorage (ledger-dash-v2), ?v2=0 turns it off and
+// clears it, and with no param we fall back to the stored value. Stickiness is
+// what makes the flag survive the /auth redirect, which drops the query string
+// (AuthGuard also captures the param before redirecting — see auth-guard.tsx).
+// Off by default; the classic dashboard is unchanged.
 export default function Dashboard() {
+  const [v2, setV2] = useState<boolean | null>(null);
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("v2")) {
+        const on = params.get("v2") !== "0"; // ?v2=0 → off; ?v2 / ?v2=1 → on
+        localStorage.setItem("ledger-dash-v2", on ? "1" : "0");
+        setV2(on);
+      } else {
+        setV2(localStorage.getItem("ledger-dash-v2") === "1");
+      }
+    } catch {
+      setV2(false);
+    }
+  }, []);
+  if (v2 === null) return <DashboardSkeleton />;
+  return v2 ? <DashboardV2 /> : <DashboardClassic />;
+}
+
+function DashboardClassic() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const containerRef = useRef<HTMLElement>(null);

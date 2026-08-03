@@ -38,10 +38,17 @@ const nextConfig = {
     { source: "/tools/cremator", destination: "/tools/exam-triage?tab=cremator", permanent: true },
   ],
   headers: async () => [
-    {
-      source: "/_next/static/:path*",
-      headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
-    },
+    // Immutable long-cache for content-hashed static assets — PRODUCTION ONLY.
+    // In dev, Turbopack serves stable chunk paths, so this header pins stale JS
+    // in the browser and code edits never reach the page. Omit it outside prod.
+    ...(process.env.NODE_ENV === "production"
+      ? [
+          {
+            source: "/_next/static/:path*",
+            headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+          },
+        ]
+      : []),
     {
       source: "/(.*)",
       headers: [

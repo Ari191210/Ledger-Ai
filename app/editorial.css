@@ -635,6 +635,48 @@
   transform-origin: left center;
 }
 
+/* Dashboard sector row (components/dashboard/sectors-view.tsx). A flat control:
+   no fill (rendered as div[role=button], so it never picks up the bare-button
+   background), contrast-on-hover, visible focus ring. Motion v5 t-local. */
+[data-ui="editorial"] .dash-sector {
+  cursor: pointer;
+  color: var(--ink-2);
+  transition: color 120ms var(--ed-ease);
+}
+[data-ui="editorial"] .dash-sector:hover { color: var(--ink); }
+[data-ui="editorial"] .dash-sector:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Sector evidence unfold (Component 4C). Motion v5 §6 Reveal: the line unfolds
+   and siblings displace — grid-template-rows 0fr→1fr is a true auto-height
+   unfold with negligible layout cost (one line, once). t-context 400ms, Approach
+   curve; content fades via opacity. Reduced motion → instant, no fade. */
+[data-ui="editorial"] .dash-sector-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 400ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+[data-ui="editorial"] .dash-sector-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+[data-ui="editorial"] .dash-sector-panel__inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 260ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+[data-ui="editorial"] .dash-sector-panel[data-open="true"] .dash-sector-panel__inner {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="editorial"] .dash-sector-panel,
+  [data-ui="editorial"] .dash-sector-panel__inner {
+    transition: none;
+  }
+}
 
 /* ── 9. THE TICKER ─────────────────────────────────────────────────────────
    The band under the masthead. Constant motion, so per the motion rules it is
