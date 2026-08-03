@@ -1,3 +1,19 @@
+> ---
+> ## ⚠️ DEPRECATED — 2026-08-04
+>
+> **This document has been superseded by [`CONSOLE.md`](./CONSOLE.md).**
+>
+> It is retained for historical context and design rationale only.
+>
+> **Do not use this document for implementation, design, engineering, UX, or product
+> decisions.** All future work must follow `CONSOLE.md`.
+>
+> Two rules below were explicitly *reversed* by Console: the FT/Bloomberg decision test
+> (§"The decision test") is what made the product read as a newspaper, and the prohibition
+> on animated figures is replaced — numerals now roll. The rule against fabricated data
+> survives intact and is carried into Console §1.4.
+> ---
+
 # StudyLedger — Product Constitution
 
 **This is a permanent rule set. It governs every design and product decision on StudyLedger.**
