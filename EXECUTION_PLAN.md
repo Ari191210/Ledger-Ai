@@ -253,11 +253,102 @@ nothing — the product currently rewards hiding evidence.
 
 ---
 
+# PART A2 — FEATURE CLASSIFICATION POLICY
+
+*Added 2026-08-05. Supersedes every deletion decision made on usage grounds.*
+
+## A2.1 Analytics are observational, not decisional
+
+PostHog currently reflects a period in which the founder was the primary active
+user, alongside development and testing sessions. The sample is 55 tool opens.
+
+**Current analytics may be used to find bugs, broken flows and dead routes.
+They may NOT be used to decide what ships, what merges, or what is removed.**
+
+The 90-day report stands as a **bug-finding artifact** — it is how the
+`/tools/doubt` 404 was confirmed as user-reachable — and is withdrawn as
+roadmap evidence. Low usage is not evidence of low value when usage is not yet
+representative.
+
+## A2.2 The four classes
+
+| Class | Definition | Navigation | Code |
+|---|---|---|---|
+| **CORE** | Directly strengthens *"What should I fix next?"* | Visible | Untouched |
+| **SUPPORTING** | Not essential for V1; strengthens the experience; may return | Hidden in V1 | Untouched |
+| **EXPERIMENTAL** | Interesting, not core today | Removed | **Kept intact** |
+| **LEGACY** | Obsolete, duplicated, or architecturally conflicting | Removed | Archived |
+
+## A2.3 The deletion bar
+
+**Default is ARCHIVE. Deletion requires at least one of:**
+
+1. duplicate functionality · 2. objectively obsolete implementation ·
+3. architectural conflict · 4. security risk · 5. maintenance burden with no
+future value
+
+**"Low usage" is explicitly not sufficient.**
+
+## A2.4 The mechanism — navigation, not the filesystem
+
+Classification is enforced in **`lib/tools-registry.ts`**, by adding a `status`
+field. Navigation, search and the command palette render `core` (and
+`supporting` when enabled). Everything else stays routable by direct URL.
+
+This is the whole idea: **one file controls what the product looks like, and no
+implementation moves.** Reversing a classification is a one-word edit, so a
+wrong call costs minutes rather than a rebuild.
+
+> **The navigation becomes small. The repository does not.**
+
+Only `legacy` items move on disk — to `archive/`, outside `app/`, so they stop
+building while remaining in git and readable.
+
+## A2.5 The register
+
+Classified by thesis fit. **No usage data was consulted.**
+
+**CORE — 13.** The loop itself.
+`post-exam` · `paper-autopsy` · `marks-forensics` · `marks-obituary` ·
+`paper-trauma` · `paper-pattern` · `calibration` · `syllabus` ·
+`grade-tracker` · `exam-planner` · `silent-topics` · `practice` ·
+`exam-practice`
+
+**SUPPORTING — 12.** Hidden in V1, implementation untouched, likely to return.
+`recall-studio` · `flashcards` · `exam-sim` · `forgetting-forecast` ·
+`exam-day` · `exam-triage` · `panic-triage` · `learn-lab` · `language-lab` ·
+`model-answer` · `memory-toolkit` · `personalise`
+
+> `learn-lab` moved from DELETE to SUPPORTING on thesis grounds, not usage
+> grounds: its Doubt tab sits adjacent to diagnosis, and "we do not teach" is a
+> V1 scoping rule, not a permanent prohibition on the code existing.
+
+**EXPERIMENTAL — 21.** Out of navigation, code untouched.
+`writing-tools` · `research-suite` · `presentation` · `debate` · `citation` ·
+`lab-report` · `reference-builder` · `report-tools` · `compare` · `source` ·
+`case-study` · `timeline` · `study-guide` · `analysis-hub` · `rooms` ·
+`admissions` · `resume` · `interview` · `gpa-sim`
+
+**LEGACY — 0 tools.**
+
+Not one of the 46 tools meets the deletion bar. Everything that qualifies is
+**infrastructure, not product**:
+
+| Item | Qualifying reason |
+|---|---|
+| `PRODUCT.md`, `DESIGN.md` | Architectural conflict — documented cause of the design oscillation |
+| 3 simultaneous motion runtimes | Maintenance burden, architectural conflict |
+| `globals.css` / `editorial.css` duplication | Architectural conflict (M10, not now) |
+| 16 orphan components, `lib/animation.ts` | Objectively obsolete — zero importers (**already removed in M0**) |
+| Duplicated tab components (`CrunchTab`, `MindMapTab`, `ConceptConnectTab`, `FormulaTab`) | Duplicate functionality — **extract to shared, do not archive either host** |
+
+---
+
 # PART B — MILESTONES
 
 ## MILESTONE 0 — Repository stabilisation
 
-*Delete before building. The repo must stop being 68 products.*
+*Reduce the navigation, not the repository.*
 
 | ID | Task | Why | Deps | Files | Effort | Acceptance |
 |---|---|---|---|---|---|---|
@@ -269,15 +360,20 @@ nothing — the product currently rewards hiding evidence.
 | **M0-6** | Drop `three`, `@react-three/*`, `@splinetool/*` | Only importer is itself dead | M0-5 | `package.json` | S | `npm ls` clean; build green |
 | **M0-7** | Delete `lib/animation.ts`, `app/globals-severity-patch.css` | Zero importers | — | as named | S | Build green |
 | **M0-8** | Delete `PRODUCT.md`, `DESIGN.md` | Three constitutions caused a year of oscillation | — | as named | S | Two governing docs remain |
-| **M0-9** | **Archive 4 FUTURE tools** — `admissions`, `resume`, `interview`, `gpa-sim` | Different product | — | `app/tools/*`→`archive/`, `lib/tools-registry.ts` | M | Routes gone; registry consistent; build green |
-| **M0-10** | **Delete 21 off-thesis tool routes** — 9 WRITE, 7 generic, 2 teaching, 2 planning, `rooms` | 24 routes make the product smaller, not worse | M0-9, **PostHog check** | `app/tools/**`, registry | L | 46→11 tool routes; no dangling imports; build green |
-| **M0-11** | Delete `/dashboard/saved`, `/console/ai` | Saves output from deleted tools; chat violates *we do not teach* | M0-10 | as named | S | Build green |
-| **M0-12** | Reduce to one motion runtime | 3 shipped simultaneously | M0-10 | `package.json`, remaining consumers | M | Only CSS motion + at most one lib |
+| **M0-9** | **Add `status` to `lib/tools-registry.ts`** — `core` / `supporting` / `experimental`, per the A2.5 register | The single control point for navigation size. Makes every later classification a one-word edit rather than a migration | M0-8 | `lib/tools-registry.ts` | S | All 46 entries classified; `tsc` green; **no route touched** |
+| **M0-10** | **Filter navigation to CORE** — dashboard grid, command palette, `app-nav`, `desks` read `status` | The navigation becomes small while the repository stays whole | M0-9 | 4 registry consumers | M | Navigation shows 13 tools; **all 46 URLs still resolve**; build green |
+| **M0-11** | **Unlink `/console/ai` and `/dashboard/saved`** from navigation | Out of V1 scope; both remain routable | M0-10 | nav consumers | S | No inbound links; both routes still load |
+| **M0-12** | **Extract the 4 duplicated tab components** to shared modules | Duplicate functionality — the one class that genuinely qualifies for removal | — | `exam-practice`, `exam-triage`, `learn-lab`, `reference-builder`, `recall-studio` | L | One definition each; both hosts still work; build green |
+| **M0-13** | Reduce to one motion runtime | 3 shipped simultaneously — maintenance burden + architectural conflict | M0-10 | `package.json`, 7 live consumers | M | One runtime; every animation still runs |
 
-> **M0-10 gate:** run the PostHog 90-day usage query *first*. Any tool with real usage
-> becomes a founder decision, not an automatic delete.
+> **Deletion gate for M0:** no tool route is deleted, archived or moved.
+> Classification is a registry field. If a class turns out wrong, changing it
+> costs one word and no rebuild — which is precisely why it is done this way
+> while usage data is not yet representative.
 
-**Exit:** 68 → ~30 routes · zero dead links · CI green · one motion runtime.
+**Exit:** navigation shows **13 tools instead of 46** · all 46 URLs still
+resolve · zero dead links · CI green · one motion runtime · **zero product code
+deleted**.
 
 ---
 
@@ -417,7 +513,7 @@ nothing — the product currently rewards hiding evidence.
 
 | Milestone | Tasks | Effort | Gate |
 |---|---|---|---|
-| M0 Stabilisation | 12 | ~30h | 68 → 30 routes, CI green |
+| M0 Stabilisation | 13 | ~26h | Navigation 46 → 13 tools, **all routes intact**, CI green |
 | **M1 Schema** | 7 | ~50h | **The foundation** |
 | **M2 Capture** | 6 | ~60h | **MVP gate — photo → record** |
 | M3 Diagnosis | 5 | ~55h | Six become one |
@@ -443,8 +539,11 @@ assumes materially more than 6h/week — flagged, not resolved.
 | **D2** | **Approve inverting the Score's mistake pillar** (A.11) | Breaking change to a tested engine; capture is disincentivised until fixed |
 | **D3** | **Confirm the resolution rule** — students may never self-mark resolved | Defines what the record means |
 | **D4** | **Confirm the parent boundary** — `practising`/`resolved` only | Enforced in the DB, expensive to change later |
-| **D5** | **Run the PostHog 90-day query before M0-10** | 21 deletions are inferred from code, not usage |
+| **D5** | ~~Run the PostHog query before M0-10~~ — **withdrawn 2026-08-05.** Analytics are observational only (A2.1); no route is deleted, so nothing gates on them | — |
 | **D6** | Confirm CBSE Physics as the seed subject | Scopes M1-4 |
+| **D7** | **Ratify the A2.5 register** — 13 CORE / 12 SUPPORTING / 21 EXPERIMENTAL / 0 legacy tools | Sets V1 navigation. Reversible in one word, so this is a cheap decision, not a permanent one |
+| **D8** | **Resolve the `PRODUCT_CONSTITUTION.md` conflict** — its Part 5 still names 23 routes for permanent deletion, which now contradicts A2.3 | Two governing documents disagreeing is the exact failure mode that caused the design oscillation |
+| **D9** | Confirm `learn-lab` as SUPPORTING, not CORE | Its Doubt tab is adjacent to diagnosis; "we do not teach" is a V1 scoping rule, not a permanent ban on the code existing |
 
 ---
 
@@ -463,7 +562,6 @@ assumes materially more than 6h/week — flagged, not resolved.
 | M0-6 | 2026-08-05 | `44861db` | 6 deps removed (three, @types/three, @react-three/drei, @react-three/fiber, @splinetool/react-spline, @splinetool/runtime) |
 | M0-7 | 2026-08-05 | `44861db` | `lib/animation.ts`, `app/globals-severity-patch.css` deleted |
 | M0-8 | — | — | **Not done** — `PRODUCT.md`/`DESIGN.md` deletion not in the approved scope |
-| M0-9/10/11 | — | — | **Not done** — tool archive/deletion not in the approved scope; usage evidence gathered instead |
-| M0-12 | — | — | **Not done** — motion-runtime reduction touches 7 live files; deferred |
+| M0-9..13 | — | — | **Re-scoped 2026-08-05** — deletion replaced by registry classification (Part A2). No route removed. |
 
 **Verification at M0 close:** 94 tests pass · `tsc --noEmit` clean · `next build` green (76 routes).
