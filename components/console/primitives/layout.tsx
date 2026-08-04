@@ -63,7 +63,13 @@ export function Stack(props: FlexProps) {
   return <div style={flexStyle("column", props)}>{props.children}</div>;
 }
 
-/** Horizontal grouping. Defaults to baseline so figures and their units align. */
+/**
+ * Horizontal grouping. Defaults to `align="center"`, which is correct for the
+ * common case of mixing text with controls of differing heights.
+ *
+ * Pass `align="baseline"` when a row is figures and their units — a readout
+ * next to "of 1,000" should sit on a shared baseline, not a shared centre.
+ */
 export function Row(props: FlexProps) {
   return (
     <div style={flexStyle("row", { align: "center", ...props })}>{props.children}</div>

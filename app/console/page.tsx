@@ -6,7 +6,6 @@ import { loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import { currentInputs } from "@/lib/score-projection";
 import { deriveNextMove, nextExam, type NextMove } from "@/lib/console/next-move";
-import { computeVitality, vitalityWithFloor, VITALITY_FLOOR } from "@/lib/console/vitality";
 import {
   Stack,
   Row,
@@ -27,11 +26,11 @@ import {
 // Answers one question: "What should I do right now?" Three beats, in reading
 // order: where you are · what's coming · what to do.
 //
-// Rebuilt on the primitives as the Phase 1 gate. The whole surface now carries
-// exactly two inline styles, both on the page shell (full-height column, and
-// the --vitality custom property). Every typographic, spacing, colour and
-// motion decision comes from the vocabulary, which means none of them can
-// drift.
+// Rebuilt on the primitives as the Phase 1 gate, and now carries ZERO inline
+// styles: every typographic, spacing, colour and motion decision comes from the
+// vocabulary, so none of them can drift. Earned colour is inherited from
+// VitalityShell in the layout rather than set here — vitality is shell state,
+// and a page that sets it is a page that can forget to.
 //
 // There is no loading state by design: the score computes synchronously from
 // local inputs, the shell paints immediately, and the roll from zero IS the
@@ -51,7 +50,6 @@ export default function NowPage() {
   const [move, setMove] = useState<NextMove | null>(null);
   const [exam, setExam] = useState<{ days: number; subject: string } | null>(null);
   const [name, setName] = useState("");
-  const [vitality, setVitality] = useState(VITALITY_FLOOR);
   const [sinceLastSeen, setSinceLastSeen] = useState<number | null>(null);
 
   useEffect(() => {
@@ -59,10 +57,7 @@ export default function NowPage() {
       const s = computeLedgerScore();
       setScore(s);
       const inputs = currentInputs();
-      if (inputs) {
-        setMove(deriveNextMove(inputs));
-        setVitality(vitalityWithFloor(computeVitality(inputs, s.total)));
-      }
+      if (inputs) setMove(deriveNextMove(inputs));
 
       // THE RETURN BEAT (§7). Evidence, not celebration: without it the screen
       // is identical every visit and the student learns their effort is
@@ -106,17 +101,7 @@ export default function NowPage() {
   const today = new Date().toLocaleDateString("en-GB", DATE_FMT);
 
   return (
-    <main
-      id="main-content"
-      style={
-        {
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          "--vitality": vitality.toFixed(3),
-        } as React.CSSProperties
-      }
-    >
+    <main id="main-content">
       {/* CHROME — the Score lives here on every surface, like a battery
           indicator, never as a card (§5.3). */}
       <Stack>

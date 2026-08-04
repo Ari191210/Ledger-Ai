@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import AuthGuard from "@/components/auth-guard";
+import VitalityShell from "@/components/console/vitality-shell";
 import "./console.css";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -41,9 +42,13 @@ export const metadata: Metadata = {
 export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
-      <div data-console className={`${sans.variable} ${mono.variable}`} style={{ minHeight: "100vh" }}>
+      {/* VitalityShell owns the [data-console] token scope and writes
+          --vitality. It lives here rather than in any page so every Console
+          surface inherits earned colour automatically — a page cannot forget
+          to set it, because a page never sets it. */}
+      <VitalityShell className={`${sans.variable} ${mono.variable}`}>
         {children}
-      </div>
+      </VitalityShell>
     </AuthGuard>
   );
 }
