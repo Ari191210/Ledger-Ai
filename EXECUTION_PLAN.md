@@ -454,4 +454,16 @@ assumes materially more than 6h/week — flagged, not resolved.
 
 | ID | Date | Commit | Verified |
 |---|---|---|---|
-| — | — | — | Plan created; no code modified |
+| — | 2026-08-04 | — | Plan created; no code modified |
+| M0-1 | 2026-08-05 | `44861db` | Pills carry explicit hrefs; 2 redirects added; build green |
+| M0-2 | 2026-08-05 | `44861db` | `app/not-found.tsx` added; `/_not-found` in build output |
+| M0-3 | 2026-08-05 | `44861db` | `app/console/loading.tsx` returns null; legacy skeleton no longer reachable from Console |
+| M0-4 | 2026-08-05 | `44861db` | `npm test` + `npm run typecheck` added; `.github/workflows/test.yml` runs both on every push |
+| M0-5 | 2026-08-05 | `44861db` | 19 files / 2,607 lines deleted after per-file import verification |
+| M0-6 | 2026-08-05 | `44861db` | 6 deps removed (three, @types/three, @react-three/drei, @react-three/fiber, @splinetool/react-spline, @splinetool/runtime) |
+| M0-7 | 2026-08-05 | `44861db` | `lib/animation.ts`, `app/globals-severity-patch.css` deleted |
+| M0-8 | — | — | **Not done** — `PRODUCT.md`/`DESIGN.md` deletion not in the approved scope |
+| M0-9/10/11 | — | — | **Not done** — tool archive/deletion not in the approved scope; usage evidence gathered instead |
+| M0-12 | — | — | **Not done** — motion-runtime reduction touches 7 live files; deferred |
+
+**Verification at M0 close:** 94 tests pass · `tsc --noEmit` clean · `next build` green (76 routes).
