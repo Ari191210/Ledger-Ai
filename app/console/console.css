@@ -187,7 +187,14 @@
   background: var(--progress);
   transform-origin: left center;
   transform: scaleX(0);
-  transition: transform var(--m-slow) var(--ease-settle);
+  /* The colour eases too. Vitality resolves after mount, and a hue that snaps
+     from grey to earned is a change nothing acknowledged (§3.0). Slower than
+     the fill so the saturation arrives *after* the value — the student reads
+     the figure first, then notices, without being told, that the product looks
+     more alive than it used to. */
+  transition:
+    transform        var(--m-slow) var(--ease-settle),
+    background-color 1200ms        var(--ease-out);
   will-change: transform;
 }
 

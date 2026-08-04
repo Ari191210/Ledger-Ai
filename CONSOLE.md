@@ -182,6 +182,30 @@ as graphic fills — measured, not estimated.
 **Never colour a projection.** A forecast rendered in the progress hue dresses a possible
 gain as an achieved one, which breaks §1.4 law 7. Projections are set in ink.
 
+### Earned colour — and its invisibility rule
+
+`--vitality` (0–1) is computed from real work and saturates the progress hue. A new student
+sees a monochrome instrument; a committed one sees a product that came alive because of
+them. Only `--progress` varies — a warning must never be quieter for a beginner, and an
+error is never a reward.
+
+**Vitality is never surfaced. This is a hard rule, not a preference.**
+
+- It is **never** shown as a number, bar, level, badge, or percentage.
+- It is **never** named in the UI, in copy, in onboarding, in emails, or in help.
+- Nothing ever announces that it changed.
+- No screen explains why the product looks different than it did last month.
+
+> **Treat vitality like typography. It is everywhere. Nobody notices it.**
+>
+> If a *designer* can see the system, it is working.
+> If a *user* can describe the system, it has become too obvious and must be softened.
+
+The moment a student can articulate "the app gets more colourful as I study," it has turned
+into a points mechanic wearing a disguise — which is gamification, banned by §1.4 law 6.
+The intended experience is not *"I unlocked colour."* It is the vaguer, better feeling of
+*"this product seems to know me now."*
+
 **Direction is always carried by a glyph as well** (▲/▼), so colour is never the sole
 carrier of meaning.
 
@@ -276,6 +300,38 @@ faster to parse than novel glyphs.
 ---
 
 ## 3. Interaction Principles
+
+### 3.0 The Acknowledgement Principle — the one that governs the rest
+
+> **Every interaction answers exactly one question: "Did the product acknowledge what I
+> just did?"**
+>
+> Not celebrate. Not reward. **Acknowledge.**
+
+This is the difference between a product that feels responsive and one that feels
+theatrical, and it is the single most important behavioural rule in Console.
+
+| The student does | The product acknowledges by |
+|---|---|
+| Presses a control | It travels, and returns |
+| Changes a figure | The number rolls into place |
+| Completes work | The score settles to its new value |
+| Finishes a task | It quietly locks |
+| Adds a session | The timeline shifts |
+| Accumulates data | The chart breathes |
+
+**Acknowledgement is proportionate to the act.** A press earns 40ms of travel. A term's
+work earns a 900ms sweep. Anything louder than the act that caused it is theatre, and
+theatre is how a product stops being trusted.
+
+**What acknowledgement is not:** a toast · a modal · confetti · a sound · a badge · a
+"Well done!" · anything that requires dismissal · anything that interrupts. If the student
+has to acknowledge the acknowledgement, it was too loud.
+
+**The absence of acknowledgement is a bug.** An action that produces no visible response
+teaches the student that the product did not notice — and a student who believes their
+effort is invisible stops making it. That is the actual failure mode of every study app
+ever built.
 
 1. **Everything responds within 50ms.** Not "completes" — *responds*. A press registers
    visually before any network call begins.
@@ -407,6 +463,23 @@ never a card, never a widget, never a KPI tile.
 almost always that an existing component should flex. Component sprawl is how design
 systems die.
 
+### The completion gate
+
+**No component is done until it passes this. It is the last question asked, every time:**
+
+> **"If every colour were removed from this interaction, would it still feel satisfying?"**
+>
+> **No** → the interaction is unfinished. Fix the motion, timing, weight or geometry.
+> Do not add colour to compensate — that hides the defect instead of removing it.
+> **Yes** → colour may now be applied, in support.
+
+This is the strip-all-colour test (§2.2) applied at the level of *behaviour* rather than
+*appearance*, and it is the stricter of the two. A screen can look composed in greyscale
+and still feel dead; an interaction cannot.
+
+**The product is recognised by behaviour first, appearance second.** That is the identity
+being built, and this gate is how it gets enforced one component at a time.
+
 ---
 
 ## 7. Emotional Journey
@@ -424,6 +497,15 @@ The product has a five-beat emotional arc, and every surface serves one beat.
 **The Return beat is the whole product.** It is the only reason a student comes back
 tomorrow. If an action doesn't visibly move something, the student learns that their effort
 is invisible — and that is the actual failure mode of every study app ever built.
+
+**The Return beat is EVIDENCE, not celebration.** It states what changed since the student
+was last here, the way an instrument states a reading. It creates continuity between
+sessions: *"my work since last time mattered."*
+
+It is never a congratulation, never a streak-shame, never a "you're on fire", never
+animated beyond the figure settling. A fact, delivered plainly, with a direction glyph so
+colour is never carrying it alone. The moment it becomes a reward, it becomes a mechanic —
+and the student starts working for the mechanic instead of the exam.
 
 ### The anxiety rule
 A student opens this at 11pm before an exam, frightened. Every screen must survive that

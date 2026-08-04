@@ -7,7 +7,7 @@ import { loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import { currentInputs } from "@/lib/score-projection";
 import { deriveNextMove, nextExam, type NextMove } from "@/lib/console/next-move";
-import { computeVitality, vitalityWithFloor } from "@/lib/console/vitality";
+import { computeVitality, vitalityWithFloor, VITALITY_FLOOR } from "@/lib/console/vitality";
 import Readout from "@/components/console/readout";
 import Track from "@/components/console/track";
 
@@ -44,7 +44,11 @@ export default function NowPage() {
   const [move, setMove] = useState<NextMove | null>(null);
   const [exam, setExam] = useState<{ days: number; subject: string } | null>(null);
   const [name, setName] = useState<string>("");
-  const [vitality, setVitality] = useState(0);
+  // Starts at the restrained floor, never at zero. Mounting at 0 and jumping
+  // to the real value on the next frame is a grey-to-colour flash that nothing
+  // caused and nothing acknowledges (§3.0). Beginning at the floor means the
+  // interface opens quiet and *eases* up to whatever the student has earned.
+  const [vitality, setVitality] = useState(VITALITY_FLOOR);
   const [sinceLastSeen, setSinceLastSeen] = useState<number | null>(null);
 
   // Local, synchronous, no network: the score and the move are available on
