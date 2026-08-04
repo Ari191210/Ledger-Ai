@@ -1024,13 +1024,17 @@ export default function Dashboard() {
 
         {/* Quick-launch pills */}
         <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" }}>
+          {/* Destinations are explicit, not built from a slug. "doubt" and "notes"
+              were folded into Learn Lab as tabs; the pills still pointed at
+              /tools/doubt and /tools/notes, which have no page — a live 404 that
+              PostHog shows was reached 3 times in the last 90 days. */}
           {[
-            { label: "Doubt Solver", slug: "doubt" },
-            { label: "Practice", slug: "practice" },
-            { label: "Notes", slug: "notes" },
-            { label: "Grade Tracker", slug: "grade-tracker" },
+            { label: "Doubt Solver", href: "/tools/learn-lab?tab=doubt", track: "learn-lab" },
+            { label: "Practice", href: "/tools/practice", track: "practice" },
+            { label: "Notes", href: "/tools/learn-lab?tab=notes", track: "learn-lab" },
+            { label: "Grade Tracker", href: "/tools/grade-tracker", track: "grade-tracker" },
           ].map(item => (
-            <Link key={item.slug} href={`/tools/${item.slug}`} onClick={() => trackToolVisit(item.slug)}
+            <Link key={item.label} href={item.href} onClick={() => trackToolVisit(item.track)}
               className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}
               onMouseEnter={ev => gsap.to(ev.currentTarget, { y: -3, scale: 1.05, duration: 0.22, ease: "power2.out", overwrite: "auto" })}
               onMouseLeave={ev => gsap.to(ev.currentTarget, { y: 0, scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" })}

@@ -36,6 +36,10 @@ const nextConfig = {
   redirects: async () => [
     { source: "/tools/dna",      destination: "/tools/post-exam?tab=dna",        permanent: true },
     { source: "/tools/cremator", destination: "/tools/exam-triage?tab=cremator", permanent: true },
+    // doubt and notes are Learn Lab tabs. These two were never redirected, so
+    // the dashboard's quick-launch pills 404'd for anyone who clicked them.
+    { source: "/tools/doubt",    destination: "/tools/learn-lab?tab=doubt",      permanent: true },
+    { source: "/tools/notes",    destination: "/tools/learn-lab?tab=notes",      permanent: true },
   ],
   headers: async () => [
     // Immutable long-cache for content-hashed static assets — PRODUCTION ONLY.
