@@ -7,6 +7,16 @@
    property resolves from the nearest declaring ancestor, so declaring them on
    the shell means Console and the legacy app are invisible to each other by
    construction.
+
+   ── THE VALUES BELOW ARE NOT THE SOURCE OF TRUTH ─────────────────────────
+   Since the Workspace Engine (WORKSPACE.md), every token in this block is
+   COMPUTED by lib/console/workspace.ts and stamped inline on the same element
+   by VitalityShell, which wins over these rules. What remains here is the
+   STUDIO fallback: what a student sees if JavaScript has not run yet.
+
+   The two must therefore stay identical, and that is not left to discipline —
+   tests/workspace.test.mjs parses THIS FILE and asserts every value matches
+   derive(STUDIO). Edit a value here without editing the engine and CI fails.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 [data-console] {
@@ -54,9 +64,17 @@
      reward. Withholding those would be a safety failure, not restraint.       */
   --vitality: 0.18;
   --progress-full: #2f6b4f;
+
+  /* The fill-safe variant. --progress-full is guaranteed legible as TEXT on
+     the page; the Track is a FILL on the recessed bed, which is a different
+     surface and a different threshold. On the paper material the two coincide;
+     on a dark material they do not, and using the text hue for the fill would
+     produce a track that technically has colour and practically has none.     */
+  --progress-graphic: #2f6b4f;
+
   --progress: color-mix(
     in oklab,
-    var(--progress-full) calc(var(--vitality) * 100%),
+    var(--progress-graphic) calc(var(--vitality) * 100%),
     var(--g-6)
   );
 
@@ -71,9 +89,15 @@
 
   /* ── TYPE ────────────────────────────────────────────────────────────────
      Two voices. Interface resolves through one token so the licensed swap to
-     ABC Diatype or Söhne is a one-line change (CONSOLE.md §2.3).             */
-  --type-interface: var(--console-sans), ui-sans-serif, system-ui, sans-serif;
-  --type-instrument: var(--console-mono), ui-monospace, monospace;
+     ABC Diatype or Söhne is a one-line change (CONSOLE.md §2.3).
+
+     Devanagari and Tamil sit in every stack, ahead of the generic fallbacks:
+     without them Hindi and Tamil content silently drops to a system font and
+     the workspace breaks for a large share of the actual audience. They are
+     loaded with preload disabled, so an English-only reader downloads neither.
+                                                                              */
+  --type-interface: var(--console-sans), var(--console-deva), var(--console-tamil), ui-sans-serif, system-ui, sans-serif;
+  --type-instrument: var(--console-mono), var(--console-deva), var(--console-tamil), ui-monospace, monospace;
 
   /* Six steps. An ad-hoc font-size is a bug. */
   --t-display: clamp(72px, 13vw, 132px); /* the Score. One per screen, max.   */
@@ -91,10 +115,17 @@
   --s-5: 40px;
   --s-6: 64px;
 
-  /* ── GEOMETRY ── hardware has tight corners. 999px is the track, only. ────*/
+  /* ── GEOMETRY ── hardware has tight corners. 999px is the track, only.
+     Control and panel radius are DERIVED from MATERIAL, never chosen — it must
+     be impossible to pair an industrial material with soft edges. The track
+     stays a full round in every workspace: it is a foundation shape.          */
   --r-control: 4px;
   --r-panel:   8px;
   --r-track:   999px;
+
+  /* Vertical control padding — PRESSURE's one structural lever. It is floored,
+     not scaled: no personality choice may take a tap target below 44px.       */
+  --control-pad-y: 12px;
 
   /* ── MOTION ── three durations, two curves. Nothing else. ────────────────*/
   --m-fast: 120ms;   /* press feedback                                        */
@@ -221,7 +252,7 @@
   font-size: var(--t-body);
   font-weight: 500;
   border-radius: var(--r-control);
-  padding: 12px var(--s-4);
+  padding: var(--control-pad-y) var(--s-4);
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;

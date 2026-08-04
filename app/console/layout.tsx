@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import {
+  IBM_Plex_Sans,
+  IBM_Plex_Mono,
+  Noto_Sans_Devanagari,
+  Noto_Sans_Tamil,
+} from "next/font/google";
 import AuthGuard from "@/components/auth-guard";
 import VitalityShell from "@/components/console/vitality-shell";
 import "./console.css";
@@ -34,6 +39,30 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
+// Indic coverage sits in EVERY voice pack, not just one — WORKSPACE.md §5.
+// Without these, Hindi and Tamil content drops to whatever the OS happens to
+// have, which for an Indian student product is a broken workspace rather than
+// a rough edge.
+//
+// `preload: false` is the whole reason this is affordable: the browser fetches
+// a face only when a glyph in it is actually needed, so a student working
+// entirely in English downloads neither file.
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600"],
+  variable: "--console-deva",
+  display: "swap",
+  preload: false,
+});
+
+const tamil = Noto_Sans_Tamil({
+  subsets: ["tamil"],
+  weight: ["400", "500", "600"],
+  variable: "--console-tamil",
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   title: "Now — StudyLedger",
   robots: { index: false, follow: false },
@@ -46,7 +75,9 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           --vitality. It lives here rather than in any page so every Console
           surface inherits earned colour automatically — a page cannot forget
           to set it, because a page never sets it. */}
-      <VitalityShell className={`${sans.variable} ${mono.variable}`}>
+      <VitalityShell
+        className={`${sans.variable} ${mono.variable} ${devanagari.variable} ${tamil.variable}`}
+      >
         {children}
       </VitalityShell>
     </AuthGuard>
