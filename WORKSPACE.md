@@ -1,368 +1,302 @@
-# THE WORKSPACE ENGINE — StudyLedger Identity Architecture v1
+# THE WORKSPACE ENGINE — StudyLedger Identity Architecture v2
 
-**Draft for approval. Not implemented.** Governed by `CONSOLE.md`, which remains frozen.
-This document defines the *identity* layer that sits on top of Console. It does not change
-a single primitive.
-
----
-
-## 0. The one-sentence thesis
-
-> **The student configures character. The engine owns correctness.**
-
-Every personalisation system that has ever shipped fails in one of two ways: it is so
-locked down that it is really just a dark-mode toggle, or it is so open that users can
-build something illegible and ugly and then blame the product. The Workspace Engine avoids
-both by splitting the decision: **the student chooses hue, family, density and personality;
-the engine derives every actual value and guarantees contrast, rhythm and hierarchy.**
-
-A student can never produce an unreadable workspace, because they never touch the tokens
-that determine readability.
+**Draft for approval. Not implemented.** `CONSOLE.md` (Structure + Behaviour) remains
+frozen and is unchanged by this document. This is a first-principles redesign of the
+Identity layer that **replaces v1**. Section 0.1 records what changed and why.
 
 ---
 
-## 1. Design philosophy
+## 0. What this document decides
 
-StudyLedger is an instrument a student picks up under pressure. Every identity decision is
-judged against one question: **does this help a frightened sixteen-year-old at 11pm?**
+**The emotional territory StudyLedger owns — and nobody else does:**
 
-Four commitments:
+> **Evidence that you are becoming more capable.**
 
-**Engineered, not decorated.** Identity changes what the instrument is *made of* — its
-material, its type, its density. It never adds ornament. There is no preset that makes
-StudyLedger *prettier*; there are presets that make it *quieter*, *denser*, *warmer*,
-*louder*. Those are functional differences.
+Notion shows you what you *organised*. Linear shows you what you *shipped*. Obsidian shows
+you what you *know*. Google Classroom shows you what you *owe*. **Nothing in software shows
+you that you are getting better at something.** That is unclaimed territory, it is exactly
+what a student needs, and every identity decision below serves it.
 
-**Calm by default, intense on request.** The default workspace is white, spacious and
-nearly monochrome. A student who wants Bloomberg-grade density can have it — but they must
-ask, and asking is a real signal about how they work.
+After six months, the feeling should not be pride, or fun, or productivity. It should be:
+**"I can see myself improving."** The product is a mirror that is never flattering and never
+cruel, and over time the reflection improves — because the student did.
 
-**Optimism without cheer.** The product never congratulates. Optimism is expressed
-structurally: the next move is always visible, the score always has a path upward, nothing
-is ever a dead end. Colour arrives as evidence of progress, never as encouragement.
+### 0.1 What v2 overturns
 
-**Personality is earned, not chosen at signup.** See §5.3 — this is the most important and
-most contrarian decision in the document.
-
-## 2. Emotional principles
-
-What a student should feel, in order of priority:
-
-| Beat | Feeling | Identity's job |
+| v1 said | v2 says | Why |
 |---|---|---|
-| **Arrival** | *"It knows me."* | The workspace they built is instantly recognisable as theirs |
-| **Orientation** | *"I know where I stand."* | The score is the loudest thing on screen in every workspace |
-| **Direction** | *"I know what to do."* | Exactly one primary control, in every density |
-| **Flow** | *"I'm getting somewhere."* | The workspace recedes; density and motion serve the task |
-| **Return** | *"That counted."* | Colour appears *because* of work, in every workspace |
-
-**The invariant across every possible configuration:** a student must be able to answer
-*where do I stand* and *what do I do next* within five seconds. No preset, no density, no
-palette may compromise that. It is the acceptance test for every workspace.
-
-## 3. Identity architecture — three layers, one direction
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ STRUCTURE      primitives · layout · composition        │  IMMUTABLE
-│                knows nothing about identity             │
-├─────────────────────────────────────────────────────────┤
-│ BEHAVIOUR      motion laws · interaction · a11y floor   │  IMMUTABLE
-│                reads structure, never identity          │
-├─────────────────────────────────────────────────────────┤
-│ IDENTITY       palette · families · density · character │  CONFIGURABLE
-│                writes reference tokens ONLY             │
-└─────────────────────────────────────────────────────────┘
-                 dependency flows DOWNWARD only
-```
-
-**The enforcement mechanism is not discipline, it is naming.** Structure components may only
-consume *semantic* tokens (`--surface-raised`, `--text-secondary`). Identity may only write
-*reference* tokens (`--hue-progress`, `--family-interface`). Semantic tokens are **derived**
-by the engine and writable by nobody. A primitive therefore *cannot* read an identity value
-even by accident, because no identity value has a name a primitive knows.
-
-This is checkable in CI: no file under `primitives/` may contain the string `--hue-` or
-`--family-`.
-
-## 4. Token architecture — four tiers
-
-**Tier 0 — Foundations. Immutable, no exceptions.**
-The 4px spacing unit · the type ramp *ratios* · the three motion durations · the two easing
-curves · the six space steps · the AA contrast floor. These are the physics. Nothing in the
-engine can alter them.
-
-**Tier 1 — Reference. What the student actually configures.**
-```
---hue-progress          a hue angle + character, not a hex
---hue-info / warn / error
---material              the neutral character (cool / warm / neutral / deep)
---family-interface      font family
---family-instrument     font family
---density               compact | default | comfortable
---radius-character      sharp | soft            (BOUNDED — see §17 challenge)
---motion-profile        precise | standard | reduced
---icon-character        line | solid
-```
-
-**Tier 2 — Semantic. Derived by the engine. Writable by nobody.**
-```
---surface-page / raised / recessed / hairline
---text-primary / secondary / ghost
---progress / info / warn / error
---focus-ring
-```
-Every one is computed from Tier 1 **and validated**: the engine adjusts lightness until the
-pair clears AA. A student may choose a pale yellow for progress; the engine will render the
-*text* form of it dark enough to read, and the *fill* form bright enough to see. **The
-student picks identity; the engine picks the number.**
-
-**Tier 3 — Component.** `--control-height`, `--field-inset`. Derived from density.
-
-## 5. Personalisation architecture
-
-### 5.1 What is configurable — and what is not
-
-| Configurable | Fixed forever | Why fixed |
-|---|---|---|
-| Palette hues & material | Semantic *meaning* of each role | Colour means one thing; that is the system |
-| Font families | The type *ramp* (6 steps) | Ratios are structure |
-| Density (3 stops) | The 4px base unit | Rhythm is structure |
-| Motion profile | The four motions | Motion is the brand |
-| Icon character | Icon grid & stroke logic | Consistency |
-| Radius character (bounded) | Radius *scale* relationships | Hardware has tight corners |
-| Sound pack | That sound defaults OFF | Context |
-| **Nothing** | **Cursor** | Banned by `CONSOLE.md §1.5` |
-
-### 5.2 The consistency guarantee
-
-Five mechanisms, in order of strength:
-
-1. **Users never write semantic tokens.** The single most important rule.
-2. **Contrast is enforced at derivation**, not validated afterward. An illegible workspace is unreachable.
-3. **Density is a multiplier, never a redefinition.** `--space-3 = 16px × density`. Rhythm survives.
-4. **Hue count is capped at four.** You may change *which* hues; you may not add a fifth.
-5. **Every preset must pass the five-second test** (§2) in automated review before shipping.
-
-### 5.3 Personalisation is EARNED — the contrarian decision
-
-**A new student is offered no customisation at all.** They get Studio, and it is excellent.
-
-Workspace controls unlock progressively as the product is genuinely used — density after
-the first week, palette after the first real score movement, sound and advanced controls
-later still.
-
-**Why, and this is a real product risk you should weigh:** customisation is a
-procrastination surface. Notion and Linear can afford it because professionals live in
-those tools for eight hours a day. A student opens StudyLedger at 11pm, frightened, with an
-exam in nine days. Offering a workspace editor at that moment is offering them a legitimate
-excuse not to study, dressed as productivity. *"I'll set up my workspace first"* is how a
-study session dies.
-
-Earning it also compounds the vitality idea already in `CONSOLE.md`: the product visibly
-becomes *more theirs* the more they use it — first through colour, then through control.
-That is a retention mechanic that costs the student nothing and never nags.
-
-## 6. Workspace settings structure
-
-Not a settings page. A **workspace sheet**, reachable from the account chip, and organised
-by *feeling* rather than by CSS property — students do not think in tokens.
-
-```
-WORKSPACE
-├── Material        the surface it is made of        [4 choices, live preview]
-├── Character       how colour behaves               [hue set + intensity]
-├── Density         how much fits on screen          [compact · default · comfortable]
-├── Type            the two voices                   [3 curated pairings]
-├── Motion          how it responds                  [precise · standard · reduced]
-├── Detail          icons and edges                  [line/solid · sharp/soft]
-└── Sound           off by default                   [off · minimal]
-```
-
-Every control previews live on the student's *real* data. No lorem, no swatches in the
-abstract — you are changing your instrument, so you watch your own score change with it.
-
-## 7. Colour philosophy
-
-**Inherited from `CONSOLE.md` and unchanged: there is no brand accent.** The Workspace
-Engine does not introduce one; it lets the student choose the *character* of the four
-semantic hues.
-
-Three rules survive every configuration:
-
-1. **Colour means meaning.** Four roles, never a fifth, never decorative.
-2. **Colour is earned.** `--vitality` continues to gate saturation. A new student's
-   workspace is near-monochrome *whatever palette they chose* — the palette describes what
-   colour will look like when they earn it.
-3. **The colourless test.** Remove every hue: hierarchy must survive on weight, size,
-   spacing and motion alone. This is enforced per-preset, not per-page.
-
-**Where colour is permitted to appear:** the score fill · realised movement · completion ·
-focus · status. Nowhere else, in any workspace.
-
-## 8. Typography philosophy
-
-Two voices, always: **Interface** (what you read) and **Instrument** (what the machine
-says — every figure). Numerals are the product's face.
-
-**The scale is immutable; the families are not.** This creates a genuine engineering problem
-(see §17) solved by **cap-height normalisation**: each supported family ships with a metric
-ratio, and the engine renders every step at a constant *optical* size rather than a constant
-`px`. Two workspaces with different families produce type that measures differently in CSS
-and reads identically on screen.
-
-Families are **curated pairings, not a font picker.** A free font picker guarantees someone
-pairs a display face with a script face and the product stops being StudyLedger. Three
-pairings at launch, each with a distinct engineering character.
-
-## 9. Density system
-
-Three stops. A multiplier on the base unit and control heights — **never** a redefinition of
-the ramp.
-
-| Stop | Multiplier | For |
-|---|---|---|
-| **Compact** | 0.75× | Dense tables, analytics, power use |
-| **Default** | 1.0× | The product as designed |
-| **Comfortable** | 1.25× | Touch, low vision, long reading |
-
-**Density never changes type step or hierarchy** — only rhythm. A compact workspace is the
-same product closer together, not a different product.
-
-## 10. Motion profiles
-
-The four motions (press · slide · roll · fill) are immutable. Profiles scale their
-*duration*, never their *character*.
-
-| Profile | Effect |
-|---|---|
-| **Precise** | 0.7× — snappier, for power users |
-| **Standard** | 1.0× |
-| **Reduced** | Instant; state changes without transition |
-
-**Reduced is not a lesser experience** — it is the same acknowledgement delivered
-instantly. `prefers-reduced-motion` selects it automatically and the student may override
-in either direction.
-
-## 11. Icon philosophy
-
-Icons label controls; they never decorate. 20px grid, 1.5px stroke, square terminals.
-**Character (line vs solid) is configurable; geometry is not.** No icon ever appears without
-a label unless the control is universally understood.
-
-## 12. Chart styling philosophy
-
-Charts inherit the workspace and obey `CONSOLE.md`: reveal, never decorate. Hairline axes,
-no gridlines by default, no fills under lines, no 3D, no shadows, no legends where direct
-labelling works.
-
-**A chart uses at most two hues, and only when comparing two things.** A single series is
-drawn in ink and gains the progress hue only where it reports realised advancement.
-
-*Note: charts live in `components/console/charts/`, outside the primitive layer, per the
-Chief Architect's judgement.*
-
-## 13. Sound philosophy
-
-**Default OFF, permanently.** A student in a classroom or library must never be betrayed by
-their laptop.
-
-If enabled: a maximum of four short mechanical sounds, under 80ms, at low amplitude —
-press, completion, score settle, session end. **No sound ever plays for an error** (public
-embarrassment) or for arrival (startling). Muted automatically when the tab is not focused.
-
-## 14. Accessibility strategy
-
-Accessibility lives in **Behaviour**, which is immutable, so **no workspace can be less
-accessible than the floor.**
-
-- **Contrast is derived, not chosen.** AA is guaranteed by construction (§4 Tier 2).
-- **Colour is never the sole carrier** — every semantic hue pairs with a glyph or label.
-- **Focus is always visible** and always uses the derived `--focus-ring`, which is
-  contrast-validated against whatever surface the student chose.
-- **Reduced motion** is a first-class profile, auto-selected.
-- **Comfortable density** is the low-vision path; it also raises touch targets to 44px.
-- **Type steps have a floor** — no workspace may render body text below the readable
-  minimum, whatever family or density is chosen.
-- Every preset ships only after automated contrast and target-size checks pass.
-
-## 15. Technical architecture
-
-**Storage.** Workspace config is a small JSON blob on the user record — a set of *choices*,
-never computed values, so an engine improvement upgrades every existing workspace for free.
-
-**Application.** The config is read in `VitalityShell` (already the token host) and applied
-as Tier 1 reference tokens on the `[data-console]` element. **One element, one write.**
-Nothing else in the app knows a workspace exists.
-
-**Derivation.** A pure function `deriveWorkspace(config) → semantic tokens`, unit-testable
-without a browser, with contrast assertions in the test suite. This is where AA is
-guaranteed, and it is the highest-value test target in the entire product.
-
-**SSR.** The choice set is small enough to inline in the document head, avoiding a
-flash of default workspace.
-
-**Enforcement.** CI fails if any file under `primitives/` references a Tier 1 token.
-
-## 16. Workspace presets — not themes
-
-Presets are **starting points**, not skins. Each demonstrates a different axis of the engine.
-
-| Preset | Material | Density | Motion | For |
-|---|---|---|---|---|
-| **STUDIO** *(default)* | Cool white | Default | Standard | The product as designed. Calm, spacious, near-monochrome. |
-| **TERMINAL** | Deep graphite | Compact | Precise | Information density on request. Bloomberg discipline, not Bloomberg decoration. |
-| **DESK** | Warm neutral | Comfortable | Standard | Long night sessions. Lower contrast, warmer material, easier on tired eyes. |
-| **FIELD** | High-contrast white | Comfortable | Reduced | Accessibility-forward. Maximum legibility, minimum motion, 44px targets. |
-| **PAPER** | Soft off-white | Default | Precise | Reading-heavy work — long AI output, essays, annotation. |
-
-Five presets, one engine, zero new primitives. A student may start from any preset and
-adjust any axis; their result is always a valid StudyLedger.
-
-## 17. Challenges to the brief
-
-Five places where the brief, implemented literally, would break the frozen constitution or
-the product.
-
-**1. Cursor cannot be configurable.** `CONSOLE.md §1.5` bans custom cursors permanently,
-and `PRODUCT_CONSTITUTION` banned them before that. **Recommendation: remove from Identity.**
-
-**2. Radius must be bounded, not free.** "Hardware has tight corners" is a Console law. A
-student who sets 20px radius has left StudyLedger. **Recommendation: two characters —
-`sharp` (2/4px) and `soft` (6/10px) — never a slider.**
-
-**3. "Typography families configurable, scale immutable" is incoherent as written.**
-Different families at the same `px` are different *optical* sizes. Without cap-height
-normalisation (§8) a font change silently breaks the ramp. **Recommendation: adopt metric
-normalisation, and curate three pairings rather than offering a font picker.**
-
-**4. Density is listed as Identity but mutates Structure.** Spacing belongs to Structure.
-**Recommendation: density is a bounded multiplier applied to Structure tokens — three
-stops, never free — so Structure keeps ownership of rhythm.**
-
-**5. "Colours completely user configurable" collides with accessibility and with meaning.**
-Free colour choice permits illegible pairs and lets a student assign green to error.
-**Recommendation: students choose hue and intensity; the engine derives every value and
-owns contrast; role→meaning mapping is fixed.**
-
-**And the largest one — is personalisation actually the right differentiator?**
-It is a genuine retention mechanic for tools people live inside. For a student in short,
-stressful bursts it is also a procrastination surface. I have not removed it, because you
-are right that it differentiates — but §5.3 gates it behind real usage so the product never
-offers a frightened student a legitimate reason not to study. **If you disagree with
-earning it, that is the single decision in this document I would most want to revisit
-before building.**
-
-## 18. Future-proofing (5–10 years)
-
-- **Choices, not values, are stored** — every engine improvement upgrades all existing workspaces retroactively.
-- **Semantic tokens are a stable contract** — palettes, families and presets can change underneath without touching one primitive.
-- **New surfaces inherit identity free** — a page built on primitives is automatically workspace-aware.
-- **The four-hue cap prevents palette sprawl**, the failure mode of every long-lived design system.
-- **Derivation is pure and tested**, so contrast guarantees survive refactors.
-- **Platform portability** — Tier 1/2 tokens export to JSON for native, email, or print without carrying React.
-- **Deprecation path** — a removed preset maps to its nearest surviving neighbour; a removed family falls back by metric similarity, not alphabetically.
+| Four token layers | **Three** | "Reference" and "Identity" were the same layer wearing two names |
+| A 7-control settings sheet | **4 DNA traits** | Seven dropdowns is a theme builder with extra steps |
+| Personalisation is **earned** by milestones | **Contextual, never unlocked** | Milestone-unlocking *is* gamification — banned by `CONSOLE.md §1.4` |
+| Density is Identity | **Behaviour owns the stops; Identity picks one** | Density is an accessibility mechanism, not a personality |
+| Continuous state never animates | Refined: **value updates, one indeterminate exception** | Absolute rule made "is it still working?" unanswerable |
+| Meaning fixed forever, globally | **Roles fixed; hue↔role mapping is locale-aware** | Red-as-danger is not universal |
 
 ---
 
-**Status: draft, awaiting approval. No code written. `CONSOLE.md` and the 13 primitives are untouched.**
+## 1. Guiding philosophy
+
+**The student configures character. The engine owns correctness.**
+
+Three commitments that survive every configuration:
+
+**Identity changes what the instrument is made of, never what it does.** No workspace makes
+StudyLedger *prettier*. Workspaces make it quieter, denser, warmer, calmer — functional
+differences, not decorative ones.
+
+**Personality may never degrade the core task.** A student under exam stress has finite
+cognitive budget. If a chosen workspace makes the score harder to read, the engine has
+failed, not the student. Bounded ranges exist for this reason, not for tidiness.
+
+**The five-second invariant.** In every possible configuration, a student must answer *where
+do I stand* and *what do I do next* within five seconds. This is the acceptance test for
+the engine itself, not for individual screens.
+
+## 2. Token hierarchy — three layers, not four
+
+v1's "Reference → Identity" split was a distinction without a difference. The honest
+architecture:
+
+```
+FOUNDATION      the physics. 4px unit · ramp ratios · 3 durations · 2 curves · AA floor
+    ↓           immutable. nothing may alter these.
+IDENTITY        the DNA. 4 traits, and nothing else is writable.
+    ↓           the only layer a student touches.
+SEMANTIC        derived. --surface-raised · --text-secondary · --progress · --focus-ring
+    ↓           writable by NOBODY. computed by a pure function.
+PRIMITIVES      consume semantic tokens only.
+```
+
+**Why this is enforceable rather than aspirational:** a primitive cannot read a DNA value
+even by accident, because no DNA value has a name a primitive knows. CI asserts that no
+file under `primitives/` contains `--dna-`.
+
+**The derivation function is the product.** `derive(dna) → semantic tokens` is pure,
+unit-testable without a browser, and is where AA contrast is *guaranteed by construction*
+rather than checked afterwards. It is the highest-value test target in the codebase.
+
+## 3. Workspace DNA — four traits
+
+Not settings. **Traits, from which everything else is derived.** If a student is adjusting
+seven controls, they are building a theme. If they are choosing four characteristics, they
+are describing how they work.
+
+### MATERIAL — what the surface is made of
+*Values:* `paper` · `deep` · `warm` · `contrast`
+**Controls:** the neutral ramp, page/surface/recessed tones, hairline weight, and — by
+derivation — edge radius and icon character. A `deep` material implies sharper edges and
+line icons; `warm` implies softer edges. **Radius is never chosen; it is implied.**
+**Never controls:** contrast ratios, semantic meaning, spacing.
+*Why it exists:* material is the single strongest driver of how a screen feels, and it is
+the one thing students describe unprompted ("I want it dark").
+
+### VOICE — how the product speaks
+*Values:* three curated pairings (interface + instrument), never a font picker.
+**Controls:** the two families, and the optical normalisation ratio that keeps them
+interchangeable.
+**Never controls:** the six-step ramp, weights, or which voice is used where.
+*Why it exists:* typography is the largest share of every screen, and a free picker
+guarantees someone pairs a display face with a script face and the product stops being
+StudyLedger.
+
+### PRESSURE — how much, how fast
+*Values:* `relaxed` · `standard` · `tight`
+**Controls:** the spacing multiplier, control heights, and the motion *duration* scale —
+together, as one decision.
+**Never controls:** the 4px base unit, the four motions, or any accessibility floor.
+*Why it exists — and this is the synthesis v1 missed:* density and tempo are the same
+preference. A student who wants more on screen also wants it to respond faster; someone who
+wants room to breathe wants motion that breathes too. Splitting them into two controls asks
+the same question twice.
+
+### TEMPERAMENT — how expressive colour is
+*Values:* `reserved` · `standard` · `expressive`
+**Controls:** the ceiling on `--vitality`, and hue intensity within validated bounds.
+**Never controls:** which role means what, or whether colour appears at all when earned.
+*Why it exists:* it is the only trait that touches colour, and it deliberately controls
+*restraint* rather than *palette*. A student cannot pick "purple"; they can decide how loud
+their earned colour becomes.
+
+### Trait interaction and conflict resolution
+
+Traits combine multiplicatively and can produce invalid results — `deep` material plus
+`expressive` temperament can breach contrast.
+
+**Resolution is absolute and one-directional: Behaviour wins over Identity, always.** The
+derivation clamps. If a combination would fall below AA, the engine adjusts lightness until
+it clears and **does not tell the student it did** — a warning would imply they made a
+mistake, and they did not. They expressed a preference; honouring it legibly is the
+engine's job.
+
+**4 traits × 4·3·3·3 = 108 valid workspaces**, each provably legible, from four questions.
+
+## 4. Customisation model — contextual, not earned
+
+v1 proposed unlocking customisation at milestones. **That was wrong, and it violated the
+constitution.** Milestone-gated unlocking is a reward schedule, and `CONSOLE.md §1.4 law 6`
+bans gamification without exception. I was so focused on the procrastination risk that I
+reached for the mechanic the constitution most explicitly forbids.
+
+The third approach, grounded rather than intuited:
+
+**Autonomy is immediate.** Self-determination theory identifies autonomy as one of three
+basic psychological needs driving intrinsic motivation. Withholding *all* control from a
+student — in a product about their own progress — is not neutral; it is demotivating.
+Onboarding therefore asks **exactly one question** (MATERIAL), because that is the trait
+students have an opinion about before they have used anything.
+
+**Configuration is never reachable during work.** Goal-shielding research shows that during
+active goal pursuit, competing options must be suppressed to protect follow-through. The
+workspace sheet is unreachable from NOW and from any active task — it lives behind the
+account chip, a deliberate context switch. *"I'll set up my workspace first"* must never be
+one click from the study surface.
+
+**Complexity follows competence, not achievement.** Progressive disclosure, not unlocking.
+VOICE and TEMPERAMENT are visible from day one. PRESSURE surfaces once a student has used a
+dense surface repeatedly — because usage has demonstrated the preference matters to them,
+not because they earned a prize. **Nothing is ever announced as unlocked.**
+
+**Why this beats both prior options:** it preserves the IKEA effect and ownership that make
+customisation a genuine retention mechanic, while removing the two failure modes —
+choice overload at first run (Iyengar & Lepper: more options, less action) and
+configuration-as-procrastination during study.
+
+## 5. Section-by-section rulings
+
+**Token layers (§1 of brief):** Reduce four to three. Keep derived semantics and the
+primitive firewall — that part is genuinely excellent and I would not change it.
+
+**Workspace Engine vs themes (§2):** A workspace engine is only better than themes **if it
+is DNA-driven**. Seven settings is a theme builder with a nicer name and strictly worse
+support characteristics. With four traits it is genuinely different: students describe *how
+they work*, not *what colour they like*.
+**Hidden costs, all real and none previously named:** every screenshot, tutorial and support
+conversation shows a workspace that is not the user's ("it doesn't look like that for me")
+— and StudyLedger's support is one person. Design review becomes combinatorial: 108
+configurations cannot be visually reviewed, so correctness must be *proven by tests* rather
+than *seen by eye*. That is a permanent engineering obligation, not a one-off cost.
+**Evolution:** traits may gain values; the trait *count* should never exceed five. Presets
+are capped at seven, permanently.
+
+**Typography (§3):** Keep curated packs, keep optical normalisation, keep the fixed scale —
+this was right. **One addition v1 missed: every VOICE pack must include Devanagari and Tamil
+coverage**, or Hindi content silently falls back to a system font and the workspace breaks
+for a large share of the actual audience. For an Indian student product this is not a
+nice-to-have.
+
+**Colour (§4):** Keep intent-not-hex and derived states. **One correction: "meaning is fixed
+forever" is wrong globally.** Red-as-danger is not universal; red signals prosperity in
+Chinese contexts. Semantic *roles* are fixed forever; the *hue mapping* for a role is
+locale-aware. Direction glyphs (▲▼) carry meaning independently, which is why this is safe.
+
+**Density (§5):** **Behaviour, not Identity.** Density determines touch-target size and is
+the low-vision path — it is an accessibility mechanism wearing a personality costume.
+Behaviour defines the stops and their floors; Identity merely *selects* among them via
+PRESSURE. This prevents a personality choice from degrading accessibility, which the v1
+placement permitted.
+
+**Radius (§6):** Bounded personalities was right, but **radius should not be a trait at
+all.** It is derived from MATERIAL. One fewer decision for the student, one fewer axis to
+review, and it becomes impossible to pair an industrial material with soft edges.
+
+**Motion (§7):** The philosophy is right but the absolute form was wrong. **Refined:**
+*continuous state updates its value without transition — liveness is signalled by the value
+changing, not by an animation.* A timer reading 04:32 → 04:31 is self-evidently alive.
+**One exception, system-owned and unconfigurable:** genuinely *indeterminate* work (an AI
+generation with no known progress) may carry a single quiet continuous indicator, because
+without it "is this still working?" is unanswerable and a frozen UI reads as broken.
+
+## 6. Technical architecture
+
+**Storage.** A four-field JSON blob on the user record — **choices, never computed values**.
+Every future engine improvement upgrades all existing workspaces retroactively and for free.
+
+**Application.** `VitalityShell` (already the token host) reads the DNA and writes semantic
+tokens to the `[data-console]` element. **One element, one write.** Nothing else in the
+application knows a workspace exists.
+
+**Derivation.** `derive(dna) → SemanticTokens`, pure, with contrast assertions covering all
+108 combinations in CI. Machine-verified legibility replaces visual review.
+
+**SSR.** DNA inlines in the document head to prevent a flash of default workspace.
+
+**Governance.** CI fails if: a primitive references a DNA token · any derived pair falls
+below AA · the trait count exceeds five · the preset count exceeds seven.
+
+## 7. Presets — seven, capped forever
+
+Starting points, not skins: **STUDIO** (paper · standard · standard) · **TERMINAL** (deep ·
+tight · reserved) · **DESK** (warm · relaxed · standard) · **FIELD** (contrast · relaxed ·
+reserved) · **PAPER** (paper · relaxed · reserved).
+
+Two slots held in reserve for a decade of learning. **The cap is the point** — every preset
+added widens the surface that must stay coherent, and preset sprawl is how identity systems
+die quietly.
+
+## 8. Hidden risks not previously identified
+
+**🔴 AI-generated interfaces (the biggest 10-year risk).** By 2030 much UI will be
+generated. A design system whose rules live in English prose cannot constrain a generator.
+**The token schema and `derive()` must be the machine-readable spec** — an AI building a
+StudyLedger surface should be *unable* to produce an invalid one because it can only emit
+semantic tokens. Design the system for AI as a first-class consumer, not just for humans.
+
+**🔴 Premium gating is a trap.** Selling workspaces creates commercial pressure to add
+options to justify the price — the exact sprawl that kills design systems. **Never monetise
+the number of options.** If identity is ever monetised, sell *presets and packs*, never
+*more axes*.
+
+**🟠 School and enterprise deployment.** An institution may need to lock identity for
+uniformity or to enforce an accessibility policy. **An admin-enforced DNA lock must exist in
+the schema from day one** — retrofitting it later means every stored workspace needs
+migration.
+
+**🟠 Educational psychology cuts against expressiveness.** High-arousal colour and high
+density measurably increase cognitive load. A stressed student may choose a workspace that
+actively harms their performance. TEMPERAMENT's ceiling and PRESSURE's floors exist for
+this reason — and this is the strongest argument against ever widening the ranges "because
+users asked."
+
+**🟠 Font availability over a decade.** A licensed family can become unavailable or change
+metrics. Every VOICE pack needs a declared metric-compatible fallback, matched by
+cap-height rather than alphabetically.
+
+**🟡 Third-party and plugin surfaces.** If tools ever come from outside, **the token export
+is the plugin API** — never the components. That decision should be made now, because it
+determines whether the system can open up later without forking.
+
+**🟡 Screenshot and documentation drift** — see §5.
+
+## 9. Migration strategy
+
+Console currently ships one implicit workspace. Migration is additive: define STUDIO as the
+exact current values, so **every existing user's workspace is byte-identical on day one and
+nothing visibly changes**. DNA is then introduced with STUDIO pre-selected. No user sees a
+migration.
+
+Deprecating a preset maps it to its nearest surviving neighbour by trait distance.
+Deprecating a VOICE pack falls back by metric similarity. **A student never loses their
+workspace; it is re-expressed.**
+
+## 10. What StudyLedger must feel like, and how it differs
+
+| Product | Owns | StudyLedger is not that |
+|---|---|---|
+| **Notion** | Possibility — the blank canvas | We are never a blank canvas. There is always exactly one next move. |
+| **Linear** | Velocity and professional taste | We are not about speed of output; we are about *change in capability*. |
+| **Apple** | Confident inevitability | We are warmer and more honest — we show bad days without flinching. |
+| **VS Code** | Power for experts | We are legible to a frightened beginner at 11pm. |
+| **Obsidian** | Ownership and permanence of knowledge | We own *change over time*, not accumulation. |
+| **Google Classroom** | Institutional obligation | Nothing here is assigned. It is entirely the student's. |
+
+**The territory: self-evidence.** Every other tool reflects your *output*. StudyLedger
+reflects **you** — and does so honestly enough that improvement in the reflection is
+believable. That is why the score never inflates, why colour must be earned, why the Return
+beat is evidence rather than celebration, and why nothing ever congratulates. A mirror that
+flatters is worthless as a mirror.
+
+After six months: *"I can see myself improving — and I trust it, because it never pretended."*
+
+---
+
+**Status: draft, awaiting approval. No code written. `CONSOLE.md` and the 13 primitives untouched.**
