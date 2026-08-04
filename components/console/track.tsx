@@ -12,15 +12,19 @@ import { useEffect, useRef, useState } from "react";
 // scaleX rather than width, so it is GPU-composited and never triggers layout.
 // ═══════════════════════════════════════════════════════════════════════════
 
+/** Two documented sizes. A caller passing an arbitrary pixel width would be
+ *  making a design decision at the call site, which is how systems drift. */
+export type TrackSize = "full" | "compact";
+
 export type TrackProps = {
   /** 0–1. Values outside the range are clamped rather than trusted. */
   value: number;
-  className?: string;
-  style?: React.CSSProperties;
+  /** `full` fills its container; `compact` is the chrome indicator. */
+  size?: TrackSize;
   label?: string;
 };
 
-export default function Track({ value, className, style, label }: TrackProps) {
+export default function Track({ value, size = "full", label }: TrackProps) {
   const target = Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
   const [fill, setFill] = useState(0);
   const armed = useRef(false);
@@ -36,8 +40,8 @@ export default function Track({ value, className, style, label }: TrackProps) {
 
   return (
     <div
-      className={`c-track ${className ?? ""}`}
-      style={style}
+      className="c-track"
+      style={size === "compact" ? { width: 44, flex: "0 0 auto" } : undefined}
       role="progressbar"
       aria-valuenow={Math.round(target * 100)}
       aria-valuemin={0}

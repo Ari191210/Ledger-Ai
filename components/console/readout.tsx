@@ -19,24 +19,30 @@ import { useEffect, useRef, useState } from "react";
 
 const DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
+/** Ramp steps a figure may occupy. Prose steps are not offered — a readout is
+ *  never body copy, and allowing it would reintroduce ad-hoc sizing. */
+export type ReadoutStep = "display" | "figure" | "body" | "label";
+
 export type ReadoutProps = {
   value: number;
+  /** Size, from the documented ramp. Defaults to body (chrome-sized). */
+  step?: ReadoutStep;
+  /** A sign or unit set before the figure, e.g. "+". Rolls with it. */
+  prefix?: string;
   /** Rendered before the first roll. Defaults to 0 so the figure rolls up. */
   from?: number;
   /** Milliseconds added per column, left to right. */
   stagger?: number;
-  className?: string;
-  style?: React.CSSProperties;
   /** Screen-reader text. The visual columns are aria-hidden. */
   label?: string;
 };
 
 export default function Readout({
   value,
+  step = "body",
+  prefix,
   from = 0,
   stagger = 55,
-  className,
-  style,
   label,
 }: ReadoutProps) {
   // Render `from` on the first paint, then flip to `value` on the next frame
@@ -69,7 +75,19 @@ export default function Readout({
   const duration = Math.round(260 + magnitude * 640); // 260ms flick … 900ms sweep
 
   return (
-    <span className={className} style={style} aria-label={label ?? text} role="img">
+    <span
+      className="c-readout"
+      style={{
+        fontSize: `var(--t-${step})`,
+        fontWeight: step === "display" ? 500 : undefined,
+        lineHeight: step === "display" ? 1 : undefined,
+        display: "inline-flex",
+        alignItems: "baseline",
+      }}
+      aria-label={label ?? `${prefix ?? ""}${text}`}
+      role="img"
+    >
+      {prefix && <span aria-hidden="true">{prefix}</span>}
       <span className="c-roll" aria-hidden="true">
         {text.split("").map((_, i) => {
           const d = Number(shownText[i] ?? "0");
