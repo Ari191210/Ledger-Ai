@@ -10,34 +10,45 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 [data-console] {
-  /* ── GRAPHITE ────────────────────────────────────────────────────────────
-     The whole interface, 90% of every screen. Warm-neutral, never pure black
-     or pure white — both read as cheap on a screen and vibrate against text.
-     Depth is a step along this scale. There are no shadows in Console.       */
-  --g-0: #0a0a0b;   /* the void — page base                                   */
-  --g-1: #121214;   /* recessed — wells, input beds, track bed                */
-  --g-2: #191a1c;   /* default surface — panels sit here                      */
-  --g-3: #212226;   /* raised — controls at rest                              */
-  --g-4: #2f3035;   /* hairlines, dividers, borders                           */
-  --g-5: #55565e;   /* disabled, ghost                                        */
-  --g-6: #8b8c95;   /* secondary text, labels, units                          */
-  --g-7: #ededf0;   /* primary text and numerals                              */
+  /* ── NEUTRALS ────────────────────────────────────────────────────────────
+     Cool engineered greys with a deep navy ink. Navy rather than true black:
+     it reads considered instead of default, and is softer to read at length
+     without losing authority.
 
-  /* ── SIGNAL ──────────────────────────────────────────────────────────────
-     Electric Lime. The single accent in the entire product. Permitted ONLY on
-     progress, Ledger Score improvement, completion, focus, active controls,
-     positive trends and confirmations. Never a background, never a gradient,
-     never a hero fill. If it appears twice on one screen, one is a bug.      */
-  --signal:      #c9f73d;
-  --signal-deep: #a8d420;  /* pressed state of a signal control               */
-  --signal-ink:  #0a0a0b;  /* text ON signal — always the void                */
+     Light housing. Depth is tone: raised surfaces are LIGHTER, recessed are
+     DARKER. There are no shadows in Console — a hairline does every job a
+     shadow was doing.
 
-  /* ── SEMANTIC ────────────────────────────────────────────────────────────
-     Only ever on a figure that genuinely moved. Never on projections, never
-     decorative. Always paired with a glyph so colour is never the sole
-     carrier of meaning.                                                      */
-  --advance: #6bcf8e;
-  --retreat: #f2735f;
+     Contrast, measured (not estimated), against --g-0:
+       ink 15.91 · secondary 5.33 · hairline 1.49 · disabled 2.13
+     Disabled sits below 3.0 deliberately: WCAG exempts disabled controls, and
+     a disabled control that competes for attention is a bug.                 */
+  --g-0: #f6f7f8;   /* page                                                   */
+  --g-1: #eceef0;   /* recessed — wells, input beds, track bed                */
+  --g-2: #fbfbfc;   /* surface — panels                                       */
+  --g-3: #ffffff;   /* raised — controls at rest                              */
+  --g-4: #c8cdd4;   /* hairlines, dividers, borders                           */
+  --g-5: #a6acb4;   /* disabled, ghost                                        */
+  --g-6: #5a6875;   /* secondary text, labels, units                          */
+  --g-7: #0f1d2b;   /* ink — primary text and numerals                        */
+
+  /* ── SEMANTIC COLOUR ─────────────────────────────────────────────────────
+     There is NO brand accent. The product does not have "a colour". Colour
+     appears only where information requires it, and every hue below means
+     exactly one thing. An interface that has a signature colour is relying on
+     that colour to be memorable; this one relies on craft.
+
+     All four are AA as text on --g-0, AA with white on their own fill, and
+     clear 3.0 as graphic fills.                                              */
+  --progress: #2f6b4f;   /* real, realised advancement. The Score fill.       */
+  --info:     #35506b;   /* neutral information, links, non-urgent emphasis   */
+  --warn:     #8a6a1f;   /* attention needed, nothing is broken               */
+  --error:    #a33a2e;   /* something failed or regressed                     */
+
+  /* Direction of movement is always ALSO carried by a glyph (▲/▼), so colour
+     is never the sole carrier of meaning.                                    */
+  --advance: var(--progress);
+  --retreat: var(--error);
 
   /* ── TYPE ────────────────────────────────────────────────────────────────
      Two voices. Interface resolves through one token so the licensed swap to
@@ -80,7 +91,7 @@
   --ease-settle: cubic-bezier(0.16, 1, 0.30, 1);  /* quint-out — roll, fill   */
   --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);  /* expo-out — press, slide  */
 
-  color-scheme: dark;
+  color-scheme: light;
   background: var(--g-0);
   color: var(--g-7);
   font-family: var(--type-interface);
@@ -132,21 +143,13 @@
   line-height: 1;
   height: 1em;
 }
-[data-console] .c-roll__col {
-  display: block;
-  overflow: hidden;
-  height: 1em;
-}
+[data-console] .c-roll__col { display: block; overflow: hidden; height: 1em; }
 [data-console] .c-roll__strip {
   display: block;
   transition: transform var(--m-slow) var(--ease-settle);
   will-change: transform;
 }
-[data-console] .c-roll__d {
-  display: block;
-  height: 1em;
-  line-height: 1;
-}
+[data-console] .c-roll__d { display: block; height: 1em; line-height: 1; }
 
 /* ── MOTION: Fill ────────────────────────────────────────────────────────
    Progress grows from its origin and decelerates hard into its true value —
@@ -162,16 +165,27 @@
   position: absolute;
   inset: 0;
   border-radius: var(--r-track);
-  background: var(--signal);
+  background: var(--progress);
   transform-origin: left center;
   transform: scaleX(0);
   transition: transform var(--m-slow) var(--ease-settle);
   will-change: transform;
 }
 
-/* ── MOTION: Press ───────────────────────────────────────────────────────
-   The single most important detail in the product: what makes software feel
-   like hardware. Travel down fast, spring back.                             */
+/* ── CONTROLS ────────────────────────────────────────────────────────────
+   Three tiers, and the hierarchy is built from WEIGHT, not from hue:
+
+     primary    filled ink        confidence and momentum. One per screen.
+     secondary  outlined          optional actions.
+     tertiary   text only         low-stakes, reversible actions.
+
+   The primary is filled with INK, not with an accent. That is the whole
+   colour philosophy in one component: the strongest element on the screen
+   uses the strongest neutral, so the interface still has a clear focal point
+   with every drop of colour removed.
+
+   Press has travel. This is the single most important detail in the product
+   and what makes software feel like hardware.                                */
 [data-console] .c-control {
   appearance: none;
   border: 1px solid var(--g-4);
@@ -181,47 +195,47 @@
   font-size: var(--t-body);
   font-weight: 500;
   border-radius: var(--r-control);
-  padding: 13px var(--s-4);
+  padding: 12px var(--s-4);
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
   transition:
-    transform   var(--m-fast) var(--ease-out),
-    background  var(--m-fast) linear,
+    transform    var(--m-fast) var(--ease-out),
+    background   var(--m-fast) linear,
     border-color var(--m-fast) linear;
 }
-[data-console] .c-control:hover { background: var(--g-4); }
-[data-console] .c-control:active { transform: translateY(2px); background: var(--g-2); }
+[data-console] .c-control:hover { background: var(--g-1); border-color: var(--g-6); }
+[data-console] .c-control:active { transform: translateY(1px); background: var(--g-1); }
 
-/* The one primary action on the screen. Signal earns its place here because
-   this is the thing the student came to do. */
 [data-console] .c-control--primary {
-  background: var(--signal);
-  border-color: var(--signal);
-  color: var(--signal-ink);
+  background: var(--g-7);
+  border-color: var(--g-7);
+  color: var(--g-3);
   font-weight: 600;
 }
-[data-console] .c-control--primary:hover { background: var(--signal); filter: brightness(1.06); }
-[data-console] .c-control--primary:active {
-  transform: translateY(2px);
-  background: var(--signal-deep);
-  border-color: var(--signal-deep);
-  filter: none;
+[data-console] .c-control--primary:hover { background: #16283a; border-color: #16283a; }
+[data-console] .c-control--primary:active { transform: translateY(1px); background: #0a1520; }
+
+[data-console] .c-control--text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--g-6);
+  padding-inline: var(--s-2);
 }
+[data-console] .c-control--text:hover { background: transparent; border-color: transparent; color: var(--g-7); }
+[data-console] .c-control--text:active { transform: translateY(1px); background: transparent; }
 
 [data-console] .c-control:focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--info);
   outline-offset: 2px;
 }
 
 /* ── MOTION: Slide ───────────────────────────────────────────────────────
    Panels arrive from where they live. Nothing fades in — fading is what you
    do when you do not know where something came from.                        */
-[data-console] .c-enter {
-  animation: c-slide-up var(--m-base) var(--ease-out) backwards;
-}
+[data-console] .c-enter { animation: c-slide-up var(--m-base) var(--ease-out) backwards; }
 @keyframes c-slide-up {
   from { transform: translateY(10px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }

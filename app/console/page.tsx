@@ -174,7 +174,9 @@ export default function NowPage() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
             <span className="c-label">of 1,000 · {tier.label}</span>
             {toNext > 0 && (
-              <span className="c-label" style={{ color: "var(--signal)" }}>
+              // Progress information, so it carries the progress hue — the one
+              // place on this screen where colour is doing a job.
+              <span className="c-label" style={{ color: "var(--progress)" }}>
                 {toNext} to {tier.next}
               </span>
             )}
@@ -215,24 +217,32 @@ export default function NowPage() {
               >
                 {move.gain !== null && (
                   <>
+                    {/* Set in ink, deliberately. This is a PROJECTION — points
+                        the student could earn, not points they have. Colouring
+                        it with the progress hue would dress a forecast as a
+                        realised gain, which breaks "never lie". */}
                     <span
                       className="c-readout"
-                      style={{
-                        fontSize: "var(--t-figure)",
-                        fontWeight: 500,
-                        color: "var(--signal)",
-                      }}
+                      style={{ fontSize: "var(--t-figure)", fontWeight: 500 }}
                     >
                       +{move.gain}
                     </span>
-                    <span className="c-label">{move.pillar}</span>
+                    <span className="c-label">{move.pillar} · projected</span>
                   </>
                 )}
               </div>
 
-              <Link href={move.href} className="c-control c-control--primary">
-                {move.cta}
-              </Link>
+              {/* Three tiers, hierarchy built from weight and never from hue:
+                  filled ink carries the one action that creates momentum,
+                  outlined offers the alternative, text is the escape. */}
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--s-2)" }}>
+                <Link href={move.href} className="c-control c-control--primary">
+                  {move.cta}
+                </Link>
+                <Link href="/tools/exam-practice" className="c-control">
+                  Something else
+                </Link>
+              </div>
             </>
           ) : (
             // Honest empty state — an invitation with exactly one control.

@@ -124,43 +124,69 @@ recessed thing is darker. This is how real anodised aluminium behaves.
 **Rule: the interface is monochrome until something means something.**
 
 A student should be able to screenshot any screen and, from colour alone, know what
-matters. If two things are coloured, one of them is wrong.
+matters. If two things are coloured, one of them is probably wrong.
 
-**Graphite scale** — the entire UI, 90% of every screen:
+**Housing: light.** Students work in daylight; light is also the harder housing to get
+right, so it is the one we prove. Depth is tone — raised surfaces are **lighter**, recessed
+are **darker**. There are no shadows in Console.
 
-| Token | Role |
-|---|---|
-| `--g-0` | The void. Page base. Near-black, warm-neutral — never `#000`. |
-| `--g-1` | Recessed wells, input beds, track backgrounds. |
-| `--g-2` | The default surface. Panels sit here. |
-| `--g-3` | Raised surface. Buttons at rest, active panel. |
-| `--g-4` | Hairlines, dividers, borders. |
-| `--g-5` | Disabled/ghost text. |
-| `--g-6` | Secondary text, labels, units. |
-| `--g-7` | Primary text and numerals. Near-white, never `#fff`. |
+**Neutrals** — cool engineered greys with a **deep navy ink**. Navy rather than true black:
+it reads considered instead of default, and is softer to read at length without losing
+authority. This is the whole UI, 90% of every screen.
+
+| Token | Hex | Role |
+|---|---|---|
+| `--g-0` | `#f6f7f8` | Page |
+| `--g-1` | `#eceef0` | Recessed — wells, input beds, track bed |
+| `--g-2` | `#fbfbfc` | Surface — panels |
+| `--g-3` | `#ffffff` | Raised — controls at rest |
+| `--g-4` | `#c8cdd4` | Hairlines, dividers, borders |
+| `--g-5` | `#a6acb4` | Disabled, ghost |
+| `--g-6` | `#5a6875` | Secondary text, labels, units |
+| `--g-7` | `#0f1d2b` | Ink — primary text and numerals |
+
+Measured against `--g-0`: ink **15.91** · secondary **5.33** · hairline **1.49** ·
+disabled **2.13**. Disabled sits below 3.0 deliberately — WCAG exempts disabled controls,
+and one that competes for attention is a bug.
 
 **Signal** — exactly one accent, the product's entire identity:
 
-| Token | Role |
-|---|---|
-| `--signal` | **Electric Lime.** The colour of *live*, *now*, *you*. |
+**Amended 2026-08-04. There is no brand accent. The product does not have "a colour."**
 
-**Ratified 2026-08-04.** Blue is expected. Purple is AI. Amber implies warning. Cyan reads
-futuristic. Electric Lime communicates progress, momentum, energy and action without
-tipping into childish — and it is the one hue that survives on graphite at small sizes.
+An earlier draft made Electric Lime the signature accent. That was rejected, correctly: a
+signature neon is a shortcut to memorability, and a product that needs a loud colour to be
+recognised is not yet well made. Craft is the identity — typography, spacing, motion,
+geometry. Colour is the last layer applied, never the first.
 
-**Electric Lime is a SIGNAL colour, never a BRAND colour.** This distinction is the whole
-rule, and breaking it is the fastest way to destroy the design language.
+**The governing test:**
 
-**Signal may appear on — and only on:**
-progress · Ledger Score improvements · completion · focus indicators · active controls ·
-positive trends · confirmations.
+> Strip every coloured element from the interface, leaving only typography, spacing,
+> motion and geometry. **It must still feel unmistakably premium.**
 
-**Signal may never be:** a page background · a large filled area · a gradient · a hero
-treatment · a logo colour · a marketing accent · applied to two things on one screen.
+If removing colour collapses the hierarchy, the hierarchy was made of colour and the design
+has failed. This is why the primary control is filled with **ink**, not with a hue — the
+strongest element on the screen uses the strongest neutral, so the focal point survives the
+test by construction.
 
-Its rarity is the source of its power. When a student sees lime, their eye must go to the
-one thing that matters. If lime appears twice on a screen, one of them is a bug.
+**Colour communicates meaning, and nothing else.** Four hues, each meaning exactly one
+thing. All four are AA as text on `--g-0`, AA with white on their own fill, and clear 3.0
+as graphic fills — measured, not estimated.
+
+| Token | Hex | Means |
+|---|---|---|
+| `--progress` | `#2f6b4f` | Real, realised advancement. The Score fill. |
+| `--info` | `#35506b` | Neutral information, links, non-urgent emphasis, focus rings |
+| `--warn` | `#8a6a1f` | Attention needed; nothing is broken |
+| `--error` | `#a33a2e` | Something failed or regressed |
+
+**Never colour a projection.** A forecast rendered in the progress hue dresses a possible
+gain as an achieved one, which breaks §1.4 law 7. Projections are set in ink.
+
+**Direction is always carried by a glyph as well** (▲/▼), so colour is never the sole
+carrier of meaning.
+
+The interface should never feel like it has one colour. It should read as almost
+monochrome, with colour surfacing only where information demands it.
 
 **Semantic pair** — used only on figures that genuinely moved:
 
@@ -357,8 +383,20 @@ never a card, never a widget, never a KPI tile.
 
 - **A panel** is a machined plate. It has a hairline edge, a tonal step, and a purpose you
   can name. It is not a "card" and there is never a grid of identical ones.
-- **A control** has physical states: rest, hover (one tone lighter), press (compressed and
-  darker), focus (signal ring), disabled (no border, `--g-5` text).
+- **A control** has physical states: rest, hover (one tone step), press (compressed and
+  darker), focus (`--info` ring), disabled (no border, `--g-5` text).
+
+  **Three tiers, and the hierarchy is built from weight, never from hue:**
+
+  | Tier | Form | Use |
+  |---|---|---|
+  | **Primary** | Filled **ink**, white text | The one action that creates momentum. One per screen. |
+  | **Secondary** | Outlined, hairline border | Optional actions, alternatives. |
+  | **Tertiary** | Text only | Low-stakes, reversible actions. |
+
+  The primary is filled with ink rather than an accent. That single decision is the colour
+  philosophy expressed as a component: the strongest thing on screen uses the strongest
+  neutral, so the focal point survives the strip-all-colour test.
 - **A field** is a recessed well — darker than its surroundings, because you put things
   *into* it.
 - **A readout** displays a figure. Tabular, right-aligned, with a mono unit label. Rolls
