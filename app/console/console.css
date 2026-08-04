@@ -40,10 +40,29 @@
 
      All four are AA as text on --g-0, AA with white on their own fill, and
      clear 3.0 as graphic fills.                                              */
-  --progress: #2f6b4f;   /* real, realised advancement. The Score fill.       */
-  --info:     #35506b;   /* neutral information, links, non-urgent emphasis   */
-  --warn:     #8a6a1f;   /* attention needed, nothing is broken               */
-  --error:    #a33a2e;   /* something failed or regressed                     */
+  /* ── EARNED COLOUR ───────────────────────────────────────────────────────
+     Colour is a consequence of progress, never a decoration granted up front.
+     --vitality (0–1) is written by the shell from real work the student has
+     done (lib/console/vitality.ts). At 0 the product is genuinely monochrome;
+     as evidence accumulates, the progress hue saturates toward full.
+
+     A brand-new student sees a restrained instrument. A committed one sees a
+     product that has visibly come alive — and it came alive because of them.
+
+     Only --progress is earned. Information, warning and error are constant:
+     a warning must not be quieter for a new student, and an error is never a
+     reward. Withholding those would be a safety failure, not restraint.       */
+  --vitality: 0.18;
+  --progress-full: #2f6b4f;
+  --progress: color-mix(
+    in oklab,
+    var(--progress-full) calc(var(--vitality) * 100%),
+    var(--g-6)
+  );
+
+  --info:  #35506b;   /* neutral information, links, non-urgent emphasis      */
+  --warn:  #8a6a1f;   /* attention needed, nothing is broken                  */
+  --error: #a33a2e;   /* something failed or regressed                        */
 
   /* Direction of movement is always ALSO carried by a glyph (▲/▼), so colour
      is never the sole carrier of meaning.                                    */
@@ -201,22 +220,41 @@
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
+  /* ASYMMETRIC TIMING — the detail that sells hardware.
+     Travel DOWN is near-instant (40ms): a real button has no latency between
+     finger and mechanism. Travel UP is slower (220ms): the return is the
+     spring relaxing. Equal timings in both directions read as an animation;
+     unequal timings read as a physical object.                               */
   transition:
-    transform    var(--m-fast) var(--ease-out),
+    transform    220ms var(--ease-out),
     background   var(--m-fast) linear,
     border-color var(--m-fast) linear;
 }
 [data-console] .c-control:hover { background: var(--g-1); border-color: var(--g-6); }
-[data-console] .c-control:active { transform: translateY(1px); background: var(--g-1); }
+[data-console] .c-control:active {
+  transform: translateY(1px) scale(0.994);
+  background: var(--g-1);
+  transition-duration: 40ms;
+}
 
+/* Derived from the ink token, never hardcoded — an ad-hoc colour is a bug
+   (CONSOLE.md §2.3 applies the same rule to type). */
 [data-console] .c-control--primary {
   background: var(--g-7);
   border-color: var(--g-7);
   color: var(--g-3);
   font-weight: 600;
 }
-[data-console] .c-control--primary:hover { background: #16283a; border-color: #16283a; }
-[data-console] .c-control--primary:active { transform: translateY(1px); background: #0a1520; }
+[data-console] .c-control--primary:hover {
+  background: color-mix(in oklab, var(--g-7) 88%, white);
+  border-color: color-mix(in oklab, var(--g-7) 88%, white);
+}
+[data-console] .c-control--primary:active {
+  transform: translateY(1px) scale(0.994);
+  background: color-mix(in oklab, var(--g-7) 88%, black);
+  border-color: color-mix(in oklab, var(--g-7) 88%, black);
+  transition-duration: 40ms;
+}
 
 [data-console] .c-control--text {
   background: transparent;

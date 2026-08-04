@@ -59,6 +59,15 @@ export default function Readout({
   const text = String(Math.max(0, Math.round(value)));
   const shownText = String(Math.max(0, Math.round(shown))).padStart(text.length, "0");
 
+  // VELOCITY-AWARE DURATION. A fixed duration is the tell of an animation
+  // rather than a mechanism: 379 → 381 taking as long as 0 → 379 feels
+  // theatrical, because the wheels would barely have moved. Scale with how far
+  // the digits actually travel, so a small correction is a flick and a full
+  // arrival is a sweep.
+  const distance = Math.abs(value - shown);
+  const magnitude = Math.min(1, distance / Math.max(value, 1));
+  const duration = Math.round(260 + magnitude * 640); // 260ms flick … 900ms sweep
+
   return (
     <span className={className} style={style} aria-label={label ?? text} role="img">
       <span className="c-roll" aria-hidden="true">
@@ -70,6 +79,7 @@ export default function Readout({
                 className="c-roll__strip"
                 style={{
                   transform: `translateY(-${d}em)`,
+                  transitionDuration: `${duration}ms`,
                   transitionDelay: `${i * stagger}ms`,
                 }}
               >

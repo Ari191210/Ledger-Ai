@@ -7,8 +7,14 @@ import { loadUserData, type Exam } from "@/lib/user-data";
 import { computeLedgerScore, scoreTier, type ScoreBreakdown } from "@/lib/ledger-score";
 import { currentInputs } from "@/lib/score-projection";
 import { deriveNextMove, nextExam, type NextMove } from "@/lib/console/next-move";
+import { computeVitality, vitalityWithFloor } from "@/lib/console/vitality";
 import Readout from "@/components/console/readout";
 import Track from "@/components/console/track";
+
+/** Where the last-seen score is parked so the Return beat has something to
+ *  measure against. Local by design: this is "since you were last here", a
+ *  device-level fact, not a claim about the account. */
+const LAST_SEEN_KEY = "console:last-seen-score";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // NOW — the first surface. CONSOLE.md §8.
@@ -38,14 +44,32 @@ export default function NowPage() {
   const [move, setMove] = useState<NextMove | null>(null);
   const [exam, setExam] = useState<{ days: number; subject: string } | null>(null);
   const [name, setName] = useState<string>("");
+  const [vitality, setVitality] = useState(0);
+  const [sinceLastSeen, setSinceLastSeen] = useState<number | null>(null);
 
   // Local, synchronous, no network: the score and the move are available on
   // the first client frame.
   useEffect(() => {
     try {
-      setScore(computeLedgerScore());
+      const s = computeLedgerScore();
+      setScore(s);
       const inputs = currentInputs();
-      if (inputs) setMove(deriveNextMove(inputs));
+      if (inputs) {
+        setMove(deriveNextMove(inputs));
+        setVitality(vitalityWithFloor(computeVitality(inputs, s.total)));
+      }
+
+      // THE RETURN BEAT (CONSOLE.md §7). Without this the screen is identical
+      // on every visit and the student learns their effort is invisible —
+      // which is the actual failure mode of every study app. Comparing against
+      // the last score this device saw means work done since then is stated as
+      // a fact, not celebrated.
+      const raw = localStorage.getItem(LAST_SEEN_KEY);
+      const prev = raw === null ? null : Number(raw);
+      if (prev !== null && Number.isFinite(prev) && s.total !== prev) {
+        setSinceLastSeen(s.total - prev);
+      }
+      localStorage.setItem(LAST_SEEN_KEY, String(s.total));
     } catch {
       /* storage unavailable — the honest empty state below covers it */
     }
@@ -84,12 +108,18 @@ export default function NowPage() {
   return (
     <main
       id="main-content"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        background: "var(--g-0)",
-      }}
+      // Earned colour: every hue that is allowed to vary resolves through this
+      // one number. A student who has done nothing sees a monochrome
+      // instrument; the product becomes vivid only because of their work.
+      style={
+        {
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          background: "var(--g-0)",
+          "--vitality": vitality.toFixed(3),
+        } as React.CSSProperties
+      }
     >
       {/* ── CHROME ── persistent. The Score lives here on every surface, like a
           battery indicator, never as a card (CONSOLE.md §5.3). */}
@@ -172,7 +202,23 @@ export default function NowPage() {
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span className="c-label">of 1,000 · {tier.label}</span>
+            <span className="c-label">
+              of 1,000 · {tier.label}
+              {/* Movement since this device last saw the score. Stated as a
+                  fact, never celebrated — and direction is carried by the
+                  glyph as well as the hue, so colour is never the sole
+                  carrier of meaning. */}
+              {sinceLastSeen !== null && (
+                <span
+                  style={{
+                    marginLeft: "var(--s-2)",
+                    color: sinceLastSeen > 0 ? "var(--progress)" : "var(--g-6)",
+                  }}
+                >
+                  {sinceLastSeen > 0 ? "▲" : "▼"} {Math.abs(sinceLastSeen)} since you were last here
+                </span>
+              )}
+            </span>
             {toNext > 0 && (
               // Progress information, so it carries the progress hue — the one
               // place on this screen where colour is doing a job.
