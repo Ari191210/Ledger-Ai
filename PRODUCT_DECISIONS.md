@@ -302,22 +302,125 @@ by hand from real marked papers and refined forever.
 
 ## 4.4 PATTERN — the revisable inference
 
+*Amended 2026-08-06 — pattern hierarchy adopted. See §7.2.*
+
 | Field | Type | Notes |
 |---|---|---|
 | `id` | uuid | |
-| `studentId` `conceptId` | uuid | |
+| `studentId` | uuid | |
+| `conceptId` | uuid \| null | **Non-null on leaves. Null on parents.** |
+| `parentPatternId` | uuid \| null | **Null only on the root of a tree.** |
+| `tier` | `concept` \| `subject` \| `global` | Derived from depth; stored for query economy |
+| `subject` | string \| null | Null on `global` tier |
 | `errorClass` | `cognitive` \| `execution` | **never mixed** |
 | `errorType` | enum | the specific error |
 | `label` | string | *"Sign error when applying the chain rule"* |
-| `occurrenceIds[]` | uuid[] | the evidence trail |
-| `recurrenceCount` | int | occurrences in trailing 180 days |
-| `firstSeenAt` `lastSeenAt` | timestamp | |
+| `occurrenceIds[]` | uuid[] | the evidence trail. **Leaves only — always empty on parents.** |
+| `recurrenceCount` | int | occurrences in trailing 180 days. Leaves: counted. Parents: **derived from descendants.** |
+| `firstSeenAt` `lastSeenAt` | timestamp | Parents: min/max across descendants |
 | `severity` | 0–100 | **derived, never entered** (§4.6) |
 | `systemConfidence` | 0–1 | how sure we are this is *one* pattern |
-| `status` | enum | §4.8 |
+| `status` | enum | §4.8. Parents: **derived** (§4.4.4) |
 | `remediationPlan` | ref \| null | |
 | `history[]` | append-only | every status transition, with cause |
 | `resolvedAt` | timestamp \| null | |
+
+### 4.4.1 The hierarchy
+
+**Patterns form a hierarchy.** Three tiers, fixed depth:
+
+```
+GLOBAL      "You make sign errors"                    conceptId: null · subject: null
+  └─ SUBJECT   "You make sign errors in Physics"      conceptId: null · subject: "Physics"
+       └─ CONCEPT  "Sign error applying the chain rule"   conceptId: set   ← LEAF
+```
+
+- **Leaf patterns represent concrete, concept-level recurring mistakes.**
+- **Parent patterns represent progressively broader behavioural summaries.**
+- **Parents derive their meaning from children. Children never derive from parents.**
+
+The direction is absolute. A parent is a *view* of its descendants and holds no
+independent truth. Nothing is ever computed downward.
+
+This reuses the mechanism §4.2 already commits to for `Concept` — *"`parentId`;
+enables roll-up to any level"* — one layer up. There is one way to express
+roll-up in this schema, not two.
+
+### 4.4.2 Cardinality
+
+**`Occurrence → Pattern` remains 1:N.**
+
+- **Every occurrence references exactly one leaf pattern.** `Occurrence.patternId`
+  is singular and points at a `tier: concept` pattern. Pointing it at a parent is
+  invalid.
+- **Parent patterns never own occurrences directly.** `occurrenceIds[]` is always
+  empty above the leaf tier.
+- **A parent's evidence is the aggregate of its descendant leaves.**
+
+This is what makes a single `patternId` sufficient. An occurrence reaches its
+broader patterns through the tree, never by belonging to several at once.
+
+### 4.4.3 Ledger Score
+
+**The Ledger Score operates only on leaf patterns.**
+
+Parent patterns exist for **explanation, navigation and aggregation.** They are
+never counted.
+
+> **Parent patterns must never introduce double counting.**
+
+This is enforced structurally rather than by remembering a filter: because
+parents hold no occurrences (§4.4.2), any score computed from evidence counts
+each real failure exactly once. Consistent with `PRODUCT_PRINCIPLES` §3.3, where
+a scoring rule is guaranteed by construction rather than by discipline.
+
+### 4.4.4 Resolution
+
+- **Leaf resolution remains evidence-based** — §4.8, implementing
+  `PRODUCT_PRINCIPLES` §3.1. Unchanged.
+- **Parent resolution is derived from descendants.** A parent is never resolved
+  directly, by the system or the student.
+
+> **No parent may be resolved while any descendant leaf remains unresolved.**
+
+Strictly stronger than §3.1, never weaker. A student cannot close *"you make sign
+errors"* while a single sign-error gap remains open beneath it.
+
+### 4.4.5 Recommendations
+
+- **Ranking operates on leaves.** Severity is computed and ordered at the leaf
+  tier only.
+- **Presentation may collapse multiple related leaves into a parent summary** —
+  *"You've lost 31 marks to sign errors across 4 topics."*
+- **Expanding a parent reveals its contributing leaf patterns.**
+
+This is how §4.1's promise is kept. A student does not want forty sign-error
+entries; they want **one**, which opens into forty when they ask. The hierarchy
+is what turns 340 occurrences into the nine things they keep getting wrong.
+
+> **Parent Patterns exist solely to group and present descendant leaf Patterns.
+> They never participate directly in scoring, recommendation computation or
+> evidence ownership.**
+
+This is a **hard boundary, not a guideline.** A parent is a lens over its
+descendants and holds no independent truth. Any implementation that reads a
+parent's severity into the Ledger Score, ranks a parent against a leaf, or
+attaches an occurrence to a parent is a defect — not a design variation.
+
+Breadth is never smuggled into a number. A group is positioned by its worst
+leaf (§4.6) and states its breadth **in words**, where a student can read it.
+
+### 4.4.6 Analytics
+
+- **All aggregation must be structural.** Roll-up is a traversal of the tree.
+- **No duplicate aggregate tables.**
+- **No duplicated pattern records at multiple scopes.** One real failure produces
+  exactly one leaf.
+
+> **The hierarchy itself is the aggregation mechanism.**
+
+Any question answerable by grouping is answered by walking the tree. A
+materialised summary elsewhere is a second source of truth and is forbidden.
 
 ## 4.5 THE ERROR TAXONOMY — the product's core language
 
@@ -342,29 +445,121 @@ cannot see them.
 
 ## 4.6 SEVERITY — derived, never entered
 
+*Amended 2026-08-06 — parent derivation defined. See §7.3.*
+
+### 4.6.1 Leaf severity
+
 ```
 severity = 40·marksWeight + 30·recurrenceWeight + 20·examProximity + 10·conceptExamWeight
 ```
 
-Derived so that (a) it cannot be gamed, (b) every improvement to the formula
-upgrades every existing pattern retroactively, (c) ranking is explainable —
-*"this is #1 because you have lost 23 marks to it four times and it is worth 12
-marks in April."*
+**Applies to `tier: concept` patterns only.** Derived so that (a) it cannot be
+gamed, (b) every improvement to the formula upgrades every existing pattern
+retroactively, (c) ranking is explainable — *"this is #1 because you have lost 23
+marks to it four times and it is worth 12 marks in April."*
+
+This is the **only** severity formula. There is no parent equivalent.
+
+### 4.6.2 Parent severity
+
+```
+parentSeverity = MAX(severity) across all descendant leaf patterns
+```
+
+| Property | Rule |
+|---|---|
+| Purpose | **Presentation only** |
+| Ledger Score | **Never consumed** |
+| Storage | **Never persisted** |
+| Computation | **Always derived on demand** |
+
+Because `MAX` composes — `global = MAX(subjects) = MAX(all leaves)` — tiers can
+never disagree, and a future fourth tier stays consistent without a rule change.
+
+It also inherits §4.6.1 in full: improve the leaf formula and every parent
+improves with it. There is no second formula to maintain, and no substitute
+needed for `conceptExamWeight`, which is undefined where `conceptId` is null.
+
+### 4.6.3 Ordering
+
+When two parents compare equal, in order:
+
+1. **Highest descendant leaf severity**
+2. **Highest unresolved descendant leaf count**
+3. **Highest descendant marks lost**
+
+Deterministic and total. Every term is computed from the subtree itself, never
+relative to the student's other patterns — so adding an unrelated pattern can
+never reorder this one.
+
+### 4.6.4 Why maximum, and not an aggregate
+
+A collapsed group occupies **exactly the position its worst leaf occupied.**
+Collapsing therefore never re-ranks — which §4.4.5 requires, since ranking
+operates on leaves.
+
+Averages were rejected outright: they **dilute**, so logging a fifth, milder
+instance would make a worsening problem appear to improve. That is
+`PRODUCT_PRINCIPLES` law 7 (*never lie*) failing on the surface the product
+exists to make trustworthy.
+
+**Maximum is deliberately blind to breadth.** Breadth is surfaced in the summary
+label — *"across 4 topics"* — not folded into the number. A severity that
+secretly encodes breadth is less honest than one that ranks by worst case and
+states the breadth in words. Note that repetition **within** a concept is already
+carried by `recurrenceWeight` at 30%.
+
+**Consequence, stated plainly:** parent severity is a *positioning device*, not a
+measure of behavioural badness. If cross-concept breadth should ever outrank a
+single severe gap, that belongs in `/next` as an explicit, explainable ranking
+rule — never smuggled into severity.
 
 ## 4.7 MERGE RULES
 
-Two occurrences join one pattern **iff**: same `conceptId`, **and** same
-`errorClass`, **and** same `errorType`.
+*Amended 2026-08-06 — pattern hierarchy adopted. See §7.2.*
+
+**Merging happens at the leaf tier only.** Two occurrences join one leaf pattern
+**iff**: same `conceptId`, **and** same `errorClass`, **and** same `errorType`.
 
 **Never merge across `errorClass`.** A misconception about signs and a careless
 sign slip look identical on paper and require opposite fixes.
 
 - Merges below `systemConfidence` 0.8 are **provisional**, reversible for 30 days.
-- **A student may split a pattern. A student may not merge patterns** — merging
-  is how a record collapses into "I'm bad at Physics", the exact uselessness we
-  exist to replace.
-- Cross-concept execution patterns are a **separate pattern type**
-  (`conceptId: null`). "You misread questions" is a real, global pattern.
+- **A student may split a leaf pattern. A student may not merge patterns** —
+  merging is how a record collapses into "I'm bad at Physics", the exact
+  uselessness we exist to replace.
+
+### 4.7.1 Parent attachment
+
+**Parents are not merged. They are attached.**
+
+When a leaf pattern is created, it attaches to a `subject` parent keyed by
+(`studentId`, `subject`, `errorClass`, `errorType`), which in turn attaches to a
+`global` parent keyed by (`studentId`, `errorClass`, `errorType`). A parent is
+created on demand if it does not yet exist.
+
+Attachment is **deterministic and derived** — it involves no inference and no
+confidence score, because it asks no question. `systemConfidence` therefore
+applies to leaf merges only.
+
+**Every error type produces a valid tree at all three tiers.** Both classes form
+patterns at every tier: §4.4's own example label — *"Sign error when applying the
+chain rule"* — is an **execution** error at the **concept** tier.
+**`errorClass` never determines tier.**
+
+### 4.7.2 Cross-concept patterns
+
+Supersedes the previous rule that cross-concept execution patterns were *"a
+separate pattern type."* They are **not a separate type** — they are the
+`subject` and `global` tiers of the ordinary pattern hierarchy.
+
+*"You misread questions"* is a real, global pattern: a `tier: global` row with
+`conceptId: null`, whose evidence is every descendant leaf.
+
+The previous phrasing was the source of the ambiguity resolved here — it implied
+a second kind of object without saying how an occurrence could belong to both it
+and a concept-level pattern, which a singular `Occurrence.patternId` cannot
+express.
 
 ## 4.8 LIFECYCLE
 
@@ -482,7 +677,10 @@ changed per §4.11 because it currently contradicts a principle.
 | 2026-08-05 | 4 "obsolete" tools stay in place as EXPERIMENTAL | **Live** — reverses 2026-08-04 |
 | 2026-08-05 | **IA resolved at three altitudes** — 3 surfaces / 12 routes / 46 resolving | **Live** (§2) |
 | 2026-08-05 | Razorpay, not Stripe | **Live** (§5) |
-| 2026-08-05 | Mistake schema ratified — occurrence/pattern split, error taxonomy, lifecycle | **Live** (§4) |
+| 2026-08-05 | Mistake schema drafted — occurrence/pattern split, error taxonomy, lifecycle | **Live** (§4) |
+| **2026-08-06** | **Pattern hierarchy adopted** — three tiers, parents derived from children | **Live** (§4.4, §4.7) |
+| **2026-08-06** | **Parent severity = `MAX` of descendant leaves** — presentation-only, never persisted | **Live** (§4.6) |
+| **2026-08-06** | **D1 CLOSED — the mistake schema is ratified.** Persistence may begin | **RATIFIED** (§4) |
 | 2026-08-05 | Score mistake pillar inverted | **Live** (§4.11) |
 | 2026-08-05 | Workspace Engine approved in principle, **frozen** | **Not in scope** (§8) |
 
@@ -503,6 +701,88 @@ archived `MIGRATION.md`. Directly contradicts §1.1 and §1.3.
 
 **"The 8-week MVP" — withdrawn.** No estimate stood behind it. Effort lives in
 `EXECUTION_PLAN.md`.
+
+## 7.2 Amendment — pattern hierarchy (2026-08-06)
+
+**Amends §4.4 and §4.7. No principle changed; `PRODUCT_PRINCIPLES.md` untouched.**
+
+**The ambiguity.** §4.7 stated that execution patterns could be concept-, subject-
+or globally-scoped, but §4.4 gave `Pattern` no field able to distinguish them —
+subject-scoped and global were both `conceptId: null`. Surfaced during `M1-2`
+while writing `lib/mistakes/types.ts`.
+
+**The deeper conflict.** A missing field was the surface problem. The real one was
+that §4.3 gives each occurrence a **singular** `patternId` while §4.7 called
+cross-concept patterns *"a separate pattern type"* — meaning one occurrence would
+have to belong to a concept pattern **and** a broader one simultaneously, which a
+1:N relationship cannot express.
+
+**Options considered.** A flat `scope` enum (does not resolve the cardinality
+conflict, and lets the Ledger Score double-count); two separate entities (doubles
+every consumer's query path); derived-at-query-time aggregation (cheapest, but a
+computed pattern has no identity, no lifecycle, and **cannot be resolved** — fatal
+against `PRODUCT_PRINCIPLES` §3.1); and the adopted hierarchy.
+
+**Why the hierarchy.** It is the only option that keeps lifecycle and identity for
+behavioural patterns, resolves the cardinality conflict without a join table,
+prevents double counting **structurally** rather than by remembering a filter, and
+reuses the roll-up mechanism §4.2 already commits to for `Concept` instead of
+introducing a second way to express the same relationship.
+
+It is also what makes §4.1's promise true: a student sees *one* "you make sign
+errors", not forty — and can open it to find the forty.
+
+**Reversal cost.** A migration. Real, bounded, and the reason this is a decision
+rather than a principle.
+
+## 7.3 Amendment — parent severity (2026-08-06)
+
+**Amends §4.6 and §4.4.5. No principle changed; `PRODUCT_PRINCIPLES.md` untouched.**
+
+**The gap.** §4.6's formula ends in `conceptExamWeight`, which is undefined where
+`conceptId` is null. After the hierarchy amendment (§7.2), parents had a severity
+field and no way to compute it. Surfaced as a blocker for `M1-5`'s
+`computeSeverity()`.
+
+**Options considered.** Mean and recurrence-weighted mean were rejected because
+averages **dilute** — logging a fifth, milder instance would make a worsening
+problem appear to improve, which is law 7 failing in the most damaging direction.
+Marks-summed aggregation was rejected as unbounded, and normalising it against
+the student's totals would make one pattern's severity change when an unrelated
+pattern is added. Recomputing §4.6 at the parent tier was rejected because it
+requires a second formula maintained in parallel forever, forfeits §4.6's
+retroactive-improvement property, and **re-ranks on collapse**, which §4.4.5
+forbids.
+
+**Why maximum.** A collapsed group lands exactly where its worst leaf sat, so
+collapsing never re-ranks. `MAX` composes across any depth, inherits the leaf
+formula for free, cites one named leaf when asked *why*, cannot double count
+because a maximum is one child's value rather than a sum, and stores nothing.
+
+**The accepted trade.** Maximum is blind to cross-concept breadth. Breadth is
+stated in the summary label instead — *"across 4 topics"* — because a number that
+secretly encodes breadth is less honest than one that ranks by worst case and
+says the breadth out loud.
+
+**Enforcement.** §4.4.5 now states as a hard boundary that parent patterns never
+participate in scoring, recommendation computation or evidence ownership. This
+exists so that no future implementation can quietly promote a parent to a
+first-class scoring entity.
+
+## 7.4 D1 — CLOSED (2026-08-06)
+
+**The mistake schema (§4) is ratified.** Persistence work may begin.
+
+D1 was held open through `M1-2` deliberately: the TypeScript model was treated as
+an implementation target rather than proof of correctness, and writing it surfaced
+two real ambiguities (§7.2, §7.3) that would have become migrations had they been
+discovered after SQL.
+
+Ratified: §4.1–§4.11 inclusive, with the hierarchy (§4.4, §4.7) and parent
+severity (§4.6) as amended.
+
+**Still open, and unaffected by this closure:** D2 (Score inversion) and D6 (seed
+subject). Neither gates `M1-3`.
 
 ---
 
