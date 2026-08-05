@@ -1,17 +1,30 @@
 # STUDYLEDGER — EXECUTION PLAN
 
-**The single source of truth for implementation. Created 2026-08-04.**
+```
+AUTHORITY:       plans
+ANSWERS:         "how, in what order, how long, and what is done?"
+MAY NOT CONTAIN: product philosophy · design law · feature classification ·
+                 information architecture · schema definitions
+PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
+LAST AMENDED:    2026-08-05
+```
 
-Governed by `PRODUCT_CONSTITUTION.md` (what exists) and `CONSOLE.md` (how it looks).
-This document is *how it gets built, in what order*.
-
-**Status: PLAN ONLY. No production code has been modified.**
+**Governed by `PRODUCT_PRINCIPLES.md` (what must always be true) and
+`PRODUCT_DECISIONS.md` (what we have chosen).** This document is *how it gets
+built, in what order.* A task here may not contradict either — if one appears to,
+this document is the defect.
 
 ## Working protocol
 
 One task at a time. For each: explain → **wait for approval** → implement → verify →
 commit → update this file → stop. Never continue automatically. Never batch unrelated
 work. No new planning documents.
+
+**Sequencing discipline:**
+- **No cosmetic work until structural work is done.**
+- One page per change. Blast radius = one route.
+- Never convert a page and a shared component together.
+- Ship continuously; do not accumulate a six-week branch.
 
 ## Effort scale
 
@@ -24,323 +37,22 @@ task is not done.
 
 ---
 
-# PART A — THE MISTAKE SCHEMA
+# PART A — FOUNDATIONS (moved 2026-08-05)
 
-> **Nothing may be built until this is ratified.** Capture writes it, Diagnosis reads it,
-> Record stores it, Next ranks it, Practise consumes it, Parents summarise it, and the
-> Ledger Score is computed from it. Get this wrong and all seven are wrong.
+**The mistake schema now lives in `PRODUCT_DECISIONS.md` §4**, and the feature
+classification policy in `PRODUCT_DECISIONS.md` §1. Both were decisions, not plans,
+and holding them here is what let this document drift into contradicting the
+constitution.
 
-## A.1 The central decision: two entities, not one
-
-The instinct is one `Mistake` record. That is wrong, and the error would be permanent.
-
-| | **OCCURRENCE** | **PATTERN** |
-|---|---|---|
-| What it is | One mark lost, one time | A recurring error the student keeps making |
-| Epistemic status | **Fact** | **Inference** |
-| Mutability | **Immutable, never deleted** | Revisable |
-| Comes from | Evidence (a photograph) | Analysis across occurrences |
-| Has a lifecycle | No | **Yes** |
-| What the product sells | Raw material | **This** |
-
-A student does not want a list of 340 wrong answers. They want the **nine things they
-keep getting wrong.** Occurrences are what we hold; Patterns are what we return.
-
-Keeping facts immutable is how `CONSOLE.md`'s *never fabricate* law becomes structural
-rather than aspirational: a correction never edits history, it appends a superseding
-occurrence.
-
-## A.2 CONCEPT — the taxonomy spine
-
-Every occurrence attaches to a concept. Inheritance gives roll-up for free.
-
-```
-subject → chapter → topic → concept
-Physics → Rotational Motion → Angular Momentum → "Sign convention for torque"
-```
-
-| Field | Notes |
+| Was | Now |
 |---|---|
-| `id` | stable, never reused |
-| `subject` `chapter` `topic` `name` | display path |
-| `parentId` | tree; enables roll-up to any level |
-| `boardCodes[]` | CBSE/ICSE/state syllabus references |
-| `examWeight` | historical marks allocation — feeds severity |
-
-**This taxonomy is the company's durable asset.** It cannot be generated from textbooks,
-because textbooks describe success and this describes failure. It is built by hand from
-real marked papers and refined forever.
-
-## A.3 OCCURRENCE — the immutable fact
-
-| Field | Type | Notes |
-|---|---|---|
-| `id` | uuid | |
-| `studentId` | uuid | |
-| `evidenceId` | uuid | → Evidence. **Required.** No occurrence without proof. |
-| `source` | enum | `board-exam` · `school-exam` · `mock` · `coaching-test` · `homework` · `past-paper` · `self-test` |
-| `subject` `chapter` `topic` | string | denormalised for query speed |
-| `conceptId` | uuid | → Concept |
-| `questionRef` | string | "Q7(b)" |
-| `marksLost` / `marksAvailable` | int | |
-| `cognitiveError` | enum \| null | see A.5 |
-| `executionError` | enum \| null | see A.5 |
-| `confidenceBefore` | 0–3 \| null | what the student *thought* before answering |
-| `studentAnswer` | text \| crop | what they wrote |
-| `expectedAnswer` | text \| null | from mark scheme |
-| `markerNote` | text \| null | what the teacher wrote in red |
-| `patternId` | uuid \| null | assigned by merge (A.7) |
-| `supersedes` | uuid \| null | corrections append, never edit |
-| `createdAt` | timestamp | |
-
-**Invariants.** Never updated after verification. Never deleted. At least one of
-`cognitiveError` / `executionError` must be non-null. `evidenceId` is mandatory —
-an unevidenced mistake is a claim, and the product does not store claims.
-
-## A.4 PATTERN — the revisable inference
-
-| Field | Type | Notes |
-|---|---|---|
-| `id` | uuid | |
-| `studentId` `conceptId` | uuid | |
-| `errorClass` | `cognitive` \| `execution` | **never mixed** |
-| `errorType` | enum | the specific error |
-| `label` | string | human sentence: *"Sign error when applying the chain rule"* |
-| `occurrenceIds[]` | uuid[] | the evidence trail |
-| `recurrenceCount` | int | occurrences in trailing 180 days |
-| `firstSeenAt` `lastSeenAt` | timestamp | |
-| `severity` | 0–100 | **derived, never entered** (A.6) |
-| `systemConfidence` | 0–1 | how sure we are this is *one* pattern |
-| `status` | enum | A.8 |
-| `remediationPlan` | ref \| null | |
-| `history[]` | append-only | every status transition, with cause |
-| `resolvedAt` | timestamp \| null | |
-
-## A.5 THE ERROR TAXONOMY — the product's core language
-
-The single most important split in the schema:
-
-### COGNITIVE — *you did not know*
-Fix by learning. Slow to close. Predicts future failure on the same concept.
-
-`not-known` · `misconception` · `wrong-method` · `incomplete-understanding` ·
-`misapplied-rule` · `cannot-recall-formula`
-
-### EXECUTION — *you knew and lost the mark anyway*
-Fix by process. Fast to close. Predicts failure **across all subjects**.
-
-`misread-question` · `arithmetic-slip` · `sign-error` · `unit-error` ·
-`ran-out-of-time` · `incomplete-answer` · `missed-working` · `transcription` ·
-`presentation`
-
-**Why the split is load-bearing:** a student losing 30 marks to misconceptions and a
-student losing 30 marks to misreading questions have nothing in common and need opposite
-interventions. Execution errors are usually the larger, cheaper win — and are invisible
-to every competitor, because chapter-wise analytics cannot see them.
-
-## A.6 SEVERITY — derived, never entered
-
-```
-severity = 40·marksWeight + 30·recurrenceWeight + 20·examProximity + 10·conceptExamWeight
-```
-
-Derived so that (a) it cannot be gamed, (b) every improvement to the formula upgrades
-every existing pattern retroactively, (c) ranking on `/next` is explainable —
-*"this is #1 because you have lost 23 marks to it four times and it is worth 12 marks in April."*
-
-## A.7 MERGE RULES
-
-Two occurrences join one pattern **iff**:
-
-1. same `conceptId`, **and**
-2. same `errorClass`, **and**
-3. same `errorType`
-
-**Never merge across `errorClass`.** A misconception about signs and a careless sign slip
-look identical on paper and require opposite fixes.
-
-- Merges below `systemConfidence` 0.8 are **provisional** and reversible for 30 days.
-- **A student may split a pattern. A student may not merge patterns** — merging is how a
-  record collapses into "I'm bad at Physics", which is exactly the uselessness we exist
-  to replace.
-- Cross-concept execution patterns are a **separate pattern type** (`conceptId: null`,
-  scoped to subject or global). "You misread questions" is a real, global pattern.
-
-## A.8 LIFECYCLE
-
-```
-      detected
-         ↓
-  ┌──→ OPEN ──→ ACKNOWLEDGED ──→ PRACTISING ──→ RESOLVED
-  │      ↑                            │             │
-  │      └──────── RECURRED ←─────────┴─────────────┘
-  │                   ↑
-  └── DORMANT ────────┘
-```
-
-| Status | Meaning | Who sets it |
-|---|---|---|
-| `open` | Detected, unaddressed | System |
-| `acknowledged` | Student has seen it | **Student** |
-| `practising` | Active remediation | Student / system |
-| `dormant` | No occurrence in 90 days, never proven fixed | System |
-| `resolved` | **Proven** fixed | **System only** |
-| `recurred` | Came back after resolution | System |
-
-### The resolution rule — the most important rule in the schema
-
-> **Only evidence resolves a pattern. A student may never mark their own mistake fixed.**
-
-`resolved` requires **≥2 correct answers on the same concept**, at least one of them
-**≥7 days** after the last occurrence.
-
-A student can say *"I've seen it"* (`acknowledged`) and *"I'm working on it"*
-(`practising`). They cannot say *"I've fixed it."* Self-reported mastery is the fluency
-illusion — the exact broken instrument this product exists to replace. Letting a student
-mark their own patterns resolved would make the record a record of their confidence
-rather than their competence, and the record would be worthless.
-
-## A.9 EVIDENCE — immutable
-
-`id` · `type` (`photo` \| `pdf` \| `manual`) · `storageRef` · `contentHash` ·
-`cropRegions[]` · `capturedAt` · `sourceDescription` · `verifiedBy` (`ai` \| `student` \| `both`)
-
-Immutable and never deleted while any occurrence references it. Evidence is what makes
-the record trustworthy in 2036; deleting it retroactively invalidates every diagnosis
-built on it.
-
-## A.10 CONSUMERS — what each system reads
-
-| System | Reads | Never reads |
-|---|---|---|
-| **`/home`** | Top 1 open pattern by severity | Occurrence detail |
-| **`/diagnosis`** | Patterns + their occurrences for one evidence item | — |
-| **`/record`** | All patterns + all occurrences, over time | — |
-| **`/next`** | `open` + `practising`, ranked by severity × examProximity, plus *silent concepts* | `resolved` |
-| **`/practise`** | `open` + `practising` as question-generation targets | — |
-| **`/parents`** | **`practising` and `resolved` ONLY** — counts and trends | **`open` patterns · occurrence detail · marks lost · raw answers** |
-| **Ledger Score** | Resolution rate, evidence volume, coverage | Raw error counts |
-
-**The parent rule is a hard boundary.** Parents see *what their child is fixing*, never
-*what their child got wrong*. It is the difference between a support tool and a
-shame-delivery mechanism, and it is enforced at the data layer, not in copy.
-
-**Silent concepts:** a concept with **zero occurrences and zero correct answers** is
-untested, not mastered. Distinct from a known gap, and a first-class input to `/next`.
-
-## A.11 ⚠️ THE SCORE CONFLICT — must be resolved in M1
-
-```
-lib/ledger-score.ts:140
-mistakeScore = Math.max(0, Math.round(200 - recentMistakes * 6));
-```
-
-**The current Ledger Score penalises the student 6 points for every mistake they record.**
-
-The entire company depends on students capturing mistakes. The scoreboard punishes
-precisely that behaviour. A student who logs honestly is scored below a student who logs
-nothing — the product currently rewards hiding evidence.
-
-**Required inversion.** The mistakes pillar (200 pts) becomes:
-
-- **Resolution rate** (120) — proportion of patterns proven resolved
-- **Evidence volume** (50) — papers captured, with a ceiling
-- **Acknowledgement** (30) — open patterns seen rather than avoided
-
-**Capture must never lower a score.** Non-negotiable.
-
-**Cost:** breaking change to an engine with 60 passing tests → versioned in `M1-6`.
-
----
-
-# PART A2 — FEATURE CLASSIFICATION POLICY
-
-*Added 2026-08-05. Supersedes every deletion decision made on usage grounds.*
-
-## A2.1 Analytics are observational, not decisional
-
-PostHog currently reflects a period in which the founder was the primary active
-user, alongside development and testing sessions. The sample is 55 tool opens.
-
-**Current analytics may be used to find bugs, broken flows and dead routes.
-They may NOT be used to decide what ships, what merges, or what is removed.**
-
-The 90-day report stands as a **bug-finding artifact** — it is how the
-`/tools/doubt` 404 was confirmed as user-reachable — and is withdrawn as
-roadmap evidence. Low usage is not evidence of low value when usage is not yet
-representative.
-
-## A2.2 The four classes
-
-| Class | Definition | Navigation | Code |
-|---|---|---|---|
-| **CORE** | Directly strengthens *"What should I fix next?"* | Visible | Untouched |
-| **SUPPORTING** | Not essential for V1; strengthens the experience; may return | Hidden in V1 | Untouched |
-| **EXPERIMENTAL** | Interesting, not core today | Removed | **Kept intact** |
-| **LEGACY** | Obsolete, duplicated, or architecturally conflicting | Removed | Archived |
-
-## A2.3 The deletion bar
-
-**Default is ARCHIVE. Deletion requires at least one of:**
-
-1. duplicate functionality · 2. objectively obsolete implementation ·
-3. architectural conflict · 4. security risk · 5. maintenance burden with no
-future value
-
-**"Low usage" is explicitly not sufficient.**
-
-## A2.4 The mechanism — navigation, not the filesystem
-
-Classification is enforced in **`lib/tools-registry.ts`**, by adding a `status`
-field. Navigation, search and the command palette render `core` (and
-`supporting` when enabled). Everything else stays routable by direct URL.
-
-This is the whole idea: **one file controls what the product looks like, and no
-implementation moves.** Reversing a classification is a one-word edit, so a
-wrong call costs minutes rather than a rebuild.
-
-> **The navigation becomes small. The repository does not.**
-
-Only `legacy` items move on disk — to `archive/`, outside `app/`, so they stop
-building while remaining in git and readable.
-
-## A2.5 The register
-
-Classified by thesis fit. **No usage data was consulted.**
-
-**CORE — 13.** The loop itself.
-`post-exam` · `paper-autopsy` · `marks-forensics` · `marks-obituary` ·
-`paper-trauma` · `paper-pattern` · `calibration` · `syllabus` ·
-`grade-tracker` · `exam-planner` · `silent-topics` · `practice` ·
-`exam-practice`
-
-**SUPPORTING — 12.** Hidden in V1, implementation untouched, likely to return.
-`recall-studio` · `flashcards` · `exam-sim` · `forgetting-forecast` ·
-`exam-day` · `exam-triage` · `panic-triage` · `learn-lab` · `language-lab` ·
-`model-answer` · `memory-toolkit` · `personalise`
-
-> `learn-lab` moved from DELETE to SUPPORTING on thesis grounds, not usage
-> grounds: its Doubt tab sits adjacent to diagnosis, and "we do not teach" is a
-> V1 scoping rule, not a permanent prohibition on the code existing.
-
-**EXPERIMENTAL — 21.** Out of navigation, code untouched.
-`writing-tools` · `research-suite` · `presentation` · `debate` · `citation` ·
-`lab-report` · `reference-builder` · `report-tools` · `compare` · `source` ·
-`case-study` · `timeline` · `study-guide` · `analysis-hub` · `rooms` ·
-`admissions` · `resume` · `interview` · `gpa-sim`
-
-**LEGACY — 0 tools.**
-
-Not one of the 46 tools meets the deletion bar. Everything that qualifies is
-**infrastructure, not product**:
-
-| Item | Qualifying reason |
-|---|---|
-| `PRODUCT.md`, `DESIGN.md` | Architectural conflict — documented cause of the design oscillation |
-| 3 simultaneous motion runtimes | Maintenance burden, architectural conflict |
-| `globals.css` / `editorial.css` duplication | Architectural conflict (M10, not now) |
-| 16 orphan components, `lib/animation.ts` | Objectively obsolete — zero importers (**already removed in M0**) |
-| Duplicated tab components (`CrunchTab`, `MindMapTab`, `ConceptConnectTab`, `FormulaTab`) | Duplicate functionality — **extract to shared, do not archive either host** |
+| Part A.1–A.10 — the mistake schema | `PRODUCT_DECISIONS.md` §4.1–4.10 |
+| Part A.11 — the Score inversion | `PRODUCT_DECISIONS.md` §4.11 · task `M1-6` below |
+| The resolution rule · the parent boundary · *capture never lowers a score* | `PRODUCT_PRINCIPLES.md` §3 |
+| Part A2 — classification policy and the register | `PRODUCT_DECISIONS.md` §1 |
+
+**`M1-1` below remains the ratification gate.** Nothing above M1 may start until the
+schema is signed off.
 
 ---
 
@@ -359,21 +71,20 @@ Not one of the 46 tools meets the deletion bar. Everything that qualifies is
 | **M0-5** | Delete 16 orphan components (~2,382 lines) | Dead weight | — | `components/**` | S | `tsc` + build green; bundle smaller |
 | **M0-6** | Drop `three`, `@react-three/*`, `@splinetool/*` | Only importer is itself dead | M0-5 | `package.json` | S | `npm ls` clean; build green |
 | **M0-7** | Delete `lib/animation.ts`, `app/globals-severity-patch.css` | Zero importers | — | as named | S | Build green |
-| **M0-8** | Delete `PRODUCT.md`, `DESIGN.md` | Three constitutions caused a year of oscillation | — | as named | S | Two governing docs remain |
-| **M0-9** | **Add `status` to `lib/tools-registry.ts`** — `core` / `supporting` / `experimental`, per the A2.5 register | The single control point for navigation size. Makes every later classification a one-word edit rather than a migration | M0-8 | `lib/tools-registry.ts` | S | All 46 entries classified; `tsc` green; **no route touched** |
+| **M0-8** | ~~Delete `PRODUCT.md`, `DESIGN.md`~~ → **archived instead** | Superseded by the archival default (`PRODUCT_DECISIONS` §1.3) | — | `docs/archive/` | S | **Done 2026-08-05** — 6 docs archived with headers |
+| **M0-9** | **Add `status` to `lib/tools-registry.ts`** — `core` / `supporting` / `experimental`, per the register | The single control point for navigation size. Makes every later classification a one-word edit rather than a migration | M0-8 | `lib/tools-registry.ts` | S | All 46 entries classified; `tsc` green; **no route touched** |
 | **M0-10** | **Filter navigation to CORE** — dashboard grid, command palette, `app-nav`, `desks` read `status` | The navigation becomes small while the repository stays whole | M0-9 | 4 registry consumers | M | Navigation shows 13 tools; **all 46 URLs still resolve**; build green |
 | **M0-11** | **Unlink `/console/ai` and `/dashboard/saved`** from navigation | Out of V1 scope; both remain routable | M0-10 | nav consumers | S | No inbound links; both routes still load |
 | **M0-12** | **Extract the 4 duplicated tab components** to shared modules | Duplicate functionality — the one class that genuinely qualifies for removal | — | `exam-practice`, `exam-triage`, `learn-lab`, `reference-builder`, `recall-studio` | L | One definition each; both hosts still work; build green |
 | **M0-13** | Reduce to one motion runtime | 3 shipped simultaneously — maintenance burden + architectural conflict | M0-10 | `package.json`, 7 live consumers | M | One runtime; every animation still runs |
 
 > **Deletion gate for M0:** no tool route is deleted, archived or moved.
-> Classification is a registry field. If a class turns out wrong, changing it
-> costs one word and no rebuild — which is precisely why it is done this way
-> while usage data is not yet representative.
+> Classification is a registry field. If a class turns out wrong, changing it costs
+> one word and no rebuild — which is precisely why it is done this way while usage
+> data is not yet representative. See `PRODUCT_DECISIONS` §1.4.
 
-**Exit:** navigation shows **13 tools instead of 46** · all 46 URLs still
-resolve · zero dead links · CI green · one motion runtime · **zero product code
-deleted**.
+**Exit:** navigation shows **13 tools instead of 46** · all 46 URLs still resolve ·
+zero dead links · CI green · one motion runtime · **zero product code deleted**.
 
 ---
 
@@ -383,15 +94,16 @@ deleted**.
 
 | ID | Task | Why | Deps | Files | Effort | Acceptance |
 |---|---|---|---|---|---|---|
-| **M1-1** | **Ratify Part A** — founder sign-off on entities, taxonomy, lifecycle, merge & resolution rules | Every surface depends on it | M0 | `EXECUTION_PLAN.md` | M | Written approval recorded here |
+| **M1-1** | **Ratify `PRODUCT_DECISIONS` §4** — founder sign-off on entities, taxonomy, lifecycle, merge & resolution rules | Every surface depends on it | M0 | `PRODUCT_DECISIONS.md` | M | Written approval recorded in its decision log |
 | **M1-2** | TypeScript model — `lib/mistakes/types.ts` | One definition, imported everywhere | M1-1 | new | M | `tsc` green; zero duplicate type defs |
 | **M1-3** | Supabase migration `007_mistakes.sql` — concepts, evidence, occurrences, patterns + RLS | Server-owned record; localStorage cannot be the moat | M1-2 | `supabase/migrations/` | L | Applied to prod; RLS denies cross-user reads (tested) |
 | **M1-4** | Seed concept taxonomy — CBSE Class 11/12 Physics only | Prove the spine on one subject before generalising | M1-3 | `supabase/seed/` | L | ≥120 concepts with board codes |
 | **M1-5** | Pure functions: `mergeOccurrence()`, `computeSeverity()`, `canResolve()` | The engine. Testable without a browser | M1-2 | `lib/mistakes/engine.ts` | L | ≥40 tests incl. every lifecycle transition + the resolution rule |
-| **M1-6** | **Invert the Score's mistake pillar** (A.11) | Capture must never lower a score | M1-5 | `lib/ledger-score.ts`, `tests/` | L | Logging a mistake never decreases total; 60 existing tests updated & green |
+| **M1-6** | **Invert the Score's mistake pillar** (`PRODUCT_DECISIONS` §4.11) | Capture must never lower a score — `PRODUCT_PRINCIPLES` §3.3 | M1-5 | `lib/ledger-score.ts`, `tests/` | L | Logging a mistake never decreases total; 60 existing tests updated & green |
 | **M1-7** | Migrate `ledger-mistakes` localStorage → server | Existing users keep their data | M1-3 | `lib/score-projection.ts` | M | 16 users migrated; zero data loss verified |
 
-**Exit:** the schema exists, is tested, is on the server, and the Score no longer punishes honesty.
+**Exit:** the schema exists, is tested, is on the server, and the Score no longer
+punishes honesty.
 
 ---
 
@@ -404,11 +116,12 @@ deleted**.
 | **M2-1** | `/capture` route + shell | The entry point | M1 | `app/capture/` | M | Route renders in Console language |
 | **M2-2** | Photo upload → storage + Evidence record | Evidence is mandatory for every occurrence | M1-3 | `app/api/capture/`, Supabase storage | L | Photo persists; hash dedupes re-uploads |
 | **M2-3** | Vision extraction — marked paper → draft occurrences | The moat mechanism | M2-2 | `app/api/capture/extract/` | XL | ≥70% of questions correctly extracted on 10 real papers |
-| **M2-4** | **Human-in-the-loop confirmation** | AI extraction is wrong sometimes; *never fabricate* forbids silent guesses | M2-3 | `app/capture/` | L | Student confirms/edits before anything is written |
+| **M2-4** | **Human-in-the-loop confirmation** | AI extraction is wrong sometimes; *never lie* forbids silent guesses | M2-3 | `app/capture/` | L | Student confirms/edits before anything is written |
 | **M2-5** | Manual entry fallback | Capture must work when extraction fails | M2-1 | `app/capture/` | M | A paper can be logged with zero AI |
 | **M2-6** | Fold `syllabus` into `/capture` | Curriculum is evidence; a mistake needs an address | M2-1 | `app/tools/syllabus`→`app/capture/` | M | `/tools/syllabus` 301s; parity retained |
 
-**Exit:** a student photographs a marked paper and confirmed occurrences land in the record. **This is the MVP gate.**
+**Exit:** a student photographs a marked paper and confirmed occurrences land in the
+record. **This is the MVP gate.**
 
 ---
 
@@ -421,7 +134,7 @@ deleted**.
 | **M3-1** | `/diagnosis` route + shell | The product | M2 | `app/diagnosis/` | M | Renders for one capture |
 | **M3-2** | Per-paper view: marks lost, by error class | The immediate answer | M3-1 | | L | Cognitive vs execution split visible |
 | **M3-3** | Recurrence view: *"4th time since June"* | The reason to return | M1-5, M3-1 | | L | Pattern history with evidence trail |
-| **M3-4** | **Retire the morbid metaphors** in all surviving copy | Shame as branding; violates the constitution | M3-2 | copy | S | Zero uses of obituary/autopsy/coroner/trauma/forensics/cremator |
+| **M3-4** | **Retire the morbid metaphors** in all surviving copy | Shame as branding — `PRODUCT_PRINCIPLES` §4.1 | M3-2 | copy | S | Zero uses of obituary/autopsy/coroner/trauma/forensics/cremator |
 | **M3-5** | Absorb `post-exam`, `paper-autopsy`, `marks-forensics`, `marks-obituary`, `paper-trauma`, `paper-pattern`, `calibration`; 301 old routes | 7 fragments of one answer | M3-3 | 7 tool dirs | XL | Old routes 301; no capability lost |
 
 **Exit:** one surface answers *"why did I lose marks, and what keeps recurring?"*
@@ -458,7 +171,7 @@ deleted**.
 |---|---|---|---|---|---|
 | **M6-1** | `/practise` route | Diagnosis without remediation is a mirror | M5 | M | Renders |
 | **M6-2** | Pattern-targeted question generation | Practice must target *your* gaps | M6-1 | L | Questions map to a named pattern |
-| **M6-3** | **Close the loop** — correct answers feed `canResolve()` | Only evidence resolves a pattern | M1-5, M6-2 | L | A pattern reaches `resolved` end-to-end in a test |
+| **M6-3** | **Close the loop** — correct answers feed `canResolve()` | Only evidence resolves a pattern — `PRODUCT_PRINCIPLES` §3.1 | M1-5, M6-2 | L | A pattern reaches `resolved` end-to-end in a test |
 | **M6-4** | Absorb `practice`, `exam-sim`, `recall-studio`, `flashcards`, `/console/practice`; 301 | Four routes doing active recall | M6-3 | XL | 301s; parity |
 
 **Exit:** the loop closes. A gap opens, is practised, and is proven shut.
@@ -470,7 +183,7 @@ deleted**.
 | ID | Task | Why | Deps | Effort | Acceptance |
 |---|---|---|---|---|---|
 | **M7-1** | `/parents` rebuild + auth on the code link | Currently unauthenticated and unmigrated | M4 | L | Access requires a student-issued, revocable code |
-| **M7-2** | **Enforce the A.10 boundary at the data layer** | Parents must never see raw failures | M7-1 | M | API physically cannot return `open` patterns or occurrence detail — tested |
+| **M7-2** | **Enforce the parent boundary at the data layer** | Parents must never see raw failures — `PRODUCT_PRINCIPLES` §3.4 | M7-1 | M | API physically cannot return `open` patterns or occurrence detail — tested |
 | **M7-3** | Weekly digest — *"what your child is fixing"* | The payment surface | M7-2, `lib/parent-digest.ts` | L | Digest contains zero shame-framed content |
 | **M7-4** | Student control over what is shared | Consent, and it prevents the product becoming a surveillance tool | M7-2 | M | Student can revoke instantly |
 
@@ -492,7 +205,7 @@ deleted**.
 |---|---|---|---|---|
 | **M9-1** | `/home` — Score + the one action; absorb `/dashboard` + `/console` | M5 | XL | One action above the fold; `/dashboard` 301s |
 | **M9-2** | Exam-Day mode as a *state* of `/home`; absorb `exam-triage`, `panic-triage`, `exam-day` | M9-1 | L | Activates on proximity; not a route |
-| **M9-3** | `/auth` + `/onboard` rebuild — one question | M9-1 | L | Signup→first capture in <60s |
+| **M9-3** | `/auth` + `/onboard` rebuild — board and subjects, one screen | M9-1 | L | Signup→first capture in <60s |
 | **M9-4** | `/` marketing rebuild | M9-1 | L | One sentence, one proof, one button |
 | **M9-5** | Console chrome + `⌘K` | M9-1 | L | No surface lists tools |
 
@@ -526,24 +239,34 @@ deleted**.
 | M10 Legacy | 4 | ~60h | One system |
 | **Total** | **58** | **~505h** | |
 
-At ~6h/week: M0–M2 ≈ **23 weeks.** The 8-week MVP in `PRODUCT_CONSTITUTION.md` §7
-assumes materially more than 6h/week — flagged, not resolved.
+**At ~6h/week: M0–M2 ≈ 23 weeks.** This is the only timeline in the repository.
+
+## Honest risk
+
+**~505h at ~6h/week is multiple years alongside Class 12.** It will be interrupted.
+
+The plan is built to survive that: every milestone ships something, and nothing
+depends on a later milestone to be useful. **M0-10 alone** — filtering navigation to
+13 tools — makes a partially-migrated product read as one product, which is why it
+sits in M0 despite being cheap.
 
 ---
 
 # PART D — DECISIONS REQUIRED BEFORE M1-1
 
-| # | Decision | Why it blocks |
+| # | Decision | Status |
 |---|---|---|
-| **D1** | **Ratify the Mistake Schema (Part A)** | Everything |
-| **D2** | **Approve inverting the Score's mistake pillar** (A.11) | Breaking change to a tested engine; capture is disincentivised until fixed |
-| **D3** | **Confirm the resolution rule** — students may never self-mark resolved | Defines what the record means |
-| **D4** | **Confirm the parent boundary** — `practising`/`resolved` only | Enforced in the DB, expensive to change later |
-| **D5** | ~~Run the PostHog query before M0-10~~ — **withdrawn 2026-08-05.** Analytics are observational only (A2.1); no route is deleted, so nothing gates on them | — |
-| **D6** | Confirm CBSE Physics as the seed subject | Scopes M1-4 |
-| **D7** | **Ratify the A2.5 register** — 13 CORE / 12 SUPPORTING / 21 EXPERIMENTAL / 0 legacy tools | Sets V1 navigation. Reversible in one word, so this is a cheap decision, not a permanent one |
-| **D8** | **Resolve the `PRODUCT_CONSTITUTION.md` conflict** — its Part 5 still names 23 routes for permanent deletion, which now contradicts A2.3 | Two governing documents disagreeing is the exact failure mode that caused the design oscillation |
-| **D9** | Confirm `learn-lab` as SUPPORTING, not CORE | Its Doubt tab is adjacent to diagnosis; "we do not teach" is a V1 scoping rule, not a permanent ban on the code existing |
+| **D1** | **Ratify the Mistake Schema** (`PRODUCT_DECISIONS` §4) | **OPEN — blocks M1** |
+| **D2** | **Approve inverting the Score's mistake pillar** (§4.11) | **OPEN — blocks M1-6** |
+| **D3** | Confirm the resolution rule — students may never self-mark resolved | ✅ Ratified as `PRODUCT_PRINCIPLES` §3.1 |
+| **D4** | Confirm the parent boundary — `practising`/`resolved` only | ✅ Ratified as `PRODUCT_PRINCIPLES` §3.4 |
+| **D5** | ~~Run the PostHog query before M0-10~~ | ✅ Withdrawn 2026-08-05 — analytics are observational only |
+| **D6** | Confirm CBSE Physics as the seed subject | **OPEN — scopes M1-4** |
+| **D7** | **Ratify the register** — 13 CORE / 12 SUPPORTING / 21 EXPERIMENTAL / 0 LEGACY | ✅ `PRODUCT_DECISIONS` §1.5 |
+| **D8** | ~~Resolve the `PRODUCT_CONSTITUTION.md` conflict~~ | ✅ **Closed 2026-08-05** — governance restructured to four documents |
+| **D9** | Confirm `learn-lab` as SUPPORTING | ✅ `PRODUCT_DECISIONS` §1.5 |
+
+**Three decisions remain open: D1, D2, D6.** All three gate M1.
 
 ---
 
@@ -561,7 +284,9 @@ assumes materially more than 6h/week — flagged, not resolved.
 | M0-5 | 2026-08-05 | `44861db` | 19 files / 2,607 lines deleted after per-file import verification |
 | M0-6 | 2026-08-05 | `44861db` | 6 deps removed (three, @types/three, @react-three/drei, @react-three/fiber, @splinetool/react-spline, @splinetool/runtime) |
 | M0-7 | 2026-08-05 | `44861db` | `lib/animation.ts`, `app/globals-severity-patch.css` deleted |
-| M0-8 | — | — | **Not done** — `PRODUCT.md`/`DESIGN.md` deletion not in the approved scope |
-| M0-9..13 | — | — | **Re-scoped 2026-08-05** — deletion replaced by registry classification (Part A2). No route removed. |
+| M0-8 | 2026-08-05 | — | **Re-scoped to archival.** 6 governance docs moved to `docs/archive/` with deprecation headers |
+| GOV | 2026-08-05 | — | **Governance restructured to four documents.** `CLAUDE.md` → pointer; `PRODUCT_PRINCIPLES.md` + `PRODUCT_DECISIONS.md` created; this file stripped to plans. Mapping in `docs/GOVERNANCE_MAPPING.md`. **No production code touched.** |
+| M0-9..13 | — | — | **Not started** |
 
-**Verification at M0 close:** 94 tests pass · `tsc --noEmit` clean · `next build` green (76 routes).
+**Verification at M0 partial close:** 94 tests pass · `tsc --noEmit` clean ·
+`next build` green (76 routes).

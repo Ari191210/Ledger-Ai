@@ -1,189 +1,101 @@
-# Ruflo — Claude Code Configuration
+# STUDYLEDGER — ENTRY POINT
 
-## ⚖️ CONSOLE — READ FIRST
+```
+AUTHORITY:       pointer
+ANSWERS:         "which document answers my question?"
+MAY NOT CONTAIN: principles · decisions · plans · design rules
+PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
+LAST AMENDED:    2026-08-05
+```
 
-**Before any UI work, redesign, new page or surface, or any change to the dashboard, homepage, or design system: read [`CONSOLE.md`](./CONSOLE.md) and comply with it.**
+**This file decides nothing.** It routes. If you are about to follow a product
+or design rule stated *here*, stop — the rule belongs in one of the four
+documents below, and this file is out of date.
 
-`CONSOLE.md` is the **single source of truth** for design, UX, motion, and product decisions, ratified 2026-08-04. `PRODUCT_CONSTITUTION.md`, `PRODUCT.md` and `DESIGN.md` are **DEPRECATED** — retained for historical rationale only. They contradicted each other, which is what produced the newspaper-vs-slop oscillation. Do not follow them.
+---
 
-The load-bearing rules: nothing is decorative · the interface is hardware (weight, travel, springs) · colour is information, never mood — 8 greys plus **one** signal (Electric Lime) used only for progress/completion/focus/active/positive-trend · depth is tone, never shadow or blur · four motions only (press, slide, roll, fill) — nothing fades · numerals are the heroes, set in **IBM Plex Mono** · never gamify, always reward honestly · **never fabricate** data, trends or encouragement · never shame the student. Banned permanently: glassmorphism, aurora/animated backgrounds, gradients-as-decoration, glow, confetti, badges, XP, newspaper layouts, and the Inter/Geist/Space Grotesk/Manrope/Outfit/DM Sans/Poppins family of faces.
+## The four documents
 
-Type stack: ABC Diatype (preferred, licensed) → Söhne (alt, licensed) → **IBM Plex Sans** (open fallback, ships today) for interface; **IBM Plex Mono** for every figure. Resolve through tokens so the licensed swap is one line.
+Exactly four governance documents exist. There are no others.
 
-**Violating any rule requires explicit founder approval; do not ship a violation and mention it afterward.** Decision test before shipping — all four must be yes: is every element load-bearing? does it respond like a physical object? would a 16-year-old screenshot it? **with the wordmark removed, is it still recognisably StudyLedger and recognisably nothing else?** Study the references' reasoning, never their appearance.
+| Document | Answers | Changes |
+|---|---|---|
+| **[`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md)** | *What must always be true?* Thesis, the loop, product and design law, permanent bans, the decision test. | Rarely — by dated amendment only |
+| **[`PRODUCT_DECISIONS.md`](./PRODUCT_DECISIONS.md)** | *What have we chosen, as of now?* Feature classification, information architecture, the mistake schema, scope. | Freely — every change dated in its log |
+| **[`EXECUTION_PLAN.md`](./EXECUTION_PLAN.md)** | *How, in what order, how long?* Milestones, tasks, dependencies, progress. | Constantly |
+| **`CLAUDE.md`** (this file) | *Where does authority live?* | Only when the hierarchy changes |
 
-## Rules
+---
+
+## How to find the answer
+
+**Classify the question, and exactly one document answers it.**
+
+| Your question | Type | Read |
+|---|---|---|
+| May we build an AI tutor? | principle | `PRODUCT_PRINCIPLES` |
+| What colour is a progress bar? | principle | `PRODUCT_PRINCIPLES` |
+| May this screen shame the student? | principle | `PRODUCT_PRINCIPLES` |
+| Does `learn-lab` ship in V1 navigation? | decision | `PRODUCT_DECISIONS` |
+| Is a tool deleted or archived? | decision | `PRODUCT_DECISIONS` |
+| What does one recorded mistake contain? | decision | `PRODUCT_DECISIONS` |
+| When does Capture ship? | plan | `EXECUTION_PLAN` |
+| What is task M2-3? | plan | `EXECUTION_PLAN` |
+
+If two documents appear to answer the same question, **the one whose claim type
+matches the question wins, and the other is a defect** — report it and fix it.
+Do not resolve it by judgement in the moment.
+
+## The precedence rule
+
+```
+PRINCIPLES  >  DECISIONS  >  PLANS
+```
+
+- A plan may not contradict a decision.
+- A decision may not contradict a principle.
+- **To contradict a principle, first amend the principle** — explicitly, dated,
+  with the reason, in `PRODUCT_PRINCIPLES.md`. Never silently, never in passing,
+  never inside a plan.
+
+**Violating a ratified rule requires explicit founder approval.** Do not ship a
+violation and mention it afterward.
+
+---
+
+## Working conventions
+
+These are harness conventions, not product decisions.
 
 - Do what has been asked; nothing more, nothing less
-- When telling the user to run a file (SQL migration, script, config) — ALWAYS paste the full file contents in chat so they can copy-paste directly. NEVER just give a file path and say "run this file".
+- When telling the user to run a file (SQL migration, script, config) — ALWAYS
+  paste the full file contents in chat so they can copy-paste directly. NEVER
+  just give a file path and say "run this file".
 - NEVER create files unless absolutely necessary — prefer editing existing files
 - NEVER create documentation files unless explicitly requested
-- NEVER save working files or tests to root — use `/src`, `/tests`, `/docs`, `/config`, `/scripts`
+- NEVER save working files or tests to root — use `/src`, `/tests`, `/docs`,
+  `/config`, `/scripts`
 - ALWAYS read a file before editing it
-- NEVER commit secrets, credentials, or .env files
-- NEVER add a `Co-Authored-By` trailer to user commits unless this project's `.claude/settings.json` has `attribution.commit` set (#2078). The Claude Code Bash tool may suggest one in its default commit-message template — ignore it. `Co-Authored-By` is semantic authorship attribution under git/GitHub convention; the tool is the facilitator, not a co-author.
+- NEVER commit secrets, credentials, or `.env` files
+- NEVER add a `Co-Authored-By` trailer to user commits unless this project's
+  `.claude/settings.json` has `attribution.commit` set (#2078). The Bash tool may
+  suggest one in its default commit-message template — ignore it.
 - Keep files under 500 lines
 - Validate input at system boundaries
 
-## Agent Comms (SendMessage-First Coordination)
-
-Named agents coordinate via `SendMessage`, not polling or shared state.
-
-```
-Lead (you) ←→ architect ←→ developer ←→ tester ←→ reviewer
-              (named agents message each other directly)
-```
-
-### Spawning a Coordinated Team
-
-```javascript
-// ALL agents in ONE message, each knows WHO to message next
-Agent({ prompt: "Research the codebase. SendMessage findings to 'architect'.",
-  subagent_type: "researcher", name: "researcher", run_in_background: true })
-Agent({ prompt: "Wait for 'researcher'. Design solution. SendMessage to 'coder'.",
-  subagent_type: "system-architect", name: "architect", run_in_background: true })
-Agent({ prompt: "Wait for 'architect'. Implement it. SendMessage to 'tester'.",
-  subagent_type: "coder", name: "coder", run_in_background: true })
-Agent({ prompt: "Wait for 'coder'. Write tests. SendMessage results to 'reviewer'.",
-  subagent_type: "tester", name: "tester", run_in_background: true })
-Agent({ prompt: "Wait for 'tester'. Review code quality and security.",
-  subagent_type: "reviewer", name: "reviewer", run_in_background: true })
-
-// Kick off the pipeline
-SendMessage({ to: "researcher", summary: "Start", message: "[task context]" })
-```
-
-### Patterns
-
-| Pattern | Flow | Use When |
-|---------|------|----------|
-| **Pipeline** | A → B → C → D | Sequential dependencies (feature dev) |
-| **Fan-out** | Lead → A, B, C → Lead | Independent parallel work (research) |
-| **Supervisor** | Lead ↔ workers | Ongoing coordination (complex refactor) |
-
-### Rules
-
-- ALWAYS name agents — `name: "role"` makes them addressable
-- ALWAYS include comms instructions in prompts — who to message, what to send
-- Spawn ALL agents in ONE message with `run_in_background: true`
-- After spawning: STOP, tell user what's running, wait for results
-- NEVER poll status — agents message back or complete automatically
-
-## Swarm & Routing
-
-### Config
-- **Topology**: hierarchical-mesh (anti-drift)
-- **Max Agents**: 15
-- **Memory**: hybrid
-- **HNSW**: Enabled
-- **Neural**: Enabled
+**Verification standard — every task:**
 
 ```bash
-npx @claude-flow/cli@latest swarm init --topology hierarchical --max-agents 8 --strategy specialized
+npx tsc --noEmit && npx next build && node --test tests/*.test.mjs
 ```
 
-### Agent Routing
+All green, or the task is not done.
 
-| Task | Agents | Topology |
-|------|--------|----------|
-| Bug Fix | researcher, coder, tester | hierarchical |
-| Feature | architect, coder, tester, reviewer | hierarchical |
-| Refactor | architect, coder, reviewer | hierarchical |
-| Performance | perf-engineer, coder | hierarchical |
-| Security | security-architect, auditor | hierarchical |
+---
 
-### When to Swarm
-- **YES**: 3+ files, new features, cross-module refactoring, API changes, security, performance
-- **NO**: single file edits, 1-2 line fixes, docs updates, config changes, questions
+## Other files
 
-### 3-Tier Model Routing
-
-| Tier | Handler | Use Cases |
-|------|---------|-----------|
-| 1 | Agent Booster (WASM) | Simple transforms — skip LLM, use Edit directly |
-| 2 | Haiku | Simple tasks, low complexity |
-| 3 | Sonnet/Opus | Architecture, security, complex reasoning |
-
-## Memory & Learning
-
-### Before Any Task
-```bash
-npx @claude-flow/cli@latest memory search --query "[task keywords]" --namespace patterns
-npx @claude-flow/cli@latest hooks route --task "[task description]"
-```
-
-### After Success
-```bash
-npx @claude-flow/cli@latest memory store --namespace patterns --key "[name]" --value "[what worked]"
-npx @claude-flow/cli@latest hooks post-task --task-id "[id]" --success true --store-results true
-```
-
-### MCP Tools (use `ToolSearch("keyword")` to discover)
-
-| Category | Key Tools |
-|----------|-----------|
-| **Memory** | `memory_store`, `memory_search`, `memory_search_unified` |
-| **Bridge** | `memory_import_claude`, `memory_bridge_status` |
-| **Swarm** | `swarm_init`, `swarm_status`, `swarm_health` |
-| **Agents** | `agent_spawn`, `agent_list`, `agent_status` |
-| **Hooks** | `hooks_route`, `hooks_post-task`, `hooks_worker-dispatch` |
-| **Security** | `aidefence_scan`, `aidefence_is_safe`, `aidefence_has_pii` |
-| **Hive-Mind** | `hive-mind_init`, `hive-mind_consensus`, `hive-mind_spawn` |
-
-### Background Workers
-
-| Worker | When |
-|--------|------|
-| `audit` | After security changes |
-| `optimize` | After performance work |
-| `testgaps` | After adding features |
-| `map` | Every 5+ file changes |
-| `document` | After API changes |
-
-```bash
-npx @claude-flow/cli@latest hooks worker dispatch --trigger audit
-```
-
-## Agents
-
-**Core**: `coder`, `reviewer`, `tester`, `planner`, `researcher`
-**Architecture**: `system-architect`, `backend-dev`, `mobile-dev`
-**Security**: `security-architect`, `security-auditor`
-**Performance**: `performance-engineer`, `perf-analyzer`
-**Coordination**: `hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`
-**GitHub**: `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`
-
-Any string works as a custom agent type.
-
-## Build & Test
-
-- ALWAYS run tests after code changes
-- ALWAYS verify build succeeds before committing
-
-```bash
-npm run build && npm test
-```
-
-## CLI Quick Reference
-
-```bash
-npx @claude-flow/cli@latest init --wizard           # Setup
-npx @claude-flow/cli@latest swarm init --v3-mode     # Start swarm
-npx @claude-flow/cli@latest memory search --query "" # Vector search
-npx @claude-flow/cli@latest hooks route --task ""    # Route to agent
-npx @claude-flow/cli@latest doctor --fix             # Diagnostics
-npx @claude-flow/cli@latest security scan            # Security scan
-npx @claude-flow/cli@latest performance benchmark    # Benchmarks
-```
-
-26 commands, 140+ subcommands. Use `--help` on any command for details.
-
-## Setup
-
-```bash
-claude mcp add claude-flow -- npx -y @claude-flow/cli@latest
-npx @claude-flow/cli@latest daemon start
-npx @claude-flow/cli@latest doctor --fix
-```
-
-**Agent tool** handles execution (agents, files, code, git). **MCP tools** handle coordination (swarm, memory, hooks). **CLI** is the same via Bash.
+- **`.claude/ruflo.md`** — claude-flow / swarm tooling configuration
+- **`docs/archive/`** — superseded documents, retained for reasoning. **Frozen.
+  Never governing.** Includes `CONSOLE.md`, `PRODUCT_CONSTITUTION.md`,
+  `MIGRATION.md`, `WORKSPACE.md`, `PRODUCT.md`, `DESIGN.md`.
