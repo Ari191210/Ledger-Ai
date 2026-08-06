@@ -3,8 +3,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./landing.css";
 
-import { Spine } from "@/components/landing/spine";
-import { Reveal } from "@/components/landing/reveal";
+import { SpineTracker } from "@/components/landing/spine";
 import { Paper } from "@/components/landing/paper";
 import { Moment } from "@/components/landing/moment";
 import { Vault } from "@/components/landing/vault";
@@ -23,20 +22,20 @@ import Track from "@/components/console/track";
 // claims permanence, permanence has to be shown once, and a permanent record
 // raises the question of who else can see it.
 //
-// Underneath runs the ledger spine. Four marks accumulate before The Moment
-// spends them. The page DEMONSTRATES memory rather than describing it — which
-// is the only argument this product can make that a competitor cannot copy by
-// rewriting their headline.
+// Underneath runs the ledger spine. Marks accumulate as sections are reached,
+// and The Moment spends them. The page DEMONSTRATES memory rather than
+// describing it — the one argument here a competitor cannot copy by rewriting
+// a headline.
 //
-// This replaces the "Specimen Edition" front page: a masthead, desks and a
-// market report. That was the newspaper costume PRODUCT_PRINCIPLES §5 bans by
-// name, and which the Console amendment log records as removed for making the
-// product feel like a publication instead of an instrument.
+// EVERYTHING RENDERS WITHOUT JAVASCRIPT. Motion is scroll-driven CSS behind an
+// @supports gate, and every animated element rests at its final state. Two
+// client components remain: the rolling figure, and the monotonic spine.
 //
 // GOVERNED BY:
 //   §5    banned — no bento, no glass, no gradients, no eyebrows, no columns
 //   §6.2  colour is earned — two instances on the entire page
 //   §6.5  press · slide · roll · fill — nothing here fades
+//   §6.6  controls have rest, hover, press and focus states
 //   §9.1  strip every colour and it must still work
 //   law 5 numbers are the heroes
 //   law 7 never lie — every figure is a labelled specimen
@@ -50,8 +49,8 @@ export const metadata: Metadata = {
 
 // The Console faces, scoped to this route for the same reason app/console
 // scopes them to its own: the 46 legacy routes must not download families they
-// never use. Latin only here — this page is English marketing copy, and the
-// Indic faces exist for student content, which never appears on it.
+// never use. Latin only — this page is English marketing copy, and the Indic
+// faces exist for student content, which never appears on it.
 //
 // Without these, `--console-sans` and `--console-mono` are undefined outside
 // /console and the page silently falls back to system-ui. On a page where
@@ -70,41 +69,44 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
-/** One mark per section. The Moment recalls four of them. */
-const SECTIONS = 8;
+/** The ledger mark for one section. Struck by SpineTracker when reached. */
+function Mark() {
+  return <span className="spine__mark" aria-hidden="true" />;
+}
 
 export default function Landing() {
   return (
     <main data-console className={`landing ${sans.variable} ${mono.variable}`}>
-      <Spine count={SECTIONS} />
+      <SpineTracker />
 
       {/* ── 0 · THESIS ────────────────────────────────────────────────────
           What is this? One statement, one action. The paper is already on the
           page, because it is the subject of everything that follows.        */}
       <section className="landing__section landing__hero" data-spine-index="0">
+        <Mark />
         <div className="landing__hero-copy">
-          <Reveal as="h1">
+          <h1 className="reveal">
             <span className="landing__statement">
               Your mistakes are your syllabus.
             </span>
-          </Reveal>
+          </h1>
 
-          <Reveal delay={90}>
+          <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
             <p className="landing__lede">
               Every marked paper you photograph becomes a permanent record of
               how you learn — so the mistake you keep repeating stops being
               invisible.
             </p>
-          </Reveal>
+          </div>
 
-          <Reveal delay={180}>
+          <div className="reveal" style={{ "--i": 2 } as React.CSSProperties}>
             <span className="landing__cta-block">
               <Link href="/onboard" className="cta">
                 Start your record
               </Link>
               <span className="cta__note">CBSE CLASS 11 &amp; 12 PHYSICS</span>
             </span>
-          </Reveal>
+          </div>
         </div>
 
         <div className="landing__hero-paper">
@@ -116,10 +118,11 @@ export default function Landing() {
           Why do I repeat mistakes? Because the evidence is destroyed within a
           week. Four lines; the fourth is the one that hurts.                */}
       <section className="landing__section" data-spine-index="1">
+        <Mark />
         <div className="landing__measure">
-          <Reveal as="h2">
+          <h2 className="reveal">
             <span className="landing__statement">A paper has a short life.</span>
-          </Reveal>
+          </h2>
 
           <ol className="life">
             {[
@@ -128,11 +131,15 @@ export default function Landing() {
               "It goes into a bag.",
               "The same mistake comes back in March.",
             ].map((line, i) => (
-              <Reveal as="li" key={line} delay={i * 80}>
+              <li
+                className="reveal"
+                key={line}
+                style={{ "--i": i + 1 } as React.CSSProperties}
+              >
                 <span className={i === 3 ? "life__last" : "landing__quiet"}>
                   {line}
                 </span>
-              </Reveal>
+              </li>
             ))}
           </ol>
         </div>
@@ -142,12 +149,13 @@ export default function Landing() {
           Why has nobody fixed it? Every institution around a student remembers
           something — just never the thing that would help.                  */}
       <section className="landing__section" data-spine-index="2">
+        <Mark />
         <div className="landing__measure">
-          <Reveal as="h2">
+          <h2 className="reveal">
             <span className="landing__statement">
               Everyone remembers the wrong thing.
             </span>
-          </Reveal>
+          </h2>
 
           <div className="ledger-list">
             {[
@@ -155,31 +163,42 @@ export default function Landing() {
               ["Coaching", "remembers ranks."],
               ["Boards", "remember one afternoon."],
             ].map(([who, what], i) => (
-              <Reveal key={who} delay={i * 80}>
+              <p
+                className="reveal"
+                key={who}
+                style={{ "--i": i + 1 } as React.CSSProperties}
+              >
                 <span className="ledger-list__row">
                   <span className="ledger-list__who">{who}</span>
                   <span className="landing__quiet">{what}</span>
                 </span>
-              </Reveal>
+              </p>
             ))}
 
-            <Reveal delay={280}>
+            <p className="reveal" style={{ "--i": 4 } as React.CSSProperties}>
               <span className="ledger-list__row ledger-list__row--final">
                 <span className="ledger-list__who">Nobody</span>
                 <span>remembers how you learn.</span>
               </span>
-            </Reveal>
+            </p>
           </div>
         </div>
       </section>
 
       {/* ── 3 · THE MOMENT ────────────────────────────────────────────────
           What changes? The page recalls what it has quietly been keeping. The
-          centrepiece, and the reason every section above it exists.         */}
+          centrepiece, and the reason every section above it exists.
+
+          The heading is visually hidden because the design states it far more
+          powerfully than a heading could — but the narrative climax must still
+          exist in the document outline, or a reader navigating by heading
+          skips the product's central claim entirely.                        */}
       <section
         className="landing__section landing__section--moment"
         data-spine-index="3"
       >
+        <Mark />
+        <h2 className="vh">You have made this same mistake four times.</h2>
         <Moment />
       </section>
 
@@ -187,23 +206,22 @@ export default function Landing() {
           Is it permanent? The Moment claims memory; this shows duration — and
           that a gap closes on proof, never on a student saying so.          */}
       <section className="landing__section" data-spine-index="4">
+        <Mark />
         <div className="landing__measure">
-          <Reveal as="h2">
+          <h2 className="reveal">
             <span className="landing__statement">Nothing is ever deleted.</span>
-          </Reveal>
-          <Reveal delay={90}>
+          </h2>
+          <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
             <p className="landing__lede">
               One mistake, across five months. It closes when you prove it —
               not when you decide you understand it.
             </p>
-          </Reveal>
+          </div>
         </div>
 
         <Vault />
 
-        <Reveal delay={140}>
-          <p className="specimen specimen--spaced">Specimen record.</p>
-        </Reveal>
+        <p className="specimen specimen--spaced">Specimen record.</p>
       </section>
 
       {/* ── 5 · THE INSTRUMENT ────────────────────────────────────────────
@@ -211,45 +229,44 @@ export default function Landing() {
           not a screenshot and not a render. The roll below is the same Readout
           a student sees on their own score.                                  */}
       <section className="landing__section" data-spine-index="5">
+        <Mark />
         <div className="landing__measure">
-          <Reveal as="h2">
+          <h2 className="reveal">
             <span className="landing__statement">
               Then it tells you one thing to do.
             </span>
-          </Reveal>
+          </h2>
         </div>
 
-        <Reveal delay={120}>
-          <span className="instrument">
-            <span className="instrument__head">
+        <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
+          <div className="instrument">
+            <div className="instrument__head">
               <span className="c-label instrument__eyebrow">
                 WHAT SHOULD I FIX NEXT
               </span>
-            </span>
+            </div>
 
-            <span className="instrument__gap">Sign convention for torque</span>
-            <span className="c-micro instrument__meta">
+            <p className="instrument__gap">Sign convention for torque</p>
+            <p className="c-micro instrument__meta">
               ROTATIONAL MOTION · 4 OCCURRENCES · 23 MARKS LOST
-            </span>
+            </p>
 
-            <span className="instrument__track">
+            <div className="instrument__track">
               <Track value={0.34} label="Progress closing this gap" />
-            </span>
+            </div>
 
-            <span className="instrument__foot">
+            <div className="instrument__foot">
               <span className="c-label instrument__eyebrow">LEDGER SCORE</span>
               <span className="instrument__score">
                 <Readout value={742} step="figure" from={0} label="742" />
               </span>
-            </span>
-          </span>
-        </Reveal>
+            </div>
+          </div>
+        </div>
 
-        <Reveal delay={200}>
-          <p className="specimen specimen--spaced">
-            Live components. Specimen figures.
-          </p>
-        </Reveal>
+        <p className="specimen specimen--spaced">
+          Live components. Specimen figures.
+        </p>
       </section>
 
       {/* ── 6 · PARENTS ───────────────────────────────────────────────────
@@ -257,32 +274,33 @@ export default function Landing() {
           only safe if it can never become a weapon. The contrast IS the
           section — which is why the retired line is struck, not removed.    */}
       <section className="landing__section" data-spine-index="6">
+        <Mark />
         <div className="landing__measure">
-          <Reveal as="h2">
+          <h2 className="reveal">
             <span className="landing__statement">
               Your parents see progress.
             </span>
-          </Reveal>
+          </h2>
 
           <div className="contrast">
-            <Reveal>
+            <p className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
               <span className="landing__statement landing__struck">
                 What your child got wrong.
               </span>
-            </Reveal>
-            <Reveal delay={150}>
+            </p>
+            <p className="reveal" style={{ "--i": 2 } as React.CSSProperties}>
               <span className="landing__statement">
                 What your child is fixing.
               </span>
-            </Reveal>
+            </p>
           </div>
 
-          <Reveal delay={240}>
+          <div className="reveal" style={{ "--i": 3 } as React.CSSProperties}>
             <p className="landing__lede">
               Marks lost, wrong answers and open gaps are never sent. Not by
               policy — the report is unable to contain them.
             </p>
-          </Reveal>
+          </div>
         </div>
       </section>
 
@@ -292,26 +310,25 @@ export default function Landing() {
         className="landing__section landing__section--close"
         data-spine-index="7"
       >
-        <Reveal as="h2">
+        <Mark />
+        <h2 className="reveal">
           <span className="landing__statement">
             Your mistakes are your syllabus.
           </span>
-        </Reveal>
+        </h2>
 
-        <Reveal delay={110}>
-          <span className="landing__cta-block landing__cta-block--close">
+        <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
+          <span className="landing__cta-block">
             <Link href="/onboard" className="cta">
               Start your record
             </Link>
           </span>
-        </Reveal>
+        </div>
 
-        <Reveal delay={200}>
-          <p className="colophon">
-            StudyLedger · CBSE Class 11 &amp; 12 Physics ·{" "}
-            <Link href="/legal/terms">Terms</Link>
-          </p>
-        </Reveal>
+        <p className="colophon">
+          StudyLedger · CBSE Class 11 &amp; 12 Physics ·{" "}
+          <Link href="/legal/terms">Terms</Link>
+        </p>
       </section>
     </main>
   );

@@ -4,11 +4,17 @@
    Scoped to [data-console] like every other Console surface. This file adds
    ONLY what a long narrative page needs and the app does not: two larger
    spacing steps and two statement type sizes. It defines no new colour, no new
-   easing, and no new radius — those already exist, and inventing marketing
-   variants of them is exactly how a design system acquires a second dialect.
+   easing and no new radius — those already exist, and inventing marketing
+   variants of them is how a design system acquires a second dialect.
+
+   MOTION IS CSS-ONLY AND PROGRESSIVE.
+   Every animated element rests at its FINAL state. Scroll-driven animation is
+   added inside @supports, so a browser without `animation-timeline` — or a
+   visitor whose JavaScript never runs — sees the finished page rather than a
+   blank one. Motion enhances; it is never load-bearing.
 
    Governed by PRODUCT_PRINCIPLES §5 (banned), §6.2 (colour is earned),
-   §6.5 (press · slide · roll · fill — nothing fades).
+   §6.5 (press · slide · roll · fill — nothing fades), §6.6 (control states).
    ═══════════════════════════════════════════════════════════════════════════ */
 
 [data-console].landing {
@@ -22,9 +28,10 @@
   --t-statement: clamp(30px, 5.2vw, 56px);
   --t-lede: clamp(17px, 2.1vw, 21px);
 
-  /* The spine gutter. Fixed, never animated, everything measures from it.    */
+  /* The spine gutter. Fixed, never animated; everything measures from it.    */
   --spine: 20px;
 
+  position: relative;
   background: var(--g-0);
   color: var(--g-7);
   font-family: var(--type-interface);
@@ -35,7 +42,45 @@
   [data-console].landing { --spine: 96px; }
 }
 
-/* ── Rhythm ───────────────────────────────────────────────────────────── */
+/* ── THE SPINE ────────────────────────────────────────────────────────────
+   A hairline running the whole page, drawn by the page itself — no element,
+   no JavaScript. Marks live INSIDE the sections they belong to, so a mark can
+   never drift away from its own section however the content reflows.         */
+
+[data-console].landing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--spine) / 2);
+  width: 1px;
+  background: var(--g-4);
+  pointer-events: none;
+}
+
+.spine__mark {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--spine) / 2);
+  width: 17px;
+  height: 3px;
+  background: var(--g-4);
+  transform-origin: center;
+  pointer-events: none;
+  /* FILL, not fade. A ledger entry is struck; a light is not turned on.
+     Scale rather than width/height so it composites and never lays out: the
+     resting mark is a 17×3 rule drawn at 0.765 × 0.333 — a 13×1 hairline.    */
+  transform: translateX(-50%) scale(0.765, 0.333);
+  transition: transform var(--m-base) var(--ease-settle),
+              background-color var(--m-base) var(--ease-settle);
+}
+
+[data-reached="true"] .spine__mark {
+  transform: translateX(-50%) scale(1, 1);
+  background: var(--g-7);
+}
+
+/* ── RHYTHM ───────────────────────────────────────────────────────────────  */
 
 .landing__section {
   position: relative;
@@ -47,6 +92,44 @@
 }
 
 .landing__measure { max-width: 62ch; }
+
+/* ── SLIDE-ON-SCROLL ──────────────────────────────────────────────────────
+   Content travels up from behind a mask. No opacity: §6.5 permits press,
+   slide, roll and fill, and a fade is none of them.
+
+   THE DEFAULT IS VISIBLE. The mask holds the element at rest, and only a
+   browser that supports scroll-driven animation moves it. Nothing here can
+   leave the page blank.
+
+   The mask is extended below the text box and pulled back with a negative
+   margin: `--t-statement` sets line-height 1.06, and clipping at the box edge
+   would shave the descenders of "syllabus" and "progress".                   */
+
+.reveal {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal > * {
+      display: block;
+      animation: reveal-slide linear both;
+      animation-timeline: view();
+      /* Staggered by scroll position, not by a timer: siblings set --i, so a
+         reader who scrolls fast is never made to wait for a queue.           */
+      animation-range: entry calc(2% + (var(--i, 0) * 4%))
+                       entry calc(46% + (var(--i, 0) * 4%));
+    }
+  }
+}
+
+@keyframes reveal-slide {
+  from { transform: translateY(110%); }
+  to   { transform: translateY(0); }
+}
 
 /* ── Statements ───────────────────────────────────────────────────────── */
 
@@ -69,64 +152,135 @@
 
 .landing__quiet { color: var(--g-6); }
 
-/* A line the narrative retires. Struck, not hidden — the contrast IS the
-   argument, and deleting it would delete the point (Parents section).        */
+/* A line the narrative retires. Struck, never hidden — the contrast IS the
+   argument. Set in --g-6 (5.33:1), not --g-5 (2.13:1): a reader who cannot
+   read this line cannot read half of the Parents section.                    */
 .landing__struck {
-  color: var(--g-5);
+  color: var(--g-6);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
 
-/* ── THE SPINE ────────────────────────────────────────────────────────────
-   A hairline that runs the whole page. Marks accumulate on it as sections are
-   reached, and The Moment spends them. Load-bearing, not decorative: without
-   the accumulation there is nothing for The Moment to recall.                */
+/* ── HERO ─────────────────────────────────────────────────────────────────
+   The statement leads; the paper waits beside it. On a phone the paper sits
+   below the action rather than beside it — a 300px plate next to 26ch of type
+   is unreadable at 360px, and shipping that would be collapsing a desktop
+   layout rather than designing a mobile one.                                 */
 
-.spine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--spine) / 2);
-  width: 1px;
-  background: var(--g-4);
-  pointer-events: none;
+.landing__hero { display: grid; gap: var(--s-6); align-items: center; }
+.landing__hero-copy { min-width: 0; }
+.landing__hero-paper { display: flex; justify-content: flex-start; }
+
+@media (min-width: 880px) {
+  .landing__hero { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-7); }
+  .landing__hero-paper { justify-content: flex-end; }
 }
 
-.spine__mark {
-  position: absolute;
-  left: 50%;
+.landing__cta-block { display: block; margin-top: var(--s-5); }
+.cta__note { display: block; }
+
+/* ── 1 · THE LIFECYCLE ────────────────────────────────────────────────────
+   Four steps down. The last carries the weight, so it alone is full ink —
+   hierarchy by weight, never by hue.                                         */
+
+.life {
+  list-style: none;
+  margin: var(--s-5) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s-3);
+  font-size: clamp(19px, 2.6vw, 26px);
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+}
+.life__last { color: var(--g-7); font-weight: 500; }
+
+/* ── 2 · THE BLIND SPOT ───────────────────────────────────────────────────  */
+
+.ledger-list {
+  margin-top: var(--s-5);
+  display: grid;
+  gap: var(--s-3);
+  font-size: clamp(19px, 2.6vw, 26px);
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+}
+.ledger-list__row { display: block; }
+.ledger-list__who { display: inline-block; min-width: 5.5em; font-weight: 500; }
+.ledger-list__row--final {
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--g-4);
+  margin-top: var(--s-1);
+}
+
+/* ── 3 · THE MOMENT ───────────────────────────────────────────────────────  */
+
+.landing__section--moment { padding-top: var(--s-8); padding-bottom: var(--s-8); }
+
+.moment { text-align: left; }
+
+.moment__recall {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  height: 17px;
+  margin-bottom: var(--s-5);
+}
+.moment__recall span {
+  display: block;
   width: 17px;
   height: 3px;
-  background: var(--g-4);
-  transform-origin: center;
-  /* FILL, not fade. A ledger entry is struck; a light is not turned on.
-     Expressed as scale rather than width/height so it composites on the GPU
-     and never touches layout: the resting state is a 17×3 mark drawn at
-     0.76 × 0.33, which is exactly the 13×1 hairline.                         */
-  transform: translateX(-50%) scale(0.765, 0.333);
-  transition: transform var(--m-base) var(--ease-settle),
-              background-color var(--m-base) var(--ease-settle);
-}
-.spine__mark[data-lit="true"] {
-  transform: translateX(-50%) scale(1, 1);
   background: var(--g-7);
 }
 
-/* ── SLIDE-ON-SCROLL ──────────────────────────────────────────────────────
-   Content travels up from behind a mask. No opacity anywhere: §6.5 permits
-   press, slide, roll and fill, and a fade is none of them.                   */
-
-.reveal { display: block; overflow: hidden; }
-.reveal__inner {
-  display: block;
-  transform: translateY(110%);
-  transition: transform var(--m-base) var(--ease-settle);
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* SLIDE: the earlier marks come down the spine into alignment.          */
+    .moment__recall span {
+      animation: recall-slide linear both;
+      animation-timeline: view();
+      animation-range: entry calc(10% + (var(--i, 0) * 6%))
+                       entry calc(50% + (var(--i, 0) * 6%));
+    }
+  }
 }
-.reveal[data-shown="true"] .reveal__inner { transform: translateY(0); }
+
+@keyframes recall-slide {
+  from { transform: translateY(-64px); }
+  to   { transform: translateY(0); }
+}
+
+.moment__figure {
+  font-family: var(--type-instrument);
+  font-size: var(--t-display);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.86;
+  letter-spacing: -0.04em;
+  color: var(--g-7);
+  /* Reserve the figure's box before the roll arms, so nothing below it shifts.
+     Layout shift is a design defect (law 9).                                 */
+  min-height: calc(var(--t-display) * 0.86);
+}
+
+.moment__sentence {
+  font-size: clamp(21px, 3vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: var(--s-4) 0 0;
+  max-width: 20ch;
+}
+
+.moment__evidence {
+  font-family: var(--type-instrument);
+  font-size: var(--t-micro);
+  color: var(--g-6);
+  margin-top: var(--s-3);
+  letter-spacing: 0.02em;
+}
 
 /* ── THE PAPER ────────────────────────────────────────────────────────────
-   The protagonist. A machined plate, not a skeuomorphic sheet — depth is tone
-   and a hairline, never a shadow (§6.1).                                     */
+   A machined plate, not a skeuomorphic sheet: depth is tone and a hairline,
+   never a shadow (§6.1).                                                     */
 
 .paper {
   position: relative;
@@ -136,7 +290,6 @@
   border: 1px solid var(--g-4);
   border-radius: var(--r-panel);
   padding: var(--s-3);
-  transition: transform var(--m-base) var(--ease-settle);
 }
 
 .paper__head {
@@ -158,84 +311,51 @@
 }
 .paper__row:last-child { border-bottom: 0; }
 
-/* The written answer. Ruled lines, never lorem — a paper is not prose.       */
-.paper__ink {
-  height: 2px;
-  border-radius: 1px;
-  background: var(--g-4);
-}
+.paper__answer { display: grid; gap: 4px; }
+
+/* The written answer. Ruled lines, never lorem — a paper is handwriting.     */
+.paper__ink { height: 2px; border-radius: 1px; background: var(--g-4); }
 
 /* Teacher's red. ONE of the two earned colours on this page (§6.2).          */
 .paper__verdict {
   font-family: var(--type-instrument);
   font-size: var(--t-label);
   text-align: right;
-  color: var(--g-5);
-  /* PRESS: the mark lands, it does not appear.                               */
-  transform: scale(0.72);
-  transition: transform var(--m-fast) var(--ease-out),
-              color var(--m-fast) var(--ease-out);
-}
-.paper[data-marked="true"] .paper__verdict { transform: scale(1); }
-.paper[data-marked="true"] .paper__verdict[data-wrong="true"] { color: var(--error); }
-.paper[data-marked="true"] .paper__verdict[data-wrong="false"] { color: var(--g-6); }
-
-/* ── THE MOMENT ───────────────────────────────────────────────────────────  */
-
-.moment { text-align: left; }
-
-.moment__recall {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  height: 17px;
-  margin-bottom: var(--s-5);
-}
-.moment__recall span {
-  display: block;
-  width: 17px;
-  height: 3px;
-  background: var(--g-7);
-  /* SLIDE: the earlier marks come down the spine into alignment.             */
-  transform: translateY(-64px);
-  transition: transform var(--m-base) var(--ease-settle);
-}
-.moment[data-aligned="true"] .moment__recall span { transform: translateY(0); }
-
-.moment__figure {
-  font-family: var(--type-instrument);
-  font-size: var(--t-display);
-  font-variant-numeric: tabular-nums;
-  line-height: 0.86;
-  letter-spacing: -0.04em;
-  color: var(--g-7);
-}
-
-.moment__sentence {
-  font-size: clamp(21px, 3vw, 32px);
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  margin: var(--s-4) 0 0;
-  max-width: 20ch;
-}
-
-.moment__evidence {
-  font-family: var(--type-instrument);
-  font-size: var(--t-micro);
   color: var(--g-6);
-  margin-top: var(--s-3);
-  letter-spacing: 0.02em;
+}
+.paper__verdict[data-wrong="true"] { color: var(--error); }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* PRESS: the mark lands. Staggered in reading order, because that is the
+       order a teacher marks in.                                              */
+    .paper__verdict {
+      animation: press-in var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry calc(24% + (var(--i, 0) * 5%))
+                       entry calc(58% + (var(--i, 0) * 5%));
+    }
+  }
+}
+
+@keyframes press-in {
+  from { transform: scale(0.72); }
+  to   { transform: scale(1); }
 }
 
 /* ── THE VAULT ────────────────────────────────────────────────────────────
-   Vertical on a phone, horizontal on a desk. Not a squeezed desktop layout —
-   a timeline that reads down a phone is a different object.                  */
+   Vertical on a phone, horizontal on a desk — a genuine re-layout. A
+   five-point horizontal axis is unreadable at 360px.                         */
 
 .vault { list-style: none; margin: var(--s-5) 0 0; padding: 0; }
 
 .vault__row {
   display: grid;
-  grid-template-columns: 66px 15px 1fr;
+  /* One source of truth for the gutter, so the connector below can never
+     drift out of alignment with the dots it joins.                           */
+  --vault-label: 66px;
+  --vault-dot: 15px;
+  grid-template-columns: var(--vault-label) var(--vault-dot) 1fr;
   align-items: center;
   gap: var(--s-3);
   padding: var(--s-2) 0;
@@ -253,12 +373,10 @@
   border: 1px solid var(--g-7);
   background: var(--g-7);
   justify-self: center;
-  transform: scale(0);
-  transition: transform var(--m-base) var(--ease-settle);
 }
-.vault[data-shown="true"] .vault__dot { transform: scale(1); }
 .vault__dot[data-state="practising"] { background: transparent; }
-/* The single earned green on the page. It carries the whole section (§6.2).  */
+/* The single earned green on the page. It carries the section because nothing
+   else competes for colour (§6.2).                                           */
 .vault__dot[data-state="resolved"] {
   background: var(--progress-full);
   border-color: var(--progress-full);
@@ -271,25 +389,46 @@
 }
 .vault__state[data-state="resolved"] { color: var(--progress-full); }
 
-/* Connector between entries. FILL, top to bottom.                            */
 .vault__row + .vault__row { position: relative; }
 .vault__row + .vault__row::before {
   content: "";
   position: absolute;
-  left: calc(66px + var(--s-3) + 7px);
+  left: calc(var(--vault-label) + var(--s-3) + (var(--vault-dot) / 2));
   top: -8px; height: 16px; width: 1px;
   background: var(--g-4);
-  transform: scaleY(0);
   transform-origin: top;
-  transition: transform var(--m-base) var(--ease-settle);
 }
-.vault[data-shown="true"] .vault__row + .vault__row::before { transform: scaleY(1); }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .vault__dot {
+      animation: dot-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(16% + (var(--i, 0) * 6%))
+                       entry calc(52% + (var(--i, 0) * 6%));
+    }
+    .vault__row + .vault__row::before {
+      animation: rule-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 16% entry 60%;
+    }
+  }
+}
+
+@keyframes dot-in {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+@keyframes rule-fill {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
 
 @media (min-width: 880px) {
   .vault { display: flex; gap: 0; }
   .vault__row {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 15px auto;
+    grid-template-rows: auto var(--vault-dot) auto;
     justify-items: start;
     flex: 1;
     gap: var(--s-2);
@@ -297,112 +436,21 @@
   .vault__row + .vault__row::before {
     left: -50%; top: calc(var(--s-2) + 22px);
     width: 100%; height: 1px;
-    transform: scaleX(0); transform-origin: left;
-    transition: transform var(--m-base) var(--ease-settle);
+    transform-origin: left;
   }
-  .vault[data-shown="true"] .vault__row + .vault__row::before { transform: scaleX(1); }
   .vault__dot { justify-self: start; }
-}
 
-/* ── CALLS TO ACTION ──────────────────────────────────────────────────────
-   Weight, never hue. The primary is the strongest neutral, so the focal point
-   survives the strip-all-colour test (§6.6).                                 */
-
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  background: var(--g-7);
-  color: var(--g-0);
-  border: 1px solid var(--g-7);
-  border-radius: var(--r-control);
-  padding: 14px var(--s-4);
-  font-size: var(--t-body);
-  font-weight: 500;
-  text-decoration: none;
-  transition: transform var(--m-fast) var(--ease-out);
-}
-.cta:active { transform: translateY(1px) scale(0.99); }
-
-.cta__note {
-  font-family: var(--type-instrument);
-  font-size: var(--t-micro);
-  color: var(--g-6);
-  margin-top: var(--s-3);
-}
-
-/* ── HERO ─────────────────────────────────────────────────────────────────
-   The statement leads; the paper waits beside it. On a phone the paper sits
-   below the action rather than beside it — a 300px plate next to 26ch of
-   type is unreadable at 360px wide, and shipping it anyway would be
-   collapsing a desktop layout rather than designing a mobile one.            */
-
-.landing__hero { display: grid; gap: var(--s-6); align-items: center; }
-.landing__hero-copy { min-width: 0; }
-.landing__hero-paper { display: flex; justify-content: flex-start; }
-
-@media (min-width: 880px) {
-  .landing__hero {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--s-7);
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes rule-fill {
+        from { transform: scaleX(0); }
+        to   { transform: scaleX(1); }
+      }
+    }
   }
-  .landing__hero-paper { justify-content: flex-end; }
 }
 
-.landing__cta-block { display: block; margin-top: var(--s-5); }
-.landing__cta-block--close { margin-top: var(--s-5); }
-.cta__note { display: block; }
-
-/* ── 1 · THE LIFECYCLE ────────────────────────────────────────────────────
-   Four steps down. The last one carries the weight, so it alone is set at
-   statement scale in full ink — hierarchy by weight, never by hue.           */
-
-.life {
-  list-style: none;
-  margin: var(--s-5) 0 0;
-  padding: 0;
-  display: grid;
-  gap: var(--s-3);
-  font-size: clamp(19px, 2.6vw, 26px);
-  line-height: 1.25;
-  letter-spacing: -0.012em;
-}
-.life__last { color: var(--g-7); font-weight: 500; }
-
-/* ── 2 · THE BLIND SPOT ───────────────────────────────────────────────────
-   Three institutions, then the line that indicts all of them. A rule above
-   the final row does the work a heading would otherwise do.                  */
-
-.ledger-list {
-  margin-top: var(--s-5);
-  display: grid;
-  gap: var(--s-3);
-  font-size: clamp(19px, 2.6vw, 26px);
-  line-height: 1.25;
-  letter-spacing: -0.012em;
-}
-.ledger-list__row { display: block; }
-.ledger-list__who {
-  display: inline-block;
-  min-width: 5.5em;
-  font-weight: 500;
-}
-.ledger-list__row--final {
-  padding-top: var(--s-3);
-  border-top: 1px solid var(--g-4);
-  margin-top: var(--s-1);
-}
-
-/* ── 3 · THE MOMENT ───────────────────────────────────────────────────────  */
-
-.landing__section--moment {
-  padding-top: var(--s-8);
-  padding-bottom: var(--s-8);
-}
-
-/* ── 5 · THE INSTRUMENT ───────────────────────────────────────────────────
-   The one glimpse of the real product. A machined panel — tone and a
-   hairline, never a shadow (§6.1).                                           */
+/* ── 5 · THE INSTRUMENT ───────────────────────────────────────────────────  */
 
 .instrument {
   display: block;
@@ -445,9 +493,7 @@
   color: var(--g-7);
 }
 
-/* ── 6 · PARENTS ──────────────────────────────────────────────────────────
-   The retired line stays on the page. Deleting it would delete the argument:
-   the contrast between the two sentences IS the section.                     */
+/* ── 6 · PARENTS ──────────────────────────────────────────────────────────  */
 
 .contrast { display: grid; gap: var(--s-2); margin-top: var(--s-5); }
 
@@ -464,31 +510,90 @@
 }
 .colophon a { color: var(--g-6); }
 
+/* ── CONTROLS ─────────────────────────────────────────────────────────────
+   §6.6: a control has rest, hover, press, focus and disabled. Hierarchy is
+   built from WEIGHT, never hue — the primary is the strongest neutral, so the
+   focal point survives the strip-all-colour test.                            */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  background: var(--g-7);
+  color: var(--g-0);
+  border: 1px solid var(--g-7);
+  border-radius: var(--r-control);
+  /* 14 + 18 + 14 = 46px — above the 44px touch minimum on every breakpoint. */
+  padding: 14px var(--s-4);
+  font-size: var(--t-body);
+  line-height: 1.2;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform var(--m-fast) var(--ease-out),
+              background-color var(--m-fast) var(--ease-out);
+}
+
+/* HOVER — tone, not glow. Glow as emphasis is banned (§5).                   */
+.cta:hover { background: var(--g-6); border-color: var(--g-6); }
+
+/* PRESS — real travel. The control moves under the finger.                   */
+.cta:active { transform: translateY(1px) scale(0.99); }
+
+/* FOCUS — a solid ring in ink at 15.91:1. Never a shadow, never a glow.
+   :focus-visible so a pointer user is not shown keyboard chrome.             */
+.cta:focus-visible,
+.colophon a:focus-visible {
+  outline: 2px solid var(--g-7);
+  outline-offset: 3px;
+  border-radius: var(--r-control);
+}
+
+.colophon a:hover { color: var(--g-7); }
+
+.cta__note {
+  font-family: var(--type-instrument);
+  font-size: var(--t-micro);
+  color: var(--g-6);
+  margin-top: var(--s-3);
+}
+
 /* ── SPECIMEN LABEL ───────────────────────────────────────────────────────
-   Law 7. Every figure on this page is demonstration, and says so once, where
-   it is used. A number a reader later learns was decoration makes every other
-   number in the product suspect.                                             */
+   Law 7. Every figure on this page is a demonstration and says so once, where
+   it is used. Set in --g-6 (5.33:1), not --g-5 (2.13:1) — the honesty label
+   is the last thing that should be unreadable.                               */
 
 .specimen {
   font-family: var(--type-instrument);
   font-size: var(--t-micro);
-  color: var(--g-5);
+  color: var(--g-6);
   letter-spacing: 0.04em;
-  text-transform: none;
 }
 .specimen--spaced { margin-top: var(--s-4); }
 
+/* ── VISUALLY HIDDEN ──────────────────────────────────────────────────────
+   For headings that carry the document outline where the design carries the
+   meaning visually. Never used to hide anything a sighted reader needs.      */
+
+.vh {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ── REDUCED MOTION ───────────────────────────────────────────────────────
-   Everything mounts at its end state. The page still reads: the marks are
-   already aligned, the figure already says four.                             */
+   Every scroll-driven animation is already gated behind
+   `prefers-reduced-motion: no-preference`, so nothing above animates here.
+   This collapses the remaining transitions (spine, control states).          */
 
 @media (prefers-reduced-motion: reduce) {
-  [data-console].landing * {
+  [data-console].landing *,
+  [data-console].landing *::before {
     transition-duration: 1ms !important;
     animation-duration: 1ms !important;
   }
-  .reveal__inner { transform: none; }
-  .moment__recall span { transform: none; }
-  .vault__dot { transform: scale(1); }
-  .paper__verdict { transform: scale(1); }
 }
