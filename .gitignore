@@ -61,3 +61,4 @@ ruvector.db
 .test-build-workspace
 .test-build-mistakes
 .test-build-migration
+.test-build-taxonomy
