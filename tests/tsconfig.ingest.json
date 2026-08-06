@@ -1,0 +1,21 @@
+{
+  "//": "Separate outDir from the other test tsconfigs ON PURPOSE. `node --test tests/` runs each test file in its own process, in parallel; two suites compiling into one directory race and corrupt each other's output. One outDir per suite removes the race by construction.",
+  "compilerOptions": {
+    "outDir": "../.test-build-ingest",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/ingest/types.ts",
+    "../lib/ingest/hash.ts",
+    "../lib/ingest/runner.ts",
+    "../lib/ingest/memory-store.ts"
+  ]
+}
