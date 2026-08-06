@@ -68,22 +68,30 @@ const EMPTY_INPUTS = () => ({
 const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString();
 
 describe("computeScoreFromInputs — engine behavior", () => {
-  test("empty inputs: total is 100 (mistake pillar's no-data grace), all else 0", () => {
+  // §4.11 — the no-data grace of 100 was REMOVED. It had to be: a free 100
+  // for having recorded nothing meant logging your first mistake cost you 100
+  // points, which is precisely the inversion this pillar exists to undo.
+  test("empty inputs: every pillar is 0, including mistakes", () => {
     const b = engine.computeScoreFromInputs(EMPTY_INPUTS());
     assert.equal(b.pqaScore, 0);
     assert.equal(b.syllabusScore, 0);
-    assert.equal(b.mistakeScore, 100);
+    assert.equal(b.mistakeScore, 0);
     assert.equal(b.consistencyScore, 0);
-    assert.equal(b.total, 100);
+    assert.equal(b.total, 0);
   });
 
   test("pillar caps: perfect inputs hit 400/250/200/150 and total 1000", () => {
+    // The mistake pillar now maxes on RESOLVED work backed by DISTINCT
+    // evidence — 6 resolutions (120) + 10 evidence (50) + 6 faced (30).
+    const resolved = Array.from({ length: 10 }, (_, i) => ({
+      date: daysAgo(30), id: `p${i}`, status: "resolved", evidenceId: `e${i}`,
+    }));
     const b = engine.computeScoreFromInputs({
       papersLog: Array.from({ length: 10 }, () => ({ score: 10, total: 10, subject: "Physics", date: daysAgo(1) })),
       syllabusSubjects: ["Physics"],
       syllabusUploaded: true,
       notesHistory: [{ subject: "Physics" }],
-      mistakes: [],
+      mistakes: resolved,
       streak: 30,
     });
     assert.equal(b.pqaScore, 400);
@@ -111,7 +119,9 @@ describe("computeScoreFromInputs — engine behavior", () => {
       mistakes: [{ date: "not-a-date" }],
     });
     assert.equal(b.recentMistakes, 0);
-    assert.equal(b.mistakeScore, 200);
+    // recentMistakes no longer drives the pillar at all (§4.11) — an unresolved
+    // mistake with no evidence contributes nothing, and subtracts nothing.
+    assert.equal(b.mistakeScore, 0);
   });
 
   test("actions: empty state leads with the syllabus unlock (highest gain)", () => {
@@ -124,9 +134,9 @@ describe("computeScoreFromInputs — engine behavior", () => {
 describe("projection layer — delta simulation, no parallel formulas", () => {
   test("projectSyllabusImpact from empty state: +50 (upload bonus, nothing covered)", () => {
     const p = projection.projectSyllabusImpact(EMPTY_INPUTS(), ["Physics", "Chemistry"]);
-    assert.equal(p.current, 100);
+    assert.equal(p.current, 0); // was 100 under the removed no-data grace (§4.11)
     assert.equal(p.delta, 50);
-    assert.equal(p.projected, 150);
+    assert.equal(p.projected, 50);
     assert.equal(p.pillar, "coverage");
   });
 
@@ -142,24 +152,36 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(p.pillar, "consistency");
   });
 
-  test("projectMistakeReductionImpact: resolving 5 recent misses restores 30 pts", () => {
+  test("projectMistakeReductionImpact: resolving 5 mistakes GAINS points", () => {
     const inputs = {
       ...EMPTY_INPUTS(),
       papersLog: [{ score: 5, total: 10, subject: "Maths", date: daysAgo(1) }],
-      mistakes: Array.from({ length: 5 }, () => ({ date: daysAgo(1) })),
+      mistakes: Array.from({ length: 5 }, (_, i) => ({ date: daysAgo(1), id: `p${i}` })),
     };
     const p = projection.projectMistakeReductionImpact(inputs, 5);
-    assert.equal(p.delta, 30); // 5 recent × 6 pts each
+    // 5 resolved × 20 = 100, plus 5 faced × 5 = 25. Resolution is now a GAIN,
+    // where the old model merely stopped a penalty.
+    assert.equal(p.delta, 125);
     assert.equal(p.pillar, "mistakes");
   });
 
-  test("projectMistakeReductionImpact: old misses are already priced in — delta 0", () => {
-    const inputs = {
+  test("projectMistakeReductionImpact: age is irrelevant — resolution is not time-windowed", () => {
+    const old = {
       ...EMPTY_INPUTS(),
       papersLog: [{ score: 5, total: 10, subject: "Maths", date: daysAgo(1) }],
-      mistakes: Array.from({ length: 5 }, () => ({ date: daysAgo(30) })),
+      mistakes: Array.from({ length: 5 }, (_, i) => ({ date: daysAgo(30), id: `p${i}` })),
     };
-    assert.equal(projection.projectMistakeReductionImpact(inputs, 5).delta, 0);
+    // Under the old penalty model this was 0, because only the trailing 7 days
+    // counted. Proving an old gap shut is worth exactly as much as a new one.
+    assert.equal(projection.projectMistakeReductionImpact(old, 5).delta, 125);
+  });
+
+  test("projectMistakeReductionImpact: already-resolved mistakes project no further gain", () => {
+    const done = {
+      ...EMPTY_INPUTS(),
+      mistakes: Array.from({ length: 5 }, (_, i) => ({ date: daysAgo(1), id: `p${i}`, status: "resolved" })),
+    };
+    assert.equal(projection.projectMistakeReductionImpact(done, 5).delta, 0);
   });
 
   test("projectExamPracticeImpact: first paper assumes 70% and moves accuracy pillar", () => {
@@ -492,7 +514,13 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
   test("notifications: milestone fires once per boundary, never for small gains", () => {
     const strong = engine.computeScoreFromInputs({
       papersLog: Array.from({ length: 10 }, () => ({ score: 9, total: 10, subject: "P", date: daysAgo(1) })),
-      syllabusSubjects: ["P"], syllabusUploaded: true, notesHistory: [{ subject: "P" }], mistakes: [], streak: 20,
+      syllabusSubjects: ["P"], syllabusUploaded: true, notesHistory: [{ subject: "P" }],
+      // A genuinely strong student now has RESOLVED work behind them, not an
+      // empty mistake log (§4.11) — an empty log earns nothing.
+      mistakes: Array.from({ length: 8 }, (_, i) => ({
+        date: daysAgo(30), id: `p${i}`, status: "resolved", evidenceId: `e${i}`,
+      })),
+      streak: 20,
     });
     const r = notif.decideNotifications({ ...notifBase(), breakdown: strong, now: at(18) });
     assert.equal(r.send.length, 1);
@@ -778,5 +806,186 @@ describe("score-market: edition metadata", () => {
     assert.match(d, /July/);
     assert.match(d, /2026/);
     assert.doesNotMatch(d, /\d{4}-\d{2}-\d{2}/);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+// §4.11 — THE MISTAKE PILLAR INVARIANT
+//
+// "Recording evidence must never reduce a student's Ledger Score."
+// PRODUCT_PRINCIPLES §3.3 — the company depends on honest logging, so a
+// scoreboard that penalises logging rewards hiding evidence instead.
+// ══════════════════════════════════════════════════════════════════════════
+describe("§4.11 mistake pillar — capture is never punished", () => {
+  const base = () => ({
+    papersLog: [{ score: 7, total: 10, subject: "Physics", date: daysAgo(2) }],
+    syllabusSubjects: ["Physics"], syllabusUploaded: true,
+    notesHistory: [{ subject: "Physics" }], mistakes: [], streak: 5,
+  });
+  const open = (n) => Array.from({ length: n }, (_, i) => ({
+    date: daysAgo(1), id: `p${i}`, evidenceId: `e${i}`,
+  }));
+
+  test("INVARIANT: recording one mistake never lowers the total", () => {
+    const before = engine.computeScoreFromInputs(base()).total;
+    const after = engine.computeScoreFromInputs({ ...base(), mistakes: open(1) }).total;
+    assert.ok(after >= before, `capture dropped the score: ${before} → ${after}`);
+  });
+
+  test("INVARIANT: ten unresolved mistakes never score below zero recorded", () => {
+    const none = engine.computeScoreFromInputs(base()).total;
+    const ten = engine.computeScoreFromInputs({ ...base(), mistakes: open(10) }).total;
+    assert.ok(ten >= none, `honest logging was punished: ${none} → ${ten}`);
+  });
+
+  test("INVARIANT: the pillar is monotonic across 0…20 captures", () => {
+    let previous = -1;
+    for (let n = 0; n <= 20; n += 1) {
+      const b = engine.computeScoreFromInputs({ ...base(), mistakes: open(n) });
+      assert.ok(b.mistakeScore >= previous, `pillar fell at n=${n}`);
+      previous = b.mistakeScore;
+    }
+  });
+
+  test("capture alone earns points — evidence volume", () => {
+    const b = engine.computeScoreFromInputs({ ...base(), mistakes: open(3) });
+    assert.equal(b.evidenceScore, 15);
+    assert.equal(b.resolutionScore, 0);
+    assert.ok(b.mistakeScore > 0, "recording evidence is rewarded");
+  });
+
+  test("resolution outweighs capture — 20 per resolution vs 5 per evidence", () => {
+    const captured = engine.computeScoreFromInputs({ ...base(), mistakes: open(1) });
+    const resolved = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: [{ date: daysAgo(1), id: "p0", evidenceId: "e0", status: "resolved" }],
+    });
+    const captureGain = captured.mistakeScore;
+    const resolutionGain = resolved.mistakeScore - captureGain;
+    assert.ok(resolutionGain > captureGain,
+      `resolution (${resolutionGain}) must beat capture (${captureGain})`);
+  });
+
+  test("resolving strictly increases the score", () => {
+    const a = engine.computeScoreFromInputs({ ...base(), mistakes: open(4) }).total;
+    const b = engine.computeScoreFromInputs({
+      ...base(), mistakes: open(4).map(m => ({ ...m, status: "resolved" })),
+    }).total;
+    assert.ok(b > a, `resolution must pay: ${a} → ${b}`);
+  });
+
+  // ── Anti-gaming ──────────────────────────────────────────────────────────
+
+  test("GAMING: re-recording the same mistake earns nothing", () => {
+    const once = engine.computeScoreFromInputs({ ...base(), mistakes: open(1) });
+    const tenTimes = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: Array.from({ length: 10 }, () => ({ date: daysAgo(1), id: "p0", evidenceId: "e0" })),
+    });
+    assert.equal(tenTimes.mistakeScore, once.mistakeScore, "duplicate ids must collapse");
+  });
+
+  test("GAMING: duplicate evidence has no benefit", () => {
+    const distinct = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: [
+        { date: daysAgo(1), id: "a", evidenceId: "e1" },
+        { date: daysAgo(1), id: "b", evidenceId: "e2" },
+      ],
+    });
+    const shared = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: [
+        { date: daysAgo(1), id: "a", evidenceId: "e1" },
+        { date: daysAgo(1), id: "b", evidenceId: "e1" },
+      ],
+    });
+    assert.equal(shared.evidenceScore, 5, "one paper is one piece of evidence");
+    assert.equal(distinct.evidenceScore, 10);
+    assert.ok(shared.mistakeScore < distinct.mistakeScore);
+  });
+
+  test("GAMING: mistakes with no evidence earn no evidence points", () => {
+    const b = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: Array.from({ length: 20 }, (_, i) => ({ date: daysAgo(1), id: `p${i}` })),
+    });
+    assert.equal(b.evidenceScore, 0, "an unevidenced claim is not evidence");
+  });
+
+  test("GAMING: the pillar is capped at 200 however much is thrown at it", () => {
+    const b = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: Array.from({ length: 50 }, (_, i) => ({
+        date: daysAgo(1), id: `p${i}`, status: "resolved", evidenceId: `e${i}`,
+      })),
+    });
+    assert.equal(b.resolutionScore, 120);
+    assert.equal(b.evidenceScore, 50);
+    assert.equal(b.acknowledgementScore, 30);
+    assert.equal(b.mistakeScore, 200);
+  });
+
+  // ── Acknowledgement: avoidance is never rewarded ─────────────────────────
+
+  test("an open pattern earns no acknowledgement — avoidance is not rewarded", () => {
+    assert.equal(engine.computeScoreFromInputs({ ...base(), mistakes: open(6) }).acknowledgementScore, 0);
+  });
+
+  test("facing a pattern earns acknowledgement", () => {
+    const b = engine.computeScoreFromInputs({
+      ...base(), mistakes: open(6).map(m => ({ ...m, status: "acknowledged" })),
+    });
+    assert.equal(b.acknowledgementScore, 30);
+  });
+
+  test("a dormant pattern is not 'faced' — it was left alone", () => {
+    const b = engine.computeScoreFromInputs({
+      ...base(), mistakes: open(6).map(m => ({ ...m, status: "dormant" })),
+    });
+    assert.equal(b.acknowledgementScore, 0);
+  });
+
+  // ── Empty and legacy data ────────────────────────────────────────────────
+
+  test("empty history: every component is 0, nothing throws", () => {
+    const b = engine.computeScoreFromInputs(EMPTY_INPUTS());
+    assert.equal(b.mistakeScore, 0);
+    assert.equal(b.resolutionScore, 0);
+    assert.equal(b.evidenceScore, 0);
+    assert.equal(b.acknowledgementScore, 0);
+  });
+
+  test("legacy rows with only a date are treated as open, never as resolved", () => {
+    const b = engine.computeScoreFromInputs({
+      ...base(), mistakes: Array.from({ length: 5 }, () => ({ date: daysAgo(1) })),
+    });
+    assert.equal(b.resolutionScore, 0, "a legacy row is never counted as proven fixed");
+    assert.equal(b.acknowledgementScore, 0);
+    assert.equal(b.evidenceScore, 0);
+  });
+
+  test("explainable: the three components sum to the pillar", () => {
+    const b = engine.computeScoreFromInputs({
+      ...base(),
+      mistakes: [
+        { date: daysAgo(1), id: "a", evidenceId: "e1", status: "resolved" },
+        { date: daysAgo(1), id: "b", evidenceId: "e2", status: "practising" },
+        { date: daysAgo(1), id: "c", evidenceId: "e3" },
+      ],
+    });
+    assert.equal(b.resolutionScore + b.evidenceScore + b.acknowledgementScore, b.mistakeScore);
+    assert.equal(b.resolutionScore, 20);
+    assert.equal(b.evidenceScore, 15);
+    assert.equal(b.acknowledgementScore, 10);
+    assert.equal(b.mistakeScore, 45);
+  });
+
+  test("other pillars are untouched by mistake data", () => {
+    const without = engine.computeScoreFromInputs(base());
+    const with10 = engine.computeScoreFromInputs({ ...base(), mistakes: open(10) });
+    assert.equal(with10.pqaScore, without.pqaScore);
+    assert.equal(with10.syllabusScore, without.syllabusScore);
+    assert.equal(with10.consistencyScore, without.consistencyScore);
   });
 });

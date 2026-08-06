@@ -178,8 +178,11 @@ export function decideNotifications(input: EngineInput): EngineResult {
         key,
         type: "risk",
         priority: "normal",
+        // Recording a mistake no longer costs score (PRODUCT_DECISIONS §4.11),
+        // so the old "costing you N × 6 points" claim is false. Resolving is
+        // what moves the figure now, and that is what this says.
         title: `${breakdown.recentMistakes} repeat mistakes this week`,
-        body: `They're costing you up to ${breakdown.recentMistakes * 6} score points. Mistake DNA shows the pattern behind them.`,
+        body: `Resolving them is worth up to 120 score points. Mistake DNA shows the pattern behind them.`,
         url: "/tools/post-exam?tab=dna",
       });
     }

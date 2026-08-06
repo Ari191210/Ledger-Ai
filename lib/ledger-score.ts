@@ -2,8 +2,19 @@ export type ScoreBreakdown = {
   total: number;
   pqaScore: number;        // 0–400
   syllabusScore: number;   // 0–250
-  mistakeScore: number;    // 0–200
+  mistakeScore: number;    // 0–200  — see MISTAKE PILLAR below
   consistencyScore: number; // 0–150
+
+  // The three components of the mistake pillar, exposed so the score is
+  // explainable rather than a single opaque figure (PRODUCT_DECISIONS §4.11).
+  // Optional so existing consumers that build a ScoreBreakdown literal keep
+  // compiling.
+  // TODO(M9): make these required once the Console surfaces are rebuilt.
+  resolutionScore?: number;      // 0–120
+  evidenceScore?: number;        // 0–50
+  acknowledgementScore?: number; // 0–30
+  resolvedCount?: number;
+  evidenceCount?: number;
   pqaAccuracy: number;     // 0–1
   papersCount: number;
   syllabusUploaded: boolean;
@@ -33,7 +44,20 @@ export type ScoreInputs = {
   syllabusSubjects: string[];
   syllabusUploaded: boolean;
   notesHistory: Array<{ subject?: string }>;
-  mistakes: Array<{ date: string }>;
+  /**
+   * A recorded mistake. `date` is all that legacy localStorage rows carry;
+   * the richer fields arrive with the server-owned record (M1-7). A row with
+   * no `status` is treated as `open` — never as resolved, never as absent.
+   */
+  mistakes: Array<{
+    date: string;
+    /** Pattern identity. Used to deduplicate — see MISTAKE PILLAR. */
+    id?: string;
+    /** Lifecycle status (PRODUCT_DECISIONS §4.8). */
+    status?: string;
+    /** The evidence this was captured from. Deduplicated by this. */
+    evidenceId?: string;
+  }>;
   streak: number;
 };
 
@@ -130,15 +154,65 @@ export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
   }
   syllabusScore = Math.min(250, syllabusScore);
 
-  // --- 3. Mistake Velocity (0–200) ---
+  // ════════════════════════════════════════════════════════════════════════
+  // 3. MISTAKE PILLAR (0–200) — PRODUCT_DECISIONS §4.11
+  //
+  // THE INVARIANT: recording evidence must NEVER reduce a student's score.
+  // PRODUCT_PRINCIPLES §3.3 — the entire company depends on students logging
+  // honestly, so a scoreboard that penalises logging punishes exactly the
+  // behaviour we exist to create, and rewards hiding evidence.
+  //
+  // The previous model was `200 - recentMistakes * 6`: it paid a student six
+  // points for every mistake they did not write down.
+  //
+  // Every component below is a COUNT with a ceiling, never a proportion.
+  // That is what makes the invariant structural: a new unresolved occurrence
+  // enters no denominator, so it cannot move any term downward. Capture can
+  // only ever add. Resolution adds four times faster.
+  //
+  //   resolution     0–120  20 per resolved pattern
+  //   evidence       0–50    5 per DISTINCT piece of evidence
+  //   acknowledgement 0–30   5 per pattern faced rather than avoided
+  //
+  // TODO(§4.11): the ratified text describes resolution as a "proportion of
+  // patterns proven resolved". A proportion cannot satisfy the invariant — its
+  // denominator grows with capture, so logging a new mistake would lower the
+  // score. Implemented as a count; §4.11's wording needs amending to match.
+  // ════════════════════════════════════════════════════════════════════════
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const recentMistakes = mistakes.filter(m => new Date(m.date).getTime() > sevenDaysAgo).length;
-  let mistakeScore: number;
-  if (papersCount === 0 && mistakes.length === 0) {
-    mistakeScore = 100;
-  } else {
-    mistakeScore = Math.max(0, Math.round(200 - recentMistakes * 6));
-  }
+
+  // Deduplicate by pattern id. Recording the same mistake twice is one
+  // mistake — repetition must never manufacture score.
+  const seenIds = new Set<string>();
+  const uniqueMistakes = mistakes.filter(m => {
+    if (!m.id) return true;              // legacy rows have no identity
+    if (seenIds.has(m.id)) return false;
+    seenIds.add(m.id);
+    return true;
+  });
+
+  // Evidence QUALITY: distinct evidence only. Ten occurrences extracted from
+  // one photographed paper are one piece of evidence, so re-logging the same
+  // paper earns nothing.
+  const evidenceCount = new Set(
+    uniqueMistakes.map(m => m.evidenceId).filter((e): e is string => typeof e === "string" && e.length > 0)
+  ).size;
+
+  // Only the system can set 'resolved' (PRINCIPLES §3.1), so this cannot be
+  // self-awarded.
+  const resolvedCount = uniqueMistakes.filter(m => m.status === "resolved").length;
+
+  // Faced rather than avoided. An 'open' pattern has not been looked at;
+  // 'dormant' means it was left alone. Neither counts.
+  const FACED = ["acknowledged", "practising", "resolved", "recurred"];
+  const facedCount = uniqueMistakes.filter(m => typeof m.status === "string" && FACED.includes(m.status)).length;
+
+  const resolutionScore     = Math.min(120, resolvedCount  * 20);
+  const evidenceScore       = Math.min(50,  evidenceCount  * 5);
+  const acknowledgementScore = Math.min(30, facedCount     * 5);
+
+  const mistakeScore = resolutionScore + evidenceScore + acknowledgementScore;
 
   // --- 4. Consistency (0–150) ---
   const consistencyScore = Math.min(150, Math.round(streak * 7.5));
@@ -183,6 +257,8 @@ export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
     total, pqaScore, syllabusScore, mistakeScore, consistencyScore,
     pqaAccuracy, papersCount, syllabusUploaded, subjectsCovered, subjectsTotal,
     recentMistakes, streak, actions, subjectAccuracy,
+    resolutionScore, evidenceScore, acknowledgementScore,
+    resolvedCount, evidenceCount,
   };
   } catch { return EMPTY; }
 }
