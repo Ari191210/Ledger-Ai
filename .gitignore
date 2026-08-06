@@ -59,3 +59,4 @@ ruvector.db
 .env.local
 .test-build
 .test-build-workspace
+.test-build-mistakes

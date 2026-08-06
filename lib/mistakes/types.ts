@@ -254,15 +254,33 @@ export interface PatternTransition {
   cause: string;
 }
 
+/**
+ * The three tiers of the pattern hierarchy (§4.4.1).
+ *
+ *   GLOBAL    "You make sign errors"                conceptId null, subject null
+ *     └─ SUBJECT  "...in Physics"                   conceptId null, subject set
+ *          └─ CONCEPT "...applying the chain rule"  conceptId set      ← LEAF
+ */
+export type PatternTier = 'concept' | 'subject' | 'global';
+
 export interface Pattern {
   id: UUID;
   studentId: UUID;
 
+  /** Which tier this pattern occupies. Leaves are `concept`. */
+  tier: PatternTier;
+
   /**
-   * Null for cross-concept execution patterns (§4.7) — "you misread questions"
-   * is a real, global pattern that belongs to no single concept.
+   * Non-null on leaves. Null on parents — "you misread questions" is a real,
+   * global pattern that belongs to no single concept (§4.7.2).
    */
   conceptId: UUID | null;
+
+  /** Null only on the root of a tree (`global` tier). */
+  parentPatternId: UUID | null;
+
+  /** Null on the `global` tier only. */
+  subject: string | null;
 
   /** Never mixed (§4.7). */
   errorClass: ErrorClass;
@@ -271,26 +289,37 @@ export interface Pattern {
   /** Human sentence: *"Sign error when applying the chain rule"*. */
   label: string;
 
-  /** The evidence trail. */
+  /** The evidence trail. **Leaves only — always empty on parents** (§4.4.2). */
   occurrenceIds: UUID[];
 
-  /** Occurrences in the trailing 180 days. */
+  /**
+   * Occurrences in the trailing 180 days. Leaves: counted.
+   * Parents: derived from descendants (§4.4).
+   */
   recurrenceCount: number;
 
-  firstSeenAt: ISOTimestamp;
-  lastSeenAt: ISOTimestamp;
+  /** Parents: min/max across descendants. Null until the first occurrence. */
+  firstSeenAt: ISOTimestamp | null;
+  lastSeenAt: ISOTimestamp | null;
 
   /**
-   * 0–100. DERIVED, never entered (§4.6):
+   * 0–100. DERIVED, never entered (§4.6.1):
    *   40·marksWeight + 30·recurrenceWeight + 20·examProximity + 10·conceptExamWeight
+   *
+   * **LEAVES ONLY.** Null on parents — parent severity is the MAX of descendant
+   * leaves, derived on demand and NEVER persisted (§4.6.2).
    *
    * Derived so it cannot be gamed, so formula improvements upgrade every
    * existing pattern retroactively, and so ranking is explainable.
    */
-  severity: number;
+  severity: number | null;
 
-  /** 0–1. How sure we are this is *one* pattern. Merges below 0.8 are provisional (§4.7). */
-  systemConfidence: number;
+  /**
+   * 0–1. How sure we are this is *one* pattern. Merges below 0.8 are
+   * provisional (§4.7). **Leaves only** — parent attachment is deterministic
+   * and asks no question, so it has no confidence (§4.7.1).
+   */
+  systemConfidence: number | null;
 
   status: PatternStatus;
 
