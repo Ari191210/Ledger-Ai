@@ -255,7 +255,7 @@ function sanitiseParams(raw: Record<string, unknown>): SanitiseResult {
 }
 // ── End input validation ──────────────────────────────────────────────────────
 
-type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map" | "redemption_set";
+type ToolName = "notes" | "doubt" | "career" | "assignment" | "tutor" | "crunch" | "syllabus" | "formula" | "formula_decoder" | "admissions" | "flashcards" | "essay_grade" | "personal_statement" | "interview_questions" | "interview_eval" | "mindmap" | "presentation" | "debate" | "exam_sim" | "vocab" | "research" | "coach_briefing" | "coach_chat" | "mark_scheme" | "mark_scheme_eval" | "subject_picker" | "essay_blueprint" | "concept_web" | "paper_dissector" | "lang_analyzer" | "lab_report" | "uni_match" | "compare" | "source" | "practice" | "argument" | "predict" | "memory_palace" | "analogy" | "case_study" | "timeline" | "reading" | "grammar" | "study_guide" | "exam_strategy" | "concept_connect" | "model_answer" | "papers_explain" | "cremator" | "formula_recall" | "exam_debrief" | "circuit_breaker" | "topic_half_life" | "analysis_hub" | "application_plan" | "brain_budget" | "exam_triage" | "focus_lab" | "language_lab" | "memory_toolkit" | "recall_studio" | "reference_builder" | "report_writer" | "research_suite" | "revision_intel" | "study_command" | "uni_prep" | "writing_tools" | "paper_triage" | "last_night_triage" | "doubt_cross_question" | "doubt_cross_eval" | "calibration_questions" | "feynman_probe" | "feynman_eval" | "paper_pattern" | "paper_autopsy" | "marks_obituary" | "silent_topic_audit" | "examiner_mind" | "last_night_brief" | "marks_autopsy" | "panic_triage" | "marks_forensics" | "paper_trauma_map" | "redemption_set" | "mistake_autopsy";
 
 // Required params per tool — missing any → 400, prevents silent blank AI output
 const REQUIRED_PARAMS: Partial<Record<ToolName, string[]>> = {
@@ -2451,6 +2451,47 @@ Respond with exactly this JSON:
   }
 }`,
       };
+
+    case "mistake_autopsy":
+      return {
+        system: `${SAFETY_PREAMBLE}You are an elite JEE/competitive-exam error analyst — the private tutor that toppers use but never talk about. Your sole job is to perform a brutal, precise autopsy on a student's mistake and hand them an actionable diagnosis they can act on immediately. You think like a forensic examiner: you do not accept vague causes. You drill down to the exact cognitive or knowledge failure that produced the wrong answer. You classify errors into exactly one of seven types: silly_arithmetic, formula_gap, conceptual_misunderstanding, misread_question, trap_question, time_pressure_guess, knowledge_gap. You never sugarcoat — you name the real gap plainly so the student can fix it. You also flag the 2-3 other question types where the same failure will cost them marks if left unaddressed. When a weekly synthesis is requested, you identify the single highest-leverage fix across all logged mistakes. Always respond with valid JSON only. Do not include any prose, markdown, or explanation outside the JSON object.`,
+        userText: `A student got a question wrong. Perform a full mistake autopsy and return a structured diagnosis.
+
+QUESTION THEY GOT WRONG:
+${params.question}
+
+STUDENT'S ANSWER / APPROACH:
+${params.student_answer}
+
+CORRECT ANSWER / CORRECT APPROACH:
+${params.correct_answer}
+
+SUBJECT / BOARD / CHAPTER TAGS (if provided):
+${params.tags || "Not specified"}
+
+WEEKLY SYNTHESIS REQUEST (if provided — a JSON array of past autopsy records):
+${params.weekly_mistakes || "None — single mistake autopsy only"}
+
+Instructions:
+- Classify the error into exactly one error_type: silly_arithmetic | formula_gap | conceptual_misunderstanding | misread_question | trap_question | time_pressure_guess | knowledge_gap
+- Write root_cause as one plain, direct sentence naming exactly why this specific mistake happened — no vagueness
+- Write the_actual_gap as the precise concept, formula, sign rule, unit, or cognitive habit that is missing or was misapplied — be surgical
+- Write prevention_protocol as a concrete, memorable rule or checklist step the student must run every single time they encounter this question type — maximum 2 lines, actionable enough to use under exam conditions
+- Write similar_patterns as a list of 2-3 other question types, chapters, or problem archetypes where this exact same failure mode will strike — be specific (e.g. "Integration by parts with ln(x)", not just "integration")
+- Classify severity as: careless (fixable in one focused session) | habit (needs 2 weeks of deliberate drilling to overwrite) | foundational (needs a concept rebuild from scratch before drilling)
+- For weekly_pattern_note: ONLY populate this field if weekly_mistakes data was provided above. If it was provided, synthesise across all the logged mistakes and name the single highest-leverage root cause costing the student the most marks — one sentence, devastatingly specific. If no weekly data was provided, return an empty string "" for this field.
+
+Respond with exactly this JSON:
+{
+  "error_type": "one of the seven enum values",
+  "root_cause": "one plain sentence — the exact reason this mistake happened",
+  "the_actual_gap": "precise concept, formula, or habit that is missing or was misapplied",
+  "prevention_protocol": "concrete rule or check to run every time — max 2 lines",
+  "similar_patterns": "2-3 specific question types or chapters where this same error will strike",
+  "severity": "one of: careless | habit | foundational",
+  "weekly_pattern_note": "highest-leverage fix across all logged mistakes, or empty string if no weekly data"
+}`,
+      };
   }
 }
 
@@ -2513,7 +2554,7 @@ export async function POST(req: Request) {
   }
 
   const { tool, ...rawParams } = body as { tool: ToolName } & Record<string, unknown>;
-  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map", "marks_obituary", "redemption_set"];
+  const validTools: ToolName[] = ["notes", "doubt", "career", "assignment", "tutor", "crunch", "syllabus", "formula", "formula_decoder", "admissions", "flashcards", "essay_grade", "personal_statement", "interview_questions", "interview_eval", "mindmap", "presentation", "debate", "exam_sim", "vocab", "research", "coach_briefing", "coach_chat", "mark_scheme", "mark_scheme_eval", "subject_picker", "essay_blueprint", "concept_web", "paper_dissector", "lang_analyzer", "lab_report", "uni_match", "compare", "source", "practice", "argument", "predict", "memory_palace", "analogy", "case_study", "timeline", "reading", "grammar", "study_guide", "exam_strategy", "concept_connect", "model_answer", "papers_explain", "cremator", "formula_recall", "exam_debrief", "circuit_breaker", "topic_half_life", "analysis_hub", "application_plan", "brain_budget", "exam_triage", "focus_lab", "language_lab", "memory_toolkit", "recall_studio", "reference_builder", "report_writer", "research_suite", "revision_intel", "study_command", "uni_prep", "writing_tools", "paper_triage", "last_night_triage", "doubt_cross_question", "doubt_cross_eval", "calibration_questions", "feynman_probe", "feynman_eval", "paper_pattern", "paper_autopsy", "marks_obituary", "silent_topic_audit", "examiner_mind", "last_night_brief", "marks_autopsy", "panic_triage", "marks_forensics", "paper_trauma_map", "marks_obituary", "redemption_set", "mistake_autopsy"];
   if (!validTools.includes(tool)) {
     return NextResponse.json({ error: `Unknown tool: ${tool}` }, { status: 400 });
   }

@@ -79,6 +79,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "panic-triage",    ttl: "Paper Panic Triage", sub: "2AM before the exam — what to do right now.",      tier: "Free", desc: "At 11PM the night before a JEE/NEET/Board paper with 6 hours left and 14 chapters half-revised. Get a triage plan: what to do now, what to skim, what to skip." },
       { slug: "marks-forensics", ttl: "Marks Forensics",    sub: "Paste your answer. Know exactly which line lost you marks.", tier: "Free", desc: "After every board exam or test, paste your answer and the mark scheme. Get a line-by-line breakdown of exactly where marks were lost and why." },
       { slug: "paper-trauma",    ttl: "Paper Trauma Map",   sub: "Find the questions that broke you — and why you'll see them again.", tier: "Free", desc: "Paste your last 3 mock results. Get a map of the exact questions that broke you, why they keep appearing, and how to neutralise them before the real paper." },
+      { slug: "mistake-autopsy", ttl: "Mistake Autopsy", sub: "Turn every wrong answer into a lesson that never repeat", tier: "Free", desc: "At 2AM before a JEE paper, a student realises they keep getting the same type of question wrong — but they have no idea " },
     ],
   },
   {
