@@ -34,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: BASE,                  lastModified: now, changeFrequency: "weekly",  priority: 1.0 },
     { url: `${BASE}/auth`,        lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/dashboard`,   lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/home`,   lastModified: now, changeFrequency: "daily",   priority: 0.9 },
     ...TOOL_SLUGS.map(slug => ({
       url:             `${BASE}/tools/${slug}`,
       lastModified:    now,

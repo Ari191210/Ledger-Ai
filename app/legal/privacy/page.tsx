@@ -107,7 +107,8 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title="Cookies & Local Storage">
-          <P>We do not use tracking cookies. We use browser <code style={{ fontFamily: "var(--mono)", fontSize: 12, background: "var(--paper-2)", padding: "1px 5px", borderRadius: 3 }}>localStorage</code> to save your palette preference, density setting, and mode — these never leave your device.</P>
+          <P>We do not use tracking cookies. We set one first-party cookie, and only when you are signed in: it holds your login session so the server can tell it is you before a page loads. It is not used for advertising, profiling, or tracking you across sites, and it is never shared with a third party. Signing out deletes it.</P>
+          <P>We use browser <code style={{ fontFamily: "var(--mono)", fontSize: 12, background: "var(--paper-2)", padding: "1px 5px", borderRadius: 3 }}>localStorage</code> to save your palette preference, density setting, and mode — these never leave your device.</P>
         </Section>
 
         <Section title="Changes to This Policy">

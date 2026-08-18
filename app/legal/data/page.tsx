@@ -101,7 +101,8 @@ export default function DataCompliancePage() {
         </Section>
 
         <Section title="Cookies & Tracking">
-          <P>Ledger uses <strong>no tracking cookies</strong>. We use browser <code style={{ fontFamily: "var(--mono)", fontSize: 12, background: "var(--paper-2)", padding: "1px 5px", borderRadius: 3 }}>localStorage</code> for UI state (palette, density, mode) that never leaves your device.</P>
+          <P>Ledger uses <strong>no tracking cookies</strong>. It sets one <strong>strictly necessary first-party cookie</strong>, named <code style={{ fontFamily: "var(--mono)", fontSize: 12, background: "var(--paper-2)", padding: "1px 5px", borderRadius: 3 }}>sb-&lt;project&gt;-auth-token</code>, present only while you are signed in. It carries your Supabase authentication session so the server can verify who you are before a page renders; large sessions are split across numbered cookies of the same name. It is first-party, <code style={{ fontFamily: "var(--mono)", fontSize: 12, background: "var(--paper-2)", padding: "1px 5px", borderRadius: 3 }}>SameSite=Lax</code>, scoped to this site, and it is deleted when you sign out. Because it is essential to a service you asked for, it does not require consent under the ePrivacy Directive or the DPDP Act; it is not used for analytics, advertising, or cross-site tracking.</P>
+          <P>We use browser <code style={{ fontFamily: "var(--mono)", fontSize: 12, background: "var(--paper-2)", padding: "1px 5px", borderRadius: 3 }}>localStorage</code> for UI state (palette, density, mode) that never leaves your device.</P>
           <P>PostHog analytics runs with autocapture disabled. We record deliberate user actions (page views, tool opens) without tracking mouse movements, scroll depth, or keystrokes.</P>
         </Section>
 

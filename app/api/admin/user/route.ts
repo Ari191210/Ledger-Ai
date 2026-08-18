@@ -24,10 +24,11 @@ export async function GET(req: Request) {
 
   const userId = authUser.id;
 
-  const [userDataRes, aiRes, errorRes] = await Promise.all([
+  const [userDataRes, aiRes, errorRes, parentConnRes] = await Promise.all([
     supabaseServer.from("user_data").select("*").eq("user_id", userId).single(),
     supabaseServer.from("ai_history").select("tool,input_text,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(500),
     supabaseServer.from("error_logs").select("type,route,message,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
+    supabaseServer.from("parent_connections").select("connection_id", { count: "exact", head: true }).eq("student_id", userId).eq("state", "active"),
   ]);
 
   // Tool usage summary
@@ -54,7 +55,7 @@ export async function GET(req: Request) {
     board:       userData?.board       ?? null,
     stream:      userData?.stream      ?? null,
     onboarded:   userData?.onboarding_done ?? null,
-    parentCode:  userData?.parent_code ?? null,
+    activeParentConnections: parentConnRes.count ?? 0,
     focusStreak: userData?.focus_streak ?? null,
     weakTopics:  userData?.weak_topics  ?? null,
     // Activity

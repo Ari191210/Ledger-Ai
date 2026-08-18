@@ -99,7 +99,26 @@ export interface Concept {
 // it.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type EvidenceType = 'photo' | 'pdf' | 'manual';
+/**
+ * M11-3 — EXTENDED ADDITIVELY, NEVER REWRITTEN.
+ *
+ * `'photo' | 'pdf' | 'manual'` are M1's three and are untouched. Architecture
+ * G.1 names the two additions and G.3 says why the first is non-negotiable:
+ * *"for an in-session mistake the evidence is the assessment attempt itself,
+ * which is why `EvidenceType` must gain `'assessment_attempt'`. Without that,
+ * the engine's own principle would force fabricating evidence, which
+ * `migrate-legacy.ts:8-18` correctly refused to do."*
+ *
+ *   `assessment_attempt` — the graded attempt IS the evidence (F.4.a, G.3).
+ *   `declaration`        — a student's own statement, admissible as evidence of
+ *                          the STATEMENT and never of the fact (M9's
+ *                          declaration-vs-verified split).
+ *
+ * The SQL side is `025_mistake_dna.sql` §1. `007_mistakes.sql` is not edited —
+ * it is checksum-registered in M1's ledger, and editing an applied migration is
+ * the drift class that ledger exists to prevent.
+ */
+export type EvidenceType = 'photo' | 'pdf' | 'manual' | 'assessment_attempt' | 'declaration';
 
 export type EvidenceVerifier = 'ai' | 'student' | 'both';
 
@@ -139,6 +158,21 @@ export interface Evidence {
 // rather than editing history.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * M11-3 — EXTENDED ADDITIVELY, NEVER REWRITTEN.
+ *
+ * The seven original values are M1's and are untouched. G.1 names the addition:
+ * `'in-session-assessment'` — a mistake made inside this product's own
+ * assessment, which is not `mock` and not `past-paper` (those name real papers
+ * a student sat elsewhere, and borrowing one would put a school exam in the
+ * record that never happened) and is not quite `self-test` either (that is a
+ * paper the student set themselves).
+ *
+ * The SQL side is `025_mistake_dna.sql` §1, which EXTENDS `007`'s `source`
+ * CHECK. Existing rows keep the value they were written with; see
+ * `025` §1's note on why M10's already-shipped `self-test` is not re-pointed
+ * here — that is a data correction (Part O.4), not an additive extension.
+ */
 export type OccurrenceSource =
   | 'board-exam'
   | 'school-exam'
@@ -146,7 +180,8 @@ export type OccurrenceSource =
   | 'coaching-test'
   | 'homework'
   | 'past-paper'
-  | 'self-test';
+  | 'self-test'
+  | 'in-session-assessment';
 
 /** What the student *thought* before answering. Feeds calibration. */
 export type ConfidenceLevel = 0 | 1 | 2 | 3;
@@ -329,4 +364,84 @@ export interface Pattern {
   history: PatternTransition[];
 
   resolvedAt: ISOTimestamp | null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// M11 ADDITIONS — appended, never interleaved.
+//
+// Everything above this line is M1's file, unchanged apart from the two enum
+// widenings marked `M11-3`. Everything below is new and additive: no existing
+// shape gained a required field, so every value that type-checked before still
+// type-checks.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * G.8 — *"A `RetestSchedule` entry per open leaf: `{pattern_id, due_at,
+ * attempt_count, last_result}`. Intervals expand on success and reset on
+ * failure."*
+ */
+export interface RetestSchedule {
+  patternId: UUID;
+  studentId: UUID;
+  /** Never earlier than `lastSeenAt + RESOLUTION_COOLING_DAYS`. */
+  dueAt: ISOTimestamp;
+  /** The interval that produced `dueAt`, retained so the next one is derived
+   *  from the schedule rather than recomputed from a guess. */
+  intervalDays: number;
+  attemptCount: number;
+  lastResult: 'pass' | 'fail' | null;
+  lastAttemptAt: ISOTimestamp | null;
+}
+
+/**
+ * C.3 / G.8 — the resolution, as its own entity.
+ *
+ * Separate from the pattern ON PURPOSE: *"a new occurrence merging into a
+ * `resolved` leaf drives `resolved → recurred` … **the prior resolution is not
+ * deleted** — its `MistakeResolution` row stands."* A student who fixed
+ * something, lost it and fixed it again has a better record than one who never
+ * fixed it, and the model must be able to say so.
+ *
+ * `proofAttemptIds` is NOT optional. G.8: *"a resolution that cannot name them
+ * is not constructible."*
+ */
+export interface MistakeResolution {
+  id: UUID;
+  patternId: UUID;
+  studentId: UUID;
+  resolvedAt: ISOTimestamp;
+  /** The attempts that prove it. At least `RESOLUTION_MIN_CORRECT` of them. */
+  proofAttemptIds: UUID[];
+  /** The occurrence timestamp the cooling period was measured from. */
+  measuredFrom: ISOTimestamp;
+  coolingDaysElapsed: number;
+  /** Always `'system'`. The column exists so the record STATES that no student
+   *  set it, rather than leaving it to be inferred from the absence of a
+   *  student-facing route. */
+  setBy: 'system';
+}
+
+/**
+ * G.6 / M11-2 — how a severity score was arrived at, stamped with the version
+ * of the derivation that produced it.
+ *
+ * The same discipline as `TAXONOMY_VERSION` (M6) and `GENERATION_PROMPT_VERSION`
+ * (M10): a stored number whose meaning depends on a formula is meaningless
+ * without the formula's identity beside it. `SEVERITY_WEIGHTS` in `engine.ts`
+ * is the formula and does not change; this versions the DERIVATION of its four
+ * inputs, which G.6 deliberately made a separate concern.
+ */
+export interface SeverityProvenance {
+  factorsVersion: string;
+  factors: {
+    marksWeight: number;
+    recurrenceWeight: number;
+    examProximity: number;
+    conceptExamWeight: number;
+  };
+  /** FALSE when no goal exam is known. The factor is then 0 because the product
+   *  does not know of an exam — never because it guessed one (V.4.9's posture,
+   *  applied to a number). */
+  examProximityKnown: boolean;
+  derivedAt: ISOTimestamp;
 }

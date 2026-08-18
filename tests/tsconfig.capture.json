@@ -1,0 +1,26 @@
+{
+  "//": "Separate outDir per suite — see tests/tsconfig.registry.json for why. Everything compiled here is the SHIPPED capture path: lib/evidence.ts, lib/storage.ts, lib/capture-intake.ts and lib/ingest/supabase-store.ts. None of them imports a Supabase client, a clock or next/*, which is what lets M8-2's dedup rule and M8-3's stage-ledger wiring be proven with no live project in reach (U.3, the determinism boundary). The client is injected as an interface; the tests supply a double that enforces the constraints 007 and 008 actually declare.",
+  "compilerOptions": {
+    "outDir": "../.test-build-capture",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/sha256.ts",
+    "../lib/storage.ts",
+    "../lib/evidence.ts",
+    "../lib/capture-intake.ts",
+    "../lib/ingest/types.ts",
+    "../lib/ingest/hash.ts",
+    "../lib/ingest/runner.ts",
+    "../lib/ingest/supabase-store.ts"
+  ]
+}

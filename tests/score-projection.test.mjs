@@ -80,7 +80,7 @@ describe("computeScoreFromInputs — engine behavior", () => {
     assert.equal(b.total, 0);
   });
 
-  test("pillar caps: perfect inputs hit 400/250/200/150 and total 1000", () => {
+  test("pillar caps: perfect inputs hit 400/250/200 and total 850 — the streak pays nothing (M14-2)", () => {
     // The mistake pillar now maxes on RESOLVED work backed by DISTINCT
     // evidence — 6 resolutions (120) + 10 evidence (50) + 6 faced (30).
     const resolved = Array.from({ length: 10 }, (_, i) => ({
@@ -97,8 +97,24 @@ describe("computeScoreFromInputs — engine behavior", () => {
     assert.equal(b.pqaScore, 400);
     assert.equal(b.syllabusScore, 250);
     assert.equal(b.mistakeScore, 200);
-    assert.equal(b.consistencyScore, 150);
-    assert.equal(b.total, 1000);
+    // M14-2 / PRODUCT_DECISIONS §9.3: the consecutive-day term is DELETED, not
+    // renamed. A 30-day streak buys nothing, and `total` has lost its fourth
+    // addend — the pre-cutover ceiling is 850, and `consistencyState` labels the
+    // zero as retired rather than letting it pass for a measurement (J.3.a).
+    assert.equal(b.consistencyScore, 0);
+    assert.equal(b.consistencyState, "retired");
+    assert.equal(b.total, 850);
+  });
+
+  test("M14-2: raising the streak moves no pillar and no total", () => {
+    const base = { ...EMPTY_INPUTS(), papersLog: [{ score: 7, total: 10, subject: "Physics", date: daysAgo(1) }] };
+    const cold = engine.computeScoreFromInputs({ ...base, streak: 0 });
+    const hot = engine.computeScoreFromInputs({ ...base, streak: 45 });
+    assert.equal(hot.total, cold.total);
+    assert.equal(hot.consistencyScore, cold.consistencyScore);
+    assert.equal(hot.pqaScore, cold.pqaScore);
+    assert.equal(hot.syllabusScore, cold.syllabusScore);
+    assert.equal(hot.mistakeScore, cold.mistakeScore);
   });
 
   test("coverage matching is case/whitespace-insensitive on subject names", () => {
@@ -146,10 +162,17 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(p.delta, 200);
   });
 
-  test("projectFocusImpact: day 1 of a streak is worth round(7.5) = 8", () => {
-    const p = projection.projectFocusImpact(EMPTY_INPUTS(), 1);
-    assert.equal(p.delta, 8);
-    assert.equal(p.pillar, "consistency");
+  test("projectFocusImpact: a projected streak day is worth ZERO points (M14-2)", () => {
+    // The projection layer runs the REAL engine over a mutated copy of the
+    // inputs, so a projection of 0 is proof the engine has no term to move.
+    // The function itself survives only because three non-score surfaces still
+    // import it; M14-6 removes both it and them. A recommendation may not
+    // promise points a mechanism cannot pay (B.11).
+    for (const days of [1, 7, 30]) {
+      const p = projection.projectFocusImpact(EMPTY_INPUTS(), days);
+      assert.equal(p.delta, 0, `${days} streak day(s) still paid score`);
+      assert.equal(p.pillar, "consistency");
+    }
   });
 
   test("projectMistakeReductionImpact: resolving 5 mistakes GAINS points", () => {
@@ -226,62 +249,117 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(p.delta, 0);
   });
 
-  test("temporary score: discriminated kind, engine-derived, consistency always 0", () => {
-    const diag = {
-      board: "CBSE", grade: "Class 12", subject: "Physics",
-      topicConfidence: [
-        { topic: "Optics", confidence: "shaky" },
-        { topic: "Electrostatics", confidence: "ok" },
-        { topic: "Magnetism", confidence: "solid" },
-      ],
-      weakAreas: ["Numericals"],
-    };
-    const t = engine.computeTemporaryScore(diag);
-    assert.equal(t.kind, "temporary");
-    assert.equal(t.consistencyScore, 0); // no history → never self-reported
-    assert.ok(t.total > 0 && t.total < 1000);
-    // Gap list leads with the known weaknesses (shaky + declared weak areas)
-    assert.ok(t.gapTopics.includes("Optics"));
-    assert.ok(t.gapTopics.includes("Numericals"));
-    assert.ok(t.gapTopics.indexOf("Optics") < t.gapTopics.indexOf("Electrostatics"));
+  // ═══════════════════════════════════════════════════════════════════════
+  // M14-7 — THE COLD-START PATH IS A GAP FINDER, AND IT IS NOT A SCORE.
+  //
+  // These tests used to assert the opposite. They read
+  // `t.total > 0 && t.total < 1000`, `t.consistencyScore === 0`, and
+  // `fromMarks.pqaScore > fromConfidence.pqaScore` — i.e. they asserted that a
+  // self-report produced a score and that the score responded to the
+  // self-report. J.4 classifies exactly that as *"the cold-start path that must
+  // not survive"*, so the assertions are REWRITTEN rather than deleted: what
+  // they now assert is the absence of every number they used to check, which is
+  // the honest regression test for M14-7.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const DIAG = {
+    board: "CBSE", grade: "Class 12", subject: "Physics",
+    topicConfidence: [
+      { topic: "Optics", confidence: "shaky" },
+      { topic: "Electrostatics", confidence: "ok" },
+      { topic: "Magnetism", confidence: "solid" },
+    ],
+    weakAreas: ["Numericals"],
+  };
+
+  test("M14-7: the diagnostic keeps gapTopics, weakest first", () => {
+    const d = engine.computeColdStartDiagnostic(DIAG);
+    assert.equal(d.kind, "diagnostic");
+    assert.equal(d.source, "self_report");
+    assert.equal(d.verified, false);
+    assert.ok(d.gapTopics.includes("Optics"));
+    assert.ok(d.gapTopics.includes("Numericals"));
+    assert.ok(d.gapTopics.indexOf("Optics") < d.gapTopics.indexOf("Electrostatics"));
+    assert.equal(d.topicsRated, 3);
+    assert.equal(d.weaknessesNamed, 2);
+    assert.equal(d.subject, "Physics");
   });
 
-  test("temporary score: real marks override confidence-derived accuracy", () => {
+  test("M14-7: it returns NO score field, under any name", () => {
+    const d = engine.computeColdStartDiagnostic(DIAG);
+    assert.deepEqual(engine.selfReportedScoreFields(d), [],
+      "a self-report produced something a surface could render as a score");
+    // Belt and braces: every number on it is one of the two declared counts,
+    // so there is nothing a surface could mistake for a figure out of 1000.
+    for (const [k, v] of Object.entries(d)) {
+      if (typeof v !== "number") continue;
+      assert.ok(k === "topicsRated" || k === "weaknessesNamed",
+        `${k} is an undeclared number on a self-report`);
+      assert.ok(v <= 8, `${k} = ${v} is too large to be a count of topics`);
+    }
+  });
+
+  test("M14-7: self-reported marks are not converted into anything", () => {
     const base = {
       board: "CBSE", grade: "Class 10", subject: "Maths",
-      topicConfidence: [
-        { topic: "Algebra", confidence: "shaky" },
-        { topic: "Trigonometry", confidence: "shaky" },
-        { topic: "Geometry", confidence: "shaky" },
-      ],
+      topicConfidence: ["Algebra", "Trigonometry", "Geometry"].map(topic => ({ topic, confidence: "shaky" })),
       weakAreas: [],
     };
-    const fromConfidence = engine.computeTemporaryScore(base);
-    const fromMarks = engine.computeTemporaryScore({ ...base, recentMarksPercent: 95 });
-    assert.ok(fromMarks.pqaScore > fromConfidence.pqaScore,
-      `marks 95% should beat all-shaky confidence (${fromMarks.pqaScore} vs ${fromConfidence.pqaScore})`);
+    const withoutMarks = engine.computeColdStartDiagnostic(base);
+    const withMarks = engine.computeColdStartDiagnostic({ ...base, recentMarksPercent: 95 });
+    // A remembered mark is a self-report too. It moves no output.
+    assert.deepEqual(withMarks, withoutMarks);
   });
 
-  test("temporary score: all-solid beats all-shaky", () => {
-    const mk = (confidence) => engine.computeTemporaryScore({
+  test("M14-7: confidence ratings produce no arithmetic at all", () => {
+    const mk = (confidence) => engine.computeColdStartDiagnostic({
       board: "IB", grade: "Class 11", subject: "Chemistry",
       topicConfidence: ["A", "B", "C", "D"].map(topic => ({ topic, confidence })),
       weakAreas: [],
     });
-    assert.ok(mk("solid").total > mk("shaky").total);
+    const solid = mk("solid");
+    const shaky = mk("shaky");
+    // All-shaky names four weaknesses; all-solid names none. That is a
+    // restatement of the student's own answers, and it is the ONLY difference:
+    // neither carries a figure one could be "better" than the other on.
+    assert.equal(shaky.weaknessesNamed, 4);
+    assert.equal(solid.weaknessesNamed, 0);
+    assert.deepEqual(engine.selfReportedScoreFields(solid), []);
+    assert.deepEqual(engine.selfReportedScoreFields(shaky), []);
+    // All-solid produces no gaps to sweep, and says so rather than ranking them.
+    assert.deepEqual(solid.gapTopics, []);
   });
 
-  test("temporary vs real: kinds are distinct and real score is untouched", () => {
-    const t = engine.computeTemporaryScore({
-      board: "CBSE", grade: "Class 9", subject: "Biology",
-      topicConfidence: [{ topic: "Cells", confidence: "ok" }, { topic: "Tissues", confidence: "ok" }, { topic: "Genetics", confidence: "ok" }],
-      weakAreas: [],
-    });
-    const r = engine.realLedgerScore(); // no window in node → EMPTY real score
-    assert.equal(t.kind, "temporary");
+  test("M14-7: the temporary-score API is gone, not renamed", () => {
+    assert.equal(engine.computeTemporaryScore, undefined);
+    const src = fs.readFileSync(path.join(root, "lib", "ledger-score.ts"), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "");
+    assert.ok(!src.includes("TemporaryLedgerScore"), "the temporary-score type survived");
+    assert.ok(!src.includes("computeTemporaryScore"), "the temporary-score function survived");
+    // The fabricated evidence J.4 objected to, by name.
+    assert.doesNotMatch(src, /shaky:\s*0\.3/, "the confidence-to-accuracy mapping survived");
+    assert.doesNotMatch(src, /total:\s*20/, "the fabricated 20-mark paper survived");
+  });
+
+  test("M14-7: the real score is untouched and still discriminated", () => {
+    const r = engine.realLedgerScore(); // no window in node -> EMPTY real score
     assert.equal(r.kind, "real");
-    assert.equal(r.total, 0); // proving the diagnostic computation left no trace
-    assert.notEqual(t.total, r.total);
+    assert.equal(r.total, 0);
+    assert.equal(engine.computeColdStartDiagnostic(DIAG).kind, "diagnostic");
+  });
+
+  test("M14-7: no shipped surface renders the self-report as a score", () => {
+    for (const rel of ["app/tools/exam-day/page.tsx", "components/exam-day-diagnostic.tsx"]) {
+      const src = fs.readFileSync(path.join(root, rel), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+        .replace(/^\s*\/\/.*$/gm, "");
+      assert.ok(!src.includes("TemporaryLedgerScore"), `${rel} still types a temporary score`);
+      assert.ok(!src.includes("Temporary Ledger Score"), `${rel} still LABELS a self-report a score`);
+      assert.doesNotMatch(src, /\/ 1000/, `${rel} still renders a self-report out of 1000`);
+      assert.doesNotMatch(src, /tempScore/, `${rel} still holds a temporary score`);
+    }
   });
 
   test("stripe-tier: price mapping and tier resolution", () => {
@@ -332,37 +410,72 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(decide("some.future.event", {}).type, "ignore");
   });
 
-  test("parent-digest: risk flags fire on inactivity and imminent low-readiness exams", () => {
+  // M17 REBUILT lib/parent-digest.ts's public interface onto ParentProjection
+  // (architecture N.5/N.6) — `breakdown`/`exams`/`marks`/`parentCode` no
+  // longer exist as top-level fields; everything is nested under
+  // `d.projection`, exactly what `/api/parent/report` returns, and a category
+  // absent from the projection is absent from the email, not zeroed. Full
+  // coverage of that rebuilt surface lives in `tests/parent-space.test.mjs`
+  // (V.8.1–V.8.8); these four keep guarding the M0-3/M0-4 properties they
+  // were written for, translated onto the new shape.
+  const toBreakdown = b => ({ captured_on: "2026-08-18", total: b.total, pqa: b.pqaScore, syllabus: b.syllabusScore, mistakes: b.mistakeScore, consistency: b.consistencyScore, confidence: null });
+  const toExams = list => list.map(e => ({ name: e.name, subject: "Physics", date: e.date, board: "CBSE" }));
+
+  // M0-4. Absence is not an academic finding. A student who has not opened the
+  // product for weeks produces no parent-facing risk flag at all; the only
+  // surviving flag is evidence-based (a dated exam is imminent AND measured
+  // readiness is below the threshold).
+  test("parent-digest: absence alone produces no risk flag", () => {
     const breakdown = engine.computeScoreFromInputs({
       ...EMPTY_INPUTS(),
       papersLog: [{ score: 4, total: 10, subject: "Maths", date: daysAgo(10) }],
     });
     assert.ok(breakdown.total < 400, "fixture should be below Developing");
 
-    // Inactivity: streak was established (>=5) but last session is 6 days old
-    const flags = parentDigest.computeRiskFlags({
-      breakdown,
-      streak: 8,
-      lastStudied: daysAgo(6),
-      exams: [{ name: "Physics Board", date: new Date(Date.now() + 3 * 86400000).toISOString() }],
+    // Long absence, established habit, no exam anywhere near — nothing fires.
+    const absent = parentDigest.computeRiskFlags({
+      studentName: "A",
+      projection: { system: {}, dimensionBreakdown: toBreakdown(breakdown), upcomingExams: [] },
     });
-    assert.equal(flags.inactiveDays, 6);
+    assert.deepEqual(absent, {}, "days away from the product may not escalate");
+
+    // Neither category shared at all — still nothing fires, and there is no
+    // field for a caller to reintroduce an inactivity flag through.
+    const noCategories = parentDigest.computeRiskFlags({ studentName: "A", projection: { system: {} } });
+    assert.deepEqual(noCategories, {}, "no flag derivable without both categories shared");
+
+    // The inactivity escalation constants are gone, not merely unused.
+    assert.equal(parentDigest.INACTIVITY_THRESHOLD_DAYS, undefined);
+    assert.equal(parentDigest.INACTIVITY_COOLDOWN_DAYS, undefined);
+  });
+
+  // The legitimate, evidence-based signal M0-4 explicitly keeps.
+  test("parent-digest: imminent exam below readiness still flags", () => {
+    const breakdown = engine.computeScoreFromInputs({
+      ...EMPTY_INPUTS(),
+      papersLog: [{ score: 4, total: 10, subject: "Maths", date: daysAgo(10) }],
+    });
+    const flags = parentDigest.computeRiskFlags({
+      studentName: "A",
+      projection: {
+        system: {},
+        dimensionBreakdown: toBreakdown(breakdown),
+        upcomingExams: toExams([{ name: "Physics Board", date: new Date(Date.now() + 3 * 86400000).toISOString() }]),
+      },
+    });
     assert.equal(flags.examSoon?.name, "Physics Board");
     assert.equal(flags.examSoon?.days, 3);
 
-    // No flags when active and no imminent exam
-    const quiet = parentDigest.computeRiskFlags({
-      breakdown, streak: 8, lastStudied: daysAgo(0),
-      exams: [{ name: "Finals", date: new Date(Date.now() + 60 * 86400000).toISOString() }],
+    // Distant exam is not imminent.
+    const far = parentDigest.computeRiskFlags({
+      studentName: "A",
+      projection: {
+        system: {},
+        dimensionBreakdown: toBreakdown(breakdown),
+        upcomingExams: toExams([{ name: "Finals", date: new Date(Date.now() + 60 * 86400000).toISOString() }]),
+      },
     });
-    assert.equal(quiet.inactiveDays, undefined);
-    assert.equal(quiet.examSoon, undefined);
-
-    // Short streaks never trigger inactivity (nothing established to lose)
-    const newbie = parentDigest.computeRiskFlags({
-      breakdown, streak: 2, lastStudied: daysAgo(10), exams: [],
-    });
-    assert.equal(newbie.inactiveDays, undefined);
+    assert.equal(far.examSoon, undefined);
   });
 
   test("parent-digest: exam risk clears once readiness passes the threshold", () => {
@@ -373,28 +486,62 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     });
     assert.ok(strong.total >= 400);
     const flags = parentDigest.computeRiskFlags({
-      breakdown: strong, streak: 20, lastStudied: daysAgo(0),
-      exams: [{ name: "Physics Board", date: new Date(Date.now() + 2 * 86400000).toISOString() }],
+      studentName: "A",
+      projection: {
+        system: {},
+        dimensionBreakdown: toBreakdown(strong),
+        upcomingExams: toExams([{ name: "Physics Board", date: new Date(Date.now() + 2 * 86400000).toISOString() }]),
+      },
     });
     assert.equal(flags.examSoon, undefined);
   });
 
-  test("parent-digest: subjects and HTML reflect the mode", () => {
+  // M0-3. No parent email references consecutive days, in any mode.
+  test("parent-digest: no email counts consecutive days or shames absence", () => {
     const breakdown = engine.computeScoreFromInputs(EMPTY_INPUTS());
     const d = {
-      studentName: "Aarav", parentCode: "abc123", breakdown,
-      streak: 6, lastStudied: daysAgo(6),
-      exams: [], marks: [], weakTopics: [],
+      studentName: "Aarav",
+      projection: {
+        system: { policyVersion: 1 },
+        dimensionBreakdown: toBreakdown(breakdown),
+        upcomingExams: [],
+      },
     };
-    const flags = { inactiveDays: 6 };
-    assert.match(parentDigest.digestSubject("inactivity", d, flags), /hasn't studied in 6 days/);
-    assert.match(parentDigest.digestSubject("digest", d, {}), /weekly study report/);
-    const html = parentDigest.buildParentEmailHtml("inactivity", d, flags);
-    assert.ok(html.includes("Aarav"), "student name present");
-    assert.ok(html.includes("/parent/abc123"), "live report link present");
-    assert.ok(html.includes("streak is at risk"), "alert banner present in inactivity mode");
-    const digestHtml = parentDigest.buildParentEmailHtml("digest", d, {});
-    assert.ok(!digestHtml.includes("streak is at risk"), "no alert banner in plain digest");
+    const examFlags = {
+      examSoon: { name: "Physics Board", days: 2, score: breakdown.total },
+    };
+
+    for (const [mode, flags] of [["digest", {}], ["exam-risk", examFlags]]) {
+      const html = parentDigest.buildParentEmailHtml(mode, d, flags);
+      const subject = parentDigest.digestSubject(mode, d, flags);
+      for (const text of [html, subject]) {
+        assert.ok(!/streak/i.test(text), `${mode}: streak referenced`);
+        assert.ok(!/at risk/i.test(text), `${mode}: "at risk" shame framing present`);
+        assert.ok(!/hasn't studied|has not studied|hasn't completed/i.test(text),
+          `${mode}: absence framed as a failure`);
+        assert.ok(!/consecutive|day streak|days in a row/i.test(text),
+          `${mode}: consecutive-day count present`);
+      }
+    }
+
+    // The inactivity mode itself no longer exists — an unknown mode falls
+    // through to the plain weekly report, which carries no banner.
+    const fallback = parentDigest.buildParentEmailHtml("inactivity", d, {});
+    assert.ok(!/background:#b83c1a;color:#faf6ee/.test(fallback), "alert banner rendered");
+    assert.match(parentDigest.digestSubject("inactivity", d, {}), /weekly study report/);
+
+    // What the digest contains: the student name, the score breakdown, the
+    // sign-in link (no bare code any more — M17-1), and the privacy note.
+    // No exam section renders here because `upcomingExams` is an empty array,
+    // and no "Current Marks" table exists at all — not a Shared category.
+    const plain = parentDigest.buildParentEmailHtml("digest", d, {});
+    assert.ok(plain.includes("Aarav"), "student name present");
+    assert.ok(plain.includes("POLICY v1"), "policy_version not stamped (V.8.5)");
+    assert.ok(plain.includes("studyledger.in/parent"), "sign-in link present");
+    assert.ok(!plain.includes("/parent/abc123"), "bare parentCode link still present — M17-1 requires it gone");
+    assert.ok(plain.includes("Ledger Score breakdown"), "score breakdown present");
+    assert.ok(!/current marks/i.test(plain), "Current Marks rendered — not a Shared category (architecture N.4)");
+    assert.ok(plain.includes("progress, not failures"), "privacy note present");
   });
 
   test("streak: yesterday continues, same-day repeat doesn't double-count", () => {
@@ -456,7 +603,6 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
 
   const notifBase = () => ({
     breakdown: engine.computeScoreFromInputs(EMPTY_INPUTS()),
-    streak: 0, lastDate: null, shieldUsedMonth: null,
     exams: [], chronotype: undefined, state: {},
   });
   const at = (h, dayOffset = 0) => {
@@ -467,33 +613,67 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
   };
   const inDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString(); };
 
-  test("notifications: streak reminder only when it breaks tonight, unshielded", () => {
+  // M0-6 regression fence. The engine used to send "Your N-day streak ends
+  // tonight" when an established streak would lapse unshielded. That send is
+  // deleted and nothing replaces it (`PRODUCT_PRINCIPLES` §4.2). These
+  // assertions fail if it — or any equivalent loss-framed nudge — returns.
+  test("notifications: a lapsing streak produces NO notification, ever", () => {
     const now = at(18);
     const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toDateString();
     const shieldSpent = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    // Shield spent → reminder fires
-    const r1 = notif.decideNotifications({ ...notifBase(), streak: 6, lastDate: yesterday, shieldUsedMonth: shieldSpent, now });
-    assert.equal(r1.send.length, 1);
-    assert.equal(r1.send[0].type, "streak");
+    // The exact state that used to fire: long streak, studied yesterday,
+    // nothing today, no shield left. Extra streak fields are passed
+    // deliberately — even if something re-adds them to the input type, no
+    // send may be derived from them.
+    const r = notif.decideNotifications({
+      ...notifBase(), streak: 6, lastDate: yesterday, shieldUsedMonth: shieldSpent, now,
+    });
+    assert.equal(r.send.length, 0, "a lapsing streak must produce no notification");
+  });
 
-    // Shield still available → the miss is covered, no nudge
-    const r2 = notif.decideNotifications({ ...notifBase(), streak: 6, lastDate: yesterday, shieldUsedMonth: null, now });
-    assert.equal(r2.send.filter(n => n.type === "streak").length, 0);
+  test("notifications: no candidate is ever streak-framed, in any state", () => {
+    const now = at(18);
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toDateString();
+    const shieldSpent = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const strong = engine.computeScoreFromInputs({
+      papersLog: Array.from({ length: 10 }, () => ({ score: 9, total: 10, subject: "P", date: daysAgo(1) })),
+      syllabusSubjects: ["P"], syllabusUploaded: true, notesHistory: [{ subject: "P" }],
+      mistakes: Array.from({ length: 8 }, (_, i) => ({ date: daysAgo(1), id: `p${i}` })),
+      streak: 20,
+    });
 
-    // Already studied today → nothing to save
-    const r3 = notif.decideNotifications({ ...notifBase(), streak: 6, lastDate: now.toDateString(), shieldUsedMonth: shieldSpent, now });
-    assert.equal(r3.send.length, 0);
+    const states = [
+      { ...notifBase(), now },
+      { ...notifBase(), streak: 30, lastDate: yesterday, shieldUsedMonth: shieldSpent, now },
+      { ...notifBase(), breakdown: strong, now },
+      { ...notifBase(), breakdown: strong, exams: [{ name: "Physics", date: inDays(1) }], now: at(9) },
+      { ...notifBase(), breakdown: strong, exams: [{ name: "Physics", date: inDays(0) }], now: at(9) },
+      { ...notifBase(), breakdown: strong, exams: [{ name: "Physics", date: inDays(7) }], now },
+    ];
+
+    for (const input of states) {
+      for (const c of notif.decideNotifications(input).send) {
+        const text = `${c.key} ${c.type} ${c.title} ${c.body}`;
+        assert.ok(!/streak|chain|days? in a row|consecutive|don'?t break|keep it alive/i.test(text),
+          `streak-framed notification emitted: ${text}`);
+      }
+    }
   });
 
   test("notifications: exam countdown fires at T-milestones with dedup keys", () => {
-    const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: inDays(7) }], now: at(18) });
+    // One date value, reused. The dedup key embeds the exam's date string, and
+    // `inDays()` is millisecond-precision — calling it twice produced two
+    // different keys whenever the two calls landed in different milliseconds,
+    // which made the dedup assertion below fail at random.
+    const t7 = inDays(7);
+    const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: t7 }], now: at(18) });
     assert.equal(r.send.length, 1);
     assert.equal(r.send[0].type, "exam");
     assert.match(r.send[0].key, /T-7$/);
 
     // Same milestone never sends twice
-    const again = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: inDays(7) }], state: r.nextState, now: at(19) });
+    const again = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Physics Board", date: t7 }], state: r.nextState, now: at(19) });
     assert.equal(again.send.length, 0);
 
     // T-5 is not a milestone

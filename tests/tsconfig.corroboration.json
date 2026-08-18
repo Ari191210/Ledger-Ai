@@ -1,0 +1,20 @@
+{
+  "//": "M14-8. Separate outDir per suite — see tests/tsconfig.registry.json for why. `lib/client-claim-corroboration.ts` is pure: no I/O, no Supabase, no next/*, and its day arithmetic is over an epoch instant and a fixed offset, so it returns the same answer whatever timezone the machine running the suite is in. That is what lets the IST/UTC boundary be ASSERTED at the exact instant that used to fail, rather than described in a comment. `lib/active-close.ts` is compiled with it because it is the pattern's first caller and the file the bug lived in; its browser half is never called here.",
+  "compilerOptions": {
+    "outDir": "../.test-build-corroboration",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/client-claim-corroboration.ts",
+    "../lib/active-close.ts"
+  ]
+}

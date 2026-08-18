@@ -16,5 +16,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "files": ["../lib/console/color.ts", "../lib/console/workspace.ts"]
+  "files": ["../lib/console/color.ts", "../lib/console/workspace.ts", "../lib/sync-merge.ts"]
 }

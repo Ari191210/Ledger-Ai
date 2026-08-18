@@ -379,7 +379,7 @@ export default function PanicTriagePage() {
         }}
       >
         <Link
-          href="/dashboard"
+          href="/home"
           style={{
             color: "var(--ink-2)",
             textDecoration: "none",
@@ -390,7 +390,7 @@ export default function PanicTriagePage() {
             gap: "0.35rem",
           }}
         >
-          ← Dashboard
+          ← Home
         </Link>
         <span style={{ color: "var(--rule)", userSelect: "none" }}>|</span>
         <span

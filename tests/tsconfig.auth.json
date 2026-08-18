@@ -1,0 +1,17 @@
+{
+  "//": "Separate outDir per suite — see tests/tsconfig.registry.json for why. lib/auth-routes.ts imports nothing, so it compiles and runs standalone with no Next.js runtime in reach; that is the point of keeping the auth DECISION pure.",
+  "compilerOptions": {
+    "outDir": "../.test-build-auth",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": ["../lib/auth-routes.ts"]
+}

@@ -105,6 +105,16 @@ export default function Landing() {
                 Start your record
               </Link>
               <span className="cta__note">CBSE CLASS 11 &amp; 12 PHYSICS</span>
+              {/* M5-4 · the way back in. Architecture S.6 recorded that this
+                  page had three hrefs — /onboard twice and /legal/terms — and
+                  "no sign-in […] a returning user has no way in". The class is
+                  `colophon` rather than a new one on purpose: it already
+                  carries the instrument face, the micro size, the --g-6 tone
+                  and, for the anchor inside it, hover and :focus-visible
+                  (§6.6). Nothing on this page is restyled to add a link. */}
+              <span className="colophon" style={{ display: "block", marginTop: "var(--s-3)" }}>
+                Already have a record? <Link href="/auth">Sign in</Link>
+              </span>
             </span>
           </div>
         </div>
@@ -327,7 +337,8 @@ export default function Landing() {
 
         <p className="colophon">
           StudyLedger · CBSE Class 11 &amp; 12 Physics ·{" "}
-          <Link href="/legal/terms">Terms</Link>
+          <Link href="/auth">Sign in</Link> ·{" "}
+          <Link href="/legal?section=terms">Terms</Link>
         </p>
       </section>
     </main>

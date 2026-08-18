@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { supabase } from "./supabase";
-import { getLocalProfile } from "./user-data";
 import { sounds } from "./sounds";
 import { track } from "./posthog";
 
@@ -18,9 +17,28 @@ export class AIError extends Error {
 }
 
 // ── Raw fetch — returns Response, caller handles status ───────────────────────
+//
+// M15-1 — THE PROFILE NO LONGER TRAVELS WITH THE REQUEST.
+//
+// This function used to read `getLocalProfile()` and spread it over every body:
+// `{ ...body, ...profile }`. Two things were wrong with that, and both are the
+// same defect seen from different ends.
+//
+//   · The server personalised from it. `buildProfileContext` in `/api/ai` read
+//     `params.grade`, `params.board`, `params.aiProfile` — the BROWSER's copy —
+//     so a stale or edited cache decided how the model addressed the student.
+//     Architecture Q.1(a) and Finding A.6.b. The route now reads the profile
+//     itself, through `getStudentContext()`, and cannot be told otherwise.
+//
+//   · The spread came LAST, so the cache also overwrote arguments the tool had
+//     just been given. Ask the formula sheet for a CBSE chapter while the cache
+//     said ICSE and the cache won.
+//
+// Only the ambient profile is removed. A tool that passes `board` or `grade` as
+// its own argument still does, and that argument is now what the server sees;
+// where a request omits them the server fills them from its own record.
 export async function callAI(body: Record<string, unknown>): Promise<Response> {
   sounds.aiStart();
-  const profile = getLocalProfile();
   const { data: { session } } = await supabase.auth.getSession();
   return fetch("/api/ai", {
     method: "POST",
@@ -28,7 +46,10 @@ export async function callAI(body: Record<string, unknown>): Promise<Response> {
       "Content-Type": "application/json",
       ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
     },
-    body: JSON.stringify({ ...body, ...profile }),
+    // Same-origin, so the cookie session M4-1 put on the wire rides along and
+    // `getStudentContext()` can see it.
+    credentials: "same-origin",
+    body: JSON.stringify(body),
   });
 }
 

@@ -4,7 +4,13 @@ import { useEffect, useMemo, useState, type ReactNode, type CSSProperties } from
 import { computeLedgerScore } from "@/lib/ledger-score";
 import { currentInputs } from "@/lib/score-projection";
 import { computeVitality, vitalityWithFloor, VITALITY_FLOOR } from "@/lib/console/vitality";
-import { DEFAULT_DNA, derive, readStoredDNA, type WorkspaceDNA } from "@/lib/console/workspace";
+import {
+  DEFAULT_DNA,
+  derive,
+  readStoredDNA,
+  WORKSPACE_CHANGE_EVENT,
+  type WorkspaceDNA,
+} from "@/lib/console/workspace";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // VITALITY SHELL — the token host for every Console surface.
@@ -65,6 +71,21 @@ export default function VitalityShell({
       // Storage unavailable. The floor is already applied, so the interface is
       // simply at its most restrained — correct, not broken.
     }
+  }, []);
+
+  // M24 — GENERALISATION. Every shell mounts its own VitalityShell instance
+  // (`/console`, `/home`, `/settings`, `/capture`, `/diagnosis`, `/record` —
+  // S.6), and a choice made on one of them must be visible on the others
+  // without a reload for "customisation applies outside /console" to be a
+  // live fact rather than a claim that only holds after navigation.
+  // `writeStoredDNA` dispatches this event on every successful write; each
+  // mounted shell just re-reads storage — no cross-shell state is passed
+  // directly, so a shell that never mounted still reads the same source of
+  // truth the next time it does.
+  useEffect(() => {
+    const onChange = () => setDna(readStoredDNA());
+    window.addEventListener(WORKSPACE_CHANGE_EVENT, onChange);
+    return () => window.removeEventListener(WORKSPACE_CHANGE_EVENT, onChange);
   }, []);
 
   // Derivation is pure and cheap, but it produces a fresh object every call —

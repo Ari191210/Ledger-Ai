@@ -3,7 +3,6 @@ import {
   projectSyllabusImpact,
   projectCoverageImpact,
   projectFocusImpact,
-  projectMistakeReductionImpact,
 } from "@/lib/score-projection";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -12,10 +11,17 @@ import {
 // NOW shows exactly one action. Not a ranked list with the others greyed out —
 // one. A student at 11pm with an exam tomorrow cannot afford to choose.
 //
-// Every gain figure here comes from the real projection engine
+// A gain figure is shown ONLY where the mechanism that pays it exists and is
+// reachable. Where a figure is shown it comes from the real projection engine
 // (lib/score-projection.ts), which simulates the move against the same inputs
-// the live score uses. Nothing is estimated, rounded up, or invented: the
-// number shown is the number the student will actually get.
+// the live score uses — nothing is estimated, rounded up, or invented.
+//
+// The mistake move deliberately carries NO figure. Its projection assumed a
+// mistake could reach `status: "resolved"`, and no production action produces
+// that state, so any number here would be a promise the system cannot pay
+// (PRODUCT_PRINCIPLES Law 7). It states the real benefit in words instead. The
+// figure returns when the evidence pipeline makes resolution real (M14) — not
+// before, and never by patching the formula.
 //
 // Ordering is by what unblocks the most, not by what scores the most:
 //   1. No syllabus  → nothing else can be measured against anything
@@ -28,8 +34,10 @@ import {
 export type NextMove = {
   /** Verb-first. What the student does, not what the system computed. */
   headline: string;
-  /** Real projected gain in points. Null when the move has no scored delta. */
+  /** Real projected gain in points. Null when the move has no payable delta. */
   gain: number | null;
+  /** Plain-language benefit, shown when `gain` is null. */
+  note?: string;
   /** Which pillar this moves. Used for the quiet provenance line. */
   pillar: string;
   /** Where the action goes. */
@@ -77,16 +85,14 @@ export function deriveNextMove(inputs: ScoreInputs): NextMove {
     return Number.isFinite(t) && t >= weekAgo;
   }).length;
   if (recent > 0) {
-    const p = projectMistakeReductionImpact(inputs, recent);
-    if (p.delta > 0) {
-      return {
-        headline: recent === 1 ? "Clear your open mistake" : `Clear ${recent} open mistakes`,
-        gain: p.delta,
-        pillar: "Recovery",
-        href: "/tools/post-exam",
-        cta: "Review them",
-      };
-    }
+    return {
+      headline: recent === 1 ? "Review your open mistake" : `Review ${recent} open mistakes`,
+      gain: null,
+      note: "This improves your mistake record. It does not move your score yet.",
+      pillar: "Recovery",
+      href: "/tools/post-exam",
+      cta: "Review them",
+    };
   }
 
   // 4 ── Streak cold. Cheapest pillar to restart, and it compounds.

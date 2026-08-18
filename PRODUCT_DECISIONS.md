@@ -5,7 +5,7 @@ AUTHORITY:       decisions
 ANSWERS:         "what have we chosen, as of now?"
 MAY NOT CONTAIN: principles · milestones · task order · effort estimates · dates of delivery
 PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
-LAST AMENDED:    2026-08-05
+LAST AMENDED:    2026-08-10
 ```
 
 Everything here is **revisable**. Each entry is dated and every reversal is
@@ -657,6 +657,15 @@ change.
 **The single exception** is the Ledger Score engine, which is deliberately
 changed per §4.11 because it currently contradicts a principle.
 
+**Narrowed 2026-08-10.** §6 was a scoping statement for the *product and design*
+change of 2026-08-05: it meant *"this particular piece of work does not touch the
+backend."* It is **not** a permanent freeze on the backend, and it never
+outranked a principle. The §9 ratifications explicitly change backend surfaces
+where shipped code breaches ratified law — the parent read path and digest
+(§9.2), the streak-driven score dimension and its notification consumers (§9.3),
+and the mistake evidence model (§9.4). Where §6 and §9 appear to disagree, **§9
+wins**, because §6 is a scope note and §9 is a decision.
+
 ---
 
 # 7. DECISION LOG
@@ -683,6 +692,10 @@ changed per §4.11 because it currently contradicts a principle.
 | **2026-08-06** | **D1 CLOSED — the mistake schema is ratified.** Persistence may begin | **RATIFIED** (§4) |
 | 2026-08-05 | Score mistake pillar inverted | **Live** (§4.11) |
 | 2026-08-05 | Workspace Engine approved in principle, **frozen** | **Not in scope** (§8) |
+| **2026-08-10** | **External study supported as a claim-only input** — declared, then assessed, then verified | **RATIFIED** (§9.1) |
+| **2026-08-10** | **Parent mistake visibility is structural, not toggleable** — Option B; §3.4 **not** amended | **RATIFIED** (§9.2) |
+| **2026-08-10** | **Streaks removed from scoring; Continuity replaces Momentum** — a rebuild, not a rename | **RATIFIED** (§9.3) |
+| **2026-08-10** | **Mistake pillar is REBUILT via the event/assessment pipeline** — the enum patch is rejected | **RATIFIED** (§9.4) |
 
 ## 7.1 Reversals, with reasons
 
@@ -796,3 +809,131 @@ One claim was promoted out of it into `PRODUCT_PRINCIPLES` §4.3:
 milestone-gated unlocking is gamification and is banned.
 
 **Do not begin Workspace Engine work without an explicit decision recorded here.**
+
+---
+
+# 9. THE FOUR ARCHITECTURE DECISIONS — RATIFIED 2026-08-10
+
+*Ratified 2026-08-10. These are the four calls
+`STUDYLEDGER_OPEN_DECISIONS.md` isolated and could not make on its own; that
+memo is retained as the record of **how** each was reasoned. This section
+records **what was chosen**. Field names, table names and formulas are
+deliberately absent — those belong to `STUDYLEDGER_SYSTEM_ARCHITECTURE.md`.*
+
+## 9.1 External study is supported, as a claim
+
+**Chosen.** A student may tell StudyLedger what they studied outside it — NCERT,
+a textbook, school, a teacher, coaching, YouTube, another site, handwritten
+notes. The declaration is recorded as **student-declared evidence**, it may open
+a study session, and it **earns assessment coverage**.
+
+**It scores nothing by itself.** A declared concept is unverified until it has
+been assessed; only then does it become verified academic evidence and reach the
+record or the Ledger Score.
+
+**Rejected:** counting only in-product activity. That would make the product a
+measure of app usage.
+
+Governed by `PRODUCT_PRINCIPLES` **§3.5** (added the same day), and constrained
+by §3.1 and §3.2, which are unchanged. Anywhere a declared-but-untested concept
+is shown — to the student or to a parent — it must be **visibly distinct** from a
+verified one.
+
+## 9.2 Parent mistake visibility is structural, not a setting
+
+**Chosen — Option B.** Individual mistake evidence is **`Private` at every
+setting**. The student controls what parents see *within the allowed model*, and
+there is no toggle, anywhere, that opens individual mistakes to a parent.
+
+| Parents may see | Parents never receive |
+|---|---|
+| Progress, trajectory | Individual wrong answers |
+| Continuity of verification | Individual mistake occurrences |
+| Subjects, verified learning | Detailed mistake history |
+| High-level areas needing attention | Question-by-question failures |
+| Reports | Mistake counts, forensic lists |
+
+> **Parents can understand how the student is doing without being given a
+> forensic record of how the student failed.**
+
+**Rejected:** student-controlled granular sharing (Option A) and the
+aggregate-trend hybrid (Option C). Both would have required a dated amendment to
+`PRODUCT_PRINCIPLES` §3.4 first; **that amendment was considered and refused.**
+Where an earlier "the student controls everything" framing conflicts with §3.4,
+**§3.4 wins** — the product serves minors.
+
+**Consequence, independent of anything else:** the two live §3.4 breaches — weak
+topics returned by the parent API, and the per-topic miss-count table in the
+parent digest — are **violations to be removed**, not features to be gated.
+
+## 9.3 Streaks leave the score; Continuity replaces them
+
+**Chosen.** No consecutive-day mechanic is a core academic scoring input. The
+conceptual dependency *"you studied X days in a row, therefore your academic
+state is better"* is removed.
+
+**Retained under a different name and a different definition — Continuity:**
+sustained, **verified** academic engagement over a reasonable rolling window,
+computed from verified study sessions, demonstrated learning, assessment
+participation and academic activity.
+
+**Continuity must never become** a daily punishment · a streak counter · a score
+cliff · a guilt mechanism · a *"you broke your streak"* notification. **A student
+must be able to miss a day without feeling they destroyed their progress.**
+
+> Target sentence: ***"Your learning has been consistent."***
+> Never: *"You haven't broken your chain."*
+
+This is not the removal of longitudinal consistency; it is the removal of
+gamified streak mechanics in favour of an evidence-based model.
+
+**This is a rebuild, not a rename.** The shipped streak implementation is
+classified **REMOVE FROM SCORING**, and the subsystems that consume it —
+notifications and the parent digest banner — are **REBUILD / DELETE** per
+`STUDYLEDGER_SYSTEM_ARCHITECTURE.md` Parts S and W. Renaming the existing streak
+variable to `continuity` is explicitly **not** an implementation of this
+decision.
+
+Implements the already-ratified `PRODUCT_PRINCIPLES` §4.2; no principle changed.
+
+## 9.4 The mistake pillar is rebuilt, not patched
+
+**Chosen.** The mistake-score defect is an **evidence architecture** problem, not
+a status-enum problem. The status-enum patch is **rejected outright** — it would
+convert a dead pillar into a self-awardable one, which is worse than the bug.
+
+**The target flow, in order:**
+
+```
+Academic Event → Study Session → Assessment → Assessment Evidence →
+Mistake Occurrence → Mistake DNA → Correction → Retest →
+Verified Resolution → Ledger Score Evidence
+```
+
+Two hard rules, and neither is negotiable at implementation time:
+
+> **A mistake is not "resolved" because the student says it is resolved.
+> Resolution requires evidence.**
+>
+> **A student cannot earn mistake-related score by declaring or manipulating a
+> mistake state.**
+
+**Presentation state is never score evidence.** No path from a UI dismissal to a
+score movement may exist.
+
+**Existing code.** `lib/mistakes/*` is **evaluated for reusable domain logic** —
+its lifecycle, merge and resolution-gate logic is sound and tested. Its current
+**persistence and evidence assumptions are not the target architecture** and
+carry no presumption of survival. "Reuse the domain engine" is not "keep the
+storage model."
+
+Implements `PRODUCT_PRINCIPLES` §3.1 and §3.2, and supersedes nothing in §4.11 —
+§4.11's inverted pillar (resolution rate · evidence volume · acknowledgement) is
+what this pipeline makes computable for the first time.
+
+## 9.5 What §9 does not decide
+
+Table names, column names, event names, enum values, point allocations, window
+lengths, thresholds and migration sequencing. All of those live in
+`STUDYLEDGER_SYSTEM_ARCHITECTURE.md`; ordering and effort live in
+`EXECUTION_PLAN.md`.

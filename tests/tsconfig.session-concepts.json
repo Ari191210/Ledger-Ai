@@ -1,0 +1,25 @@
+{
+  "//": "M9-4/M9-5/M9-6. Separate outDir per suite — see tests/tsconfig.registry.json for why. Every module compiled here is I/O-free: `lib/event-contract.ts` and `lib/concept-resolution.ts` import nothing, `lib/study-session.ts` imports nothing, and the three new modules add only each other. That is what makes verbatim preservation, the unconfirmed-exclusion gate and the figures-only payload provable with no Supabase project in reach (U.3, the determinism boundary).",
+  "compilerOptions": {
+    "outDir": "../.test-build-session-concepts",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/study-session.ts",
+    "../lib/session-resolver.ts",
+    "../lib/concept-resolution.ts",
+    "../lib/event-contract.ts",
+    "../lib/session-concepts.ts",
+    "../lib/external-study.ts",
+    "../lib/session-completion.ts"
+  ]
+}

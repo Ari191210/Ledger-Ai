@@ -8,7 +8,10 @@ import {
   type BaseId, type AccentId,
 } from "@/lib/palette";
 import { getDensity, applyDensity, type Density } from "@/lib/density";
-import { getDashLayout, saveDashLayout, type DashLayout, type DashSection, DASH_DEFAULTS } from "@/lib/dash-layout";
+import { fetchHomeLayout, saveHomeLayout, toggleComponentVisibility, listHomeComponents } from "@/lib/dash-layout";
+import type { HomeComponentId, HomeLayout } from "@/lib/home";
+import { defaultHomeLayout } from "@/lib/home";
+import { useAuth } from "@/components/auth-provider";
 import { FontPicker } from "./_font-picker";
 import EditorialRange from "@/components/ui/editorial-range";
 
@@ -18,13 +21,12 @@ const DENSITY_OPTIONS: { id: Density; label: string; sub: string }[] = [
   { id: "comfortable", label: "Comfortable", sub: "Easy on long sessions" },
 ];
 
-const LAYOUT_SECTIONS: { id: DashSection; label: string }[] = [
-  { id: "recommendation", label: "Daily Recommendation" },
-  { id: "recent",         label: "Recently Used" },
-  { id: "score",          label: "Ledger Score™" },
-  { id: "exams",          label: "Exam Schedule" },
-  { id: "features",       label: "Features Showcase" },
-];
+// M22 — registry-driven, mirroring `components/settings/appearance-fields.tsx`.
+const LAYOUT_SECTIONS = listHomeComponents().map(c => ({ id: c.componentId, label: c.title, canBeHidden: c.canBeHidden }));
+
+function isVisible(layout: HomeLayout, id: HomeComponentId): boolean {
+  return layout.entries.find(e => e.componentId === id)?.visible ?? true;
+}
 
 const CARD = {
   background: "color-mix(in srgb, var(--ink) 5%, var(--paper))",
@@ -51,10 +53,11 @@ function SectionHead({ n, label, right }: { n: string; label: string; right?: st
 }
 
 export default function PersonalisePage() {
+  const { session } = useAuth();
   const [activeBase,   setActiveBase]   = useState<BaseId>("obsidian");
   const [activeAccent, setActiveAccent] = useState<AccentId>("cinnabar");
   const [density, setDensity] = useState<Density>("default");
-  const [layout,  setLayout]  = useState<DashLayout>(DASH_DEFAULTS);
+  const [layout,  setLayout]  = useState<HomeLayout>(defaultHomeLayout());
   const [radius,  setRadius]  = useState(12);
   const [width,   setWidth]   = useState<"narrow"|"medium"|"wide">("medium");
   const [speed,   setSpeed]   = useState<"reduced"|"normal"|"fast">("normal");
@@ -63,7 +66,6 @@ export default function PersonalisePage() {
     setActiveBase(getActiveBase());
     setActiveAccent(getActiveAccent());
     setDensity(getDensity());
-    setLayout(getDashLayout());
     const saved = localStorage.getItem("ledger-radius");
     if (saved) { const v = parseInt(saved); setRadius(v); document.documentElement.style.setProperty("--radius", v + "px"); }
     const savedW = localStorage.getItem("ledger-width") as "narrow"|"medium"|"wide" | null;
@@ -78,12 +80,21 @@ export default function PersonalisePage() {
     return () => window.removeEventListener("ledger-theme", onT);
   }, []);
 
+  // M22-2 — server-persisted, not `localStorage`.
+  useEffect(() => {
+    if (!session?.access_token) return;
+    let alive = true;
+    fetchHomeLayout(session.access_token).then(l => { if (alive) setLayout(l); });
+    return () => { alive = false; };
+  }, [session?.access_token]);
+
   function pickBase(b: BaseId) { setActiveBase(b); applyTheme(b, activeAccent); }
   function pickAccent(a: AccentId) { setActiveAccent(a); applyTheme(activeBase, a); }
   function pickDensity(d: Density) { setDensity(d); applyDensity(d); }
-  function toggleSection(id: DashSection) {
-    const next = { ...layout, [id]: !layout[id] };
-    setLayout(next); saveDashLayout(next);
+  function toggleSection(id: HomeComponentId) {
+    const next = toggleComponentVisibility(layout, id);
+    setLayout(next);
+    if (session?.access_token) saveHomeLayout(session.access_token, next);
   }
   function changeRadius(v: number) {
     setRadius(v);
@@ -278,20 +289,24 @@ export default function PersonalisePage() {
 
         {/* 05 · Dashboard layout */}
         <section style={CARD}>
-          <SectionHead n="05 · Dashboard Layout" label="Your command centre, your way." right={`${Object.values(layout).filter(Boolean).length}/${LAYOUT_SECTIONS.length} shown`} />
+          <SectionHead n="05 · Dashboard Layout" label="Your command centre, your way." right={`${LAYOUT_SECTIONS.filter(s => isVisible(layout, s.id)).length}/${LAYOUT_SECTIONS.length} shown · synced to your account`} />
           <div style={{ border: "1px solid var(--rule)", borderRadius: 10, overflow: "hidden" }}>
             {LAYOUT_SECTIONS.map((s, i) => {
-              const on = layout[s.id];
+              const on = isVisible(layout, s.id);
+              const locked = !s.canBeHidden;
               return (
-                <button key={s.id} onClick={() => toggleSection(s.id)} style={{
+                <button key={s.id} onClick={() => !locked && toggleSection(s.id)} disabled={locked} style={{
                   width: "100%", border: "none", margin: 0,
                   borderBottom: i < LAYOUT_SECTIONS.length - 1 ? "1px solid var(--rule)" : "none",
                   display: "flex", alignItems: "center", gap: 20, padding: "18px 24px",
                   background: on ? "color-mix(in srgb, var(--ink) 4%, var(--paper))" : "transparent",
-                  cursor: "pointer", textAlign: "left", transition: "background 150ms",
+                  cursor: locked ? "default" : "pointer", textAlign: "left", transition: "background 150ms",
+                  opacity: locked ? 0.7 : 1,
                 }}>
                   <div className="mono" style={{ fontSize: 8, color: on ? "var(--cinnabar-ink)" : "var(--ink-3)", width: 18, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</div>
-                  <div style={{ flex: 1, fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, color: on ? "var(--ink)" : "var(--ink-3)" }}>{s.label}</div>
+                  <div style={{ flex: 1, fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, color: on ? "var(--ink)" : "var(--ink-3)" }}>
+                    {s.label}{locked && <span className="mono" style={{ fontSize: 8, color: "var(--ink-3)", marginLeft: 8 }}>ALWAYS ON</span>}
+                  </div>
                   <div style={{ width: 36, height: 20, borderRadius: 10, background: on ? "var(--cinnabar-ink)" : "var(--rule)", position: "relative", transition: "background 200ms", flexShrink: 0 }}>
                     <div style={{ position: "absolute", top: 3, left: on ? 19 : 3, width: 14, height: 14, borderRadius: "50%", background: on ? "#fff" : "var(--ink-3)", transition: "left 200ms cubic-bezier(0.22,1,0.36,1)" }} />
                   </div>

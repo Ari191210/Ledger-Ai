@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { patchUserData, loadUserData } from "@/lib/user-data";
-import { completeSessionStreak, resolveStreak, shieldAvailable } from "@/lib/streak";
+import { completeSessionStreak, resolveStreak } from "@/lib/streak";
 import { stampQualifyingEvent } from "@/lib/active-close";
 
 type Mode = "work" | "break" | "longbreak";
@@ -11,15 +11,20 @@ export type FocusTask = { id: number; text: string; done: boolean };
 export const DURATIONS: Record<Mode, number> = { work: 25 * 60, break: 5 * 60, longbreak: 20 * 60 };
 export const MODE_LABELS: Record<Mode, string> = { work: "Work", break: "Short break", longbreak: "Long break" };
 
+// M0-6: the streak is no longer part of this context's public shape.
+// `ledger-focus-streak` is still resolved and written below because
+// `lib/ledger-score.ts` reads it directly as the raw input to the Consistency
+// term — deleting the write would silently move every student's score, which
+// M0 must not do (the scoring term itself is deleted at M14-2). What is gone
+// is the *presentation*: no consumer can read a streak count or a shield state
+// out of this provider, so no surface can render a counter, a cliff, or
+// "don't break your chain" copy (`PRODUCT_PRINCIPLES` §4.2).
 export type FocusCtx = {
   mode: Mode;
   seconds: number;
   running: boolean;
   sessions: number;
   tasks: FocusTask[];
-  streak: number;
-  /** One missed day per month is auto-covered; true while unspent. */
-  shieldAvailable: boolean;
   switchMode: (m: Mode) => void;
   toggleRunning: () => void;
   reset: () => void;
@@ -40,8 +45,6 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
     { id: _tid++, text: "Review chapter notes", done: false },
     { id: _tid++, text: "Solve 5 past-paper questions", done: false },
   ]);
-  const [streak, setStreak] = useState(0);
-  const [shieldFree, setShieldFree] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Refs so tick callback never goes stale
@@ -50,10 +53,11 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
   const userRef = useRef(user);
   userRef.current = user;
 
-  // Load streak from Supabase / localStorage, then normalize it against the
-  // calendar (resolveStreak): a lapsed streak resets, a single missed day
-  // consumes the monthly shield. Storage is canonical — the score engine
-  // reads ledger-focus-streak directly, so it must never hold a stale value.
+  // Normalize the stored consecutive-day count against the calendar
+  // (resolveStreak) so storage never holds a stale value: the score engine
+  // reads `ledger-focus-streak` directly. Nothing here is rendered — this
+  // runs purely to keep the scoring input honest until M14-2 deletes the
+  // consecutive-day term from the formula outright.
   useEffect(() => {
     async function load() {
       let stored = 0;
@@ -79,11 +83,7 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
           const u = userRef.current;
           if (u) patchUserData(u.id, "focus", { streak: resolved.streak, lastDate: resolved.lastDate ?? "" });
         }
-        setStreak(resolved.streak);
-        setShieldFree(shieldAvailable(resolved.shieldUsedMonth));
-      } catch {
-        setStreak(stored);
-      }
+      } catch {}
     }
     load();
   }, [user]);
@@ -138,8 +138,6 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
                 localStorage.setItem("ledger-focus-streak", String(result.streak));
                 if (result.lastDate) localStorage.setItem("ledger-focus-last", result.lastDate);
                 if (result.shieldUsedMonth) localStorage.setItem("ledger-focus-shield", result.shieldUsedMonth);
-                setStreak(result.streak);
-                setShieldFree(shieldAvailable(result.shieldUsedMonth));
                 const u = userRef.current;
                 if (u) patchUserData(u.id, "focus", { streak: result.streak, lastDate: result.lastDate ?? "" });
               }
@@ -166,7 +164,7 @@ export function FocusProvider({ children }: { children: React.ReactNode }) {
   const reset = () => { setRunning(false); setSeconds(DURATIONS[mode]); };
 
   return (
-    <FocusContext.Provider value={{ mode, seconds, running, sessions, tasks, streak, shieldAvailable: shieldFree, switchMode, toggleRunning, reset, setTasks }}>
+    <FocusContext.Provider value={{ mode, seconds, running, sessions, tasks, switchMode, toggleRunning, reset, setTasks }}>
       {children}
     </FocusContext.Provider>
   );

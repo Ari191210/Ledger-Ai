@@ -14,23 +14,18 @@
 // Personal Edition.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// M0-6: the "Study Streak" column is deleted. Three real figures are better
+// than four when the fourth is a chain (`PRODUCT_PRINCIPLES` §4.2).
 export default function ByTheNumbers({
-  streak,
   papers,
   sessionsToday,
   nextExam,
 }: {
-  streak: number;
   papers: number;
   sessionsToday: number;
   nextExam: { name: string; days: number } | null;
 }) {
   const cols: Array<{ label: string; figure: string; sub: string }> = [
-    {
-      label: "Study Streak",
-      figure: streak > 0 ? String(streak) : "0",
-      sub: streak === 0 ? "start today" : streak === 1 ? "day" : "days running",
-    },
     {
       label: "Papers Done",
       figure: String(papers),
@@ -60,7 +55,7 @@ export default function ByTheNumbers({
       }}
     >
       <div className="ed-kicker" style={{ marginBottom: 14 }}>By the Numbers</div>
-      {/* auto-fit so it is 4-across on the dashboard column and reflows to 2×2
+      {/* auto-fit so it is 3-across on the dashboard column and reflows
           on a phone with no media query and no stranded dividers. */}
       <div
         style={{

@@ -1,4 +1,33 @@
 ﻿"use client";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// /tools/exam-practice — RETIRED INTO `/capture`. M8-1.
+//
+// `next.config.mjs` answers `/tools/exam-practice` with a 301 to `/capture`.
+// The redirect runs before middleware and before this file, so in production
+// nothing below renders. Architecture S.4: `exam-practice` **REBUILD** into
+// `/capture` (papers).
+//
+// WHY THE BODY IS STILL HERE, WHEN M3 DELETED `/dashboard`'s.
+//
+// M3 could gut `/dashboard` because `/home` had already absorbed everything it
+// did, in the same milestone. `/capture` has not: this pass ships capture,
+// storage and stage-tracking (M8-1..M8-3), and the parts of this file that
+// belong in the rebuilt product — writing a mistake with evidence attached —
+// are M8-4 (extraction) and M8-6 (manual entry). Deleting shipped code the
+// replacement cannot yet do would be `PRODUCT_PRINCIPLES` §1.4's deletion gate
+// failing in the direction that costs a student their work.
+//
+// So the route is UNLINKED, NOT DELETED (`PRODUCT_DECISIONS` §2.5), and this
+// file changes in exactly one way: this comment. Nothing below is rewritten —
+// including the M0-10 deletion of the client-side `status = "cleared"` write,
+// which stays deleted.
+//
+// DELETE THE BODY when M8-4 and M8-6 have shipped and `/capture` writes
+// occurrences with evidence — at which point the M3 pattern (a one-line
+// `permanentRedirect("/capture")`) is the honest shape for this file.
+// ═══════════════════════════════════════════════════════════════════════════
+
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import TierGate from "@/components/tier-gate";
 import ScoreImpactStrip from "@/components/score-impact-strip";
@@ -11,6 +40,7 @@ import { useAuth } from "@/components/auth-provider";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import SharedCrunchTab from "@/components/tools/crunch-tab";
 
 type Tab = "papers" | "triage" | "crunch" | "markscheme" | "formula" | "recall";
 const TABS: [Tab, string][] = [
@@ -37,33 +67,31 @@ function saveSessionResults(paper: Paper, answers: (number | null)[], userId?: s
     localStorage.setItem("ledger-papers-log", JSON.stringify(log.slice(0, 50)));
     if (userId) { patchUserData(userId, "weakTopics", wt); patchUserData(userId, "papersCount", log.length); }
 
-    // ── Recovery auto-clear (Integrity Sprint) ─────────────────────────────
-    // Topics answered correctly ≥2 times in this session redeem their open
-    // mistakes: demonstrated mastery closes the loop the engine now scores.
-    const correctByTopic: Record<string, number> = {};
-    paper.questions.forEach((q, i) => { if (answers[i] === q.ans) correctByTopic[q.topic] = (correctByTopic[q.topic] || 0) + 1; });
-    const mastered = new Set(
-      Object.entries(correctByTopic).filter(([, n]) => n >= 2).map(([t]) => t.toLowerCase().trim()),
-    );
-    if (mastered.size > 0) {
-      const mistakes = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]") as Array<{ topic?: string; status?: string; clearedDate?: string }>;
-      let clearedAny = false;
-      const nowIso = new Date().toISOString();
-      for (const m of mistakes) {
-        // Only entries the recovery system owns (explicit "open") are cleared.
-        // Legacy unstatused entries stay archived — the engine ignores them,
-        // and clearing them here would fabricate recovery credit.
-        if (m.status === "open" && m.topic && mastered.has(m.topic.toLowerCase().trim())) {
-          m.status = "cleared";
-          m.clearedDate = nowIso;
-          clearedAny = true;
-        }
-      }
-      if (clearedAny) {
-        localStorage.setItem("ledger-mistakes", JSON.stringify(mistakes));
-        stampQualifyingEvent("mistake_cleared");
-      }
-    }
+    // ── Recovery auto-clear: DELETED (M0-10) ───────────────────────────────
+    // This block used to walk `ledger-mistakes` and set `m.status = "cleared"`
+    // (plus `clearedDate`) for any topic the student happened to answer
+    // correctly twice in one multiple-choice paper, straight from the browser.
+    //
+    // That is a student marking their own mistakes fixed by self-report, which
+    // `PRODUCT_PRINCIPLES` §3.1 forbids: resolution requires evidence, and the
+    // evidence must be verifiable — two lucky clicks on a four-option question
+    // are not proof that a mistake is corrected. The write was also read
+    // downstream as exactly that proof:
+    //   · `lib/ledger-score-v2.ts` pays `recovery` points per mistake cleared
+    //     in the last 30 days;
+    //   · `lib/active-close.ts` corroborates an "active day" from a
+    //     `clearedDate`;
+    //   · `lib/mistakes/migrate-legacy.ts` maps a legacy `cleared` to
+    //     `acknowledged`, which the live scorer counts as a faced mistake.
+    // So a client-side field assignment could become scored academic truth in
+    // three separate places.
+    //
+    // Nothing replaces it here. Real resolution — retest scheduling, the
+    // cooling-off gate, and the triple server-side refusal of a client-set
+    // resolution — is M11 (`EXECUTION_PLAN` M11-4, M11-5). Until then a mistake
+    // stays `open` and the honest answer is that the product cannot yet prove
+    // it was fixed. The mistake list is unchanged by finishing a paper; the
+    // session's own result is still recorded above.
 
     // Active-day stamp: a graded session of ≥5 questions is a qualifying event.
     if (paper.questions.length >= 5) stampQualifyingEvent("practice_session");
@@ -186,9 +214,10 @@ function PracticeMode({ state, setState, userId }: { state: PracticeState; setSt
   function logMistakes() {
     try {
       const existing = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
-      // Recovery lifecycle (Integrity Sprint): every new mistake opens with
-      // status "open" and stays open until demonstrably cleared — the v2
-      // engine scores the clearing, never the concealment.
+      // Every new mistake opens with status "open" and stays open. Opening a
+      // mistake is a claim the student is entitled to make about their own
+      // work; closing one is not (`PRODUCT_PRINCIPLES` §3.1). No client path
+      // moves an entry out of "open" — see the deleted auto-clear above.
       const entries = Object.entries(mistakeTags).map(([idx, cat]) => ({
         id: `${Date.now()}-${idx}`,
         date: new Date().toISOString(),
@@ -653,135 +682,16 @@ function PaperTriageTab() {
   );
 }
 
-// ── Crunch ──────────────────────────────────────────────────────────────
-type CrunchTopicStatus = "done" | "partial" | "untouched";
-type CrunchTopicItem   = { name: string; status: CrunchTopicStatus };
-type CrunchPriority    = { topic: string; why: string; timeHours: number };
-type CrunchSchedule    = { slot: string; action: string; topic: string };
-type CrunchPlan        = { verdict: string; skip: string[]; priority: CrunchPriority[]; schedule: CrunchSchedule[]; advice: string };
-const CRUNCH_STATUS_LABEL: Record<CrunchTopicStatus, string>                         = { done: "Done ✓", partial: "Partial ⟳", untouched: "Not yet ✗" };
-const CRUNCH_STATUS_NEXT:  Record<CrunchTopicStatus, CrunchTopicStatus>               = { done: "partial", partial: "untouched", untouched: "done" };
-const CRUNCH_STATUS_COLOR: Record<CrunchTopicStatus, string>                          = { done: "var(--cinnabar-ink)", partial: "var(--ink-2)", untouched: "var(--ink-3)" };
-
+// ── Crunch ────────────────────────────────────────────────────
+// M2-5 — `CrunchTab` was defined here AND in `app/tools/exam-triage/page.tsx`.
+// One definition now lives in `components/tools/crunch-tab.tsx`; this host keeps
+// the page frame it always wrapped the tab in, and takes the shared component's
+// defaults, which reproduce this copy exactly.
 function CrunchTab() {
-  const [examName,   setExamName]   = useState("");
-  const [hoursLeft,  setHoursLeft]  = useState(24);
-  const [topicInput, setTopicInput] = useState("");
-  const [topics,     setTopics]     = useState<CrunchTopicItem[]>([]);
-  const [plan,       setPlan]       = useState<CrunchPlan | null>(null);
-  const [loading,    setLoading]    = useState(false);
-  const [error,      setError]      = useState("");
-
-  function addTopic() {
-    const t = topicInput.trim();
-    if (!t || topics.find(x => x.name.toLowerCase() === t.toLowerCase())) return;
-    setTopics(p => [...p, { name: t, status: "untouched" }]);
-    setTopicInput("");
-  }
-
-  function toggleStatus(i: number) {
-    setTopics(p => p.map((t, idx) => idx === i ? { ...t, status: CRUNCH_STATUS_NEXT[t.status] } : t));
-  }
-
-  async function generate() {
-    if (!examName.trim() || topics.length === 0) return;
-    setLoading(true); setError(""); setPlan(null);
-    try {
-      const data = await callAIOrThrow<CrunchPlan>({ tool: "crunch", examName: examName.trim(), hoursLeft: String(hoursLeft), topics: topics.map(t => `${t.name}: ${t.status}`).join("\n") });
-      setPlan(data);
-    } catch { setError("Network error."); }
-    finally { setLoading(false); }
-  }
-
   return (
     <div>
       <main className="mob-p" style={{ padding: "40px 44px 80px", maxWidth: 1280, margin: "0 auto" }}>
-        <div className="mob-col" style={{ display: "grid", gridTemplateColumns: (plan || loading) ? "1fr 1.6fr" : "1fr", gap: 48 }}>
-          <div>
-            <div className="mono cin" style={{ marginBottom: 14 }}>01 · Exam name</div>
-            <input value={examName} onChange={e => setExamName(e.target.value)} placeholder="e.g. Physics Board Exam" style={{ width: "100%", fontFamily: "var(--sans)", fontSize: 13, border: "none", background: "var(--paper-2)", padding: "14px 16px", color: "var(--ink)", boxSizing: "border-box", marginBottom: 28 }} />
-            <div className="mono cin" style={{ marginBottom: 14 }}>02 · Hours until exam</div>
-            <div style={{ border: "none", padding: "20px", marginBottom: 28 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
-                <span style={{ fontFamily: "var(--serif)", fontSize: 52, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1 }}>{hoursLeft}</span>
-                <span className="mono" style={{ color: "var(--ink-3)" }}>hours left</span>
-              </div>
-              <EditorialRange defaultValue={hoursLeft} startingValue={4} maxValue={48} isStepped stepSize={1} onChange={setHoursLeft} />
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>4h</span>
-                <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>48h</span>
-              </div>
-            </div>
-            <div className="mono cin" style={{ marginBottom: 14 }}>03 · Your topics</div>
-            <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 10, fontSize: 9 }}>Add topics, tap status to mark coverage.</div>
-            <div style={{ display: "flex", gap: 0, marginBottom: topics.length > 0 ? 0 : 20 }}>
-              <input value={topicInput} onChange={e => setTopicInput(e.target.value)} onKeyDown={e => e.key === "Enter" && addTopic()} placeholder="Type a topic, press Enter" style={{ flex: 1, fontFamily: "var(--sans)", fontSize: 13, border: "none", borderRight: "none", background: "var(--paper-2)", padding: "12px 14px", color: "var(--ink)", outline: "none" }} />
-              <button onClick={addTopic} className="btn" style={{ borderRadius: 0, flexShrink: 0, padding: "0 20px" }}>+ Add</button>
-            </div>
-            {topics.length > 0 && (
-              <div style={{ border: "none", marginBottom: 20 }}>
-                {topics.map((t, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", borderBottom: i < topics.length - 1 ? "1px solid var(--rule)" : "none" }}>
-                    <button onClick={() => toggleStatus(i)} style={{ padding: "10px 12px", background: "none", border: "none", borderRight: "1px solid var(--rule)", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 9, color: CRUNCH_STATUS_COLOR[t.status], whiteSpace: "nowrap", textTransform: "uppercase", minWidth: 96 }}>{CRUNCH_STATUS_LABEL[t.status]}</button>
-                    <span style={{ flex: 1, padding: "10px 14px", fontFamily: "var(--sans)", fontSize: 13 }}>{t.name}</span>
-                    <button onClick={() => setTopics(p => p.filter((_, idx) => idx !== i))} style={{ padding: "10px 12px", background: "none", border: "none", borderLeft: "1px solid var(--rule)", cursor: "pointer", color: "var(--ink-3)", fontFamily: "var(--mono)", fontSize: 10 }}>✕</button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <button className="btn" onClick={generate} disabled={loading || !examName.trim() || topics.length === 0} style={{ opacity: loading || !examName.trim() || topics.length === 0 ? 0.5 : 1 }}>{loading ? "Building plan…" : "Build rescue plan →"}</button>
-            {plan && <button className="btn ghost" onClick={() => setPlan(null)} style={{ marginLeft: 10 }}>Clear</button>}
-            {error && <div style={{ marginTop: 12, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>}
-          </div>
-          {loading && !plan && <div style={{ paddingTop: 40 }}><AIThinking /></div>}
-          {plan && (
-            <div>
-              <div style={{ border: "none", padding: "24px", marginBottom: 24 }}>
-                <div className="mono cin" style={{ marginBottom: 8 }}>Reality Check</div>
-                <AIOutput text={plan.verdict} variant="principle" />
-              </div>
-              <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 24 }}>
-                <div style={{ padding: "20px", borderRight: "1px solid var(--rule)" }}>
-                  <div className="mono cin" style={{ marginBottom: 12 }}>Skip entirely</div>
-                  {plan.skip.length === 0
-                    ? <div className="mono" style={{ color: "var(--ink-3)" }}>None — you have time for everything.</div>
-                    : plan.skip.map((s, i) => <div key={i} style={{ padding: "8px 0", borderBottom: i < plan.skip.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 8 }}><span className="mono" style={{ color: "var(--ink-3)", flexShrink: 0 }}>—</span><span style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-3)", textDecoration: "line-through" }}>{s}</span></div>)
-                  }
-                </div>
-                <div style={{ padding: "20px" }}>
-                  <div className="mono cin" style={{ marginBottom: 12 }}>Study this first</div>
-                  {plan.priority.map((p, i) => (
-                    <div key={i} style={{ padding: "8px 0", borderBottom: i < plan.priority.length - 1 ? "1px solid var(--rule)" : "none" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                        <span style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>{p.topic}</span>
-                        <span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{p.timeHours}h</span>
-                      </div>
-                      <div className="mono" style={{ color: "var(--ink-3)", fontSize: 9, marginTop: 3 }}>{p.why}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ border: "none", marginBottom: 24 }}>
-                <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}><div className="mono cin">Hour-by-Hour Schedule</div></div>
-                {plan.schedule.map((s, i) => (
-                  <div key={i} style={{ display: "flex", borderBottom: i < plan.schedule.length - 1 ? "1px solid var(--rule)" : "none" }}>
-                    <div style={{ padding: "14px 16px", borderRight: "1px solid var(--rule)", minWidth: 90, flexShrink: 0, display: "flex", alignItems: "center" }}>
-                      <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{s.slot}</div>
-                    </div>
-                    <div style={{ padding: "14px 16px" }}>
-                      <div style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 600 }}>{s.topic}</div>
-                      <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 3, lineHeight: 1.5 }}>{s.action}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ border: "none", padding: "20px 24px" }}>
-                <div className="mono cin" style={{ marginBottom: 8 }}>Exam Day Tip</div>
-                <AIOutput text={plan.advice} variant="principle" />
-              </div>
-            </div>
-          )}
-        </div>
+        <SharedCrunchTab />
       </main>
     </div>
   );

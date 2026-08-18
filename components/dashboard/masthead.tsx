@@ -5,8 +5,12 @@
 //
 // The nameplate the dashboard opens with — the paper's cover, not an app header.
 // Nameplate + edition line (No. N · dateline), then the greeting as the editor's
-// line, and the streak as a metadata item. Pure editorial: it renders inside the
-// dashboard's data-ui="editorial" scope, so it reads dark-ink-on-cream.
+// line. Pure editorial: it renders inside the dashboard's data-ui="editorial"
+// scope, so it reads dark-ink-on-cream.
+//
+// M0-6: the streak / best-streak metadata item that used to sit beside the
+// greeting is deleted. A masthead may carry the date; it may not carry a
+// chain the student is afraid to break (`PRODUCT_PRINCIPLES` §4.2).
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from "react";
@@ -15,13 +19,9 @@ import { dateline, editionNumber } from "@/lib/score-market";
 export default function DashboardMasthead({
   greeting,
   name,
-  streak,
-  bestStreak,
 }: {
   greeting: string;
   name: string;
-  streak: number;
-  bestStreak: number;
 }) {
   // Client-only date so a cached shell can't print a stale edition / mismatch.
   const [now, setNow] = useState<Date | null>(null);
@@ -51,42 +51,12 @@ export default function DashboardMasthead({
       </div>
 
       {/* The greeting — the editor's line */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
+      <h1
+        className="ed-headline ed-headline--lead"
+        style={{ margin: 0, fontSize: "clamp(32px, 6vw, 58px)" }}
       >
-        <h1
-          className="ed-headline ed-headline--lead"
-          style={{ margin: 0, fontSize: "clamp(32px, 6vw, 58px)" }}
-        >
-          {greeting}, {name}.
-        </h1>
-
-        {streak > 0 && (
-          <div className="ed-dateline" style={{ textAlign: "right", lineHeight: 1.7 }}>
-            <div>
-              <span
-                style={{
-                  fontFamily: "var(--display)",
-                  fontWeight: 800,
-                  fontSize: 24,
-                  color: "var(--salmon-ink)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {streak}
-              </span>{" "}
-              day streak
-            </div>
-            {bestStreak > streak && <div style={{ color: "var(--ink-3)" }}>best {bestStreak}</div>}
-          </div>
-        )}
-      </div>
+        {greeting}, {name}.
+      </h1>
     </div>
   );
 }

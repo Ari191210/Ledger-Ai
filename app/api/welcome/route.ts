@@ -89,11 +89,11 @@ function buildWelcomeHtml(params: { name: string }) {
 
     <!-- CTA -->
     <div style="padding:32px 24px;border-bottom:1px solid #222;text-align:center;">
-      <a href="https://studyledger.in/dashboard"
+      <a href="https://studyledger.in/home"
         style="display:inline-block;background:#222;color:#faf6ee;font-family:monospace;font-size:12px;letter-spacing:0.08em;text-decoration:none;padding:14px 32px;border:1px solid #222;">
         OPEN YOUR DASHBOARD →
       </a>
-      <div style="font-family:monospace;font-size:10px;color:#aaa;margin-top:16px;">studyledger.in/dashboard</div>
+      <div style="font-family:monospace;font-size:10px;color:#aaa;margin-top:16px;">studyledger.in/home</div>
     </div>
 
     <!-- Footer -->

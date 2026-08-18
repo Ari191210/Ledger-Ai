@@ -1,5 +1,28 @@
 ﻿"use client";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// /tools/syllabus — RETIRED INTO `/capture`. M8-1.
+//
+// `next.config.mjs` answers `/tools/syllabus` with a 301 to `/capture`. The
+// redirect runs before this file, so in production nothing below renders.
+// Architecture S.4: `syllabus` **ADAPT** into `/capture` (syllabus ingestion),
+// *"wired to `008_ingestion.sql`"* — which M8-3 has now done.
+//
+// WHAT MOVED, AND WHAT HAS NOT YET.
+//
+//   moved   the intake: a PDF, an image, or pasted text. `/capture` takes all
+//           three, hashes the bytes, stores them privately and writes one
+//           `evidence` row — where this file wrote `localStorage`.
+//   not yet the PARSE: turning a syllabus into subjects, chapters and topics
+//           is a model reading a document, which is M8-4's extraction stage.
+//           `/capture` records the syllabus at `intake` and says so on screen
+//           rather than implying an analysis that has not run.
+//
+// The body stays for the same reason `exam-practice`'s does — see that file's
+// header. Unlinked, not deleted (`PRODUCT_DECISIONS` §2.5). Delete it when
+// M8-4 has shipped and the parse runs from stored evidence.
+// ═══════════════════════════════════════════════════════════════════════════
+
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";

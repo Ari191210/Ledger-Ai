@@ -12,8 +12,8 @@
 //   series in score_history (only total + 4 sectors), so a weekly subject
 //   movement would be fabricated. It is not shown. A footnote says so.
 //
-//   THE ARCHIVE — closes on record, first close date, current streak, track-
-//   record length. All real.
+//   THE ARCHIVE — closes on record, first close date, track-record length.
+//   All real. (The current-streak figure was deleted at M0-6.)
 //
 // Every data-dependent block has an honest empty state. Nothing is invented.
 // ═══════════════════════════════════════════════════════════════════════════
@@ -186,7 +186,7 @@ export default function AcademicMarkets({
             value={firstCloseLabel(report)}
             sub={report && report.sessions > 0 ? "opening entry" : "none yet"}
           />
-          <ArchiveFigure label="Current Streak" value={score ? String(score.streak) : "—"} sub={score && score.streak === 1 ? "day" : "days"} />
+          {/* M0-6: the "Current Streak" archive figure is deleted, not replaced. */}
           <ArchiveFigure label="Track Record" value={trackRecordLabel(report)} sub="since first close" />
         </div>
       </section>

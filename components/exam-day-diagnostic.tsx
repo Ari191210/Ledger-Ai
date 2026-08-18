@@ -2,15 +2,17 @@
 import { useState, useEffect } from "react";
 import { GRADES, BOARDS } from "@/lib/onboarding-constants";
 import {
-  computeTemporaryScore,
+  computeColdStartDiagnostic,
   type Confidence,
   type DiagnosticInputs,
-  type TemporaryLedgerScore,
+  type ColdStartDiagnostic,
 } from "@/lib/ledger-score";
 
-// Cold-start diagnostic for Exam-Day Mode: five self-report steps that
-// produce a TemporaryLedgerScore (kind: "temporary") without touching any
-// real score input — nothing here writes to localStorage or Supabase.
+// Cold-start diagnostic for Exam-Day Mode: five self-report steps that produce
+// a ColdStartDiagnostic (kind: "diagnostic") — a GAP LIST, never a score.
+// M14-7 / J.4: the questionnaire used to build a synthetic paper out of a
+// confidence rating and run it through the real engine; it no longer produces
+// a number of any kind. Nothing here writes to localStorage or Supabase.
 
 const CONF_LABELS: Record<Confidence, string> = { shaky: "Shaky", ok: "OK", solid: "Solid" };
 const CONF_ORDER: Confidence[] = ["shaky", "ok", "solid"];
@@ -34,7 +36,7 @@ function Chip({ active, children, onClick }: { active: boolean; children: React.
 export default function ExamDayDiagnostic({
   onComplete, onCancel,
 }: {
-  onComplete: (diag: DiagnosticInputs, temp: TemporaryLedgerScore) => void;
+  onComplete: (diag: DiagnosticInputs, found: ColdStartDiagnostic) => void;
   onCancel: () => void;
 }) {
   const [step, setStep] = useState(0);
@@ -77,7 +79,7 @@ export default function ExamDayDiagnostic({
       recentMarksPercent: marks.trim() === "" ? undefined : Math.min(100, Math.max(0, parseFloat(marks))),
       weakAreas: weakRaw.split(/[,\n]/).map(w => w.trim()).filter(Boolean),
     };
-    onComplete(diag, computeTemporaryScore(diag));
+    onComplete(diag, computeColdStartDiagnostic(diag));
   }
 
   return (

@@ -1,6 +1,12 @@
 import { supabaseServer } from "./supabase-server";
 
-export type JobType = "send-report" | "send-welcome" | "weekly-report-batch" | "send-parent-digest";
+export type JobType =
+  | "send-report"
+  | "send-welcome"
+  | "weekly-report-batch"
+  | "send-parent-digest"
+  // M18-1 — O.1's async export, via this same durable queue.
+  | "data-export";
 
 interface JobRow {
   id: string;
@@ -116,6 +122,18 @@ async function dispatch(job: JobRow, base: string): Promise<void> {
         headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
       });
       if (!res.ok) throw new Error(`weekly-report-batch HTTP ${res.status}`);
+      return;
+    }
+    case "data-export": {
+      const res = await fetch(`${base}/api/account/export/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${process.env.CRON_SECRET}` },
+        body: JSON.stringify(job.payload),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(json.error ?? `data-export HTTP ${res.status}`);
+      }
       return;
     }
     default:

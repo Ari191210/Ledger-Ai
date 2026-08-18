@@ -14,21 +14,24 @@ import { currentInputs, projectFocusImpact, type ScoreProjection } from "@/lib/s
 type FocusMode = "work" | "break" | "longbreak";
 
 function FocusTab() {
-  const { mode, seconds, running, sessions, tasks, streak, shieldAvailable, switchMode, toggleRunning, reset, setTasks } = useFocus();
+  const { mode, seconds, running, sessions, tasks, switchMode, toggleRunning, reset, setTasks } = useFocus();
   const [newTask, setNewTask] = useState("");
 
   // Consistency projection: what today's first completed work session adds.
-  // Effect (not render) because it reads localStorage — keyed on `streak`
-  // so it clears itself the moment focus-context counts today.
-  const [streakImpact, setStreakImpact] = useState<ScoreProjection | null>(null);
+  // Effect (not render) because it reads localStorage — keyed on `sessions`
+  // so it clears itself the moment focus-context counts today. It states a
+  // gain the score can pay; it never states a loss, and no streak count,
+  // shield state or "don't break the chain" line is rendered anywhere on this
+  // surface (M0-6, `PRODUCT_PRINCIPLES` §4.2).
+  const [sessionImpact, setSessionImpact] = useState<ScoreProjection | null>(null);
   useEffect(() => {
     try {
       const todayCounted = localStorage.getItem("ledger-focus-last") === new Date().toDateString();
-      if (todayCounted) { setStreakImpact(null); return; }
+      if (todayCounted) { setSessionImpact(null); return; }
       const inputs = currentInputs();
-      setStreakImpact(inputs ? projectFocusImpact(inputs, 1) : null);
-    } catch { setStreakImpact(null); }
-  }, [streak]);
+      setSessionImpact(inputs ? projectFocusImpact(inputs, 1) : null);
+    } catch { setSessionImpact(null); }
+  }, [sessions]);
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
@@ -75,30 +78,23 @@ function FocusTab() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none" }}>
-            {[
-              ["Sessions today", String(sessions)],
-              ["Streak", `${streak} day${streak !== 1 ? "s" : ""}`],
-            ].map(([label, val], i) => (
-              <div key={i} style={{ padding: "16px 20px", borderRadius: 8, transition: "background 160ms, color 160ms" }}>
-                <div className="mono" style={{ color: "var(--ink-3)" }}>{label}</div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{val}</div>
-              </div>
-            ))}
+          {/* M0-6: the streak counter and the streak-shield line are deleted.
+              Nothing replaces them — the gap is the point. */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 0, border: "none" }}>
+            <div style={{ padding: "16px 20px", borderRadius: 8, transition: "background 160ms, color 160ms" }}>
+              <div className="mono" style={{ color: "var(--ink-3)" }}>Sessions today</div>
+              <div style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{sessions}</div>
+            </div>
           </div>
 
-          <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", padding: "4px 20px 0" }}>
-            Streak shield: {shieldAvailable ? "available — one missed day this month won't break your streak." : "used this month — don't miss a day."}
-          </div>
-
-          {streakImpact && streakImpact.delta > 0 && (
+          {sessionImpact && sessionImpact.delta > 0 && (
             <div style={{ marginTop: 16 }}>
               <ScoreImpactStrip
-                currentScore={streakImpact.current}
-                projectedScore={streakImpact.projected}
-                scoreDelta={streakImpact.delta}
+                currentScore={sessionImpact.current}
+                projectedScore={sessionImpact.projected}
+                scoreDelta={sessionImpact.delta}
                 affectedPillar="consistency"
-                nextAction="Complete one work session today to extend your streak."
+                nextAction="Complete one work session today."
               />
             </div>
           )}

@@ -312,8 +312,29 @@ export const DEFAULT_DNA: WorkspaceDNA = PRESETS.STUDIO;
 // ── STORAGE ────────────────────────────────────────────────────────────────
 // Four fields of CHOICES, never computed values, so every future improvement
 // to derive() upgrades all existing workspaces retroactively and for free.
+//
+// M24 — GENERALISATION. The engine was `/console`-only; this key is read by
+// `VitalityShell` on every shell now (`/home`, `/settings`, `/capture`,
+// `/diagnosis`, `/record`, `/console` — architecture S.6). The key itself is
+// renamed off the `console:` prefix for the same reason `SYNC_KEYS` uses
+// `ledger-*` for every other device-preference key (`lib/sync.ts`) — a
+// workspace choice is no longer a Console-scoped fact. `LEGACY_STORAGE_KEY`
+// is the one-time read-through so a student who already chose a non-default
+// workspace under the old key does not silently lose it (Law 7 — never a
+// silent change in behaviour).
 
-const STORAGE_KEY = "console:workspace";
+const STORAGE_KEY = "ledger-workspace";
+/** Pre-M24 key. Read-only, one-time migration path. Never written again. */
+const LEGACY_STORAGE_KEY = "console:workspace";
+
+/**
+ * Fired on `window` after a successful `writeStoredDNA`, so every mounted
+ * `VitalityShell` — not just the one the student changed their workspace in —
+ * re-reads and re-derives immediately. This is what makes "customisation
+ * applies outside /console" a live fact rather than something only true after
+ * a reload: the shell is shared (S.6), so one dispatch reaches all of them.
+ */
+export const WORKSPACE_CHANGE_EVENT = "ledger-workspace-changed";
 
 const IS_VALID: Record<keyof WorkspaceDNA, readonly string[]> = {
   material: MATERIALS,
@@ -350,16 +371,25 @@ export function parseDNA(raw: unknown): WorkspaceDNA {
 
 export function readStoredDNA(): WorkspaceDNA {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
     return raw ? parseDNA(JSON.parse(raw)) : DEFAULT_DNA;
   } catch {
     return DEFAULT_DNA;
   }
 }
 
+/**
+ * Writes the CHOICE only — the four DNA fields, never a derived token. Also
+ * dispatches `WORKSPACE_CHANGE_EVENT` so every mounted shell (not only the
+ * one the student is on) re-derives immediately; see the constant's doc.
+ */
 export function writeStoredDNA(dna: WorkspaceDNA): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(parseDNA(dna)));
+    const valid = parseDNA(dna);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(WORKSPACE_CHANGE_EVENT, { detail: valid }));
+    }
   } catch {
     /* storage unavailable — the workspace stays the default, which is valid */
   }

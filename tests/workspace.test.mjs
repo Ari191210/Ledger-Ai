@@ -23,6 +23,7 @@ const outDir = path.join(root, ".test-build-workspace");
 
 let ws;     // compiled lib/console/workspace
 let colour; // compiled lib/console/color
+let merge;  // compiled lib/sync-merge (M24 — device-change simulation)
 
 // Synchronous, and the dynamic imports happen in the `setup imports` test
 // below rather than here — the same shape as score-projection.test.mjs. An
@@ -50,10 +51,16 @@ before(() => {
 
 const load = (n) =>
   import(pathToFileURL(path.join(outDir, "console", n)).href);
+// `sync-merge.ts` sits directly under `lib/`, so tsc emits it at the outDir
+// root rather than under `console/` — it has no imports of its own, so it
+// needs no post-compile fixup either.
+const loadRoot = (n) =>
+  import(pathToFileURL(path.join(outDir, n)).href);
 
 test("setup imports", async () => {
   ws = await load("workspace.js");
   colour = await load("color.js");
+  merge = await loadRoot("sync-merge.js");
 });
 
 /** Every DNA the engine can express. */
@@ -347,5 +354,225 @@ describe("parseDNA — a system boundary", () => {
 
   test("output of parseDNA is always derivable", () => {
     assert.doesNotThrow(() => ws.derive(ws.parseDNA({ material: "nonsense" })));
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// M24 — GENERALISATION. `workspace.ts` beyond `/console`, `SYNC_KEYS`,
+// server-persisted CHOICES. See `EXECUTION_PLAN.md` M24-1 and architecture
+// B.14 / S.6.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** A minimal in-memory `Storage`, so `readStoredDNA`/`writeStoredDNA` — which
+ *  call the real `localStorage` global — are exercised exactly as shipped,
+ *  with no DOM in reach. `removeItem` is included because `readStoredDNA`'s
+ *  legacy-key fallback is tested by simply never writing the new key. */
+class MapStorage {
+  #m = new Map();
+  getItem(k) { return this.#m.has(k) ? this.#m.get(k) : null; }
+  setItem(k, v) { this.#m.set(k, String(v)); }
+  removeItem(k) { this.#m.delete(k); }
+  clear() { this.#m.clear(); }
+}
+
+describe("golden values — derive()'s actual output, unchanged (diff, not existence)", () => {
+  // Captured from the shipped engine before this milestone touched anything
+  // outside STORAGE. A byte-for-bit regression in ensureContrast(), the
+  // ramp, or the pressure spec fails THIS test, not just "does it still run".
+  test("STUDIO — the exact hex the 16 day-one users already see", () => {
+    const t = ws.derive(ws.PRESETS.STUDIO).tokens;
+    assert.equal(t["--g-0"], "#f6f7f8");
+    assert.equal(t["--g-3"], "#ffffff");
+    assert.equal(t["--g-6"], "#5a6875");
+    assert.equal(t["--g-7"], "#0f1d2b");
+    assert.equal(t["--progress-full"], "#2f6b4f");
+    assert.equal(t["--info"], "#35506b");
+    assert.equal(t["--warn"], "#8a6a1f");
+    assert.equal(t["--error"], "#a33a2e");
+    assert.equal(t["--control-pad-y"], "12px");
+    assert.equal(t["--r-control"], "4px");
+    assert.equal(t["--r-panel"], "8px");
+  });
+
+  test("TERMINAL — ensureContrast() correcting a dark-scheme ramp, exact values", () => {
+    const t = ws.derive(ws.PRESETS.TERMINAL).tokens;
+    // material.ramp[7] is "#eef2f5" and already clears AA_TEXT against
+    // material.ramp[0] ("#101820"), so ensureContrast() returns it unchanged
+    // — asserting the PASS-THROUGH branch, not only the correction branch.
+    assert.equal(t["--g-7"], "#eef2f5");
+    // "reserved" temperament desaturates --info before ensureContrast() runs;
+    // the exact corrected hex is the claim.
+    assert.equal(t["--info"], "#6183a5");
+  });
+
+  test("44px floor — the exact control height at every pressure, computed the same way the shipped test does", () => {
+    const CONTENT = Math.ceil(15 * 1.2) + 2;
+    const heightAt = (pressure) =>
+      parseInt(ws.derive({ ...ws.PRESETS.STUDIO, pressure }).tokens["--control-pad-y"], 10) * 2 + CONTENT;
+    assert.equal(heightAt("relaxed"), 48);
+    assert.equal(heightAt("standard"), 44);
+    assert.equal(heightAt("tight"), 44);
+    // `tight` does NOT shrink padding below `standard` — WORKSPACE.md's own
+    // ruling (`lib/console/workspace.ts` PRESSURE_SPEC comment): a personality
+    // choice is not permitted to shrink a tap target.
+    assert.equal(
+      ws.derive({ ...ws.PRESETS.STUDIO, pressure: "tight" }).tokens["--control-pad-y"],
+      ws.derive({ ...ws.PRESETS.STUDIO, pressure: "standard" }).tokens["--control-pad-y"],
+    );
+  });
+});
+
+describe("storage — CHOICES only, never a computed value", () => {
+  let restoreStorage, restoreWindow;
+
+  before(() => {
+    // These tests run in the same process as the earlier `describe` blocks
+    // (node:test executes one file's tests sequentially unless `describe`
+    // is itself concurrent), so save/restore rather than assume a clean
+    // global.
+    restoreStorage = globalThis.localStorage;
+    restoreWindow = globalThis.window;
+  });
+
+  function freshDevice() {
+    const store = new MapStorage();
+    globalThis.localStorage = store;
+    // A real EventTarget, so `writeStoredDNA`'s `window.dispatchEvent` and
+    // `WORKSPACE_CHANGE_EVENT` are exercised exactly as `VitalityShell`
+    // consumes them — not stubbed away.
+    globalThis.window = new EventTarget();
+    return store;
+  }
+
+  test("writeStoredDNA persists exactly the four choice fields — nothing else", () => {
+    freshDevice();
+    ws.writeStoredDNA(ws.PRESETS.TERMINAL);
+    const raw = JSON.parse(globalThis.localStorage.getItem("ledger-workspace"));
+    assert.deepEqual(Object.keys(raw).sort(), ["material", "pressure", "temperament", "voice"]);
+    assert.deepEqual(raw, ws.PRESETS.TERMINAL);
+  });
+
+  test("the persisted record contains NO derived/computed value — no token the engine emits appears in it", () => {
+    freshDevice();
+    ws.writeStoredDNA(ws.PRESETS.FIELD);
+    const rawText = globalThis.localStorage.getItem("ledger-workspace");
+    const computed = ws.derive(ws.PRESETS.FIELD).tokens;
+    for (const [token, value] of Object.entries(computed)) {
+      assert.ok(!rawText.includes(token), `persisted choice leaked the token name ${token}`);
+      // A colour or px value could coincidentally collide with a choice
+      // string (unlikely, but the token-name check above is the real gate).
+      void value;
+    }
+    // Re-deriving from the persisted choice reproduces the SAME computed
+    // tokens — proving the split rather than merely asserting an absence.
+    const roundTripped = ws.parseDNA(JSON.parse(rawText));
+    assert.deepEqual(ws.derive(roundTripped).tokens, computed);
+  });
+
+  test("readStoredDNA falls back to the pre-M24 `console:workspace` key exactly once — a choice already made is never silently lost", () => {
+    freshDevice();
+    globalThis.localStorage.setItem("console:workspace", JSON.stringify(ws.PRESETS.DESK));
+    assert.deepEqual(ws.readStoredDNA(), ws.PRESETS.DESK);
+  });
+
+  test("writeStoredDNA fires WORKSPACE_CHANGE_EVENT — every mounted shell can re-derive without a reload", () => {
+    freshDevice();
+    let seen = null;
+    globalThis.window.addEventListener(ws.WORKSPACE_CHANGE_EVENT, (e) => { seen = e.detail; });
+    ws.writeStoredDNA(ws.PRESETS.PAPER);
+    assert.deepEqual(seen, ws.PRESETS.PAPER);
+  });
+
+  test("cleanup", () => {
+    globalThis.localStorage = restoreStorage;
+    globalThis.window = restoreWindow;
+  });
+});
+
+describe("DEVICE-CHANGE SIMULATION — a choice made on one client is server-sourced on a fresh one, no localStorage in the loop (mirrors tests/home-composition.test.mjs's HomeLayout test)", () => {
+  test("device A's choice round-trips through the plain-string transport SYNC_KEYS actually carries and hydrates identically on device B", () => {
+    // "Device A" — the student picks a preset. `writeStoredDNA` is the real
+    // function under test; only the storage backing is swapped for a Map.
+    const deviceAStore = new MapStorage();
+    const savedLocalStorage = globalThis.localStorage;
+    globalThis.localStorage = deviceAStore;
+    ws.writeStoredDNA(ws.PRESETS.TERMINAL);
+    globalThis.localStorage = savedLocalStorage;
+
+    // Exactly what `flushLegacyBlob` (`lib/sync.ts`) uploads: the raw string
+    // value under the SYNC_KEYS-listed key, nothing transformed.
+    const cloudBlob = { "ledger-workspace": deviceAStore.getItem("ledger-workspace") };
+
+    // "Device B" — a fresh client, empty storage. `hydrateAbsentOnly` is the
+    // REAL M7-6 conflict rule (`lib/sync-merge.ts`), not reimplemented here.
+    const deviceBStore = new MapStorage();
+    const result = merge.hydrateAbsentOnly(
+      cloudBlob,
+      { get: (k) => deviceBStore.getItem(k), set: (k, v) => deviceBStore.setItem(k, v) },
+      ["ledger-workspace"],
+    );
+
+    assert.equal(result.wrote, true);
+    assert.deepEqual(result.filled, ["ledger-workspace"]);
+
+    // Device B now resolves the SAME choice — read through the real
+    // `readStoredDNA`/`parseDNA`, not a hand-rolled comparison.
+    globalThis.localStorage = deviceBStore;
+    const resolved = ws.readStoredDNA();
+    globalThis.localStorage = savedLocalStorage;
+
+    assert.deepEqual(resolved, ws.PRESETS.TERMINAL);
+    // And the computed presentation is therefore identical too — identity,
+    // not just data, survived the device change.
+    assert.deepEqual(ws.derive(resolved), ws.derive(ws.PRESETS.TERMINAL));
+  });
+
+  test("a value already present on device B is KEPT — the rule never adjudicates between two real choices (M7-6)", () => {
+    const cloudBlob = { "ledger-workspace": JSON.stringify(ws.PRESETS.TERMINAL) };
+    const deviceBStore = new MapStorage();
+    deviceBStore.setItem("ledger-workspace", JSON.stringify(ws.PRESETS.FIELD));
+    const result = merge.hydrateAbsentOnly(
+      cloudBlob,
+      { get: (k) => deviceBStore.getItem(k), set: (k, v) => deviceBStore.setItem(k, v) },
+      ["ledger-workspace"],
+    );
+    assert.equal(result.wrote, false);
+    assert.deepEqual(result.kept, ["ledger-workspace"]);
+    assert.deepEqual(JSON.parse(deviceBStore.getItem("ledger-workspace")), ws.PRESETS.FIELD);
+  });
+});
+
+describe("generalised beyond /console — every shell that renders VitalityShell inherits the SAME derive() output (structural, S.6)", () => {
+  const readSrc = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
+
+  test("SYNC_KEYS (lib/sync.ts) carries the workspace choice", () => {
+    const src = readSrc("lib/sync.ts");
+    const body = src.slice(src.indexOf("export const SYNC_KEYS"), src.indexOf("] as const;"));
+    assert.match(body, /"ledger-workspace"/);
+  });
+
+  test("a second, concrete surface (/settings) actually renders the derived DNA, via the shared VitalityShell — not a console-only path", () => {
+    const settingsLayout = readSrc("app/settings/layout.tsx");
+    assert.match(settingsLayout, /VitalityShell/, "/settings must render the shared token host");
+    // And /settings is where the choice is actually made — the control this
+    // milestone wires in, not a claim with no path to it.
+    const appearance = readSrc("components/settings/appearance-fields.tsx");
+    assert.match(appearance, /writeStoredDNA/, "/settings must be able to WRITE the workspace choice");
+    assert.match(appearance, /PRESETS/, "the picker offers the capped preset set, not a 108-way configurator (§8 — no Workspace Engine)");
+  });
+
+  test("every shell that carries the token host listens for a live workspace change — a choice applies without a reload on any of them", () => {
+    const shell = readSrc("components/console/vitality-shell.tsx");
+    assert.match(shell, /WORKSPACE_CHANGE_EVENT/);
+    for (const route of ["console", "home", "settings", "capture", "diagnosis", "record"]) {
+      const layout = readSrc(`app/${route}/layout.tsx`);
+      assert.match(layout, /VitalityShell/, `app/${route}/layout.tsx must mount VitalityShell`);
+    }
+  });
+
+  test("Workspace Engine scope gate — no per-trait 108-way configurator, no milestone-gated unlocking, only the 7 capped presets are exposed (§8, PRINCIPLES §4.3)", () => {
+    const appearance = readSrc("components/settings/appearance-fields.tsx");
+    assert.doesNotMatch(appearance, /MATERIALS\.map|VOICES\.map|PRESSURES\.map|TEMPERAMENTS\.map/, "must not expose the four traits independently — that is the frozen Workspace Engine, not M24");
+    assert.doesNotMatch(appearance, /unlock|milestone/i, "must not gate a workspace choice behind progress — PRINCIPLES §4.3");
   });
 });

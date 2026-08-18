@@ -230,7 +230,10 @@ export default function MarksObituaryPage() {
               letterSpacing: "-0.01em",
             }}
           >
-            Marks Obituary
+            {/* M13-4 — `PRODUCT_PRINCIPLES` §4.1. Rendered copy only; the
+                route path and the `marks_obituary` capability key are
+                unchanged, so M13-2's 301 still resolves. */}
+            Marks Accounting
           </span>
         </div>
         <span
@@ -265,7 +268,7 @@ export default function MarksObituaryPage() {
               letterSpacing: "-0.02em",
             }}
           >
-            Mark Loss Autopsy
+            Where Your Marks Went
           </h1>
           <p
             style={{
@@ -640,7 +643,7 @@ export default function MarksObituaryPage() {
                   gap: "8px",
                 }}
               >
-                {loading ? "Analysing…" : "🔬 Run Autopsy"}
+                {loading ? "Analysing…" : "🔬 Run Accounting"}
               </button>
             </div>
           </div>

@@ -26,16 +26,18 @@ export async function GET(req: Request) {
     enqueued++;
   }
 
-  // Parent weekly digests — independent opt-in (student adds a parent email
-  // in the dashboard SharePanel).
+  // Parent weekly digests — M17: independent opt-in lives on the student's
+  // current share policy (`digest_enabled`), not on `user_data`. The send
+  // route resolves which parent(s) to mail from `parent_connections`, so this
+  // scan only needs to know which students turned the digest on.
   const { data: parentOptIn } = await supabaseServer
-    .from("user_data")
-    .select("id")
-    .eq("parentDigestEnabled", true)
-    .not("parentEmail", "is", null);
+    .from("parent_share_policies")
+    .select("student_id")
+    .eq("is_current", true)
+    .eq("digest_enabled", true);
   let parentEnqueued = 0;
   for (const row of parentOptIn ?? []) {
-    await enqueueJob("send-parent-digest", { userId: row.id, mode: "digest" });
+    await enqueueJob("send-parent-digest", { userId: row.student_id, mode: "digest" });
     parentEnqueued++;
   }
 

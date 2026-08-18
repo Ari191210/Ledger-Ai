@@ -6,7 +6,7 @@ ANSWERS:         "what must always be true?"
 MAY NOT CONTAIN: route names · tool names · milestones · dates · effort ·
                  task order · feature classifications
 PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
-LAST AMENDED:    2026-08-05
+LAST AMENDED:    2026-08-10
 ```
 
 **Nothing in this document is scheduled, and nothing here names a file.** If a
@@ -90,7 +90,7 @@ This is the principle that keeps us out of a fight we cannot win.
 
 # 3. THE RECORD — WHAT MAKES IT TRUSTWORTHY
 
-These four are load-bearing. The record is worthless without them, and each is
+These five are load-bearing. The record is worthless without them, and each is
 enforced structurally rather than in copy.
 
 ## 3.1 Only evidence resolves a gap
@@ -128,6 +128,35 @@ No raw failures, no marks lost, no unaddressed gaps, no answer detail. This is
 the difference between a support tool and a shame-delivery mechanism, and it is
 enforced at the data layer, not in copy — the interface must be *unable* to
 expose it.
+
+## 3.5 Learning is not confined to this product
+
+*Added 2026-08-10. See §12.*
+
+**A student's learning counts wherever it happened.**
+
+NCERT, a textbook, school, a teacher, coaching, YouTube, another website,
+handwritten notes — all of it is legitimate academic activity, and the student
+may tell us about it. **StudyLedger owns the academic memory, never the
+student's physical learning environment.** A product that only counts what
+happens inside its own tools is measuring app usage and calling it learning,
+which is Law 7 failing by construction.
+
+**This does not weaken §3.1 or §3.2 — it depends on them.** What the student
+tells us is a **claim**, and a claim is recorded as a claim. The route from
+*"I studied this"* to *"this is proven"* runs through assessment and nowhere
+else:
+
+```
+student-declared evidence  →  assessment  →  verified academic evidence
+```
+
+**We trust the student about what they studied, and never about whether they
+learned it.** A declaration opens a gap; only evidence closes one.
+
+**Never a closed ecosystem.** Any rule, screen or score that makes outside
+learning invisible — or that makes it *cost* the student something to admit —
+violates this principle and §3.3 together.
 
 ---
 
@@ -425,3 +454,31 @@ of a founding question is how a product loses its thesis.
 Retained as a permanent principle governing **what the product does**. It is not
 a statement about which code may exist in the repository — that is a decision,
 recorded in `PRODUCT_DECISIONS.md`.
+
+### 2026-08-10 — §3.5 added: learning is not confined to this product
+The repository had **no governing statement** on studying outside the product —
+confirmed as a gap by `STUDYLEDGER_OPEN_DECISIONS.md` (Decision 1) and by the
+architecture spec's own citation table. §3.5 closes it: external learning is
+first-class academic activity, recorded as a **student-declared claim** that
+becomes verified academic evidence only by passing an assessment. **§3.1 and
+§3.2 are unchanged and unweakened** — §3.5 states that a claim may *open* a gap,
+which §3.1 never addressed; it does not let a claim *close* one.
+
+### 2026-08-10 — §3.4 and §4.2 reaffirmed, not amended
+Two ratified decisions of the same date were checked against this document and
+**required no amendment**, which is recorded here so the absence of a change is
+not read as an oversight.
+
+- **The parent boundary (§3.4) stands as written.** A student-controlled
+  granular-sharing model that could expose individual mistake evidence to
+  parents was considered and **rejected**. Parent access to individual mistakes
+  is **structurally private**, not a sharing toggle: parents may see progress,
+  trajectory, continuity, subjects, verified learning and reports, and may never
+  receive individual wrong answers, mistake occurrences, mistake history,
+  question-by-question failures or mistake counts. Where student sovereignty and
+  this boundary conflict, **this boundary wins** — the product serves minors and
+  consent under parental power asymmetry is not meaningful consent.
+- **The streak ban (§4.2) stands as written.** Its replacement concept —
+  *Continuity*, sustained verified academic engagement over a rolling window —
+  is a **decision**, not a principle, and lives in `PRODUCT_DECISIONS.md`.
+  §4 and §4.2 already forbid everything Continuity must never become.

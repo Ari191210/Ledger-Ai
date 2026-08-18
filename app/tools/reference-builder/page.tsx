@@ -4,48 +4,17 @@ import Link from "next/link";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { Branch, useMindMap, MINDMAP_DETAIL_LEVELS } from "@/components/tools/mind-map";
+import { ConnectionBody, type Connection } from "@/components/tools/concept-connect";
 
-// ─── Mind Map types & components ───────────────────────────────────────────
-
-type MMNode = { label: string; children?: MMNode[] };
-type MapData = { center: string; branches: MMNode[] };
-
-function Branch({ node, depth = 0 }: { node: MMNode; depth?: number }) {
-  const [open, setOpen] = useState(true);
-  const colors = ["var(--cinnabar-ink)", "var(--ink-2)", "var(--sage)", "var(--gold)", "var(--ink-2)"];
-  const color  = colors[depth % colors.length];
-  return (
-    <div style={{ marginLeft: depth === 0 ? 0 : 20 }}>
-      <div onClick={() => node.children?.length && setOpen(o => !o)}
-        style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: `${depth === 0 ? 10 : 6}px ${depth === 0 ? 16 : 12}px`, border: `1px solid ${color}`, marginBottom: 6, cursor: node.children?.length ? "pointer" : "default", background: depth === 0 ? color : "transparent", color: depth === 0 ? "var(--paper)" : color }}>
-        {node.children?.length ? <span style={{ fontFamily: "var(--mono)", fontSize: 9 }}>{open ? "▾" : "▸"}</span> : null}
-        <span style={{ fontFamily: depth === 0 ? "var(--serif)" : "var(--sans)", fontSize: depth === 0 ? 15 : 13, fontWeight: depth === 0 ? 700 : 400, fontStyle: depth === 0 ? "italic" : "normal" }}>{node.label}</span>
-      </div>
-      {open && node.children?.map((c, i) => (
-        <div key={i} style={{ paddingLeft: 16, borderLeft: `1px solid ${color}20`, marginLeft: depth === 0 ? 8 : 0 }}>
-          <Branch node={c} depth={depth + 1} />
-        </div>
-      ))}
-    </div>
-  );
-}
+// ─── Mind Map ───────────────────────────────────────────────────────────────
+// M2-5 — the node type, the recursive `Branch` renderer and the generate cycle
+// were duplicated byte-for-byte in `app/tools/learn-lab/page.tsx`. They now have
+// one definition in `components/tools/mind-map.tsx`. This host keeps its own
+// layout, which differs from learn-lab's and is unchanged by the extraction.
 
 function MindMapTab() {
-  const [topic, setTopic]   = useState("");
-  const [detail, setDetail] = useState("medium");
-  const [map, setMap]       = useState<MapData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState("");
-
-  async function generate() {
-    if (!topic.trim()) return;
-    setLoading(true); setError(""); setMap(null);
-    try {
-      const data = await callAIOrThrow<MapData>({ tool: "mindmap", topic, detail });
-      setMap(data);
-    } catch { setError("Network error."); }
-    finally { setLoading(false); }
-  }
+  const { topic, setTopic, detail, setDetail, map, setMap, loading, error, generate } = useMindMap();
 
   if (map) return (
     <>
@@ -61,7 +30,7 @@ function MindMapTab() {
       </div>
       <div style={{ marginTop: 20 }}>
         <button className="btn ghost" onClick={() => setMap(null)} style={{ marginRight: 10, cursor: "pointer" }}>New map</button>
-        <button className="btn ghost" onClick={() => window.print()} style={{ cursor: "pointer" }}>Print / PDF ↗</button>
+        <button className="btn ghost" onClick={() => window.print()} style={{ cursor: "pointer" }}>Print / PDF &#8599;</button>
       </div>
     </>
   );
@@ -74,7 +43,7 @@ function MindMapTab() {
         <input value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && generate()} placeholder="e.g. Photosynthesis, French Revolution, Machine Learning, Supply and Demand&hellip;"
           style={{ width: "100%", boxSizing: "border-box", fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)", marginBottom: 8 }} />
         <div style={{ display: "flex", gap: 4 }}>
-          {([["brief","Overview"],["medium","Standard"],["deep","Deep dive"]] as [string,string][]).map(([v,l]) => (
+          {MINDMAP_DETAIL_LEVELS.map(([v, l]) => (
             <button key={v} onClick={() => setDetail(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${detail === v ? "var(--ink)" : "var(--rule)"}`, background: detail === v ? "var(--ink)" : "var(--paper)", color: detail === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
           ))}
         </div>
@@ -128,6 +97,15 @@ const SUBJECTS = [
 
 const BOARDS = ["CBSE", "ICSE", "IB", "IGCSE", "State Board"];
 const GRADES = ["Any", "Class 9", "Class 10", "Class 11", "Class 12", "JEE", "NEET", "CUET"];
+
+// Static editorial copy. Rendered as text children — never as markup. Every
+// string here must stay plain text: no tags, no HTML entities, no `__html`
+// sink. See tests/reference-builder-render.test.mjs (R.5).
+const GOOD_TO_KNOW: ReadonlyArray<readonly [string, string]> = [
+  ["Be specific", "“Integration by Parts” beats “Integration”"],
+  ["Board-matched", "Formulas follow your board’s notation and marking scheme"],
+  ["Print-ready", "One click exports a clean reference card to PDF"],
+];
 
 function FormulaTab() {
   const [subject,     setSubject]     = useState("");
@@ -277,14 +255,10 @@ function FormulaTab() {
           {!sheet && !loading && (
             <div style={{ marginTop: 28, border: "1px solid var(--rule)", padding: "18px" }}>
               <div className="mono cin" style={{ marginBottom: 12 }}>Good to know</div>
-              {[
-                ["Be specific", "&quot;Integration by Parts&quot; beats &quot;Integration&quot;"],
-                ["Board-matched", "Formulas follow your board&apos;s notation and marking scheme"],
-                ["Print-ready", "One click exports a clean reference card to PDF"],
-              ].map(([t, d]) => (
+              {GOOD_TO_KNOW.map(([t, d]) => (
                 <div key={t} style={{ marginBottom: 10 }}>
                   <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600 }}>{t}</div>
-                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 2 }} dangerouslySetInnerHTML={{ __html: d }} />
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginTop: 2 }}>{d}</div>
                 </div>
               ))}
             </div>
@@ -432,7 +406,6 @@ function FormulaTab() {
 
 // ─── Concept Connect types & logic ──────────────────────────────────────────
 
-type Connection = { conceptA: string; conceptB: string; links: { type: string; description: string; example: string }[]; deepInsight: string; crossSubjectValue: string; examAngles: string[]; examTip: string };
 
 function ConceptConnectTab() {
   const [conceptA, setConceptA] = useState("");
@@ -453,46 +426,7 @@ function ConceptConnectTab() {
 
   if (result) return (
     <div style={{ maxWidth: 820, margin: "0 auto" }}>
-      <div style={{ display: "flex", gap: 12, marginBottom: 24, alignItems: "center" }}>
-        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptA}</div>
-        </div>
-        <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 20, flexShrink: 0 }}>&#8596;</div>
-        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptB}</div>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-        {result.links.map((l, i) => (
-          <div key={i} style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>
-            <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 6 }}>{l.type}</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, marginBottom: 6 }}>{l.description}</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", fontStyle: "italic" }}>e.g. {l.example}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
-        <div className="mono cin" style={{ marginBottom: 8 }}>Deep Insight</div>
-        <AIOutput text={result.deepInsight} variant="principle" />
-      </div>
-
-      <div style={{ border: "1px solid var(--sage)", padding: "14px 16px", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
-        <AIOutput text={result.crossSubjectValue} />
-      </div>
-
-      <div style={{ border: "1px solid var(--rule)", padding: "14px 16px", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>EXAM ANGLES THIS UNLOCKS</div>
-        {result.examAngles.map((a, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 5 }}>&middot; {a}</div>)}
-      </div>
-
-      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)", marginBottom: 20 }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
-        <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
-      </div>
-
+      <ConnectionBody result={result} examTipMarginBottom={20} />
       <button className="btn ghost" onClick={() => setResult(null)} style={{ cursor: "pointer" }}>New connection</button>
     </div>
   );

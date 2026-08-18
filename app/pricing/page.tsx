@@ -28,7 +28,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
       <>
         Yes. We never sell your study data. Everything is stored encrypted. See our{" "}
         <Link
-          href="/legal/privacy"
+          href="/legal?section=privacy"
           style={{ color: "var(--cinnabar-ink)", textDecoration: "underline", textUnderlineOffset: 3 }}
         >
           Privacy Policy
@@ -212,7 +212,7 @@ export default function PricingPage() {
             [
               ["← Home", "/"],
               ["Sign up free", "/auth"],
-              ["Privacy Policy", "/legal/privacy"],
+              ["Privacy Policy", "/legal?section=privacy"],
               ["FAQ", "/faq"],
             ] as const
           ).map(([label, href]) => (

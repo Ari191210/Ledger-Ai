@@ -12,9 +12,29 @@ type Row = {
   id: string;
   exams?: Array<{ name: string; subject?: string; date: string }>;
   plan?: { chronotype?: string };
-  notifState?: NotifState;
   blob?: Record<string, string> | null;
 };
+
+// M4-3: engine state moved off the student-writable `user_data` row into
+// `notification_state` — RLS on, zero policies, service role only (migration
+// 011). `notifState.sent` is the "already sent" dedup map; while it lived on
+// `user_data` a student could clear it from devtools and re-open the entire
+// suppressed push backlog (architecture R.2, Finding A.5.e).
+type NotifStateRow = {
+  user_id: string;
+  sent: Record<string, string> | null;
+  last_high_priority_day: string | null;
+  last_milestone: number | null;
+};
+
+function toNotifState(row: NotifStateRow | undefined): NotifState {
+  if (!row) return {};
+  return {
+    sent: row.sent ?? {},
+    lastHighPriorityDay: row.last_high_priority_day ?? undefined,
+    lastMilestone: row.last_milestone ?? undefined,
+  };
+}
 
 // Hourly: run the notification decision engine for every user with at least
 // one push subscription. All timing logic (quiet hours, chronotype windows,
@@ -39,9 +59,21 @@ export async function GET(req: Request) {
 
   const { data: rows, error: udErr } = await supabaseServer
     .from("user_data")
-    .select("id, exams, plan, notifState, blob")
+    .select("id, exams, plan, blob")
     .in("id", [...tzByUser.keys()]);
   if (udErr) return NextResponse.json({ error: udErr.message }, { status: 500 });
+
+  // One read for the whole batch. A failed read must NOT degrade to "{}" — an
+  // empty state means "nothing has been sent", and acting on that would
+  // re-send every nudge the engine had already suppressed. Fail the run; the
+  // next hourly pass picks it up.
+  const { data: stateRows, error: nsErr } = await supabaseServer
+    .from("notification_state")
+    .select("user_id, sent, last_high_priority_day, last_milestone")
+    .in("user_id", [...tzByUser.keys()]);
+  if (nsErr) return NextResponse.json({ error: nsErr.message }, { status: 500 });
+  const stateByUser = new Map<string, NotifStateRow>();
+  for (const s of (stateRows ?? []) as NotifStateRow[]) stateByUser.set(s.user_id, s);
 
   let sent = 0, cleaned = 0;
   for (const raw of (rows ?? []) as Row[]) {
@@ -53,14 +85,14 @@ export async function GET(req: Request) {
 
       const blob = raw.blob ?? null;
       const breakdown = computeScoreFromInputs(scoreInputsFromBlob(blob));
+      // M0-6: the streak, its last-counted date and its shield are no longer
+      // read here. The decision engine cannot express a streak-at-risk send,
+      // so there is nothing to feed it.
       const result = decideNotifications({
         breakdown,
-        streak: parseInt(blob?.["ledger-focus-streak"] ?? "0", 10) || 0,
-        lastDate: blob?.["ledger-focus-last"] ?? null,
-        shieldUsedMonth: blob?.["ledger-focus-shield"] ?? null,
         exams: raw.exams ?? [],
         chronotype: raw.plan?.chronotype,
-        state: raw.notifState ?? {},
+        state: toNotifState(stateByUser.get(raw.id)),
         now: localNow,
       });
 
@@ -69,9 +101,17 @@ export async function GET(req: Request) {
       // Persist state BEFORE sending: if the send partially fails we drop a
       // nudge (fine) instead of ever double-sending one (not fine).
       const { error: stErr } = await supabaseServer
-        .from("user_data")
-        .update({ notifState: result.nextState })
-        .eq("id", raw.id);
+        .from("notification_state")
+        .upsert(
+          {
+            user_id: raw.id,
+            sent: result.nextState.sent ?? {},
+            last_high_priority_day: result.nextState.lastHighPriorityDay ?? null,
+            last_milestone: result.nextState.lastMilestone ?? null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" },
+        );
       if (stErr) continue;
 
       for (const n of result.send) {

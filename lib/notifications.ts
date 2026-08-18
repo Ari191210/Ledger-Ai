@@ -13,12 +13,11 @@
 
 import type { ScoreBreakdown } from "@/lib/ledger-score";
 import { scoreTier } from "@/lib/ledger-score";
-import { shieldAvailable } from "@/lib/streak";
 
 export type NotificationCandidate = {
   /** Semantic dedup key — one send ever per key. */
   key: string;
-  type: "streak" | "exam" | "milestone" | "risk";
+  type: "exam" | "milestone" | "risk";
   priority: "high" | "normal";
   title: string;
   body: string;
@@ -34,13 +33,14 @@ export type NotifState = {
   lastMilestone?: number;
 };
 
+// M0-6: no streak input reaches this engine. A notification may not be
+// derived from a streak's fragility (`PRODUCT_PRINCIPLES` §4.2 — "Streaks are
+// never shipped. One missed day converts a motivator into shame."), so the
+// streak, its last-counted date and its shield are not accepted here at all.
+// The field removal is the enforcement: a loss-framed candidate is not
+// expressible, not merely unreachable.
 export type EngineInput = {
   breakdown: ScoreBreakdown;
-  streak: number;
-  /** Date.toDateString() of last counted session, or null. */
-  lastDate: string | null;
-  /** "YYYY-MM" month whose streak shield is spent, or null. */
-  shieldUsedMonth: string | null;
   exams: Array<{ name: string; subject?: string; date: string }>;
   /** From user_data.plan.chronotype, when present. */
   chronotype?: string;
@@ -99,7 +99,7 @@ export function inDeliveryWindow(chronotype: string | undefined, localHour: numb
 // ── The engine ───────────────────────────────────────────────────────────────
 
 export function decideNotifications(input: EngineInput): EngineResult {
-  const { breakdown, streak, lastDate, shieldUsedMonth, exams, chronotype, state, now } = input;
+  const { breakdown, exams, chronotype, state, now } = input;
   const sent = state.sent ?? {};
   const today = localDay(now);
   const candidates: NotificationCandidate[] = [];
@@ -130,26 +130,12 @@ export function decideNotifications(input: EngineInput): EngineResult {
     });
   }
 
-  // 2. Streak reminder — only when there IS an established streak, it breaks
-  //    tonight without a session, and no shield will absorb the miss.
-  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toDateString();
-  const streakAtRisk =
-    streak >= 3 &&
-    lastDate === yesterday && // studied yesterday, nothing yet today
-    !shieldAvailable(shieldUsedMonth, now); // a miss tonight is unshielded
-  if (streakAtRisk) {
-    const key = `streak@${today}`;
-    if (!sent[key] && inDeliveryWindow(chronotype, now.getHours()) && now.getHours() >= 16) {
-      candidates.push({
-        key,
-        type: "streak",
-        priority: "high",
-        title: `Your ${streak}-day streak ends tonight`,
-        body: `No shield left this month. One focus session keeps it — and your Consistency pillar — alive.`,
-        url: "/tools/focus-lab",
-      });
-    }
-  }
+  // 2. (deleted, M0-6) The streak-at-risk reminder — "Your N-day streak ends
+  //    tonight" — is gone and is deliberately not replaced. It was a
+  //    loss-framed send whose entire purpose was fear of breaking a chain,
+  //    which `PRODUCT_PRINCIPLES` §4.2 bans outright. Nothing takes its slot:
+  //    the correct number of shame notifications is zero, not one worded
+  //    more gently.
 
   // 3. Score milestone — celebrate crossing a tier boundary, never +1 noise.
   const crossed = [...TIER_BOUNDARIES].reverse().find(b => breakdown.total >= b);
@@ -178,11 +164,13 @@ export function decideNotifications(input: EngineInput): EngineResult {
         key,
         type: "risk",
         priority: "normal",
-        // Recording a mistake no longer costs score (PRODUCT_DECISIONS §4.11),
-        // so the old "costing you N × 6 points" claim is false. Resolving is
-        // what moves the figure now, and that is what this says.
+        // No score figure here. Recording a mistake does not cost score
+        // (PRODUCT_DECISIONS §4.11), and resolving one does not yet pay score
+        // either: no production action can set a mistake to `resolved`, so the
+        // old "worth up to 120 score points" was a promise the system cannot
+        // honour (PRODUCT_PRINCIPLES Law 7, architecture J.9.a).
         title: `${breakdown.recentMistakes} repeat mistakes this week`,
-        body: `Resolving them is worth up to 120 score points. Mistake DNA shows the pattern behind them.`,
+        body: `Mistake DNA shows the pattern behind them.`,
         url: "/tools/post-exam?tab=dna",
       });
     }
@@ -204,7 +192,7 @@ export function decideNotifications(input: EngineInput): EngineResult {
   }
 
   // ── Anti-spam: priority order, then the daily cap ──
-  const order: Record<NotificationCandidate["type"], number> = { exam: 0, streak: 1, risk: 2, milestone: 3 };
+  const order: Record<NotificationCandidate["type"], number> = { exam: 0, risk: 1, milestone: 2 };
   candidates.sort((a, b) => order[a.type] - order[b.type]);
 
   const send: NotificationCandidate[] = [];

@@ -40,7 +40,8 @@ export const DESKS: Desk[] = [
   { name: "The Index",          section: "Markets",       href: "/tools/grade-tracker",  target: "/markets/index",
     brief: "The Academic Performance Index, its four sectors, and what moved them." },
   { name: "Performance Desk",   section: "Markets",       href: "/tools/marks-forensics", target: "/markets/performance",
-    brief: "Forensic analysis of where marks were won and lost." },
+    // M13-4 — `PRODUCT_PRINCIPLES` §4.1. Was "Forensic analysis of…".
+    brief: "A line-by-line account of where marks were won and lost." },
   { name: "Risk Desk",          section: "Markets",       href: "/tools/silent-topics",  target: "/markets/risk",
     brief: "The topics you are quietly avoiding, surfaced before they cost you." },
   { name: "Post-Mortem",        section: "Markets",       href: "/tools/post-exam",      target: "/markets/post-mortem",
@@ -103,7 +104,7 @@ export function desksBySection(section: Section): Desk[] {
 
 /** The section strip under the masthead. */
 export const NAV_SECTIONS = [
-  { label: "The Index",     href: "/dashboard" },
+  { label: "The Index",     href: "/home" },
   { label: "Intelligence",  href: "/tools/learn-lab" },
   { label: "Examinations",  href: "/tools/exam-practice" },
   { label: "Editorial",     href: "/tools/writing-tools" },

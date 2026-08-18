@@ -9,7 +9,6 @@ import SyncManager from "@/components/sync-manager";
 import ErrorBoundary from "@/components/error-boundary";
 import ErrorLogger from "@/components/error-logger";
 import PostHogProvider from "@/components/posthog-provider";
-import { LegacyChromeWhisper } from "@/components/legacy-chrome";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -230,8 +229,10 @@ export default function RootLayout({
       </head>
       <body>
         {/* Legacy decorative chrome (custom cursor, WebGL aurora, page gradient,
-            click shimmer) removed per Product Constitution §1/§6. Only the rank
-            whisper remains, on legacy routes — see components/legacy-chrome.tsx. */}
+            click shimmer) removed per Product Constitution §1/§6. The rank
+            whisper — an invented "N aspirants awake" peer figure — is removed
+            too (M0, PRODUCT_PRINCIPLES Law 7): the product has no peer-presence
+            data, so there was no honest version of that surface. */}
         <a href="#main-content" className="skip-link">Skip to main content</a>
 
         <AuthProvider>
@@ -242,7 +243,6 @@ export default function RootLayout({
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
-          <LegacyChromeWhisper />
           <WhatsAppWidget />
           <Toaster />
         </AuthProvider>

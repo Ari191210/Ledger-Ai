@@ -8,7 +8,7 @@ import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
 import CommandPalette from "./command-palette";
-import { TOOLS_REGISTRY, CAT_COLOR, type ToolCategory } from "@/lib/tools-registry";
+import { NAV_CATEGORIES } from "@/lib/tools-registry";
 
 type Tool = { slug: string; full: string; sub: string };
 type Category = { label: string; color: string; tools: Tool[] };
@@ -19,13 +19,16 @@ const DRAWER_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 // Derived from the registry — the single source of truth for tool slugs.
 // A hardcoded copy here previously drifted after the June consolidation and
 // left 23 dead links in the sidebar.
-const CAT_ORDER: ToolCategory[] = ["PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"];
-const CATEGORIES: Category[] = CAT_ORDER.map(label => ({
-  label,
-  color: CAT_COLOR[label],
-  tools: TOOLS_REGISTRY
-    .filter(t => t.cat === label)
-    .map(t => ({ slug: t.slug, full: t.title, sub: t.subtitle })),
+//
+// M2-3 — the panel now renders the ratified CORE register only
+// (PRODUCT_DECISIONS §1.2, §1.5), which the registry's `status` field decides.
+// Nothing is deleted: every one of the 46 `/tools/<slug>` routes still resolves
+// by direct link (§2.3), and reversing a classification is a one-word edit in
+// `lib/tools-registry.ts` (§1.4).
+const CATEGORIES: Category[] = NAV_CATEGORIES.map(c => ({
+  label: c.label,
+  color: c.color,
+  tools: c.tools.map(t => ({ slug: t.slug, full: t.title, sub: t.subtitle })),
 }));
 
 const TOTAL_TOOLS = CATEGORIES.reduce((n, c) => n + c.tools.length, 0);
@@ -193,7 +196,7 @@ export default function AppNav() {
   if (embedded) return null;
 
   const short     = displayName.length > 14 ? displayName.slice(0, 12) + "…" : displayName;
-  const isProfile = path === "/dashboard/profile";
+  const isProfile = path === "/settings";
   const initial   = (displayName || "?")[0].toUpperCase();
 
   const navLink = (href: string, label: string, extra?: React.ReactNode, mobileHide?: boolean) => {
@@ -263,7 +266,7 @@ export default function AppNav() {
           </span>
         </Link>
 
-        {navLink("/dashboard", "Dashboard", undefined, true)}
+        {navLink("/home", "Home", undefined, true)}
 
         {/* ── Light / dark toggle ── */}
         <button
@@ -362,7 +365,7 @@ export default function AppNav() {
 
         {user && (
           <div style={{ display: "flex", alignItems: "center", borderLeft: "1px solid var(--rule)", flexShrink: 0 }}>
-            <Link href="/dashboard/profile" className="nav-profile-link" style={{
+            <Link href="/settings" className="nav-profile-link" style={{
               textDecoration: "none", height: "100%", display: "flex", alignItems: "center",
               padding: "0 14px", gap: 8,
               background: isProfile ? "var(--paper-2)" : "transparent",
@@ -473,7 +476,7 @@ export default function AppNav() {
         {/* Footer */}
         <div style={{ padding: "10px 16px", borderTop: "1px solid var(--rule)", flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.06em" }}>Esc to close</span>
-          <Link href="/dashboard" onClick={closeSidebar} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
+          <Link href="/home" onClick={closeSidebar} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
             → All tools
           </Link>
         </div>

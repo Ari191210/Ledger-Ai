@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { loadUserData } from "@/lib/user-data";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
@@ -72,22 +73,59 @@ export default function AuthPage() {
     setResetSent(true);
   }
 
+  // ── M5-3 — SIGNUP LEADS INTO ONBOARDING ───────────────────────────────────
+  //
+  // Architecture S.6: *"Signup → onboarding, `app/auth/page.tsx:80-91` —
+  // signup never leads to `/onboard`, so profile is empty and personalisation
+  // silently no-ops (R.1)."*
+  //
+  // The gap was not one missing redirect. Signup ended at the "check your
+  // email" screen and stopped; the student then came back, signed IN, and sign
+  // in went to `/home`. `/onboard` was reachable only from the landing page's
+  // two CTAs, so a student who arrived by any other door never saw it — which
+  // is why most real profiles are empty.
+  //
+  // Both doors are therefore fixed, not just the first:
+  //
+  //   · signup with email confirmation OFF returns a session, so the student
+  //     is already signed in and goes straight to `/onboard`;
+  //   · signup with confirmation ON still shows the confirmation screen — it
+  //     is the honest state, and skipping it would strand the student on a
+  //     screen they cannot act on — and the SIGN-IN path below now sends
+  //     anyone who has not declared a board and subjects to `/onboard` first.
+  //
+  // Completion is derived from the profile, never from a stored flag alone:
+  // the same rule as `isOnboarded()` in `lib/student-profile.ts`, with the
+  // pre-M5 `onboardingDone` boolean still honoured for existing accounts.
+  async function landingRouteFor(userId: string): Promise<string> {
+    try {
+      const ud = await loadUserData(userId);
+      const declared =
+        Boolean(ud?.board) && Array.isArray(ud?.interests) && ud.interests.length > 0;
+      if (ud?.onboardingDone === true || declared) return "/home";
+    } catch {
+      /* fall through — `/onboard` bounces an already-declared student to /home */
+    }
+    return "/onboard";
+  }
+
   async function submit() {
     if (mode === "forgot") { sendReset(); return; }
     if (!email.trim() || !password.trim()) return;
     setLoading(true); setError("");
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email, password,
         options: { data: { full_name: name } },
       });
       if (error) { setError(error.message); setLoading(false); return; }
+      if (data.session) { router.replace("/onboard"); return; }
       setDone(true);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      router.push("/dashboard");
+      router.push(data.user ? await landingRouteFor(data.user.id) : "/home");
     }
     setLoading(false);
   }

@@ -1,0 +1,28 @@
+{
+  "//": "M12-1 / M12-2 / M12-3. Separate outDir per suite — see tests/tsconfig.registry.json for why. Every module compiled here is I/O-free: `lib/coverage-state.ts` imports two TYPES (M9's session states, M10's coverage row) and nothing else; `lib/concept-accuracy.ts` imports one type from `lib/event-contract.ts`; `lib/projection-consistency.ts` imports the other two. The M9/M10 modules are compiled alongside so V.2.7 can be proved END TO END — confirmation gate, frozen manifest, verification gate, then coverage_state — with no Supabase project in reach (U.3, the determinism boundary).",
+  "compilerOptions": {
+    "outDir": "../.test-build-academic-record",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/coverage-state.ts",
+    "../lib/concept-accuracy.ts",
+    "../lib/projection-consistency.ts",
+    "../lib/assessment-verification.ts",
+    "../lib/assessment-blueprint.ts",
+    "../lib/session-concepts.ts",
+    "../lib/concept-resolution.ts",
+    "../lib/study-session.ts",
+    "../lib/event-contract.ts",
+    "../lib/sha256.ts"
+  ]
+}

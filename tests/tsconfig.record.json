@@ -1,0 +1,21 @@
+{
+  "//": "M13-3. Separate outDir per suite — see tests/tsconfig.registry.json for why. `lib/record.ts` is M13-3's whole derivation and it imports nothing at runtime beyond `lib/diagnosis.ts` (M13-1's row readers, reused rather than re-implemented, and itself I/O-free); `lib/mistakes/types.ts` is types-only and erases at compile time. There is no Supabase client, no clock and no next/* anywhere in either. That is what lets M13-3's done-when — six months renders, and renders without an unbounded read — be proved with no live project in reach (U.3). The database verbs are injected as an interface with five READ methods and no write method; the tests supply a double that counts the queries it is asked for.",
+  "compilerOptions": {
+    "outDir": "../.test-build-record",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/mistakes/types.ts",
+    "../lib/diagnosis.ts",
+    "../lib/record.ts"
+  ]
+}
