@@ -162,6 +162,11 @@ export default function AuthPage() {
       placeholder={placeholder}
       onKeyDown={(e) => e.key === "Enter" && submit()}
       className="auth-input"
+      style={{
+        background: "var(--g-3)",
+        color: "var(--g-7)",
+        borderColor: "var(--g-4)",
+      }}
     />
   );
 
