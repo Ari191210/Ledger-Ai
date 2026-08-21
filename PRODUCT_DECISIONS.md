@@ -70,10 +70,19 @@ building while remaining in git and readable.
 
 Classified by thesis fit. **No usage data was consulted.**
 
-**CORE — 13.** The loop itself.
+**CORE — 14.** The loop itself.
 `post-exam` · `paper-autopsy` · `marks-forensics` · `marks-obituary` ·
 `paper-trauma` · `paper-pattern` · `calibration` · `syllabus` · `grade-tracker` ·
-`exam-planner` · `silent-topics` · `practice` · `exam-practice`
+`exam-planner` · `silent-topics` · `practice` · `exam-practice` · `mistake-dna`
+
+> **2026-08-21 — `mistake-dna` added, CORE.** A dedicated, real-data analytics
+> view over `occurrences`/`patterns` (007, M11) — subject/topic/type breakdown,
+> recent mistakes, recurrence, a heatmap, and one recommended next step,
+> every figure computed from the student's own record, never a placeholder.
+> Distinct from `post-exam`'s existing DNA tab (still live, unlinked-not-
+> deleted, `/tools/dna` still 301s there) — neither absorbs the other yet.
+> CORE, not SUPPORTING, because §1.2 hides SUPPORTING from V1 navigation and
+> this tool is meant to be reachable now, not held back for a later release.
 
 **SUPPORTING — 12.** Hidden in V1, implementation untouched, likely to return.
 `recall-studio` · `flashcards` · `exam-sim` · `forgetting-forecast` · `exam-day` ·
@@ -92,7 +101,7 @@ Classified by thesis fit. **No usage data was consulted.**
 
 **LEGACY — 0 tools.**
 
-Not one of the 46 tools meets the deletion bar. Everything that qualifies is
+Not one of the 47 tools meets the deletion bar. Everything that qualifies is
 **infrastructure, not product**:
 
 | Item | Qualifying reason |

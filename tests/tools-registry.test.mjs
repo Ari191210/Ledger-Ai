@@ -42,14 +42,14 @@ test('setup imports', async () => {
 // ══ THE REGISTER SURVIVES ═══════════════════════════════════════════════════
 
 describe('the register', () => {
-  test('carries exactly 46 tools', () => {
-    assert.equal(R.TOOLS_REGISTRY.length, 46);
-    assert.equal(R.RESOLVED_TOOLS.length, 46);
+  test('carries exactly 47 tools', () => {
+    assert.equal(R.TOOLS_REGISTRY.length, 47);
+    assert.equal(R.RESOLVED_TOOLS.length, 47);
   });
 
   test('slugs are unique', () => {
     const slugs = R.TOOLS_REGISTRY.map(t => t.slug);
-    assert.equal(new Set(slugs).size, 46);
+    assert.equal(new Set(slugs).size, 47);
   });
 
   test('every entry keeps its navigation fields', () => {
@@ -71,7 +71,7 @@ describe('the register', () => {
 
   test('the class counts match PRODUCT_DECISIONS §1.5', () => {
     const n = s => R.TOOLS_REGISTRY.filter(t => t.status === s).length;
-    assert.equal(n('core'), 13);
+    assert.equal(n('core'), 14);
     assert.equal(n('supporting'), 12);
     assert.equal(n('experimental'), 21);
     assert.equal(n('legacy'), 0);
@@ -81,7 +81,7 @@ describe('the register', () => {
     const expected = [
       'post-exam', 'paper-autopsy', 'marks-forensics', 'marks-obituary', 'paper-trauma',
       'paper-pattern', 'calibration', 'syllabus', 'grade-tracker', 'exam-planner',
-      'silent-topics', 'practice', 'exam-practice',
+      'silent-topics', 'practice', 'exam-practice', 'mistake-dna',
     ].sort();
     assert.deepEqual(R.CORE_TOOLS.map(t => t.slug).sort(), expected);
   });
