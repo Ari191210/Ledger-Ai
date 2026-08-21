@@ -8,6 +8,7 @@ import { currentInputs } from "@/lib/score-projection";
 import { deriveNextMove, type NextMove } from "@/lib/console/next-move";
 import { examProximity, soonestExam, type ExamProximity, type UpcomingExam } from "@/lib/exam-day";
 import ExamDayPanel from "@/components/home/exam-day-panel";
+import ScoreDetail from "@/components/home/score-detail";
 import HomeComposer, { type HomeContent } from "@/components/home/composer";
 import type { HomeComposition } from "@/lib/home";
 import {
@@ -267,6 +268,17 @@ export default function HomePage() {
               />
             )}
           </Stack>
+
+          {/* 3.5 ── THE SCORE'S OWN WORKING. Every figure here already lives
+              on `score` — this renders it instead of discarding it. Real
+              per-subject and per-pillar numbers, a list not a card grid,
+              never the retired streak/consistency fields. */}
+          {score && (
+            <>
+              <Rule />
+              <ScoreDetail score={score} />
+            </>
+          )}
 
           {/* 4 ── THE COMPOSED SECTION (M22). Registry-driven: what renders
               here, in what order and at what importance tier, is entirely a
