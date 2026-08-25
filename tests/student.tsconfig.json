@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "../.test-build",
+    "rootDir": "..",
+    "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/student/types.ts",
+    "../lib/student/store.ts",
+    "../lib/student/actions.ts",
+    "../lib/student/derive.ts",
+    "../lib/student/next-action.ts"
+  ]
+}
