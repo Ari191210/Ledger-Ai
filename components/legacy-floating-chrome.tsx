@@ -15,7 +15,8 @@ import { LegacyChromeWhisper } from "@/components/legacy-chrome";
 import { WhatsAppWidget } from "@/components/whatsapp-widget";
 
 /** Route prefixes that render the academic OS and must stay free of the
- *  legacy floating chrome. */
+ *  legacy floating chrome. `/os` covers the landing, pricing and auth
+ *  surfaces that live beneath it. */
 const OS_ROUTES = ["/journey", "/os", "/about"];
 
 export function LegacyFloatingChrome() {

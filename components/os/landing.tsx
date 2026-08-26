@@ -72,7 +72,7 @@ export default function LandingPage() {
             <Link href="#systems" className="os-nav-item">Systems</Link>
             <Link href="#principles" className="os-nav-item">Principles</Link>
             <Link href="/about" className="os-nav-item">About</Link>
-            <Link href="/pricing" className="os-nav-item">Pricing</Link>
+            <Link href="/os/pricing" className="os-nav-item">Pricing</Link>
           </nav>
           <div style={{ marginLeft: "auto" }}>
             <Link href="/journey" className="os-btn" data-variant="primary" data-size="sm">
@@ -84,7 +84,7 @@ export default function LandingPage() {
 
       <main className="os-shell" id="main-content">
         {/* ── Hero ────────────────────────────────────────────────────── */}
-        <section style={{ padding: "88px 0 64px", maxWidth: "72ch" }}>
+        <section className="os-measure os-center" style={{ padding: "96px 0 68px" }}>
           <p className="os-eyebrow">The academic operating system</p>
           <h1 style={{
             fontSize: "clamp(38px, 6vw, 60px)",
@@ -99,7 +99,7 @@ export default function LandingPage() {
           </h1>
           <p style={{
             fontSize: 18, lineHeight: 1.6, color: "var(--os-ink-3)",
-            margin: "22px 0 0", maxWidth: "58ch",
+            margin: "22px auto 0", maxWidth: "58ch",
           }}>
             One place that holds your academics, tests, activities, projects, colleges,
             applications and essays — and reads across all of them to answer the only
@@ -189,19 +189,20 @@ export default function LandingPage() {
         </section>
 
         {/* ── Systems ─────────────────────────────────────────────────── */}
-        <section id="systems" style={{ marginBottom: 96, scrollMarginTop: 76 }}>
+        <section id="systems" className="os-center" style={{ marginBottom: 96, scrollMarginTop: 76 }}>
           <p className="os-eyebrow">The systems</p>
           <h2 style={{
             fontSize: 32, fontWeight: 600, letterSpacing: "-0.025em",
             color: "var(--os-ink)", margin: "0 0 10px",
           }}>Eleven sections, not forty-six tools</h2>
-          <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--os-ink-3)", margin: "0 0 32px", maxWidth: "62ch" }}>
+          <p style={{ fontSize: 15.5, lineHeight: 1.6, color: "var(--os-ink-3)", margin: "0 auto 40px", maxWidth: "62ch" }}>
             A menu of everything is a route through nothing. Each section holds one part
             of your record, and they read each other.
           </p>
 
           <div style={{
             display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(268px,1fr))", gap: 14,
+            textAlign: "left",
           }}>
             {SYSTEMS.map(s => (
               <div key={s.name} className="os-card">
@@ -216,7 +217,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── Principles ──────────────────────────────────────────────── */}
-        <section id="principles" style={{ marginBottom: 96, scrollMarginTop: 76 }}>
+        <section id="principles" className="os-measure" style={{ marginBottom: 96, scrollMarginTop: 76 }}>
           <p className="os-eyebrow">How it behaves</p>
           <h2 style={{
             fontSize: 32, fontWeight: 600, letterSpacing: "-0.025em",
@@ -281,7 +282,7 @@ export default function LandingPage() {
           </span>
           <div className="os-row" style={{ marginLeft: "auto", gap: 18 }}>
             <Link href="/about" className="os-link">About</Link>
-            <Link href="/pricing" className="os-link">Pricing</Link>
+            <Link href="/os/pricing" className="os-link">Pricing</Link>
             <Link href="/legal/privacy" className="os-link">Privacy</Link>
             <Link href="/legal/terms" className="os-link">Terms</Link>
           </div>

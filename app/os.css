@@ -213,6 +213,23 @@
   padding: 0 24px 96px;
 }
 
+/* Marketing pages centre their measure rather than left-hugging it.
+   A 62ch column pinned to the left of a 1120px shell leaves the right third
+   empty on a laptop, which reads as a page that failed to load. Centring
+   keeps the line length readable and the composition intentional. */
+[data-os] .os-measure {
+  max-width: 74ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+[data-os] .os-measure-narrow {
+  max-width: 62ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+[data-os] .os-center { text-align: center; }
+[data-os] .os-center .os-row { justify-content: center; }
+
 [data-os] .os-stack   { display: grid; gap: var(--os-gap); }
 [data-os] .os-stack-sm { display: grid; gap: 12px; }
 [data-os] .os-row     { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -446,7 +463,9 @@
 
 /* ── Controls ────────────────────────────────────────────────────────────── */
 
-[data-os] .os-btn {
+[data-os] .os-btn,
+[data-os] button.os-btn:not(.btn):not([class*="ui-btn"]),
+[data-os] a.os-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -454,7 +473,7 @@
   height: 36px;
   padding: 0 16px;
   border-radius: var(--os-r-sm);
-  font-family: inherit;
+  font-family: var(--os-sans);
   font-size: 13.5px;
   font-weight: 550;
   letter-spacing: -0.005em;
@@ -464,26 +483,39 @@
   color: var(--os-ink);
   transition: background 120ms ease, border-color 120ms ease, transform 60ms ease;
   white-space: nowrap;
+  text-decoration: none;
+  opacity: 1;
 }
-[data-os] .os-btn:hover:not(:disabled) { background: var(--os-surface-hover); }
+[data-os] .os-btn:hover:not(:disabled),
+[data-os] button.os-btn:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
+  background: var(--os-surface-hover);
+  opacity: 1;
+}
 [data-os] .os-btn:active:not(:disabled) { transform: scale(0.985); }
 [data-os] .os-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-[data-os] .os-btn[data-variant="primary"] {
+[data-os] .os-btn[data-variant="primary"],
+[data-os] button.os-btn[data-variant="primary"]:not(.btn):not([class*="ui-btn"]),
+[data-os] a.os-btn[data-variant="primary"] {
   background: var(--os-accent);
   border-color: var(--os-accent);
   color: #fff;
 }
-[data-os] .os-btn[data-variant="primary"]:hover:not(:disabled) {
+[data-os] .os-btn[data-variant="primary"]:hover:not(:disabled),
+[data-os] button.os-btn[data-variant="primary"]:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
   background: var(--os-accent-hover);
   border-color: var(--os-accent-hover);
+  color: #fff;
 }
-[data-os] .os-btn[data-variant="ghost"] {
+[data-os] .os-btn[data-variant="ghost"],
+[data-os] button.os-btn[data-variant="ghost"]:not(.btn):not([class*="ui-btn"]),
+[data-os] a.os-btn[data-variant="ghost"] {
   background: transparent;
   border-color: transparent;
   color: var(--os-ink-3);
 }
-[data-os] .os-btn[data-variant="ghost"]:hover:not(:disabled) {
+[data-os] .os-btn[data-variant="ghost"]:hover:not(:disabled),
+[data-os] button.os-btn[data-variant="ghost"]:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
   background: var(--os-surface-hover);
   color: var(--os-ink);
 }
@@ -588,13 +620,28 @@
 [data-os] .os-empty-title { font-size: 14.5px; font-weight: 550; color: var(--os-ink-2); margin: 0; }
 [data-os] .os-empty-body  { font-size: 13px; line-height: 1.6; color: var(--os-ink-4); margin: 7px 0 0; max-width: 58ch; }
 
-[data-os] .os-link {
+[data-os] .os-link,
+[data-os] a.os-link,
+[data-os] button.os-link:not(.btn):not([class*="ui-btn"]),
+[data-os] a.os-link:not(.btn):not([class]) {
   color: var(--os-accent);
   text-decoration: none;
   font-weight: 500;
   font-size: 13.5px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 1;
 }
-[data-os] .os-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+[data-os] .os-link:hover,
+[data-os] a.os-link:hover,
+[data-os] button.os-link:not(.btn):not([class*="ui-btn"]):hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 1;
+  background: none;
+}
 
 /* ── Section divider ─────────────────────────────────────────────────────── */
 

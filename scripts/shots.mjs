@@ -53,6 +53,10 @@ const PAGES = [
   { name: "04-colleges", url: "/journey/colleges" },
   { name: "05-testing",  url: "/journey/testing" },
   { name: "06-essays",   url: "/journey/essays" },
+  { name: "07-pricing",  url: "/os/pricing" },
+  { name: "08-auth",     url: "/os/auth" },
+  { name: "09-academics",url: "/journey/academics" },
+  { name: "10-calendar", url: "/journey/calendar" },
 ];
 
 const ws = new WebSocket(await endpoint());

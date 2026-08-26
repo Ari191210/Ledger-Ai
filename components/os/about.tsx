@@ -23,7 +23,7 @@ export default function AboutPage() {
             <Link href="/#systems" className="os-nav-item">Systems</Link>
             <Link href="/#principles" className="os-nav-item">Principles</Link>
             <Link href="/about" className="os-nav-item" data-active="true">About</Link>
-            <Link href="/pricing" className="os-nav-item">Pricing</Link>
+            <Link href="/os/pricing" className="os-nav-item">Pricing</Link>
           </nav>
           <div style={{ marginLeft: "auto" }}>
             <Link href="/journey" className="os-btn" data-variant="primary" data-size="sm">
@@ -34,7 +34,7 @@ export default function AboutPage() {
       </div>
 
       <main className="os-shell" id="main-content">
-        <section style={{ padding: "72px 0 48px", maxWidth: "68ch" }}>
+        <section className="os-measure" style={{ padding: "80px 0 48px" }}>
           <p className="os-eyebrow">About</p>
           <h1 style={{
             fontSize: "clamp(32px, 5vw, 46px)", lineHeight: 1.1,
@@ -50,7 +50,7 @@ export default function AboutPage() {
           </p>
         </section>
 
-        <section style={{ maxWidth: "66ch", marginBottom: 72 }}>
+        <section className="os-measure" style={{ marginBottom: 72 }}>
           <div className="os-stack">
             <div>
               <h2 style={h2}>Why it refuses to guess</h2>
@@ -116,7 +116,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section style={{ marginBottom: 72 }}>
+        <section className="os-measure" style={{ marginBottom: 72 }}>
           <div className="os-card" style={{ padding: "36px 34px" }}>
             <h2 style={{ ...h2, marginTop: 0 }}>Where it is going</h2>
             <p style={{ ...body, marginBottom: 20 }}>
@@ -139,7 +139,7 @@ export default function AboutPage() {
           </span>
           <div className="os-row" style={{ marginLeft: "auto", gap: 18 }}>
             <Link href="/" className="os-link">Home</Link>
-            <Link href="/pricing" className="os-link">Pricing</Link>
+            <Link href="/os/pricing" className="os-link">Pricing</Link>
             <Link href="/legal/privacy" className="os-link">Privacy</Link>
           </div>
         </footer>
