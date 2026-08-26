@@ -10,14 +10,16 @@ import SyncManager from "@/components/sync-manager";
 import ErrorBoundary from "@/components/error-boundary";
 import ErrorLogger from "@/components/error-logger";
 import PostHogProvider from "@/components/posthog-provider";
-import { LegacyChromeWhisper } from "@/components/legacy-chrome";
-import { WhatsAppWidget } from "@/components/whatsapp-widget";
+import { LegacyFloatingChrome } from "@/components/legacy-floating-chrome";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 // Loaded globally, but INERT: every selector in editorial.css is scoped beneath
 // [data-ui="editorial"], which only <EditorialShell> emits. A route that does
 // not opt in is not touched by a single rule in that file.
 import "./editorial.css";
+// Same containment: every selector in os.css is scoped beneath [data-os],
+// which only the academic-OS shell emits. The legacy routes are untouched.
+import "./os.css";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TWO DESIGN SYSTEMS, SIDE BY SIDE
@@ -261,8 +263,7 @@ export default function RootLayout({
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
-          <LegacyChromeWhisper />
-          <WhatsAppWidget />
+        <LegacyFloatingChrome />
           <Toaster />
         </AuthProvider>
       </body>

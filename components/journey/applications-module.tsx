@@ -19,7 +19,7 @@ import {
 } from "@/lib/student/actions";
 import { applicationProgress, formatDeadline } from "@/lib/student/derive";
 import type { RecommenderStatus } from "@/lib/student/types";
-import { PageHead, Panel, Basis, EmptyState, Pill, Meter } from "./primitives";
+import { PageHead, Card, Basis, Empty, Pill, Meter } from "./primitives";
 
 const STATUSES: { id: RecommenderStatus; label: string }[] = [
   { id: "not-requested", label: "Not asked" },
@@ -49,9 +49,9 @@ export default function ApplicationsModule() {
       />
 
       {student.applications.length === 0 ? (
-        <EmptyState
+        <Empty
           title="No applications yet"
-          detail="An application workspace opens automatically for every college you add, with a standard checklist you can extend per school."
+          body="An application workspace opens automatically for every college you add, with a standard checklist you can extend per school."
           href="/journey/colleges" cta="Add a college"
         />
       ) : (
@@ -62,7 +62,7 @@ export default function ApplicationsModule() {
             const pct = applicationProgress(app);
             const pending = app.checklist.filter(i => !i.done);
             return (
-              <Panel
+              <Card
                 key={app.id}
                 title={college.name}
                 meta={college.deadline ? formatDeadline(college.deadline) : "no deadline recorded"}
@@ -82,11 +82,11 @@ export default function ApplicationsModule() {
                         type="checkbox" checked={item.done}
                         onChange={() => update(s => toggleChecklistItem(s, app.id, item.id))}
                         aria-label={`${item.label} for ${college.name}`}
-                        style={{ accentColor: "var(--cinnabar-ink)", width: 15, height: 15 }}
+                        style={{ accentColor: "var(--os-accent)", width: 15, height: 15 }}
                       />
                       <span style={{
                         fontSize: 13.5,
-                        color: item.done ? "var(--ink-3)" : "var(--ink-2)",
+                        color: item.done ? "var(--os-ink-4)" : "var(--os-ink-3)",
                         textDecoration: item.done ? "line-through" : "none",
                       }}>{item.label}</span>
                     </li>
@@ -104,44 +104,44 @@ export default function ApplicationsModule() {
                         setNewItem({ ...newItem, [app.id]: "" });
                       }
                     }}
-                    style={{ ...inputStyle, flex: "1 1 240px" }}
+                    className="os-input"
                   />
                   {pending.length === 0 && (
                     <button
                       onClick={() => update(s => setApplicationSubmitted(s, app.id, true))}
-                      style={primaryButton}
+                      className="os-btn" data-variant="primary"
                     >Mark submitted</button>
                   )}
                 </div>
-              </Panel>
+              </Card>
             );
           })}
 
           {submitted.length > 0 && (
-            <Panel title="Submitted" meta={`${submitted.length}`}>
+            <Card title="Submitted" meta={`${submitted.length}`}>
               <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
                 {submitted.map(app => {
                   const college = student.colleges.find(c => c.id === app.collegeId);
                   return (
                     <li key={app.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                      <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: 1 }}>
+                      <span style={{ fontSize: 13.5, color: "var(--os-ink-3)", flex: 1 }}>
                         {college?.name ?? "Unknown college"}
                       </span>
                       <Pill tone="good">Submitted</Pill>
                       <button
                         onClick={() => update(s => setApplicationSubmitted(s, app.id, false))}
-                        style={linkButton}
+                        className="os-btn" data-variant="ghost" data-size="sm"
                       >Undo</button>
                     </li>
                   );
                 })}
               </ul>
-            </Panel>
+            </Card>
           )}
         </>
       )}
 
-      <Panel title="Recommenders" meta={`${student.recommenders.length} tracked`}>
+      <Card title="Recommenders" meta={`${student.recommenders.length} tracked`}>
         <Basis>
           A letter from someone who watched you work beats one written from a mark sheet, and
           that takes months of visibility. Ask early.
@@ -151,33 +151,33 @@ export default function ApplicationsModule() {
           <ul style={{ listStyle: "none", margin: "12px 0", padding: 0, display: "grid", gap: 10 }}>
             {student.recommenders.map(r => (
               <li key={r.id} style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: "1 1 160px" }}>
+                <span style={{ fontSize: 13.5, color: "var(--os-ink-3)", flex: "1 1 160px" }}>
                   {r.name}{r.subject ? ` · ${r.subject}` : ""}
                 </span>
                 <select
                   value={r.status}
                   onChange={e => update(s => updateRecommender(s, r.id, { status: e.target.value as RecommenderStatus }))}
                   aria-label={`Status for ${r.name}`}
-                  style={inputStyle}
+                  className="os-input"
                 >
                   {STATUSES.map(st => <option key={st.id} value={st.id}>{st.label}</option>)}
                 </select>
                 {r.deadline && <Pill tone="warn">{formatDeadline(r.deadline)}</Pill>}
-                <button onClick={() => update(s => removeRecommender(s, r.id))} style={linkButton}>Remove</button>
+                <button onClick={() => update(s => removeRecommender(s, r.id))} className="os-btn" data-variant="ghost" data-size="sm">Remove</button>
               </li>
             ))}
           </ul>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10 }}>
+        <div className="os-grid-fields">
           <input placeholder="Name" value={rec.name}
-            onChange={e => setRec({ ...rec, name: e.target.value })} style={inputStyle} />
+            onChange={e => setRec({ ...rec, name: e.target.value })} className="os-input" />
           <input placeholder="Subject" value={rec.subject}
-            onChange={e => setRec({ ...rec, subject: e.target.value })} style={inputStyle} />
+            onChange={e => setRec({ ...rec, subject: e.target.value })} className="os-input" />
           <input placeholder="Email" value={rec.email}
-            onChange={e => setRec({ ...rec, email: e.target.value })} style={inputStyle} />
+            onChange={e => setRec({ ...rec, email: e.target.value })} className="os-input" />
           <input type="date" value={rec.deadline} aria-label="Letter deadline"
-            onChange={e => setRec({ ...rec, deadline: e.target.value })} style={inputStyle} />
+            onChange={e => setRec({ ...rec, deadline: e.target.value })} className="os-input" />
         </div>
         <button
           disabled={!rec.name.trim()}
@@ -191,27 +191,12 @@ export default function ApplicationsModule() {
             }));
             setRec({ name: "", subject: "", email: "", deadline: "" });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: rec.name.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Add recommender</button>
-      </Panel>
+      </Card>
     </div>
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "transparent", border: "1px solid var(--rule)",
-  borderRadius: "var(--radius-xs)", padding: "8px 10px",
-  color: "var(--ink)", fontSize: 13, fontFamily: "inherit",
-};
 
-const primaryButton: React.CSSProperties = {
-  fontFamily: "var(--mono)", fontSize: 11.5, letterSpacing: "0.04em",
-  textTransform: "uppercase", background: "transparent",
-  color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)",
-  borderRadius: "var(--radius-xs)", padding: "7px 14px", cursor: "pointer",
-};
 
-const linkButton: React.CSSProperties = {
-  background: "transparent", border: "none", color: "var(--ink-3)",
-  fontFamily: "var(--mono)", fontSize: 11, cursor: "pointer",
-};

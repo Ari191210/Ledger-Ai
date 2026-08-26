@@ -1,165 +1,170 @@
 "use client";
 // ═══════════════════════════════════════════════════════════════════════════
-// Shared primitives for the journey modules.
+// The academic OS component vocabulary.
 //
-// These exist so the honesty rules of the Constitution are enforced by the
-// component, not by each author remembering them:
+// Every element here carries a class from os.css rather than inline styles, so
+// the design system is edited in one file and the components stay readable.
 //
-//   • <Figure> refuses to render a number that is unavailable, and shows the
-//     reason instead. This is the difference between "0%" and "not measured",
-//     which look identical on screen but mean opposite things.
-//   • <EmptyState> always says what to do next, so an empty module is a
-//     prompt rather than a dead end.
-//   • <Basis> keeps the explanation attached to the figure it explains, so a
-//     number is never shown without the ability to answer "why?".
+// Two of these enforce product rules rather than visual ones:
+//
+//   <Figure>  will not render a number it does not have. It shows an em-dash
+//             and the reason instead, because "0%" and "not measured" look
+//             identical on screen and mean opposite things.
+//   <Empty>   always states what is missing and links to where it is fixed.
+//             An empty module is a prompt, never a dead end.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export function PageHead({ title, sub }: { title: string; sub: string }) {
+export type Tone = "neutral" | "accent" | "good" | "warn" | "risk";
+
+export function PageHead({
+  title, sub, eyebrow, action,
+}: { title: string; sub?: string; eyebrow?: string; action?: ReactNode }) {
   return (
-    <header style={{ marginBottom: 28 }}>
-      <h1 style={{
-        fontFamily: "var(--serif)", fontSize: 30, lineHeight: 1.15,
-        letterSpacing: "-0.01em", color: "var(--ink)", margin: 0,
-      }}>{title}</h1>
-      <p style={{
-        fontSize: 13.5, lineHeight: 1.55, color: "var(--ink-3)",
-        margin: "8px 0 0", maxWidth: "62ch",
-      }}>{sub}</p>
+    <header className="os-head">
+      {eyebrow && <p className="os-eyebrow">{eyebrow}</p>}
+      <div className="os-row" style={{ alignItems: "flex-start" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 className="os-title">{title}</h1>
+          {sub && <p className="os-sub">{sub}</p>}
+        </div>
+        {action}
+      </div>
     </header>
   );
 }
 
-export function Panel({
-  title, meta, children, action,
-}: { title: string; meta?: string; children: ReactNode; action?: ReactNode }) {
+export function Card({
+  title, meta, children, action, raised = false,
+}: {
+  title?: string; meta?: string; children: ReactNode;
+  action?: ReactNode; raised?: boolean;
+}) {
   return (
-    <section style={{
-      border: "1px solid var(--rule)", borderRadius: "var(--radius-sm)",
-      background: "var(--paper-2)", padding: "16px 18px", marginBottom: 16,
-    }}>
-      <div style={{
-        display: "flex", alignItems: "baseline", gap: 12,
-        marginBottom: 12, flexWrap: "wrap",
-      }}>
-        <h2 style={{
-          fontFamily: "var(--serif)", fontSize: 16, margin: 0, color: "var(--ink)",
-        }}>{title}</h2>
-        {meta && (
-          <span style={{
-            fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.06em",
-            textTransform: "uppercase", color: "var(--ink-3)",
-          }}>{meta}</span>
-        )}
-        {action && <div style={{ marginLeft: "auto" }}>{action}</div>}
-      </div>
+    <section className={`os-card${raised ? " os-card-raised" : ""}`}>
+      {(title || meta || action) && (
+        <div className="os-card-head">
+          {title && <h2 className="os-card-title">{title}</h2>}
+          {meta && <span className="os-card-meta">{meta}</span>}
+          {action}
+        </div>
+      )}
       {children}
     </section>
   );
 }
 
-/** A number, or an honest statement that there is no number.
+/** A number, or an honest statement that there is not one.
  *
- *  `available: false` renders the reason rather than a zero. Constitution §3:
- *  a figure that was decoration makes every other figure suspect. */
+ *  `available: false` renders an em-dash and the reason. This is the single
+ *  most important rule in the product: a figure that was decoration makes
+ *  every other figure suspect. */
 export function Figure({
-  label, value, suffix = "", available, basis, big = false,
+  label, value, unit, available, basis, size = "md",
 }: {
   label: string;
   value?: number | string;
-  suffix?: string;
+  unit?: string;
   available: boolean;
   basis?: string;
-  big?: boolean;
+  size?: "md" | "lg";
 }) {
+  const show = available && value !== undefined && value !== null;
   return (
     <div style={{ minWidth: 0 }}>
-      <div style={{
-        fontFamily: "var(--mono)", fontSize: 9.5, letterSpacing: "0.07em",
-        textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 4,
-      }}>{label}</div>
-      {available && value !== undefined ? (
-        <div style={{
-          fontFamily: "var(--mono)", fontSize: big ? 34 : 22,
-          lineHeight: 1.1, color: "var(--ink)",
-        }}>{value}<span style={{ fontSize: big ? 18 : 13, color: "var(--ink-3)" }}>{suffix}</span></div>
-      ) : (
-        <div style={{
-          fontFamily: "var(--mono)", fontSize: big ? 26 : 18,
-          lineHeight: 1.2, color: "var(--ink-3)",
-        }}>—</div>
-      )}
-      {basis && <Basis>{basis}</Basis>}
+      <div className="os-figure-label">{label}</div>
+      <div className="os-figure-value os-num" data-size={size} data-empty={!show}>
+        {show ? value : "—"}
+        {show && unit && <span className="os-figure-unit">{unit}</span>}
+      </div>
+      {basis && <p className="os-basis">{basis}</p>}
     </div>
   );
 }
 
-/** The explanation that travels with a figure. */
 export function Basis({ children }: { children: ReactNode }) {
-  return (
-    <p style={{
-      fontSize: 11.5, lineHeight: 1.5, color: "var(--ink-3)", margin: "5px 0 0",
-    }}>{children}</p>
-  );
+  return <p className="os-basis">{children}</p>;
 }
 
-/** A bar that renders nothing rather than an empty track when unmeasured. */
-export function Meter({ percent, available }: { percent: number; available: boolean }) {
+/** A progress bar that renders a dashed empty track when unmeasured, so a
+ *  zero-width fill is never mistaken for a measured zero. */
+export function Meter({
+  percent, available, tone,
+}: { percent: number; available: boolean; tone?: Tone }) {
+  const resolved: Tone = tone
+    ?? (percent >= 75 ? "good" : percent >= 35 ? "accent" : "warn");
   return (
-    <div style={{
-      height: 4, background: "var(--rule-2)", borderRadius: 2, overflow: "hidden",
-    }}>
-      {available && (
-        <div style={{
-          width: `${Math.max(0, Math.min(100, percent))}%`, height: "100%",
-          background: percent >= 80 ? "var(--sage)" : percent >= 40 ? "var(--ochre)" : "var(--cinnabar-ink)",
-        }} />
-      )}
-    </div>
-  );
-}
-
-/** An empty module must say what to do, never just "nothing here". */
-export function EmptyState({
-  title, detail, href, cta,
-}: { title: string; detail: string; href?: string; cta?: string }) {
-  return (
-    <div style={{
-      border: "1px dashed var(--rule)", borderRadius: "var(--radius-sm)",
-      padding: "22px 20px", textAlign: "left",
-    }}>
-      <p style={{ fontSize: 14, color: "var(--ink-2)", margin: 0, fontWeight: 500 }}>{title}</p>
-      <p style={{
-        fontSize: 12.5, lineHeight: 1.55, color: "var(--ink-3)",
-        margin: "6px 0 0", maxWidth: "56ch",
-      }}>{detail}</p>
-      {href && cta && (
-        <Link href={href} style={{
-          display: "inline-block", marginTop: 12, fontSize: 12.5,
-          fontFamily: "var(--mono)", color: "var(--cinnabar-ink)", textDecoration: "none",
-          borderBottom: "1px solid var(--cinnabar-ink)", paddingBottom: 1,
-        }}>{cta} →</Link>
-      )}
+    <div className="os-meter">
+      {available
+        ? <div className="os-meter-fill" data-tone={resolved}
+            style={{ width: `${Math.max(0, Math.min(100, percent))}%` }} />
+        : <div className="os-meter-empty" />}
     </div>
   );
 }
 
 export function Pill({
   children, tone = "neutral",
-}: { children: ReactNode; tone?: "neutral" | "warn" | "critical" | "good" }) {
-  const colour =
-    tone === "critical" ? "var(--cinnabar-ink)"
-    : tone === "warn" ? "var(--ochre)"
-    : tone === "good" ? "var(--sage)"
-    : "var(--ink-3)";
+}: { children: ReactNode; tone?: Tone }) {
+  return <span className="os-pill" data-tone={tone}>{children}</span>;
+}
+
+export function Empty({
+  title, body, href, cta,
+}: { title: string; body: string; href?: string; cta?: string }) {
   return (
-    <span style={{
-      fontFamily: "var(--mono)", fontSize: 9.5, letterSpacing: "0.06em",
-      textTransform: "uppercase", color: colour,
-      border: `1px solid ${colour}`, borderRadius: 3, padding: "2px 6px",
-      whiteSpace: "nowrap",
-    }}>{children}</span>
+    <div className="os-empty">
+      <p className="os-empty-title">{title}</p>
+      <p className="os-empty-body">{body}</p>
+      {href && cta && (
+        <Link href={href} className="os-link" style={{ display: "inline-block", marginTop: 12 }}>
+          {cta} &rarr;
+        </Link>
+      )}
+    </div>
   );
+}
+
+export function Button({
+  children, onClick, href, variant = "default", size = "md", disabled, type = "button",
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  href?: string;
+  variant?: "default" | "primary" | "ghost";
+  size?: "sm" | "md" | "lg";
+  disabled?: boolean;
+  type?: "button" | "submit";
+}) {
+  const cls = "os-btn";
+  if (href) {
+    return (
+      <Link href={href} className={cls} data-variant={variant} data-size={size}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <button type={type} className={cls} data-variant={variant} data-size={size}
+      onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  );
+}
+
+export function Field({
+  label, children,
+}: { label?: string; children: ReactNode }) {
+  return (
+    <label className="os-field">
+      {label && <span className="os-field-label">{label}</span>}
+      {children}
+    </label>
+  );
+}
+
+export function Section({ children }: { children: ReactNode }) {
+  return <div className="os-section">{children}</div>;
 }

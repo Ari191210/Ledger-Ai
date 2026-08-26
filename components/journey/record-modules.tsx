@@ -19,7 +19,7 @@ import {
   removeProject, updateActivity, updateProject,
 } from "@/lib/student/actions";
 import type { ActivityCategory, ProjectStatus } from "@/lib/student/types";
-import { PageHead, Panel, Basis, EmptyState, Pill } from "./primitives";
+import { PageHead, Card, Basis, Empty, Pill } from "./primitives";
 
 const CATEGORIES: ActivityCategory[] = [
   "leadership", "sports", "clubs", "volunteering", "research",
@@ -50,8 +50,8 @@ export function ActivitiesModule() {
       />
 
       {missingImpact.length > 0 && (
-        <Panel title="Incomplete" meta={`${missingImpact.length} without an outcome`}>
-          <p style={{ fontSize: 13.5, color: "var(--ochre)", margin: 0, lineHeight: 1.55 }}>
+        <Card title="Incomplete" meta={`${missingImpact.length} without an outcome`}>
+          <p style={{ fontSize: 13.5, color: "var(--os-warn)", margin: 0, lineHeight: 1.55 }}>
             {missingImpact.length} {missingImpact.length === 1 ? "activity has" : "activities have"} no
             measurable outcome recorded: {missingImpact.slice(0, 3).map(a => a.name).join(", ")}
             {missingImpact.length > 3 ? "…" : ""}.
@@ -59,32 +59,32 @@ export function ActivitiesModule() {
           <Basis>
             Write one sentence with a number in it. What changed because you were there?
           </Basis>
-        </Panel>
+        </Card>
       )}
 
-      <Panel title="Add an activity">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10 }}>
+      <Card title="Add an activity">
+        <div className="os-grid-fields">
           <input placeholder="Activity" value={draft.name}
-            onChange={e => setDraft({ ...draft, name: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, name: e.target.value })} className="os-input" />
           <select value={draft.category} aria-label="Category"
-            onChange={e => setDraft({ ...draft, category: e.target.value as ActivityCategory })} style={inputStyle}>
+            onChange={e => setDraft({ ...draft, category: e.target.value as ActivityCategory })} className="os-input">
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <input placeholder="Your role" value={draft.role}
-            onChange={e => setDraft({ ...draft, role: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, role: e.target.value })} className="os-input" />
           <input placeholder="Organisation" value={draft.organization}
-            onChange={e => setDraft({ ...draft, organization: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, organization: e.target.value })} className="os-input" />
         </div>
         <input
           placeholder="What changed because you were there? Include a number."
           value={draft.impact}
           onChange={e => setDraft({ ...draft, impact: e.target.value })}
-          style={{ ...inputStyle, width: "100%", marginTop: 10 }}
+          className="os-input"
         />
-        <label style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, fontSize: 13, color: "var(--ink-2)" }}>
+        <label style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, fontSize: 13, color: "var(--os-ink-3)" }}>
           <input type="checkbox" checked={draft.leadership}
             onChange={e => setDraft({ ...draft, leadership: e.target.checked })}
-            style={{ accentColor: "var(--cinnabar-ink)" }} />
+            style={{ accentColor: "var(--os-accent)" }} />
           I held formal responsibility for other people
         </label>
         <button
@@ -100,28 +100,28 @@ export function ActivitiesModule() {
             }));
             setDraft({ name: "", category: "clubs", role: "", organization: "", impact: "", leadership: false });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: draft.name.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Add activity</button>
-      </Panel>
+      </Card>
 
       {student.activities.length === 0 ? (
-        <EmptyState
+        <Empty
           title="No activities recorded"
-          detail="Add everything — clubs, sport, volunteering, work, competitions. It is easier to judge a complete list than to remember a partial one."
+          body="Add everything — clubs, sport, volunteering, work, competitions. It is easier to judge a complete list than to remember a partial one."
         />
       ) : (
-        <Panel title="Recorded" meta={`${student.activities.length}`}>
+        <Card title="Recorded" meta={`${student.activities.length}`}>
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 12 }}>
             {student.activities.map(a => (
               <li key={a.id} style={{
-                border: "1px solid var(--rule)", borderRadius: "var(--radius-xs)", padding: "11px 13px",
+                border: "1px solid var(--os-line)", borderRadius: "var(--os-r-sm)", padding: "11px 13px",
               }}>
                 <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 14, color: "var(--ink)", fontWeight: 500 }}>{a.name}</span>
+                  <span style={{ fontSize: 14, color: "var(--os-ink)", fontWeight: 500 }}>{a.name}</span>
                   <Pill>{a.category}</Pill>
                   {a.leadership && <Pill tone="good">Leadership</Pill>}
                   {!a.impact?.trim() && <Pill tone="warn">No outcome</Pill>}
-                  <button onClick={() => update(s => removeActivity(s, a.id))} style={{ ...linkButton, marginLeft: "auto" }}>
+                  <button onClick={() => update(s => removeActivity(s, a.id))} className="os-btn" data-variant="ghost" data-size="sm">
                     Remove
                   </button>
                 </div>
@@ -130,22 +130,22 @@ export function ActivitiesModule() {
                   placeholder="Outcome — with a number"
                   value={a.impact ?? ""}
                   onChange={e => update(s => updateActivity(s, a.id, { impact: e.target.value }))}
-                  style={{ ...inputStyle, width: "100%", marginTop: 8 }}
+                  className="os-input"
                 />
               </li>
             ))}
           </ul>
-        </Panel>
+        </Card>
       )}
 
-      <Panel title="Awards" meta={`${student.awards.length}`}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10 }}>
+      <Card title="Awards" meta={`${student.awards.length}`}>
+        <div className="os-grid-fields">
           <input placeholder="Award" value={award.title}
-            onChange={e => setAward({ ...award, title: e.target.value })} style={inputStyle} />
+            onChange={e => setAward({ ...award, title: e.target.value })} className="os-input" />
           <input placeholder="Issuer" value={award.issuer}
-            onChange={e => setAward({ ...award, issuer: e.target.value })} style={inputStyle} />
+            onChange={e => setAward({ ...award, issuer: e.target.value })} className="os-input" />
           <select value={award.level} aria-label="Level"
-            onChange={e => setAward({ ...award, level: e.target.value as typeof award.level })} style={inputStyle}>
+            onChange={e => setAward({ ...award, level: e.target.value as typeof award.level })} className="os-input">
             <option value="school">School</option>
             <option value="regional">Regional</option>
             <option value="national">National</option>
@@ -162,22 +162,22 @@ export function ActivitiesModule() {
             }));
             setAward({ title: "", issuer: "", level: "school" });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: award.title.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Add award</button>
         {student.awards.length > 0 && (
           <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0, display: "grid", gap: 7 }}>
             {student.awards.map(a => (
               <li key={a.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: 1 }}>
+                <span style={{ fontSize: 13.5, color: "var(--os-ink-3)", flex: 1 }}>
                   {a.title}{a.issuer ? ` · ${a.issuer}` : ""}
                 </span>
                 {a.level && <Pill tone={a.level === "international" || a.level === "national" ? "good" : "neutral"}>{a.level}</Pill>}
-                <button onClick={() => update(s => removeAward(s, a.id))} style={linkButton}>Remove</button>
+                <button onClick={() => update(s => removeAward(s, a.id))} className="os-btn" data-variant="ghost" data-size="sm">Remove</button>
               </li>
             ))}
           </ul>
         )}
-      </Panel>
+      </Card>
     </div>
   );
 }
@@ -197,12 +197,12 @@ export function ProjectsModule() {
         sub="Things you are building. A project becomes evidence when it ships and its result is written down — until then it is an intention."
       />
 
-      <Panel title="Start a project">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 10 }}>
+      <Card title="Start a project">
+        <div className="os-grid-fields">
           <input placeholder="Project title" value={draft.title}
-            onChange={e => setDraft({ ...draft, title: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, title: e.target.value })} className="os-input" />
           <select value={draft.status} aria-label="Status"
-            onChange={e => setDraft({ ...draft, status: e.target.value as ProjectStatus })} style={inputStyle}>
+            onChange={e => setDraft({ ...draft, status: e.target.value as ProjectStatus })} className="os-input">
             {PROJECT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
@@ -210,7 +210,7 @@ export function ProjectsModule() {
           placeholder="What problem does it solve?"
           value={draft.problem}
           onChange={e => setDraft({ ...draft, problem: e.target.value })}
-          style={{ ...inputStyle, width: "100%", marginTop: 10 }}
+          className="os-input"
         />
         <button
           disabled={!draft.title.trim()}
@@ -222,34 +222,34 @@ export function ProjectsModule() {
             }));
             setDraft({ title: "", problem: "", status: "idea" });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: draft.title.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Add project</button>
-      </Panel>
+      </Card>
 
       {student.projects.length === 0 ? (
-        <EmptyState
+        <Empty
           title="No projects"
-          detail="Record what you are building, including the unfinished ones. A stalled project with a next milestone is recoverable; one nobody is tracking is not."
+          body="Record what you are building, including the unfinished ones. A stalled project with a next milestone is recoverable; one nobody is tracking is not."
         />
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
           {student.projects.map(p => (
             <section key={p.id} style={{
-              border: "1px solid var(--rule)", borderRadius: "var(--radius-sm)",
-              background: "var(--paper-2)", padding: "14px 16px",
+              border: "1px solid var(--os-line)", borderRadius: "var(--os-r)",
+              background: "var(--os-surface)", padding: "14px 16px",
             }}>
               <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-                <h3 style={{ fontFamily: "var(--serif)", fontSize: 16, margin: 0, color: "var(--ink)" }}>{p.title}</h3>
+                <h3 style={{ fontFamily: "var(--os-sans)", fontSize: 16, margin: 0, color: "var(--os-ink)" }}>{p.title}</h3>
                 <select
                   value={p.status}
                   onChange={e => update(s => updateProject(s, p.id, { status: e.target.value as ProjectStatus }))}
                   aria-label={`Status of ${p.title}`}
-                  style={{ ...inputStyle, padding: "4px 8px", fontSize: 12 }}
+                  className="os-input"
                 >
                   {PROJECT_STATUSES.map(st => <option key={st} value={st}>{st}</option>)}
                 </select>
                 {p.status === "shipped" && !p.impact?.trim() && <Pill tone="warn">No result recorded</Pill>}
-                <button onClick={() => update(s => removeProject(s, p.id))} style={{ ...linkButton, marginLeft: "auto" }}>
+                <button onClick={() => update(s => removeProject(s, p.id))} className="os-btn" data-variant="ghost" data-size="sm">
                   Remove
                 </button>
               </div>
@@ -258,7 +258,7 @@ export function ProjectsModule() {
                 placeholder="Result — a benchmark, a user count, a measured outcome"
                 value={p.impact ?? ""}
                 onChange={e => update(s => updateProject(s, p.id, { impact: e.target.value }))}
-                style={{ ...inputStyle, width: "100%", marginTop: 10 }}
+                className="os-input"
               />
               {p.status === "shipped" && !p.impact?.trim() && (
                 <Basis>
@@ -274,20 +274,5 @@ export function ProjectsModule() {
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "transparent", border: "1px solid var(--rule)",
-  borderRadius: "var(--radius-xs)", padding: "8px 10px",
-  color: "var(--ink)", fontSize: 13, fontFamily: "inherit",
-};
 
-const primaryButton: React.CSSProperties = {
-  fontFamily: "var(--mono)", fontSize: 11.5, letterSpacing: "0.04em",
-  textTransform: "uppercase", background: "transparent",
-  color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)",
-  borderRadius: "var(--radius-xs)", padding: "7px 14px", cursor: "pointer",
-};
 
-const linkButton: React.CSSProperties = {
-  background: "transparent", border: "none", color: "var(--ink-3)",
-  fontFamily: "var(--mono)", fontSize: 11, cursor: "pointer",
-};

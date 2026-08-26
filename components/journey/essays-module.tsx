@@ -17,7 +17,7 @@ import { useStudent } from "@/lib/student/use-student";
 import { addEssay, countWords, latestDraft, removeEssay, saveEssayDraft, updateEssay } from "@/lib/student/actions";
 import { formatDeadline } from "@/lib/student/derive";
 import type { EssayKind, EssayStatus } from "@/lib/student/types";
-import { PageHead, Panel, Basis, EmptyState, Pill } from "./primitives";
+import { PageHead, Card, Basis, Empty, Pill } from "./primitives";
 
 const KINDS: { id: EssayKind; label: string }[] = [
   { id: "common-app",         label: "Common App" },
@@ -58,30 +58,30 @@ export default function EssaysModule() {
         sub="Prompts, drafts and version history. StudyLedger will not write these for you — an essay an admissions reader can tell was not yours is worse than no essay."
       />
 
-      <Panel title="Start an essay" meta="a prompt and a deadline">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 10 }}>
+      <Card title="Start an essay" meta="a prompt and a deadline">
+        <div className="os-grid-fields">
           <input placeholder="Title" value={draft.title}
-            onChange={e => setDraft({ ...draft, title: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, title: e.target.value })} className="os-input" />
           <select value={draft.kind} aria-label="Essay kind"
-            onChange={e => setDraft({ ...draft, kind: e.target.value as EssayKind })} style={inputStyle}>
+            onChange={e => setDraft({ ...draft, kind: e.target.value as EssayKind })} className="os-input">
             {KINDS.map(k => <option key={k.id} value={k.id}>{k.label}</option>)}
           </select>
           <select value={draft.collegeId} aria-label="College"
-            onChange={e => setDraft({ ...draft, collegeId: e.target.value })} style={inputStyle}>
+            onChange={e => setDraft({ ...draft, collegeId: e.target.value })} className="os-input">
             <option value="">No specific college</option>
             {student.colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <input type="number" placeholder="Word limit" value={draft.wordLimit}
-            onChange={e => setDraft({ ...draft, wordLimit: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, wordLimit: e.target.value })} className="os-input" />
           <input type="date" value={draft.deadline} aria-label="Essay deadline"
-            onChange={e => setDraft({ ...draft, deadline: e.target.value })} style={inputStyle} />
+            onChange={e => setDraft({ ...draft, deadline: e.target.value })} className="os-input" />
         </div>
         <textarea
           placeholder="The prompt, in full"
           value={draft.prompt}
           onChange={e => setDraft({ ...draft, prompt: e.target.value })}
           rows={2}
-          style={{ ...inputStyle, width: "100%", marginTop: 10, resize: "vertical" }}
+          className="os-input"
         />
         <button
           disabled={!draft.title.trim()}
@@ -97,14 +97,14 @@ export default function EssaysModule() {
             }));
             setDraft({ title: "", kind: "common-app", prompt: "", wordLimit: "", deadline: "", collegeId: "" });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: draft.title.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Add essay</button>
-      </Panel>
+      </Card>
 
       {student.essays.length === 0 ? (
-        <EmptyState
+        <Empty
           title="No essays yet"
-          detail="Add the prompts you have to answer. Deadlines flow into your calendar, and unfinished essays appear in your next-best-action queue as their dates approach."
+          body="Add the prompts you have to answer. Deadlines flow into your calendar, and unfinished essays appear in your next-best-action queue as their dates approach."
         />
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
@@ -115,22 +115,22 @@ export default function EssaysModule() {
             const isOpen = openId === e.id;
             return (
               <section key={e.id} style={{
-                border: "1px solid var(--rule)", borderRadius: "var(--radius-sm)",
-                background: "var(--paper-2)", padding: "14px 16px",
+                border: "1px solid var(--os-line)", borderRadius: "var(--os-r)",
+                background: "var(--os-surface)", padding: "14px 16px",
               }}>
                 <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
-                  <h3 style={{ fontFamily: "var(--serif)", fontSize: 16, margin: 0, color: "var(--ink)" }}>
+                  <h3 style={{ fontFamily: "var(--os-sans)", fontSize: 16, margin: 0, color: "var(--os-ink)" }}>
                     {e.title}
                   </h3>
                   {college && <Pill>{college.name}</Pill>}
                   <Pill tone={e.status === "final" ? "good" : "neutral"}>{e.status.replace("-", " ")}</Pill>
                   {e.wordLimit && (
-                    <Pill tone={over ? "critical" : "neutral"}>{words} / {e.wordLimit} words</Pill>
+                    <Pill tone={over ? "risk" : "neutral"}>{words} / {e.wordLimit} words</Pill>
                   )}
                   {e.deadline && <Pill tone="warn">{formatDeadline(e.deadline)}</Pill>}
                   <button
                     onClick={() => setOpenId(isOpen ? null : e.id)}
-                    style={{ ...linkButton, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                    className="os-btn" data-variant="ghost" data-size="sm"
                   >{isOpen ? "Close" : "Write"}</button>
                 </div>
 
@@ -143,53 +143,47 @@ export default function EssaysModule() {
                       onChange={ev => setBody(ev.target.value)}
                       rows={16}
                       placeholder="Write here. Saving keeps every version, so nothing you write is ever lost."
-                      style={{
-                        ...inputStyle, width: "100%", resize: "vertical",
-                        fontFamily: "var(--prose)", fontSize: 15, lineHeight: 1.7,
-                      }}
+                      className="os-input"
                     />
                     <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
-                      <span style={{ fontFamily: "var(--mono)", fontSize: 11.5, color: over ? "var(--cinnabar-ink)" : "var(--ink-3)" }}>
+                      <span style={{ fontFamily: "var(--os-mono)", fontSize: 11.5, color: over ? "var(--os-accent)" : "var(--os-ink-4)" }}>
                         {countWords(body)} words{e.wordLimit ? ` of ${e.wordLimit}` : ""}
                       </span>
                       <button
                         onClick={() => update(s => saveEssayDraft(s, e.id, body))}
                         disabled={!body.trim() || body === (latestDraft(e)?.body ?? "")}
-                        style={{
-                          ...primaryButton,
-                          opacity: body.trim() && body !== (latestDraft(e)?.body ?? "") ? 1 : 0.5,
-                        }}
+                        className="os-btn" data-variant="primary"
                       >Save version</button>
                       <select
                         value={e.status}
                         onChange={ev => update(s => updateEssay(s, e.id, { status: ev.target.value as EssayStatus }))}
                         aria-label={`Status of ${e.title}`}
-                        style={inputStyle}
+                        className="os-input"
                       >
                         {STATUSES.map(st => <option key={st} value={st}>{st.replace("-", " ")}</option>)}
                       </select>
-                      <button onClick={() => update(s => removeEssay(s, e.id))} style={{ ...linkButton, marginLeft: "auto" }}>
+                      <button onClick={() => update(s => removeEssay(s, e.id))} className="os-btn" data-variant="ghost" data-size="sm">
                         Delete
                       </button>
                     </div>
 
                     {e.drafts.length > 0 && (
-                      <div style={{ marginTop: 14, borderTop: "1px solid var(--rule-2)", paddingTop: 12 }}>
+                      <div style={{ marginTop: 14, borderTop: "1px solid var(--os-line-soft)", paddingTop: 12 }}>
                         <div style={{
-                          fontFamily: "var(--mono)", fontSize: 9.5, letterSpacing: "0.07em",
-                          textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 8,
+                          fontFamily: "var(--os-mono)", fontSize: 9.5, letterSpacing: "0.07em",
+                          textTransform: "uppercase", color: "var(--os-ink-4)", marginBottom: 8,
                         }}>Versions — {e.drafts.length}</div>
                         <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 6 }}>
                           {[...e.drafts].reverse().slice(0, 6).map((d, i) => (
                             <li key={d.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                              <span style={{ fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--ink-3)" }}>
+                              <span style={{ fontFamily: "var(--os-mono)", fontSize: 11.5, color: "var(--os-ink-4)" }}>
                                 {new Date(d.savedAt).toLocaleString("en-GB", {
                                   day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
                                 })}
                               </span>
-                              <span style={{ fontSize: 12, color: "var(--ink-3)" }}>{d.wordCount} words</span>
+                              <span style={{ fontSize: 12, color: "var(--os-ink-4)" }}>{d.wordCount} words</span>
                               {i === 0 && <Pill tone="good">Current</Pill>}
-                              <button onClick={() => setBody(d.body)} style={{ ...linkButton, marginLeft: "auto" }}>
+                              <button onClick={() => setBody(d.body)} className="os-btn" data-variant="ghost" data-size="sm">
                                 Load
                               </button>
                             </li>
@@ -212,20 +206,5 @@ export default function EssaysModule() {
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "transparent", border: "1px solid var(--rule)",
-  borderRadius: "var(--radius-xs)", padding: "8px 10px",
-  color: "var(--ink)", fontSize: 13, fontFamily: "inherit",
-};
 
-const primaryButton: React.CSSProperties = {
-  fontFamily: "var(--mono)", fontSize: 11.5, letterSpacing: "0.04em",
-  textTransform: "uppercase", background: "transparent",
-  color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)",
-  borderRadius: "var(--radius-xs)", padding: "7px 14px", cursor: "pointer",
-};
 
-const linkButton: React.CSSProperties = {
-  background: "transparent", border: "none", color: "var(--ink-3)",
-  fontFamily: "var(--mono)", fontSize: 11, cursor: "pointer",
-};

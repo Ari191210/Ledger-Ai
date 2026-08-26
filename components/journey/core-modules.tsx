@@ -18,7 +18,7 @@ import {
 } from "@/lib/student/actions";
 import { daysUntil, formatDeadline, today } from "@/lib/student/derive";
 import type { Curriculum, Grade } from "@/lib/student/types";
-import { PageHead, Panel, Basis, EmptyState, Pill, Figure } from "./primitives";
+import { PageHead, Card, Basis, Empty, Pill, Figure } from "./primitives";
 
 const CURRICULA: Curriculum[] = ["CBSE", "ICSE", "IB", "A-Levels", "AP", "US-HS", "Other"];
 const GRADES: Grade[] = [9, 10, 11, 12];
@@ -44,12 +44,11 @@ export function AcademicsModule() {
         sub="Subjects, results and the topics you know are weak. Recording a weak topic puts it into your next-best-action queue, so naming it is the first step to clearing it."
       />
 
-      <Panel title="Standing" meta={scored.length ? `${scored.length} results recorded` : "no results yet"}>
+      <Card title="Standing" meta={scored.length ? `${scored.length} results recorded` : "no results yet"}>
         <div style={{ display: "flex", gap: 30, flexWrap: "wrap" }}>
           <Figure
-            label="Mean result" value={mean ?? undefined} suffix="%"
-            available={mean !== null} big
-            basis={mean !== null
+            label="Mean result" value={mean ?? undefined} unit="%"
+            available={mean !== null} size="lg"             basis={mean !== null
               ? `Across ${scored.length} recorded course result${scored.length === 1 ? "" : "s"}. Courses without a result are not counted as zero.`
               : "Record a result to see this."}
           />
@@ -58,16 +57,16 @@ export function AcademicsModule() {
             basis="Each one feeds your recommendation queue."
           />
         </div>
-      </Panel>
+      </Card>
 
-      <Panel title="Courses">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 10 }}>
+      <Card title="Courses">
+        <div className="os-grid-fields">
           <input placeholder="Subject" value={course.subject}
-            onChange={e => setCourse({ ...course, subject: e.target.value })} style={inputStyle} />
+            onChange={e => setCourse({ ...course, subject: e.target.value })} className="os-input" />
           <input placeholder="Level" value={course.level}
-            onChange={e => setCourse({ ...course, level: e.target.value })} style={inputStyle} />
+            onChange={e => setCourse({ ...course, level: e.target.value })} className="os-input" />
           <input type="number" placeholder="Result %" value={course.score}
-            onChange={e => setCourse({ ...course, score: e.target.value })} style={inputStyle} />
+            onChange={e => setCourse({ ...course, score: e.target.value })} className="os-input" />
         </div>
         <button
           disabled={!course.subject.trim()}
@@ -79,14 +78,14 @@ export function AcademicsModule() {
             }));
             setCourse({ subject: "", level: "", score: "" });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: course.subject.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Add course</button>
 
         {student.academics.courses.length > 0 && (
           <ul style={{ listStyle: "none", margin: "14px 0 0", padding: 0, display: "grid", gap: 8 }}>
             {student.academics.courses.map(c => (
               <li key={c.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: 1 }}>
+                <span style={{ fontSize: 13.5, color: "var(--os-ink-3)", flex: 1 }}>
                   {c.subject}{c.level ? ` · ${c.level}` : ""}
                 </span>
                 <input
@@ -95,25 +94,25 @@ export function AcademicsModule() {
                   onChange={e => update(s => updateCourse(s, c.id, {
                     score: e.target.value === "" ? undefined : Number(e.target.value),
                   }))}
-                  style={{ ...inputStyle, width: 80, textAlign: "center" }}
+                  className="os-input"
                 />
-                <button onClick={() => update(s => removeCourse(s, c.id))} style={linkButton}>Remove</button>
+                <button onClick={() => update(s => removeCourse(s, c.id))} className="os-btn" data-variant="ghost" data-size="sm">Remove</button>
               </li>
             ))}
           </ul>
         )}
-      </Panel>
+      </Card>
 
-      <Panel title="Weak topics" meta={`${student.academics.weakTopics.length}`}>
+      <Card title="Weak topics" meta={`${student.academics.weakTopics.length}`}>
         <Basis>
           Naming a weakness is what lets the system schedule against it. Vague discomfort with a
           subject cannot be planned around; "vectors" can.
         </Basis>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10, marginTop: 10 }}>
           <input placeholder="Subject" value={weak.subject}
-            onChange={e => setWeak({ ...weak, subject: e.target.value })} style={inputStyle} />
+            onChange={e => setWeak({ ...weak, subject: e.target.value })} className="os-input" />
           <input placeholder="Topic" value={weak.topic}
-            onChange={e => setWeak({ ...weak, topic: e.target.value })} style={inputStyle} />
+            onChange={e => setWeak({ ...weak, topic: e.target.value })} className="os-input" />
         </div>
         <button
           disabled={!weak.subject.trim() || !weak.topic.trim()}
@@ -121,26 +120,26 @@ export function AcademicsModule() {
             update(s => addWeakTopic(s, { subject: weak.subject.trim(), topic: weak.topic.trim(), source: "self" }));
             setWeak({ subject: "", topic: "" });
           }}
-          style={{ ...primaryButton, marginTop: 12, opacity: weak.subject.trim() && weak.topic.trim() ? 1 : 0.5 }}
+          className="os-btn" data-variant="primary"
         >Name a weak topic</button>
 
         {student.academics.weakTopics.length > 0 && (
           <ul style={{ listStyle: "none", margin: "14px 0 0", padding: 0, display: "grid", gap: 7 }}>
             {student.academics.weakTopics.map(w => (
               <li key={w.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: 1 }}>{w.topic}</span>
+                <span style={{ fontSize: 13.5, color: "var(--os-ink-3)", flex: 1 }}>{w.topic}</span>
                 <Pill>{w.subject}</Pill>
-                <button onClick={() => update(s => removeWeakTopic(s, w.id))} style={linkButton}>Clear</button>
+                <button onClick={() => update(s => removeWeakTopic(s, w.id))} className="os-btn" data-variant="ghost" data-size="sm">Clear</button>
               </li>
             ))}
           </ul>
         )}
-      </Panel>
+      </Card>
 
       {student.academics.courses.length === 0 && (
-        <EmptyState
+        <Empty
           title="No courses recorded"
-          detail="Add your subjects and results. This is the figure admissions readers weight most heavily, and it is the one the rest of your plan has to work around."
+          body="Add your subjects and results. This is the figure admissions readers weight most heavily, and it is the one the rest of your plan has to work around."
         />
       )}
     </div>
@@ -171,50 +170,50 @@ export function CalendarModule() {
         sub="Every date in one place. Almost nothing here is entered directly — deadlines arrive from the colleges, tests, essays and opportunities that own them, so a date is never kept in two places."
       />
 
-      <Panel title="Add a date" meta="for things with no other home">
+      <Card title="Add a date" meta="for things with no other home">
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <input placeholder="What is it?" value={ev.title}
-            onChange={e => setEv({ ...ev, title: e.target.value })} style={{ ...inputStyle, flex: "1 1 220px" }} />
+            onChange={e => setEv({ ...ev, title: e.target.value })} className="os-input" />
           <input type="date" value={ev.date} aria-label="Date"
-            onChange={e => setEv({ ...ev, date: e.target.value })} style={inputStyle} />
+            onChange={e => setEv({ ...ev, date: e.target.value })} className="os-input" />
           <button
             disabled={!ev.title.trim() || !ev.date}
             onClick={() => {
               update(s => addCustomEvent(s, { title: ev.title.trim(), date: ev.date, kind: "custom" }));
               setEv({ title: "", date: "" });
             }}
-            style={{ ...primaryButton, opacity: ev.title.trim() && ev.date ? 1 : 0.5 }}
+            className="os-btn" data-variant="primary"
           >Add</button>
         </div>
         <Basis>
           School exams and personal commitments belong here. A college deadline does not — add the
           college instead, and its date appears automatically.
         </Basis>
-      </Panel>
+      </Card>
 
       {future.length === 0 && past.length === 0 ? (
-        <EmptyState
+        <Empty
           title="No dates"
-          detail="Add a college, a test or an essay and its deadline appears here without you entering it twice."
+          body="Add a college, a test or an essay and its deadline appears here without you entering it twice."
           href="/journey/colleges" cta="Add a college"
         />
       ) : (
-        <Panel title="Ahead" meta={`${future.length}`}>
+        <Card title="Ahead" meta={`${future.length}`}>
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 9 }}>
             {future.map(e => {
               const days = daysUntil(e.date, t);
               return (
                 <li key={e.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
                   <span style={{
-                    fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--ink-3)", minWidth: 92,
+                    fontFamily: "var(--os-mono)", fontSize: 11.5, color: "var(--os-ink-4)", minWidth: 92,
                   }}>{e.date}</span>
-                  <span style={{ fontSize: 13.5, color: "var(--ink-2)", flex: 1 }}>{e.title}</span>
-                  <Pill tone={days <= 7 ? "critical" : days <= 30 ? "warn" : "neutral"}>
+                  <span style={{ fontSize: 13.5, color: "var(--os-ink-3)", flex: 1 }}>{e.title}</span>
+                  <Pill tone={days <= 7 ? "risk" : days <= 30 ? "warn" : "neutral"}>
                     {formatDeadline(e.date)}
                   </Pill>
                   {/* Only events with no owning record can be removed here. */}
                   {!e.source && (
-                    <button onClick={() => update(s => removeEvent(s, e.id))} style={linkButton}>Remove</button>
+                    <button onClick={() => update(s => removeEvent(s, e.id))} className="os-btn" data-variant="ghost" data-size="sm">Remove</button>
                   )}
                 </li>
               );
@@ -226,22 +225,22 @@ export function CalendarModule() {
               the date on that record and it moves here too.
             </Basis>
           )}
-        </Panel>
+        </Card>
       )}
 
       {past.length > 0 && (
-        <Panel title="Passed" meta={`${past.length}`}>
+        <Card title="Passed" meta={`${past.length}`}>
           <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 7 }}>
             {past.slice(-10).reverse().map(e => (
               <li key={e.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
                 <span style={{
-                  fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--ink-3)", minWidth: 92,
+                  fontFamily: "var(--os-mono)", fontSize: 11.5, color: "var(--os-ink-4)", minWidth: 92,
                 }}>{e.date}</span>
-                <span style={{ fontSize: 13, color: "var(--ink-3)", flex: 1 }}>{e.title}</span>
+                <span style={{ fontSize: 13, color: "var(--os-ink-4)", flex: 1 }}>{e.title}</span>
               </li>
             ))}
           </ul>
-        </Panel>
+        </Card>
       )}
     </div>
   );
@@ -263,55 +262,55 @@ export function ProfileModule() {
         sub="The facts everything else is reasoned from. Your grade and curriculum decide what can be recommended; your intended major drives college fit and opportunity matching."
       />
 
-      <Panel title="You">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 12 }}>
-          <label style={labelStyle}>
-            <span style={labelText}>Name</span>
+      <Card title="You">
+        <div className="os-grid-fields">
+          <label className="os-field">
+            <span className="os-field-label">Name</span>
             <input value={p.name ?? ""} placeholder="Your name"
-              onChange={e => update(s => updateProfile(s, { name: e.target.value }))} style={inputStyle} />
+              onChange={e => update(s => updateProfile(s, { name: e.target.value }))} className="os-input" />
           </label>
-          <label style={labelStyle}>
-            <span style={labelText}>Grade</span>
+          <label className="os-field">
+            <span className="os-field-label">Grade</span>
             <select
               value={p.grade ?? ""}
               onChange={e => update(s => updateProfile(s, {
                 grade: e.target.value ? Number(e.target.value) as Grade : undefined,
               }))}
-              style={inputStyle}
+              className="os-input"
             >
               <option value="">Not set</option>
               {GRADES.map(g => <option key={g} value={g}>Grade {g}</option>)}
             </select>
           </label>
-          <label style={labelStyle}>
-            <span style={labelText}>Curriculum</span>
+          <label className="os-field">
+            <span className="os-field-label">Curriculum</span>
             <select
               value={p.curriculum ?? ""}
               onChange={e => update(s => updateProfile(s, {
                 curriculum: (e.target.value || undefined) as Curriculum | undefined,
               }))}
-              style={inputStyle}
+              className="os-input"
             >
               <option value="">Not set</option>
               {CURRICULA.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </label>
-          <label style={labelStyle}>
-            <span style={labelText}>Intended major</span>
+          <label className="os-field">
+            <span className="os-field-label">Intended major</span>
             <input value={p.intendedMajor ?? ""} placeholder="e.g. Computer Science"
-              onChange={e => update(s => updateProfile(s, { intendedMajor: e.target.value }))} style={inputStyle} />
+              onChange={e => update(s => updateProfile(s, { intendedMajor: e.target.value }))} className="os-input" />
           </label>
-          <label style={labelStyle}>
-            <span style={labelText}>Country</span>
+          <label className="os-field">
+            <span className="os-field-label">Country</span>
             <input value={p.country ?? ""} placeholder="Where you study"
-              onChange={e => update(s => updateProfile(s, { country: e.target.value }))} style={inputStyle} />
+              onChange={e => update(s => updateProfile(s, { country: e.target.value }))} className="os-input" />
           </label>
-          <label style={labelStyle}>
-            <span style={labelText}>Graduating</span>
+          <label className="os-field">
+            <span className="os-field-label">Graduating</span>
             <input type="number" value={p.graduationYear ?? ""} placeholder="Year"
               onChange={e => update(s => updateProfile(s, {
                 graduationYear: e.target.value ? Number(e.target.value) : undefined,
-              }))} style={inputStyle} />
+              }))} className="os-input" />
           </label>
         </div>
         <Basis>
@@ -319,32 +318,12 @@ export function ProfileModule() {
           required — but fit scores and recommendations stay unavailable while the inputs they
           depend on are missing, rather than being guessed.
         </Basis>
-      </Panel>
+      </Card>
     </div>
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "transparent", border: "1px solid var(--rule)",
-  borderRadius: "var(--radius-xs)", padding: "8px 10px",
-  color: "var(--ink)", fontSize: 13, fontFamily: "inherit", width: "100%",
-};
 
-const labelStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 5 };
 
-const labelText: React.CSSProperties = {
-  fontFamily: "var(--mono)", fontSize: 9.5, letterSpacing: "0.07em",
-  textTransform: "uppercase", color: "var(--ink-3)",
-};
 
-const primaryButton: React.CSSProperties = {
-  fontFamily: "var(--mono)", fontSize: 11.5, letterSpacing: "0.04em",
-  textTransform: "uppercase", background: "transparent",
-  color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)",
-  borderRadius: "var(--radius-xs)", padding: "7px 14px", cursor: "pointer",
-};
 
-const linkButton: React.CSSProperties = {
-  background: "transparent", border: "none", color: "var(--ink-3)",
-  fontFamily: "var(--mono)", fontSize: 11, cursor: "pointer",
-};
