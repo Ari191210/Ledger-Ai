@@ -137,11 +137,25 @@ async function main() {
 
   const goto = async (url) => {
     await rpc(ws, "Page.navigate", { url }, sessionId);
-    // Wait for React to hydrate rather than a fixed sleep.
-    for (let i = 0; i < 50; i++) {
+    // Wait for React to hydrate rather than a fixed sleep. The dev server
+    // compiles routes on first request, so the initial visit can serve the
+    // pre-hydration shell for a noticeable moment; waiting on readyState
+    // alone would race it.
+    for (let i = 0; i < 75; i++) {
       await sleep(200);
-      const ready = await evaluate(`document.readyState === "complete" && !!document.querySelector("h1")`);
-      if (ready) return;
+      const ready = await evaluate(`
+        document.readyState === "complete" &&
+        !!document.querySelector("h1") &&
+        !!document.querySelector("nav")
+      `);
+      if (ready) break;
+    }
+    // Hydration replaces the placeholder subtitle ("Reading your ...") with
+    // real content. Give it a bounded window to finish before asserting.
+    for (let i = 0; i < 40; i++) {
+      const stillLoading = await evaluate(`/Reading your /.test(document.body.innerText)`);
+      if (!stillLoading) return;
+      await sleep(200);
     }
   };
 

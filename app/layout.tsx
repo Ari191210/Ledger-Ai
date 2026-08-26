@@ -25,8 +25,8 @@ import "./editorial.css";
 // The app is mid-migration. Both systems load; each owns the routes that opted
 // into it, and neither can reach the other's.
 //
-//   LEGACY    (46 routes) — globals.css, the palette script, Orsiri + the four
-//                           Google faces below, and the chrome in <LegacyChrome>.
+//   LEGACY    (46 routes) - globals.css, the palette script, the four Google
+//                           faces below, and the chrome in <LegacyChrome>.
 //   EDITORIAL ( 1 route)  — editorial.css, scoped to [data-ui="editorial"],
 //                           the three faces below, and no chrome at all.
 //
@@ -37,9 +37,10 @@ import "./editorial.css";
 // has migrated. The allowlist is lib/editorial-routes.ts.
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ── Legacy faces. globals.css:178-181 composes --sans/--serif/--mono/--prose
-//    from these plus Orsiri (loaded from Fontshare below). Removing any of them
-//    silently changes the type on all 46 un-migrated routes.
+// -- Legacy faces. globals.css:149-152 composes --sans/--serif/--mono/--prose
+//    from these. Removing any of them silently changes the type on all 46
+//    un-migrated routes. These are what actually paint: the Orsiri named
+//    ahead of them in the CSS never existed. See the note in <head>.
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"], weight: ["400"], style: ["normal", "italic"],
   variable: "--font-orbitron", display: "swap", preload: false,
@@ -231,20 +232,19 @@ export default function RootLayout({
         <meta name="theme-color" content="#18241b" />
         <link rel="apple-touch-icon" href="/icon.svg" />
 
-        {/* LEGACY: Orsiri. globals.css:178-181 names it FIRST in --sans / --serif
-            / --prose, so all 46 un-migrated routes actually render in it. Loaded
-            async so it never blocks first paint. Dies with globals.css. */}
-        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="" />
-        <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="" />
-        <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap';document.head.appendChild(l);})();`,
-          }}
-        />
-        <noscript>
-          <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=orsiri@400,500,700&display=swap" />
-        </noscript>
+        {/* Orsiri was named first in --sans / --serif / --prose and loaded from
+            Fontshare here. It does not exist: api.fontshare.com answers that
+            request with 200 and a one-byte body (compare satoshi@400, which
+            returns 597 bytes), so no @font-face was ever defined and every
+            route has always painted in the next family in the chain —
+            confirmed with CSS.getPlatformFontsForNode, which reports Playfair
+            Display on the homepage and Instrument Serif on /journey.
+
+            The links are removed rather than repointed. Keeping them cost a
+            preload, two preconnects and a runtime stylesheet insert per page
+            load for a typeface that cannot render, and left the CSS naming a
+            font that was never applied. The declared fallbacks are unchanged,
+            so the rendered result is identical. */}
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}` }} />
       </head>
       <body>
