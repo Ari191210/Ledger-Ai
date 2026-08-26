@@ -88,21 +88,17 @@ export default function JourneyHome() {
               />
             </div>
 
-            <div style={{ display: "grid", gap: 13 }}>
+            <div className="os-areas">
               {areas.map(a => (
-                <div key={a.area} style={{
-                  display: "grid", gridTemplateColumns: "148px 1fr 46px",
-                  gap: 14, alignItems: "center",
-                }}>
-                  <span style={{ fontSize: 13.5, color: a.available ? "var(--os-ink-2)" : "var(--os-ink-4)" }}>
-                    {a.label}
-                  </span>
-                  <div>
+                <div key={a.area} className="os-area-row">
+                  <span className="os-area-name" style={{
+                    color: a.available ? "var(--os-ink-2)" : "var(--os-ink-4)",
+                  }}>{a.label}</span>
+                  <div className="os-area-meter">
                     <Meter percent={a.percent} available={a.available} />
                     <Basis>{a.basis}</Basis>
                   </div>
-                  <span className="os-num" style={{
-                    fontSize: 13, textAlign: "right",
+                  <span className="os-num os-area-value" style={{
                     color: a.available ? "var(--os-ink)" : "var(--os-ink-4)",
                     fontWeight: a.available ? 550 : 400,
                   }}>{a.available ? `${a.percent}%` : "—"}</span>

@@ -75,22 +75,16 @@ export default function CollegesModule() {
           <div style={{ display: "flex", gap: 22, flexWrap: "wrap", marginBottom: 12 }}>
             {TIERS.filter(t => t.id !== "unsorted").map(t => (
               <div key={t.id}>
-                <div style={{ fontFamily: "var(--os-mono)", fontSize: 22, color: "var(--os-ink)" }}>
+                <div className="os-figure-value os-num">
                   {balance[t.id as "reach" | "target" | "likely"]}
                 </div>
-                <div style={{
-                  fontFamily: "var(--os-mono)", fontSize: 9.5, letterSpacing: "0.06em",
-                  textTransform: "uppercase", color: "var(--os-ink-4)",
-                }}>{t.label}</div>
+                <div className="os-figure-label">{t.label}</div>
               </div>
             ))}
             {balance.unsorted > 0 && (
               <div>
-                <div style={{ fontFamily: "var(--os-mono)", fontSize: 22, color: "var(--os-warn)" }}>{balance.unsorted}</div>
-                <div style={{
-                  fontFamily: "var(--os-mono)", fontSize: 9.5, letterSpacing: "0.06em",
-                  textTransform: "uppercase", color: "var(--os-ink-4)",
-                }}>Unsorted</div>
+                <div className="os-figure-value os-num" style={{ color: "var(--os-warn)" }}>{balance.unsorted}</div>
+                <div className="os-figure-label">Unsorted</div>
               </div>
             )}
           </div>
@@ -125,14 +119,10 @@ export default function CollegesModule() {
           <input type="date" value={draft.deadline} aria-label="Application deadline"
             onChange={e => setDraft({ ...draft, deadline: e.target.value })} className="os-input" />
         </div>
-        <button onClick={add} disabled={!draft.name.trim()} style={{
-          marginTop: 12, fontFamily: "var(--os-mono)", fontSize: 11.5,
-          letterSpacing: "0.04em", textTransform: "uppercase",
-          background: "transparent", color: draft.name.trim() ? "var(--os-accent)" : "var(--os-ink-4)",
-          border: `1px solid ${draft.name.trim() ? "var(--os-accent)" : "var(--os-line)"}`,
-          borderRadius: "var(--os-r-sm)", padding: "7px 14px",
-          cursor: draft.name.trim() ? "pointer" : "not-allowed",
-        }}>Add college</button>
+        <button onClick={add} disabled={!draft.name.trim()}
+          className="os-btn" data-variant="primary" style={{ marginTop: 12 }}>
+          Add college
+        </button>
         <Basis>
           Adding a college creates its application checklist and puts its deadline on your
           calendar. You never enter a date twice.
@@ -194,11 +184,8 @@ function CollegeCard({
         {college.deadline && (
           <Pill tone="warn">{formatDeadline(college.deadline)}</Pill>
         )}
-        <button onClick={onToggle} style={{
-          marginLeft: "auto", background: "transparent", border: "none",
-          color: "var(--os-ink-4)", fontFamily: "var(--os-mono)", fontSize: 11,
-          cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em",
-        }}>{expanded ? "Close" : "Detail"}</button>
+        <button onClick={onToggle} className="os-btn" data-variant="ghost" data-size="sm"
+          style={{ marginLeft: "auto" }}>{expanded ? "Close" : "Detail"}</button>
       </div>
 
       {app && (
@@ -215,7 +202,7 @@ function CollegeCard({
         <div style={{ marginTop: 14, borderTop: "1px solid var(--os-line-soft)", paddingTop: 14 }}>
           <div style={{ marginBottom: 14 }}>
             <div style={{
-              fontFamily: "var(--os-mono)", fontSize: 9.5, letterSpacing: "0.07em",
+              fontFamily: "var(--os-mono)", fontSize: 12, letterSpacing: "0.07em",
               textTransform: "uppercase", color: "var(--os-ink-4)", marginBottom: 6,
             }}>Your category</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -233,7 +220,7 @@ function CollegeCard({
           </div>
 
           <div style={{
-            fontFamily: "var(--os-mono)", fontSize: 9.5, letterSpacing: "0.07em",
+            fontFamily: "var(--os-mono)", fontSize: 12, letterSpacing: "0.07em",
             textTransform: "uppercase", color: "var(--os-ink-4)", marginBottom: 6,
           }}>Fit</div>
           {fit.available ? (
@@ -273,10 +260,8 @@ function CollegeCard({
                 textDecoration: "none",
               }}>Open application →</Link>
             )}
-            <button onClick={onRemove} style={{
-              marginLeft: "auto", background: "transparent", border: "none",
-              color: "var(--os-ink-4)", fontFamily: "var(--os-mono)", fontSize: 11, cursor: "pointer",
-            }}>Remove</button>
+            <button onClick={onRemove} className="os-btn" data-variant="ghost" data-size="sm"
+              style={{ marginLeft: "auto" }}>Remove</button>
           </div>
           <Basis>
             Removing a college also removes its application and calendar entries. Essays keep

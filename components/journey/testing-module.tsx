@@ -131,9 +131,9 @@ export default function TestingModule() {
 
             {history.length > 0 && (
               <div style={{ marginTop: 14, borderTop: "1px solid var(--os-line-soft)", paddingTop: 12 }}>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 6 }}>
+                <ul className="os-list">
                   {history.map(h => (
-                    <li key={h.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <li key={h.id}>
                       <span style={{ fontFamily: "var(--os-mono)", fontSize: 11.5, color: "var(--os-ink-4)", minWidth: 90 }}>
                         {h.takenOn}
                       </span>
@@ -141,7 +141,7 @@ export default function TestingModule() {
                       <span style={{ fontFamily: "var(--os-mono)", fontSize: 13, color: "var(--os-ink)" }}>
                         {h.total ?? "—"}
                       </span>
-                      <span style={{ fontSize: 11.5, color: "var(--os-ink-4)", flex: 1 }}>
+                      <span className="os-list-title" style={{ fontSize: 12.5, color: "var(--os-ink-4)" }}>
                         {h.sections.map(s => `${s.name} ${s.score}`).join(" · ")}
                       </span>
                       <button onClick={() => update(s => removeTestScore(s, h.id))} className="os-btn" data-variant="ghost" data-size="sm">Remove</button>

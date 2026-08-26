@@ -170,7 +170,7 @@ export default function EssaysModule() {
                     {e.drafts.length > 0 && (
                       <div style={{ marginTop: 14, borderTop: "1px solid var(--os-line-soft)", paddingTop: 12 }}>
                         <div style={{
-                          fontFamily: "var(--os-mono)", fontSize: 9.5, letterSpacing: "0.07em",
+                          fontFamily: "var(--os-mono)", fontSize: 12, letterSpacing: "0.07em",
                           textTransform: "uppercase", color: "var(--os-ink-4)", marginBottom: 8,
                         }}>Versions — {e.drafts.length}</div>
                         <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 6 }}>

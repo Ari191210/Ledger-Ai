@@ -643,6 +643,35 @@
   background: none;
 }
 
+/* ── Journey areas ───────────────────────────────────────────────────────
+   Three columns on a desktop: name, meter with its basis, figure. At phone
+   width a 148px name column leaves the meter about 90px wide and wraps the
+   basis to five lines, so the row restacks: name and figure share the top
+   line, and the meter takes the full width beneath. */
+
+[data-os] .os-areas { display: grid; gap: 13px; }
+
+[data-os] .os-area-row {
+  display: grid;
+  grid-template-columns: 148px 1fr 46px;
+  gap: 14px;
+  align-items: center;
+}
+[data-os] .os-area-name  { font-size: 13.5px; }
+[data-os] .os-area-value { font-size: 13px; text-align: right; }
+
+@media (max-width: 640px) {
+  [data-os] .os-area-row {
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    align-items: baseline;
+  }
+  [data-os] .os-area-name  { font-size: 14.5px; }
+  [data-os] .os-area-value { font-size: 14.5px; }
+  [data-os] .os-area-meter { grid-column: 1 / -1; }
+  [data-os] .os-areas { gap: 20px; }
+}
+
 /* ── Section divider ─────────────────────────────────────────────────────── */
 
 [data-os] .os-section {
@@ -675,4 +704,101 @@
   [data-os] .os-title { font-size: 26px; }
   [data-os] .os-head { padding: 28px 0 20px; }
   [data-os] .os-card { padding: 16px 17px; border-radius: var(--os-r); }
+
+  /* ── Touch ────────────────────────────────────────────────────────────
+     Every interactive element gets a 44px touch height, the accessibility
+     floor. On a desktop a 21px link is a comfortable target for a cursor;
+     on a phone it is a coin-toss, and this product is used on a phone at
+     11pm more than anywhere else. */
+  [data-os] .os-btn { height: 44px; padding: 0 18px; font-size: 15px; }
+  [data-os] .os-btn[data-size="sm"] { height: 40px; padding: 0 14px; font-size: 14px; }
+  [data-os] .os-btn[data-size="lg"] { height: 50px; font-size: 16px; }
+
+  /* Inline links become tappable rows without looking like buttons. */
+  [data-os] .os-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 15px;
+  }
+  /* Inside prose a link must stay inline, or the paragraph breaks apart. */
+  [data-os] p .os-link,
+  [data-os] .os-basis .os-link {
+    display: inline;
+    min-height: 0;
+    font-size: inherit;
+  }
+
+  [data-os] .os-nav-item { min-height: 44px; font-size: 14.5px; padding: 0 12px; }
+  [data-os] .os-wordmark { min-height: 44px; display: inline-flex; align-items: center; }
+
+  /* Checkboxes are the single most-tapped control in the product. A native
+     input's hit area is its box, so the box itself grows on touch — margin
+     would not extend what is tappable. A task you cannot reliably tick is a
+     task you stop ticking. */
+  [data-os] input[type="checkbox"],
+  [data-os] input[type="radio"] {
+    width: 24px;
+    height: 24px;
+    /* Padding is part of the element box, so this genuinely enlarges the
+       target rather than only spacing it. */
+    padding: 10px;
+    box-sizing: content-box;
+    margin: -6px;
+  }
+  [data-os] .os-list > li { padding: 4px 0; }
+
+  /* iOS zooms the page when a focused input is under 16px. */
+  [data-os] input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]),
+  [data-os] textarea,
+  [data-os] select {
+    font-size: 16px;
+    padding: 11px 12px;
+  }
+
+  /* ── Legibility ───────────────────────────────────────────────────────
+     The 9.5-11px labels that read as precise on a monitor are simply small
+     on a phone. Nothing below 12px survives at arm's length. */
+  [data-os] .os-eyebrow { font-size: 12px; }
+  [data-os] .os-figure-label { font-size: 13px; }
+  [data-os] .os-basis { font-size: 13.5px; }
+  [data-os] .os-pill { font-size: 12.5px; padding: 4px 10px; }
+  [data-os] .os-card-meta { font-size: 13px; }
+  [data-os] .os-nav-count { font-size: 12px; }
+  [data-os] .os-section { font-size: 13px; }
+
+  /* Figures need to stack rather than crowd. */
+  [data-os] .os-figure-value { font-size: 24px; }
+  [data-os] .os-figure-value[data-size="lg"] { font-size: 32px; }
+
+  /* Full-width primary actions read as the obvious next step on a phone. */
+  [data-os] .os-card .os-btn[data-variant="primary"] { width: 100%; }
+
+  /* The nav scrolls horizontally; fade its right edge so it is discoverable
+     as scrollable rather than looking clipped. */
+  [data-os] .os-nav {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent 100%);
+    padding-right: 24px;
+  }
+
+  /* ── Dense rows ───────────────────────────────────────────────────────
+     Rows built as a single flex line on desktop — a score history entry is
+     date, kind, total, sections and a remove button — cannot hold five
+     columns at 375px. They wrap instead, with the row's own controls kept
+     on one line so the action stays reachable. */
+  [data-os] .os-list > li {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  [data-os] .os-list > li > .os-list-title,
+  [data-os] .os-list > li > span[style*="flex"] {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  /* Anything past the viewport edge is unreachable, so nothing is allowed
+     to force a row wider than its container. */
+  [data-os] .os-card,
+  [data-os] .os-list > li { max-width: 100%; }
+  [data-os] .os-list > li > * { min-width: 0; }
 }
