@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { LegalShell, Section, H3, P, A } from "@/components/os/legal-shell";
 
 export const metadata: Metadata = {
   title: "Data & Compliance — Ledger",
@@ -10,18 +10,8 @@ const UPDATED = "19 May 2026";
 
 export default function DataCompliancePage() {
   return (
-    <main id="main-content" style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
-      <nav style={{ borderBottom: "1px solid var(--rule)", padding: "14px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href="/" style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.08em", color: "var(--ink)", textDecoration: "none" }}>LEDGER</Link>
-        <Link href="/legal/privacy" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", textDecoration: "none" }}>← Privacy</Link>
-      </nav>
-
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px 96px" }}>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 12 }}>Legal</div>
-        <h1 style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1, marginBottom: 8 }}>Data & Compliance</h1>
-        <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
-
-        <Section title="India — DPDP Act 2023">
+    <LegalShell title="Your Data" updated={UPDATED} current="/legal/data">
+      <Section title="India — DPDP Act 2023">
           <P>Ledger complies with the Digital Personal Data Protection Act, 2023 (India). As a Data Fiduciary, we:</P>
           <ul style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>Collect only the personal data necessary to provide the service (data minimisation)</li>
@@ -119,34 +109,10 @@ export default function DataCompliancePage() {
           <P>You can export your full study data as a JSON file from your profile settings at any time. This includes your planner, marks, goals, and preferences.</P>
           <P>To delete your account and all associated data, go to Settings → Account → Delete Account. Deletion is processed within 30 days. AI history and analytics events are purged within 90 days.</P>
         </Section>
-
-        <div style={{ borderTop: "1px solid var(--rule)", marginTop: 48, paddingTop: 24, display: "flex", gap: 24, flexWrap: "wrap" }}>
-          {[["Privacy Policy", "/legal/privacy"], ["Terms of Use", "/legal/terms"], ["IP Policy", "/legal/ip"]].map(([l, h]) => (
-            <Link key={l} href={h} style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--cinnabar-ink)", textDecoration: "none" }}>{l} →</Link>
-          ))}
-        </div>
-      </div>
-    </main>
+    </LegalShell>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section style={{ marginBottom: 48 }}>
-      <h2 style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.06em", marginBottom: 16, paddingBottom: 10, borderBottom: "1px solid var(--rule)" }}>{title}</h2>
-      {children}
-    </section>
-  );
-}
-function H3({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 8, marginTop: 20, ...style }}>{children}</h3>;
-}
-function P({ children }: { children: React.ReactNode }) {
-  return <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)", marginBottom: 12 }}>{children}</p>;
-}
-function A({ href, children }: { href: string; children: React.ReactNode }) {
-  return <a href={href} style={{ color: "var(--cinnabar-ink)", textDecoration: "underline", textUnderlineOffset: 3 }}>{children}</a>;
-}
 function Th({ children }: { children: React.ReactNode }) {
   return <th style={{ textAlign: "left", padding: "8px 12px 8px 0", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", fontWeight: 400 }}>{children}</th>;
 }

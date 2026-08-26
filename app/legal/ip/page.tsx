@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { LegalShell, Section, P, A } from "@/components/os/legal-shell";
 
 export const metadata: Metadata = {
   title: "IP & Copyright Policy — Ledger",
@@ -10,18 +10,8 @@ const UPDATED = "19 May 2026";
 
 export default function IPPage() {
   return (
-    <main id="main-content" style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
-      <nav style={{ borderBottom: "1px solid var(--rule)", padding: "14px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href="/" style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.08em", color: "var(--ink)", textDecoration: "none" }}>LEDGER</Link>
-        <Link href="/legal/terms" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", textDecoration: "none" }}>← Terms</Link>
-      </nav>
-
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px 96px" }}>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 12 }}>Legal</div>
-        <h1 style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1, marginBottom: 8 }}>IP & Copyright</h1>
-        <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
-
-        <Section title="Ledger's Intellectual Property">
+    <LegalShell title="Content & IP" updated={UPDATED} current="/legal/ip">
+      <Section title="Ledger's Intellectual Property">
           <P>All original elements of the Ledger platform are owned by Ledger Study Co. and protected under the Copyright Act, 1957 (India) and applicable international treaties. This includes:</P>
           <ul style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 2, color: "var(--ink-2)", paddingLeft: 20 }}>
             <li>The Ledger name, logo, and wordmark</li>
@@ -106,31 +96,10 @@ export default function IPPage() {
           <P>For all IP and copyright matters: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
           <P>We aim to respond to all IP queries within 5 business days.</P>
         </Section>
-
-        <div style={{ borderTop: "1px solid var(--rule)", marginTop: 48, paddingTop: 24, display: "flex", gap: 24, flexWrap: "wrap" }}>
-          {[["Privacy Policy", "/legal/privacy"], ["Terms of Use", "/legal/terms"], ["Data & Compliance", "/legal/data"]].map(([l, h]) => (
-            <Link key={l} href={h} style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--cinnabar-ink)", textDecoration: "none" }}>{l} →</Link>
-          ))}
-        </div>
-      </div>
-    </main>
+    </LegalShell>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section style={{ marginBottom: 48 }}>
-      <h2 style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.06em", marginBottom: 16, paddingBottom: 10, borderBottom: "1px solid var(--rule)" }}>{title}</h2>
-      {children}
-    </section>
-  );
-}
-function P({ children }: { children: React.ReactNode }) {
-  return <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)", marginBottom: 12 }}>{children}</p>;
-}
-function A({ href, children }: { href: string; children: React.ReactNode }) {
-  return <a href={href} style={{ color: "var(--cinnabar-ink)", textDecoration: "underline", textUnderlineOffset: 3 }}>{children}</a>;
-}
 function Th({ children }: { children: React.ReactNode }) {
   return <th style={{ textAlign: "left", padding: "8px 12px 8px 0", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", fontWeight: 400 }}>{children}</th>;
 }

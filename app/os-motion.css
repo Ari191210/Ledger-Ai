@@ -1,0 +1,341 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION AND MATERIAL
+
+   The first pass of this design system was flat, silent and static — every
+   surface the same height, every press unacknowledged, nothing arriving. It
+   read as a template rather than an instrument.
+
+   This file adds the physical layer. Three rules govern it:
+
+     1. Motion must be *caused*. Things move because the cursor moved, the
+        page scrolled, or a key was pressed. Nothing loops, nothing floats,
+        nothing animates on a timer — ambient motion is decoration and it is
+        what makes a page feel synthetic.
+
+     2. Depth comes from stacked material, not from drop shadows. A raised
+        card is a lighter surface with a hard offset edge, the way a physical
+        key sits above a panel.
+
+     3. Every duration is under 400ms and most are under 200ms. Slow easing
+        reads as elegant in a demo and as lag on the fifth click.
+
+   All of it is disabled wholesale under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Easing ──────────────────────────────────────────────────────────────
+   One spring-like curve for arrivals and one snappy curve for presses. Two
+   curves used consistently reads as a system; six reads as noise. */
+[data-os] {
+  --os-ease:      cubic-bezier(0.32, 0.72, 0, 1);
+  --os-ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --os-snap:      cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   1. THE KEY — buttons as physical objects
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* A hard offset edge instead of a blurred shadow. This is the single change
+   that makes a button read as a key rather than a rectangle: the edge is the
+   side of the object, so pressing it can visibly remove that side. */
+[data-os] .os-btn {
+  position: relative;
+  box-shadow: 0 2px 0 var(--os-line-strong);
+  transition:
+    transform 90ms var(--os-snap),
+    box-shadow 90ms var(--os-snap),
+    background 140ms var(--os-ease),
+    border-color 140ms var(--os-ease);
+}
+[data-os] .os-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 var(--os-line-strong);
+}
+/* Travel. The button moves down by exactly the height of its own edge, so
+   the edge disappears — the key bottoms out against the panel. */
+[data-os] .os-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--os-line-strong);
+}
+[data-os] .os-btn[data-variant="primary"] {
+  box-shadow: 0 2px 0 var(--os-accent-hover);
+}
+[data-os] .os-btn[data-variant="primary"]:hover:not(:disabled) {
+  box-shadow: 0 3px 0 var(--os-accent-hover);
+}
+[data-os] .os-btn[data-variant="primary"]:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--os-accent-hover);
+}
+[data-os] .os-btn[data-variant="ghost"] { box-shadow: none; }
+[data-os] .os-btn[data-variant="ghost"]:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   2. TILT — cards that respond to the cursor
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* The wrapper establishes perspective; the inner surface does the rotating.
+   Angles are driven from JS as --rx / --ry. Kept deliberately shallow: past
+   about 8° the text edge-aliases and the effect starts reading as a gimmick
+   rather than as material. */
+[data-os] .os-tilt {
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+[data-os] .os-tilt-inner {
+  transform:
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg))
+    translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 380ms var(--os-ease), box-shadow 240ms var(--os-ease);
+  will-change: transform;
+}
+[data-os] .os-tilt[data-active="true"] .os-tilt-inner {
+  /* While the cursor is inside, follow it almost immediately. The long
+     transition above is what makes the card settle back when it leaves. */
+  transition: transform 90ms linear, box-shadow 240ms var(--os-ease);
+}
+
+/* The specular sheen. A soft light that tracks the cursor, which is what
+   sells a flat surface as something with a finish. */
+[data-os] .os-tilt-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 240ms var(--os-ease);
+  background: radial-gradient(
+    380px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255,255,255,0.55),
+    transparent 42%
+  );
+}
+[data-os] .os-tilt[data-active="true"] .os-tilt-inner::after { opacity: 1; }
+
+/* Elements can be pushed toward the viewer inside a tilting card, so the
+   card has genuine internal depth rather than being one flat plane. */
+[data-os] .os-lift-1 { transform: translateZ(18px); }
+[data-os] .os-lift-2 { transform: translateZ(34px); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   3. CARD — raised material
+   ═══════════════════════════════════════════════════════════════════════ */
+
+[data-os] .os-card {
+  position: relative;
+  box-shadow: 0 1px 0 var(--os-line-soft);
+  transition:
+    transform 220ms var(--os-ease),
+    box-shadow 220ms var(--os-ease),
+    border-color 220ms var(--os-ease);
+}
+
+/* An interactive card lifts and gains a harder edge, so "this responds" is
+   legible before the cursor arrives. */
+[data-os] .os-card[data-interactive="true"]:hover {
+  transform: translateY(-2px);
+  border-color: var(--os-line-strong);
+  box-shadow: 0 6px 0 -2px var(--os-line-soft), 0 10px 24px rgba(22,21,15,0.07);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   4. SCROLL REVEAL
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Content arrives as it enters the viewport. The displacement is small on
+   purpose: 10px reads as the page settling, 40px reads as a slideshow. */
+[data-os] [data-reveal] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 520ms var(--os-ease-out),
+    transform 520ms var(--os-ease-out);
+}
+[data-os] [data-reveal][data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+/* A stagger index, so a grid arrives as a sequence rather than a block. */
+[data-os] [data-reveal][style*="--i"] { transition-delay: calc(var(--i) * 55ms); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   5. THE TRACK STRIPE
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* A colour-coded edge marking which part of the journey a surface belongs
+   to — the OP-1 encoder idea applied to a page. */
+[data-os] [data-track] { position: relative; overflow: hidden; }
+[data-os] [data-track]::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--track, var(--os-ink-4));
+  transition: width 200ms var(--os-ease);
+}
+[data-os] [data-track]:hover::before { width: 5px; }
+[data-os] [data-track="study"] { --track: var(--os-track-study); }
+[data-os] [data-track="test"]  { --track: var(--os-track-test); }
+[data-os] [data-track="build"] { --track: var(--os-track-build); }
+[data-os] [data-track="apply"] { --track: var(--os-track-apply); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   6. FIGURES AND METERS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* A figure that has just changed pulses once. Reserved for real changes —
+   a number that animates on every render is noise. */
+@keyframes os-figure-in {
+  0%   { transform: translateY(4px) scale(0.985); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+[data-os] .os-figure-value[data-animate="true"] {
+  animation: os-figure-in 380ms var(--os-ease-out) both;
+}
+
+/* The meter fills from zero on reveal, so progress reads as accumulated
+   rather than as a static bar that was always there. */
+[data-os] .os-meter-fill {
+  transition: width 720ms var(--os-ease-out);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   7. NAV
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* The active pill slides between items rather than blinking on, which is
+   what makes a tab bar feel like one control instead of eleven. */
+[data-os] .os-nav-item {
+  position: relative;
+  transition: color 140ms var(--os-ease), background 140ms var(--os-ease);
+}
+[data-os] .os-nav-item::after {
+  content: "";
+  position: absolute;
+  left: 10px; right: 10px; bottom: 4px;
+  height: 2px;
+  background: var(--os-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms var(--os-ease);
+}
+[data-os] .os-nav-item:hover::after { transform: scaleX(1); }
+[data-os] .os-nav-item[data-active="true"]::after { transform: scaleX(1); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   8. INPUTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Inputs sit *into* the panel — an inset edge rather than a raised one, so
+   a field reads as a slot and a button reads as a key. */
+[data-os] input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]),
+[data-os] textarea,
+[data-os] select {
+  box-shadow: inset 0 1px 2px rgba(22,21,15,0.05);
+  transition:
+    border-color 140ms var(--os-ease),
+    box-shadow 140ms var(--os-ease),
+    background 140ms var(--os-ease);
+}
+[data-os] input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):focus,
+[data-os] textarea:focus,
+[data-os] select:focus {
+  box-shadow: inset 0 1px 2px rgba(22,21,15,0.04), 0 0 0 3px var(--os-accent-soft);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   9. TICKING A TASK
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Completing something is the most satisfying moment in the product, so it
+   is the one place with a deliberate flourish: the row settles, the label
+   strikes through from the left. */
+@keyframes os-strike {
+  from { background-size: 0% 1px; }
+  to   { background-size: 100% 1px; }
+}
+[data-os] .os-list-title[data-done="true"] {
+  text-decoration: none;
+  background-image: linear-gradient(var(--os-ink-4), var(--os-ink-4));
+  background-repeat: no-repeat;
+  background-position: 0 58%;
+  animation: os-strike 260ms var(--os-ease-out) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   10. PAGE ENTRANCE
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@keyframes os-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+[data-os] .os-shell > * {
+  animation: os-page-in 380ms var(--os-ease-out) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   11. THE SOUND TOGGLE
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Fixed, small, and out of the reading column. Sound is a strong choice, so
+   the way to turn it off has to be permanently visible — not buried in a
+   settings page the student would have to go looking for. */
+[data-os] .os-sound-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--os-line-strong);
+  border-radius: 50%;
+  background: var(--os-surface);
+  box-shadow: 0 2px 0 var(--os-line-strong);
+  cursor: pointer;
+  transition: transform 90ms var(--os-snap), box-shadow 90ms var(--os-snap);
+}
+[data-os] .os-sound-toggle:hover  { transform: translateY(-1px); box-shadow: 0 3px 0 var(--os-line-strong); }
+[data-os] .os-sound-toggle:active { transform: translateY(2px);  box-shadow: 0 0 0 var(--os-line-strong); }
+
+/* Three bars, like a level meter. They stand tall when sound is on and
+   collapse flat when it is off, so the state is legible without a label. */
+[data-os] .os-sound-bars { display: flex; align-items: center; gap: 2px; height: 14px; }
+[data-os] .os-sound-bars i {
+  display: block;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--os-ink-4);
+  transition: height 180ms var(--os-ease), background 180ms var(--os-ease);
+  height: 3px;
+}
+[data-os] .os-sound-toggle[data-on="true"] .os-sound-bars i { background: var(--os-accent); }
+[data-os] .os-sound-toggle[data-on="true"] .os-sound-bars i:nth-child(1) { height: 6px; }
+[data-os] .os-sound-toggle[data-on="true"] .os-sound-bars i:nth-child(2) { height: 13px; }
+[data-os] .os-sound-toggle[data-on="true"] .os-sound-bars i:nth-child(3) { height: 8px; }
+
+@media (max-width: 640px) {
+  [data-os] .os-sound-toggle { width: 44px; height: 44px; right: 14px; bottom: 14px; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   Everything above is removed, and revealed content is shown immediately —
+   a student who asked for less motion must not be left with invisible
+   content waiting on an animation that will never run. */
+@media (prefers-reduced-motion: reduce) {
+  [data-os] [data-reveal] { opacity: 1 !important; transform: none !important; }
+  [data-os] .os-tilt-inner { transform: none !important; }
+  [data-os] .os-tilt-inner::after { display: none; }
+  [data-os] .os-shell > * { animation: none; }
+  [data-os] .os-btn:hover:not(:disabled),
+  [data-os] .os-btn:active:not(:disabled),
+  [data-os] .os-card[data-interactive="true"]:hover { transform: none; }
+}

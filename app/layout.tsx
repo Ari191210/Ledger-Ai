@@ -20,6 +20,9 @@ import "./editorial.css";
 // Same containment: every selector in os.css is scoped beneath [data-os],
 // which only the academic-OS shell emits. The legacy routes are untouched.
 import "./os.css";
+// The physical layer — depth, tilt, scroll reveal, key travel. Loaded after
+// os.css so its transitions override the base component rules.
+import "./os-motion.css";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TWO DESIGN SYSTEMS, SIDE BY SIDE
@@ -247,6 +250,15 @@ export default function RootLayout({
             load for a typeface that cannot render, and left the CSS naming a
             font that was never applied. The declared fallbacks are unchanged,
             so the rendered result is identical. */}
+        {/* Space Grotesk and JetBrains Mono — the display and figure faces of
+            the academic OS. Preconnected and swapped so they never block
+            first paint; --os-sans falls back to the system stack meanwhile. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        />
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}` }} />
       </head>
       <body>

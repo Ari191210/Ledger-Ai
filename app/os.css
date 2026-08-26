@@ -28,43 +28,43 @@
      Not pure white. #FFFFFF under a bright monitor at midnight is why
      students turn on dark mode; a fractionally warm ground is easier to sit
      in front of for hours, which is the actual usage pattern here. */
-  --os-bg:            #FBFBFA;
-  --os-surface:       #FFFFFF;
-  --os-surface-sunk:  #F6F6F5;
-  --os-surface-hover: #F2F2F1;
+  --os-bg:            #EDEAE2;
+  --os-surface:       #F7F5EF;
+  --os-surface-sunk:  #E4E0D6;
+  --os-surface-hover: #E9E5DB;
 
   /* ── Ink ───────────────────────────────────────────────────────────────
      A four-step ramp. More steps than this and nobody can remember which to
      use, so hierarchy collapses into guesswork. */
-  --os-ink:      #17171A;   /* headings, primary figures        */
-  --os-ink-2:    #46464C;   /* body copy                        */
-  --os-ink-3:    #74747C;   /* labels, secondary detail         */
-  --os-ink-4:    #A3A3AA;   /* placeholders, disabled           */
+  --os-ink:      #16150F;   /* headings, primary figures        */
+  --os-ink-2:    #3D3B31;   /* body copy                        */
+  --os-ink-3:    #6B6759;   /* labels, secondary detail         */
+  --os-ink-4:    #948F7E;   /* placeholders, disabled           */
 
   /* ── Lines ─────────────────────────────────────────────────────────────
      Hairlines, not borders. At 1px these read as structure rather than as
      boxes drawn around things. */
-  --os-line:       #E7E7E4;
-  --os-line-soft:  #F0F0EE;
-  --os-line-strong:#D8D8D4;
+  --os-line:       #D8D3C5;
+  --os-line-soft:  #E3DFD3;
+  --os-line-strong:#C2BCA9;
 
   /* ── Accent ────────────────────────────────────────────────────────────
      A single considered blue. Reserved for the active state, the primary
      action, and the one thing on a page that matters most. */
-  --os-accent:      #2B5CE6;
-  --os-accent-hover:#1E4BC9;
-  --os-accent-soft: #EDF2FE;
-  --os-accent-line: #C3D4FB;
+  --os-accent:      #FF5A1F;
+  --os-accent-hover:#E8480F;
+  --os-accent-soft: #FCE9DF;
+  --os-accent-line: #F5B99A;
 
   /* ── Signal ────────────────────────────────────────────────────────────
      Muted deliberately. A saturated red on a white ground reads as an error
      dialog; this reads as a considered warning, which is what a deadline is. */
-  --os-good:      #1F7A4C;
-  --os-good-soft: #ECF6F0;
-  --os-warn:      #9A6114;
-  --os-warn-soft: #FDF4E7;
-  --os-risk:      #B3261E;
-  --os-risk-soft: #FDF0EF;
+  --os-good:      #2C6E49;
+  --os-good-soft: #E2EFE6;
+  --os-warn:      #C97A0C;
+  --os-warn-soft: #F7EBD6;
+  --os-risk:      #C4321B;
+  --os-risk-soft: #F6E2DD;
 
   /* ── Geometry ──────────────────────────────────────────────────────────
      Larger radii than a data tool would use. Softness is what separates an
@@ -84,13 +84,23 @@
      System stacks. An OS should look like it belongs to the machine it is
      running on, and this also means zero font requests — the fastest first
      paint available, which matters more than a bespoke face. */
-  --os-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+  --os-sans: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
              system-ui, "Helvetica Neue", Arial, sans-serif;
-  --os-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono",
+  --os-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono",
              Menlo, Consolas, monospace;
 
   --os-gap:   20px;
   --os-max:   1120px;
+
+  /* ── Track colours — the OP-1 encoders ───────────────────────────────
+     Four fixed hues, one per journey track, used as identity rather than
+     decoration. A student learns "orange is research" the way an OP-1 user
+     learns the encoder colours, which is what makes a dense interface
+     navigable without labels. */
+  --os-track-study:  #FF5A1F;  /* academics, the daily work        */
+  --os-track-test:   #C97A0C;  /* testing, the dated commitments   */
+  --os-track-build:  #2C6E49;  /* projects and activities          */
+  --os-track-apply:  #2B5B84;  /* colleges, applications, essays   */
 
   background: var(--os-bg);
   color: var(--os-ink-2);
@@ -101,6 +111,15 @@
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   min-height: 100vh;
+
+  /* The engineering grid. Faint enough to read as paper texture rather than
+     as a graph, but present enough that the page has a surface — this is
+     most of the difference between "a document" and "an instrument". */
+  background-image:
+    linear-gradient(rgba(22,21,15,0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22,21,15,0.028) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
 }
 
 /* Tabular figures everywhere a number is compared to another number. Without

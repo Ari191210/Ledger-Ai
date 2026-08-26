@@ -55,8 +55,9 @@ const PAGES = [
   { name: "06-essays",   url: "/journey/essays" },
   { name: "07-pricing",  url: "/os/pricing" },
   { name: "08-auth",     url: "/os/auth" },
-  { name: "09-academics",url: "/journey/academics" },
+  { name: "09-tools",    url: "/journey/tools" },
   { name: "10-calendar", url: "/journey/calendar" },
+  { name: "11-privacy",  url: "/legal/privacy" },
 ];
 
 const ws = new WebSocket(await endpoint());
@@ -181,6 +182,27 @@ for (const p of PAGES) {
       && !/Reading your /.test(document.body.innerText)`);
     if (ready) break;
   }
+  await sleep(700);
+
+  // Scroll-revealed content only becomes visible once it enters the viewport,
+  // and captureBeyondViewport renders the full page *without* scrolling — so a
+  // naive full-page capture shows every below-the-fold element still hidden.
+  // Walking the page first lets the IntersectionObservers fire, then returning
+  // to the top gives an honest full-page image.
+  await ev(`
+    (async () => {
+      const step = Math.round(window.innerHeight * 0.8);
+      const max = document.documentElement.scrollHeight;
+      for (let y = 0; y < max; y += step) {
+        window.scrollTo({ top: y, behavior: "instant" });
+        await new Promise(r => setTimeout(r, 120));
+      }
+      window.scrollTo({ top: 0, behavior: "instant" });
+      await new Promise(r => setTimeout(r, 260));
+      return true;
+    })()
+  `);
+  // Let the reveal transitions finish before the shutter.
   await sleep(700);
   const { data } = await rpc(ws, "Page.captureScreenshot",
     { format: "png", captureBeyondViewport: true }, sessionId);

@@ -17,9 +17,11 @@ import { useMemo } from "react";
 import { useStudent } from "@/lib/student/use-student";
 import { overdue } from "@/lib/student/derive";
 import { nextBestActions } from "@/lib/student/next-action";
+import { TactileProvider } from "@/components/os/tactile-provider";
 
 const SECTIONS = [
   { href: "/journey",               label: "Home" },
+  { href: "/journey/tools",         label: "Tools" },
   { href: "/journey/academics",     label: "Academics" },
   { href: "/journey/testing",       label: "Testing" },
   { href: "/journey/activities",    label: "Activities" },
@@ -77,6 +79,7 @@ export default function JourneyShell({ children }: { children: React.ReactNode }
         </div>
       </div>
       <main className="os-shell" id="main-content">{children}</main>
+      <TactileProvider />
     </div>
   );
 }

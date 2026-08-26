@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { LegalShell, Section, H3, P, A } from "@/components/os/legal-shell";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Ledger",
@@ -10,18 +10,8 @@ const UPDATED = "6 June 2026";
 
 export default function PrivacyPage() {
   return (
-    <main id="main-content" style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
-      <nav style={{ borderBottom: "1px solid var(--rule)", padding: "14px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href="/" style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.08em", color: "var(--ink)", textDecoration: "none" }}>LEDGER</Link>
-        <Link href="/legal/terms" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", textDecoration: "none" }}>Terms →</Link>
-      </nav>
-
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px 96px" }}>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 12 }}>Legal</div>
-        <h1 style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1, marginBottom: 8 }}>Privacy Policy</h1>
-        <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
-
-        <Section title="Who We Are">
+    <LegalShell title="Privacy Policy" updated={UPDATED} current="/legal/privacy">
+      <Section title="Who We Are">
           <P>Ledger is operated by Aryamman Ojha (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;), an independent student-education platform at studyledger.in. We build an academic intelligence platform — study and exam-readiness tools — for students aged 14–18 preparing for JEE, NEET, CBSE, IB, and other curricula.</P>
           <P>Questions about this policy: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
         </Section>
@@ -113,34 +103,10 @@ export default function PrivacyPage() {
         <Section title="Changes to This Policy">
           <P>We may update this policy as the product grows. Material changes will be announced via in-app notice at least 14 days before they take effect. Continued use after notice constitutes acceptance.</P>
         </Section>
-
-        <div style={{ borderTop: "1px solid var(--rule)", marginTop: 48, paddingTop: 24, display: "flex", gap: 24, flexWrap: "wrap" }}>
-          {[["Terms of Use", "/legal/terms"], ["Data & Compliance", "/legal/data"], ["IP Policy", "/legal/ip"]].map(([l, h]) => (
-            <Link key={l} href={h} style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--cinnabar-ink)", textDecoration: "none" }}>{l} →</Link>
-          ))}
-        </div>
-      </div>
-    </main>
+    </LegalShell>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section style={{ marginBottom: 48 }}>
-      <h2 style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.06em", marginBottom: 16, paddingBottom: 10, borderBottom: "1px solid var(--rule)" }}>{title}</h2>
-      {children}
-    </section>
-  );
-}
-function H3({ children }: { children: React.ReactNode }) {
-  return <h3 style={{ fontFamily: "var(--sans)", fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-2)", marginBottom: 6, marginTop: 20 }}>{children}</h3>;
-}
-function P({ children }: { children: React.ReactNode }) {
-  return <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)", marginBottom: 12 }}>{children}</p>;
-}
-function A({ href, children }: { href: string; children: React.ReactNode }) {
-  return <a href={href} style={{ color: "var(--cinnabar-ink)", textDecoration: "underline", textUnderlineOffset: 3 }}>{children}</a>;
-}
 function Th({ children }: { children: React.ReactNode }) {
   return <th style={{ textAlign: "left", padding: "8px 12px 8px 0", fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", fontWeight: 400 }}>{children}</th>;
 }

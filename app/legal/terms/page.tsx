@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { LegalShell, Section, P, A } from "@/components/os/legal-shell";
 
 export const metadata: Metadata = {
   title: "Terms of Use — Ledger",
@@ -10,18 +10,8 @@ const UPDATED = "6 June 2026";
 
 export default function TermsPage() {
   return (
-    <main id="main-content" style={{ background: "var(--paper)", color: "var(--ink)", minHeight: "100vh" }}>
-      <nav style={{ borderBottom: "1px solid var(--rule)", padding: "14px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href="/" style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.08em", color: "var(--ink)", textDecoration: "none" }}>LEDGER</Link>
-        <Link href="/legal/privacy" style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-3)", textDecoration: "none" }}>← Privacy</Link>
-      </nav>
-
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px 96px" }}>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--cinnabar-ink)", marginBottom: 12 }}>Legal</div>
-        <h1 style={{ fontFamily: "var(--serif)", fontSize: 48, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1, marginBottom: 8 }}>Terms of Use</h1>
-        <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: "0.08em", marginBottom: 48 }}>Last updated: {UPDATED}</p>
-
-        <Section title="Agreement">
+    <LegalShell title="Terms of Service" updated={UPDATED} current="/legal/terms">
+      <Section title="Agreement">
           <P>By accessing or using Ledger at studyledger.in, you agree to be bound by these Terms of Use. If you do not agree, do not use the service. These terms constitute a binding agreement between you and Aryamman Ojha (&ldquo;Ledger&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;).</P>
         </Section>
 
@@ -97,28 +87,7 @@ export default function TermsPage() {
         <Section title="Contact">
           <P>For questions about these terms: <A href="mailto:hello@studyledger.in">hello@studyledger.in</A></P>
         </Section>
-
-        <div style={{ borderTop: "1px solid var(--rule)", marginTop: 48, paddingTop: 24, display: "flex", gap: 24, flexWrap: "wrap" }}>
-          {[["Privacy Policy", "/legal/privacy"], ["Data & Compliance", "/legal/data"], ["IP Policy", "/legal/ip"]].map(([l, h]) => (
-            <Link key={l} href={h} style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--cinnabar-ink)", textDecoration: "none" }}>{l} →</Link>
-          ))}
-        </div>
-      </div>
-    </main>
+    </LegalShell>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section style={{ marginBottom: 48 }}>
-      <h2 style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, letterSpacing: "0.06em", marginBottom: 16, paddingBottom: 10, borderBottom: "1px solid var(--rule)" }}>{title}</h2>
-      {children}
-    </section>
-  );
-}
-function P({ children }: { children: React.ReactNode }) {
-  return <p style={{ fontFamily: "var(--sans)", fontSize: 14, lineHeight: 1.8, color: "var(--ink-2)", marginBottom: 12 }}>{children}</p>;
-}
-function A({ href, children }: { href: string; children: React.ReactNode }) {
-  return <a href={href} style={{ color: "var(--cinnabar-ink)", textDecoration: "underline", textUnderlineOffset: 3 }}>{children}</a>;
-}
