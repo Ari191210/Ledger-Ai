@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Composite key: "endpoint-group:ip"
-// COLD-START NOTE: this Map is per-serverless-instance and resets on every Vercel cold start.
-// It is a fast IP-burst guard only — NOT the authoritative rate limit.
-// The authoritative per-user daily limit is enforced in app/api/ai/route.ts via the
-// Supabase `ai_calls` column. Do not rely on this Map for correctness guarantees.
 const hits = new Map<string, { count: number; resetAt: number }>();
 
 interface RateRule {
@@ -14,14 +9,14 @@ interface RateRule {
 }
 
 const RULES: RateRule[] = [
-  { prefix: "/api/ai",                    limit: 20, windowMs: 60_000 }, // 20/min — AI calls
-  { prefix: "/api/auth/google",           limit: 5,  windowMs: 60_000 }, // 5/min  — OAuth exchange
-  { prefix: "/api/welcome",               limit: 3,  windowMs: 60_000 }, // 3/min  — email sends
-  { prefix: "/api/send-report",           limit: 5,  windowMs: 60_000 }, // 5/min  — email + billable AI call
-  { prefix: "/api/parent",                limit: 10, windowMs: 60_000 }, // 10/min — unauth'd, code-guessing guard
-  { prefix: "/api/admin/generate-hash",   limit: 2,  windowMs: 60_000 }, // 2/min  — unauth'd, expensive scrypt hash
-  { prefix: "/api/track",                 limit: 60, windowMs: 60_000 }, // 60/min — client analytics beacon
-  { prefix: "/api/errors",                limit: 30, windowMs: 60_000 }, // 30/min — client error-log beacon
+  { prefix: "/api/ai",                    limit: 20, windowMs: 60_000 }, 
+  { prefix: "/api/auth/google",           limit: 5,  windowMs: 60_000 }, 
+  { prefix: "/api/welcome",               limit: 3,  windowMs: 60_000 }, 
+  { prefix: "/api/send-report",           limit: 5,  windowMs: 60_000 }, 
+  { prefix: "/api/parent",                limit: 10, windowMs: 60_000 }, 
+  { prefix: "/api/admin/generate-hash",   limit: 2,  windowMs: 60_000 }, 
+  { prefix: "/api/track",                 limit: 60, windowMs: 60_000 }, 
+  { prefix: "/api/errors",                limit: 30, windowMs: 60_000 }, 
 ];
 
 function getIp(req: NextRequest): string {
@@ -53,11 +48,6 @@ export async function middleware(req: NextRequest) {
   const rule = RULES.find(r => pathname.startsWith(r.prefix));
   if (!rule) return NextResponse.next();
 
-  // Trusted internal callers (the cron job runner, authenticated via the
-  // same CRON_SECRET the target routes themselves require) bypass the IP
-  // guard — a single batch run can legitimately fire many requests from
-  // one server-side origin and shouldn't trip a per-IP abuse limit meant
-  // for untrusted traffic.
   if (process.env.CRON_SECRET && req.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.next();
   }

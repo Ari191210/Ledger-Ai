@@ -104,13 +104,31 @@ export default function FrontPage() {
       </div>
 
       <div className="ed-page">
+        <div className="ed-status-strip" aria-label="Product highlights">
+          {[
+            ["55+", "academic instruments"],
+            ["1,000", "readiness index"],
+            ["CBSE · ICSE · IB", "board-aware record"],
+            ["Daily", "decision close"],
+          ].map(([figure, label]) => (
+            <div key={label} className="ed-status-strip__item">
+              <strong>{figure}</strong>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="ed-page">
         {/* ── The lead ───────────────────────────────────────────────────── */}
         <div
           className="ed-grid ed-fade"
           style={{ paddingTop: 34, paddingBottom: 40 }}
         >
           <div style={{ gridColumn: "span 8" }} className="lead-col">
-            <IndexReport report={report} specimen />
+            <div className="ed-hero-panel">
+              <IndexReport report={report} specimen />
+            </div>
 
             <p
               className="ed-byline"
@@ -157,21 +175,13 @@ export default function FrontPage() {
               are enduring.
             </blockquote>
 
-            <Link
-              href="/auth"
-              className="ed-kicker"
-              style={{
-                display: "inline-block",
-                marginTop: 4,
-                padding: "11px 20px",
-                border: "1px solid var(--ink)",
-                color: "var(--ink)",
-                textDecoration: "none",
-                letterSpacing: "0.17em",
-              }}
-            >
-              Open your ledger →
-            </Link>
+              <Link
+                href="/auth"
+                className="ed-cta ed-cta--outline"
+                style={{ marginTop: 4 }}
+              >
+                Open your ledger →
+              </Link>
           </aside>
         </div>
 
@@ -179,9 +189,9 @@ export default function FrontPage() {
         <section style={{ paddingBottom: 44 }}>
           <div className="ed-section-head">
             <h2 className="ed-headline--section" style={{ margin: 0 }}>
-              How the index is calculated
+              The academic operating system
             </h2>
-            <span className="ed-kicker">Methodology</span>
+            <span className="ed-kicker">One place</span>
           </div>
 
           <div className="ed-grid">
@@ -191,8 +201,8 @@ export default function FrontPage() {
               { n: "200", k: "Risk",        d: "How quickly you clear mistakes. Errors left unresolved in the last seven days drag the index down; this is the only sector that falls on its own." },
               { n: "150", k: "Momentum",    d: "Consistency. Turning up is worth points, and the run is worth more than any single day of it." },
             ].map((s, i) => (
-              <div key={s.k} style={{ gridColumn: "span 3" }} className={i > 0 ? "ed-rule-left" : ""}>
-                <div className="ed-figure" style={{ fontSize: 34, fontWeight: 700 }}>{s.n}</div>
+              <div key={s.k} style={{ gridColumn: "span 3" }} className={`ed-metric-card ${i > 0 ? "ed-rule-left" : ""}`}>
+                <div className="ed-figure" style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-0.04em" }}>{s.n}</div>
                 <div className="ed-kicker" style={{ margin: "6px 0 8px" }}>{s.k}</div>
                 <p style={{ margin: 0, fontSize: 15, color: "var(--ink-2)", lineHeight: 1.5 }}>{s.d}</p>
               </div>
@@ -203,7 +213,7 @@ export default function FrontPage() {
         {/* ── The desks ──────────────────────────────────────────────────── */}
         <section style={{ paddingBottom: 48 }}>
           <div className="ed-section-head">
-            <h2 className="ed-headline--section" style={{ margin: 0 }}>The desks</h2>
+            <h2 className="ed-headline--section" style={{ margin: 0 }}>The departments</h2>
             <span className="ed-kicker">{DESKS.length} departments</span>
           </div>
 
@@ -249,7 +259,7 @@ export default function FrontPage() {
           <div className="ed-grid">
             <div style={{ gridColumn: "span 7" }}>
               <h2 className="ed-headline" style={{ margin: "0 0 12px" }}>
-                Your first close is one past paper away.
+                Your academic day needs a headquarters.
               </h2>
               <p className="ed-standfirst" style={{ margin: "0 0 22px" }}>
                 The index opens the moment you log a session. Movement and sector
@@ -259,27 +269,13 @@ export default function FrontPage() {
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <Link
                   href="/auth"
-                  className="ed-kicker"
-                  style={{
-                    padding: "13px 26px",
-                    background: "var(--ink)",
-                    color: "var(--paper)",
-                    textDecoration: "none",
-                    letterSpacing: "0.17em",
-                  }}
+                  className="ed-cta ed-cta--solid"
                 >
-                  Open your ledger
+                  Enter the academic OS
                 </Link>
                 <Link
                   href="/pricing"
-                  className="ed-kicker"
-                  style={{
-                    padding: "13px 26px",
-                    border: "1px solid var(--ink)",
-                    color: "var(--ink)",
-                    textDecoration: "none",
-                    letterSpacing: "0.17em",
-                  }}
+                  className="ed-cta ed-cta--outline"
                 >
                   Subscription rates
                 </Link>

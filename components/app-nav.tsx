@@ -1,88 +1,31 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { applyTheme, getActiveBase, getActiveAccent, BASE_META, type BaseId } from "@/lib/palette";
 import { useAuth } from "./auth-provider";
 import { loadUserData } from "@/lib/user-data";
 import { useUI } from "./ui-context";
 import CommandPalette from "./command-palette";
-import { TOOLS_REGISTRY, CAT_COLOR, type ToolCategory } from "@/lib/tools-registry";
 
-type Tool = { slug: string; full: string; sub: string };
-type Category = { label: string; color: string; tools: Tool[] };
-
-// iOS-native drawer curve — feels like it grows from the trigger, not slides from a wall
-const DRAWER_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
-
-// Derived from the registry — the single source of truth for tool slugs.
-// A hardcoded copy here previously drifted after the June consolidation and
-// left 23 dead links in the sidebar.
-const CAT_ORDER: ToolCategory[] = ["PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"];
-const CATEGORIES: Category[] = CAT_ORDER.map(label => ({
-  label,
-  color: CAT_COLOR[label],
-  tools: TOOLS_REGISTRY
-    .filter(t => t.cat === label)
-    .map(t => ({ slug: t.slug, full: t.title, sub: t.subtitle })),
-}));
-
-const TOTAL_TOOLS = CATEGORIES.reduce((n, c) => n + c.tools.length, 0);
-
-function ToolRow({ t, color, idx, sidebarOpen, onOpen, onSplit }: {
-  t: Tool; color: string; idx: number; sidebarOpen: boolean;
-  onOpen: (s: string) => void; onSplit: (s: string) => void;
-}) {
-  const [hovered, setHovered] = useState(false);
-  // Cap delay so the wave completes before users start scanning (~240ms max)
-  const delay = Math.min(idx * 14, 240);
-  return (
-    <div
-      style={{
-        borderBottom: "1px solid var(--rule)", padding: "10px 16px",
-        display: "flex", alignItems: "center", gap: 10,
-        borderLeft: hovered ? `3px solid ${color}` : "3px solid transparent",
-        background: hovered ? "var(--paper)" : "transparent",
-        transition: "background 140ms ease, border-color 140ms ease",
-        animation: sidebarOpen
-          ? `sidebar-item-in 0.24s cubic-bezier(0.23,1,0.32,1) ${delay}ms both`
-          : undefined,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: "var(--serif)", fontStyle: "normal", fontSize: 13, fontWeight: 600, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.full}</div>
-        <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", marginTop: 3, letterSpacing: "0.06em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.sub}</div>
-      </div>
-      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-        <button
-          onClick={() => onOpen(t.slug)}
-          aria-label={`Open ${t.full}`}
-          className="tool-row-btn"
-          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--ink-2)", background: "transparent", color: "var(--ink-2)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
-        >Open</button>
-        <button
-          onClick={() => onSplit(t.slug)}
-          aria-label={`Split view with ${t.full}`}
-          className="tool-row-btn"
-          style={{ fontFamily: "var(--mono)", fontSize: 9, padding: "4px 10px", border: "1px solid var(--rule)", background: "transparent", color: "var(--ink-3)", cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
-        >Split</button>
-      </div>
-    </div>
-  );
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// TOP NAV
+//
+// The nav bar is for navigation, not for browsing the catalogue. The 55-tool
+// slide-in drawer that used to live here now has its own route, /tools, which
+// can be linked to, bookmarked, searched and filtered. The nav carries one
+// link to it. ⌘K still opens the palette for anyone who knows what they want.
+// ═══════════════════════════════════════════════════════════════════════════
 
 export default function AppNav() {
   const path   = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const { splitSlug, setSplitSlug } = useUI();
+  const { splitSlug } = useUI();
 
   const [displayName, setDisplayName] = useState("");
   const [embedded, setEmbedded]       = useState(false);
-  const [open, setOpen]               = useState(false);
   const [hoveredNav, setHoveredNav]   = useState<string | null>(null);
   const [logoHovered, setLogoHovered] = useState(false);
   const [activeBase, setActiveBase]   = useState<BaseId>("obsidian");
@@ -99,20 +42,6 @@ export default function AppNav() {
       setDisplayName(ud?.username || user.email?.split("@")[0] || "");
     });
   }, [user]);
-
-  const sidebarTriggerRef = useRef<HTMLElement | null>(null);
-  const closeSidebar = useCallback(() => {
-    setOpen(false);
-    sidebarTriggerRef.current?.focus?.();
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    sidebarTriggerRef.current = document.activeElement as HTMLElement | null;
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") closeSidebar(); }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, closeSidebar]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -187,8 +116,6 @@ export default function AppNav() {
   }
 
   async function handleSignOut() { await signOut(); router.push("/auth"); }
-  function openTool(slug: string)  { router.push(`/tools/${slug}`); closeSidebar(); }
-  function splitTool(slug: string) { setSplitSlug(slug); closeSidebar(); }
 
   if (embedded) return null;
 
@@ -197,7 +124,7 @@ export default function AppNav() {
   const initial   = (displayName || "?")[0].toUpperCase();
 
   const navLink = (href: string, label: string, extra?: React.ReactNode, mobileHide?: boolean) => {
-    const active = path === href;
+    const active = href === "/tools" ? path === "/tools" : path === href;
     const hovered = hoveredNav === href;
     return (
       <Link
@@ -263,7 +190,8 @@ export default function AppNav() {
           </span>
         </Link>
 
-        {navLink("/dashboard", "Dashboard", undefined, true)}
+        {navLink("/dashboard", "Dashboard")}
+        {navLink("/tools", "Tools")}
 
         {/* ── Light / dark toggle ── */}
         <button
@@ -273,63 +201,19 @@ export default function AppNav() {
           style={{
             display: "flex", alignItems: "center", gap: 7,
             padding: "0 16px", height: "100%", flexShrink: 0,
-            background: isLight ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent",
+            background: "transparent",
             border: "none",
             borderRight: "1px solid var(--rule)", cursor: "pointer",
-            color: isLight ? "var(--cinnabar-ink)" : "var(--ink-2)",
+            color: "var(--ink-2)",
             fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600,
             letterSpacing: "0.1em", textTransform: "uppercase",
             transition: "background 160ms ease, color 160ms ease",
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = isLight ? "color-mix(in srgb, var(--cinnabar-ink) 14%, transparent)" : "color-mix(in srgb, var(--ink) 6%, transparent)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = isLight ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent"; }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--ink) 6%, transparent)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
         >
-          {isLight ? (
-            /* moon — currently light, click → dark */
-            <Moon size={16} />
-          ) : (
-            /* sun — currently dark, click → light */
-            <Sun size={16} />
-          )}
-          <span>{isLight ? "Dark" : "Light"}</span>
-        </button>
-
-        <Link
-          href="/tools/grade-tracker"
-          className="mob-hide"
-          onMouseEnter={() => setHoveredNav("/tools/grade-tracker")}
-          onMouseLeave={() => setHoveredNav(null)}
-          style={{
-            textDecoration: "none", display: "flex", alignItems: "center", gap: 5, padding: "0 14px",
-            borderRight: "1px solid var(--rule)",
-            background: path === "/tools/grade-tracker" ? "var(--paper-2)" : hoveredNav === "/tools/grade-tracker" ? "color-mix(in srgb, var(--cinnabar-ink) 8%, transparent)" : "transparent",
-            color: "var(--cinnabar-ink)",
-            fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600,
-            letterSpacing: "0.1em", textTransform: "uppercase", whiteSpace: "nowrap", flexShrink: 0,
-            height: "100%",
-            transition: "background 160ms ease, transform 160ms ease",
-            transform: hoveredNav === "/tools/grade-tracker" && path !== "/tools/grade-tracker" ? "translateY(-1px)" : undefined,
-            boxShadow: path === "/tools/grade-tracker" ? "inset 0 -2px 0 0 var(--cinnabar-ink)" : undefined,
-          }}
-        >
-          <span>★</span><span>Score</span>
-        </Link>
-
-        <button
-          onClick={() => setOpen(true)}
-          aria-label="Open tools panel"
-          aria-expanded={open}
-          aria-haspopup="dialog"
-          className="nav-btn-press"
-          style={{
-            display: "flex", alignItems: "center", gap: 7, padding: "0 18px",
-            background: open ? "var(--paper-2)" : "transparent", border: "none",
-            borderRight: "1px solid var(--rule)", cursor: "pointer",
-            fontFamily: "var(--sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em",
-            textTransform: "uppercase", color: "var(--ink)", flexShrink: 0, whiteSpace: "nowrap",
-          }}
-        >
-          <span aria-hidden="true" style={{ fontSize: 12 }}>⊞</span><span className="nav-tools-label">Tools</span>
+          {/* moon when light (click → dark), sun when dark (click → light) */}
+          {isLight ? <Moon size={16} /> : <Sun size={16} />}
         </button>
 
         {splitSlug && (
@@ -387,97 +271,6 @@ export default function AppNav() {
 
       {/* Spacer: compensates for fixed nav (52px height + 12px top + 12px clearance) */}
       <div style={{ height: 76 }} aria-hidden="true" />
-
-      {/* ── Sidebar backdrop — always mounted so it can fade out ── */}
-      <div
-        onClick={open ? closeSidebar : undefined}
-        aria-hidden="true"
-        style={{
-          position: "fixed", inset: 0, zIndex: 199,
-          background: "rgba(0,0,0,0.55)",
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? "auto" : "none",
-          transition: `opacity ${open ? 220 : 180}ms ease`,
-        }}
-      />
-
-      {/* ── Slide-in sidebar — browse by category, open or split ── */}
-      <div
-        role="dialog"
-        aria-label="Tools panel"
-        aria-modal="true"
-        aria-hidden={!open}
-        style={{
-          position: "fixed", top: 0, left: 0, bottom: 0,
-          width: "min(360px, calc(100vw - 32px))",
-          background: "var(--paper-2)", borderRight: "1px solid var(--rule)",
-          zIndex: 200, display: "flex", flexDirection: "column",
-          transform: open ? "translateX(0)" : "translateX(-100%)",
-          transition: `transform ${open ? 280 : 200}ms ${DRAWER_EASE}`,
-        }}
-      >
-        {/* Sidebar header */}
-        <div style={{ padding: "0 20px", borderBottom: "1px solid var(--rule)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, height: 52 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontFamily: "'Melodrama', var(--serif)", fontStyle: "normal", fontWeight: 700, fontSize: 17, color: "var(--ink)", letterSpacing: "0.01em" }}>Ledger</span>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", textTransform: "uppercase" }}>{TOTAL_TOOLS} tools</span>
-          </div>
-          <button
-            onClick={closeSidebar}
-            aria-label="Close tools panel"
-            style={{ fontFamily: "var(--mono)", fontSize: 9, background: "none", border: "1px solid var(--rule)", padding: "4px 10px", cursor: "pointer", color: "var(--ink-3)", letterSpacing: "0.04em", borderRadius: 0, boxShadow: "none", backdropFilter: "none" }}
-          >✕ Esc</button>
-        </div>
-
-        {/* ⌘K search prompt */}
-        <button
-          onClick={() => { closeSidebar(); openPalette(); }}
-          style={{
-            display: "flex", alignItems: "center", gap: 10, width: "100%",
-            padding: "11px 16px", background: "none", border: "none",
-            borderBottom: "1px solid var(--rule)",
-            cursor: "pointer", textAlign: "left", flexShrink: 0,
-            borderRadius: 0, boxShadow: "none", backdropFilter: "none",
-          }}
-        >
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.1em", flex: 1 }}>Search all tools…</span>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", padding: "2px 6px", border: "1px solid var(--rule)", letterSpacing: "0.06em", flexShrink: 0 }}>⌘K</span>
-        </button>
-
-        {/* Split hint */}
-        <div style={{ padding: "7px 16px", borderBottom: "1px solid var(--rule)", flexShrink: 0, background: "color-mix(in srgb, var(--ink) 3%, transparent)" }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.06em" }}>
-            Open navigates · <span style={{ color: "var(--slate)" }}>Split</span> opens a second tool alongside
-          </span>
-        </div>
-
-        {/* Tool list — always browsing by category */}
-        <div role="list" style={{ flex: 1, overflowY: "auto" }}>
-          {(() => {
-            let globalIdx = 0;
-            return CATEGORIES.map(cat => (
-              <div key={cat.label}>
-                <div style={{ padding: "7px 16px", borderBottom: "1px solid var(--rule)", borderTop: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: cat.color, flexShrink: 0, display: "inline-block" }} />
-                  <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, color: cat.color, letterSpacing: "0.14em", textTransform: "uppercase" }}>{cat.label}</span>
-                </div>
-                {cat.tools.map(t => {
-                  const idx = globalIdx++;
-                  return <ToolRow key={t.slug} t={t} color={cat.color} idx={idx} sidebarOpen={open} onOpen={openTool} onSplit={splitTool} />;
-                })}
-              </div>
-            ));
-          })()}
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: "10px 16px", borderTop: "1px solid var(--rule)", flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.06em" }}>Esc to close</span>
-          <Link href="/dashboard" onClick={closeSidebar} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
-            → All tools
-          </Link>
-        </div>
-      </div>
     </>
   );
 }

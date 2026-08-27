@@ -1,14 +1,3 @@
-// Unit tests for the Ledger Score engine (lib/ledger-score.ts) and the
-// projection layer (lib/score-projection.ts).
-//
-// The repo has no test runner dependency, so this file is self-contained:
-// it compiles the two pure modules with the project's own TypeScript,
-// rewrites the "@/lib/…" alias for plain Node resolution, and runs under
-// the built-in node:test runner.
-//
-//   node --test tests/
-//   node tests/score-projection.test.mjs
-//
 import { test, describe, before } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -19,34 +8,27 @@ import fs from "node:fs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, ".test-build");
 
-let engine;      // compiled lib/ledger-score
-let projection;  // compiled lib/score-projection
-let stripeTier;  // compiled lib/stripe-tier
-let parentDigest; // compiled lib/parent-digest
-let streakLib;   // compiled lib/streak
-let notif;       // compiled lib/notifications
-let cronAuth;    // compiled lib/cron-auth
-let market;      // compiled lib/score-market
+let engine;      
+let projection;  
+let stripeTier;  
+let parentDigest; 
+let streakLib;   
+let notif;       
+let cronAuth;    
+let market;
 
 before(() => {
-  // Invoke the compiler via node + typescript's real entry point rather than
-  // the node_modules/.bin/tsc shim — the shim is tsc.cmd on Windows and bare
-  // tsc on POSIX, and execFileSync can't resolve the extensionless name on
-  // Windows (ENOENT). This path is stable across platforms.
   execFileSync(
     process.execPath,
     [path.join(root, "node_modules", "typescript", "bin", "tsc"), "-p", "tests/tsconfig.json"],
     { cwd: root },
   );
-  // tsc doesn't rewrite path aliases — point "@/lib/x" imports at siblings.
   for (const f of fs.readdirSync(outDir).filter(f => f.endsWith(".js"))) {
     const p = path.join(outDir, f);
     fs.writeFileSync(p, fs.readFileSync(p, "utf8").replace(/@\/lib\/([\w-]+)/g, "./$1.js"));
   }
 });
 
-// Dynamic import() needs a file:// URL, not a raw path — a Windows path like
-// C:\...\x.js is otherwise read as an (unsupported) URL scheme.
 const load = (name) => import(pathToFileURL(path.join(outDir, name)).href);
 
 test("setup imports", async () => {
@@ -149,7 +131,7 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
       mistakes: Array.from({ length: 5 }, () => ({ date: daysAgo(1) })),
     };
     const p = projection.projectMistakeReductionImpact(inputs, 5);
-    assert.equal(p.delta, 30); // 5 recent × 6 pts each
+    assert.equal(p.delta, 30);
     assert.equal(p.pillar, "mistakes");
   });
 
@@ -164,7 +146,6 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
 
   test("projectExamPracticeImpact: first paper assumes 70% and moves accuracy pillar", () => {
     const p = projection.projectExamPracticeImpact(EMPTY_INPUTS(), { subject: "Physics", questionCount: 10 });
-    // 7/10 correct: round(0.7*350 + 5) = 250; plus first-mistake-grace loss of 0
     assert.equal(p.pillar, "accuracy");
     assert.ok(p.delta > 0, `expected positive delta, got ${p.delta}`);
     assert.equal(p.projected, p.current + p.delta);
@@ -176,7 +157,6 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
       papersLog: [{ score: 9, total: 10, subject: "Physics", date: daysAgo(2) }],
     };
     const p = projection.projectExamPracticeImpact(inputs, { subject: "Physics", questionCount: 10 });
-    // simulated entry adds round(10 * 0.9) = 9 correct — verify against the engine directly
     const manual = engine.computeScoreFromInputs({
       ...inputs,
       papersLog: [{ score: 9, total: 10, subject: "Physics", date: daysAgo(0) }, ...inputs.papersLog],
@@ -216,9 +196,8 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     };
     const t = engine.computeTemporaryScore(diag);
     assert.equal(t.kind, "temporary");
-    assert.equal(t.consistencyScore, 0); // no history → never self-reported
+    assert.equal(t.consistencyScore, 0); 
     assert.ok(t.total > 0 && t.total < 1000);
-    // Gap list leads with the known weaknesses (shaky + declared weak areas)
     assert.ok(t.gapTopics.includes("Optics"));
     assert.ok(t.gapTopics.includes("Numericals"));
     assert.ok(t.gapTopics.indexOf("Optics") < t.gapTopics.indexOf("Electrostatics"));
