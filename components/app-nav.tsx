@@ -12,8 +12,8 @@ import CommandPalette from "./command-palette";
 // ═══════════════════════════════════════════════════════════════════════════
 // TOP NAV
 //
-// The nav bar is for navigation, not for browsing the catalogue. The 55-tool
-// slide-in drawer that used to live here now has its own route, /tools, which
+// The nav bar is for navigation, not for browsing the catalogue. The tool
+// drawer that used to live here now has its own route, /tools, which
 // can be linked to, bookmarked, searched and filtered. The nav carries one
 // link to it. ⌘K still opens the palette for anyone who knows what they want.
 // ═══════════════════════════════════════════════════════════════════════════

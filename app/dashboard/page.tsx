@@ -71,6 +71,7 @@ const TOOL_CATEGORIES: DashCat[] = [
       { slug: "memory-toolkit",     ttl: "Memory Toolkit",         sub: "Analogy + memory palace.",               tier: "Free", desc: "Build powerful analogies to explain any concept, or construct a memory palace for recalling sequences, lists, and processes." },
       { slug: "flashcards",         ttl: "Flashcard Studio",       sub: "Active recall, anytime.",                tier: "Free", desc: "AI-generated flashcards for any topic or set of notes, with a flip-card interface and spaced repetition tracking." },
       { slug: "exam-sim",           ttl: "Exam Simulator",         sub: "Full timed mock exam.",                  tier: "Pro",  desc: "Sit a complete timed exam with real-style questions, flag-for-review, auto-marking, and a full performance breakdown at the end." },
+      { slug: "exam-day",           ttl: "Exam-Day Mode",          sub: "Morning of the paper. Just the gaps.",   tier: "Free", desc: "The morning of the paper: no new material, no full syllabus. A final sweep of only the topics you have missed or got wrong, then lock." },
       { slug: "forgetting-forecast",ttl: "Forgetting Forecast",    sub: "See when you'll forget.",                tier: "Free", desc: "Ebbinghaus-based decay model shows exactly when each topic will slip below recall threshold — so you revise at the right moment." },
       { slug: "calibration",        ttl: "Confidence Calibrator",  sub: "Know what you actually know.",           tier: "Free", desc: "Rate your confidence on each topic, then test it. The gap between confidence and accuracy reveals your exact blind spots." },
       { slug: "paper-pattern",      ttl: "Paper Pattern Analyser", sub: "Decode what examiners want.",            tier: "Free", desc: "Analyse past paper patterns to surface which topics, question types, and mark allocations appear most frequently." },
@@ -1024,13 +1025,16 @@ export default function Dashboard() {
 
         {/* Quick-launch pills */}
         <div style={{ display: "flex", gap: 8, marginTop: 20, flexWrap: "wrap" }}>
+          {/* Doubt Solver and Notes were consolidated into Learn Lab; they are
+              tabs now, not routes. Linking to /tools/doubt and /tools/notes
+              404'd. */}
           {[
-            { label: "Doubt Solver", slug: "doubt" },
-            { label: "Practice", slug: "practice" },
-            { label: "Notes", slug: "notes" },
-            { label: "Grade Tracker", slug: "grade-tracker" },
+            { label: "Doubt Solver", slug: "learn-lab", href: "/tools/learn-lab?tab=doubt" },
+            { label: "Practice", slug: "practice", href: "/tools/practice" },
+            { label: "Notes", slug: "learn-lab", href: "/tools/learn-lab?tab=notes" },
+            { label: "Grade Tracker", slug: "grade-tracker", href: "/tools/grade-tracker" },
           ].map(item => (
-            <Link key={item.slug} href={`/tools/${item.slug}`} onClick={() => trackToolVisit(item.slug)}
+            <Link key={item.label} href={item.href} onClick={() => trackToolVisit(item.slug)}
               className="btn ghost" style={{ padding: "7px 16px", fontSize: 11, textDecoration: "none" }}
               onMouseEnter={ev => gsap.to(ev.currentTarget, { y: -3, scale: 1.05, duration: 0.22, ease: "power2.out", overwrite: "auto" })}
               onMouseLeave={ev => gsap.to(ev.currentTarget, { y: 0, scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" })}

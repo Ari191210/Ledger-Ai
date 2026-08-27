@@ -17,6 +17,23 @@ export const CAT_COLOR: Record<ToolCategory, string> = {
   TRACK:    "var(--teal)",
 }
 
+export const CAT_ORDER: ToolCategory[] = ["PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"]
+
+// Matches a tool against a free-text query. Every whitespace-separated term
+// must appear somewhere in the title, subtitle, slug or keywords, so adding
+// words narrows the result set rather than widening it ("exam paper" finds
+// tools about exam papers, not everything about either word).
+export function toolMatches(t: ToolEntry, query: string): boolean {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean)
+  if (terms.length === 0) return true
+  const hay = [t.title, t.subtitle, t.slug, ...(t.keywords ?? [])].join(" ").toLowerCase()
+  return terms.every(term => hay.includes(term))
+}
+
+export function searchTools(query: string): ToolEntry[] {
+  return TOOLS_REGISTRY.filter(t => toolMatches(t, query))
+}
+
 export const TOOLS_REGISTRY: ToolEntry[] = [
   // ── PLAN (2) ──────────────────────────────────────────────────────────────
   { slug: "study-command", title: "Study Command",  subtitle: "Planner, habits, coach, deadlines.",  cat: "PLAN",     keywords: ["planner","schedule","timetable","plan","day","habit","heatmap","streak","daily","routine","deadline","exam","assignment","countdown","due","coach","mentor","guide","strategy","personal"] },

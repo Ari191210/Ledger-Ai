@@ -1083,6 +1083,16 @@ const TABS: [Tab, string][] = [
 
 export default function LearnLabPage() {
   const [tab, setTab] = useState<Tab>("doubt");
+
+  // Deep-linkable tabs — the dashboard quick-launch pills link to ?tab=doubt
+  // and ?tab=notes, which is where the old standalone /tools/doubt and
+  // /tools/notes routes were consolidated to. Read from location on mount
+  // (client page; avoids the useSearchParams Suspense requirement).
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (TABS.some(([v]) => v === t)) setTab(t as Tab);
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--paper)", color: "var(--ink)" }}>
       <header className="mob-hp" style={{ padding: "24px 44px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>

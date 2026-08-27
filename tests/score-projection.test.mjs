@@ -458,6 +458,27 @@ describe("projection layer — delta simulation, no parallel formulas", () => {
     assert.equal(t5.send.length, 0);
   });
 
+  test("notifications: the exam dedup key depends on the day, not the timestamp", () => {
+    // Exam dates reach the engine both as "2026-06-15" and as full ISO
+    // timestamps. Keying on the raw string meant the same exam produced a
+    // different key every time, so the dedup check never matched and the
+    // student was re-notified on every cron tick. This also made the
+    // milestone test above flaky, because inDays() embeds the current ms.
+    const day = at(18, 7);
+    const plain = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+
+    const morning = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Chem", date: plain }], now: at(18) });
+    assert.equal(morning.send.length, 1, "T-7 should fire once");
+
+    // Same exam, same day, expressed as a timestamp a few ms later.
+    const asStamp = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 6, 30).toISOString();
+    const later = notif.decideNotifications({
+      ...notifBase(), exams: [{ name: "Chem", date: asStamp }],
+      state: morning.nextState, now: at(19),
+    });
+    assert.equal(later.send.length, 0, "the same exam on the same day must not notify twice");
+  });
+
   test("notifications: exam-day and T-1 use the morning window and bypass the daily cap", () => {
     const state = { lastHighPriorityDay: `${at(9).getFullYear()}-${String(at(9).getMonth() + 1).padStart(2, "0")}-${String(at(9).getDate()).padStart(2, "0")}` };
     const r = notif.decideNotifications({ ...notifBase(), exams: [{ name: "Maths", date: inDays(0) }], state, now: at(9) });

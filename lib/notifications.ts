@@ -75,6 +75,20 @@ function daysUntil(dateStr: string, now: Date): number {
   return Math.round((startOf(target) - startOf(now)) / 86400000);
 }
 
+/**
+ * The calendar day an exam falls on, for dedup keys.
+ *
+ * Exam dates arrive both as plain "2026-06-15" and as full ISO timestamps
+ * (anything that has been through toISOString()). Interpolating the raw
+ * string into the dedup key meant two records for the same exam produced two
+ * different keys, so "already sent" never matched and the student was
+ * notified again on every cron tick.
+ */
+function examDay(dateStr: string): string {
+  const d = new Date(dateStr);
+  return Number.isNaN(d.getTime()) ? dateStr : localDay(d);
+}
+
 // ── Smart delivery windows ───────────────────────────────────────────────────
 
 /** Quiet hours: nothing between 22:00 and 08:00 local, ever. */
@@ -108,7 +122,7 @@ export function decideNotifications(input: EngineInput): EngineResult {
   for (const exam of exams) {
     const d = daysUntil(exam.date, now);
     if (!EXAM_MILESTONES.includes(d as (typeof EXAM_MILESTONES)[number])) continue;
-    const key = `exam:${exam.name}@${exam.date}:T-${d}`;
+    const key = `exam:${exam.name}@${examDay(exam.date)}:T-${d}`;
     if (sent[key]) continue;
     const urgent = d <= 1;
     // Morning-of and T-1 land in the morning window; others in the normal one.

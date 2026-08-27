@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { TOOLS_REGISTRY, CAT_COLOR, type ToolCategory, type ToolEntry } from "@/lib/tools-registry";
+import { TOOLS_REGISTRY, CAT_COLOR, CAT_ORDER, toolMatches, type ToolCategory } from "@/lib/tools-registry";
 import { useUI } from "@/components/ui-context";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -10,12 +10,10 @@ import { useUI } from "@/components/ui-context";
 //
 // Every instrument in one place, on one route. The top nav carries a single
 // "Tools" link here instead of hosting the whole catalogue in a drawer: the
-// nav bar is for navigation, not for browsing 55 items.
+// nav bar is for navigation, not for browsing the whole catalogue.
 //
 // Flat, ruled, ink-on-paper. No cards, no gradients, no glass.
 // ═══════════════════════════════════════════════════════════════════════════
-
-const CAT_ORDER: ToolCategory[] = ["PLAN", "LEARN", "WRITE", "PRACTISE", "FUTURE", "TRACK"];
 
 const CAT_NOTE: Record<ToolCategory, string> = {
   PLAN:     "Decide what today is for.",
@@ -25,12 +23,6 @@ const CAT_NOTE: Record<ToolCategory, string> = {
   FUTURE:   "Where the record is eventually spent.",
   TRACK:    "Keep the record honest.",
 };
-
-function matches(t: ToolEntry, q: string) {
-  if (!q) return true;
-  const hay = [t.title, t.subtitle, t.slug, ...(t.keywords ?? [])].join(" ").toLowerCase();
-  return q.toLowerCase().split(/\s+/).filter(Boolean).every(term => hay.includes(term));
-}
 
 export default function ToolsIndexPage() {
   const { setSplitSlug } = useUI();
@@ -42,7 +34,7 @@ export default function ToolsIndexPage() {
       .filter(c => cat === "ALL" || c === cat)
       .map(c => ({
         cat: c,
-        tools: TOOLS_REGISTRY.filter(t => t.cat === c && matches(t, query)),
+        tools: TOOLS_REGISTRY.filter(t => t.cat === c && toolMatches(t, query)),
       }))
       .filter(g => g.tools.length > 0);
   }, [query, cat]);

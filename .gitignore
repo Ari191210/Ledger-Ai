@@ -46,6 +46,7 @@ stitch-assets/
 # agent logs and scratch files
 .github/agent/*.log
 test.txt
+__*
 Studyledger/
 
 # OpenMontage — video production tool (not part of the Next.js app)
@@ -58,3 +59,4 @@ ruvector.db
 .vercel
 .env.local
 .test-build
+.test-build-registry
