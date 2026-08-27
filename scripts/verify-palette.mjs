@@ -156,6 +156,35 @@ async function main() {
   check("overflow trigger present", nav.hasMore === true);
   check("overflow menu starts closed", nav.menuOpen === false);
 
+  // The "More" control is a <button> sitting among <a>s. globals.css styles
+  // bare buttons with the legacy dark theme, which rendered it near-white on
+  // near-white paper in a different face and size — invisible, and only
+  // caught by looking at a screenshot. It must be indistinguishable from the
+  // links beside it, so it is compared against one rather than to a
+  // hardcoded value that could drift from the nav's own styling.
+  const parity = await evaluate(`
+    (() => {
+      const links = [...document.querySelectorAll('.os-nav > a.os-nav-item')];
+      const link = links[links.length - 1];
+      const btn = document.querySelector('.os-more-btn');
+      if (!link || !btn) return { ok: false };
+      const a = getComputedStyle(link), b = getComputedStyle(btn);
+      const same = k => a[k] === b[k];
+      return {
+        ok: true,
+        color: same('color'), size: same('fontSize'),
+        weight: same('fontWeight'), family: same('fontFamily'),
+        got: { color: b.color, size: b.fontSize, weight: b.fontWeight,
+               family: b.fontFamily.split(',')[0].replace(/["']/g, '') },
+        want: { color: a.color, size: a.fontSize, weight: a.fontWeight,
+                family: a.fontFamily.split(',')[0].replace(/["']/g, '') },
+      };
+    })()
+  `);
+  check("'More' matches its sibling links exactly",
+    parity.ok && parity.color && parity.size && parity.weight && parity.family,
+    parity.ok ? `got ${JSON.stringify(parity.got)} want ${JSON.stringify(parity.want)}` : "elements missing");
+
   // ── 2. The overflow menu holds the remaining seven ─────────────────────
   await evaluate(`document.querySelector('.os-more-btn').click()`);
   await sleep(350);
@@ -222,6 +251,12 @@ async function main() {
   // Polled rather than slept: in dev the destination route may be compiled on
   // first request, which is slow once and fast forever after. A fixed wait
   // would report a routing bug that does not exist.
+  //
+  // The destination is /tools/* which sits behind AuthGuard, so a signed-out
+  // browser legitimately lands on /auth. Both outcomes prove the palette
+  // routed correctly; asserting the tool path alone would make this test pass
+  // or fail on whether the throwaway Chrome profile happened to hold a
+  // session, which has nothing to do with the palette.
   await key("Enter");
   let url = "/journey";
   for (let i = 0; i < 30; i++) {
@@ -231,7 +266,8 @@ async function main() {
   }
   const after = await evaluate(`({ palette: !!document.querySelector('.os-cmd') })`);
   check("Enter navigates away from /journey", url !== "/journey", `→ ${url}`);
-  check("lands on the selected tool", url === "/tools/focus-lab", url);
+  check("routes to the selected tool (or its auth gate)",
+    url === "/tools/focus-lab" || url.startsWith("/auth"), url);
   check("palette closes after navigating", after.palette === false);
 
   // ── 6. Arrow keys move the selection ───────────────────────────────────

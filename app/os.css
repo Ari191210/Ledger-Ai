@@ -173,6 +173,40 @@
   text-transform: none;
 }
 
+/* The fifth leak, found by measuring the nav's "More" control against its
+   sibling links: globals.css line 462 styles
+
+     button:not(.btn):not([class*="ui-btn"])
+
+   with the legacy dark theme's `--ink`, which is near-white, plus its own
+   font and a translucent fill. Two :not() clauses outscore the plain
+   `[data-os] button` above, so "More" rendered as #F2F1ED text on #EDEAE2
+   paper — invisible, in DM Sans at 15px while every link beside it was Space
+   Grotesk at 13.5px.
+
+   Matching the :not() chain wins honestly, without !important. It resets only
+   the fill and the face. It deliberately does NOT set `color`: this selector
+   scores (0,3,1) and outranks every component class, so `color: inherit` here
+   would defeat .os-nav-item and .os-more-btn alike — measured, not assumed,
+   via CSS.getMatchedStylesForNode. The colour leak is closed by the rule
+   below, which is scoped tightly enough to fix bare buttons without
+   overriding a component that states its own.
+
+   Bare buttons inside the OS are undressed by default; .os-btn dresses the
+   ones that should look like keys. */
+[data-os] button:not(.btn):not([class*="ui-btn"]) {
+  background: none;
+  font-family: var(--os-sans);
+  border-radius: 0;
+}
+
+/* Closes the colour half of the same leak. Scoped to buttons that carry no
+   class of their own, so a component styling itself keeps its colour while a
+   bare <button> stops inheriting the legacy dark theme's near-white ink. */
+[data-os] button:not([class]) {
+  color: var(--os-ink);
+}
+
 [data-os] input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]),
 [data-os] textarea,
 [data-os] select {

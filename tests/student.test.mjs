@@ -228,6 +228,39 @@ describe("journey status", () => {
       assert.equal(area.available, false);
     }
   });
+
+  // The basis string is read on the first screen of the product, so it has to
+  // be correct English, not merely present. A naive `noun + "s"` printed
+  // "2 activitys" on the home page for weeks: the suite asserted the string
+  // was non-empty and never that it was well-formed, so nothing failed.
+  test("plural nouns in a basis are well-formed at every count", () => {
+    // "-ys" is never a valid English plural; "-ies" is the correct form.
+    const badPlural = /\b\w+ys\b/;
+
+    for (const n of [0, 1, 2, 5]) {
+      let s = fresh();
+      for (let i = 0; i < n; i++) {
+        s = actions.addActivity(s, { name: `Activity ${i}`, category: "clubs" });
+      }
+      const area = derive.journeyAreas(s).find(a => a.area === "extracurriculars");
+      assert.ok(
+        !badPlural.test(area.basis),
+        `count ${n} produced a malformed plural: "${area.basis}"`,
+      );
+    }
+  });
+
+  test("a count of one is singular, and more than one is plural", () => {
+    const one = derive
+      .journeyAreas(actions.addActivity(fresh(), { name: "Debate", category: "clubs" }))
+      .find(a => a.area === "extracurriculars");
+    assert.match(one.basis, /^1 activity recorded$/);
+
+    let s = actions.addActivity(fresh(), { name: "Debate", category: "clubs" });
+    s = actions.addActivity(s, { name: "Robotics", category: "technology" });
+    const two = derive.journeyAreas(s).find(a => a.area === "extracurriculars");
+    assert.match(two.basis, /^2 activities recorded$/);
+  });
 });
 
 describe("application progress", () => {

@@ -524,15 +524,24 @@
 
 [data-os] .os-more { position: relative; }
 
-[data-os] .os-more-btn {
+/* Carries .os-nav-item too, so layout and colour already come from there.
+   The one thing that does not is the type: `[data-os] button` in os.css
+   scores (0,2,0) with an attribute plus an element, which ties or beats a
+   lone class, so the face and colour are restated through a selector that
+   includes the element to settle it. Size and weight are inherited from
+   .os-nav-item so the two never drift apart. */
+[data-os] button.os-more-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   border: none;
   background: none;
   cursor: pointer;
-  font: inherit;
+  font-family: var(--os-sans);
+  color: var(--os-ink-3);
 }
+[data-os] button.os-more-btn:hover,
+[data-os] button.os-more-btn[data-active="true"] { color: var(--os-ink); }
 [data-os] .os-more-chev {
   font-size: 9px;
   color: var(--os-ink-4);

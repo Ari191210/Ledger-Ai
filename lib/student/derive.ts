@@ -111,7 +111,12 @@ function testingProgress(s: Student): AreaProgress {
 }
 
 function countingProgress(
-  area: JourneyArea, count: number, target: number, noun: string,
+  area: JourneyArea, count: number, target: number,
+  noun: string,
+  /* English plurals are not "+s". Left implicit, "activity" became
+     "2 activitys" on the home page, which reads as a broken product on the
+     first screen a student sees. Irregular nouns pass their plural in. */
+  plural: string = `${noun}s`,
 ): AreaProgress {
   return {
     area, label: JOURNEY_AREA_LABEL[area],
@@ -119,7 +124,7 @@ function countingProgress(
     percent: Math.min(100, ratio(count, target)),
     basis: count === 0
       ? `No ${noun} recorded`
-      : `${count} ${noun}${count === 1 ? "" : "s"} recorded`,
+      : `${count} ${count === 1 ? noun : plural} recorded`,
   };
 }
 
@@ -185,10 +190,10 @@ export function journeyAreas(s: Student): AreaProgress[] {
   return [
     academicsProgress(s),
     testingProgress(s),
-    countingProgress("extracurriculars", s.activities.length, 5, "activity"),
+    countingProgress("extracurriculars", s.activities.length, 5, "activity", "activities"),
     countingProgress("projects", s.projects.filter(p => p.status === "shipped").length, 2, "shipped project"),
     countingProgress("competitions", s.competitions.length, 3, "competition"),
-    countingProgress("research", s.research.length, 1, "research item"),
+    countingProgress("research", s.research.length, 1, "research item", "research items"),
     collegesProgress(s),
     essaysProgress(s),
     applicationsProgress(s),
