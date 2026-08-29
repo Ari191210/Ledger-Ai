@@ -32,7 +32,7 @@ import {
 
 // ── IDENTITY ───────────────────────────────────────────────────────────────
 
-export type Material = "paper" | "deep" | "warm" | "contrast";
+export type Material = "swan" | "swan-night" | "paper" | "deep" | "warm" | "contrast";
 export type Voice = "plex" | "neutral" | "compact";
 export type Pressure = "relaxed" | "standard" | "tight";
 export type Temperament = "reserved" | "standard" | "expressive";
@@ -44,7 +44,7 @@ export type WorkspaceDNA = {
   temperament: Temperament;
 };
 
-export const MATERIALS: readonly Material[] = ["paper", "deep", "warm", "contrast"];
+export const MATERIALS: readonly Material[] = ["swan", "swan-night", "paper", "deep", "warm", "contrast"];
 export const VOICES: readonly Voice[] = ["plex", "neutral", "compact"];
 export const PRESSURES: readonly Pressure[] = ["relaxed", "standard", "tight"];
 export const TEMPERAMENTS: readonly Temperament[] = ["reserved", "standard", "expressive"];
@@ -72,7 +72,36 @@ type MaterialSpec = {
 };
 
 const MATERIAL_SPEC: Record<Material, MaterialSpec> = {
-  // The shipped values, unchanged. STUDIO must be byte-identical (§9).
+  // SWAN — the shipped material since 2026-08-30. A warm off-white housing with
+  // a near-black warm ink. The bird, not the colour of paper: white body, dark
+  // bill, and nothing else competing.
+  //
+  // Chosen over `paper` because paper's ramp is a COOL grey (#f6f7f8 sits on a
+  // blue hue) and read on a real screen as unfinished rather than restrained —
+  // founder verdict on the shipped landing page, live: "it looks html... there
+  // are no vibrant colours." The fix is not more colour; §6.2 and the
+  // strip-all-colour test still hold. The fix is a ground with a temperature,
+  // so that neutral reads as CHOSEN.
+  //
+  // Warm without being cream: hue sits near 40deg at very low saturation, so it
+  // never reaches parchment, which is the rejected editorial direction and the
+  // 2026 AI default both.
+  swan: {
+    ramp: ["#fbfaf8", "#f1efeb", "#fdfdfb", "#ffffff", "#e2ded7", "#b0aaa2", "#6a645d", "#17150f"],
+    radius: { control: 4, panel: 8 },
+    scheme: "light",
+  },
+  // SWAN AT NIGHT — the dark counterpart, selected by the toggle rather than by
+  // a separate stylesheet. Deep warm charcoal, not navy and not true black:
+  // the same hue family as `swan` with the ramp inverted, so a student who
+  // switches at midnight is in the same product, unlit.
+  "swan-night": {
+    ramp: ["#14130f", "#0e0d0b", "#1b1a16", "#23211c", "#3a3730", "#625d55", "#a8a29a", "#f5f3ef"],
+    radius: { control: 4, panel: 8 },
+    scheme: "dark",
+  },
+  // The previous default. Retained, not deleted: it is a legitimate material
+  // and some students will prefer the cool cast.
   paper: {
     ramp: ["#f6f7f8", "#eceef0", "#fbfbfc", "#ffffff", "#c8cdd4", "#a6acb4", "#5a6875", "#0f1d2b"],
     radius: { control: 4, panel: 8 },
@@ -199,7 +228,13 @@ const HUE_BASE = {
   // additive to the semantic hues above. Emphasis only — never state. A
   // consumer that reads --accent as progress/warning/error is a violation,
   // not a variation; nothing here enforces that, so it must hold by review.
-  accent: "#d9622b",
+  //
+  // Retuned 2026-08-30 with SWAN. Was #d9622b, a bright construction orange
+  // that sat outside the ground's hue family and read as a highlighter on a
+  // warm page. This is the same gesture at a lower pitch: deeper, redder,
+  // closer to a wax seal or a red pencil than to a safety cone. It still
+  // clears AA against the swan ground through ensureContrast() below.
+  accent: "#a8442a",
 } as const;
 
 // ── DERIVATION ─────────────────────────────────────────────────────────────
@@ -302,7 +337,8 @@ export function derive(dna: WorkspaceDNA): DerivedWorkspace {
 export const PRESET_CAP = 7;
 
 export const PRESETS = {
-  STUDIO: { material: "paper", voice: "plex", pressure: "standard", temperament: "standard" },
+  STUDIO: { material: "swan", voice: "plex", pressure: "standard", temperament: "standard" },
+  NIGHT: { material: "swan-night", voice: "plex", pressure: "standard", temperament: "standard" },
   TERMINAL: { material: "deep", voice: "plex", pressure: "tight", temperament: "reserved" },
   DESK: { material: "warm", voice: "neutral", pressure: "relaxed", temperament: "standard" },
   FIELD: { material: "contrast", voice: "neutral", pressure: "relaxed", temperament: "reserved" },
@@ -311,8 +347,21 @@ export const PRESETS = {
 
 export type PresetName = keyof typeof PRESETS;
 
-/** STUDIO is the shipped product. Day one is byte-identical for all 16 users. */
+/**
+ * STUDIO is the shipped product, and since 2026-08-30 it is SWAN.
+ *
+ * Light is the default and stays the default: a student opens this in a lit
+ * room far more often than in a dark one, and the dark material is a choice
+ * they make rather than one the operating system makes for them. NIGHT is the
+ * same DNA on the `swan-night` ramp, which is what the dark-mode toggle
+ * selects — not a second stylesheet, not a `.dark` class, just the other
+ * material through the same derivation.
+ */
 export const DEFAULT_DNA: WorkspaceDNA = PRESETS.STUDIO;
+
+/** The two halves of the light/dark toggle. Everything else is a preset. */
+export const LIGHT_MATERIAL: Material = "swan";
+export const DARK_MATERIAL: Material = "swan-night";
 
 // ── STORAGE ────────────────────────────────────────────────────────────────
 // Four fields of CHOICES, never computed values, so every future improvement

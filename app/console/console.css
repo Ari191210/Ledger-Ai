@@ -21,26 +21,34 @@
 
 [data-console] {
   /* ── NEUTRALS ────────────────────────────────────────────────────────────
-     Cool engineered greys with a deep navy ink. Navy rather than true black:
-     it reads considered instead of default, and is softer to read at length
-     without losing authority.
+     SWAN, since 2026-08-30. A warm off-white housing with a near-black warm
+     ink — the bird, not the colour of paper: white body, dark bill, nothing
+     else competing.
+
+     Replaces the previous cool grey ramp (`#f6f7f8`, a blue-cast neutral),
+     which read on a real screen as unfinished rather than restrained. That
+     material still exists as `paper` in the engine and is still selectable;
+     it is simply no longer what ships. §6.2 is unamended by this: the ground
+     has a temperature, not a colour, and the strip-all-colour test still has
+     to pass.
 
      Light housing. Depth is tone: raised surfaces are LIGHTER, recessed are
      DARKER. There are no shadows in Console — a hairline does every job a
      shadow was doing.
 
      Contrast, measured (not estimated), against --g-0:
-       ink 15.91 · secondary 5.33 · hairline 1.49 · disabled 2.13
+       ink 17.50 · secondary 5.60 · hairline 1.29 · disabled 2.21
+       accent 5.71 · progress 6.03 · error 6.29 — all clear AA text.
      Disabled sits below 3.0 deliberately: WCAG exempts disabled controls, and
      a disabled control that competes for attention is a bug.                 */
-  --g-0: #f6f7f8;   /* page                                                   */
-  --g-1: #eceef0;   /* recessed — wells, input beds, track bed                */
-  --g-2: #fbfbfc;   /* surface — panels                                       */
+  --g-0: #fbfaf8;   /* page — warm off-white                                  */
+  --g-1: #f1efeb;   /* recessed — wells, input beds, track bed                */
+  --g-2: #fdfdfb;   /* surface — panels                                       */
   --g-3: #ffffff;   /* raised — controls at rest                              */
-  --g-4: #c8cdd4;   /* hairlines, dividers, borders                           */
-  --g-5: #a6acb4;   /* disabled, ghost                                        */
-  --g-6: #5a6875;   /* secondary text, labels, units                          */
-  --g-7: #0f1d2b;   /* ink — primary text and numerals                        */
+  --g-4: #e2ded7;   /* hairlines, dividers, borders                           */
+  --g-5: #b0aaa2;   /* disabled, ghost                                        */
+  --g-6: #6a645d;   /* secondary text, labels, units                          */
+  --g-7: #17150f;   /* ink — primary text and numerals                        */
 
   /* ── SEMANTIC COLOUR ─────────────────────────────────────────────────────
      There is NO brand accent. The product does not have "a colour". Colour
@@ -84,8 +92,10 @@
 
   /* PRODUCT_PRINCIPLES §6.2, amended 2026-08-21: one bounded brand accent.
      Emphasis only, on at most one or two elements per screen — never a
-     state colour. ensureContrast()-derived from #d9622b against --g-0.     */
-  --accent: #ba5221;
+     state colour. Retuned with SWAN (2026-08-30) from #d9622b, which was a
+     bright construction orange outside the ground's hue family; this is the
+     same gesture at a lower pitch — a wax seal, not a safety cone.          */
+  --accent: #a8442a;
 
   /* Direction of movement is always ALSO carried by a glyph (▲/▼), so colour
      is never the sole carrier of meaning.                                    */

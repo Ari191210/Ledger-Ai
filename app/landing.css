@@ -35,19 +35,18 @@
   /* The spine gutter. Fixed, never animated; everything measures from it.    */
   --spine: 20px;
 
-  /* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12. Console's grey scale
-     (`--g-0`…`--g-4`) is overridden LOCALLY, the same technique `warm.css`
-     used for `[data-warm]` on `/home` — every panel, well and hairline on
-     this page reads it through `var(--g-N)`, so warming it once here warms
-     the whole page consistently instead of hand-tinting a dozen rules.
-     `--g-5`/`--g-6`/`--g-7` (secondary and primary TEXT) are left alone —
-     those are the contrast-checked ink tones and cream-bg-plus-neutral-ink
-     is exactly the founder's original design brief, not a compromise.       */
-  --g-0: #faf8f5;   /* page — warm cream, not cool grey                      */
-  --g-1: #f2ede4;   /* recessed wells                                        */
-  --g-2: #fdfbf7;   /* panel surfaces                                        */
-  --g-3: #fffdf9;   /* raised — the paper card                               */
-  --g-4: #e8e4dd;   /* hairlines, borders                                    */
+  /* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12; SUPERSEDED 2026-08-30.
+
+     This block used to override Console's cool grey ramp locally, because
+     Console shipped a blue-cast neutral and this page needed warmth. As of
+     SWAN the ground IS warm — `--g-0: #fbfaf8` — so a local override would
+     now be a second, slightly different warm, which is exactly the "two
+     dialects" problem the header of this file warns about.
+
+     The override is therefore REMOVED rather than retuned. The page inherits
+     the shipped material, and a student who switches to the dark material
+     gets a dark landing page for free instead of a page that stays stubbornly
+     cream because this file insisted.                                        */
 
   position: relative;
   background: var(--g-0);

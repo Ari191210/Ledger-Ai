@@ -130,9 +130,13 @@ describe("colour — the contrast engine", () => {
 // ── the engine's shape ─────────────────────────────────────────────────────
 
 describe("workspace — structure and caps", () => {
-  test("108 combinations, exactly as the document claims", () => {
-    assert.equal(ws.COMBINATION_COUNT, 108);
-    assert.equal(everyDNA().length, 108);
+  // 162 since 2026-08-30: SWAN and SWAN-NIGHT joined the four original
+  // materials (6 x 3 x 3 x 3). The figure is asserted rather than computed
+  // from the arrays on purpose — if it moves, someone widened the identity
+  // surface, and that should require editing this line and saying why.
+  test("162 combinations, exactly as the document claims", () => {
+    assert.equal(ws.COMBINATION_COUNT, 162);
+    assert.equal(everyDNA().length, 162);
   });
 
   test("trait count never exceeds five (governance)", () => {
@@ -379,12 +383,16 @@ describe("golden values — derive()'s actual output, unchanged (diff, not exist
   // Captured from the shipped engine before this milestone touched anything
   // outside STORAGE. A byte-for-bit regression in ensureContrast(), the
   // ramp, or the pressure spec fails THIS test, not just "does it still run".
-  test("STUDIO — the exact hex the 16 day-one users already see", () => {
+  test("STUDIO — the exact hex a student sees on the shipped material", () => {
+    // SWAN since 2026-08-30. These are the values in console.css's fallback
+    // block too; the "declared identically" test above compares the two, so
+    // this one is about the DERIVATION being stable, not about agreement.
     const t = ws.derive(ws.PRESETS.STUDIO).tokens;
-    assert.equal(t["--g-0"], "#f6f7f8");
+    assert.equal(t["--g-0"], "#fbfaf8");
     assert.equal(t["--g-3"], "#ffffff");
-    assert.equal(t["--g-6"], "#5a6875");
-    assert.equal(t["--g-7"], "#0f1d2b");
+    assert.equal(t["--g-6"], "#6a645d");
+    assert.equal(t["--g-7"], "#17150f");
+    assert.equal(t["--accent"], "#a8442a");
     assert.equal(t["--progress-full"], "#2f6b4f");
     assert.equal(t["--info"], "#35506b");
     assert.equal(t["--warn"], "#8a6a1f");
@@ -392,6 +400,34 @@ describe("golden values — derive()'s actual output, unchanged (diff, not exist
     assert.equal(t["--control-pad-y"], "12px");
     assert.equal(t["--r-control"], "4px");
     assert.equal(t["--r-panel"], "8px");
+  });
+
+  test("PAPER — the pre-SWAN ramp still derives exactly as it always did", () => {
+    // The material that used to ship. Retained and still selectable, so the
+    // old golden values are still a real claim about a real configuration
+    // rather than history: nothing about SWAN was allowed to disturb it.
+    const t = ws.derive({ ...ws.PRESETS.STUDIO, material: "paper" }).tokens;
+    assert.equal(t["--g-0"], "#f6f7f8");
+    assert.equal(t["--g-6"], "#5a6875");
+    assert.equal(t["--g-7"], "#0f1d2b");
+  });
+
+  test("NIGHT — the dark half of the toggle, and it is genuinely the same product", () => {
+    const t = ws.derive(ws.PRESETS.NIGHT).tokens;
+    const light = ws.derive(ws.PRESETS.STUDIO).tokens;
+    assert.equal(ws.derive(ws.PRESETS.NIGHT).scheme, "dark");
+    assert.equal(t["--g-0"], "#14130f");
+    assert.equal(t["--g-7"], "#f5f3ef");
+    // Depth still reads the same direction: raised is lighter than the page
+    // in BOTH materials, which is the one rule a dark mode usually breaks.
+    assert.ok(t["--g-3"] > t["--g-0"], "raised must stay lighter than page");
+    assert.ok(light["--g-3"] > light["--g-0"], "raised must stay lighter than page");
+    // Radius, spacing and motion are material-independent: switching the
+    // lights off must not resize or re-time the interface.
+    assert.equal(t["--r-control"], light["--r-control"]);
+    assert.equal(t["--r-panel"], light["--r-panel"]);
+    assert.equal(t["--control-pad-y"], light["--control-pad-y"]);
+    assert.equal(t["--m-base"], light["--m-base"]);
   });
 
   test("TERMINAL — ensureContrast() correcting a dark-scheme ramp, exact values", () => {
