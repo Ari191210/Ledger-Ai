@@ -167,3 +167,11 @@ CREATE INDEX IF NOT EXISTS session_concepts_declared_text_embedding_idx
 --   without a model; the planner uses it first and the FTS index here as the
 --   second-line, broader-recall fallback.
 -- ═══════════════════════════════════════════════════════════════════════════
+
+-- >>> MIGRATION LEDGER REGISTRATION <<<
+SELECT supabase_migrations.record_migration(
+  '035',
+  '035_academic_memory_search.sql',
+  '80f334487e9484b75ffcc5c910a2b8425e6d75926b5e3987ba71ba8c78c5aacc',
+  'self'
+);

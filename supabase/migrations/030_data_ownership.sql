@@ -525,6 +525,6 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '030',
   '030_data_ownership.sql',
-  'f3a8c1e7b2d94f6a0c5e8b3d7a1f4e9c6b2d8a5f1e7c3b9d6a2f8e4c1b7d3a9f',
+  'b3f509c71a69e517dc0486b64608ae033eb9170e316e6e770ff7419670b1b1d9',
   'self'
 );

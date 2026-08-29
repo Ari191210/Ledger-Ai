@@ -719,6 +719,6 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '029',
   '029_parent_space.sql',
-  'b3f2a1e6c9d84a0f5e2b7c1d6a9f3e0b8c4d7a2f1e6b9c3d0a7f4e1b8c5d2a9f',
+  'd4916afef6966f472a9d24145515e449bd94395d9f92b80cc3b5ea2b8eb44768',
   'self'
 );
