@@ -88,3 +88,5 @@ ruvector.db
 .test-build-today
 .test-build-home
 .test-build-academic-memory
+
+.vercel

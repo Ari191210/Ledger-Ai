@@ -167,8 +167,8 @@ export default function RecordPage() {
             <Control tier="tertiary" href="/diagnosis">
               Diagnosis
             </Control>
-            <Control tier="tertiary" href="/home">
-              Home
+            <Control tier="tertiary" href="/capture">
+              Capture
             </Control>
           </Row>
         </Measure>

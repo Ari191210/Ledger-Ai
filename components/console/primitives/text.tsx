@@ -29,7 +29,12 @@ export type TextTone =
   | "progress"   // realised advancement (earned via --vitality)
   | "info"
   | "warn"
-  | "error";
+  | "error"
+  // PRODUCT_PRINCIPLES §6.2, amended 2026-08-21: emphasis only, never state.
+  // A caller reaching for this to signal progress/warning/error is wrong —
+  // use those tones. Restrict to the wordmark and equivalent single marks;
+  // it is not a substitute for `ink` on more than one or two elements/screen.
+  | "accent";
 
 const TONE: Record<TextTone, string> = {
   ink: "var(--g-7)",
@@ -39,6 +44,7 @@ const TONE: Record<TextTone, string> = {
   info: "var(--info)",
   warn: "var(--warn)",
   error: "var(--error)",
+  accent: "var(--accent)",
 };
 
 /** Weights the interface voice is permitted to use. */

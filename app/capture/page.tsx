@@ -198,9 +198,6 @@ export default function CapturePage() {
               StudyLedger
             </Text>
             <Spacer />
-            <Control tier="tertiary" href="/home">
-              Home
-            </Control>
           </Row>
         </Measure>
         <Rule />

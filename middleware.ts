@@ -170,13 +170,11 @@ export const config = {
     // profile`, `/dashboard/saved`, `/console/ai`, `/console/analytics`,
     // `/console/practice`, `/console/work` — are still real student surfaces
     // and are matched here. `/tools/:path*` covers all 46.
-    "/home/:path*",
     "/dashboard/:path*",
     "/console/:path*",
     "/tools/:path*",
     "/onboard",
     // Bare segments too: `:path*` does not match the segment on its own.
-    "/home",
     "/dashboard",
     "/console",
     "/tools",

@@ -82,6 +82,11 @@
   --warn:  #8a6a1f;   /* attention needed, nothing is broken                  */
   --error: #a33a2e;   /* something failed or regressed                        */
 
+  /* PRODUCT_PRINCIPLES §6.2, amended 2026-08-21: one bounded brand accent.
+     Emphasis only, on at most one or two elements per screen — never a
+     state colour. ensureContrast()-derived from #d9622b against --g-0.     */
+  --accent: #ba5221;
+
   /* Direction of movement is always ALSO carried by a glyph (▲/▼), so colour
      is never the sole carrier of meaning.                                    */
   --advance: var(--progress);

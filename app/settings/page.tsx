@@ -71,8 +71,8 @@ export default function SettingsPage() {
             <Control tier="tertiary" href="/legal">
               Legal
             </Control>
-            <Control tier="tertiary" href="/home">
-              Home
+            <Control tier="tertiary" href="/capture">
+              Capture
             </Control>
           </Row>
         </Measure>

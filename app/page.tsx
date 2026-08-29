@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Mulish, IBM_Plex_Mono, Noto_Sans_Devanagari, Noto_Sans_Tamil } from "next/font/google";
 import "./console/console.css";
 import "./landing.css";
 
@@ -8,6 +8,8 @@ import { SpineTracker } from "@/components/landing/spine";
 import { Paper } from "@/components/landing/paper";
 import { Moment } from "@/components/landing/moment";
 import { Vault } from "@/components/landing/vault";
+import { Reveal } from "@/components/landing/reveal";
+import { ScrollTop } from "@/components/landing/scroll-top";
 import Readout from "@/components/console/readout";
 import Track from "@/components/console/track";
 
@@ -50,13 +52,19 @@ export const metadata: Metadata = {
 
 // The Console faces, scoped to this route for the same reason app/console
 // scopes them to its own: the 46 legacy routes must not download families they
-// never use. Latin only — this page is English marketing copy, and the Indic
-// faces exist for student content, which never appears on it.
+// never use.
 //
-// Without these, `--console-sans` and `--console-mono` are undefined outside
-// /console and the page silently falls back to system-ui. On a page where
-// typography carries the entire hierarchy, that is a defect, not a nuance.
-const sans = IBM_Plex_Sans({
+// All FOUR faces are loaded, not just sans+mono — a prior version of this
+// comment argued Indic faces were skippable because this page is Latin-only
+// marketing copy. That reasoning was wrong: console.css's --type-interface
+// resolves as `var(--console-sans), var(--console-deva), var(--console-tamil),
+// ...` with no fallback on the last two, so a missing var() doesn't degrade
+// gracefully for non-Latin content — it invalidates the WHOLE custom property,
+// which silently broke every `font-family: var(--type-interface)` on this
+// page (10 uses in landing.css) back to the inherited legacy stack, not just
+// the ones a Hindi/Tamil reader would hit. `preload: false` keeps the actual
+// fetch cost at zero for an English-only reader either way.
+const sans = Mulish({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--console-sans",
@@ -70,6 +78,32 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600"],
+  variable: "--console-deva",
+  display: "swap",
+  preload: false,
+});
+
+const tamil = Noto_Sans_Tamil({
+  subsets: ["tamil"],
+  weight: ["400", "500", "600"],
+  variable: "--console-tamil",
+  display: "swap",
+  preload: false,
+});
+
+// Stamped at BUILD time (this file has no "use client", so it runs on the
+// server during static generation) — an honest "last updated," not a fake
+// live clock (law 7). Reflects when this page was last deployed, not when
+// it was last visited.
+const LAST_UPDATED = new Date().toLocaleDateString("en-IN", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
 /** The ledger mark for one section. Struck by SpineTracker when reached. */
 function Mark() {
   return <span className="spine__mark" aria-hidden="true" />;
@@ -77,8 +111,13 @@ function Mark() {
 
 export default function Landing() {
   return (
-    <main data-console className={`landing ${sans.variable} ${mono.variable}`}>
+    <main
+      id="main-content"
+      data-console
+      className={`landing ${sans.variable} ${mono.variable} ${devanagari.variable} ${tamil.variable}`}
+    >
       <SpineTracker />
+      <ScrollTop />
 
       {/* ── 0 · THESIS ────────────────────────────────────────────────────
           What is this? One statement, one action. The paper is already on the
@@ -87,21 +126,21 @@ export default function Landing() {
         <Mark />
         <div className="landing__hero-copy">
           <h1 className="reveal">
-            <span className="landing__statement">
+            <Reveal as="span" className="landing__statement">
               Your mistakes are your syllabus.
-            </span>
+            </Reveal>
           </h1>
 
-          <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
-            <p className="landing__lede">
+          <div className="reveal">
+            <Reveal as="p" index={1} className="landing__lede">
               Every marked paper you photograph becomes a permanent record of
               how you learn — so the mistake you keep repeating stops being
               invisible.
-            </p>
+            </Reveal>
           </div>
 
-          <div className="reveal" style={{ "--i": 2 } as React.CSSProperties}>
-            <span className="landing__cta-block">
+          <div className="reveal">
+            <Reveal as="span" index={2} className="landing__cta-block">
               <Link href="/onboard" className="cta">
                 Start your record
               </Link>
@@ -116,7 +155,7 @@ export default function Landing() {
               <span className="colophon" style={{ display: "block", marginTop: "var(--s-3)" }}>
                 Already have a record? <Link href="/auth">Sign in</Link>
               </span>
-            </span>
+            </Reveal>
           </div>
         </div>
 
@@ -132,7 +171,7 @@ export default function Landing() {
         <Mark />
         <div className="landing__measure">
           <h2 className="reveal">
-            <span className="landing__statement">A paper has a short life.</span>
+            <Reveal as="span" className="landing__statement">A paper has a short life.</Reveal>
           </h2>
 
           <ol className="life">
@@ -142,14 +181,10 @@ export default function Landing() {
               "It goes into a bag.",
               "The same mistake comes back in March.",
             ].map((line, i) => (
-              <li
-                className="reveal"
-                key={line}
-                style={{ "--i": i + 1 } as React.CSSProperties}
-              >
-                <span className={i === 3 ? "life__last" : "landing__quiet"}>
+              <li className="reveal" key={line}>
+                <Reveal as="span" index={i + 1} className={i === 3 ? "life__last" : "landing__quiet"}>
                   {line}
-                </span>
+                </Reveal>
               </li>
             ))}
           </ol>
@@ -163,9 +198,9 @@ export default function Landing() {
         <Mark />
         <div className="landing__measure">
           <h2 className="reveal">
-            <span className="landing__statement">
+            <Reveal as="span" className="landing__statement">
               Everyone remembers the wrong thing.
-            </span>
+            </Reveal>
           </h2>
 
           <div className="ledger-list">
@@ -174,23 +209,19 @@ export default function Landing() {
               ["Coaching", "remembers ranks."],
               ["Boards", "remember one afternoon."],
             ].map(([who, what], i) => (
-              <p
-                className="reveal"
-                key={who}
-                style={{ "--i": i + 1 } as React.CSSProperties}
-              >
-                <span className="ledger-list__row">
+              <p className="reveal" key={who}>
+                <Reveal as="span" index={i + 1} className="ledger-list__row">
                   <span className="ledger-list__who">{who}</span>
                   <span className="landing__quiet">{what}</span>
-                </span>
+                </Reveal>
               </p>
             ))}
 
-            <p className="reveal" style={{ "--i": 4 } as React.CSSProperties}>
-              <span className="ledger-list__row ledger-list__row--final">
+            <p className="reveal">
+              <Reveal as="span" index={4} className="ledger-list__row ledger-list__row--final">
                 <span className="ledger-list__who">Nobody</span>
                 <span>remembers how you learn.</span>
-              </span>
+              </Reveal>
             </p>
           </div>
         </div>
@@ -220,13 +251,13 @@ export default function Landing() {
         <Mark />
         <div className="landing__measure">
           <h2 className="reveal">
-            <span className="landing__statement">Nothing is ever deleted.</span>
+            <Reveal as="span" className="landing__statement">Nothing is ever deleted.</Reveal>
           </h2>
-          <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
-            <p className="landing__lede">
+          <div className="reveal">
+            <Reveal as="p" index={1} className="landing__lede">
               One mistake, across five months. It closes when you prove it —
               not when you decide you understand it.
-            </p>
+            </Reveal>
           </div>
         </div>
 
@@ -243,14 +274,14 @@ export default function Landing() {
         <Mark />
         <div className="landing__measure">
           <h2 className="reveal">
-            <span className="landing__statement">
+            <Reveal as="span" className="landing__statement">
               Then it tells you one thing to do.
-            </span>
+            </Reveal>
           </h2>
         </div>
 
-        <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
-          <div className="instrument">
+        <div className="reveal">
+          <Reveal as="div" index={1} className="instrument">
             <div className="instrument__head">
               <span className="c-label instrument__eyebrow">
                 WHAT SHOULD I FIX NEXT
@@ -272,7 +303,7 @@ export default function Landing() {
                 <Readout value={742} step="figure" from={0} label="742" />
               </span>
             </div>
-          </div>
+          </Reveal>
         </div>
 
         <p className="specimen specimen--spaced">
@@ -288,29 +319,29 @@ export default function Landing() {
         <Mark />
         <div className="landing__measure">
           <h2 className="reveal">
-            <span className="landing__statement">
+            <Reveal as="span" className="landing__statement">
               Your parents see progress.
-            </span>
+            </Reveal>
           </h2>
 
           <div className="contrast">
-            <p className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
-              <span className="landing__statement landing__struck">
+            <p className="reveal">
+              <Reveal as="span" index={1} className="landing__statement landing__struck">
                 What your child got wrong.
-              </span>
+              </Reveal>
             </p>
-            <p className="reveal" style={{ "--i": 2 } as React.CSSProperties}>
-              <span className="landing__statement">
+            <p className="reveal">
+              <Reveal as="span" index={2} className="landing__statement">
                 What your child is fixing.
-              </span>
+              </Reveal>
             </p>
           </div>
 
-          <div className="reveal" style={{ "--i": 3 } as React.CSSProperties}>
-            <p className="landing__lede">
+          <div className="reveal">
+            <Reveal as="p" index={3} className="landing__lede">
               Marks lost, wrong answers and open gaps are never sent. Not by
               policy — the report is unable to contain them.
-            </p>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -323,23 +354,23 @@ export default function Landing() {
       >
         <Mark />
         <h2 className="reveal">
-          <span className="landing__statement">
+          <Reveal as="span" className="landing__statement">
             Your mistakes are your syllabus.
-          </span>
+          </Reveal>
         </h2>
 
-        <div className="reveal" style={{ "--i": 1 } as React.CSSProperties}>
-          <span className="landing__cta-block">
+        <div className="reveal">
+          <Reveal as="span" index={1} className="landing__cta-block">
             <Link href="/onboard" className="cta">
               Start your record
             </Link>
-          </span>
+          </Reveal>
         </div>
 
         <p className="colophon">
           StudyLedger · CBSE Class 11 &amp; 12 Physics ·{" "}
           <Link href="/auth">Sign in</Link> ·{" "}
-          <Link href="/legal?section=terms">Terms</Link>
+          <Link href="/legal?section=terms">Terms</Link> · Updated {LAST_UPDATED}
         </p>
       </section>
     </main>

@@ -9,7 +9,7 @@ import { NAV_TOOLS, CAT_COLOR } from "@/lib/tools-registry";
 import { getRecentTools } from "@/lib/recent-tools";
 
 const QUICK_ACTIONS = [
-  { name: "Home",                path: "/home",              category: "NAV", subtitle: "Your score and the one next action" },
+  { name: "Capture",             path: "/capture",           category: "NAV", subtitle: "Photograph a marked paper" },
   { name: "Profile & Settings",  path: "/settings",          category: "NAV", subtitle: "Account and preferences" },
   { name: "Ledger Score",        path: "/tools/grade-tracker",       category: "NAV", subtitle: "Your real-time readiness" },
   { name: "Themes",              path: "/settings",          category: "NAV", subtitle: "Palette, mode, density" },

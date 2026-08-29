@@ -345,8 +345,9 @@ describe('app/onboard/page.tsx — PRODUCT_DECISIONS §2.6', () => {
     assert.equal(/saveUserData\(/.test(src), false);
   });
 
-  test('finishing goes straight into Home — never a done screen', () => {
-    assert.match(src, /router\.replace\("\/home"\)/);
+  test('finishing goes straight into Capture — never a done screen', () => {
+    // `/home` was retired 2026-08-22; onboarding now lands on `/capture`.
+    assert.match(src, /router\.replace\("\/capture"\)/);
     assert.equal(/Your Ledger is ready|Open my dashboard/.test(src), false);
   });
 

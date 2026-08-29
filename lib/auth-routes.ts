@@ -59,7 +59,6 @@
  * `/auth` from `/home`, and never renders either shell.
  */
 export const PROTECTED_PREFIXES = [
-  "/home",
   "/dashboard",
   "/console",
   "/tools",

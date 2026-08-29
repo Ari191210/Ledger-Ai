@@ -95,8 +95,8 @@ export default function TodayPage() {
               StudyLedger
             </Text>
             <Spacer />
-            <Control tier="tertiary" href="/home">
-              Home
+            <Control tier="tertiary" href="/capture">
+              Capture
             </Control>
             <Control tier="tertiary" href="/settings">
               Settings

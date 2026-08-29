@@ -104,7 +104,7 @@ export function desksBySection(section: Section): Desk[] {
 
 /** The section strip under the masthead. */
 export const NAV_SECTIONS = [
-  { label: "The Index",     href: "/home" },
+  { label: "The Index",     href: "/capture" },
   { label: "Intelligence",  href: "/tools/learn-lab" },
   { label: "Examinations",  href: "/tools/exam-practice" },
   { label: "Editorial",     href: "/tools/writing-tools" },

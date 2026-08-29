@@ -195,6 +195,11 @@ const HUE_BASE = {
   info: "#35506b",
   warn: "#8a6a1f",
   error: "#a33a2e",
+  // PRODUCT_PRINCIPLES §6.2, amended 2026-08-21: one bounded brand accent,
+  // additive to the semantic hues above. Emphasis only — never state. A
+  // consumer that reads --accent as progress/warning/error is a violation,
+  // not a variation; nothing here enforces that, so it must hold by review.
+  accent: "#d9622b",
 } as const;
 
 // ── DERIVATION ─────────────────────────────────────────────────────────────

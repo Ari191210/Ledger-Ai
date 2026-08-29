@@ -55,7 +55,7 @@ export default function EmptyChair({ daysSince, onDismiss }: Props) {
   }
 
   const daysLabel = Math.round(daysSince) === 1 ? "1 day" : `${Math.round(daysSince)} days`;
-  const pickRoute = item?.route ?? "/home";
+  const pickRoute = item?.route ?? "/capture";
 
   if (phase === "done") {
     return (
@@ -64,8 +64,8 @@ export default function EmptyChair({ daysSince, onDismiss }: Props) {
           <div style={{ fontFamily: "var(--serif)", fontSize: "clamp(28px, 4vw, 40px)", fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 28, color: "var(--ink)" }}>
             Done. Start anywhere.
           </div>
-          <Link href="/home" onClick={onDismiss} style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.06em" }}>
-            → Open Home
+          <Link href="/capture" onClick={onDismiss} style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.06em" }}>
+            → Open Capture
           </Link>
         </div>
       </div>

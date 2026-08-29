@@ -167,7 +167,7 @@ describe('M8-1: exam-practice and syllabus 301 into /capture', () => {
   });
 
   test('M3`s redirects are untouched', () => {
-    for (const [source, dest] of [['/dashboard', '/home'], ['/console', '/home']]) {
+    for (const [source, dest] of [['/dashboard', '/capture'], ['/console', '/capture']]) {
       assert.match(
         config,
         new RegExp(`source:\\s*["']${source}["'][^}]*destination:\\s*["']${dest}["']`),

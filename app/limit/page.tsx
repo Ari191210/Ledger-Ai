@@ -55,7 +55,7 @@ export default function LimitPage() {
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             {[
-              ["Home", "/home"],
+              ["Capture", "/capture"],
               ["Study Rooms", "/tools/rooms"],
               ["Learn Lab", "/tools/learn-lab"],
             ].map(([label, href]) => (

@@ -76,8 +76,6 @@ const SIGNED_IN_CHUNKED = [`sb-${REF}-auth-token.0`, `sb-${REF}-auth-token.1`];
 const SIGNED_OUT = ['ph_phc_1_posthog', '__vercel_live_token', 'ledger-density'];
 
 const PROTECTED_SAMPLE = [
-  '/home',
-  '/home/anything',
   '/dashboard',
   '/dashboard/profile',
   '/dashboard/saved',
@@ -118,7 +116,7 @@ describe('M4-1 — the deny direction', () => {
   });
 
   test('a request with NO cookies at all is denied', () => {
-    const v = A.authDecision({ pathname: '/home', cookieNames: [], enforce: true });
+    const v = A.authDecision({ pathname: '/dashboard', cookieNames: [], enforce: true });
     assert.equal(v.action, 'redirect');
   });
 
@@ -126,7 +124,7 @@ describe('M4-1 — the deny direction', () => {
     // Written at the START of a sign-in attempt, before a session exists.
     // Accepting it would let anyone who merely opened the sign-in page through.
     const v = A.authDecision({
-      pathname: '/home',
+      pathname: '/dashboard',
       cookieNames: [`sb-${REF}-auth-token-code-verifier`],
       enforce: true,
     });
@@ -149,7 +147,7 @@ describe('M4-1 — the deny direction', () => {
       assert.equal(A.isSessionCookieName(name), false, `${name} must not read as a session`);
     }
     // …and all of them together still do not open the gate.
-    const v = A.authDecision({ pathname: '/home', cookieNames: verifiers, enforce: true });
+    const v = A.authDecision({ pathname: '/dashboard', cookieNames: verifiers, enforce: true });
     assert.equal(v.action, 'redirect');
     assert.equal(v.denied, true);
   });
@@ -188,7 +186,7 @@ describe('M4-1 — the allow direction', () => {
 
   test('the pre-2.0 cookie name still reads as a session', () => {
     const v = A.authDecision({
-      pathname: '/home',
+      pathname: '/dashboard',
       cookieNames: ['supabase-auth-token'],
       enforce: true,
     });
@@ -301,7 +299,7 @@ describe('M4-1 — the enforcement gate', () => {
   test('with enforcement off the deny is still COMPUTED, only not acted on', () => {
     // This is what makes the flag auditable rather than a fail-open: the
     // verdict is identical, and only the action is suppressed.
-    const v = A.authDecision({ pathname: '/home', cookieNames: SIGNED_OUT, enforce: false });
+    const v = A.authDecision({ pathname: '/dashboard', cookieNames: SIGNED_OUT, enforce: false });
     assert.equal(v.denied, true);
     assert.equal(v.observedOnly, true);
     assert.equal(v.action, 'allow');
@@ -360,7 +358,6 @@ describe('M4-1 — middleware.ts wiring', () => {
 
   test('the matcher covers every protected segment, bare and with subpaths', () => {
     for (const m of [
-      '"/home"', '"/home/:path*"',
       '"/dashboard"', '"/dashboard/:path*"',
       '"/console"', '"/console/:path*"',
       '"/tools"', '"/tools/:path*"',
@@ -426,7 +423,7 @@ describe('M4-2 — the client guard', () => {
 
   test('it is still mounted on all four student shells', () => {
     for (const rel of [
-      'app/home/layout.tsx',
+      'app/capture/layout.tsx',
       'app/tools/layout.tsx',
       'app/dashboard/layout.tsx',
       'app/console/layout.tsx',

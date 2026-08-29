@@ -6,7 +6,7 @@ ANSWERS:         "what must always be true?"
 MAY NOT CONTAIN: route names · tool names · milestones · dates · effort ·
                  task order · feature classifications
 PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
-LAST AMENDED:    2026-08-10
+LAST AMENDED:    2026-08-22
 ```
 
 **Nothing in this document is scheduled, and nothing here names a file.** If a
@@ -222,25 +222,40 @@ edges, not borders-as-decoration.
 
 ## 6.2 Colour
 
-**Colour is earned.** Grey is the default state of the universe; a coloured
-element is one that *means* something — progress, completion, focus, active
-state, a real trend. There is **no brand accent**, and colour never carries
-meaning alone.
+**Colour is mostly earned, with one bounded exception.** Grey is the default
+state of the universe; a coloured element is, in general, one that *means*
+something — progress, completion, focus, active state, a real trend. Colour
+never carries meaning alone.
 
-**The strip-all-colour test:** remove every coloured element from a screen. If
-the hierarchy collapses, the hierarchy was being carried by colour and the
-screen is unfinished.
+*Amended 2026-08-21, see §12.* **A single brand accent is now permitted**,
+appearing on at most one or two elements per screen. It exists for emphasis,
+not semantics — it must never be read as progress, completion, warning or any
+other state, and using it that way is a §6.2 violation, not a variation. It is
+additive to the semantic colours above, never a substitute for them.
+
+**The strip-all-colour test is unchanged and now stricter to pass:** remove
+every coloured element, accent included. If the hierarchy collapses, the
+hierarchy was being carried by colour and the screen is unfinished.
 
 Concrete values live in `console.css`, resolved through tokens.
 
 ## 6.3 Typography
 
 **Numerals are the product.** Typography exists to serve figures: large,
-tabular, mechanical, set in the instrument face. Interface type is quiet and
-gets out of the way. A fixed ramp, never ad-hoc sizes.
+tabular, mechanical, set in the instrument face. A fixed ramp, never ad-hoc
+sizes.
 
-Families and the licensed-swap path are resolved through tokens in
-`console.css`, so a change is one line.
+*Amended 2026-08-21, see §12.* Interface type — body copy, headings, UI
+labels, everything that is not a figure — may move to an editorial voice
+rather than the instrument-only treatment: quieter, humanist, built to be
+read at length rather than glanced at like a readout. **The instrument face
+for numerals is unchanged** — this amendment governs interface type only.
+Specific families, the type scale, and the licensed-swap path are resolved
+through tokens in `console.css`, so a change is one line — this document
+names the philosophy, not the fonts. **Before implementation:** the
+2026-08-04 amendment records nine faces "permanently rejected as the
+2024–26 AI-startup sound" without listing them here; whoever implements this
+must confirm the candidate family isn't one of the nine before it ships.
 
 ## 6.4 Geometry and iconography
 
@@ -416,6 +431,66 @@ This document changes only by explicit founder decision, recorded here with date
 and rationale. **When a rule here is broken, the rule is amended or the code is
 fixed — never both quietly.**
 
+### 2026-08-22 — Landing page (`/`) moves off the bounded-accent cap, same reasoning as the `/home` amendment below
+**Widens the 2026-08-21 amendment, for this one route.** In practice the landing
+page shipped with **zero** uses of `--accent` anywhere — the CTA button, the
+spine marks, every control is `--g-7` on `--g-0`, pure neutral. Founder verdict,
+live in the browser: *"it looks html... there are no vibrant colours."* The
+2026-08-21 cap (accent on at most one or two elements per screen) was never
+even reached, so this is not a case of the cap being too tight in practice —
+it's that "hierarchy is built from weight, never hue" (this file's own §6.6
+control-state reasoning) produced a page indistinguishable from unstyled
+markup on first impression, which is a real failure mode the cap didn't
+anticipate.
+
+**Chosen instead, for `/` specifically:** `--accent` (`#ba5221`, the same
+token §6.2 already defines) is used throughout the primary path, not capped
+at two elements — CTA buttons, the ledger spine marks once struck, the
+Ledger Score readout, every eyebrow badge (specimen header, "what should I
+fix next"), the climax figure in §3, and the emphasis words in §1/§2's
+lists. A first pass that touched only the CTA, the spine marks and one
+number was itself rejected live — *"u just added orange"* — confirming the
+founder's actual ask was closer to `/home`'s full treatment than to a
+slightly-widened bounded cap; this entry and the code now match that. The
+page's ground also moved off Console's cool grey scale (`--g-0`…`--g-4`)
+onto the warm cream the original design brief specified, scoped locally to
+`.landing` the same way `warm.css` scopes `[data-warm]` — every panel and
+hairline inherits it through the existing `var(--g-N)` references rather
+than being hand-tinted rule by rule. §6.1 (material), §6.4 (geometry), §6.5
+(motion) and the strip-all-colour test are **not amended** — accent is
+still additive emphasis, never semantic, and the page must still make sense
+with colour stripped.
+
+**Scope.** `/` (`app/page.tsx`, `app/landing.css`) only. Every other Console
+route remains under the 2026-08-21 bounded cap. As with `/home`, this is not
+yet a decision that the bounded cap failed generally — two routes rejecting
+it on the same grounds is a pattern worth naming if a third one does.
+
+### 2026-08-22 — /home rebuilt on the full warm/editorial palette, superseding Console there
+**Widens the 2026-08-21 amendment.** That entry authorised a *bounded* accent
+(1–2 elements/screen) and an editorial interface typeface, while leaving
+Console's grey ground, hairline material and "no brand accent except the
+bounded one" intact everywhere else. Applied that way to `/home`, it read as
+"Console with an orange logo" and did not land — founder verdict: *"I just
+don't like the vibe of the page."*
+
+**Chosen instead, for `/home` specifically:** the original design brief's
+values applied directly and fully — warm cream ground (`#faf8f5`), white
+surfaces, the orange accent (`#d9622b`) used throughout (primary buttons,
+badges, the wordmark), not capped at two elements. Implemented as a parallel
+token layer, `app/home/warm.css`, scoped to `[data-warm]` exactly as
+`console.css` is scoped to `[data-console]` — the two systems stay mutually
+invisible by the same construction. §6.1–§6.8 (material, colour restraint,
+component vocabulary) describe Console and are **not amended**; they simply
+no longer govern this one route. Numerals stay on the instrument mono face;
+only the interface type and colour system moved.
+
+**Scope.** `/home` and its always-visible sub-components (`ScoreDetail`,
+`ExamDayPanel`, `HomeComposer`, the Home widgets) are warm now. Every other
+V1 route remains Console pending the same evaluation. This is not yet a
+decision to retire Console — that would be a `PRODUCT_DECISIONS` §7 entry
+of its own, made once more routes have actually been rebuilt and judged.
+
 ### 2026-08-04 — Console ratified
 Design law established. Two prior rules reversed explicitly: numerals now roll,
 and the FT/Bloomberg decision test was replaced (it was what made the product
@@ -463,6 +538,27 @@ first-class academic activity, recorded as a **student-declared claim** that
 becomes verified academic evidence only by passing an assessment. **§3.1 and
 §3.2 are unchanged and unweakened** — §3.5 states that a claim may *open* a gap,
 which §3.1 never addressed; it does not let a claim *close* one.
+
+### 2026-08-21 — §6.2 and §6.3 amended: a bounded brand accent, and editorial interface type
+**Reverses part of the 2026-08-05 "Electric Lime withdrawn" decision** — not
+all of it. That entry banned a *loud, trendy, attention-seeking* accent used
+as a signature colour; this amendment permits a *restrained* accent bounded
+to one or two elements per screen, used for emphasis only, never for state.
+The "no signature colour that substitutes for craft" reasoning stands; what
+changes is that zero accent is no longer the only compliant answer.
+
+Interface type (not the instrument numeral face) may move toward an
+editorial, humanist voice. **This is a partial re-reversal of the
+2026-08-04 decision** that replaced the FT/Bloomberg decision test because
+"it was what made the product feel like a newspaper" — this amendment moves
+body/heading typography back toward that territory. Recorded explicitly
+rather than let the two amendments quietly disagree.
+
+**Scope.** Both changes apply to interface *values* (hex, families, scale),
+which remain undecided here and belong in `console.css` tokens per §6.2/§6.3
+— this entry authorises the philosophy, not a specific palette or typeface.
+Nothing else in §5 (banned list), §6.1 (material/depth-as-tone), §6.5
+(motion), or §6.6–6.8 (components, navigation, the Score) is touched.
 
 ### 2026-08-10 — §3.4 and §4.2 reaffirmed, not amended
 Two ratified decisions of the same date were checked against this document and

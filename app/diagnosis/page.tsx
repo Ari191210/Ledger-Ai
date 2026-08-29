@@ -134,8 +134,8 @@ export default function DiagnosisPage() {
               StudyLedger
             </Text>
             <Spacer />
-            <Control tier="tertiary" href="/home">
-              Home
+            <Control tier="tertiary" href="/capture">
+              Capture
             </Control>
           </Row>
         </Measure>

@@ -118,9 +118,10 @@ describe('M16-1: /dashboard/profile and /tools/personalise are absorbed', () => 
   });
 
   test('live navigation no longer points at the retired routes', () => {
-    // The command palette, the app nav account chip and /home`s Settings
-    // control are the three surfaces that linked to the old profile route.
-    for (const rel of ['components/app-nav.tsx', 'components/command-palette.tsx', 'app/home/page.tsx']) {
+    // The command palette and the app nav account chip are the surfaces that
+    // linked to the old profile route. `/home` was retired (2026-08-22) and
+    // no longer exists to check.
+    for (const rel of ['components/app-nav.tsx', 'components/command-palette.tsx']) {
       const src = code(rel);
       assert.doesNotMatch(src, /"\/dashboard\/profile"/, `${rel} still links to the retired /dashboard/profile`);
       assert.doesNotMatch(src, /"\/tools\/personalise"/, `${rel} still links to the retired /tools/personalise`);

@@ -18,10 +18,14 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 [data-console].landing {
-  /* Section rhythm. The app's ramp tops out at 64px; a narrative needs air.
-     Same geometric logic, two steps further — not arbitrary new numbers.     */
-  --s-7: 104px;
-  --s-8: 160px;
+  /* Section rhythm. The app's ramp tops out at 64px. Amended 2026-08-22, see
+     PRODUCT_PRINCIPLES §12: these were originally 104/160px — enough air
+     that eight short sections read as mostly empty page with text floating
+     in it. Founder verdict, live: *"too much negative space."* Cut roughly
+     a third; still more than the app's 64px cap (a narrative still needs
+     more room than a control panel), just not this much.                    */
+  --s-7: 72px;
+  --s-8: 112px;
 
   /* Statements. One per section, and never in the instrument face: figures
      are the instrument's job, prose is not.                                  */
@@ -30,6 +34,20 @@
 
   /* The spine gutter. Fixed, never animated; everything measures from it.    */
   --spine: 20px;
+
+  /* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12. Console's grey scale
+     (`--g-0`…`--g-4`) is overridden LOCALLY, the same technique `warm.css`
+     used for `[data-warm]` on `/home` — every panel, well and hairline on
+     this page reads it through `var(--g-N)`, so warming it once here warms
+     the whole page consistently instead of hand-tinting a dozen rules.
+     `--g-5`/`--g-6`/`--g-7` (secondary and primary TEXT) are left alone —
+     those are the contrast-checked ink tones and cream-bg-plus-neutral-ink
+     is exactly the founder's original design brief, not a compromise.       */
+  --g-0: #faf8f5;   /* page — warm cream, not cool grey                      */
+  --g-1: #f2ede4;   /* recessed wells                                        */
+  --g-2: #fdfbf7;   /* panel surfaces                                        */
+  --g-3: #fffdf9;   /* raised — the paper card                               */
+  --g-4: #e8e4dd;   /* hairlines, borders                                    */
 
   position: relative;
   background: var(--g-0);
@@ -77,7 +95,10 @@
 
 [data-reached="true"] .spine__mark {
   transform: translateX(-50%) scale(1, 1);
-  background: var(--g-7);
+  /* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: accent, not ink — a
+     struck ledger mark is the one thing on this page allowed to say "this
+     mattered enough to record" in colour, every time it happens.          */
+  background: var(--accent);
 }
 
 /* ── RHYTHM ───────────────────────────────────────────────────────────────  */
@@ -91,15 +112,26 @@
   .landing__section { padding-top: var(--s-8); padding-bottom: var(--s-8); }
 }
 
-.landing__measure { max-width: 62ch; }
+/* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: was 62ch — on a wide
+   desktop viewport that left most of the 1180px section as bare cream to
+   the right of a narrow paragraph, which read as the same "too much
+   negative space" complaint as the vertical rhythm did. Widened; still a
+   single measured column, not a new layout.                                 */
+.landing__measure { max-width: 78ch; }
 
 /* ── SLIDE-ON-SCROLL ──────────────────────────────────────────────────────
    Content travels up from behind a mask. No opacity: §6.5 permits press,
    slide, roll and fill, and a fade is none of them.
 
-   THE DEFAULT IS VISIBLE. The mask holds the element at rest, and only a
-   browser that supports scroll-driven animation moves it. Nothing here can
-   leave the page blank.
+   THE ANIMATION ITSELF LIVES IN JS NOW (`components/landing/reveal.tsx`,
+   Framer Motion `whileInView`) — NOT `animation-timeline: view()`. That CSS
+   feature is correct in principle (progressive enhancement, never a blank
+   page) but Chromium-only: Firefox and Safari readers got the "default is
+   visible, nothing moves" fallback permanently, not just before their
+   browser caught up. Framer Motion's IntersectionObserver-backed
+   `whileInView` plays the identical slide-up in every evergreen browser, so
+   this class is now ONLY the mask — the overflow:hidden box the animated
+   child (a `<Reveal>`) slides up inside of.
 
    The mask is extended below the text box and pulled back with a negative
    margin: `--t-statement` sets line-height 1.06, and clipping at the box edge
@@ -110,25 +142,6 @@
   overflow: hidden;
   padding-bottom: 0.16em;
   margin-bottom: -0.16em;
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal > * {
-      display: block;
-      animation: reveal-slide linear both;
-      animation-timeline: view();
-      /* Staggered by scroll position, not by a timer: siblings set --i, so a
-         reader who scrolls fast is never made to wait for a queue.           */
-      animation-range: entry calc(2% + (var(--i, 0) * 4%))
-                       entry calc(46% + (var(--i, 0) * 4%));
-    }
-  }
-}
-
-@keyframes reveal-slide {
-  from { transform: translateY(110%); }
-  to   { transform: translateY(0); }
 }
 
 /* ── Statements ───────────────────────────────────────────────────────── */
@@ -167,12 +180,28 @@
    is unreadable at 360px, and shipping that would be collapsing a desktop
    layout rather than designing a mobile one.                                 */
 
-.landing__hero { display: grid; gap: var(--s-6); align-items: center; }
+.landing__hero {
+  display: grid;
+  gap: var(--s-6);
+  align-items: center;
+  /* The hero is the one beat that should feel tight and immediate — the
+     104/160px narrative rhythm below is right for sections the reader has
+     already committed to, wrong for the first thing they see. Tighter top,
+     roomier bottom: enough air to separate from §1 without reading as dead
+     space above the fold. */
+  padding-top: var(--s-5) !important;
+  padding-bottom: var(--s-6) !important;
+}
 .landing__hero-copy { min-width: 0; }
 .landing__hero-paper { display: flex; justify-content: flex-start; }
 
 @media (min-width: 880px) {
-  .landing__hero { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-7); }
+  .landing__hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s-7);
+    padding-top: var(--s-6) !important;
+    padding-bottom: var(--s-7) !important;
+  }
   .landing__hero-paper { justify-content: flex-end; }
 }
 
@@ -193,7 +222,9 @@
   line-height: 1.25;
   letter-spacing: -0.012em;
 }
-.life__last { color: var(--g-7); font-weight: 500; }
+/* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: the line that hurts is
+   accent now, not just heavier ink.                                         */
+.life__last { color: var(--accent); font-weight: 500; }
 
 /* ── 2 · THE BLIND SPOT ───────────────────────────────────────────────────  */
 
@@ -206,7 +237,9 @@
   letter-spacing: -0.012em;
 }
 .ledger-list__row { display: block; }
-.ledger-list__who { display: inline-block; min-width: 5.5em; font-weight: 500; }
+/* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12. */
+.ledger-list__who { display: inline-block; min-width: 5.5em; font-weight: 500; color: var(--accent); }
+.ledger-list__row--final .ledger-list__who { color: var(--g-7); }
 .ledger-list__row--final {
   padding-top: var(--s-3);
   border-top: 1px solid var(--g-4);
@@ -256,7 +289,9 @@
   font-variant-numeric: tabular-nums;
   line-height: 0.86;
   letter-spacing: -0.04em;
-  color: var(--g-7);
+  /* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: the climax figure of the
+     whole page is accent, not ink. */
+  color: var(--accent);
   /* Reserve the figure's box before the roll arms, so nothing below it shifts.
      Layout shift is a design defect (law 9).                                 */
   min-height: calc(var(--t-display) * 0.86);
@@ -285,11 +320,18 @@
 .paper {
   position: relative;
   width: 100%;
+  /* Was 300px — a token card next to a 56px headline read as an afterthought,
+     not the counterweight the hero needs. Widened; still no shadow, no
+     rotation, no texture (§6.1) — presence comes from scale, not decoration. */
   max-width: 300px;
   background: var(--g-3);
   border: 1px solid var(--g-4);
   border-radius: var(--r-panel);
-  padding: var(--s-3);
+  padding: var(--s-4);
+}
+
+@media (min-width: 880px) {
+  .paper { max-width: 400px; padding: var(--s-5); }
 }
 
 .paper__head {
@@ -297,29 +339,33 @@
   justify-content: space-between;
   align-items: baseline;
   border-bottom: 1px solid var(--g-4);
-  padding-bottom: var(--s-2);
-  margin-bottom: var(--s-2);
+  padding-bottom: var(--s-3);
+  margin-bottom: var(--s-3);
 }
+/* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: the specimen's own header
+   badge, accent — the date beside it stays quiet so the badge still reads
+   as the one accented thing in the pair. */
+.paper__head .c-label { color: var(--accent); font-weight: 600; }
 
 .paper__row {
   display: grid;
-  grid-template-columns: 46px 1fr 26px;
+  grid-template-columns: 56px 1fr 34px;
   align-items: center;
-  gap: var(--s-2);
-  padding: 7px 0;
+  gap: var(--s-3);
+  padding: 11px 0;
   border-bottom: 1px solid var(--g-1);
 }
 .paper__row:last-child { border-bottom: 0; }
 
-.paper__answer { display: grid; gap: 4px; }
+.paper__answer { display: grid; gap: 6px; }
 
 /* The written answer. Ruled lines, never lorem — a paper is handwriting.     */
-.paper__ink { height: 2px; border-radius: 1px; background: var(--g-4); }
+.paper__ink { height: 3px; border-radius: 1px; background: var(--g-4); }
 
 /* Teacher's red. ONE of the two earned colours on this page (§6.2).          */
 .paper__verdict {
   font-family: var(--type-instrument);
-  font-size: var(--t-label);
+  font-size: var(--t-body);
   text-align: right;
   color: var(--g-6);
 }
@@ -467,7 +513,9 @@
   border-bottom: 1px solid var(--g-4);
   margin-bottom: var(--s-3);
 }
-.instrument__eyebrow { color: var(--g-6); }
+/* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: badges are accent, matching
+   the same move already made for /home's badges. */
+.instrument__eyebrow { color: var(--accent); font-weight: 600; }
 .instrument__gap {
   display: block;
   font-size: clamp(21px, 2.6vw, 27px);
@@ -490,7 +538,9 @@
   font-family: var(--type-instrument);
   font-size: var(--t-figure);
   font-variant-numeric: tabular-nums;
-  color: var(--g-7);
+  /* Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: the number the whole
+     section builds to is the other place accent is spent on this page.     */
+  color: var(--accent);
 }
 
 /* ── 6 · PARENTS ──────────────────────────────────────────────────────────  */
@@ -511,17 +561,19 @@
 .colophon a { color: var(--g-6); }
 
 /* ── CONTROLS ─────────────────────────────────────────────────────────────
-   §6.6: a control has rest, hover, press, focus and disabled. Hierarchy is
-   built from WEIGHT, never hue — the primary is the strongest neutral, so the
-   focal point survives the strip-all-colour test.                            */
+   §6.6: a control has rest, hover, press, focus and disabled.
+
+   Amended 2026-08-22, see PRODUCT_PRINCIPLES §12: this page no longer caps
+   accent at two elements, so the primary control is built from HUE, not just
+   weight — `--accent` on the CTA is the whole reason the amendment exists.   */
 
 .cta {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
-  background: var(--g-7);
+  background: var(--accent);
   color: var(--g-0);
-  border: 1px solid var(--g-7);
+  border: 1px solid var(--accent);
   border-radius: var(--r-control);
   /* 14 + 18 + 14 = 46px — above the 44px touch minimum on every breakpoint. */
   padding: 14px var(--s-4);
@@ -534,7 +586,10 @@
 }
 
 /* HOVER — tone, not glow. Glow as emphasis is banned (§5).                   */
-.cta:hover { background: var(--g-6); border-color: var(--g-6); }
+.cta:hover {
+  background: color-mix(in oklab, var(--accent) 85%, black);
+  border-color: color-mix(in oklab, var(--accent) 85%, black);
+}
 
 /* PRESS — real travel. The control moves under the finger.                   */
 .cta:active { transform: translateY(1px) scale(0.99); }
@@ -569,6 +624,68 @@
   letter-spacing: 0.04em;
 }
 .specimen--spaced { margin-top: var(--s-4); }
+
+/* ── SCROLL TO TOP ────────────────────────────────────────────────────────
+   Only real past the hero — a control offering to undo one screen of scroll
+   would be noise, not help (§6.6: a control exists because it does work).   */
+
+.scroll-top {
+  position: fixed;
+  right: var(--s-4);
+  bottom: var(--s-4);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--g-2);
+  border: 1px solid var(--g-4);
+  border-radius: var(--r-control);
+  color: var(--g-7);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity var(--m-fast) var(--ease-out),
+              transform var(--m-fast) var(--ease-out),
+              background-color var(--m-fast) var(--ease-out);
+}
+.scroll-top[data-shown="true"] { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.scroll-top:hover { background: var(--g-1); }
+.scroll-top:active { transform: translateY(1px) scale(0.96); }
+.scroll-top:focus-visible {
+  outline: 2px solid var(--g-7);
+  outline-offset: 2px;
+}
+.scroll-top svg { width: 18px; height: 18px; }
+
+@media print {
+  .scroll-top { display: none; }
+}
+
+/* ── PRINT ────────────────────────────────────────────────────────────────
+   A printed record of the pitch, not the interactive page: no fixed chrome,
+   no motion, no spine (a running line down a printed page is a printer-ink
+   artifact, not a design). Ink on white — colour is a screen affordance.    */
+
+@media print {
+  [data-console].landing::before,
+  .spine__mark {
+    display: none;
+  }
+  [data-console].landing {
+    background: #fff;
+    color: #000;
+  }
+  .reveal, .reveal > * {
+    overflow: visible !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .cta { border: 1px solid #000; }
+  a { color: #000; text-decoration: underline; }
+}
 
 /* ── VISUALLY HIDDEN ──────────────────────────────────────────────────────
    For headings that carry the document outline where the design carries the

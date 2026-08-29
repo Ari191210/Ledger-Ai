@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import {
-  IBM_Plex_Sans,
+  Mulish,
   IBM_Plex_Mono,
   Noto_Sans_Devanagari,
   Noto_Sans_Tamil,
@@ -25,7 +25,7 @@ import "../console/console.css";
 // identity to hold them would be a redesign smuggled inside a structural pass.
 // ═══════════════════════════════════════════════════════════════════════════
 
-const sans = IBM_Plex_Sans({
+const sans = Mulish({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--console-sans",

@@ -48,8 +48,8 @@ const nextConfig = {
     // keep resolving — §2.5, unlinked, not deleted. `/console/analytics` is now
     // merged by M13-3's block below, which is what "later milestones deliver"
     // meant; the other four still resolve.
-    { source: "/dashboard",      destination: "/home",                           permanent: true },
-    { source: "/console",        destination: "/home",                           permanent: true },
+    { source: "/dashboard",      destination: "/capture",                        permanent: true },
+    { source: "/console",        destination: "/capture",                        permanent: true },
     { source: "/tools/dna",      destination: "/tools/post-exam?tab=dna",        permanent: true },
     { source: "/tools/cremator", destination: "/tools/exam-triage?tab=cremator", permanent: true },
     // doubt and notes are Learn Lab tabs. These two were never redirected, so

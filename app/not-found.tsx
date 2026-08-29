@@ -23,10 +23,10 @@ export default function NotFound() {
           unaffected — nothing here is stored on this page.
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <Link href="/home"
+          <Link href="/capture"
             style={{ fontFamily: "monospace", fontSize: 11, padding: "10px 20px", background: "#222", color: "#f7f4ee", border: "none", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}
           >
-            Home
+            Capture
           </Link>
           <Link href="/"
             style={{ fontFamily: "monospace", fontSize: 11, padding: "10px 20px", background: "transparent", color: "#222", border: "1px solid #ddd", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}

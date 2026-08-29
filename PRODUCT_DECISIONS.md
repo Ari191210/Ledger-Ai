@@ -5,7 +5,7 @@ AUTHORITY:       decisions
 ANSWERS:         "what have we chosen, as of now?"
 MAY NOT CONTAIN: principles · milestones · task order · effort estimates · dates of delivery
 PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
-LAST AMENDED:    2026-08-10
+LAST AMENDED:    2026-08-21
 ```
 
 Everything here is **revisable**. Each entry is dated and every reversal is
@@ -151,12 +151,15 @@ What appears in navigation and what URLs the product advertises.
 ```
 ├── /                       Marketing. One sentence, one proof, one button.
 ├── /auth                   Sign in.
-├── /onboard                Board and subjects. Then straight to Home.
+├── /onboard                Board and subjects. Then straight to Capture
+│                           (interim landing, §7.6).
 │
-├── /home                   ← THE PRODUCT
-│                           "What should I fix next?"
-│                           Score · the one action · exam countdown
-│                           Becomes Exam-Day mode when a paper is tomorrow
+├── /home                   RETIRED 2026-08-22 (§7.6) — three visual passes
+│                           rejected, founder called for deletion. The NOW
+│                           surface this row described ("What should I fix
+│                           next?" — Score · the one action · exam
+│                           countdown) has no route today. /capture is the
+│                           interim landing (plumbing, not a decision).
 │
 ├── /capture                ← THE MISSING SCREEN
 │                           Photograph a marked paper.
@@ -224,7 +227,7 @@ tour. Never a checklist.
 |---|---|---|
 | 1 | `/auth` | No product without a user |
 | 2 | `/onboard` | Board and subjects. Nothing else. |
-| 3 | `/home` | The thesis, rendered. Score + one action. |
+| 3 | ~~`/home`~~ | Retired 2026-08-22 (§7.6). Was: the thesis, rendered — Score + one action. No route claims this job today. |
 | 4 | **`/capture`** | **Photograph a marked paper. If this doesn't ship, nothing else matters.** |
 | 5 | `/diagnosis` | The answer. The merge of six. |
 | 6 | `/record` | Proof the ledger accumulates |
@@ -705,6 +708,8 @@ wins**, because §6 is a scope note and §9 is a decision.
 | **2026-08-10** | **Parent mistake visibility is structural, not toggleable** — Option B; §3.4 **not** amended | **RATIFIED** (§9.2) |
 | **2026-08-10** | **Streaks removed from scoring; Continuity replaces Momentum** — a rebuild, not a rename | **RATIFIED** (§9.3) |
 | **2026-08-10** | **Mistake pillar is REBUILT via the event/assessment pipeline** — the enum patch is rejected | **RATIFIED** (§9.4) |
+| **2026-08-21** | **Animation library fixed as Framer Motion** — one library, not GSAP-plus-Framer | **Live** (§7.5) |
+| **2026-08-22** | **`/home` retired.** Three built-and-rejected visual passes; founder called it by name — **Live** (§7.6) |
 
 ## 7.1 Reversals, with reasons
 
@@ -805,6 +810,65 @@ severity (§4.6) as amended.
 
 **Still open, and unaffected by this closure:** D2 (Score inversion) and D6 (seed
 subject). Neither gates `M1-3`.
+
+## 7.5 Animation library fixed as Framer Motion (2026-08-21)
+
+**Chosen.** Framer Motion is the one animation library. It was already three
+components deep (`Dock`, `AnimatedTitleFM`, `ElasticSlider`) before this was
+written down, so this ratifies existing practice rather than starting one.
+
+**Rejected:** adding GSAP alongside it. Consistent with §1.5's classification
+of "3 simultaneous motion runtimes" as a maintenance burden — one library,
+not two running in parallel for the same job.
+
+**Gotcha to carry forward:** Framer Motion v12 rejects `{ initial, animate }`
+objects spread onto `motion.*` elements (TypeScript rejects the `animate`
+type). Use `variants` plus string labels for `initial`/`animate` instead.
+
+## 7.6 `/home` retired (2026-08-22)
+
+**Removed.** `/home` was documented in §3 as "← THE PRODUCT" — the sole
+post-onboarding landing, "the thesis, rendered": Score + one action + exam
+context. It went through three built-and-shipped visual passes in one
+session — Console-styled, then bounded-accent warm (§12 of
+`PRODUCT_PRINCIPLES.md`, 2026-08-21), then full warm/editorial (§12,
+2026-08-22) — and was rejected each time, the last as "even worse" /
+"generic AI-SaaS." Asked directly whether the problem was the near-empty
+score data or the design itself, the founder said the design, and then
+gave the explicit instruction: delete the page.
+
+**What actually happened:** `app/home/page.tsx`, `app/home/layout.tsx`,
+`app/home/warm.css`, `app/api/home-layout/route.ts`, and the
+`components/home/*` renderers (`composer.tsx`, `score-detail.tsx`,
+`exam-day-panel.tsx`, `widgets/index.tsx`) are deleted. `lib/home/*` (the
+pure registry/layout/importance/types the composition engine used) is
+**kept** — `lib/dash-layout.ts` and `app/tools/personalise/page.tsx` still
+depend on it for the Settings layout-customisation feature, which is
+unrelated to the page that just left.
+
+**Interim landing, not a decision.** Every redirect and nav link that
+pointed at `/home` (`/dashboard` and `/console`'s permanent redirects,
+sign-in/sign-up/reset/OAuth-callback routing, onboarding completion, every
+tool's "exit" link, the command palette, the app nav) now points at
+`/capture` — already built, and named in §3 as "the one screen that must
+be built." This is functional plumbing so the app does not 404 on login,
+**not** a decision that Capture is the permanent landing screen. That
+choice is still open.
+
+**What this is not yet:** a decision that StudyLedger has no NOW
+surface at all. `PRODUCT_PRINCIPLES` §1.2/§7.1 (the Score · one action ·
+today's context arc) is not amended by this entry — it describes a
+function, not a route, and nothing has decided that function is gone for
+good rather than pending a landing screen that actually lands. If a
+rebuilt NOW surface is decided against permanently, that is a
+`PRODUCT_PRINCIPLES` amendment of its own, not implied by this one.
+
+**Known gap:** `tests/home-composition.test.mjs`, deleted alongside
+`components/home/composer.tsx` (which it also read directly), covered
+`lib/home/layout.ts`'s pure `resolveHomeComposition` logic — order,
+omission, tiering. That logic still ships (§ above) and is currently
+untested. Rebuilding that suite against `lib/home/*` alone, without the
+deleted composer, is unclaimed work.
 
 ---
 

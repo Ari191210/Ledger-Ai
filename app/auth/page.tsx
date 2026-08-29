@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Mulish, IBM_Plex_Mono, Noto_Sans_Devanagari, Noto_Sans_Tamil } from "next/font/google";
 import "../console/console.css";
 import { supabase } from "@/lib/supabase";
 import { loadUserData } from "@/lib/user-data";
@@ -14,7 +14,16 @@ gsap.registerPlugin(useGSAP);
 // Same font wiring as app/page.tsx (the landing page) — without these,
 // --console-sans / --console-mono are undefined outside /console and the
 // whole type system silently falls back to system-ui.
-const sans = IBM_Plex_Sans({
+//
+// All FOUR faces are required, not just sans+mono: console.css's
+// --type-interface resolves as `var(--console-sans), var(--console-deva),
+// var(--console-tamil), ...` with no fallback on the last two, so a page that
+// loads only sans+mono gets an INVALID --type-interface (not a degraded one)
+// — the missing var() poisons the whole custom property, which is why every
+// unguarded `font-family: var(--type-interface)` on this page was silently
+// falling back to the inherited legacy Orsiri/DM Sans stack from the root
+// layout instead of Mulish.
+const sans = Mulish({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--console-sans",
@@ -26,6 +35,22 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--console-mono",
   display: "swap",
+});
+
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600"],
+  variable: "--console-deva",
+  display: "swap",
+  preload: false,
+});
+
+const tamil = Noto_Sans_Tamil({
+  subsets: ["tamil"],
+  weight: ["400", "500", "600"],
+  variable: "--console-tamil",
+  display: "swap",
+  preload: false,
 });
 
 const LOOP_STEPS = [
@@ -128,9 +153,9 @@ export default function AuthPage() {
       const ud = await loadUserData(userId);
       const declared =
         Boolean(ud?.board) && Array.isArray(ud?.interests) && ud.interests.length > 0;
-      if (ud?.onboardingDone === true || declared) return "/home";
+      if (ud?.onboardingDone === true || declared) return "/capture";
     } catch {
-      /* fall through — `/onboard` bounces an already-declared student to /home */
+      /* fall through — `/onboard` bounces an already-declared student to /capture */
     }
     return "/onboard";
   }
@@ -151,7 +176,7 @@ export default function AuthPage() {
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      router.push(data.user ? await landingRouteFor(data.user.id) : "/home");
+      router.push(data.user ? await landingRouteFor(data.user.id) : "/capture");
     }
     setLoading(false);
   }
@@ -170,7 +195,7 @@ export default function AuthPage() {
     />
   );
 
-  const shellClass = `${sans.variable} ${mono.variable}`;
+  const shellClass = `${sans.variable} ${mono.variable} ${devanagari.variable} ${tamil.variable}`;
 
   if (resetSent) return (
     <main data-console className={shellClass}>
@@ -412,17 +437,17 @@ const authStyles = `
     flex-direction: column;
   }
 
-  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--g-4); border-radius: var(--r-control); overflow: hidden; margin-bottom: var(--s-5); }
+  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; border-radius: var(--r-control); overflow: hidden; margin-bottom: var(--s-5); }
 
   .auth-tab {
-    padding: var(--control-pad-y) 0;
-    min-height: 44px;
+    padding: var(--control-pad-y) 0 !important;
+    min-height: 44px !important;
     background: var(--g-3) !important;
     color: var(--g-6) !important;
     border: none !important;
-    font-family: var(--type-interface);
+    font-family: var(--type-interface) !important;
     font-weight: 500;
-    font-size: var(--t-body);
+    font-size: var(--t-body) !important;
     cursor: pointer;
     transition: background var(--m-fast) var(--ease-out), color var(--m-fast) var(--ease-out);
   }
@@ -449,21 +474,36 @@ const authStyles = `
 
   .auth-fields { display: flex; flex-direction: column; gap: var(--s-3); }
 
-  :global(.auth-input) {
+  .auth-input {
     width: 100%;
-    font-family: var(--type-interface);
-    font-size: var(--t-body);
+    font-family: var(--type-interface) !important;
+    font-size: var(--t-body) !important;
     border: 1px solid var(--g-4) !important;
     border-radius: var(--r-control);
     background: var(--g-3) !important;
     color: var(--g-7) !important;
-    padding: var(--control-pad-y) var(--s-3);
-    min-height: 44px;
+    padding: var(--control-pad-y) var(--s-3) !important;
+    min-height: 44px !important;
     outline: none;
     transition: border-color var(--m-fast) var(--ease-out);
   }
-  :global(.auth-input:focus) { border-color: var(--g-7) !important; }
-  :global(.auth-input::placeholder) { color: var(--g-5) !important; }
+  .auth-input:focus { border-color: var(--g-7) !important; }
+  .auth-input::placeholder { color: var(--g-5) !important; }
+
+  /* Chrome/Edge autofill (and, on some setups, plain focus under a dark OS
+     theme) paint the field with their own dark UA background and can leave
+     text unreadable against it. Forcing the fill via a huge inset shadow and
+     pinning the text colour is the only override that reliably beats it. */
+  .auth-input:-webkit-autofill,
+  .auth-input:-webkit-autofill:hover,
+  .auth-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--g-7) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--g-3) inset !important;
+    box-shadow: 0 0 0 1000px var(--g-3) inset !important;
+    caret-color: var(--g-7);
+    transition: background-color 0s 600000s, color 0s 600000s;
+  }
+  .auth-input { color-scheme: light; }
 
   .auth-forgot { display: flex; justify-content: flex-end; margin-top: var(--s-2); }
 

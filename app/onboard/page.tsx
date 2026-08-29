@@ -1,11 +1,13 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Mulish, IBM_Plex_Mono, Noto_Sans_Devanagari, Noto_Sans_Tamil } from "next/font/google";
 import { useAuth } from "@/components/auth-provider";
 import { saveStudentProfile, loadUserData } from "@/lib/user-data";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { BOARDS } from "@/lib/onboarding-constants";
+import "../console/console.css";
 gsap.registerPlugin(useGSAP);
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -37,7 +39,44 @@ gsap.registerPlugin(useGSAP);
 // finishes. No step index, no progress bar, no back button, no "N of M", no
 // congratulations screen — a checklist and a tour are both banned by §2.6 by
 // name, and a nine-step counter is a checklist with a progress bar attached.
+//
+// MOVED TO CONSOLE, 2026-08-21 — this file previously rendered on the
+// pre-Console legacy tokens (`--serif` italic headings, `--cinnabar` accent,
+// `--paper`/`--ink`). Content and behaviour are unchanged; only the token
+// layer moved, matching /auth, /home and the rest of V1. Selection state uses
+// weight (an ink-filled check), never hue, per `PRODUCT_PRINCIPLES` §6.6 —
+// the same reason Control's primary tier is ink rather than the accent.
 // ═══════════════════════════════════════════════════════════════════════════
+
+const sans = Mulish({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--console-sans",
+  display: "swap",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--console-mono",
+  display: "swap",
+});
+
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600"],
+  variable: "--console-deva",
+  display: "swap",
+  preload: false,
+});
+
+const tamil = Noto_Sans_Tamil({
+  subsets: ["tamil"],
+  weight: ["400", "500", "600"],
+  variable: "--console-tamil",
+  display: "swap",
+  preload: false,
+});
 
 // The subject list is deliberately the same twelve entries the retired flow
 // offered, under its own question ("Which subjects interest you?"). Keeping
@@ -49,45 +88,6 @@ const SUBJECTS = [
   "Computer Science", "Psychology", "History", "Geography",
   "Economics", "English Literature", "Accountancy", "Political Science",
 ];
-
-function OptionPill({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={selected}
-      style={{
-        width: "100%",
-        padding: "13px 16px",
-        borderRadius: 14,
-        border: `1.5px solid ${selected ? "var(--cinnabar)" : "var(--rule)"}`,
-        background: selected ? "color-mix(in srgb, var(--cinnabar) 9%, var(--paper))" : "color-mix(in srgb, var(--ink) 3%, var(--paper))",
-        color: "var(--ink)",
-        cursor: "pointer",
-        textAlign: "left",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 12,
-        minHeight: 44,
-        transition: "border-color 160ms ease, background 160ms ease",
-      }}
-    >
-      <span style={{ fontFamily: "var(--sans)", fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>{label}</span>
-      <span style={{
-        width: 20, height: 20, borderRadius: "50%",
-        border: `1.5px solid ${selected ? "var(--cinnabar)" : "var(--rule)"}`,
-        background: selected ? "var(--cinnabar)" : "transparent",
-        flexShrink: 0,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        transition: "background 160ms ease, border-color 160ms ease",
-        fontSize: 11,
-        color: selected ? "var(--paper)" : "transparent",
-      }}>
-        {selected && "✓"}
-      </span>
-    </button>
-  );
-}
 
 export default function OnboardPage() {
   const router = useRouter();
@@ -118,7 +118,7 @@ export default function OnboardPage() {
       .then(ud => {
         if (!ud) return;
         const declared = Boolean(ud.board) && Array.isArray(ud.interests) && ud.interests.length > 0;
-        if (ud.onboardingDone === true || declared) router.replace("/home");
+        if (ud.onboardingDone === true || declared) router.replace("/capture");
       })
       .catch(() => {});
   }, [user, authLoading, router]);
@@ -129,6 +129,24 @@ export default function OnboardPage() {
 
   const ready = board !== "" && subjects.length > 0;
 
+  // Local closure, not a separate component — styled-jsx's <style jsx> below
+  // only scopes JSX literals written inside THIS component's own render tree
+  // (same reason /auth's `inp()` helper is a closure, not its own component).
+  // A genuinely separate `function OptionPill(...)` never receives the scope
+  // class, so `.ob-pill` silently matched nothing and every legacy global
+  // `button` reset in globals.css won by default instead.
+  const optionPill = (label: string, selected: boolean, onClick: () => void) => (
+    <button
+      key={label}
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`ob-pill ${selected ? "ob-pill--selected" : ""}`}
+    >
+      <span className="ob-pill-label">{label}</span>
+      <span className="ob-pill-check">{selected && "✓"}</span>
+    </button>
+  );
+
   async function finish() {
     if (!user || !ready) return;
     setSaving(true); setError("");
@@ -138,73 +156,170 @@ export default function OnboardPage() {
       "onboarding",
     );
     if (err) { setError("Could not save. Check your connection and try again."); setSaving(false); return; }
-    router.replace("/home");
+    router.replace("/capture");
   }
 
+  const shellClass = `${sans.variable} ${mono.variable} ${devanagari.variable} ${tamil.variable}`;
+
   if (authLoading || !user) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-      <div className="mono" style={{ color: "var(--ink-3)" }}>Loading…</div>
+    <div data-console className={shellClass} style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "var(--g-0)" }}>
+      <span style={{ fontFamily: "var(--type-instrument)", fontSize: "var(--t-label)", color: "var(--g-6)" }}>Loading…</span>
     </div>
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "transparent", color: "var(--ink)", display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}>
-
-      <div style={{ padding: "18px 28px", borderBottom: "1px solid var(--rule-2)" }}>
-        <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 19, letterSpacing: "-0.02em" }}>
-          Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
-        </span>
+    <div data-console className={shellClass} style={{ minHeight: "100vh", background: "var(--g-0)" }}>
+      <div className="ob-header">
+        {/* The single bounded accent on this screen (PRODUCT_PRINCIPLES §6.2,
+            amended 2026-08-21) — the wordmark, and nothing else. */}
+        <span className="ob-wordmark">StudyLedger</span>
       </div>
 
-      <div className="onboard-outer" style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "48px 24px 80px" }}>
-        <div ref={screenRef} style={{ width: "100%", maxWidth: 560 }}>
-
-          <div style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 8 }}>
-            Two questions<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
-          </div>
-          <div style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.6, marginBottom: 36 }}>
+      <div className="ob-outer">
+        <div ref={screenRef} className="ob-card">
+          <h1 className="ob-title">Two questions.</h1>
+          <p className="ob-subtext">
             Your board decides which papers count. Your subjects decide what the
             record is kept in. Both are editable later in Settings.
-          </div>
+          </p>
 
           {/* ── Question 1 · Board ─────────────────────────────────────── */}
-          <div style={{ marginBottom: 36 }}>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 500, marginBottom: 14 }}>
-              Which board do you follow?
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 }}>
-              {BOARDS.map(b => (
-                <OptionPill key={b} label={b} selected={board === b} onClick={() => setBoard(b)} />
-              ))}
+          <div className="ob-question">
+            <div className="ob-question-title">Which board do you follow?</div>
+            <div className="ob-grid">
+              {BOARDS.map(b => optionPill(b, board === b, () => setBoard(b)))}
             </div>
           </div>
 
           {/* ── Question 2 · Subjects ──────────────────────────────────── */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontStyle: "italic", fontWeight: 500, marginBottom: 14 }}>
-              Which subjects are you studying?
-            </div>
-            <div className="onboard-interests" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 }}>
-              {SUBJECTS.map(s => (
-                <OptionPill key={s} label={s} selected={subjects.includes(s)} onClick={() => toggleSubject(s)} />
-              ))}
+          <div className="ob-question ob-question--last">
+            <div className="ob-question-title">Which subjects are you studying?</div>
+            <div className="ob-grid">
+              {SUBJECTS.map(s => optionPill(s, subjects.includes(s), () => toggleSubject(s)))}
             </div>
           </div>
 
-          {error && (
-            <div style={{ marginBottom: 14, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>
-          )}
+          {error && <div className="ob-error">{error}</div>}
 
-          <button
-            className="btn"
-            onClick={finish}
-            disabled={!ready || saving}
-            style={{ padding: "14px 32px", fontSize: 13, opacity: !ready || saving ? 0.35 : 1 }}
-          >
+          <button className="ob-finish" onClick={finish} disabled={!ready || saving}>
             {saving ? "Saving…" : "Open my ledger →"}
           </button>
         </div>
       </div>
+
+      <style jsx global>{`
+        .ob-header {
+          padding: var(--s-3) var(--s-5);
+          border-bottom: 1px solid var(--g-4);
+        }
+        .ob-wordmark {
+          font-family: var(--type-interface);
+          font-weight: 600;
+          font-size: var(--t-label);
+          letter-spacing: 0.02em;
+          color: var(--accent);
+        }
+        .ob-outer {
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          padding: var(--s-6) var(--s-4) var(--s-6);
+        }
+        .ob-card { width: 100%; max-width: 560px; }
+        .ob-title {
+          font-family: var(--type-interface);
+          font-weight: 500;
+          font-size: var(--t-figure);
+          letter-spacing: -0.01em;
+          line-height: 1.15;
+          color: var(--g-7);
+          margin: 0 0 var(--s-1);
+        }
+        .ob-subtext {
+          font-family: var(--type-interface);
+          font-size: var(--t-body);
+          color: var(--g-6);
+          line-height: 1.5;
+          margin: 0 0 var(--s-5);
+        }
+        .ob-question { margin-bottom: var(--s-5); }
+        .ob-question--last { margin-bottom: var(--s-4); }
+        .ob-question-title {
+          font-family: var(--type-interface);
+          font-weight: 500;
+          font-size: var(--t-title);
+          color: var(--g-7);
+          margin-bottom: var(--s-3);
+        }
+        .ob-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: var(--s-2);
+        }
+        .ob-pill {
+          width: 100%;
+          min-height: 44px;
+          padding: var(--control-pad-y) var(--s-3) !important;
+          border-radius: var(--r-control);
+          border: 1px solid var(--g-4) !important;
+          background: var(--g-3) !important;
+          color: var(--g-7) !important;
+          cursor: pointer;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: var(--s-2);
+          transition: border-color var(--m-fast) var(--ease-out), background var(--m-fast) var(--ease-out);
+          font-family: var(--type-interface) !important;
+          font-size: var(--t-body) !important;
+          font-weight: 500;
+        }
+        .ob-pill--selected {
+          border-color: var(--g-7) !important;
+          background: var(--g-1) !important;
+        }
+        .ob-pill-label { line-height: 1.3; }
+        .ob-pill-check {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          border: 1px solid var(--g-4) !important;
+          background: transparent !important;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          color: var(--g-0) !important;
+          transition: background var(--m-fast) var(--ease-out), border-color var(--m-fast) var(--ease-out);
+        }
+        .ob-pill--selected .ob-pill-check {
+          border-color: var(--g-7) !important;
+          background: var(--g-7) !important;
+        }
+        .ob-error {
+          margin-bottom: var(--s-3);
+          font-family: var(--type-interface);
+          font-size: var(--t-label);
+          color: var(--error);
+        }
+        .ob-finish {
+          min-height: 44px;
+          padding: var(--control-pad-y) var(--s-5) !important;
+          border-radius: var(--r-control);
+          border: 1px solid var(--g-7) !important;
+          background: var(--g-7) !important;
+          color: var(--g-0) !important;
+          font-family: var(--type-instrument) !important;
+          font-size: var(--t-label) !important;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: opacity var(--m-fast) var(--ease-out);
+        }
+        .ob-finish:disabled { cursor: not-allowed; opacity: 0.35; }
+      `}</style>
     </div>
   );
 }

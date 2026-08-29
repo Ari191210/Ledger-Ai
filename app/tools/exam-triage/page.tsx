@@ -605,7 +605,7 @@ export default function ExamTriagePage() {
         {tab === "lastnight" && <LastNightTab />}
 
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
-          <Link href="/home" className="mono" style={{ color: "var(--ink-3)" }}>← Home</Link>
+          <Link href="/capture" className="mono" style={{ color: "var(--ink-3)" }}>← Capture</Link>
           <div className="mono" style={{ color: "var(--ink-3)" }}>Ledger.</div>
         </div>
       </main>

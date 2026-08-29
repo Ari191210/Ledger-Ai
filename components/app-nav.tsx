@@ -266,7 +266,7 @@ export default function AppNav() {
           </span>
         </Link>
 
-        {navLink("/home", "Home", undefined, true)}
+        {navLink("/capture", "Capture", undefined, true)}
 
         {/* ── Light / dark toggle ── */}
         <button
@@ -476,7 +476,7 @@ export default function AppNav() {
         {/* Footer */}
         <div style={{ padding: "10px 16px", borderTop: "1px solid var(--rule)", flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: "0.06em" }}>Esc to close</span>
-          <Link href="/home" onClick={closeSidebar} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
+          <Link href="/tools" onClick={closeSidebar} style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--cinnabar-ink)", textDecoration: "none", letterSpacing: "0.06em" }}>
             → All tools
           </Link>
         </div>
