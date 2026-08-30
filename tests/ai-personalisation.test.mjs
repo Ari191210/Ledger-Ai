@@ -423,15 +423,20 @@ const buildProfileContext = (() => {
 
 const sha = s => crypto.createHash('sha256').update(s, 'utf8').digest('hex');
 
+// Re-baselined 2026-08-30. PRODUCT_DECISIONS §7.8 appends a HOUSE STYLE block
+// to every context, so every non-empty digest below moved by design. The empty
+// profile's digest is UNCHANGED (e3b0c442..., the sha of ""), which is the
+// evidence that the early return still fires and an unonboarded student is
+// still addressed as nobody rather than as a fiction.
 const PROFILE_MATRIX = [
   ['nothing declared',      {}, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
-  ['grade only',            { grade: 'Class 12' }, 'ac4fb9e494e11ed19b6e48ea8997b3005567f0b0326d9834a052ae0b4b7a13f7'],
-  ['CBSE · PCM · JEE, full', { grade: 'Class 12', board: 'CBSE', stream: 'PCM', targetExam: 'JEE Advanced', interests: ['football', 'astronomy'], subjects: ['Physics', 'Maths'], aiProfile: { learningStyle: 'examples-first', communicationStyle: 'direct' } }, 'cce9cb90f91ad0d81e979d1209c3e5a2728111bbdbe171cf8485f96a80b89885'],
-  ['ICSE · PCB · NEET',     { grade: 'Class 11', board: 'ICSE', stream: 'PCB', targetExam: 'NEET', interests: ['medicine'], subjects: ['Biology'] }, '61e1322522ed05af9c899d0f987d7c90f68fbf276ec055f0391f84d71cc06f07'],
-  ['IB · Humanities · unlisted exam', { grade: 'DP2', board: 'IB', stream: 'Humanities', targetExam: 'BMAT', subjects: ['History'] }, '8d167ffc21f9153964b15d923dab19f052098c266a75af8a49b4ac79c79a2bb2'],
-  ['unlisted board',        { grade: 'Class 10', board: 'Cambridge Pre-U' }, '2cfba33ed916a40e79c5844619032860c579e91c57673f79dc18ed9a1aecb3bc'],
-  ['IGCSE + both styles',   { grade: 'Class 9', board: 'IGCSE', aiProfile: { learningStyle: 'step-by-step', communicationStyle: 'simple' } }, 'a5c5fb1c1c4404001b4c1497c350e45a92be40be60eef508b3d82835fbbcdf13'],
-  ['board, no grade',       { board: 'State Board' }, '2b8ef9f7fd5fccb708fad02d432d41beeaa0ac2a0fc820d905a85d66b2acc63d'],
+  ['grade only',            { grade: 'Class 12' }, 'd9fab3ce7d4a73546ee65708be11606f2fed6098d32b30319dcda2f25a302201'],
+  ['CBSE · PCM · JEE, full', { grade: 'Class 12', board: 'CBSE', stream: 'PCM', targetExam: 'JEE Advanced', interests: ['football', 'astronomy'], subjects: ['Physics', 'Maths'], aiProfile: { learningStyle: 'examples-first', communicationStyle: 'direct' } }, '4124fd7649174bbada5bf6e26b92df4407a77a8be66a26761e32da5287884dbf'],
+  ['ICSE · PCB · NEET',     { grade: 'Class 11', board: 'ICSE', stream: 'PCB', targetExam: 'NEET', interests: ['medicine'], subjects: ['Biology'] }, '5fd58cc9f49b869629dcbfd3c2420da8102dfb4a67f59d922029069cb1c89aed'],
+  ['IB · Humanities · unlisted exam', { grade: 'DP2', board: 'IB', stream: 'Humanities', targetExam: 'BMAT', subjects: ['History'] }, 'bf59173357be8e3c272314a220013c99c9be1a7ac19591dba85b52973e6bf28b'],
+  ['unlisted board',        { grade: 'Class 10', board: 'Cambridge Pre-U' }, '661df2f293fe65fecbb2842ead4eafcddfc4d0e95e64273d789d90fdb5913c53'],
+  ['IGCSE + both styles',   { grade: 'Class 9', board: 'IGCSE', aiProfile: { learningStyle: 'step-by-step', communicationStyle: 'simple' } }, 'a53c4b8a2cd09de2504002178ef45daaeab063edfe27c77e96ccd23a124ad83c'],
+  ['board, no grade',       { board: 'State Board' }, 'c1f1c1ca630109921a1e40a144449f8dc10f1ff9116c1e5c374bd38437054249'],
 ];
 
 describe('M15-1 · the context, executed', () => {
@@ -456,6 +461,20 @@ describe('M15-1 · the context, executed', () => {
       '\n6. NEVER say "as a Class 12 student…" or "since you study CBSE…" — just write at their level naturally.' +
       '\n7. LEARNING STYLE: Lead with a concrete, relatable example before explaining the theory. Show what it looks like first — then explain why it works.' +
       '\n8. COMMUNICATION TONE: Be concise. Skip preambles and filler. Every sentence should earn its place. If something can be said in 5 words, don\'t use 10.' +
+      // §7.8 - appended for every student, never personalised away.
+      '\n\nHOUSE STYLE - these are not preferences and are never overridden:' +
+      '\nA. Never use an em-dash or an en-dash in prose. Use a full stop, a comma, or' +
+      '\n   a colon. Rewrite the sentence rather than reaching for a dash.' +
+      '\nB. Never end an explanation on your own judgement that it is finished. Do not' +
+      '\n   write closers of the "hope that helps", "you\'ve got it now", "that covers' +
+      '\n   it" family. A concept is closed only when the STUDENT shows it is clear,' +
+      '\n   and you cannot observe that from your own output.' +
+      '\nC. After explaining, check it landed: ask the student to state it back, apply' +
+      '\n   it to one case, or say which part is still unclear. Keep going until they' +
+      '\n   demonstrate it, however many turns that takes. Never imply they should' +
+      '\n   already understand.' +
+      '\nD. Never fabricate a figure, a trend, a mark, or any part of the student\'s' +
+      '\n   history. If you do not have it, say so plainly.' +
       '\n--- END STUDENT CONTEXT ---\n');
   });
 
@@ -970,7 +989,13 @@ describe('M15-4 · the greedy regex and the degrade path are both gone', () => {
   });
 
   test('a successful reply is returned as the validated value, not the raw parse', () => {
-    assert.ok(has(POST, 'return NextResponse.json(verdict.value);'));
+    // Amended 2026-08-30: the value now passes through stripDashesDeep, which
+    // PRODUCT_DECISIONS §7.8 A requires. The claim this test exists to make is
+    // unchanged and still asserted - what reaches the student derives from
+    // `verdict.value`, the CONTRACT-CHECKED object, and never from the raw
+    // parse. Only the house-style pass sits between them.
+    assert.ok(has(POST, 'return NextResponse.json(stripDashesDeep(verdict.value));'));
+    assert.ok(!has(POST, 'NextResponse.json(parsed'), 'the raw parse must never be returned');
   });
 });
 

@@ -5,7 +5,7 @@ AUTHORITY:       decisions
 ANSWERS:         "what have we chosen, as of now?"
 MAY NOT CONTAIN: principles · milestones · task order · effort estimates · dates of delivery
 PRECEDENCE:      PRINCIPLES > DECISIONS > PLANS
-LAST AMENDED:    2026-08-21
+LAST AMENDED:    2026-08-30
 ```
 
 Everything here is **revisable**. Each entry is dated and every reversal is
@@ -151,8 +151,8 @@ What appears in navigation and what URLs the product advertises.
 ```
 ├── /                       Marketing. One sentence, one proof, one button.
 ├── /auth                   Sign in.
-├── /onboard                Board and subjects. Then straight to Capture
-│                           (interim landing, §7.6).
+├── /onboard                Ten questions, one per page (§2.6). Then the
+│                           dashboard, with a first-run walkthrough.
 │
 ├── /home                   RETIRED 2026-08-22 (§7.6) — three visual passes
 │                           rejected, founder called for deletion. The NOW
@@ -213,9 +213,29 @@ routable. `/console/ai` is out of V1 because no teaching surface ships, per
 
 ## 2.6 Onboarding
 
-**Board and subjects, one screen.** The ceiling is three questions; we use one
-screen's worth. Then straight into Home with a real starting Score. Never a
-tour. Never a checklist.
+*Rewritten 2026-08-30. See §7.7 for the reversal and its reasoning. The prior
+text read: "**Board and subjects, one screen.** The ceiling is three questions;
+we use one screen's worth. Then straight into Home with a real starting Score.
+Never a tour. Never a checklist."*
+
+**Ten questions, one per page, then a walkthrough.**
+
+The first thing a new student does is tell the product who they are. Ten
+questions, presented **one to a page** — never all ten on one screen, and never
+a scrolling form. Progress is visible and every answer is revisable with a back
+control, because a question a student cannot un-answer is an interrogation.
+
+**Every question must earn its place by changing model behaviour.** Nine of the
+ten map exactly onto `lib/personal-model.ts`'s bounded dimension list (I.2); the
+tenth is board and subjects, which the record cannot function without. A
+question whose answer changes nothing is removed, not kept for symmetry.
+
+**Then the dashboard, with a walkthrough.** Not a marketing tour of features:
+a first-run pass over the surfaces the student will actually use, which ends
+and does not return. After it, they use the product freely.
+
+**Skippable, and never lost.** A student who abandons midway keeps every answer
+already given; the profile is partial, which is a legal state, not an error.
 
 ---
 
@@ -226,7 +246,7 @@ tour. Never a checklist.
 | # | Route | Why it cannot be cut |
 |---|---|---|
 | 1 | `/auth` | No product without a user |
-| 2 | `/onboard` | Board and subjects. Nothing else. |
+| 2 | `/onboard` | Ten questions, one per page. The profile the model runs on (§2.6, §7.7). |
 | 3 | ~~`/home`~~ | Retired 2026-08-22 (§7.6). Was: the thesis, rendered — Score + one action. No route claims this job today. |
 | 4 | **`/capture`** | **Photograph a marked paper. If this doesn't ship, nothing else matters.** |
 | 5 | `/diagnosis` | The answer. The merge of six. |
@@ -710,6 +730,8 @@ wins**, because §6 is a scope note and §9 is a decision.
 | **2026-08-10** | **Mistake pillar is REBUILT via the event/assessment pipeline** — the enum patch is rejected | **RATIFIED** (§9.4) |
 | **2026-08-21** | **Animation library fixed as Framer Motion** — one library, not GSAP-plus-Framer | **Live** (§7.5) |
 | **2026-08-22** | **`/home` retired.** Three built-and-rejected visual passes; founder called it by name — **Live** (§7.6) |
+| **2026-08-30** | **Onboarding reversed: ten questions, one per page, then a dashboard walkthrough** — reverses §2.6's three-question cap and its tour ban | **Live** (§7.7) |
+| **2026-08-30** | **AI writes without em-dashes, and never closes a concept on its own say-so** | **Live** (§7.8) |
 
 ## 7.1 Reversals, with reasons
 
@@ -872,9 +894,71 @@ deleted composer, is unclaimed work.
 
 ---
 
+## 7.7 Onboarding reversed: ten questions, one per page, then a walkthrough (2026-08-30)
+
+**Reverses §2.6 as written, and the "never a tour" clause with it.** Founder
+decision, stated directly: *"as soon as they sign up for the first time they get
+asked 10 questions and like its a page format not like all 10 in one go after
+that they go to the dashboard where there is a walk through of how to use and
+then they can use freely."*
+
+**What the prior rule was, and why it existed.** §2.6 capped onboarding at three
+questions, shipped two, and banned tours and checklists by name. M5-3 executed
+that faithfully — `app/onboard/page.tsx` records the history: the file had been a
+nine-step wizard asking grade, board, stream, interests, learning style,
+communication style, target exam and a syllabus upload, and architecture S.6
+called it *"four times the ratified ceiling."* The reasoning was sound and is
+not disowned here: every question is an opportunity to abandon before the student
+has seen anything of value.
+
+**Why it is reversed anyway.** The cap was written when there was nothing to
+feed. Since M19 there is: `personal_model` holds nine typed dimensions
+(`lib/personal-model.ts`, architecture I.2), each one materially changing how
+the product explains, questions, corrects and paces. Those dimensions were
+being populated only by *inference* from behaviour, which means a brand-new
+student — the exact person with no behaviour yet — got the least personalised
+product. Asking is the fix, and I.6's explicit-over-inferred guarantee already
+exists precisely so a stated preference outranks a guessed one.
+
+The abandonment risk is real and is mitigated structurally rather than by
+keeping the count low: one question per page, visible progress, a back control,
+and every answer persisted as it is given, so leaving early costs the student
+nothing and the profile is simply partial.
+
+**The tour ban is narrowed, not deleted.** What §2.6 banned was the edtech
+pattern of a product explaining itself instead of being obvious, and that
+judgement stands for feature tours and for checklists. What ships is a
+first-run walkthrough of the surfaces a student will actually use, which ends
+and never returns. If the walkthrough grows into a feature tour, this entry has
+been misread.
+
+**Scope.** `/onboard` and the first-run dashboard pass. No other route changes.
+`PRODUCT_PRINCIPLES` §4.3 (milestone-gated unlocking is gamification) is
+untouched and still binding: nothing in the walkthrough may gate, unlock, or
+award anything.
+
+## 7.8 The AI writes plainly, and does not close a concept early (2026-08-30)
+
+Two founder rules for every model-backed surface, recorded because they are
+product law rather than prompt preference:
+
+1. **No em-dashes in generated prose.** Enforced at the AI boundary, not by
+   asking the model nicely, and covered by a test — a style rule that lives only
+   in a prompt is a style rule that regresses on the next model version.
+2. **A concept is not closed until it is crystal clear to the student.** The
+   tutor does not conclude, change subject, or mark an explanation finished on
+   its own say-so. This is the teaching-surface counterpart of
+   `PRODUCT_PRINCIPLES` §3.1 — a student may not mark their own mistake fixed,
+   and the model may not declare its own explanation understood.
+
+Neither rule weakens §1.4 (*we do not teach*): the product's business is still
+the record. These govern how the explanation behaves when one is given.
+
+---
+
 # 8. FROZEN — APPROVED, NOT IN SCOPE
 
-**The Workspace Engine** (four DNA traits, 108 configurations, seven presets) is
+**The Workspace Engine** (four DNA traits, 162 configurations, six presets) is
 approved in principle and **not built by any current milestone.** Archived at
 `docs/archive/WORKSPACE.md`.
 

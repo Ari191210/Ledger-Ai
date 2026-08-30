@@ -248,6 +248,29 @@ function buildProfileContext(profile: StudentProfile): string {
     ctx += `\n8. COMMUNICATION TONE: ${commInstructions[aiProfile.communicationStyle ?? ""] || "Natural and clear."}`;
   }
 
+  // PRODUCT_DECISIONS §7.8 - two founder rules of 2026-08-30. NOT personalised
+  // and NOT conditional: a student preference may tune how much is said, never
+  // whether these hold. Declared here rather than at module scope because
+  // tests/ai-personalisation.test.mjs extracts this function and executes it
+  // standalone; a free variable would be unresolvable there.
+  //
+  // Rule A is enforced a second time by stripDashes() on the response, because
+  // a prompt is a request and a post-process is a guarantee.
+  ctx += `
+
+HOUSE STYLE - these are not preferences and are never overridden:
+A. Never use an em-dash or an en-dash in prose. Use a full stop, a comma, or
+   a colon. Rewrite the sentence rather than reaching for a dash.
+B. Never end an explanation on your own judgement that it is finished. Do not
+   write closers of the "hope that helps", "you've got it now", "that covers
+   it" family. A concept is closed only when the STUDENT shows it is clear,
+   and you cannot observe that from your own output.
+C. After explaining, check it landed: ask the student to state it back, apply
+   it to one case, or say which part is still unclear. Keep going until they
+   demonstrate it, however many turns that takes. Never imply they should
+   already understand.
+D. Never fabricate a figure, a trend, a mark, or any part of the student's
+   history. If you do not have it, say so plainly.`;
   ctx += `\n--- END STUDENT CONTEXT ---\n`;
   return ctx;
 }
@@ -540,6 +563,61 @@ function buildPersonalisedPrompt(
 // Builder is advertised Free but gated pro-plus in app/tools/resume/page.tsx),
 // the pricing page wins by founder ruling — the stale gate should be corrected
 // separately.
+/**
+ * The dash strip. Applied to model prose before it reaches a student.
+ *
+ * Em (u2014), en (u2013), horizontal bar (u2015) and the double hyphen typists
+ * substitute for them. A dash flanked by spaces collapses to a single space; a
+ * dash between two word characters becomes a comma and a space, so "a-b" reads
+ * as "a, b" rather than running the words together.
+ *
+ * Deliberately NOT applied inside code fences or inline code: a dash there is
+ * syntax, and rewriting it would corrupt a correct answer to tidy prose.
+ */
+export function stripDashes(text: string): string {
+  // Split on code spans so their contents are never rewritten. Built from a
+  // character class rather than a literal, deliberately: a backtick written
+  // directly here would unbalance the file for any tool that scans source for
+  // template literals, and one such audit runs in CI.
+  const TICK = String.fromCharCode(96);
+  const fence = TICK + TICK + TICK;
+  const splitter = new RegExp(
+    "(" + fence + "[\\s\\S]*?" + fence + "|" + TICK + "[^" + TICK + "\\n]*" + TICK + ")",
+    "g",
+  );
+  return text
+    .split(splitter)
+    .map((part, i) =>
+      i % 2 === 1
+        ? part
+        : part
+            .replace(/\s+[\u2014\u2013\u2015]\s+/g, " ")
+            .replace(/\s+--\s+/g, " ")
+            .replace(/([A-Za-z0-9])[\u2014\u2013\u2015]([A-Za-z0-9])/g, "$1, $2")
+            .replace(/[\u2014\u2013\u2015]/g, ", "),
+    )
+    .join("");
+}
+
+
+/**
+ * `stripDashes` over every string in a validated payload, at any depth.
+ *
+ * The route returns structured JSON rather than prose, so applying the rule to
+ * a single "text" field would leave dashes in every other field a capability
+ * happens to define. Keys are left alone: they are contract, not prose.
+ */
+function stripDashesDeep(value: unknown): unknown {
+  if (typeof value === "string") return stripDashes(value);
+  if (Array.isArray(value)) return value.map(stripDashesDeep);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, stripDashesDeep(v)]),
+    );
+  }
+  return value;
+}
+
 const FREE_TOOLS: ReadonlySet<string> = new Set([
   // Study Engine & Doubt Solver
   "doubt", "doubt_cross_question", "doubt_cross_eval", "notes",
@@ -884,5 +962,9 @@ export async function POST(req: Request) {
     outcome: repairAttempts > 0 ? "repaired" : "succeeded",
     rejection: null, repairAttempts, inputTokens, outputTokens,
   });
-  return NextResponse.json(verdict.value);
+  // PRODUCT_DECISIONS §7.8 A. The prompt asks; this guarantees. Applied after
+  // validation so the contract is checked against what the model produced, and
+  // after logging so `ai_invocations` records the real output rather than a
+  // tidied copy of it.
+  return NextResponse.json(stripDashesDeep(verdict.value));
 }

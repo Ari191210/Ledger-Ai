@@ -12,7 +12,7 @@
 //   2. STRUCTURAL, over source and SQL, for the claims that are about the
 //      shape of the tree rather than the value of an expression: that the
 //      whole-row read-modify-write is gone, that the server context never
-//      writes, that onboarding is one screen of two questions, that signup
+//      writes, that onboarding is ten pages of one question each, that signup
 //      leads into it, and that the landing page has a way back in. Same
 //      convention as tests/auth-middleware.test.mjs and
 //      tests/home-shell.test.mjs.
@@ -314,30 +314,81 @@ describe('supabase/migrations/012 — students + versioned student_profiles', ()
 // ═══════════════════════════════════════════════════════════════════════════
 // 6 · M5-3 — ONE SCREEN, TWO QUESTIONS, REACHED FROM SIGNUP
 // ═══════════════════════════════════════════════════════════════════════════
+// Rewritten 2026-08-30 for §2.6 as amended (reversal at PRODUCT_DECISIONS
+// §7.7): ten pages, one question each, progress visible, back always live.
+// The previous cases asserted the two-question single screen and are replaced
+// rather than deleted — the same claims are made about the new rule, so a
+// regression back toward a wizard, or forward into a survey, still fails.
+// ═══════════════════════════════════════════════════════════════════════════
 describe('app/onboard/page.tsx — PRODUCT_DECISIONS §2.6', () => {
   const src = code('app/onboard/page.tsx');
+  const script = code('lib/onboarding-questions.ts');
 
-  test('the eight-step wizard is gone', () => {
+  test('the page renders the script and owns no question of its own', () => {
+    // The flow is data. A question hard-coded into the component is a question
+    // no test can count and no reviewer can find.
+    assert.match(src, /ONBOARDING_PAGES/);
+    assert.equal(/Which board do you follow\?/.test(src), false);
     assert.equal(/TOTAL_DATA_STEPS/.test(src), false);
-    assert.equal(/setStep\(/.test(src), false);
-    assert.equal(/goNext|goBack/.test(src), false);
   });
 
-  test('no progress bar and no step counter — §2.6 bans the checklist', () => {
-    assert.equal(/progressPct|of \{|step \+ 1/.test(src), false);
+  test('ten pages, and page one is the only one with two questions', () => {
+    const pages = script.match(/\{ id: "[a-z]+",\s+questions: \[/g) ?? [];
+    assert.equal(pages.length, 10, '§2.6 states ten');
+    assert.match(script, /\{ id: "you",\s+questions: \[Q\.board, Q\.subjects\] \}/);
   });
 
-  test('exactly two questions are asked', () => {
-    const questions = src.match(/\?\s*<\/div>/g) ?? [];
-    assert.equal(questions.length, 2, 'the ceiling is three; §2.6 and §3 name two');
-    assert.match(src, /Which board do you follow\?/);
-    assert.match(src, /Which subjects are you studying\?/);
-  });
-
-  test('the questions asked are board and subjects and nothing else', () => {
-    for (const retired of ['learningStyle', 'communicationStyle', 'targetExam', 'stream']) {
-      assert.equal(src.includes(retired), false, `${retired} is not ratified for /onboard`);
+  test('every dimension question maps to the bounded list, and all nine are asked', () => {
+    const model = code('lib/personal-model.ts');
+    const bounded = (model.match(/^\s{2}"([a-z_]+)",$/gm) ?? [])
+      .map((l) => l.trim().replace(/[",]/g, ''));
+    assert.ok(bounded.length >= 9, 'sanity: the bounded list parsed');
+    for (const dimension of bounded) {
+      assert.ok(
+        script.includes(`dimension: "${dimension}"`),
+        `${dimension} is a personal-model dimension that onboarding never asks about`,
+      );
     }
+  });
+
+  test('progress is reported and back is always available', () => {
+    // §2.6: "a question a student cannot un-answer is an interrogation."
+    assert.match(src, /role="progressbar"/);
+    assert.match(src, /\{index \+ 1\} of \{PAGE_COUNT\}/);
+    assert.match(src, /disabled=\{index === 0\}/);
+  });
+
+  test('the progress track claims position, never achievement', () => {
+    // PRINCIPLES §4.3 — nothing in onboarding may read as unlocking or
+    // awarding. A track that fills is a readout; a checklist is a reward.
+    for (const banned of ['complete!', 'Well done', 'unlocked', 'Congratulations', 'badge']) {
+      assert.equal(src.toLowerCase().includes(banned.toLowerCase()), false, `${banned} is gamification`);
+    }
+  });
+
+  test('only board and subjects gate completion; the nine are skippable', () => {
+    assert.match(script, /export function isComplete/);
+    // isComplete names identity and nothing else.
+    const body = script.slice(script.indexOf('export function isComplete'));
+    assert.match(body.slice(0, 400), /answers\.board/);
+    assert.match(body.slice(0, 400), /answers\.subjects/);
+    assert.equal(/explanation_style|session_length/.test(body.slice(0, 400)), false,
+      'a preference must never block a student from finishing');
+    // and the control reflects it
+    assert.match(src, /disabled=\{identityPage && !pageAnswered\}/);
+  });
+
+  test('answers persist as they are given, so abandoning costs nothing', () => {
+    assert.match(src, /persistDraft/);
+    assert.match(src, /localStorage\.setItem\(DRAFT_KEY/);
+  });
+
+  test('preferences are written as EXPLICIT, never as inferred', () => {
+    // I.6 — an explicit answer outranks an inferred one. Writing these as
+    // inferred would make the student's own statement a guess.
+    assert.match(src, /explicit_value: w\.value/);
+    assert.equal(/inferred_value|confidence:/.test(src), false,
+      'the client may not write the inferred side; 031 does not grant it');
   });
 
   test('it saves through the versioning write path, not a whole-row upsert', () => {
@@ -345,9 +396,8 @@ describe('app/onboard/page.tsx — PRODUCT_DECISIONS §2.6', () => {
     assert.equal(/saveUserData\(/.test(src), false);
   });
 
-  test('finishing goes straight into Capture — never a done screen', () => {
-    // `/home` was retired 2026-08-22; onboarding now lands on `/capture`.
-    assert.match(src, /router\.replace\("\/capture"\)/);
+  test('finishing goes to the walkthrough, never a done screen', () => {
+    assert.match(src, /router\.replace\("\/capture\?first=1"\)/);
     assert.equal(/Your Ledger is ready|Open my dashboard/.test(src), false);
   });
 
