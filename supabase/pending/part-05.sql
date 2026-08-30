@@ -1,0 +1,2384 @@
+-- ═══════════════════════════════════════════════════════════════════════════
+-- STUDYLEDGER — PENDING MIGRATIONS, PART 5 OF 6
+--
+-- 026, 027, 028, 029, 030
+--
+-- RUN THE PARTS IN ORDER. Each part is a whole number of migrations and is
+-- idempotent, so a part that is interrupted can simply be run again.
+--
+-- Supabase → SQL Editor → New query. Press Ctrl+A then Delete FIRST: the
+-- editor runs only the highlighted text if anything is selected, and a
+-- partial run reports success.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- ─── 026_academic_record.sql ───
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 026_academic_record.sql — THE ACADEMIC RECORD PROJECTION: `coverage_state`
+-- AS A VIEW, THE L2 CACHE THAT COPIES IT, THE PER-CONCEPT ACCURACY COUNTERS,
+-- AND THE WATERMARK LEDGER THE CONSISTENCY JOB CHECKS.
+--
+-- EXECUTION_PLAN M12-1: *"`coverage_state` per concept: declared → studied →
+-- proven. Done when: V.2.7 — a concept becomes `proven` only after
+-- assessment."*
+-- EXECUTION_PLAN M12-2: *"Per-concept accuracy, watermarked and incremental.
+-- Done when: U.2 qualification 1: no queue is introduced."*
+-- EXECUTION_PLAN M12-3: *"Consistency job verifying each projection's watermark
+-- against the stream. Done when: T8 mitigation."*
+--
+-- Architecture C.3 (`AcademicRecord`), H.1 (the five layers), H.2 (L2 is
+-- disposable), Part W's *Persistence* rows L1–L5; V.2.7; T6; T8.
+--
+-- NOT APPLIED TO ANY DATABASE, and not run. Same posture as 015–025.
+--
+--
+-- THE ONE DECISION THIS FILE ENCODES
+--
+-- **`coverage_state` IS A VIEW, AND THE TABLE IS ONLY ITS CACHE.**
+--
+-- C.3: *"Rebuild rule: fully derivable from events + attempts + patterns.
+-- **Stored only as a cache, with the watermark that produced it.**"* H.1 puts
+-- `AcademicRecord` in L2, whose row in the table reads *"rebuildable from L1 by
+-- replay"*, and H.1.a is the rule that makes the whole thing auditable: *"a
+-- layer may read downward and may never write downward … there is exactly one
+-- door into the truth."*
+--
+-- So the DERIVATION stores nothing and cannot drift — a query is not a copy.
+-- `lib/coverage-state.ts` holds all four rungs; §2's
+-- `concept_assessment_evidence` holds the two that can be expressed without
+-- naming M9's fenced session-concept relation (§2 explains the split in full).
+--
+-- §4's `academic_record` is a TABLE, and it is a CACHE OF THAT VIEW, carrying
+-- `input_watermark_event_id` for exactly the reason C.3 gives about
+-- `StudySession`: *"records how far the projection has consumed, WHICH MAKES A
+-- STALE ROW DETECTABLE rather than silently wrong."* When the two disagree the
+-- VIEW WINS, and §6's comment says so in the schema rather than in a wiki.
+--
+-- M10 refused to award `proven` and said why (`lib/assessment-verification.ts`:
+-- *"a second module deciding when a concept becomes proven would be the second
+-- source of truth H.1.a forbids"*). This file is where it is awarded, once.
+--
+--
+-- WHAT MAKES A CONCEPT `proven` — THE FOURTH RUNG, IN SQL
+--
+-- V.2.7: *"The student passes both. **Now** … `AcademicRecord.coverage_state`
+-- for Torque becomes `proven`."* Three conditions, all required:
+--
+--   1. the coverage obligation was DISCHARGED — 024 §3's
+--      `assessment_verification_coverage.covered`, which already requires a
+--      BOUND and ANSWERED unrevoked question;
+--   2. the session is `VERIFIED` — reachable only through M10's transition
+--      gate, which refuses a coverage hole server-side (V.3.5, T5);
+--   3. at least `questions_required` DISTINCT questions for that concept have a
+--      correct latest attempt.
+--
+-- Condition 3 counts DISTINCT QUESTIONS and reads the LATEST attempt per
+-- question, because F.5 makes answers append-only with `attempt_no`: counting
+-- attempts would let four wrong answers and one right answer to a single
+-- question prove a concept, which is not a reading of the evidence this record
+-- may take.
+--
+-- Condition 2 is what keeps V.3.4 false while V.2.7 is true. In V.3.4 the
+-- session closes `CLOSED_UNVERIFIED`, so its concepts stop at `studied` and
+-- *"nothing is presented as verified."*
+--
+--
+-- ADDITIVE THROUGHOUT
+--
+-- Six new objects (three tables, three views), no ALTER of any existing table,
+-- no DROP of any constraint, no widening of any CHECK, and no policy on an
+-- existing table is touched. 015–025 are untouched, so no earlier checksum
+-- moves (T1).
+-- ═══════════════════════════════════════════════════════════════════════════
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 1 · PRECONDITIONS — this file reads five objects it did not create
+--
+-- A view over a missing table fails at CREATE with a message about a relation,
+-- which is a worse first line of a stack trace than the one below. 024 §10's
+-- posture, reused.
+-- ═══════════════════════════════════════════════════════════════════════════
+DO $$
+DECLARE
+  missing TEXT;
+BEGIN
+  SELECT string_agg(t, ', ') INTO missing
+  FROM unnest(ARRAY[
+    'study_sessions', 'assessments',
+    'assessment_questions', 'assessment_attempts', 'academic_events'
+  ]) AS t
+  WHERE to_regclass('public.' || t) IS NULL;
+
+  IF missing IS NOT NULL THEN
+    RAISE EXCEPTION
+      '026 requires 015, 021, 022, 023 and 024 to be applied first — missing: %', missing;
+  END IF;
+
+  IF to_regclass('public.assessment_verification_coverage') IS NULL THEN
+    RAISE EXCEPTION
+      '026 projects `assessed` and `proven` from 024 §3''s assessment_verification_coverage, which is absent';
+  END IF;
+
+  -- 022's confirmed-set view is DELIBERATELY NOT CHECKED HERE, and not named
+  -- anywhere in this file. See §2: M9 fences that relation by substring, so
+  -- rungs 1 and 2 are derived in `lib/coverage-state.ts` and nothing in this
+  -- migration reads a session concept at all.
+END
+$$;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 2 · THE ASSESSMENT EVIDENCE — C.3's `coverage_state`, rungs 3 and 4
+--
+-- The ladder, bottom to top. Each rung is a strictly stronger predicate than
+-- the one below it, so the CASE reads top-down and returns the highest rung
+-- whose evidence exists.
+--
+--   declared  a CONFIRMED session_concept exists (022 §4's predicate). V.2.2:
+--             *"Neither is confirmed. NEITHER REACHES THE RECORD."*
+--   studied   the episode happened: the session carried E-class evidence, or it
+--             left the open states. ABANDONED is excluded — E.2.b makes it
+--             reachable only with zero evidence, so counting it would put an
+--             event in the record that never occurred.
+--   assessed  024 §3 says `covered`. F.2.a's *"recorded as `studied`, NOT
+--             `assessed`"* is the rung below.
+--   proven    covered + VERIFIED session + enough correct distinct questions.
+--
+-- `security_invoker = true` on every view here, exactly as 020 §3, 022 §4,
+-- 023 §4 and 024 §3 do it: the view is a NAME for a predicate and never a
+-- privilege escalation past RLS.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- Correct answers per (assessment, concept), counting DISTINCT QUESTIONS whose
+-- LATEST unrevoked attempt was correct. Split out of the main view so the
+-- distinct-question rule is one readable object rather than a nested clause.
+CREATE OR REPLACE VIEW public.concept_correct_answers
+  WITH (security_invoker = true)
+AS
+  SELECT
+    q.assessment_id,
+    q.concept_ref,
+    a.session_id,
+    a.student_id,
+    COUNT(DISTINCT q.question_id) FILTER (WHERE latest.is_correct)  AS correct_questions,
+    COUNT(DISTINCT q.question_id)                                    AS answered_questions
+  FROM public.unrevoked_assessment_questions q
+  JOIN public.assessments a ON a.assessment_id = q.assessment_id
+  JOIN LATERAL (
+    -- F.5: answers are append-only with `attempt_no`; the LAST one is the
+    -- student's answer and the earlier ones are the history of getting there.
+    SELECT t.is_correct
+    FROM public.assessment_attempts t
+    WHERE t.question_id = q.question_id
+    ORDER BY t.attempt_no DESC
+    LIMIT 1
+  ) AS latest ON TRUE
+  WHERE q.counts_toward_coverage = TRUE
+  GROUP BY q.assessment_id, q.concept_ref, a.session_id, a.student_id;
+
+COMMENT ON VIEW public.concept_correct_answers IS
+  'Per (assessment, concept): distinct unrevoked questions whose LATEST attempt '
+  'was correct. Distinct questions, not attempts — F.5 makes answers '
+  'append-only, and counting attempts would let one question proven four times '
+  'over stand in for four questions.';
+
+
+-- THE ASSESSMENT HALF OF THE LADDER — rungs 3 and 4, and NOT rungs 1 and 2.
+--
+-- **WHY THE `declared` AND `studied` RUNGS ARE NOT IN THIS FILE.** 022's header
+-- makes `confirmed_session_concepts` the only reachable spelling of M9's record
+-- and fences it hard: M9's own suite fails if ANY file outside 022 and
+-- `lib/session-concepts.ts` names the session-concept relation, and it matches
+-- on the substring — so the view's own name is fenced along with the table
+-- beneath it. 022 anticipated exactly that (*"a view name that contains the raw
+-- table's name as a substring makes 'does this file reach past the view?'
+-- unanswerable by inspection"*), and its answer was that downstream readers go
+-- through `CONFIRMED_SESSION_CONCEPTS_VIEW` in `lib/session-concepts.ts` rather
+-- than retyping the name.
+--
+-- This migration honours that rather than arguing with it. The consequence is
+-- a deliberate split, recorded here rather than resolved by judgement in the
+-- moment:
+--
+--   rungs 1–2 (`declared`, `studied`)  →  `lib/coverage-state.ts`, fed by the
+--       caller through M9's exported view constant. TypeScript is the CANONICAL
+--       derivation and computes all four rungs.
+--   rungs 3–4 (`assessed`, `proven`)  →  this view, over M10's evidence alone.
+--       It names no session concept, so the fence holds.
+--
+-- Nothing is lost by the split: the two halves are checked against each other
+-- by `tests/academic-record.test.mjs`, and §6's drift view uses THIS view as
+-- the CEILING a cached row may not exceed — which is the direction that
+-- matters. A cache claiming `proven` with no assessment behind it is the
+-- fabricated claim V.2.7 is a test against; a cache claiming `declared` when
+-- the student has since studied more is merely stale.
+CREATE OR REPLACE VIEW public.concept_assessment_evidence
+  WITH (security_invoker = true)
+AS
+  SELECT
+    v.student_id,
+    v.concept_ref,
+    COUNT(*)                                             AS assessed_count,
+    MIN(v.assessment_id::TEXT)::UUID                     AS assessed_in_assessment_id,
+    -- THE FOURTH RUNG. All three conditions in one predicate, so no path
+    -- reaches `proven` holding only two of them.
+    BOOL_OR(
+      s.state = 'VERIFIED'
+      AND ca.correct_questions >= GREATEST(v.questions_required, 1)
+    )                                                    AS proven,
+    -- The ceiling, as the same vocabulary `coverage_state` uses, so §6 can
+    -- compare a cached string against it without a mapping table.
+    CASE
+      WHEN BOOL_OR(
+             s.state = 'VERIFIED'
+             AND ca.correct_questions >= GREATEST(v.questions_required, 1)
+           ) THEN 'proven'
+      ELSE 'assessed'
+    END                                                  AS evidence_state
+  FROM public.assessment_verification_coverage v
+  JOIN public.study_sessions s ON s.session_id = v.session_id
+  LEFT JOIN public.concept_correct_answers ca
+    ON ca.assessment_id = v.assessment_id
+   AND ca.concept_ref   = v.concept_ref
+  WHERE v.covered = TRUE
+  GROUP BY v.student_id, v.concept_ref;
+
+COMMENT ON VIEW public.concept_assessment_evidence IS
+  'M12-1, rungs 3 and 4. Per (student, concept): whether M10 discharged the '
+  'coverage obligation (`assessed`) and whether it was discharged CORRECTLY in '
+  'a VERIFIED session (`proven`, V.2.7). Rungs 1 and 2 are derived in '
+  'lib/coverage-state.ts — see the note above for why they are not here.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 3 · `projection_watermarks` — HOW FAR EACH PROJECTION HAS CONSUMED
+--
+-- H.1's L2 storage rule, verbatim: *"tables with `input_watermark_event_id`."*
+-- One row per (projection, student), because a per-student mark is what lets a
+-- catch-up run resume for one student without re-reading everybody's stream —
+-- U.2 qualification 1's *"scheduled catch-up for the expensive ones"*, and the
+-- reason no queue is needed.
+--
+-- `last_seq` is the ORDERING key (R.10) and `last_event_id` is the identity.
+-- Both are stored: a `seq` cannot be checked against L1 on its own and an id
+-- cannot be compared. M12-3 checks them against each other and against the
+-- stream, and a disagreement is `watermark_mismatch`.
+--
+-- SERVICE ROLE ONLY. Not because the numbers are secret — a student may read
+-- their own record — but because a client that could write a watermark could
+-- tell the system it had already consumed the events proving a mistake.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.projection_watermarks (
+  projection            TEXT        NOT NULL CHECK (length(projection) BETWEEN 1 AND 64),
+  student_id            UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  -- 0 means "nothing consumed". `academic_events_seq` starts at 1, so `seq > 0`
+  -- admits the whole stream and the zero state needs no special case.
+  last_seq              BIGINT      NOT NULL DEFAULT 0 CHECK (last_seq >= 0),
+  last_event_id         UUID,
+
+  -- T8's *"missing a required update"*, made checkable: a mark at the head of
+  -- the stream with fewer events folded than the stream holds is a fold that
+  -- skipped something.
+  events_processed      BIGINT      NOT NULL DEFAULT 0 CHECK (events_processed >= 0),
+
+  -- O.4's replay-from-checkpoint, counted. A projection that is rebuilt often
+  -- is a projection with a problem, and the count is how anyone would know.
+  rebuild_count         INTEGER     NOT NULL DEFAULT 0 CHECK (rebuild_count >= 0),
+
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  PRIMARY KEY (projection, student_id),
+
+  -- An advanced mark that names no event cannot be verified against L1, so the
+  -- database refuses to store one rather than leaving M12-3 to report it later.
+  CONSTRAINT projection_watermarks_named CHECK (
+    last_seq = 0 OR last_event_id IS NOT NULL
+  )
+);
+
+CREATE INDEX IF NOT EXISTS projection_watermarks_projection_idx
+  ON public.projection_watermarks (projection, updated_at DESC);
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 4 · `academic_record` — THE L2 CACHE OF §2, AND NOTHING MORE
+--
+-- C.3's key fields, minus the ones later milestones own: `open_pattern_count`
+-- and `resolved_pattern_count` are M11's `patterns` and are DERIVABLE by a
+-- join, so storing them here would be a second copy of a second copy; M13 reads
+-- them from `patterns`. What is stored is what M12 projects.
+--
+-- H.2: L2 *"may be truncated and rebuilt at any time. That property is a hard
+-- requirement, not an optimisation."* So this table has no history, no
+-- append-only trigger and no audit — TRUNCATE is a legal operation on it, and a
+-- rebuild is how a formula correction is deployed without rewriting L1 by hand.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.academic_record (
+  student_id                UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  -- C.3's identity is `(student_id, subject, concept_id, as_of)`. The KEY here
+  -- is `concept_ref`, not `concept_id`: B.4 and V.2.4 make an unresolved
+  -- concept first-class (`concept_id IS NULL`, `text:<normalised>` ref), and a
+  -- key on the id would merge every unresolved declaration a student ever made
+  -- into one NULL bucket. `subject` and `concept_id` are carried as attributes.
+  concept_ref               TEXT        NOT NULL CHECK (length(concept_ref) > 0),
+  concept_id                UUID        REFERENCES public.concepts(id) ON DELETE RESTRICT,
+  subject                   TEXT,
+
+  coverage_state            TEXT        NOT NULL CHECK (coverage_state IN (
+                              'untouched','declared','studied','assessed','proven'
+                            )),
+
+  first_studied_at          TIMESTAMPTZ,
+  last_studied_at           TIMESTAMPTZ,
+  session_count             INTEGER     NOT NULL DEFAULT 0 CHECK (session_count >= 0),
+  assessed_count            INTEGER     NOT NULL DEFAULT 0 CHECK (assessed_count >= 0),
+
+  -- C.3's *"each carries the identity of the inputs that produced it so a stale
+  -- one is detectable rather than merely wrong."* Which session declared it,
+  -- which assessment proved it. A `proven` row with no `proven_by_assessment_id`
+  -- is refused below.
+  evidence_refs             JSONB       NOT NULL DEFAULT '{}'::JSONB,
+
+  -- C.3's watermark column, by its C.3 name.
+  input_watermark_event_id  UUID,
+  input_watermark_seq       BIGINT      NOT NULL DEFAULT 0 CHECK (input_watermark_seq >= 0),
+
+  projected_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at                TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  PRIMARY KEY (student_id, concept_ref),
+
+  -- THE INVARIANT THIS TABLE EXISTS TO CARRY. A cached `proven` with no
+  -- assessment behind it is exactly the fabricated claim V.2.7 is an acceptance
+  -- test against, and the database refuses to hold one — so a bad projection
+  -- run fails loudly at the write rather than quietly at the surface.
+  CONSTRAINT academic_record_proven_needs_assessment CHECK (
+    coverage_state <> 'proven'
+    OR (evidence_refs ? 'proven_by_assessment_id'
+        AND evidence_refs ->> 'proven_by_assessment_id' IS NOT NULL)
+  ),
+
+  CONSTRAINT academic_record_assessed_needs_count CHECK (
+    coverage_state NOT IN ('assessed','proven') OR assessed_count >= 1
+  ),
+
+  CONSTRAINT academic_record_studied_order CHECK (
+    first_studied_at IS NULL OR last_studied_at IS NULL OR last_studied_at >= first_studied_at
+  )
+);
+
+CREATE INDEX IF NOT EXISTS academic_record_state_idx
+  ON public.academic_record (student_id, coverage_state);
+
+-- H.4's query 4: *"What have I studied but never been tested on?"* — C.3 calls
+-- it *"only expressible because coverage state is a first-class field"*, and
+-- this is the index that makes it cheap.
+CREATE INDEX IF NOT EXISTS academic_record_studied_not_assessed_idx
+  ON public.academic_record (student_id, last_studied_at DESC)
+  WHERE coverage_state = 'studied';
+
+CREATE INDEX IF NOT EXISTS academic_record_concept_idx
+  ON public.academic_record (concept_id)
+  WHERE concept_id IS NOT NULL;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 5 · `concept_accuracy` — M12-2's COUNTERS
+--
+-- INTEGERS ONLY. The ratio is computed on read (`accuracyOf()` in
+-- `lib/concept-accuracy.ts`) and never stored, so a change to how accuracy is
+-- expressed cannot require rewriting stored history — and so a concept with
+-- zero answers has NO accuracy rather than an accuracy of zero (J.4, V.6.1:
+-- *"a new account has no score, not zero"*).
+--
+-- `last_seq` is per-concept as well as per-student, so a reader can tell a
+-- stale concept from a stale student without re-reading the stream.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.concept_accuracy (
+  student_id            UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  concept_ref           TEXT        NOT NULL CHECK (length(concept_ref) > 0),
+  concept_id            UUID        REFERENCES public.concepts(id) ON DELETE RESTRICT,
+
+  answered              INTEGER     NOT NULL DEFAULT 0 CHECK (answered >= 0),
+  correct               INTEGER     NOT NULL DEFAULT 0 CHECK (correct >= 0),
+  wrong                 INTEGER     NOT NULL DEFAULT 0 CHECK (wrong >= 0),
+
+  last_seq              BIGINT      NOT NULL DEFAULT 0 CHECK (last_seq >= 0),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  PRIMARY KEY (student_id, concept_ref),
+
+  -- The three counters are one fact stated three ways; the database refuses
+  -- them disagreeing rather than leaving a reader to pick (023 §1's posture).
+  CONSTRAINT concept_accuracy_counts_agree CHECK (answered = correct + wrong)
+);
+
+CREATE INDEX IF NOT EXISTS concept_accuracy_student_idx
+  ON public.concept_accuracy (student_id, last_seq DESC);
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 6 · `academic_record_drift` — T8, AS A QUERY ANYONE CAN RUN
+--
+-- T8: *"A partial recompute leaves the record internally inconsistent IN A WAY
+-- NO USER CAN SEE."* This view is the way to see it: the cached row beside the
+-- evidence that would have to exist for it to be true, one row per
+-- disagreement, and nothing else.
+--
+-- **IT COMPARES AGAINST A CEILING, AND THE DIRECTION IS DELIBERATE.** §2 knows
+-- rungs 3 and 4; rungs 1 and 2 live in `lib/coverage-state.ts` (see §2's note).
+-- So this view asks the question that matters and that it CAN answer from the
+-- schema alone: *does the cache claim a rung the assessment evidence does not
+-- support?* A cached `proven` with no proving assessment, or a cached
+-- `assessed` with no discharged obligation, is the fabricated claim V.2.7 is a
+-- test against. The opposite direction — a cache that is merely STALE and
+-- claims LESS than the evidence — is lag, is expected between scheduled
+-- catch-ups (U.2 qualification 1), and is caught by the watermark check
+-- instead, where it belongs.
+--
+-- **IT REPORTS. IT DOES NOT REPAIR.** There is no trigger on this view, no
+-- rule, and no function anywhere in this file that writes `academic_record`.
+-- Part H.1 authorises no self-healing — H.2's rebuild is O.4's *"replay from
+-- checkpoint rather than patching"*, a deliberate audited act — and a job that
+-- silently corrected a data-integrity symptom would hide the bug that caused it
+-- for exactly as long as it kept running.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE OR REPLACE VIEW public.academic_record_drift
+  WITH (security_invoker = true)
+AS
+  SELECT
+    r.student_id,
+    r.concept_ref,
+    r.coverage_state                              AS cached_state,
+    -- What the evidence alone supports. NULL means "no assessment evidence at
+    -- all", which is legal for `declared` and `studied` and is a finding only
+    -- for the two rungs below.
+    e.evidence_state                              AS derived_state,
+    r.input_watermark_seq,
+    r.projected_at
+  FROM public.academic_record r
+  LEFT JOIN public.concept_assessment_evidence e
+    ON e.student_id = r.student_id AND e.concept_ref = r.concept_ref
+  WHERE
+    (r.coverage_state = 'proven'   AND COALESCE(e.proven, FALSE) = FALSE)
+    OR
+    (r.coverage_state = 'assessed' AND COALESCE(e.assessed_count, 0) = 0);
+
+COMMENT ON VIEW public.academic_record_drift IS
+  'M12-3 / T8. Every cached academic_record row that claims `assessed` or '
+  '`proven` without the M10 evidence that would make it true. Detection only — '
+  'nothing in 026 writes the cache, and nothing corrects a row it finds.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 7 · ROW LEVEL SECURITY — SELECT-own on the record, nothing on the marks
+--
+-- 023 §6 / 024 §4's posture. A student may read their own record; nobody but
+-- the service role writes it, because a client that could write
+-- `coverage_state = 'proven'` could award itself the one state the whole of
+-- Part F exists to make expensive.
+-- ═══════════════════════════════════════════════════════════════════════════
+ALTER TABLE public.academic_record        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.concept_accuracy       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.projection_watermarks  ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS academic_record_select_own ON public.academic_record;
+CREATE POLICY academic_record_select_own ON public.academic_record
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS concept_accuracy_select_own ON public.concept_accuracy;
+CREATE POLICY concept_accuracy_select_own ON public.concept_accuracy
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+-- `projection_watermarks` gets NO policy at all — RLS enabled with zero
+-- policies denies every non-service-role read and write. The same posture
+-- `score_history` (005) already takes, and for the same reason: a watermark is
+-- a fact about the SYSTEM, not about the student, and O.1's export is L1+L3+L5.
+REVOKE ALL ON public.projection_watermarks FROM anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON public.academic_record  FROM anon, authenticated;
+REVOKE INSERT, UPDATE, DELETE ON public.concept_accuracy FROM anon, authenticated;
+
+GRANT SELECT ON public.concept_assessment_evidence TO authenticated;
+GRANT SELECT ON public.concept_correct_answers   TO authenticated;
+GRANT SELECT ON public.academic_record_drift     TO authenticated;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 8 · SELF-CHECK — the invariants this file claims, asserted against the
+--     catalogue rather than against its own text
+-- ═══════════════════════════════════════════════════════════════════════════
+DO $$
+DECLARE
+  bad_policy TEXT;
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'academic_record_proven_needs_assessment'
+  ) THEN
+    RAISE EXCEPTION
+      '026 did not install the constraint that a cached `proven` names the assessment that proved it (V.2.7)';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'projection_watermarks_named'
+  ) THEN
+    RAISE EXCEPTION
+      '026 did not install the constraint that an advanced watermark names an event — M12-3 could not verify it (T8)';
+  END IF;
+
+  SELECT policyname INTO bad_policy
+  FROM pg_policies
+  WHERE tablename IN ('academic_record','concept_accuracy','projection_watermarks')
+    AND cmd <> 'SELECT'
+  LIMIT 1;
+
+  IF bad_policy IS NOT NULL THEN
+    RAISE EXCEPTION
+      'a non-SELECT policy exists on a projection table (%): a client that can write coverage_state can award itself `proven`',
+      bad_policy;
+  END IF;
+
+  RAISE NOTICE '026: assessment evidence derived, academic_record cached, watermarks ledgered, drift visible';
+END
+$$;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 9 · WHAT THIS MIGRATION DELIBERATELY DOES NOT DO
+--
+-- · NO SELF-HEALING. There is no trigger, rule or function that writes
+--   `academic_record` from any derivation. §6 makes drift VISIBLE; O.4
+--   makes correcting it a deliberate act. Part H.1 authorises neither a
+--   silent recompute nor an automatic one, and T8's mitigation is stated as a
+--   job that *"verifies"*.
+--
+-- · NO `untouched` ROW. C.3's enum contains it and the CHECK permits it, but
+--   the view never emits one: a concept nobody confirmed has no row, which is
+--   V.2.2's *"neither reaches the record"* expressed as an absence rather than
+--   as a row saying nothing happened. `deriveCoverageState()` returns
+--   `untouched` for the same input, so the two halves still agree.
+--
+-- · NO PATTERN COUNTS. C.3 lists `open_pattern_count` and
+--   `resolved_pattern_count` on `AcademicRecord`; both are one join away from
+--   M11's `patterns` and caching them here would be a copy of a copy. M13 reads
+--   `patterns`.
+--
+-- · NO SCORE, NO SNAPSHOT, NO `formula_version`. V.2.7 also says *"Verified
+--   Performance and Proven Coverage move"*; those are J.2 dimensions and M14's.
+--   This file produces the STATE they will read.
+--
+-- · NO EVENT EMISSION. A projection is L2 and H.1.a forbids it writing
+--   downward into L1. Nothing here appends to `academic_events`.
+--
+-- · NO BACKFILL. `academic_record` and `concept_accuracy` are born empty and
+--   are filled by a catch-up run. H.2 makes that safe by design: L2 is
+--   disposable, so an empty cache is a cold cache and never a lost fact.
+--
+-- · NO DELETE PATH beyond `ON DELETE CASCADE` from `auth.users`, which is O.5's
+--   account deletion and not a data operation this file offers.
+--
+-- · IT DOES NOT APPLY ITSELF. `scripts/check-migrations.mjs` will report 026
+--   UNAPPLIED until a human runs it in the SQL editor.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- >>> MIGRATION LEDGER REGISTRATION <<<
+SELECT supabase_migrations.record_migration(
+  '026',
+  '026_academic_record.sql',
+  '6e1ad6599ebd984f874eb828a0c811e035e7c60a378329c7db3922c78dd38cc8',
+  'self'
+);
+
+
+-- ─── 027_score_snapshot_provenance.sql ───
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 027_score_snapshot_provenance.sql   ·   M14-5 / M14-6
+--
+-- WHAT THIS IS FOR
+--
+-- EXECUTION_PLAN M14-5: *"Snapshots: `formula_version`, `confidence`,
+-- `evidence_counts`, `input_watermark_event_id`. **ADAPT.** Done when: V.6.3,
+-- V.6.8 — replay into an empty database reproduces every snapshot."*
+--
+-- Architecture R.9: *"Snapshots carry `formula_version`, `confidence`,
+-- `evidence_counts` and `input_watermark_event_id`, making every historical row
+-- reproducible."*
+--
+-- Architecture V.6.8: *"Replay the whole event stream into an empty database.
+-- **Every snapshot reproduces**, given its `formula_version` and watermark."*
+--
+-- The verdict is **ADAPT**, so `score_history` (005) is extended rather than
+-- replaced. Its best properties are the reason: it is written only by the
+-- service role, it has no client INSERT/UPDATE/DELETE policy, and
+-- `UNIQUE (user_id, captured_on)` already makes the daily close idempotent.
+-- R.9 calls that write-posture *"the correct model"*. A new table would have
+-- had to re-earn all three.
+--
+--
+-- WHAT REPRODUCIBILITY ACTUALLY REQUIRES — the four columns, and a fifth
+--
+-- A snapshot reproduces only if a replay can recover EVERY argument the formula
+-- saw. Four of those are M14-5's named columns:
+--
+--   formula_version           which arithmetic produced the row (J.6: a bulk
+--                             recompute on a change of it writes NEW rows)
+--   confidence                J.5's first-class output, stored beside the number
+--   evidence_counts           what the row is a sum of — the counts the engine
+--                             actually consumed, per dimension
+--   input_watermark_event_id  the event-stream position it was computed FROM
+--
+-- The fifth is `as_of`, and leaving it out would have made the other four
+-- decorative. `captured_on` is a DATE, and the engine's accuracy term is an
+-- exponential decay in `asOfMs` (`lib/score-engine.ts`, v2's invariant I2).
+-- Two computations of the same student on the same calendar day, eight hours
+-- apart, produce different numbers — both correct. Without the exact instant, a
+-- replay can reproduce the day but not the row, and V.6.8 says *"every
+-- snapshot reproduces"*, not "every day approximately does". So `as_of` is
+-- stored to the millisecond and the replay is exact.
+--
+--
+-- WHY THE DIMENSION COLUMNS BECOME NULLABLE — J.3.a, in the schema
+--
+--   > Zero means *measured, and the measurement is zero.* Insufficient means
+--   > *not measured.* Rendering the second as the first is a lie in the strict
+--   > sense of Law 7.
+--
+-- 005 declared `total`, `pqa`, `syllabus`, `mistakes` and `consistency` NOT
+-- NULL, which left the daily close no way to say *"not measured"* — the only
+-- available value was `0`, which is the exact lie J.3.a names. `lib/score-engine.ts`
+-- makes `insufficient evidence` an arm of a union with `points: null`, and a
+-- column that cannot hold NULL would flatten that back into a zero on the way
+-- to disk. So the NOT NULL constraints are dropped.
+--
+-- **No row loses data and no existing row becomes invalid.** Dropping NOT NULL
+-- widens the domain; every historical row still satisfies the column. The range
+-- CHECKs are untouched and stay correct, because `NULL BETWEEN 0 AND 1000` is
+-- NULL, which a CHECK admits.
+--
+-- `score_state` records which of the two J.4 states the row is in, so a reader
+-- never has to infer *"no score yet"* from a NULL it might mistake for a gap.
+--
+--
+-- RESTATEMENT — V.6.9 and O.4.3, and what M14-6 needs from this file
+--
+-- O.4.3: *"**L3 snapshots are NOT rewritten.** A new snapshot is appended with
+-- a `restatement_of` pointer and a reason. The history shows both the number we
+-- believed and the correction — which is how a financial ledger handles a
+-- restatement, and it is the only treatment compatible with Law 7."*
+--
+-- V.6.9: *"A month-old question is successfully disputed. Intervening snapshots
+-- are **unchanged**; a new snapshot is appended with `restatement_of`."*
+--
+-- T3 names the cutover itself as the case this exists for: *"Some students will
+-- move by hundreds of points in either direction, and the score's credibility
+-- is the product's credibility. Mitigation: `formula_version` on snapshots, an
+-- explicit restatement rather than a silent recompute (O.4.3)."*
+--
+-- So `restatement_of` and `restatement_reason` are added here, and M14-6's
+-- cutover is the first thing that writes them: the first row a student receives
+-- under `ledger-score/3.0.0` points at their last row under the old formula and
+-- says, in the data, why the number moved. A score that changes formula without
+-- that pointer is the silent recompute O.4.3 forbids.
+--
+-- **The daily UNIQUE constraint is deliberately NOT touched.** O.4.a's own
+-- worked example puts the restatement on *"today's snapshot"* — one row per
+-- user per day still holds, and the pointer rides on it. Relaxing the
+-- constraint to admit a second row per day would trade the cron's idempotency
+-- (a retried or double-fired close cannot corrupt the series) for a case the
+-- architecture does not actually ask for.
+--
+--
+-- WHAT THIS FILE DOES NOT DO
+--
+-- · NO BACKFILL. Pre-M14 rows get NULL `formula_version`, NULL `as_of`, NULL
+--   `confidence` and an empty `evidence_counts`. Stamping them with a version
+--   string would claim they were produced by an engine that did not exist when
+--   they were written — PRINCIPLES §7. A NULL `formula_version` is the honest
+--   reading: *"this row predates provenance and is not replayable."* M14-6's
+--   restatement logic treats exactly that NULL as "the previous formula was
+--   something else", which is true.
+-- · NO CHANGE TO RLS. 005's posture is already R.9's model: SELECT-own only,
+--   no client write policy of any kind. Nothing here widens it.
+-- · NO DROP of `streak`, `pqa`, `syllabus`, `mistakes` or `consistency`. Five
+--   surfaces outside M14's scope read those column names; the columns are
+--   re-documented below rather than renamed, and the dimension they now carry
+--   is stated in the COMMENT so a reader is not left mapping J.2 names onto
+--   005 names by memory.
+-- · IT DOES NOT APPLY ITSELF. `scripts/check-migrations.mjs` reports 027
+--   UNAPPLIED until a human runs it in the Supabase SQL editor.
+--
+-- Run in: Supabase → SQL Editor. Idempotent; safe to re-run.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- ── 1. Provenance: what produced this row, and from where ──────────────────
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS formula_version TEXT;
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS as_of TIMESTAMPTZ;
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS confidence NUMERIC(4,3)
+    CHECK (confidence IS NULL OR (confidence >= 0 AND confidence <= 1));
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS evidence_counts JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+-- R.10: *"Ordering: by server `seq`, never by client `occurred_at`."* The
+-- watermark therefore carries BOTH the identity of the last event consumed and
+-- its `seq`, because the identity alone does not tell a replay where to stop.
+-- `academic_events` is HASH-partitioned on `student_id` with PRIMARY KEY
+-- (student_id, event_id) (015), so a single-column FK to `event_id` is not
+-- expressible; the pair is stored as data, exactly as `occurrences.supersedes`
+-- already does for the same reason.
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS input_watermark_event_id UUID;
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS input_watermark_seq BIGINT;
+
+-- ── 2. J.3.a: `insufficient evidence` must be representable ────────────────
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS score_state TEXT
+    CHECK (score_state IS NULL OR score_state IN ('baseline', 'scored'));
+
+ALTER TABLE public.score_history ALTER COLUMN total       DROP NOT NULL;
+ALTER TABLE public.score_history ALTER COLUMN pqa         DROP NOT NULL;
+ALTER TABLE public.score_history ALTER COLUMN syllabus    DROP NOT NULL;
+ALTER TABLE public.score_history ALTER COLUMN mistakes    DROP NOT NULL;
+ALTER TABLE public.score_history ALTER COLUMN consistency DROP NOT NULL;
+
+-- A scored row must have a total; a baseline row must not. This is V.6.1 as a
+-- constraint rather than as a convention: *"a new account has no score, not
+-- zero"*, and the database refuses to hold the other shape.
+ALTER TABLE public.score_history
+  DROP CONSTRAINT IF EXISTS score_history_state_total_agree;
+ALTER TABLE public.score_history
+  ADD CONSTRAINT score_history_state_total_agree CHECK (
+    score_state IS NULL
+    OR (score_state = 'scored'   AND total IS NOT NULL)
+    OR (score_state = 'baseline' AND total IS NULL)
+  );
+
+-- ── 3. O.4.3 / V.6.9: restatement, never a silent recompute ────────────────
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS restatement_of BIGINT
+    REFERENCES public.score_history(id) ON DELETE SET NULL;
+
+ALTER TABLE public.score_history
+  ADD COLUMN IF NOT EXISTS restatement_reason TEXT;
+
+-- A pointer with no reason is half a restatement. Either both or neither.
+ALTER TABLE public.score_history
+  DROP CONSTRAINT IF EXISTS score_history_restatement_complete;
+ALTER TABLE public.score_history
+  ADD CONSTRAINT score_history_restatement_complete CHECK (
+    (restatement_of IS NULL AND restatement_reason IS NULL)
+    OR (restatement_of IS NOT NULL AND restatement_reason IS NOT NULL)
+  );
+
+-- ── 4. Indexes ─────────────────────────────────────────────────────────────
+
+-- "Which of this student's rows were produced by which formula" is the question
+-- a cutover audit and a trajectory guard both ask (J.5: trajectory is
+-- comparable only within one formula_version).
+CREATE INDEX IF NOT EXISTS score_history_user_formula_idx
+  ON public.score_history (user_id, formula_version, captured_on DESC);
+
+-- "Show me every restatement" — the audit O.4.4 asks for.
+CREATE INDEX IF NOT EXISTS score_history_restatement_idx
+  ON public.score_history (restatement_of)
+  WHERE restatement_of IS NOT NULL;
+
+-- ── 5. What the columns mean ───────────────────────────────────────────────
+
+COMMENT ON COLUMN public.score_history.formula_version IS
+  'The engine that produced this row (lib/score-engine.ts FORMULA_VERSION). NULL for pre-M14 rows: honest, and not replayable. J.6 requires a change of this to write NEW rows, never to edit old ones.';
+
+COMMENT ON COLUMN public.score_history.as_of IS
+  'The exact instant the score is AS OF, to the millisecond. Required for V.6.8: the accuracy term decays in this value, so captured_on alone cannot reproduce the row.';
+
+COMMENT ON COLUMN public.score_history.confidence IS
+  'J.5. 0..1, computed from evidence volume, recency and breadth. Displayed beside the number: a 700 built on three assessments and a 700 built on forty are not the same claim.';
+
+COMMENT ON COLUMN public.score_history.evidence_counts IS
+  'What this row is a sum of — the per-dimension counts the engine consumed, plus the rows it refused. R.9. A figure that cannot say what it counted is a claim.';
+
+COMMENT ON COLUMN public.score_history.input_watermark_event_id IS
+  'The last academic_events row consumed. R.9 / O.4.2: a projection at or beyond an affected event is rebuilt by replay from here.';
+
+COMMENT ON COLUMN public.score_history.input_watermark_seq IS
+  'The server seq of input_watermark_event_id. R.10: ordering is by server seq, never by client occurred_at.';
+
+COMMENT ON COLUMN public.score_history.score_state IS
+  'J.4. `baseline` = no score yet and total IS NULL; `scored` = measured. NULL for pre-M14 rows.';
+
+COMMENT ON COLUMN public.score_history.restatement_of IS
+  'O.4.3 / V.6.9. The snapshot this row restates. Set on the first row a student receives under a new formula_version, so a cutover is an explicit restatement and never a silent recompute (T3).';
+
+COMMENT ON COLUMN public.score_history.restatement_reason IS
+  'Plain language, stored beside the pointer: why the number moved. PRINCIPLES: never let a figure move without the student being able to find out why.';
+
+COMMENT ON COLUMN public.score_history.total IS
+  'J.2, 0-1000. NULL means the student is below baseline and has NO score — J.3.a: not measured is not zero.';
+
+COMMENT ON COLUMN public.score_history.pqa IS
+  'J.2 Verified Performance, 0-400. Column name retained from 005 because five surfaces outside M14 read it. NULL = insufficient evidence.';
+
+COMMENT ON COLUMN public.score_history.syllabus IS
+  'J.2 Proven Coverage, 0-250. NULL = insufficient evidence.';
+
+COMMENT ON COLUMN public.score_history.mistakes IS
+  'J.2 Recovery, 0-200. NULL = insufficient evidence.';
+
+COMMENT ON COLUMN public.score_history.consistency IS
+  'J.2 Continuity, 0-150. NOT the retired Momentum/streak term, which PRODUCT_DECISIONS 9.3 deleted from scoring (M14-2). NULL = insufficient evidence.';
+
+COMMENT ON COLUMN public.score_history.streak IS
+  'RETIRED as a scoring input (PRODUCT_DECISIONS 9.3, M14-2). Written as 0 from ledger-score/3.0.0 onward and read by no dimension. Retained only because pre-M14 rows hold real values and PRINCIPLES 3.2 forbids erasing them.';
+
+-- ── 6. Verification the founder can run after applying this file ───────────
+DO $$
+DECLARE
+  missing TEXT;
+BEGIN
+  SELECT string_agg(c.name, ', ')
+    INTO missing
+    FROM (VALUES
+      ('formula_version'), ('as_of'), ('confidence'), ('evidence_counts'),
+      ('input_watermark_event_id'), ('input_watermark_seq'),
+      ('score_state'), ('restatement_of'), ('restatement_reason')
+    ) AS c(name)
+   WHERE NOT EXISTS (
+     SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name   = 'score_history'
+        AND column_name  = c.name
+   );
+
+  IF missing IS NOT NULL THEN
+    RAISE EXCEPTION 'score_history is missing: % — M14-5 snapshots are not reproducible', missing;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+     WHERE table_schema = 'public' AND table_name = 'score_history'
+       AND column_name = 'total' AND is_nullable = 'NO'
+  ) THEN
+    RAISE EXCEPTION 'score_history.total is still NOT NULL — insufficient evidence cannot be stored as anything but a zero (J.3.a)';
+  END IF;
+
+  RAISE NOTICE 'score_history carries provenance. M14-5 snapshots are replayable; M14-6 may write restatements.';
+END $$;
+
+-- >>> MIGRATION LEDGER REGISTRATION <<<
+SELECT supabase_migrations.record_migration(
+  '027',
+  '027_score_snapshot_provenance.sql',
+  'aed7e29f262b25214a5d2184725088f461dc4bdcadf4d3024310c33bb98e5dda',
+  'self'
+);
+
+
+-- ─── 028_ai_invocations.sql ───
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 028_ai_invocations.sql   ·   M15-6
+--
+-- WHAT THIS IS FOR
+--
+-- EXECUTION_PLAN M15-6: *"`ai_history` → `ai_invocations` with prompt version
+-- and hashes."*
+-- Architecture Q.4: *"Every call logs to `ai_invocations`: capability, prompt
+-- version, model, input hash, output hash, latency, tokens, moderation
+-- verdict, outcome."*
+-- Architecture S.5: *"ADAPT → `ai_invocations` … retain existing rows as
+-- declared-class history only (H.6)."*
+--
+--
+-- WHAT `ai_history` (000_initial_schema.sql) CANNOT ANSWER
+--
+-- It stores `tool`, a 300-character `input_text`, the parsed `output`, and the
+-- student's `grade`/`board`. It records that a call happened. It has no
+-- prompt version, no model identity, and no hash of what went in, so the one
+-- question a provenance log exists to answer — *"prompt v2 of
+-- `mark_scheme_eval` was wrong; which outputs came from it?"* — cannot be
+-- answered from it at all.
+--
+--
+-- WHY A NEW TABLE, NOT A RENAME
+--
+-- `ai_history` rows predate prompt versioning, model configuration and output
+-- hashing — there is nothing to backfill those columns FROM. Renaming the
+-- table and back-filling NULLs would claim a provenance discipline for rows
+-- that were written before it existed (PRINCIPLES §7 — never claim what
+-- happened before the mechanism that would know did). So `ai_history` is left
+-- exactly as it is — declared-class history, still readable by the surfaces
+-- that read it today — and `ai_invocations` is a new table that every call
+-- writes to from this migration forward. `app/api/ai/route.ts` stops writing
+-- to `ai_history` in the same pass that adds this table; no code path writes
+-- to both.
+--
+--
+-- WHAT EACH COLUMN IS FOR (see lib/ai-capabilities/invocations.ts for the
+-- pure row-builder this schema mirrors)
+--
+--   capability        the manifest name (M15-3) — what `tool` used to be
+--   prompt_version     which text of that capability's prompt produced this
+--                       row (M15-3's registry; bumped only when a prompt's
+--                       wording or contract changes)
+--   schema_version      which shape of THIS row was written — independent of
+--                       prompt_version, so a reader in the future knows which
+--                       writer produced a row before trusting its columns
+--   model               the model actually used (M15-5) — no longer inferred
+--                       from a hardcoded literal in the route
+--   input_hash          sha256 of the FULL sanitised params (canonical JSON),
+--                       not the 300-char prefix ai_history truncated to —
+--                       "was this exact question asked before" becomes
+--                       answerable without storing every essay a student has
+--                       pasted (O.2 minimisation)
+--   prompt_hash         sha256 of the system+userText actually sent, so "did
+--                       two students get different treatment for the same
+--                       input" is answerable without storing anyone's profile
+--   output_hash         sha256 of the validated output; NULL when the call
+--                       produced no usable output (a failure has no output
+--                       hash, and an empty JSON object would be
+--                       indistinguishable from one)
+--   outcome             succeeded | repaired | rejected | off_topic | failed
+--                       — M15-4's reject-never-degrade path has an outcome
+--                       name for every terminal state, including the ones
+--                       that produce no output; a log that records only
+--                       successes measures nothing
+--   moderation          passed | blocked_regex | blocked_classifier — the
+--                       M15-2 KEEP security spine's own verdict, carried onto
+--                       the row it gated
+--   repair_attempts     0 or 1 — Q.4's single bounded structured-repair retry
+--   input_text          retained from ai_history exactly as truncated before,
+--                       because admin surfaces and app/tools/paper-trauma
+--                       read it today and this pass does not touch them
+--
+-- Run in: Supabase → SQL Editor. Idempotent; safe to re-run.
+-- THIS FILE IS NOT APPLIED BY THIS PASS — `scripts/check-migrations.mjs`
+-- will report 028 UNAPPLIED until a human runs it against the target
+-- database. No migration in this repository applies itself.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS ai_invocations (
+  id               BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id          UUID        REFERENCES auth.users(id) ON DELETE CASCADE,
+  capability       TEXT        NOT NULL,
+  prompt_version   TEXT        NOT NULL,
+  schema_version   TEXT        NOT NULL,
+  model            TEXT        NOT NULL,
+  input_hash       TEXT        NOT NULL,
+  prompt_hash      TEXT        NOT NULL,
+  output_hash      TEXT,
+  outcome          TEXT        NOT NULL
+                     CHECK (outcome IN ('succeeded', 'repaired', 'rejected', 'off_topic', 'failed')),
+  moderation       TEXT        NOT NULL
+                     CHECK (moderation IN ('passed', 'blocked_regex', 'blocked_classifier')),
+  latency_ms       INTEGER     NOT NULL CHECK (latency_ms >= 0),
+  input_tokens     INTEGER,
+  output_tokens    INTEGER,
+  rejection        TEXT,
+  repair_attempts  INTEGER     NOT NULL DEFAULT 0 CHECK (repair_attempts IN (0, 1)),
+  input_text       TEXT,
+  output           JSONB,
+  grade            TEXT,
+  board            TEXT,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- A rejection reason exists only on a rejection; an output hash exists only
+-- when there is output to hash. Mirrors invocations.ts's own totality rather
+-- than trusting every future writer to keep the two in step.
+ALTER TABLE ai_invocations
+  DROP CONSTRAINT IF EXISTS ai_invocations_rejection_shape;
+ALTER TABLE ai_invocations
+  ADD CONSTRAINT ai_invocations_rejection_shape CHECK (
+    (outcome = 'rejected' AND rejection IS NOT NULL)
+    OR (outcome <> 'rejected')
+  );
+
+ALTER TABLE ai_invocations
+  DROP CONSTRAINT IF EXISTS ai_invocations_output_shape;
+ALTER TABLE ai_invocations
+  ADD CONSTRAINT ai_invocations_output_shape CHECK (
+    (outcome IN ('succeeded', 'repaired') AND output_hash IS NOT NULL)
+    OR (outcome NOT IN ('succeeded', 'repaired'))
+  );
+
+CREATE INDEX IF NOT EXISTS idx_ai_invocations_user_id    ON ai_invocations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_invocations_capability ON ai_invocations(capability);
+CREATE INDEX IF NOT EXISTS idx_ai_invocations_created_at ON ai_invocations(created_at DESC);
+-- "Which outputs came from prompt vN of this capability" — the question
+-- ai_history could not answer, answered directly.
+CREATE INDEX IF NOT EXISTS idx_ai_invocations_capability_version
+  ON ai_invocations(capability, prompt_version);
+
+-- ── RLS — same posture as ai_history (001_rls.sql): a user reads and deletes
+-- only their own rows; writes come from the service role in app/api/ai/route.ts,
+-- which bypasses RLS, but the INSERT policy is declared anyway so the table's
+-- posture is legible from the policy list alone, not just from which key
+-- happens to write it today. ──────────────────────────────────────────────────
+ALTER TABLE ai_invocations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ai_invocations_select_own" ON ai_invocations;
+DROP POLICY IF EXISTS "ai_invocations_insert_own" ON ai_invocations;
+DROP POLICY IF EXISTS "ai_invocations_delete_own" ON ai_invocations;
+
+CREATE POLICY "ai_invocations_select_own" ON ai_invocations
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "ai_invocations_insert_own" ON ai_invocations
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "ai_invocations_delete_own" ON ai_invocations
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ── Column documentation ────────────────────────────────────────────────────
+
+COMMENT ON TABLE ai_invocations IS
+  'M15-6. Replaces ai_history as the write target for every AI route call from this migration forward. ai_history is retained, unmodified, as declared-class history for rows written before this table existed (S.5, H.6) — nothing here backfills or renames it.';
+
+COMMENT ON COLUMN ai_invocations.capability IS
+  'The manifest capability name (lib/ai-capabilities/registry.ts) — what ai_history.tool used to be.';
+
+COMMENT ON COLUMN ai_invocations.prompt_version IS
+  'lib/ai-capabilities/registry.ts promptVersionFor(). "1" for every capability at M15-3 (the prompts moved verbatim); bumped per-capability the next time that capability''s prompt text or output contract changes.';
+
+COMMENT ON COLUMN ai_invocations.schema_version IS
+  'INVOCATION_SCHEMA_VERSION (lib/ai-capabilities/invocations.ts) — which shape of THIS row a reader is looking at, independent of prompt_version.';
+
+COMMENT ON COLUMN ai_invocations.input_hash IS
+  'sha256("ai-input:<schema_version>:<capability>:<canonical JSON of sanitised params>"). Full input, not a 300-char prefix — O.2 minimisation: a hash is evidence, a transcript is a liability.';
+
+COMMENT ON COLUMN ai_invocations.prompt_hash IS
+  'sha256 of the system+userText actually sent to the model, personalisation included. Answers "which students got the personalised variant" without storing anyone''s profile in the log.';
+
+COMMENT ON COLUMN ai_invocations.output_hash IS
+  'sha256 of the validated output object. NULL when the call produced no usable output (failed / rejected / off_topic) — a failure has no output hash, and treating it as one would be indistinguishable from an empty object.';
+
+COMMENT ON COLUMN ai_invocations.outcome IS
+  'M15-4 reject-never-degrade: succeeded | repaired (passed only after the one bounded structured repair) | rejected (failed validation twice) | off_topic (the model itself refused) | failed (the call to the model errored).';
+
+COMMENT ON COLUMN ai_invocations.moderation IS
+  'The M15-2 KEEP security spine''s own verdict for the call that produced this row: passed | blocked_regex | blocked_classifier. As of M15-6, the route only reaches the insert once a call has been sent to the model, so every row currently written carries "passed" — a blocked request is still rejected via error_logs exactly as before this pass. The wider vocabulary is declared here, not invented in application code, so a future pass that logs blocked attempts as their own rows is a data change, not a schema change.';
+
+COMMENT ON COLUMN ai_invocations.repair_attempts IS
+  'Q.4: 0 or 1. The single bounded structured-repair retry, never more — a second failure is information (this capability''s contract and this model disagree), not a reason to retry further.';
+
+COMMENT ON COLUMN ai_invocations.input_text IS
+  'The same TEXT_KEYS-derived, 300-character-truncated preview ai_history wrote, retained because admin surfaces and app/tools/paper-trauma read this column today and this pass does not touch them.';
+
+-- ── Verification the founder can run after applying this file ──────────────
+DO $$
+DECLARE
+  missing TEXT;
+BEGIN
+  SELECT string_agg(c.name, ', ')
+    INTO missing
+    FROM (VALUES
+      ('capability'), ('prompt_version'), ('schema_version'), ('model'),
+      ('input_hash'), ('prompt_hash'), ('output_hash'), ('outcome'),
+      ('moderation'), ('latency_ms'), ('input_tokens'), ('output_tokens'),
+      ('rejection'), ('repair_attempts'), ('input_text'), ('output'),
+      ('grade'), ('board')
+    ) AS c(name)
+   WHERE NOT EXISTS (
+     SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name   = 'ai_invocations'
+        AND column_name  = c.name
+   );
+
+  IF missing IS NOT NULL THEN
+    RAISE EXCEPTION 'ai_invocations is missing: % — M15-6 provenance is incomplete', missing;
+  END IF;
+
+  IF to_regclass('public.ai_history') IS NULL THEN
+    RAISE EXCEPTION 'ai_history is gone — M15-6 requires it retained as declared-class history (S.5, H.6), not dropped';
+  END IF;
+
+  RAISE NOTICE 'ai_invocations exists with full M15-6 provenance columns. ai_history is retained, untouched.';
+END $$;
+
+-- >>> MIGRATION LEDGER REGISTRATION <<<
+SELECT supabase_migrations.record_migration(
+  '028',
+  '028_ai_invocations.sql',
+  '7700b5e1305f0ba77c923650b7b8b04501070b4d124e0d6ba2eee5511332010a',
+  'self'
+);
+
+
+-- ─── 029_parent_space.sql ───
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 029_parent_space.sql   ·   M17
+--
+-- Implements architecture Part N and PRODUCT_DECISIONS §9.2 (Option B —
+-- structural privacy). Replaces the unauthenticated `parentCode` mechanism
+-- (`app/api/parent/[code]/route.ts`) with:
+--
+--   parent_invitations     · student-initiated, single-use, hashed at rest
+--   parent_connections     · real auth.users identity on both sides
+--   parent_share_policies  · versioned, append-only, ALL CATEGORIES DEFAULT OFF
+--   parent_access_log      · append-only, per-read, student-visible
+--
+-- and five VIEWS that are the structural enforcement N.5 requires: each
+-- selects ONLY the columns N.4's `Shared` table names, from tables that never
+-- carry `Private` data. A parent-facing read is scoped to these views alone —
+-- `occurrences`, `evidence`, `patterns.label`, `patterns.concept_id`,
+-- `academic_record.concept_ref` and every raw-answer column are never named
+-- in this file. "Not filtered — absent" (V.8.3): there is no forbidden column
+-- for a filtering bug to leak, because no query here ever selects one.
+--
+-- ADDITIVE ONLY. Run in: Supabase → SQL Editor. Idempotent; safe to re-run.
+-- NOT APPLIED to any database by the milestone that wrote it.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 1 · PARENT_INVITATIONS — student-initiated, single-use, hashed at rest
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.parent_invitations (
+  invitation_id UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id    UUID        NOT NULL REFERENCES public.students(student_id) ON DELETE CASCADE,
+  email         TEXT        NOT NULL CHECK (email = lower(email) AND email ~ '^[^\s@]+@[^\s@]+\.[^\s@]+$'),
+
+  -- The token itself is never stored. Only its SHA-256 travels here, computed
+  -- in TypeScript (lib/parent-space.ts), so a leaked database row cannot be
+  -- replayed as a live invitation.
+  token_hash    CHAR(64)    NOT NULL UNIQUE CHECK (token_hash ~ '^[0-9a-f]{64}$'),
+
+  status        TEXT        NOT NULL DEFAULT 'pending'
+                 CHECK (status IN ('pending','accepted','cancelled','expired')),
+
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at    TIMESTAMPTZ NOT NULL,
+  accepted_at   TIMESTAMPTZ,
+  accepted_by   UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
+  cancelled_at  TIMESTAMPTZ,
+
+  CONSTRAINT parent_invitations_accepted_shape CHECK (
+    (status = 'accepted' AND accepted_at IS NOT NULL AND accepted_by IS NOT NULL)
+    OR (status <> 'accepted' AND accepted_at IS NULL AND accepted_by IS NULL)
+  )
+);
+
+COMMENT ON TABLE public.parent_invitations IS
+  'Architecture N.3: single-use token, hashed at rest, short expiry. The bare parentCode link this replaces required no authentication and no expiry at all.';
+
+CREATE INDEX IF NOT EXISTS parent_invitations_student_idx
+  ON public.parent_invitations (student_id, created_at DESC);
+
+-- One live invitation per (student, email) at a time — re-inviting the same
+-- address cancels-then-recreates in TypeScript rather than piling up rows.
+CREATE UNIQUE INDEX IF NOT EXISTS parent_invitations_pending_unique
+  ON public.parent_invitations (student_id, email) WHERE status = 'pending';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 2 · PARENT_CONNECTIONS — a real authenticated identity on both sides
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.parent_connections (
+  connection_id UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id    UUID        NOT NULL REFERENCES public.students(student_id) ON DELETE CASCADE,
+  parent_id     UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  invitation_id UUID        REFERENCES public.parent_invitations(invitation_id) ON DELETE SET NULL,
+
+  state         TEXT        NOT NULL DEFAULT 'active' CHECK (state IN ('active','revoked')),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  revoked_at    TIMESTAMPTZ,
+  revoked_by    TEXT        CHECK (revoked_by IN ('student','system')),
+
+  CONSTRAINT parent_connections_revoked_shape CHECK (
+    (state = 'revoked' AND revoked_at IS NOT NULL AND revoked_by IS NOT NULL)
+    OR (state = 'active' AND revoked_at IS NULL AND revoked_by IS NULL)
+  ),
+  -- A parent cannot connect to their own student row under any circumstance.
+  CONSTRAINT parent_connections_not_self CHECK (parent_id <> student_id)
+);
+
+COMMENT ON TABLE public.parent_connections IS
+  'Architecture N.3/N.7. A parent is auth.users, not a URL fragment. Revocation is state=revoked with no cache/TTL — every projection read re-checks this row (V.8.6).';
+
+-- At most one ACTIVE connection per (student, parent). A revoked row is kept
+-- for history; reconnecting after a revoke is a new row, not a resurrection
+-- of the old one, so the access log stays attributable to the right era.
+CREATE UNIQUE INDEX IF NOT EXISTS parent_connections_active_unique
+  ON public.parent_connections (student_id, parent_id) WHERE state = 'active';
+
+CREATE INDEX IF NOT EXISTS parent_connections_parent_idx
+  ON public.parent_connections (parent_id, state);
+CREATE INDEX IF NOT EXISTS parent_connections_student_idx
+  ON public.parent_connections (student_id, state);
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 3 · PARENT_SHARE_POLICIES — versioned, append-only, ALL CATEGORIES OFF
+--
+-- Same idiom as `student_profiles` (012): a change is a new row at
+-- version+1, never an UPDATE, so "what was shared, when" is itself part of
+-- the record (N.7) and V.8.5's old-report-unchanged guarantee has something
+-- to point `policy_version` at.
+--
+-- SEVEN CATEGORIES, EXACTLY N.4'S SHARED TABLE. There is no eighth column
+-- for "weak areas" or "assessment outcomes" — N.4.a: those are `Private`
+-- permanently, not pending a decision, and the schema does not carry a
+-- setting that could turn them on. `digest_enabled` is not a Shared category;
+-- it is a delivery preference (does a report get emailed), gated by the
+-- categories a student has already turned on.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.parent_share_policies (
+  student_id          UUID        NOT NULL REFERENCES public.students(student_id) ON DELETE CASCADE,
+  version             INT         NOT NULL CHECK (version > 0),
+
+  score_trajectory    BOOLEAN     NOT NULL DEFAULT FALSE,
+  dimension_breakdown BOOLEAN     NOT NULL DEFAULT FALSE,
+  subject_state       BOOLEAN     NOT NULL DEFAULT FALSE,
+  progress_fixing     BOOLEAN     NOT NULL DEFAULT FALSE,
+  consistency         BOOLEAN     NOT NULL DEFAULT FALSE,
+  upcoming_exams      BOOLEAN     NOT NULL DEFAULT FALSE,
+  assessment_activity BOOLEAN     NOT NULL DEFAULT FALSE,
+
+  digest_enabled      BOOLEAN     NOT NULL DEFAULT FALSE,
+
+  effective_from      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  changed_by          TEXT        NOT NULL DEFAULT 'student' CHECK (changed_by IN ('student','system')),
+  change_reason       TEXT,
+  is_current          BOOLEAN     NOT NULL DEFAULT TRUE,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  PRIMARY KEY (student_id, version)
+);
+
+COMMENT ON TABLE public.parent_share_policies IS
+  'Architecture N.4/N.6. Append-only version chain — a change is version+1, never an UPDATE, so an old report''s policy_version keeps pointing at exactly what was true when it was sent (V.8.5). Every column here defaults FALSE (V.8.1/V.8.2): a new connection starts fully Private within the Shared model.';
+
+CREATE UNIQUE INDEX IF NOT EXISTS parent_share_policies_one_current
+  ON public.parent_share_policies (student_id) WHERE is_current;
+CREATE INDEX IF NOT EXISTS parent_share_policies_chain
+  ON public.parent_share_policies (student_id, version DESC);
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 4 · PARENT_ACCESS_LOG — append-only, per-read, student-visible (V.8.6/V.8.7)
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.parent_access_log (
+  access_id       BIGSERIAL   PRIMARY KEY,
+  student_id      UUID        NOT NULL REFERENCES public.students(student_id) ON DELETE CASCADE,
+  parent_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  connection_id   UUID        NOT NULL REFERENCES public.parent_connections(connection_id) ON DELETE CASCADE,
+  policy_version  INT         NOT NULL,
+  categories_read TEXT[]      NOT NULL DEFAULT '{}',
+  accessed_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.parent_access_log IS
+  'Architecture N.7: "the student can see who accessed what, and when." Append-only for everyone including the service role — the accountability half of student-controlled sharing must not itself be editable.';
+
+CREATE INDEX IF NOT EXISTS parent_access_log_student_idx
+  ON public.parent_access_log (student_id, accessed_at DESC);
+
+CREATE OR REPLACE FUNCTION public.parent_access_log_refuse_mutation()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  RAISE EXCEPTION 'parent_access_log is append-only for everyone, including the service role. % refused.', TG_OP;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS parent_access_log_refuse_mutation_trg ON public.parent_access_log;
+CREATE TRIGGER parent_access_log_refuse_mutation_trg
+  BEFORE UPDATE OR DELETE ON public.parent_access_log
+  FOR EACH ROW EXECUTE FUNCTION public.parent_access_log_refuse_mutation();
+
+REVOKE UPDATE, DELETE ON public.parent_access_log FROM PUBLIC, anon, authenticated, service_role;
+REVOKE INSERT           ON public.parent_access_log FROM anon, authenticated;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 5 · THE PARENT-SAFE VIEWS — the structural enforcement itself
+--
+-- Every one of these is scoped to columns N.4 lists under `Shared`. None
+-- selects a Private column, and none can be made to by a runtime bug, because
+-- the SELECT list is fixed here, in schema, not assembled by application code.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- Score + trajectory, and the dimension breakdown. Both draw from the same
+-- row; N.4 splits them into two Shared categories because a parent may see
+-- the total without the per-dimension detail.
+CREATE OR REPLACE VIEW public.parent_score_view AS
+SELECT
+  user_id AS student_id,
+  captured_on,
+  total, pqa, syllabus, mistakes, consistency,
+  confidence
+FROM public.score_history;
+
+COMMENT ON VIEW public.parent_score_view IS
+  'N.4 "Score + trajectory" / "Dimension breakdown". No streak column — banned outright (PRODUCT_DECISIONS §9.3).';
+
+-- Subject-level state: coverage counts only. `concept_ref`, `concept_id` and
+-- every other identifying column on academic_record are absent from this
+-- view — a parent reading it cannot recover which concept moved, only how
+-- many did, per subject, per coverage bucket.
+CREATE OR REPLACE VIEW public.parent_subject_view AS
+SELECT
+  student_id,
+  subject,
+  count(*) FILTER (WHERE coverage_state = 'proven')                  AS proven_count,
+  count(*) FILTER (WHERE coverage_state IN ('studied','assessed'))   AS studied_count,
+  count(*) FILTER (WHERE coverage_state IN ('untouched','declared')) AS untouched_count
+FROM public.academic_record
+WHERE subject IS NOT NULL
+GROUP BY student_id, subject;
+
+COMMENT ON VIEW public.parent_subject_view IS
+  'N.4 "Subject-level state" — coverage counts, never the concept a count is about.';
+
+-- Progress on what is being fixed: N.4.a's substitute for the banned "weak
+-- areas" category. Counts only, from `patterns.status` — never `label`,
+-- `concept_id`, `error_type` or `recurrence_count`, so no pattern can be
+-- named, even in aggregate, through this view.
+CREATE OR REPLACE VIEW public.parent_progress_view AS
+SELECT
+  student_id,
+  count(*) FILTER (WHERE status IN ('practising','acknowledged'))                          AS being_worked_count,
+  count(*) FILTER (WHERE status = 'resolved' AND resolved_at >= now() - interval '30 days') AS resolved_this_period_count
+FROM public.patterns
+WHERE tier = 'concept'
+GROUP BY student_id;
+
+COMMENT ON VIEW public.parent_progress_view IS
+  'N.4 "Progress on what is being fixed" — counts of patterns worked and closed, without naming them (N.4.a). "Weak areas" and per-topic miss counts have no column here to be leaked from.';
+
+-- Consistency of verification: a count, not a streak. No `state` other than
+-- VERIFIED reaches this view, and no absence trigger is derivable from it —
+-- an inactivity alert requires a "days since" figure this view does not emit.
+CREATE OR REPLACE VIEW public.parent_consistency_view AS
+SELECT
+  student_id,
+  count(*) FILTER (WHERE state = 'VERIFIED' AND closed_at >= now() - interval '30 days') AS verified_sessions_count
+FROM public.study_sessions
+GROUP BY student_id;
+
+COMMENT ON VIEW public.parent_consistency_view IS
+  'N.4 "Consistency of verification" — sessions verified in the trailing 30 days. Not a streak (PRODUCT_DECISIONS §9.3); no absence trigger is expressible from this shape.';
+
+-- Assessment activity: volume only, never per-question data.
+CREATE OR REPLACE VIEW public.parent_assessment_view AS
+SELECT
+  student_id,
+  count(*) FILTER (WHERE created_at >= now() - interval '30 days') AS assessments_completed_count
+FROM public.assessments
+GROUP BY student_id;
+
+COMMENT ON VIEW public.parent_assessment_view IS
+  'N.4 "Assessment activity" — count completed, no per-question data. coverage_manifest and every scored answer are absent from this view.';
+
+-- Upcoming exams: logistics only. `marks` (this student's entered percentage
+-- scores) is NOT one of N.4's seven Shared categories and this view never
+-- reads the `marks` column of `user_data` — only `exams`, and only four of
+-- its own keys.
+DO $$
+BEGIN
+  IF to_regclass('public.user_data') IS NOT NULL THEN
+    EXECUTE $view$
+      CREATE OR REPLACE VIEW public.parent_exams_view AS
+      SELECT
+        u.id AS student_id,
+        jsonb_agg(jsonb_build_object(
+          'name',    e->>'name',
+          'subject', e->>'subject',
+          'date',    e->>'date',
+          'board',   e->>'board'
+        )) AS exams
+      FROM public.user_data u
+      CROSS JOIN LATERAL jsonb_array_elements(COALESCE(u.exams, '[]'::jsonb)) AS e
+      GROUP BY u.id
+    $view$;
+  END IF;
+END $$;
+
+-- Every view here is read only by SECURITY DEFINER functions below (which
+-- run as the owning role and are therefore unaffected by this REVOKE); it
+-- exists so a compromised anon/authenticated session cannot query a view
+-- directly and enumerate every student's aggregates.
+DO $$
+DECLARE v TEXT;
+BEGIN
+  FOREACH v IN ARRAY ARRAY[
+    'parent_score_view','parent_subject_view','parent_progress_view',
+    'parent_consistency_view','parent_assessment_view'
+  ] LOOP
+    EXECUTE format('REVOKE ALL ON public.%I FROM PUBLIC, anon, authenticated', v);
+  END LOOP;
+  IF to_regclass('public.parent_exams_view') IS NOT NULL THEN
+    EXECUTE 'REVOKE ALL ON public.parent_exams_view FROM PUBLIC, anon, authenticated';
+  END IF;
+END $$;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 6 · WRITE PATHS — every one SECURITY DEFINER, every one the ONLY way in
+-- ═══════════════════════════════════════════════════════════════════════════
+ALTER TABLE public.parent_invitations    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.parent_connections    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.parent_share_policies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.parent_access_log     ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS parent_invitations_select_own ON public.parent_invitations;
+CREATE POLICY parent_invitations_select_own ON public.parent_invitations
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS parent_connections_select_student ON public.parent_connections;
+CREATE POLICY parent_connections_select_student ON public.parent_connections
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+DROP POLICY IF EXISTS parent_connections_select_parent ON public.parent_connections;
+CREATE POLICY parent_connections_select_parent ON public.parent_connections
+  FOR SELECT TO authenticated USING (auth.uid() = parent_id);
+
+DROP POLICY IF EXISTS parent_share_policies_select_own ON public.parent_share_policies;
+CREATE POLICY parent_share_policies_select_own ON public.parent_share_policies
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS parent_access_log_select_own ON public.parent_access_log;
+CREATE POLICY parent_access_log_select_own ON public.parent_access_log
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+-- No INSERT/UPDATE/DELETE policy on any of the four tables. Every write below
+-- goes through a SECURITY DEFINER function that resolves identity from
+-- auth.uid(), never from an argument (M5-1's discipline, kept).
+
+-- ── 6.1 create_parent_invitation() ─────────────────────────────────────────
+-- The plaintext token is generated in TypeScript (crypto.getRandomValues, the
+-- same discipline the retired SharePanel already used for parentCode) and
+-- never reaches this function or this table — only its hash does.
+CREATE OR REPLACE FUNCTION public.create_parent_invitation(
+  p_email      TEXT,
+  p_token_hash CHAR(64),
+  p_expires_at TIMESTAMPTZ
+) RETURNS public.parent_invitations
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_uid UUID := auth.uid();
+  v_row public.parent_invitations;
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'create_parent_invitation: no authenticated caller' USING ERRCODE = '28000';
+  END IF;
+  PERFORM public.ensure_student();
+
+  -- Re-inviting the same address cancels the old pending invite first, so the
+  -- pending-unique index never blocks a legitimate retry.
+  UPDATE public.parent_invitations
+     SET status = 'cancelled', cancelled_at = now()
+   WHERE student_id = v_uid AND email = lower(p_email) AND status = 'pending';
+
+  INSERT INTO public.parent_invitations (student_id, email, token_hash, expires_at)
+  VALUES (v_uid, lower(p_email), p_token_hash, p_expires_at)
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.create_parent_invitation(TEXT, CHAR, TIMESTAMPTZ) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.create_parent_invitation(TEXT, CHAR, TIMESTAMPTZ) TO authenticated, service_role;
+
+-- ── 6.2 accept_parent_invitation() ─────────────────────────────────────────
+-- Called by the PARENT, authenticated as themselves. Resolves the invitation
+-- from the hash of the token they were sent; a caller who does not hold the
+-- plaintext token cannot compute a matching hash.
+CREATE OR REPLACE FUNCTION public.accept_parent_invitation(
+  p_token_hash CHAR(64)
+) RETURNS public.parent_connections
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_parent UUID := auth.uid();
+  v_inv    public.parent_invitations;
+  v_conn   public.parent_connections;
+BEGIN
+  IF v_parent IS NULL THEN
+    RAISE EXCEPTION 'accept_parent_invitation: no authenticated caller' USING ERRCODE = '28000';
+  END IF;
+
+  SELECT * INTO v_inv FROM public.parent_invitations
+   WHERE token_hash = p_token_hash FOR UPDATE;
+
+  IF v_inv IS NULL THEN
+    RAISE EXCEPTION 'invitation not found';
+  END IF;
+
+  IF v_inv.status = 'accepted' THEN
+    RAISE EXCEPTION 'invitation already accepted' USING ERRCODE = '22023';
+  END IF;
+
+  IF v_inv.status <> 'pending' OR v_inv.expires_at < now() THEN
+    UPDATE public.parent_invitations SET status = 'expired'
+     WHERE invitation_id = v_inv.invitation_id AND status = 'pending';
+    RAISE EXCEPTION 'invitation is no longer valid (expired or cancelled)';
+  END IF;
+
+  -- A parent cannot accept an invitation onto themselves.
+  IF v_inv.student_id = v_parent THEN
+    RAISE EXCEPTION 'a student cannot connect to themselves as a parent';
+  END IF;
+
+  UPDATE public.parent_invitations
+     SET status = 'accepted', accepted_at = now(), accepted_by = v_parent
+   WHERE invitation_id = v_inv.invitation_id;
+
+  INSERT INTO public.parent_connections (student_id, parent_id, invitation_id, state)
+  VALUES (v_inv.student_id, v_parent, v_inv.invitation_id, 'active')
+  ON CONFLICT (student_id, parent_id) WHERE state = 'active' DO NOTHING
+  RETURNING * INTO v_conn;
+
+  IF v_conn IS NULL THEN
+    SELECT * INTO v_conn FROM public.parent_connections
+     WHERE student_id = v_inv.student_id AND parent_id = v_parent AND state = 'active';
+  END IF;
+
+  -- Every new connection starts with a fully-Private share policy (V.8.1,
+  -- V.8.2) — version 1, every category FALSE — if the student has never set
+  -- one. Idempotent: a re-connect after a revoke keeps the student's existing
+  -- current policy rather than resetting it silently.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.parent_share_policies WHERE student_id = v_inv.student_id AND is_current
+  ) THEN
+    INSERT INTO public.parent_share_policies (student_id, version, changed_by, change_reason)
+    VALUES (v_inv.student_id, 1, 'system', 'default policy on first parent connection — all categories OFF');
+  END IF;
+
+  RETURN v_conn;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.accept_parent_invitation(CHAR) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.accept_parent_invitation(CHAR) TO authenticated, service_role;
+
+-- ── 6.3 cancel_parent_invitation() ─────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.cancel_parent_invitation(
+  p_invitation_id UUID
+) RETURNS VOID
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE v_uid UUID := auth.uid();
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'cancel_parent_invitation: no authenticated caller' USING ERRCODE = '28000';
+  END IF;
+  UPDATE public.parent_invitations
+     SET status = 'cancelled', cancelled_at = now()
+   WHERE invitation_id = p_invitation_id AND student_id = v_uid AND status = 'pending';
+END;
+$$;
+REVOKE ALL ON FUNCTION public.cancel_parent_invitation(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.cancel_parent_invitation(UUID) TO authenticated, service_role;
+
+-- ── 6.4 revoke_parent_connection() — IMMEDIATE, no cache TTL (V.8.6) ───────
+CREATE OR REPLACE FUNCTION public.revoke_parent_connection(
+  p_connection_id UUID
+) RETURNS public.parent_connections
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_uid UUID := auth.uid();
+  v_row public.parent_connections;
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'revoke_parent_connection: no authenticated caller' USING ERRCODE = '28000';
+  END IF;
+
+  UPDATE public.parent_connections
+     SET state = 'revoked', revoked_at = now(), revoked_by = 'student'
+   WHERE connection_id = p_connection_id AND student_id = v_uid AND state = 'active'
+  RETURNING * INTO v_row;
+
+  IF v_row IS NULL THEN
+    RAISE EXCEPTION 'connection not found, not yours, or already revoked';
+  END IF;
+
+  RETURN v_row;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.revoke_parent_connection(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.revoke_parent_connection(UUID) TO authenticated, service_role;
+
+-- ── 6.5 set_parent_share_policy() — the only way categories change ────────
+-- Same NULL-means-carry-forward / boolean-means-set discipline as
+-- `set_student_profile()` (012), except every argument here already has an
+-- unambiguous "unset" value (its own default), so there is no separate
+-- p_clear list: passing NULL for a category means "leave it as it is."
+CREATE OR REPLACE FUNCTION public.set_parent_share_policy(
+  p_score_trajectory    BOOLEAN DEFAULT NULL,
+  p_dimension_breakdown BOOLEAN DEFAULT NULL,
+  p_subject_state       BOOLEAN DEFAULT NULL,
+  p_progress_fixing     BOOLEAN DEFAULT NULL,
+  p_consistency         BOOLEAN DEFAULT NULL,
+  p_upcoming_exams      BOOLEAN DEFAULT NULL,
+  p_assessment_activity BOOLEAN DEFAULT NULL,
+  p_digest_enabled      BOOLEAN DEFAULT NULL,
+  p_change_reason       TEXT    DEFAULT NULL
+) RETURNS public.parent_share_policies
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_uid  UUID := auth.uid();
+  v_cur  public.parent_share_policies;
+  v_new  public.parent_share_policies;
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'set_parent_share_policy: no authenticated caller' USING ERRCODE = '28000';
+  END IF;
+  PERFORM public.ensure_student();
+
+  PERFORM 1 FROM public.students WHERE student_id = v_uid FOR UPDATE;
+
+  SELECT * INTO v_cur FROM public.parent_share_policies
+   WHERE student_id = v_uid AND is_current;
+
+  UPDATE public.parent_share_policies SET is_current = FALSE
+   WHERE student_id = v_uid AND is_current;
+
+  INSERT INTO public.parent_share_policies (
+    student_id, version,
+    score_trajectory, dimension_breakdown, subject_state, progress_fixing,
+    consistency, upcoming_exams, assessment_activity, digest_enabled,
+    changed_by, change_reason, is_current
+  ) VALUES (
+    v_uid, COALESCE(v_cur.version, 0) + 1,
+    COALESCE(p_score_trajectory,    v_cur.score_trajectory,    FALSE),
+    COALESCE(p_dimension_breakdown, v_cur.dimension_breakdown, FALSE),
+    COALESCE(p_subject_state,       v_cur.subject_state,       FALSE),
+    COALESCE(p_progress_fixing,     v_cur.progress_fixing,     FALSE),
+    COALESCE(p_consistency,         v_cur.consistency,         FALSE),
+    COALESCE(p_upcoming_exams,      v_cur.upcoming_exams,      FALSE),
+    COALESCE(p_assessment_activity, v_cur.assessment_activity, FALSE),
+    COALESCE(p_digest_enabled,      v_cur.digest_enabled,      FALSE),
+    'student', p_change_reason, TRUE
+  )
+  RETURNING * INTO v_new;
+
+  RETURN v_new;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.set_parent_share_policy(BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.set_parent_share_policy(BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,BOOLEAN,TEXT) TO authenticated, service_role;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 7 · get_parent_projection() — THE READ PATH, AND THE ONLY ONE
+--
+-- Called by the PARENT, authenticated as themselves. Every field it can
+-- possibly return traces to one of the five views in §5 — there is no branch
+-- of this function that selects from `occurrences`, `evidence`, `patterns`
+-- (beyond `parent_progress_view`'s counts) or `academic_record` (beyond
+-- `parent_subject_view`'s counts). Gating is by CATEGORY, assembled from the
+-- current `parent_share_policies` row; a category left FALSE means its whole
+-- key is absent from the returned object, not present-and-null.
+--
+-- Immediate revocation (V.8.6): the connection state is checked on every
+-- call, not cached — a revoked connection fails here on its very next read.
+-- Every call also appends a parent_access_log row (V.8.7) naming exactly
+-- which categories were actually returned.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE OR REPLACE FUNCTION public.get_parent_projection(
+  p_student_id UUID
+) RETURNS JSONB
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_parent UUID := auth.uid();
+  v_conn   public.parent_connections;
+  v_policy public.parent_share_policies;
+  v_out    JSONB := '{}'::jsonb;
+  v_cats   TEXT[] := '{}';
+BEGIN
+  IF v_parent IS NULL THEN
+    RAISE EXCEPTION 'get_parent_projection: no authenticated caller' USING ERRCODE = '28000';
+  END IF;
+
+  SELECT * INTO v_conn FROM public.parent_connections
+   WHERE student_id = p_student_id AND parent_id = v_parent AND state = 'active';
+
+  IF v_conn IS NULL THEN
+    -- Deliberately one message for "never connected" and "revoked" — a
+    -- distinguishing error would let a caller probe for which is true.
+    RAISE EXCEPTION 'no active parent connection to this student' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_policy FROM public.parent_share_policies
+   WHERE student_id = p_student_id AND is_current;
+
+  -- No policy row is the same as every category FALSE. System-tier fields
+  -- still populate below.
+  v_out := jsonb_build_object(
+    'system', jsonb_build_object(
+      'connectionActive', TRUE,
+      'connectionSince', v_conn.created_at,
+      'policyVersion', COALESCE(v_policy.version, 0),
+      'policyUpdatedAt', v_policy.effective_from
+    )
+  );
+
+  IF COALESCE(v_policy.score_trajectory, FALSE) THEN
+    v_out := v_out || jsonb_build_object('scoreTrajectory',
+      (SELECT jsonb_agg(to_jsonb(s) - 'student_id' ORDER BY s.captured_on DESC)
+         FROM (SELECT * FROM public.parent_score_view WHERE student_id = p_student_id
+                ORDER BY captured_on DESC LIMIT 30) s));
+    v_cats := v_cats || 'score_trajectory';
+  END IF;
+
+  IF COALESCE(v_policy.dimension_breakdown, FALSE) THEN
+    v_out := v_out || jsonb_build_object('dimensionBreakdown',
+      (SELECT to_jsonb(s) - 'student_id' FROM public.parent_score_view s
+        WHERE student_id = p_student_id ORDER BY captured_on DESC LIMIT 1));
+    v_cats := v_cats || 'dimension_breakdown';
+  END IF;
+
+  IF COALESCE(v_policy.subject_state, FALSE) THEN
+    v_out := v_out || jsonb_build_object('subjectState',
+      (SELECT jsonb_agg(to_jsonb(s) - 'student_id')
+         FROM public.parent_subject_view s WHERE student_id = p_student_id));
+    v_cats := v_cats || 'subject_state';
+  END IF;
+
+  IF COALESCE(v_policy.progress_fixing, FALSE) THEN
+    v_out := v_out || jsonb_build_object('progressFixing',
+      (SELECT to_jsonb(s) - 'student_id' FROM public.parent_progress_view s
+        WHERE student_id = p_student_id));
+    v_cats := v_cats || 'progress_fixing';
+  END IF;
+
+  IF COALESCE(v_policy.consistency, FALSE) THEN
+    v_out := v_out || jsonb_build_object('consistency',
+      (SELECT to_jsonb(s) - 'student_id' FROM public.parent_consistency_view s
+        WHERE student_id = p_student_id));
+    v_cats := v_cats || 'consistency';
+  END IF;
+
+  IF COALESCE(v_policy.upcoming_exams, FALSE) AND to_regclass('public.parent_exams_view') IS NOT NULL THEN
+    v_out := v_out || jsonb_build_object('upcomingExams',
+      (SELECT exams FROM public.parent_exams_view WHERE student_id = p_student_id));
+    v_cats := v_cats || 'upcoming_exams';
+  END IF;
+
+  IF COALESCE(v_policy.assessment_activity, FALSE) THEN
+    v_out := v_out || jsonb_build_object('assessmentActivity',
+      (SELECT to_jsonb(s) - 'student_id' FROM public.parent_assessment_view s
+        WHERE student_id = p_student_id));
+    v_cats := v_cats || 'assessment_activity';
+  END IF;
+
+  INSERT INTO public.parent_access_log (student_id, parent_id, connection_id, policy_version, categories_read)
+  VALUES (p_student_id, v_parent, v_conn.connection_id, COALESCE(v_policy.version, 0), v_cats);
+
+  RETURN v_out;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.get_parent_projection(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_parent_projection(UUID) TO authenticated, service_role;
+
+COMMENT ON FUNCTION public.get_parent_projection(UUID) IS
+  'The only parent read path (architecture N.5). Every key it can emit traces to one of the five Shared views in §5; there is no branch that can select a Private column, because none is named anywhere in this function body. Logs every call to parent_access_log (V.8.7).';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 8 · VERIFICATION
+-- ═══════════════════════════════════════════════════════════════════════════
+DO $$
+DECLARE bad_policy TEXT;
+BEGIN
+  SELECT policyname INTO bad_policy
+  FROM pg_policies
+  WHERE schemaname = 'public'
+    AND tablename IN ('parent_invitations','parent_connections','parent_share_policies','parent_access_log')
+    AND cmd <> 'SELECT'
+  LIMIT 1;
+
+  IF bad_policy IS NOT NULL THEN
+    RAISE EXCEPTION 'a parent-space table has a non-SELECT policy (%) — every write must go through a SECURITY DEFINER function', bad_policy;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgrelid = 'public.parent_access_log'::regclass
+      AND tgname = 'parent_access_log_refuse_mutation_trg'
+  ) THEN
+    RAISE EXCEPTION 'parent_access_log append-only trigger is missing';
+  END IF;
+
+  RAISE NOTICE '029: parent space ready — invitations, connections, share policies (all-off default), access log, and the five Shared views.';
+END $$;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 9 · WHAT THIS MIGRATION DELIBERATELY DOES NOT DO
+--
+-- · Does not touch `user_data.parentCode` / `.parentEmail` / `.parentDigestEnabled`.
+--   Those columns are abandoned, not dropped — M17-1's done-when is that the
+--   unauthenticated ROUTE is gone, and dropping columns from a live table is
+--   a separate, riskier operation this milestone does not need to take.
+-- · Does not backfill parent_connections from the old parentCode mechanism.
+--   A bare code holder was never an authenticated identity, so there is
+--   nothing honest to backfill — every existing "connection" was anonymous
+--   access, not a relationship (Law 7: inventing one would be fabrication).
+-- · Does not add a `parent_identities` table. A parent is exactly an
+--   `auth.users` row; nothing about them needs a StudyLedger-specific
+--   identity record beyond the connections that name their `parent_id`.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- >>> MIGRATION LEDGER REGISTRATION <<<
+SELECT supabase_migrations.record_migration(
+  '029',
+  '029_parent_space.sql',
+  'd4916afef6966f472a9d24145515e449bd94395d9f92b80cc3b5ea2b8eb44768',
+  'self'
+);
+
+
+-- ─── 030_data_ownership.sql ───
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 030_data_ownership.sql   ·   M18
+--
+-- EXECUTION_PLAN M18: "Export: L1, L3, L5, the L2 derivation manifest, dispute
+-- markers, audit trail. Correction and dispute: append and supersede, never
+-- edit in place — no UPDATE path exists. Replay-from-checkpoint on correction;
+-- snapshots carry `restatement_of`. Deletion: binaries destroyed, content_hash
+-- tombstones retained. Account deletion; parent connections revoke; reports
+-- invalidate."
+--
+-- Architecture Part O in full.
+--
+-- NOT APPLIED to any database. Same posture as every migration since 015.
+--
+--
+-- WHAT THIS FILE ADDS, AND WHY IT IS ONE FILE
+--
+--   1 · CORRECTION_REQUESTS         O.3's one entry point. Append-only.
+--   2 · ASSESSMENT_ATTEMPT_DISPUTES O.3's third outcome — the one M10 never
+--                                    built, because M10 only ever upholds.
+--   3 · assessment_attempt_full_state  a view layering §2's dispute state onto
+--                                    024's `assessment_attempt_evidence`
+--                                    (`evidence_revoked`), so a reader asks one
+--                                    place for "evidence | evidence_revoked |
+--                                    disputed" (V.10.1, O.3.a).
+--   4 · EVIDENCE TOMBSTONES         `binary_deleted_at` / `binary_deleted_reason`
+--                                    on `evidence` (007, frozen for Mistake DNA,
+--                                    extended additively exactly as 024 already
+--                                    extended `occurrences`). O.5's "delete a
+--                                    category": binaries destroyed, the row and
+--                                    its `content_hash` remain, so `occurrences`
+--                                    — which reference `evidence` with
+--                                    `ON DELETE RESTRICT` — never orphan.
+--   5 · revoke_all_parent_connections_for_deletion()  O.5's "delete the
+--                                    account": every active connection revokes
+--                                    in the same act, reusing 029's own
+--                                    `revoked`/`revoked_by` shape rather than a
+--                                    new one.
+--
+-- Every table here is append-only by the SAME THREE LAYERS 016 and 024 already
+-- established: policy omission (no UPDATE/DELETE policy for `authenticated`),
+-- a REVOKE for the service role's own client-library path, and a trigger that
+-- refuses UPDATE/DELETE outright — because RLS does not bind the service role,
+-- and everything M18's own server code writes through runs as it (024's own
+-- stated reason, reused verbatim).
+--
+-- ADDITIVE ONLY. Idempotent; safe to re-run. Run in: Supabase → SQL Editor.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 1 · CORRECTION_REQUESTS — O.3's one entry point, append-only
+--
+-- The OUTCOME is decided by `lib/correction.ts`'s `classifyOutcome()` before
+-- this row is ever built, and travels here as data rather than being
+-- recomputed by a later reader — two implementations of "which of the three
+-- arms did this take" is exactly the drift M1 exists to prevent.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.correction_requests (
+  correction_id UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id    UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  target_type   TEXT        NOT NULL
+                 CHECK (target_type IN ('question','assessment_attempt','occurrence','declaration')),
+  target_id     TEXT        NOT NULL,
+
+  claim         TEXT        NOT NULL CHECK (length(trim(claim)) > 0),
+  reason        TEXT        NOT NULL CHECK (length(trim(reason)) > 0),
+  claim_kind    TEXT        NOT NULL CHECK (claim_kind IN ('mechanical','judgement')),
+
+  -- O.3's three arms, exactly. A correction that could not classify into one
+  -- of these is not a correction this table can hold.
+  outcome       TEXT        NOT NULL
+                 CHECK (outcome IN ('auto_accepted','accepted_mechanical','disputed')),
+
+  -- Set once, by whatever completed the append this outcome required — the
+  -- superseding EVENT_SUPERSEDED for an accepted correction, or the dispute
+  -- row's id for a disputed one. NULL only in the instant between the request
+  -- being classified and the append it demands actually landing.
+  resolution_ref TEXT,
+
+  requested_at  TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  -- O.2: a student-declared target is always auto_accepted; a verified target
+  -- is never auto_accepted (it is either mechanically checked, or disputed).
+  -- Stated here as a constraint so the two tables (this and `lib/correction.ts`'s
+  -- `evidenceClassFor`) cannot silently disagree about which targets may
+  -- self-accept.
+  CONSTRAINT correction_requests_declaration_autoaccepts CHECK (
+    (target_type = 'declaration' AND outcome = 'auto_accepted')
+    OR (target_type <> 'declaration' AND outcome <> 'auto_accepted')
+  )
+);
+
+CREATE INDEX IF NOT EXISTS correction_requests_student_idx
+  ON public.correction_requests (student_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS correction_requests_target_idx
+  ON public.correction_requests (target_type, target_id);
+
+COMMENT ON TABLE public.correction_requests IS
+  'Architecture O.3. Append-only. outcome is decided once, by lib/correction.ts, before the row is written, and never recomputed by a reader.';
+
+ALTER TABLE public.correction_requests ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS correction_requests_select_own ON public.correction_requests;
+CREATE POLICY correction_requests_select_own ON public.correction_requests
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+-- No INSERT/UPDATE/DELETE policy for `authenticated` — every write is
+-- server-side, under the student's identity taken from their verified session
+-- and never from a request body (D.1.a), the same posture 024 uses for
+-- `assessment_attempts` and 029 uses for every parent-space table.
+REVOKE INSERT, UPDATE, DELETE ON public.correction_requests FROM anon, authenticated;
+
+-- The one legal movement after INSERT: attaching `resolution_ref` once, and
+-- only forward. Every other column, and every DELETE, is refused — including
+-- to the service role, per 024 §6's own reasoning.
+CREATE OR REPLACE FUNCTION public.correction_requests_append_only()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN RETURN NEW; END IF;
+
+  IF TG_OP = 'UPDATE'
+     AND OLD.resolution_ref IS NULL
+     AND NEW.resolution_ref IS NOT NULL
+     AND NEW.correction_id  IS NOT DISTINCT FROM OLD.correction_id
+     AND NEW.student_id     IS NOT DISTINCT FROM OLD.student_id
+     AND NEW.target_type    IS NOT DISTINCT FROM OLD.target_type
+     AND NEW.target_id      IS NOT DISTINCT FROM OLD.target_id
+     AND NEW.claim          IS NOT DISTINCT FROM OLD.claim
+     AND NEW.reason         IS NOT DISTINCT FROM OLD.reason
+     AND NEW.claim_kind     IS NOT DISTINCT FROM OLD.claim_kind
+     AND NEW.outcome        IS NOT DISTINCT FROM OLD.outcome
+     AND NEW.requested_at   IS NOT DISTINCT FROM OLD.requested_at THEN
+    RETURN NEW;
+  END IF;
+
+  RAISE EXCEPTION
+    'correction_request %: append-only (O.3, PRINCIPLES 3.2). A correction is appended and never edited or removed.',
+    OLD.correction_id
+    USING ERRCODE = 'check_violation';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS correction_requests_append_only_trg ON public.correction_requests;
+CREATE TRIGGER correction_requests_append_only_trg
+  BEFORE UPDATE OR DELETE ON public.correction_requests
+  FOR EACH ROW EXECUTE FUNCTION public.correction_requests_append_only();
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 2 · ASSESSMENT_ATTEMPT_DISPUTES — O.3's third outcome
+--
+-- F.8's third row, the arm M10 never built: "target is verified and the claim
+-- is a judgement → DISPUTE. The original stands." Mirrors
+-- `assessment_question_revocations` (024) in shape and in append-only
+-- discipline, for a DIFFERENT purpose — a revocation says the evidence was
+-- WITHDRAWN; a dispute says the evidence STANDS, MARKED. V.10.1: "the attempt
+-- is marked disputed and excluded from every dimension in both directions."
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS public.assessment_attempt_disputes (
+  dispute_id    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  correction_id UUID        NOT NULL REFERENCES public.correction_requests(correction_id) ON DELETE RESTRICT,
+  student_id    UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  -- Either the attempt or the question the dispute stands against — a
+  -- `question` correction may predate any attempt existing at all.
+  attempt_id    UUID        REFERENCES public.assessment_attempts(attempt_id) ON DELETE RESTRICT,
+  question_id   UUID        REFERENCES public.assessment_questions(question_id) ON DELETE RESTRICT,
+
+  reason        TEXT        NOT NULL CHECK (length(trim(reason)) > 0),
+
+  -- O.3.a: "never silently rejected, never silently wins." `open` is the
+  -- standing state — the ONLY state a correction can create. `upheld` and
+  -- `stood_down` exist as the shape a human/curation resolution would take
+  -- (O.3.b), and this migration writes no path that reaches either: nothing
+  -- in M18 adjudicates a judgement claim, so the schema can HOLD a resolution
+  -- without this pass being able to MANUFACTURE one.
+  status        TEXT        NOT NULL DEFAULT 'open'
+                 CHECK (status IN ('open','upheld','stood_down')),
+  resolved_at   TIMESTAMPTZ,
+  resolved_by   TEXT        CHECK (resolved_by IS NULL OR resolved_by IN ('operator')),
+
+  opened_at     TIMESTAMPTZ NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT assessment_attempt_disputes_names_one CHECK (
+    attempt_id IS NOT NULL OR question_id IS NOT NULL
+  ),
+  CONSTRAINT assessment_attempt_disputes_resolution_shape CHECK (
+    (status = 'open' AND resolved_at IS NULL AND resolved_by IS NULL)
+    OR (status <> 'open' AND resolved_at IS NOT NULL AND resolved_by IS NOT NULL)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS assessment_attempt_disputes_attempt_idx
+  ON public.assessment_attempt_disputes (attempt_id) WHERE attempt_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS assessment_attempt_disputes_question_idx
+  ON public.assessment_attempt_disputes (question_id) WHERE question_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS assessment_attempt_disputes_student_idx
+  ON public.assessment_attempt_disputes (student_id, opened_at DESC);
+
+COMMENT ON TABLE public.assessment_attempt_disputes IS
+  'Architecture O.3.a / F.8 row 3 / V.10.1. A judgement claim against verified evidence. The original attempt is never edited — this table only ever ADDS a standing marker, visible in the record, in memory, and in export.';
+
+ALTER TABLE public.assessment_attempt_disputes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS assessment_attempt_disputes_select_own ON public.assessment_attempt_disputes;
+CREATE POLICY assessment_attempt_disputes_select_own ON public.assessment_attempt_disputes
+  FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+REVOKE INSERT, UPDATE, DELETE ON public.assessment_attempt_disputes FROM anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.assessment_attempt_disputes_append_only()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN RETURN NEW; END IF;
+
+  -- The one permitted movement: open -> {upheld, stood_down}, once, with both
+  -- resolution fields set together. Everything else, and DELETE, is refused.
+  IF TG_OP = 'UPDATE'
+     AND OLD.status = 'open' AND NEW.status IN ('upheld','stood_down')
+     AND NEW.resolved_at IS NOT NULL AND NEW.resolved_by IS NOT NULL
+     AND NEW.dispute_id    IS NOT DISTINCT FROM OLD.dispute_id
+     AND NEW.correction_id IS NOT DISTINCT FROM OLD.correction_id
+     AND NEW.student_id    IS NOT DISTINCT FROM OLD.student_id
+     AND NEW.attempt_id    IS NOT DISTINCT FROM OLD.attempt_id
+     AND NEW.question_id   IS NOT DISTINCT FROM OLD.question_id
+     AND NEW.reason        IS NOT DISTINCT FROM OLD.reason
+     AND NEW.opened_at     IS NOT DISTINCT FROM OLD.opened_at THEN
+    RETURN NEW;
+  END IF;
+
+  RAISE EXCEPTION
+    'dispute %: a dispute is opened and only ever resolved forward, once (O.3.a). It is never edited back to open, and never removed.',
+    OLD.dispute_id
+    USING ERRCODE = 'check_violation';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS assessment_attempt_disputes_append_only_trg ON public.assessment_attempt_disputes;
+CREATE TRIGGER assessment_attempt_disputes_append_only_trg
+  BEFORE UPDATE OR DELETE ON public.assessment_attempt_disputes
+  FOR EACH ROW EXECUTE FUNCTION public.assessment_attempt_disputes_append_only();
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 3 · assessment_attempt_full_state — evidence | evidence_revoked | disputed,
+-- IN ONE PLACE
+--
+-- 024's `assessment_attempt_evidence` already derives `evidence_revoked` from
+-- `assessment_question_revocations`. This view adds the dispute half without
+-- touching that one (024 is registered in the ledger with its own checksum).
+-- V.10.1: an OPEN dispute excludes the attempt from every dimension IN BOTH
+-- DIRECTIONS — so `disputed` outranks `evidence` here, but NEVER outranks
+-- `evidence_revoked`: a revoked question's attempt was already withdrawn, and
+-- a later dispute against it cannot un-withdraw it into merely "disputed".
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE OR REPLACE VIEW public.assessment_attempt_full_state
+  WITH (security_invoker = true)
+AS
+  SELECT
+    e.*,
+    EXISTS (
+      SELECT 1 FROM public.assessment_attempt_disputes d
+      WHERE d.status = 'open'
+        AND (d.attempt_id = e.attempt_id OR d.question_id = e.question_id)
+    ) AS disputed,
+    CASE
+      WHEN e.evidence_revoked THEN 'evidence_revoked'
+      WHEN EXISTS (
+        SELECT 1 FROM public.assessment_attempt_disputes d
+        WHERE d.status = 'open'
+          AND (d.attempt_id = e.attempt_id OR d.question_id = e.question_id)
+      ) THEN 'disputed'
+      ELSE 'evidence'
+    END AS evidence_state
+  FROM public.assessment_attempt_evidence e;
+
+COMMENT ON VIEW public.assessment_attempt_full_state IS
+  'V.10.1 / O.3.a. evidence_state distinguishes disputed (verified attempt, standing challenge, EXCLUDED from scoring in both directions) from evidence_revoked (withdrawn) and evidence (counts). Every score reader (M14) and every parent/export reader must filter through this view or assessment_attempt_evidence, never assessment_attempts directly.';
+
+GRANT SELECT ON public.assessment_attempt_full_state TO authenticated;
+
+-- V.10.1's SCORING half: "excluded from every dimension in both directions."
+-- `unrevoked_assessment_questions` (024) already excludes a withdrawn question
+-- from coverage/scoring; this view is the same predicate PLUS "and has no open
+-- dispute", so `lib/score-recompute-server.ts` (M18-3) and the M14 daily close
+-- read ONE view for "may this question's answer count right now" rather than
+-- two predicates a caller could apply out of order or forget one of.
+CREATE OR REPLACE VIEW public.assessment_score_eligible_questions
+  WITH (security_invoker = true)
+AS
+  SELECT q.*
+  FROM public.unrevoked_assessment_questions q
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.assessment_attempt_disputes d
+    WHERE d.status = 'open' AND d.question_id = q.question_id
+  );
+
+COMMENT ON VIEW public.assessment_score_eligible_questions IS
+  'V.10.1: a disputed attempt is excluded from every score dimension in BOTH directions. unrevoked_assessment_questions (024) minus any question with an open dispute. The score engine (M14) and the parent projection (029) must both read this view, or the exclusion is one-directional in practice.';
+
+GRANT SELECT ON public.assessment_score_eligible_questions TO authenticated;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 4 · EVIDENCE TOMBSTONES — O.5 / V.10.6
+--
+-- "Delete a category (e.g. all evidence images). Binaries are destroyed;
+-- metadata and content_hash are retained as tombstones so the occurrences
+-- that reference them stay valid. Occurrences are not orphaned — ON DELETE
+-- RESTRICT makes cascade deletion of referenced evidence structurally
+-- impossible, and must not be worked around."
+--
+-- So the row is NEVER deleted by this path — that RESTRICT already makes it
+-- impossible while any occurrence exists, and this migration does not add a
+-- second door around it. What "delete a category" can do to a row is exactly
+-- two nullable columns, additive to 007 exactly as 024 additively extended
+-- `occurrences`.
+-- ═══════════════════════════════════════════════════════════════════════════
+ALTER TABLE public.evidence
+  ADD COLUMN IF NOT EXISTS binary_deleted_at TIMESTAMPTZ;
+
+ALTER TABLE public.evidence
+  ADD COLUMN IF NOT EXISTS binary_deleted_reason TEXT;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'evidence_tombstone_shape'
+  ) THEN
+    ALTER TABLE public.evidence ADD CONSTRAINT evidence_tombstone_shape CHECK (
+      (binary_deleted_at IS NULL AND binary_deleted_reason IS NULL)
+      OR (binary_deleted_at IS NOT NULL AND binary_deleted_reason IS NOT NULL)
+    );
+  END IF;
+END $$;
+
+COMMENT ON COLUMN public.evidence.binary_deleted_at IS
+  'O.5 / V.10.6. Set when the underlying storage object was destroyed by a category deletion. The ROW is never deleted — occurrences reference it with ON DELETE RESTRICT (007) — so this is the tombstone: the fact of the binary existing survives without the bytes.';
+COMMENT ON COLUMN public.evidence.binary_deleted_reason IS
+  'Plain language, set together with binary_deleted_at. Never both null and one set — same both-or-neither discipline as score_history.restatement_of/_reason (027).';
+
+-- `binary_deleted_at` moves once, forwards, and nothing else on the row moves
+-- at all — 007's own comment already establishes evidence has no UPDATE
+-- policy for `authenticated`; this trigger is the same third layer 016/024
+-- install, binding the service role too, since the deletion endpoint runs as
+-- it.
+CREATE OR REPLACE FUNCTION public.evidence_tombstone_forward_only()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION
+      'evidence %: rows are never deleted (O.5) — only the binary, via binary_deleted_at. occurrences reference this row with ON DELETE RESTRICT and must never orphan.',
+      OLD.id
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  IF OLD.binary_deleted_at IS NOT NULL AND NEW.binary_deleted_at IS DISTINCT FROM OLD.binary_deleted_at THEN
+    RAISE EXCEPTION
+      'evidence %: binary_deleted_at is written once and never changed', OLD.id
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  IF NEW.id             IS DISTINCT FROM OLD.id
+     OR NEW.student_id   IS DISTINCT FROM OLD.student_id
+     OR NEW.type         IS DISTINCT FROM OLD.type
+     OR NEW.storage_ref  IS DISTINCT FROM OLD.storage_ref
+     OR NEW.content_hash IS DISTINCT FROM OLD.content_hash THEN
+    RAISE EXCEPTION
+      'evidence %: only binary_deleted_at/binary_deleted_reason may move on an existing row (PRINCIPLES 3.2)', OLD.id
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS evidence_tombstone_forward_only_trg ON public.evidence;
+CREATE TRIGGER evidence_tombstone_forward_only_trg
+  BEFORE UPDATE OR DELETE ON public.evidence
+  FOR EACH ROW EXECUTE FUNCTION public.evidence_tombstone_forward_only();
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 5 · ACCOUNT DELETION'S PARENT-SPACE HALF — O.5 / V.10.8
+--
+-- "Parent connections revoke; parent-held reports are invalidated
+-- server-side." 029's `revoke_parent_connection()` already does the immediate,
+-- no-cache-TTL revoke (V.8.6) for ONE connection, called by the student
+-- naming it. Account deletion needs the same act for EVERY active connection
+-- at once, and `get_parent_projection()` (029 §7) already re-checks
+-- `state = 'active'` on every single call — so the moment this function runs,
+-- the very next parent read 404s. There is no separate "report" row to
+-- invalidate (029's reports are generated live from this same check, never
+-- persisted); revoking the connection IS invalidating every report that would
+-- ever be generated from it, structurally, not as a second step that could be
+-- forgotten.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE OR REPLACE FUNCTION public.revoke_all_parent_connections_for_deletion(
+  p_student_id UUID
+) RETURNS INT
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
+AS $$
+DECLARE v_count INT;
+BEGIN
+  -- Callable only by the account owner or the service role performing the
+  -- deletion on their behalf — never by an arbitrary authenticated caller
+  -- naming someone else's id.
+  IF auth.uid() IS DISTINCT FROM p_student_id AND auth.uid() IS NOT NULL THEN
+    RAISE EXCEPTION 'revoke_all_parent_connections_for_deletion: caller does not own this account' USING ERRCODE = '42501';
+  END IF;
+
+  UPDATE public.parent_connections
+     SET state = 'revoked', revoked_at = now(), revoked_by = 'system'
+   WHERE student_id = p_student_id AND state = 'active';
+
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  RETURN v_count;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.revoke_all_parent_connections_for_deletion(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.revoke_all_parent_connections_for_deletion(UUID) TO authenticated, service_role;
+
+COMMENT ON FUNCTION public.revoke_all_parent_connections_for_deletion(UUID) IS
+  'O.5 / V.10.8. Every active parent_connections row for the student revokes in one act. get_parent_projection (029 §7) re-checks state=active on every call with no cache, so the next parent read 404s immediately — there is no separate report artefact to invalidate.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 5b · THE EXPORTS BUCKET — O.1's bundle, at rest, exactly as private as
+-- evidence
+--
+-- Same posture as 019's `evidence` bucket, for the same reason: an export
+-- bundle contains everything evidence does, plus the record's full shape.
+-- `<student_id>/<export_job_id>.json` — no public URL, ever; reads are signed
+-- or server-side (`lib/storage.ts`'s own discipline, restated here for a
+-- second bucket rather than assumed to travel with it).
+-- ═══════════════════════════════════════════════════════════════════════════
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('exports', 'exports', FALSE, 52428800, ARRAY['application/json'])
+ON CONFLICT (id) DO UPDATE
+  SET public = EXCLUDED.public, file_size_limit = EXCLUDED.file_size_limit, allowed_mime_types = EXCLUDED.allowed_mime_types;
+
+DROP POLICY IF EXISTS exports_objects_select_own ON storage.objects;
+CREATE POLICY exports_objects_select_own ON storage.objects
+  FOR SELECT TO authenticated
+  USING (bucket_id = 'exports' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+-- No client INSERT/UPDATE/DELETE policy. Written only by the export job,
+-- which runs as the service role.
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 6 · VERIFICATION — the file checks its own claims
+-- ═══════════════════════════════════════════════════════════════════════════
+DO $$
+DECLARE bad_policy TEXT;
+BEGIN
+  SELECT policyname INTO bad_policy
+  FROM pg_policies
+  WHERE schemaname = 'public'
+    AND tablename IN ('correction_requests','assessment_attempt_disputes')
+    AND cmd <> 'SELECT'
+  LIMIT 1;
+  IF bad_policy IS NOT NULL THEN
+    RAISE EXCEPTION 'a data-ownership table has a non-SELECT policy (%) — every write must be server-side (D.1.a)', bad_policy;
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'correction_requests_append_only_trg') THEN
+    RAISE EXCEPTION '030 did not install the append-only guard on correction_requests (M18-2)';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'assessment_attempt_disputes_append_only_trg') THEN
+    RAISE EXCEPTION '030 did not install the append-only guard on assessment_attempt_disputes (V.10.1)';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'evidence_tombstone_forward_only_trg') THEN
+    RAISE EXCEPTION '030 did not install the tombstone guard on evidence (V.10.6)';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_views WHERE schemaname = 'public' AND viewname = 'assessment_attempt_full_state'
+  ) THEN
+    RAISE EXCEPTION '030 did not create assessment_attempt_full_state — V.10.1 has nowhere to read disputed from';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_views WHERE schemaname = 'public' AND viewname = 'assessment_score_eligible_questions'
+  ) THEN
+    RAISE EXCEPTION '030 did not create assessment_score_eligible_questions — V.10.1''s bidirectional exclusion has no scoring-side view';
+  END IF;
+
+  -- 024's own guards must still be standing; this file is additive only.
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'assessment_attempts_append_only_trg') THEN
+    RAISE EXCEPTION '030 has disturbed 024''s append-only guard on assessment_attempts; it is additive and must not';
+  END IF;
+
+  RAISE NOTICE '030: data ownership ready — correction_requests, assessment_attempt_disputes, evidence tombstones, and account-deletion parent revocation.';
+END $$;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 7 · WHAT THIS MIGRATION DELIBERATELY DOES NOT DO
+--
+-- · NO UPDATE PATH on assessment_attempts or assessment_questions. Both
+--   remain exactly as 023/024 left them — a correction against either always
+--   proceeds through lib/assessment-revocation.ts's existing append (a NEW
+--   attempt row, or a revocation row), never an edit to the graded row.
+-- · NO auto-adjudication of a dispute. §2's `upheld`/`stood_down` states exist
+--   in the schema because O.3.b anticipates a human/curation process; this
+--   migration writes no function that can reach either. A dispute this build
+--   creates stays `open` until a later, explicitly human-operated migration
+--   or admin tool resolves it.
+-- · NO stored `ParentReport` table. 029 never persisted one — every parent
+--   read is generated live by get_parent_projection() — so "reports
+--   invalidate" is the connection-state check that function already performs,
+--   made total by §5's bulk revoke, not a new artefact to expire.
+-- · NO DELETE path anywhere in this file, for anything, except the one this
+--   file explicitly REFUSES (evidence rows) and the one 007/024 already
+--   refuse (attempts, occurrences via RESTRICT).
+-- · IT DOES NOT APPLY ITSELF. scripts/check-migrations.mjs reports 030
+--   UNAPPLIED until a human runs it in the Supabase SQL editor.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- >>> MIGRATION LEDGER REGISTRATION <<<
+SELECT supabase_migrations.record_migration(
+  '030',
+  '030_data_ownership.sql',
+  'b3f509c71a69e517dc0486b64608ae033eb9170e316e6e770ff7419670b1b1d9',
+  'self'
+);
+
+-- What this part left behind, from the database rather than from a claim:
+SELECT version, name, recorded_by FROM supabase_migrations.schema_migrations ORDER BY version;
