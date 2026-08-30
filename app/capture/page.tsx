@@ -14,6 +14,8 @@ import {
 } from "@/components/console/primitives";
 import DraftReview, { type DraftRow, type ReviewItem } from "@/components/capture/draft-review";
 import ManualEntry from "@/components/capture/manual-entry";
+import Walkthrough from "@/components/walkthrough";
+import { useSearchParams } from "next/navigation";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /capture — M8-1.
@@ -82,6 +84,9 @@ type Reading =
   | { state: "declined"; review: ReviewItem[]; detail: string };
 
 export default function CapturePage() {
+  // PRODUCT_DECISIONS §2.6 - onboarding sends the student here with ?first=1,
+  // and the walkthrough itself decides whether it has already run.
+  const firstRun = useSearchParams()?.get("first") === "1";
   const [kind, setKind] = useState<Kind>("paper");
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState("");
@@ -191,6 +196,7 @@ export default function CapturePage() {
 
   return (
     <main id="main-content">
+      <Walkthrough active={firstRun} />
       <Stack>
         <Measure wide>
           <Row gap={3}>
