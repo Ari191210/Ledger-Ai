@@ -1087,55 +1087,98 @@ COMMENT ON FUNCTION public.set_student_profile(TEXT, TEXT, TEXT, TEXT, TEXT[], T
 -- `subjects`. `student_profiles.interests` — non-curricular interests per C.3
 -- — is left NULL, because nothing was ever collected for it and inventing a
 -- value would be a §7 violation.
+-- REWRITTEN 2026-08-30, after this block failed on production with
+--   ERROR 42703: column u.created_at does not exist
+--
+-- `user_data` predates the migration ledger, so no migration owns its shape
+-- and two databases drifted apart. Staging carries `created_at`, `targetExam`
+-- and `onboardingDone`; production carries neither `created_at` nor those two,
+-- and instead has `target_exam` and `onboarding_done`. The same file therefore
+-- cannot name those columns literally and run on both.
+--
+-- The fix is to ASK THE CATALOGUE rather than assume, and build the backfill
+-- from the columns that are actually present. A column that exists nowhere
+-- contributes NULL, which is the honest value: nothing was collected.
+--
+-- Deliberately not solved by adding the missing columns to production. That
+-- would be inventing history on a live table to make a backfill convenient.
 DO $$
+DECLARE
+  has_created_at  BOOLEAN;
+  col_target_exam TEXT;
+  sql_students    TEXT;
+  sql_profiles    TEXT;
 BEGIN
   IF to_regclass('public.user_data') IS NULL THEN
-    RAISE NOTICE '012 backfill: user_data absent — students/student_profiles start empty';
+    RAISE NOTICE '012 backfill: user_data absent, students/student_profiles start empty';
     RETURN;
   END IF;
 
+  SELECT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'user_data' AND column_name = 'created_at'
+  ) INTO has_created_at;
+
+  -- Whichever spelling this database uses, or neither.
+  SELECT column_name INTO col_target_exam
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_data'
+    AND column_name IN ('targetExam', 'target_exam')
+  ORDER BY column_name = 'targetExam' DESC
+  LIMIT 1;
+
   -- Identity first: a profile row has a foreign key to it.
-  INSERT INTO students (student_id, created_at)
-  SELECT u.id, COALESCE(u.created_at, now())
-  FROM user_data u
-  WHERE EXISTS (SELECT 1 FROM auth.users a WHERE a.id = u.id)
-  ON CONFLICT (student_id) DO NOTHING;
+  sql_students := format($f$
+    INSERT INTO students (student_id, created_at)
+    SELECT u.id, COALESCE(%s, now())
+    FROM user_data u
+    WHERE EXISTS (SELECT 1 FROM auth.users a WHERE a.id = u.id)
+    ON CONFLICT (student_id) DO NOTHING
+  $f$, CASE WHEN has_created_at THEN 'u.created_at' ELSE 'NULL::timestamptz' END);
+  EXECUTE sql_students;
 
-  INSERT INTO student_profiles (
-    student_id, version, board, grade, stream, target_exam, subjects,
-    ai_profile, effective_from, changed_by, change_reason, is_current
-  )
-  SELECT
-    u.id,
-    1,
-    NULLIF(u.board,  ''),
-    NULLIF(u.grade,  ''),
-    NULLIF(u.stream, ''),
-    NULLIF(u."targetExam", ''),
-    CASE
-      WHEN jsonb_typeof(u.interests) = 'array'
-       AND jsonb_array_length(u.interests) > 0
-      THEN ARRAY(SELECT jsonb_array_elements_text(u.interests))
-      ELSE NULL
-    END,
-    CASE WHEN jsonb_typeof(u."aiProfile") = 'object' THEN u."aiProfile" ELSE NULL END,
-    COALESCE(u.updated_at, u.created_at, now()),
-    'backfill:012',
-    'flat user_data columns, migrated by 012',
-    TRUE
-  FROM user_data u
-  WHERE EXISTS (SELECT 1 FROM students s WHERE s.student_id = u.id)
-    AND (
-      NULLIF(u.board, '')  IS NOT NULL OR
-      NULLIF(u.grade, '')  IS NOT NULL OR
-      NULLIF(u.stream, '') IS NOT NULL OR
-      NULLIF(u."targetExam", '') IS NOT NULL OR
-      jsonb_typeof(u.interests) = 'array' OR
-      jsonb_typeof(u."aiProfile") = 'object'
+  sql_profiles := format($f$
+    INSERT INTO student_profiles (
+      student_id, version, board, grade, stream, target_exam, subjects,
+      ai_profile, effective_from, changed_by, change_reason, is_current
     )
-  ON CONFLICT (student_id, version) DO NOTHING;
+    SELECT
+      u.id,
+      1,
+      NULLIF(u.board,  ''),
+      NULLIF(u.grade,  ''),
+      NULLIF(u.stream, ''),
+      %1$s,
+      CASE
+        WHEN jsonb_typeof(u.interests) = 'array'
+         AND jsonb_array_length(u.interests) > 0
+        THEN ARRAY(SELECT jsonb_array_elements_text(u.interests))
+        ELSE NULL
+      END,
+      CASE WHEN jsonb_typeof(u."aiProfile") = 'object' THEN u."aiProfile" ELSE NULL END,
+      COALESCE(u.updated_at, %2$s, now()),
+      'backfill:012',
+      'flat user_data columns, migrated by 012',
+      TRUE
+    FROM user_data u
+    WHERE EXISTS (SELECT 1 FROM students s WHERE s.student_id = u.id)
+      AND (
+        NULLIF(u.board, '')  IS NOT NULL OR
+        NULLIF(u.grade, '')  IS NOT NULL OR
+        NULLIF(u.stream, '') IS NOT NULL OR
+        %1$s IS NOT NULL OR
+        jsonb_typeof(u.interests) = 'array' OR
+        jsonb_typeof(u."aiProfile") = 'object'
+      )
+    ON CONFLICT (student_id, version) DO NOTHING
+  $f$,
+    CASE WHEN col_target_exam IS NULL THEN 'NULL::text'
+         ELSE format('NULLIF(u.%I, '''')', col_target_exam) END,
+    CASE WHEN has_created_at THEN 'u.created_at' ELSE 'NULL::timestamptz' END);
+  EXECUTE sql_profiles;
 
-  RAISE NOTICE '012 backfill: students and version-1 profiles derived from user_data';
+  RAISE NOTICE '012 backfill: students and version-1 profiles derived from user_data (created_at present: %, target exam column: %)',
+    has_created_at, COALESCE(col_target_exam, 'none');
 END $$;
 
 -- ── 7. Verification the founder can run after applying this file ──────────
@@ -1199,7 +1242,7 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '012',
   '012_students_and_profiles.sql',
-  '4944844d171ce82eac751295802186cd61fab3272230d6812cf8b94646be1644',
+  '2dd64199b6d88e816edad844b4836e2febf8312388b414fffe21503d93c0da32',
   'self'
 );
 
