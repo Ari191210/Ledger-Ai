@@ -152,7 +152,7 @@ export default function DiagnosisPage() {
             </Text>
             <Text step="body" tone="secondary">
               What you lost, why, and what keeps happening. Every figure here is a
-              sum of marked questions you confirmed — open any one to see the
+              sum of marked questions you confirmed. Open any one to see the
               paper it came from.
             </Text>
           </Stack>
@@ -546,7 +546,7 @@ function Provenance({ d }: { d: Diagnosis }) {
         Derived from {d.occurrencesRead} confirmed question
         {d.occurrencesRead === 1 ? "" : "s"} across {d.evidenceCount} captured paper
         {d.evidenceCount === 1 ? "" : "s"}. Unconfirmed proposals are not counted.
-        Nothing on this screen can be deleted — the record is kept permanently.
+        Nothing on this screen can be deleted. The record is kept permanently.
       </Text>
       {d.refused.map(r => (
         <Text key={r.refusal} step="micro" tone="warn">

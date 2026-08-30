@@ -44,7 +44,7 @@ const REASON_REF_LABEL: Record<string, string> = {
 const EMPTY_COPY: Record<TodayEmptyReason, { title: string; body: string; action: { label: string; href: string } }> = {
   no_evidence_yet: {
     title: "Nothing on record yet",
-    body: "Today opens once there is something to read from — a declared topic, a session, an assessment.",
+    body: "Today opens once there is something to read from: a declared topic, a session, an assessment.",
     action: { label: "Start a session", href: "/capture" },
   },
   all_current: {
@@ -54,12 +54,12 @@ const EMPTY_COPY: Record<TodayEmptyReason, { title: string; body: string; action
   },
   awaiting_verification: {
     title: "One session is unverified",
-    body: "Verifying it is your choice — nothing is blocked while it waits.",
+    body: "Verifying it is your choice. Nothing is blocked while it waits.",
     action: { label: "Verify now", href: "/record" },
   },
   insufficient_data: {
     title: "Your record is still updating",
-    body: "The last read from your data hit a problem — this is a system state, not a report on your studying.",
+    body: "The last read from your data hit a problem. This is a system state, not a report on your studying.",
     action: { label: "Try again", href: "/today" },
   },
 };

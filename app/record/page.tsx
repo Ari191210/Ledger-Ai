@@ -185,7 +185,7 @@ export default function RecordPage() {
             </Text>
             <Text step="body" tone="secondary">
               What you have accumulated, month by month, and the errors that keep
-              coming back. Nothing here is predicted — every figure is a sum of
+              coming back. Nothing here is predicted. Every figure is a sum of
               questions you confirmed and papers you captured.
             </Text>
           </Stack>
@@ -222,7 +222,7 @@ export default function RecordPage() {
           {state.kind === "ready" && isEmpty(state.record) && (
             <Empty
               title="Your record starts with one paper"
-              body="This screen shows what has accumulated — marks, papers, sessions and the errors that repeat. Capture a marked paper and confirm what it found, and the first month appears here."
+              body="This screen shows what has accumulated: marks, papers, sessions and the errors that repeat. Capture a marked paper and confirm what it found, and the first month appears here."
               action={{ label: "Capture a paper", href: "/capture" }}
             />
           )}
@@ -308,12 +308,12 @@ function Standing({ r }: { r: AcademicRecordView }) {
       <Row gap={4} wrap>
         <Text step="label">
           {totals.papersCaptured === null
-            ? "papers — not read"
+            ? "papers, not read"
             : `${totals.papersCaptured} ${plural(totals.papersCaptured, "paper", "papers")} captured`}
         </Text>
         <Text step="label">
           {totals.sessionsVerified === null
-            ? "sessions — not read"
+            ? "sessions, not read"
             : `${totals.sessionsVerified} verified ${plural(totals.sessionsVerified, "session", "sessions")}`}
         </Text>
         <Text step="label">
@@ -356,7 +356,7 @@ function TimelineView({
     <Stack gap={4}>
       <Text step="body" tone="secondary">
         Every month in the window is listed, including the quiet ones. A month
-        with nothing recorded says so — it is not counted as a month of zero.
+        with nothing recorded says so. It is not counted as a month of zero.
       </Text>
       {months.map(m => (
         <Month key={m.month} m={m} peak={peak} open={open} toggle={toggle} />
@@ -512,7 +512,7 @@ function PatternsView({
           <Text step="body" tone="secondary">
             {quiet.length} {plural(quiet.length, "pattern", "patterns")} with no
             confirmed question in the last {r.window.months} months. Still on the
-            record — a pattern is not removed by a quiet period.
+            record. A pattern is not removed by a quiet period.
           </Text>
           {quiet.map(p => (
             <Row key={p.patternId} gap={2} wrap>
@@ -597,7 +597,7 @@ function Provenance({ r }: { r: AcademicRecordView }) {
         Derived from {r.totals.occurrenceCount} confirmed{" "}
         {plural(r.totals.occurrenceCount, "question", "questions")} between{" "}
         {DATE(r.window.fromISO)} and now. Unconfirmed proposals are not counted.
-        Nothing on this screen can be deleted — the record is kept permanently.
+        Nothing on this screen can be deleted. The record is kept permanently.
       </Text>
       {r.refused.map(x => (
         <Text key={x.refusal} step="micro" tone="warn">

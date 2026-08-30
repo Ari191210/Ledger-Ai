@@ -489,6 +489,12 @@ describe('M9-5 — the unconfirmed-exclusion gate', () => {
         if (!/\.(ts|tsx|mjs|sql)$/.test(name)) continue;
         const rel = path.relative(root, p).split(path.sep).join('/');
         if (rel === SQL_022 || rel === SQL_035 || rel === MOD_CONCEPTS || rel.startsWith('tests/')) continue;
+        // supabase/pending/* are GENERATED concatenations of the migrations
+        // above, for hand-running against a database that has none of them.
+        // They contain 022 and 035 verbatim, so exempting the sources and not
+        // their copies would fail on the copy of an exempt file. The sources
+        // remain the thing under test; regenerate rather than edit a part.
+        if (rel.startsWith('supabase/pending/')) continue;
         // Comments name what a file deliberately does NOT do — 021 §8 records
         // the table by name as the thing it refused to ship. Only real code
         // counts, which is what `code()` is for.

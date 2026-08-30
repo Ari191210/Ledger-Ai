@@ -57,7 +57,7 @@ const LOOP_STEPS = [
   "A marked paper becomes an academic event.",
   "The session it belongs to gets found and finished.",
   "Every mistake is confirmed, never assumed.",
-  "The record compounds — nothing in it is ever silently rewritten.",
+  "The record compounds. Nothing in it is ever silently rewritten.",
 ];
 
 export default function AuthPage() {

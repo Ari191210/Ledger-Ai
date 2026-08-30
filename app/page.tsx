@@ -45,9 +45,9 @@ import Track from "@/components/console/track";
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const metadata: Metadata = {
-  title: "StudyLedger — Your mistakes are your syllabus",
+  title: "StudyLedger. Your mistakes are your syllabus.",
   description:
-    "Every marked paper you photograph becomes a permanent record of how you learn — so the mistake you keep repeating stops being invisible, and you always know what to fix next.",
+    "Every marked paper you photograph becomes a permanent record of how you learn, so the mistake you keep repeating stops being invisible, and you always know what to fix next.",
 };
 
 // The Console faces, scoped to this route for the same reason app/console
@@ -134,7 +134,7 @@ export default function Landing() {
           <div className="reveal">
             <Reveal as="p" index={1} className="landing__lede">
               Every marked paper you photograph becomes a permanent record of
-              how you learn — so the mistake you keep repeating stops being
+              how you learn, so the mistake you keep repeating stops being
               invisible.
             </Reveal>
           </div>
@@ -255,7 +255,7 @@ export default function Landing() {
           </h2>
           <div className="reveal">
             <Reveal as="p" index={1} className="landing__lede">
-              One mistake, across five months. It closes when you prove it —
+              One mistake, across five months. It closes when you prove it,
               not when you decide you understand it.
             </Reveal>
           </div>
@@ -340,7 +340,7 @@ export default function Landing() {
           <div className="reveal">
             <Reveal as="p" index={3} className="landing__lede">
               Marks lost, wrong answers and open gaps are never sent. Not by
-              policy — the report is unable to contain them.
+              policy. The report is unable to contain them.
             </Reveal>
           </div>
         </div>
