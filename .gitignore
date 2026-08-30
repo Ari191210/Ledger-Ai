@@ -58,5 +58,6 @@ ruvector.db
 .vercel
 .env.local
 .test-build*
+.lights-build
 
 .vercel
