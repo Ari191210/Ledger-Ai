@@ -16,6 +16,7 @@ import DraftReview, { type DraftRow, type ReviewItem } from "@/components/captur
 import ManualEntry from "@/components/capture/manual-entry";
 import Walkthrough from "@/components/walkthrough";
 import { useSearchParams } from "next/navigation";
+import LightsToggle from "@/components/lights-toggle";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /capture — M8-1.
@@ -204,6 +205,7 @@ export default function CapturePage() {
               StudyLedger
             </Text>
             <Spacer />
+            <LightsToggle />
           </Row>
         </Measure>
         <Rule />

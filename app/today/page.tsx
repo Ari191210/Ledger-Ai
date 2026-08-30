@@ -14,6 +14,7 @@ import {
   Text,
 } from "@/components/console/primitives";
 import type { TodayEmptyReason, TodayItem } from "@/lib/today/types";
+import LightsToggle from "@/components/lights-toggle";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /today — M21. Architecture Part L, B.12. "A continuously regenerated,
@@ -95,6 +96,7 @@ export default function TodayPage() {
               StudyLedger
             </Text>
             <Spacer />
+            <LightsToggle />
             <Control tier="tertiary" href="/capture">
               Capture
             </Control>

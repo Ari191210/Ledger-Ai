@@ -15,6 +15,7 @@ import {
   Track,
 } from "@/components/console/primitives";
 import type { Diagnosis, PatternGroup, RecurringPattern } from "@/lib/diagnosis";
+import LightsToggle from "@/components/lights-toggle";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /diagnosis — M13-1, and the destination of M13-2's seven redirects.
@@ -134,6 +135,7 @@ export default function DiagnosisPage() {
               StudyLedger
             </Text>
             <Spacer />
+            <LightsToggle />
             <Control tier="tertiary" href="/capture">
               Capture
             </Control>

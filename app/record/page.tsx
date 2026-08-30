@@ -23,6 +23,7 @@ import {
   type RecordPattern,
   type TimelineMonth,
 } from "@/lib/record";
+import LightsToggle from "@/components/lights-toggle";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /record — M13-3, and the destination of `grade-tracker`'s and
@@ -164,6 +165,7 @@ export default function RecordPage() {
               StudyLedger
             </Text>
             <Spacer />
+            <LightsToggle />
             <Control tier="tertiary" href="/diagnosis">
               Diagnosis
             </Control>
