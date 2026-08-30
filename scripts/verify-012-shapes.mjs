@@ -47,8 +47,10 @@ const SHAPES = {
     interestsVal: `'["cricket","music"]'::jsonb`, aiVal: `'{"tone":"direct"}'::jsonb`,
     expectSubjects: ["cricket", "music"],
   },
-  "PRODUCTION: text[] interests, TEXT id, no created_at": {
-    id: "TEXT", interests: "TEXT[]", ai: "JSONB", created_at: false, exam: "targetExam",
+  // The shape MEASURED on production 2026-08-30, not assumed. See
+  // supabase/PRODUCTION_SHAPE.md for how each type was established.
+  "PRODUCTION as measured: TEXT id, text[] interests, jsonb aiProfile, no created_at, target_exam": {
+    id: "TEXT", interests: "TEXT[]", ai: "JSONB", created_at: false, exam: "target_exam",
     interestsVal: `ARRAY['cricket','music']::text[]`, aiVal: `'{"tone":"direct"}'::jsonb`,
     expectSubjects: ["cricket", "music"],
   },

@@ -31,7 +31,14 @@ Supabase, SQL Editor, New query. For each part, in order:
 | `part-05.sql` | 026 027 028 029 030 | 125 KB |
 | `part-06.sql` | 031 032 033 034 035 | 73 KB |
 
-**When it is done, the final `SELECT` returns 38 rows, `000` through `035`.**
+**When it is done, the final `SELECT` returns 37 rows: `000` through `035`,
+plus `004b`.**
+
+This was rehearsed end to end on 2026-08-30 by
+`scripts/rehearse-production.mjs`, which builds a database from production's
+own measured schema (`supabase/production-schema.json`, captured from the live
+PostgREST spec) and runs these six files against it in order. All six applied
+cleanly and the ledger finished at 37 of 37.
 
 ## If a part fails halfway
 
