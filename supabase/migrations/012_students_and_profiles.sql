@@ -341,6 +341,12 @@ DECLARE
   col_target_exam TEXT;
   expr_created    TEXT;
   expr_exam       TEXT;
+  typ_interests   TEXT;
+  typ_ai          TEXT;
+  expr_interests  TEXT;
+  expr_ai         TEXT;
+  pred_interests  TEXT;
+  pred_ai         TEXT;
   uuid_shape      TEXT := '________-____-____-____-____________';
 BEGIN
   IF to_regclass('public.user_data') IS NULL THEN
@@ -359,6 +365,65 @@ BEGIN
     AND column_name IN ('targetExam', 'target_exam')
   ORDER BY (column_name = 'targetExam') DESC
   LIMIT 1;
+
+  -- Types, not just names.
+  --
+  -- The first sweep asked which columns EXIST and stopped there, which is
+  -- how this defect survived it: `interests` is text[] in production and
+  -- jsonb in staging. jsonb_typeof() only accepts jsonb, so on production
+  -- the statement failed to resolve at all.
+  --
+  -- A column that is absent, or of a type carrying no usable value,
+  -- contributes NULL and a FALSE predicate: nothing was collected, so
+  -- nothing is claimed.
+  SELECT data_type INTO typ_interests
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_data'
+    AND column_name = 'interests';
+
+  SELECT data_type INTO typ_ai
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_data'
+    AND column_name = 'aiProfile';
+
+  -- interests -> TEXT[]
+  IF typ_interests = 'ARRAY' THEN
+    expr_interests := 'CASE WHEN COALESCE(array_length(u.interests, 1), 0) > 0 '
+                   || 'THEN u.interests ELSE NULL END';
+    pred_interests := 'COALESCE(array_length(u.interests, 1), 0) > 0';
+  ELSIF typ_interests = 'jsonb' THEN
+    expr_interests := 'CASE WHEN jsonb_typeof(u.interests) = ''array'' '
+                   || '      AND jsonb_array_length(u.interests) > 0 '
+                   || '     THEN ARRAY(SELECT jsonb_array_elements_text(u.interests)) ELSE NULL END';
+    pred_interests := 'jsonb_typeof(u.interests) = ''array''';
+  ELSIF typ_interests = 'json' THEN
+    expr_interests := 'CASE WHEN jsonb_typeof(u.interests::jsonb) = ''array'' '
+                   || '      AND jsonb_array_length(u.interests::jsonb) > 0 '
+                   || '     THEN ARRAY(SELECT jsonb_array_elements_text(u.interests::jsonb)) ELSE NULL END';
+    pred_interests := 'jsonb_typeof(u.interests::jsonb) = ''array''';
+  ELSE
+    expr_interests := 'NULL::text[]';
+    pred_interests := 'FALSE';
+  END IF;
+
+  -- aiProfile -> JSONB
+  IF typ_ai = 'jsonb' THEN
+    expr_ai := 'CASE WHEN jsonb_typeof(u."aiProfile") = ''object'' THEN u."aiProfile" ELSE NULL END';
+    pred_ai := 'jsonb_typeof(u."aiProfile") = ''object''';
+  ELSIF typ_ai = 'json' THEN
+    expr_ai := 'CASE WHEN jsonb_typeof(u."aiProfile"::jsonb) = ''object'' THEN u."aiProfile"::jsonb ELSE NULL END';
+    pred_ai := 'jsonb_typeof(u."aiProfile"::jsonb) = ''object''';
+  ELSIF typ_ai IN ('text', 'character varying') THEN
+    -- text that may or may not hold JSON. A bad parse must not abort the
+    -- migration, so check the cheap way before casting.
+    expr_ai := 'CASE WHEN u."aiProfile" LIKE ''{%'' '
+            || '      AND jsonb_typeof(u."aiProfile"::jsonb) = ''object'' '
+            || '     THEN u."aiProfile"::jsonb ELSE NULL END';
+    pred_ai := '(u."aiProfile" LIKE ''{%'')';
+  ELSE
+    expr_ai := 'NULL::jsonb';
+    pred_ai := 'FALSE';
+  END IF;
 
   expr_created := CASE WHEN has_created_at THEN 'u.created_at' ELSE 'NULL::timestamptz' END;
   expr_exam    := CASE WHEN col_target_exam IS NULL THEN 'NULL::text'
@@ -384,10 +449,8 @@ BEGIN
     '  ai_profile, effective_from, changed_by, change_reason, is_current) '
     'SELECT u.id::uuid, 1, '
     '  NULLIF(u.board, %L), NULLIF(u.grade, %L), NULLIF(u.stream, %L), %s, '
-    '  CASE WHEN jsonb_typeof(u.interests) = ''array'' '
-    '        AND jsonb_array_length(u.interests) > 0 '
-    '       THEN ARRAY(SELECT jsonb_array_elements_text(u.interests)) ELSE NULL END, '
-    '  CASE WHEN jsonb_typeof(u."aiProfile") = ''object'' THEN u."aiProfile" ELSE NULL END, '
+    '  %s, '
+    '  %s, '
     '  COALESCE(u.updated_at, %s, now()), '
     '  ''backfill:012'', ''flat user_data columns, migrated by 012'', TRUE '
     'FROM user_data u '
@@ -395,14 +458,15 @@ BEGIN
     '  AND EXISTS (SELECT 1 FROM students s WHERE s.student_id = u.id::uuid) '
     '  AND (NULLIF(u.board, %L) IS NOT NULL OR NULLIF(u.grade, %L) IS NOT NULL '
     '    OR NULLIF(u.stream, %L) IS NOT NULL OR %s IS NOT NULL '
-    '    OR jsonb_typeof(u.interests) = ''array'' '
-    '    OR jsonb_typeof(u."aiProfile") = ''object'') '
+    '    OR %s '
+    '    OR %s) '
     'ON CONFLICT (student_id, version) DO NOTHING',
-    '', '', '', expr_exam, expr_created, uuid_shape,
-    '', '', '', expr_exam);
+    '', '', '', expr_exam, expr_interests, expr_ai, expr_created, uuid_shape,
+    '', '', '', expr_exam, pred_interests, pred_ai);
 
-  RAISE NOTICE '012 backfill: students and version-1 profiles derived from user_data (created_at present: %, target exam column: %)',
-    has_created_at, COALESCE(col_target_exam, 'none');
+  RAISE NOTICE '012 backfill: students and version-1 profiles derived from user_data (created_at: %, target exam: %, interests: %, aiProfile: %)',
+    has_created_at, COALESCE(col_target_exam, 'none'),
+    COALESCE(typ_interests, 'absent'), COALESCE(typ_ai, 'absent');
 END $$;
 
 -- ── 7. Verification the founder can run after applying this file ──────────
@@ -466,6 +530,6 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '012',
   '012_students_and_profiles.sql',
-  '05e560026dac93de3ee545f003d0213cd477bbb069c6943253108050f490ce10',
+  'a8133d22fe77a37a253e0ebcaf25dc05334e8554b1b1b84946c20f5e1fa61bbc',
   'self'
 );
