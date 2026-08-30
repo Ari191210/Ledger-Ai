@@ -127,7 +127,7 @@ BEGIN
   ) THEN
     EXECUTE $copy$
       INSERT INTO notification_state (user_id, sent, last_high_priority_day, last_milestone)
-      SELECT u.id,
+      SELECT u.id::uuid,
              COALESCE(u."notifState" -> 'sent', '{}'::jsonb),
              u."notifState" ->> 'lastHighPriorityDay',
              NULLIF(u."notifState" ->> 'lastMilestone', '')::int
@@ -147,7 +147,7 @@ BEGIN
   ) THEN
     EXECUTE $copy$
       INSERT INTO parent_alert_state (user_id, exam_alerts)
-      SELECT u.id, COALESCE(u."parentAlerts" -> 'examAlerts', '{}'::jsonb)
+      SELECT u.id::uuid, COALESCE(u."parentAlerts" -> 'examAlerts', '{}'::jsonb)
       FROM user_data u
       WHERE u."parentAlerts" IS NOT NULL
         AND jsonb_typeof(u."parentAlerts") = 'object'
@@ -196,6 +196,6 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '011',
   '011_service_state.sql',
-  'ab143522b26559c553ccfa76adf319d9164b086368a1b5dfdefae38100c657a9',
+  '93b4fe36c9eea7830615b87c5947788aec4cb3f0fc2f186f8e6287d6229acb50',
   'self'
 );

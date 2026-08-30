@@ -313,30 +313,38 @@ COMMENT ON FUNCTION public.set_student_profile(TEXT, TEXT, TEXT, TEXT, TEXT[], T
 -- `subjects`. `student_profiles.interests` — non-curricular interests per C.3
 -- — is left NULL, because nothing was ever collected for it and inventing a
 -- value would be a §7 violation.
--- REWRITTEN 2026-08-30, after this block failed on production with
+-- REWRITTEN 2026-08-30, after this block failed twice on production:
 --   ERROR 42703: column u.created_at does not exist
+--   ERROR 42883: operator does not exist: uuid = text
 --
--- `user_data` predates the migration ledger, so no migration owns its shape
--- and two databases drifted apart. Staging carries `created_at`, `targetExam`
--- and `onboardingDone`; production carries neither `created_at` nor those two,
--- and instead has `target_exam` and `onboarding_done`. The same file therefore
--- cannot name those columns literally and run on both.
+-- Two independent drifts, in one table. `user_data` predates the migration
+-- ledger, so no migration owns its shape and nothing ever checked that two
+-- databases agreed about it. They do not:
 --
--- The fix is to ASK THE CATALOGUE rather than assume, and build the backfill
--- from the columns that are actually present. A column that exists nowhere
--- contributes NULL, which is the honest value: nothing was collected.
+--   staging:    id UUID, created_at present, camelCase "targetExam"
+--   production: id TEXT, no created_at,      snake_case target_exam
 --
--- Deliberately not solved by adding the missing columns to production. That
--- would be inventing history on a live table to make a backfill convenient.
+-- 006 already met the type half and documented the fix: cast, and guard
+-- against an id that is not a well-formed UUID, because the cast would abort
+-- the whole migration on one bad row. 011, 012 and 029 all read user_data and
+-- none of them had adopted it. They do now.
+--
+-- The column half is met by asking information_schema and building the
+-- statements from what is actually present. A column in neither database
+-- contributes NULL, which is the honest value: nothing was collected, so
+-- nothing is claimed. Deliberately NOT met by adding the missing columns to
+-- production, which would be inventing history on a live table to make a
+-- backfill convenient.
 DO $$
 DECLARE
   has_created_at  BOOLEAN;
   col_target_exam TEXT;
-  sql_students    TEXT;
-  sql_profiles    TEXT;
+  expr_created    TEXT;
+  expr_exam       TEXT;
+  uuid_shape      TEXT := '________-____-____-____-____________';
 BEGIN
   IF to_regclass('public.user_data') IS NULL THEN
-    RAISE NOTICE '012 backfill: user_data absent, students/student_profiles start empty';
+    RAISE NOTICE '012 backfill: user_data absent, students and student_profiles start empty';
     RETURN;
   END IF;
 
@@ -345,63 +353,53 @@ BEGIN
     WHERE table_schema = 'public' AND table_name = 'user_data' AND column_name = 'created_at'
   ) INTO has_created_at;
 
-  -- Whichever spelling this database uses, or neither.
   SELECT column_name INTO col_target_exam
   FROM information_schema.columns
   WHERE table_schema = 'public' AND table_name = 'user_data'
     AND column_name IN ('targetExam', 'target_exam')
-  ORDER BY column_name = 'targetExam' DESC
+  ORDER BY (column_name = 'targetExam') DESC
   LIMIT 1;
 
-  -- Identity first: a profile row has a foreign key to it.
-  sql_students := format($f$
-    INSERT INTO students (student_id, created_at)
-    SELECT u.id, COALESCE(%s, now())
-    FROM user_data u
-    WHERE EXISTS (SELECT 1 FROM auth.users a WHERE a.id = u.id)
-    ON CONFLICT (student_id) DO NOTHING
-  $f$, CASE WHEN has_created_at THEN 'u.created_at' ELSE 'NULL::timestamptz' END);
-  EXECUTE sql_students;
+  expr_created := CASE WHEN has_created_at THEN 'u.created_at' ELSE 'NULL::timestamptz' END;
+  expr_exam    := CASE WHEN col_target_exam IS NULL THEN 'NULL::text'
+                       ELSE format('NULLIF(u.%I, %L)', col_target_exam, '') END;
 
-  sql_profiles := format($f$
-    INSERT INTO student_profiles (
-      student_id, version, board, grade, stream, target_exam, subjects,
-      ai_profile, effective_from, changed_by, change_reason, is_current
-    )
-    SELECT
-      u.id,
-      1,
-      NULLIF(u.board,  ''),
-      NULLIF(u.grade,  ''),
-      NULLIF(u.stream, ''),
-      %1$s,
-      CASE
-        WHEN jsonb_typeof(u.interests) = 'array'
-         AND jsonb_array_length(u.interests) > 0
-        THEN ARRAY(SELECT jsonb_array_elements_text(u.interests))
-        ELSE NULL
-      END,
-      CASE WHEN jsonb_typeof(u."aiProfile") = 'object' THEN u."aiProfile" ELSE NULL END,
-      COALESCE(u.updated_at, %2$s, now()),
-      'backfill:012',
-      'flat user_data columns, migrated by 012',
-      TRUE
-    FROM user_data u
-    WHERE EXISTS (SELECT 1 FROM students s WHERE s.student_id = u.id)
-      AND (
-        NULLIF(u.board, '')  IS NOT NULL OR
-        NULLIF(u.grade, '')  IS NOT NULL OR
-        NULLIF(u.stream, '') IS NOT NULL OR
-        %1$s IS NOT NULL OR
-        jsonb_typeof(u.interests) = 'array' OR
-        jsonb_typeof(u."aiProfile") = 'object'
-      )
-    ON CONFLICT (student_id, version) DO NOTHING
-  $f$,
-    CASE WHEN col_target_exam IS NULL THEN 'NULL::text'
-         ELSE format('NULLIF(u.%I, '''')', col_target_exam) END,
-    CASE WHEN has_created_at THEN 'u.created_at' ELSE 'NULL::timestamptz' END);
-  EXECUTE sql_profiles;
+  -- Identity first: a profile row has a foreign key to it.
+  --
+  -- The UUID guard is a LIKE pattern rather than a regex on purpose: a regex
+  -- ending in the anchor character is read by format() as the start of a
+  -- positional placeholder, and 36 single-character wildcards say the same
+  -- thing without that hazard.
+  EXECUTE format(
+    'INSERT INTO students (student_id, created_at) '
+    'SELECT u.id::uuid, COALESCE(%s, now()) FROM user_data u '
+    'WHERE u.id IS NOT NULL AND u.id::text LIKE %L '
+    '  AND EXISTS (SELECT 1 FROM auth.users a WHERE a.id::text = u.id::text) '
+    'ON CONFLICT (student_id) DO NOTHING',
+    expr_created, uuid_shape);
+
+  EXECUTE format(
+    'INSERT INTO student_profiles ('
+    '  student_id, version, board, grade, stream, target_exam, subjects,'
+    '  ai_profile, effective_from, changed_by, change_reason, is_current) '
+    'SELECT u.id::uuid, 1, '
+    '  NULLIF(u.board, %L), NULLIF(u.grade, %L), NULLIF(u.stream, %L), %s, '
+    '  CASE WHEN jsonb_typeof(u.interests) = ''array'' '
+    '        AND jsonb_array_length(u.interests) > 0 '
+    '       THEN ARRAY(SELECT jsonb_array_elements_text(u.interests)) ELSE NULL END, '
+    '  CASE WHEN jsonb_typeof(u."aiProfile") = ''object'' THEN u."aiProfile" ELSE NULL END, '
+    '  COALESCE(u.updated_at, %s, now()), '
+    '  ''backfill:012'', ''flat user_data columns, migrated by 012'', TRUE '
+    'FROM user_data u '
+    'WHERE u.id IS NOT NULL AND u.id::text LIKE %L '
+    '  AND EXISTS (SELECT 1 FROM students s WHERE s.student_id = u.id::uuid) '
+    '  AND (NULLIF(u.board, %L) IS NOT NULL OR NULLIF(u.grade, %L) IS NOT NULL '
+    '    OR NULLIF(u.stream, %L) IS NOT NULL OR %s IS NOT NULL '
+    '    OR jsonb_typeof(u.interests) = ''array'' '
+    '    OR jsonb_typeof(u."aiProfile") = ''object'') '
+    'ON CONFLICT (student_id, version) DO NOTHING',
+    '', '', '', expr_exam, expr_created, uuid_shape,
+    '', '', '', expr_exam);
 
   RAISE NOTICE '012 backfill: students and version-1 profiles derived from user_data (created_at present: %, target exam column: %)',
     has_created_at, COALESCE(col_target_exam, 'none');
@@ -468,6 +466,6 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '012',
   '012_students_and_profiles.sql',
-  '2dd64199b6d88e816edad844b4836e2febf8312388b414fffe21503d93c0da32',
+  '05e560026dac93de3ee545f003d0213cd477bbb069c6943253108050f490ce10',
   'self'
 );

@@ -272,7 +272,7 @@ BEGIN
     EXECUTE $view$
       CREATE OR REPLACE VIEW public.parent_exams_view AS
       SELECT
-        u.id AS student_id,
+        u.id::uuid AS student_id,
         jsonb_agg(jsonb_build_object(
           'name',    e->>'name',
           'subject', e->>'subject',
@@ -281,7 +281,7 @@ BEGIN
         )) AS exams
       FROM public.user_data u
       CROSS JOIN LATERAL jsonb_array_elements(COALESCE(u.exams, '[]'::jsonb)) AS e
-      GROUP BY u.id
+      GROUP BY u.id::uuid
     $view$;
   END IF;
 END $$;
@@ -719,6 +719,6 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '029',
   '029_parent_space.sql',
-  'd4916afef6966f472a9d24145515e449bd94395d9f92b80cc3b5ea2b8eb44768',
+  'a4f0607e1406f77508b2a00f1eb140ff5813037ecd7f59d3e0380df39db08955',
   'self'
 );
