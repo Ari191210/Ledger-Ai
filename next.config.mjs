@@ -48,8 +48,8 @@ const nextConfig = {
     // keep resolving — §2.5, unlinked, not deleted. `/console/analytics` is now
     // merged by M13-3's block below, which is what "later milestones deliver"
     // meant; the other four still resolve.
-    { source: "/dashboard",      destination: "/capture",                        permanent: true },
-    { source: "/console",        destination: "/capture",                        permanent: true },
+    { source: "/dashboard",      destination: "/today",                          permanent: true },
+    { source: "/console",        destination: "/today",                          permanent: true },
     { source: "/tools/dna",      destination: "/tools/post-exam?tab=dna",        permanent: true },
     { source: "/tools/cremator", destination: "/tools/exam-triage?tab=cremator", permanent: true },
     // doubt and notes are Learn Lab tabs. These two were never redirected, so
@@ -80,8 +80,8 @@ const nextConfig = {
     // What replaces them is a durable, deduped, replayable record instead of a
     // browser key — and a paper captured today is re-read by M8-4 without the
     // student uploading it again (`008`'s replay guarantee).
-    { source: "/tools/exam-practice", destination: "/capture",                   permanent: true },
-    { source: "/tools/syllabus",      destination: "/capture",                   permanent: true },
+    { source: "/tools/exam-practice", destination: "/today",                     permanent: true },
+    { source: "/tools/syllabus",      destination: "/today",                     permanent: true },
     // M13-2 — SEVEN SURFACES BECOME ONE. Architecture S.4: `post-exam`,
     // `paper-autopsy`, `marks-forensics`, `marks-obituary`, `paper-trauma`,
     // `paper-pattern` and `calibration` **REBUILD as one** `/diagnosis`.

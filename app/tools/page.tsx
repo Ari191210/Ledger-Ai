@@ -102,8 +102,8 @@ export default function ToolsIndexPage() {
         </div>
 
         <div style={{ marginTop: 56, paddingTop: 20, borderTop: "1px solid var(--rule)" }}>
-          <Link href="/capture" className="mono" style={{ color: "var(--ink-3)" }}>
-            ← Capture
+          <Link href="/today" className="mono" style={{ color: "var(--ink-3)" }}>
+            ← Today
           </Link>
         </div>
       </main>

@@ -977,6 +977,69 @@ memo is retained as the record of **how** each was reasoned. This section
 records **what was chosen**. Field names, table names and formulas are
 deliberately absent — those belong to `STUDYLEDGER_SYSTEM_ARCHITECTURE.md`.*
 
+## 7.9 `/capture` retired (2026-08-31)
+
+**Removed, on direct instruction.** The founder's words: *"delete everything
+related to /capture and i dont care whatever is written its a direct order
+from me."*
+
+This reverses more than one prior entry, and says so plainly rather than
+leaving the contradiction in place:
+
+- **§3, route 4** named `/capture` *"Photograph a marked paper. If this
+  doesn't ship, nothing else matters."* That sentence no longer describes the
+  product.
+- **§7.6** made `/capture` the interim landing after `/home` was deleted,
+  and called it *"already built, and named in §3 as the one screen that must
+  be built."* Both halves are now void.
+- The ASCII route map at §3 still marks `/capture` as *"← THE MISSING
+  SCREEN"*. That annotation is historical and is left as written, because §7
+  records reversals rather than rewriting the sections it reverses.
+
+**What actually happened.** `app/capture/*`, `app/api/capture/*`,
+`components/capture/*`, `lib/capture-extraction.ts`, `lib/capture-intake.ts`
+and the three capture test suites are deleted. Thirty-one code references
+across twenty-two files were repointed first, so nothing 404s:
+
+- **Sign-in, sign-up, OAuth callback, password reset and onboarding
+  completion** now land on `/today`. Left unrepointed, deleting the route
+  would have broken login for every student.
+- **`/dashboard`, `/console`, `/tools/exam-practice` and `/tools/syllabus`**
+  permanently redirect to `/today` instead of into a deleted page. A 301 into
+  a 404 is worse than a 404, because browsers cache it.
+- **The first-run walkthrough moved with the redirect.** It was mounted on
+  `/capture` and triggered by `?first=1`. `/today` now reads that flag and
+  renders it. Without this the walkthrough §7.7 ratified would have silently
+  stopped existing.
+- **Empty states on `/diagnosis` and `/record`** said *"Capture a marked
+  paper and confirm what it found."* Both were rewritten: the instruction had
+  nothing behind it. Their single control now points at `/today`, because
+  `Empty` requires exactly one action by design (CONSOLE.md §9) and weakening
+  that type to satisfy the compiler would have deleted the rule.
+
+**Interim landing, not a decision.** `/today` is now the post-onboarding
+landing because it is the surface that answers *"what should I do now"* and it
+is already guarded and shelled. As with §7.6, this is plumbing so the app does
+not 404 on login, **not** a ratification of `/today` as the permanent home.
+
+**What this does not decide.** Whether StudyLedger has any paper-intake path
+at all. `PRODUCT_PRINCIPLES` §1.1 (*"your mistakes are your syllabus"*)
+describes a function, not a route, and the ingestion schema (008), the
+evidence tables (007) and the occurrence pipeline all still exist and are
+untouched in the database. Nothing has decided that capturing a paper is gone
+for good rather than pending a screen the founder is happy with. If intake is
+abandoned permanently, that is a `PRODUCT_PRINCIPLES` amendment of its own and
+is not implied here.
+
+**Known gap.** `tests/capture-extraction.test.mjs`,
+`tests/capture-pipeline.test.mjs` and `tests/capture-shell.test.mjs` are
+deleted with the code they read. `lib/evidence.ts`, `lib/ingest/*` and the
+008 pipeline they partly exercised still ship and have lost that coverage.
+Rebuilding it against the surviving modules is unclaimed work.
+
+---
+
+
 ## 9.1 External study is supported, as a claim
 
 **Chosen.** A student may tell StudyLedger what they studied outside it — NCERT,

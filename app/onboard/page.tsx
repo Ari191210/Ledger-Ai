@@ -103,7 +103,7 @@ export default function OnboardPage() {
       .then((ud) => {
         if (!ud) return;
         const declared = Boolean(ud.board) && Array.isArray(ud.interests) && ud.interests.length > 0;
-        if (ud.onboardingDone === true || declared) router.replace("/capture");
+        if (ud.onboardingDone === true || declared) router.replace("/today");
       })
       .catch(() => {});
   }, [user, authLoading, router]);
@@ -215,7 +215,7 @@ export default function OnboardPage() {
 
     try { localStorage.removeItem(DRAFT_KEY); } catch {}
     // The walkthrough runs on first arrival and never again.
-    router.replace("/capture?first=1");
+    router.replace("/today?first=1");
   }
 
   const shellClass = `${sans.variable} ${mono.variable} ${devanagari.variable} ${tamil.variable}`;

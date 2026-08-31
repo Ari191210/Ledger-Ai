@@ -68,7 +68,7 @@ export default function AuthCallbackPage() {
           }).catch(() => {});
         }
 
-        router.replace("/capture");
+        router.replace("/today");
       } catch {
         setPhase("error");
         setTimeout(() => router.replace("/auth?error=oauth"), 2000);
@@ -99,7 +99,7 @@ export default function AuthCallbackPage() {
           }).catch(() => {});
         }
 
-        router.replace("/capture");
+        router.replace("/today");
       } catch {
         setPhase("error");
         setTimeout(() => router.replace("/auth?error=oauth"), 2000);

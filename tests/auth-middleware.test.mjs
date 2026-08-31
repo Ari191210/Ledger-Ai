@@ -423,8 +423,7 @@ describe('M4-2 — the client guard', () => {
 
   test('it is still mounted on all four student shells', () => {
     for (const rel of [
-      'app/capture/layout.tsx',
-      'app/tools/layout.tsx',
+          'app/tools/layout.tsx',
       'app/dashboard/layout.tsx',
       'app/console/layout.tsx',
     ]) {

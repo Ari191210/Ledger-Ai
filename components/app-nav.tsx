@@ -266,7 +266,6 @@ export default function AppNav() {
           </span>
         </Link>
 
-        {navLink("/capture", "Capture", undefined, true)}
 
         {/* ── Light / dark toggle ── */}
         <button

@@ -238,7 +238,7 @@ describe('one list of tools exists in the repository', () => {
   // list of tools exists in the repository, and the surfaces that render tools
   // read it rather than restating it. Only the surface moved.
   test('no product surface declares its own catalogue', () => {
-    const suspects = ['app/dashboard/page.tsx', 'app/capture/page.tsx',
+    const suspects = ['app/dashboard/page.tsx',
                       'components/app-nav.tsx', 'components/command-palette.tsx'];
     for (const rel of suspects) {
       const src = fs.readFileSync(path.join(root, rel), 'utf8');

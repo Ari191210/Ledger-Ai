@@ -27,5 +27,5 @@ import { permanentRedirect } from "next/navigation";
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function DashboardRetired(): never {
-  permanentRedirect("/capture");
+  permanentRedirect("/today");
 }

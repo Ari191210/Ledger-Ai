@@ -144,7 +144,7 @@ describe("the control itself", () => {
 });
 
 describe("it is reachable from every surface a student uses", () => {
-  for (const rel of ["app/capture/page.tsx", "app/diagnosis/page.tsx",
+  for (const rel of ["app/diagnosis/page.tsx",
     "app/record/page.tsx", "app/today/page.tsx"]) {
     test(`${rel} carries it in the masthead`, () => {
       const src = read(rel);

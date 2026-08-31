@@ -600,7 +600,7 @@ describe("generalised beyond /console — every shell that renders VitalityShell
   test("every shell that carries the token host listens for a live workspace change — a choice applies without a reload on any of them", () => {
     const shell = readSrc("components/console/vitality-shell.tsx");
     assert.match(shell, /WORKSPACE_CHANGE_EVENT/);
-    for (const route of ["console", "settings", "capture", "diagnosis", "record"]) {
+    for (const route of ["console", "settings", "today", "diagnosis", "record"]) {
       const layout = readSrc(`app/${route}/layout.tsx`);
       assert.match(layout, /VitalityShell/, `app/${route}/layout.tsx must mount VitalityShell`);
     }

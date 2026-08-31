@@ -138,7 +138,7 @@ export default function ExamDayPage() {
       <div className="mob-p" style={{ maxWidth: 620, margin: "0 auto", padding: "56px 24px 80px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 48 }}>
           <div className="mono cin">Exam-Day Mode</div>
-          <Link href="/capture" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
+          <Link href="/today" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
         </div>
 
         {!ready ? null : (
@@ -243,7 +243,7 @@ export default function ExamDayPage() {
       <div className="mob-p" style={{ maxWidth: 620, margin: "0 auto", padding: "56px 24px 80px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 48 }}>
           <div className="mono cin">Exam-Day Mode</div>
-          <Link href="/capture" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
+          <Link href="/today" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
         </div>
         <ExamDayDiagnostic onComplete={onDiagnosticComplete} onCancel={() => setPhase("brief")} />
       </div>
@@ -338,7 +338,7 @@ export default function ExamDayPage() {
           </div>
         )}
 
-        <Link href="/capture" className="btn" style={{ display: "inline-block" }}>Close the laptop →</Link>
+        <Link href="/today" className="btn" style={{ display: "inline-block" }}>Close the laptop →</Link>
       </div>
     </div>
   );

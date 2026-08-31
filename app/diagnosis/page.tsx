@@ -136,9 +136,6 @@ export default function DiagnosisPage() {
             </Text>
             <Spacer />
             <LightsToggle />
-            <Control tier="tertiary" href="/capture">
-              Capture
-            </Control>
           </Row>
         </Measure>
         <Rule />
@@ -175,8 +172,8 @@ export default function DiagnosisPage() {
           {state.kind === "ready" && state.diagnosis.occurrencesRead === 0 && (
             <Empty
               title="Nothing to diagnose yet"
-              body="This screen reads marked questions you have confirmed. Capture a marked paper and confirm what it found, and the breakdown appears here."
-              action={{ label: "Capture a paper", href: "/capture" }}
+              body="This screen reads marked questions you have confirmed. Once confirmed questions are on your record, the breakdown appears here."
+              action={{ label: "See what to do next", href: "/today" }}
             />
           )}
 

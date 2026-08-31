@@ -169,9 +169,6 @@ export default function RecordPage() {
             <Control tier="tertiary" href="/diagnosis">
               Diagnosis
             </Control>
-            <Control tier="tertiary" href="/capture">
-              Capture
-            </Control>
           </Row>
         </Measure>
         <Rule />
@@ -221,9 +218,9 @@ export default function RecordPage() {
 
           {state.kind === "ready" && isEmpty(state.record) && (
             <Empty
-              title="Your record starts with one paper"
-              body="This screen shows what has accumulated: marks, papers, sessions and the errors that repeat. Capture a marked paper and confirm what it found, and the first month appears here."
-              action={{ label: "Capture a paper", href: "/capture" }}
+              title="Your record is empty"
+              body="This screen shows what has accumulated: marks, papers, sessions and the errors that repeat. Once there is something on your record, the first month appears here."
+              action={{ label: "See what to do next", href: "/today" }}
             />
           )}
 

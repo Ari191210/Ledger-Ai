@@ -23,7 +23,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
 
 const SRC = read("components/walkthrough.tsx");
-const CAPTURE = read("app/capture/page.tsx");
+const HOME = read("app/today/page.tsx");
 const ONBOARD = read("app/onboard/page.tsx");
 
 /** The step copy, extracted from the STEPS table rather than retyped. */
@@ -118,12 +118,12 @@ describe("§7.7 — it is a walkthrough, not the tour that was banned", () => {
 
 describe("it is reached from onboarding, and only on the first run", () => {
   test("onboarding hands over with the flag", () => {
-    assert.match(ONBOARD, /router\.replace\("\/capture\?first=1"\)/);
+    assert.match(ONBOARD, /router\.replace\("\/today\?first=1"\)/);
   });
 
-  test("capture reads the flag and renders the walkthrough", () => {
-    assert.match(CAPTURE, /useSearchParams\(\)\?\.get\("first"\) === "1"/);
-    assert.match(CAPTURE, /<Walkthrough active=\{firstRun\} \/>/);
+  test("today reads the flag and renders the walkthrough", () => {
+    assert.match(HOME, /useSearchParams\(\)\?\.get\("first"\) === "1"/);
+    assert.match(HOME, /<Walkthrough active=\{firstRun\} \/>/);
   });
 
   test("the flag alone does not force it — the component decides", () => {

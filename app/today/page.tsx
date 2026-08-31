@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import {
   Control,
@@ -15,6 +16,7 @@ import {
 } from "@/components/console/primitives";
 import type { TodayEmptyReason, TodayItem } from "@/lib/today/types";
 import LightsToggle from "@/components/lights-toggle";
+import Walkthrough from "@/components/walkthrough";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /today — M21. Architecture Part L, B.12. "A continuously regenerated,
@@ -45,12 +47,12 @@ const EMPTY_COPY: Record<TodayEmptyReason, { title: string; body: string; action
   no_evidence_yet: {
     title: "Nothing on record yet",
     body: "Today opens once there is something to read from: a declared topic, a session, an assessment.",
-    action: { label: "Start a session", href: "/capture" },
+    action: { label: "Open your record", href: "/record" },
   },
   all_current: {
     title: "Nothing open, nothing due",
     body: "There is no outstanding item on your record right now.",
-    action: { label: "Study something new", href: "/capture" },
+    action: { label: "Open your record", href: "/record" },
   },
   awaiting_verification: {
     title: "One session is unverified",
@@ -76,6 +78,13 @@ export default function TodayPage() {
   const [data, setData] = useState<TodayResponse | null>(null);
   const [error, setError] = useState("");
 
+  // FIRST RUN. Onboarding finishes with `router.replace("/today?first=1")`, and
+  // this is the flag that shows the walkthrough exactly once. It moved here
+  // from /capture when that route was retired: the redirect had already been
+  // repointed, so without these two lines the walkthrough would have silently
+  // stopped existing for every new student.
+  const firstRun = useSearchParams()?.get("first") === "1";
+
   useEffect(() => {
     if (loading || !user || !session) return;
     fetch("/api/today", { headers: { Authorization: `Bearer ${session.access_token}` } })
@@ -97,9 +106,6 @@ export default function TodayPage() {
             </Text>
             <Spacer />
             <LightsToggle />
-            <Control tier="tertiary" href="/capture">
-              Capture
-            </Control>
             <Control tier="tertiary" href="/settings">
               Settings
             </Control>
@@ -145,6 +151,7 @@ export default function TodayPage() {
           )}
         </Stack>
       </Measure>
+      <Walkthrough active={firstRun} />
     </main>
   );
 }

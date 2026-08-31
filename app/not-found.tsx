@@ -23,7 +23,7 @@ export default function NotFound() {
           unaffected — nothing here is stored on this page.
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <Link href="/capture"
+          <Link href="/today"
             style={{ fontFamily: "monospace", fontSize: 11, padding: "10px 20px", background: "#222", color: "#f7f4ee", border: "none", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}
           >
             Capture

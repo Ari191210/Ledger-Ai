@@ -29,7 +29,6 @@ const SURFACES = [
   "app/page.tsx",
   "app/auth/page.tsx",
   "app/onboard/page.tsx",
-  "app/capture/page.tsx",
   "app/diagnosis/page.tsx",
   "app/record/page.tsx",
   "app/today/page.tsx",

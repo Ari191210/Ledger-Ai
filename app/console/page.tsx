@@ -18,5 +18,5 @@ import { permanentRedirect } from "next/navigation";
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function ConsoleNowMerged(): never {
-  permanentRedirect("/capture");
+  permanentRedirect("/today");
 }

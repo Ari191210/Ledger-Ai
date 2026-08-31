@@ -379,7 +379,7 @@ export default function PanicTriagePage() {
         }}
       >
         <Link
-          href="/capture"
+          href="/today"
           style={{
             color: "var(--ink-2)",
             textDecoration: "none",
@@ -390,7 +390,7 @@ export default function PanicTriagePage() {
             gap: "0.35rem",
           }}
         >
-          ← Capture
+          ← Today
         </Link>
         <span style={{ color: "var(--rule)", userSelect: "none" }}>|</span>
         <span
