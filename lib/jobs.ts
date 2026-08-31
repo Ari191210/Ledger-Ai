@@ -18,6 +18,47 @@ interface JobRow {
 
 const MAX_ATTEMPTS = 3;
 
+/**
+ * The origin the job runner calls itself on.
+ *
+ * ── WHY THE `www.` MATTERS ────────────────────────────────────────────────
+ * This defaulted to `https://studyledger.in`, the apex, which 308-redirects
+ * to `www.studyledger.in`. `fetch` follows that redirect, and per the Fetch
+ * spec a redirect to a DIFFERENT HOST strips the `Authorization` header. So
+ * every dispatch arrived at the send route with no credential, and
+ * `isInternalCaller()` — correctly — refused it.
+ *
+ * The failure was invisible from the outside: the cron fired, the dispatcher
+ * ran, jobs moved out of the queue, and every one of them landed in `failed`
+ * with `Error: Authentication required.` Fifteen welcome emails between 19
+ * July and 20 August were never sent.
+ *
+ * Verified, not assumed: a cross-host redirect drops the header (checked
+ * against an echo service), a same-host one does not, and
+ * `studyledger.in -> www.studyledger.in` is the cross-host case.
+ *
+ * `normaliseOrigin` keeps this true even if `NEXT_PUBLIC_SITE_URL` is later
+ * set to the apex by hand, because a config value that silently disables
+ * every outbound job is not a config value worth trusting.
+ */
+export function normaliseOrigin(raw: string | undefined): string {
+  const fallback = "https://www.studyledger.in";
+  if (!raw) return fallback;
+
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return fallback;
+  }
+
+  // The bare apex redirects; its www form does not. Anything else (a preview
+  // deployment, localhost) is left exactly as given.
+  if (url.hostname === "studyledger.in") url.hostname = "www.studyledger.in";
+
+  return url.origin;
+}
+
 export async function enqueueJob(
   type: JobType,
   payload: Record<string, unknown>,
@@ -46,7 +87,7 @@ export async function runPendingJobs(limit = 50): Promise<{ ran: number; failed:
 
   let ran = 0;
   let failed = 0;
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://studyledger.in";
+  const base = normaliseOrigin(process.env.NEXT_PUBLIC_SITE_URL);
 
   for (const job of jobs as JobRow[]) {
     await supabaseServer
