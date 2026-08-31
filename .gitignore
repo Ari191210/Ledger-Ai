@@ -61,3 +61,4 @@ ruvector.db
 .lights-build
 
 .vercel
+artifacts/  
