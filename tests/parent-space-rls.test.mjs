@@ -152,8 +152,30 @@ describe('029_parent_space — RLS, revocation, category gating', { skip: skipRe
   });
 
   test('V.8.8 — the parent role has no write policy on any academic table it could reach', async () => {
-    const { error } = await parentClient.from('parent_share_policies').update({ consistency: true }).eq('student_id', made.studentId);
-    assert.ok(error, 'a parent was able to write to parent_share_policies');
+    // This asserted `error` was truthy, which cannot actually detect the hole
+    // it is looking for. When RLS blocks an UPDATE, PostgREST does NOT error:
+    // no rows match the policy, so it reports success having changed nothing.
+    // The old assertion therefore passed for the right reason only by
+    // accident, and would have passed identically if a write had been allowed
+    // and then failed for some unrelated reason.
+    //
+    // Verified against the live database: the parent's UPDATE returns no
+    // error and changes nothing, because 029 creates only
+    // `parent_share_policies_select_own` — a SELECT policy, and no write
+    // policy for anyone.
+    //
+    // So the honest check is on the VALUE, not the error. Read it back.
+    const before = await admin.from('parent_share_policies')
+      .select('consistency').eq('student_id', made.studentId).eq('is_current', true).single();
+
+    await parentClient.from('parent_share_policies')
+      .update({ consistency: !before.data.consistency }).eq('student_id', made.studentId);
+
+    const after = await admin.from('parent_share_policies')
+      .select('consistency').eq('student_id', made.studentId).eq('is_current', true).single();
+
+    assert.equal(after.data.consistency, before.data.consistency,
+      'a parent changed the student\'s sharing policy — there must be no write policy for the parent role');
   });
 
   test('a caller cannot forge auth.uid() via an argument — accept_parent_invitation requires the invited party to be signed in as themselves', async () => {

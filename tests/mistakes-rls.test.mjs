@@ -13,8 +13,36 @@
 
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
+
+/**
+ * The severity formula's identity, read from `lib/mistake-severity.ts`.
+ *
+ * 025 added `patterns_severity_version_shape`: a concept-tier pattern must
+ * carry both a severity and the version of the formula that produced it,
+ * because a derived number without its formula cannot be interpreted or
+ * recomputed. This fixture predates that migration and set only `severity`,
+ * so it began failing the moment 025 reached the database it tests against.
+ *
+ * Read from source rather than hardcoded, so a future formula revision moves
+ * this fixture with the code. Read rather than imported because this file is
+ * plain ESM and the constant lives in TypeScript; the sibling
+ * mistake-dna.test.mjs compiles the whole module tree for its own reasons,
+ * which is far more machinery than one string needs.
+ *
+ * Resolved with `fileURLToPath` rather than `new URL(...)` because this file
+ * declares its own `URL` const further down, which shadows the global.
+ */
+const SEVERITY_FACTORS_VERSION = (() => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const src = readFileSync(path.join(here, '..', 'lib', 'mistake-severity.ts'), 'utf8');
+  const m = src.match(/SEVERITY_FACTORS_VERSION\s*=\s*["']([^"']+)["']/);
+  if (!m) throw new Error('could not read SEVERITY_FACTORS_VERSION from lib/mistake-severity.ts');
+  return m[1];
+})();
 
 // ── Environment ─────────────────────────────────────────────────────────────
 if (existsSync('.env.local') && typeof process.loadEnvFile === 'function') {
@@ -100,12 +128,23 @@ describe('007_mistakes — RLS and schema invariants', { skip: !CONFIGURED && 'S
       made.subjectId = data.id;
     }
     {
+      // A leaf carries a severity, and 025 requires the severity's VERSION to
+      // travel with it: `patterns_severity_version_shape` says a concept-tier
+      // row must have both, because a derived number without the identity of
+      // the formula that derived it cannot be interpreted or recomputed. This
+      // fixture predates 025 and set only `severity`, so it began failing the
+      // moment that migration reached the database it tests against.
+      //
+      // Using the real constant rather than a literal, so a future formula
+      // revision moves this fixture with the code instead of leaving it
+      // asserting against a version that no longer exists.
       const { data, error } = await admin.from('patterns').insert({
         student_id: made.userA, tier: 'concept', subject: 'Physics',
         concept_id: made.conceptId, parent_pattern_id: made.subjectId,
         error_class: 'execution', error_type: 'sign-error',
         label: 'Sign error applying the chain rule',
-        severity: 87, system_confidence: 0.9, status: 'open',
+        severity: 87, severity_version: SEVERITY_FACTORS_VERSION,
+        system_confidence: 0.9, status: 'open',
       }).select('id').single();
       if (error) throw new Error(`leaf pattern: ${error.message}`);
       made.leafId = data.id;
@@ -222,11 +261,66 @@ describe('007_mistakes — RLS and schema invariants', { skip: !CONFIGURED && 'S
     }
   });
 
-  test('the system CAN resolve — the rule constrains students, not the engine', async () => {
-    const { error } = await admin.from('patterns')
-      .update({ status: 'resolved' }).eq('id', made.leafId);
-    assert.equal(error, null, 'service role must be able to resolve');
+  test('even the system cannot resolve without proof — 025 binds the engine too', async () => {
+    // This test used to assert that the service role could simply set
+    // 'resolved', on the reasoning that RLS constrains students and not the
+    // engine. 025 deliberately closed that: RLS does not bind the service
+    // role, and everything Mistake DNA writes runs AS the service role, so a
+    // policy alone would leave the rule enforced only by convention.
+    //
+    // `patterns_resolution_requires_proof` is a TRIGGER, and triggers bind
+    // everyone. Two rules now hold for every caller:
+    //
+    //   · resolved is reachable only from 'practising' (§4.8, G.7)
+    //   · a mistake_resolutions row naming ≥2 proof attempts must ALREADY
+    //     exist (G.8: "a resolution that cannot name them is not
+    //     constructible")
+    //
+    // So the honest assertion is not "the engine may resolve freely" but
+    // "the engine may resolve only by producing the proof first".
+
+    // a) the leaf is currently 'practising' from the previous test, yet a bare
+    //    resolve is still refused, because no proof row exists.
+    {
+      const { error } = await admin.from('patterns')
+        .update({ status: 'resolved' }).eq('id', made.leafId);
+      assert.notEqual(error, null, 'a resolution with no proof must be refused');
+      assert.match(error.message, /mistake_resolutions row naming its proof attempts/);
+    }
+
+    // b) with the proof written first, in the shape §4.8 requires, the same
+    //    update succeeds. This is the path the engine actually takes.
+    {
+      const { error: proofError } = await admin.from('mistake_resolutions').insert({
+        pattern_id: made.leafId,
+        student_id: made.userA,
+        resolved_at: new Date().toISOString(),
+        // ≥2 correct answers on the same concept. These are opaque ids here;
+        // the constraint is on the count, not on their existence.
+        proof_attempt_ids: [crypto.randomUUID(), crypto.randomUUID()],
+        measured_from: new Date(Date.now() - 30 * 86400_000).toISOString(),
+        cooling_days: 30,                 // CHECK requires >= 7
+        set_by: 'system',                 // CHECK requires exactly this
+      });
+      assert.equal(proofError, null, 'the engine must be able to write the proof');
+
+      const { error } = await admin.from('patterns')
+        .update({ status: 'resolved' }).eq('id', made.leafId);
+      assert.equal(error, null, 'with proof present, the engine may resolve');
+    }
+
+    // c) and the transition rule holds regardless of proof: 'open' is not a
+    //    legal predecessor of 'resolved'.
+    {
+      await admin.from('patterns').update({ status: 'open' }).eq('id', made.leafId);
+      const { error } = await admin.from('patterns')
+        .update({ status: 'resolved' }).eq('id', made.leafId);
+      assert.notEqual(error, null, "'open' → 'resolved' must be refused");
+      assert.match(error.message, /not a legal transition/);
+    }
+
     // Restore for later assertions.
+    await admin.from('mistake_resolutions').delete().eq('pattern_id', made.leafId);
     await admin.from('patterns').update({ status: 'open' }).eq('id', made.leafId);
   });
 

@@ -1,7 +1,141 @@
 {
-  "captured_at": "2026-08-30T20:01:55.909Z",
+  "captured_at": "2026-08-30T21:11:56.180Z",
   "url": "https://heppfjyimtvuullxlwwa.supabase.co",
   "tables": {
+    "recommendations": {
+      "recommendation_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "kind": {
+        "type": "PUBLIC.RECOMMENDATION_KIND",
+        "pk": false,
+        "required": true
+      },
+      "subject": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "pattern_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "priority": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": true
+      },
+      "reason_template": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "evidence_refs": {
+        "type": "JSONB[]",
+        "pk": false,
+        "required": true
+      },
+      "state": {
+        "type": "PUBLIC.RECOMMENDATION_STATE",
+        "pk": false,
+        "required": true
+      },
+      "surfaced_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "dedupe_key": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "expires_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "assessment_attempt_disputes": {
+      "dispute_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "correction_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "attempt_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "question_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "status": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "resolved_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "resolved_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "opened_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
     "push_subscriptions": {
       "endpoint": {
         "type": "TEXT",
@@ -42,6 +176,160 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      }
+    },
+    "assessment_question_revocations": {
+      "revocation_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "question_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "scope": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "selector": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "revoked_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "superseding_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "revoked_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "unrevoked_assessment_questions": {
+      "question_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "slot_index": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "counts_toward_coverage": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "targets_pattern_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "depth": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "format": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stem": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stem_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "options": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "answer_key": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "marks": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "provenance": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "admitted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "retained": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
       }
     },
     "concepts": {
@@ -89,6 +377,26 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      },
+      "merged_into": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "taxonomy_version": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "search_vector": {
+        "type": "TSVECTOR",
+        "pk": false,
+        "required": false
+      },
+      "label_embedding": {
+        "type": "PUBLIC.VECTOR(1536)",
+        "pk": false,
+        "required": false
       }
     },
     "user_data": {
@@ -201,6 +509,93 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": false
+      },
+      "legacy_blob": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "legacy_blob_frozen_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "legacy_backfill_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "legacy_backfill_events": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      }
+    },
+    "study_sessions": {
+      "session_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "origin": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "opened_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "last_activity_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "finish_requested_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "closed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "close_reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "evidence_event_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "input_watermark_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
       }
     },
     "ai_rate_limits": {
@@ -215,6 +610,422 @@
         "required": true
       },
       "ai_calls_reset_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "academic_event_quarantine": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "event_type": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "schema_version": {
+        "type": "SMALLINT",
+        "pk": false,
+        "required": false
+      },
+      "problems": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "raw_body": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "received_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "resolved_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "resolution": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "mistake_retest_schedule": {
+      "pattern_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "due_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "interval_days": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "attempt_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "last_result": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "last_attempt_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "recommendation_outcomes": {
+      "outcome_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "recommendation_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "outcome": {
+        "type": "PUBLIC.RECOMMENDATION_OUTCOME_KIND",
+        "pk": false,
+        "required": true
+      },
+      "at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "resulting_session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "resulting_resolution_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "benefit_observed": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "student_profiles": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "version": {
+        "type": "INTEGER",
+        "pk": true,
+        "required": true
+      },
+      "board": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "grade": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stream": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "target_exam": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "subjects": {
+        "type": "TEXT[]",
+        "pk": false,
+        "required": false
+      },
+      "interests": {
+        "type": "TEXT[]",
+        "pk": false,
+        "required": false
+      },
+      "ai_profile": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "effective_from": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "changed_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "change_reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "is_current": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "audit_entries": {
+      "audit_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "actor": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "action": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "target_table": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "target_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "details": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "policy_version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "written_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "hash_version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "before_hash": {
+        "type": "CHARACTER",
+        "pk": false,
+        "required": true
+      },
+      "after_hash": {
+        "type": "CHARACTER",
+        "pk": false,
+        "required": true
+      }
+    },
+    "parent_exams_view": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "exams": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      }
+    },
+    "ingestion_stages": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "run_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "stage": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "attempt": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "input_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "status": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "output": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "confidence": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      },
+      "model": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "started_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "completed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "duration_ms": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "failure_reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "concept_aliases": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "alias": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "normalised": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "source": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "admitted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "admitted_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
@@ -270,6 +1081,292 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      }
+    },
+    "projection_watermarks": {
+      "projection": {
+        "type": "TEXT",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "last_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "last_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "events_processed": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "rebuild_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "session_concepts": {
+      "session_concept_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "declared_text": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "detection_source": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "confirmation_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "origin": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "proposed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "confirmed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "rejected_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "assessment_required": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "source_client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "decision_client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "search_vector": {
+        "type": "TSVECTOR",
+        "pk": false,
+        "required": false
+      },
+      "declared_text_embedding": {
+        "type": "PUBLIC.VECTOR(1536)",
+        "pk": false,
+        "required": false
+      }
+    },
+    "academic_events": {
+      "event_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "schema_version": {
+        "type": "SMALLINT",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "occurred_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "received_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "clock_skew_ms": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "tool_slug": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "surface": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "source": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "device_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "subject": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "chapter": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "declared_text": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "question_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "event_type": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "payload": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "result": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "evidence_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "confidence": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      },
+      "confirmation": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "metadata": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "supersedes_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "search_vector": {
+        "type": "TSVECTOR",
+        "pk": false,
+        "required": false
       }
     },
     "page_events": {
@@ -409,6 +1506,209 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      },
+      "confirmed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "origin": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "ingestion_run_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "proposal_confidence": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      },
+      "assessment_attempt_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "search_vector": {
+        "type": "TSVECTOR",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_alert_state": {
+      "user_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "exam_alerts": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "parent_invitations": {
+      "invitation_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "email": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "token_hash": {
+        "type": "CHARACTER",
+        "pk": false,
+        "required": true
+      },
+      "status": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "expires_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "accepted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "accepted_by": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "cancelled_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_connections": {
+      "connection_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "parent_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "invitation_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "revoked_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "revoked_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "correction_requests": {
+      "correction_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "target_type": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "target_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "claim": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "claim_kind": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "outcome": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "resolution_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "requested_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
       }
     },
     "ai_history": {
@@ -451,6 +1751,80 @@
         "type": "TEXT",
         "pk": false,
         "required": false
+      }
+    },
+    "ingestion_runs": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "evidence_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "status": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "confirmed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "replay_of": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "meta": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "ingestion_review": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "run_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "stage": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "items": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "resolved_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
       }
     },
     "patterns": {
@@ -548,6 +1922,566 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      },
+      "severity_version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "severity_factors": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      }
+    },
+    "academic_event_compactions": {
+      "compaction_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "event_type": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "event_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "total_dwell_ms": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "first_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "last_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "min_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "max_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "group_key": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "run_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "compacted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "academic_record": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": true,
+        "required": true
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "subject": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "coverage_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "first_studied_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "last_studied_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "session_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "assessed_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "evidence_refs": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "input_watermark_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "input_watermark_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "projected_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "parent_score_view": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "captured_on": {
+        "type": "DATE",
+        "pk": false,
+        "required": false
+      },
+      "total": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "pqa": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "syllabus": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "mistakes": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "consistency": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "confidence": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      }
+    },
+    "concept_correct_answers": {
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "correct_questions": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "answered_questions": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "academic_record_drift": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": true,
+        "required": false
+      },
+      "cached_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "derived_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "input_watermark_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "projected_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "confirmed_session_concepts": {
+      "session_concept_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "declared_text": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "detection_source": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "confirmation_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "origin": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "proposed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "rejected_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "assessment_required": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "source_client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "decision_client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "assessment_attempt_evidence": {
+      "attempt_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "question_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "attempt_no": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "submitted_answer": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "is_correct": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "marks_awarded": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "grader": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "grade_rule": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "time_ms": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "graded_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "evidence_revoked": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_assessment_view": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "assessments_completed_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "assessment_attempts": {
+      "attempt_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "question_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "attempt_no": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "submitted_answer": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "is_correct": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "marks_awarded": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "grader": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "grade_rule": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "time_ms": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "graded_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "personal_model_signals": {
+      "signal_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "dimension": {
+        "type": "PUBLIC.PERSONAL_MODEL_DIMENSION",
+        "pk": false,
+        "required": true
+      },
+      "observed_value": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "weight": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": true
+      },
+      "source_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "observed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "extractor_version": {
+        "type": "SMALLINT",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
       }
     },
     "announcements": {
@@ -577,6 +2511,479 @@
         "required": true
       }
     },
+    "home_layout": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "entries": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "students": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "deleted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "data_region": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "last_seen_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_access_log": {
+      "access_id": {
+        "type": "BIGINT",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "parent_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "connection_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "policy_version": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "categories_read": {
+        "type": "TEXT[]",
+        "pk": false,
+        "required": true
+      },
+      "accessed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "mistake_resolutions": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "pattern_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "resolved_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "proof_attempt_ids": {
+        "type": "UUID[]",
+        "pk": false,
+        "required": true
+      },
+      "measured_from": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "cooling_days": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": true
+      },
+      "set_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "parent_subject_view": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "subject": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "proven_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "studied_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "untouched_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "assessment_coverage": {
+      "assessment_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "questions_required": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "questions_bound": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "covered": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      }
+    },
+    "personal_model": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "dimension": {
+        "type": "PUBLIC.PERSONAL_MODEL_DIMENSION",
+        "pk": true,
+        "required": true
+      },
+      "explicit_value": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "overridden_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "inferred_value": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "confidence": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      },
+      "evidence_count": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "last_signal_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "effective_value": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "input_watermark_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "input_watermark_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "assessment_score_eligible_questions": {
+      "question_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "slot_index": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "counts_toward_coverage": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "targets_pattern_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "depth": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "format": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stem": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stem_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "options": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "answer_key": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "marks": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "provenance": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "admitted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "retained": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "assessment_questions": {
+      "question_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "slot_index": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "counts_toward_coverage": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "targets_pattern_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "depth": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "format": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "stem": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "stem_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "options": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "answer_key": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "marks": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "provenance": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "admitted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "retained": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "search_vector": {
+        "type": "TSVECTOR",
+        "pk": false,
+        "required": false
+      }
+    },
     "score_history": {
       "id": {
         "type": "BIGINT",
@@ -596,27 +3003,27 @@
       "total": {
         "type": "INTEGER",
         "pk": false,
-        "required": true
+        "required": false
       },
       "pqa": {
         "type": "INTEGER",
         "pk": false,
-        "required": true
+        "required": false
       },
       "syllabus": {
         "type": "INTEGER",
         "pk": false,
-        "required": true
+        "required": false
       },
       "mistakes": {
         "type": "INTEGER",
         "pk": false,
-        "required": true
+        "required": false
       },
       "consistency": {
         "type": "INTEGER",
         "pk": false,
-        "required": true
+        "required": false
       },
       "streak": {
         "type": "INTEGER",
@@ -642,6 +3049,291 @@
         "type": "BOOLEAN",
         "pk": false,
         "required": true
+      },
+      "formula_version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "as_of": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confidence": {
+        "type": "NUMERIC",
+        "pk": false,
+        "required": false
+      },
+      "evidence_counts": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "input_watermark_event_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "input_watermark_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "score_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "restatement_of": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "restatement_reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "assessment_attempt_full_state": {
+      "attempt_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "question_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "attempt_no": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "submitted_answer": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "is_correct": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "marks_awarded": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "grader": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "grade_rule": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "time_ms": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "graded_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "evidence_revoked": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "disputed": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "evidence_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "rejected_session_concepts": {
+      "session_concept_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "declared_text": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "detection_source": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "confirmation_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "origin": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "proposed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "rejected_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "assessment_required": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "source_client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "decision_client_event_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_consistency_view": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "verified_sessions_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "concept_assessment_evidence": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "assessed_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "assessed_in_assessment_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "proven": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
+      },
+      "evidence_state": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_progress_view": {
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "being_worked_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "resolved_this_period_count": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
       }
     },
     "evidence": {
@@ -694,6 +3386,227 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      },
+      "binary_deleted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "binary_deleted_reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      }
+    },
+    "concept_accuracy": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": true,
+        "required": true
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "answered": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "correct": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "wrong": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "last_seq": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "assessments": {
+      "assessment_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "coverage_manifest": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "manifest_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "blueprint": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "blueprint_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "frozen_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "generation_started_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "status": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "ai_invocations": {
+      "id": {
+        "type": "BIGINT",
+        "pk": true,
+        "required": true
+      },
+      "user_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "capability": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "prompt_version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "schema_version": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "model": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "input_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "prompt_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "output_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "outcome": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "moderation": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "latency_ms": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "input_tokens": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "output_tokens": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "rejection": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "repair_attempts": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": true
+      },
+      "input_text": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "output": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "grade": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "board": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
       }
     },
     "stripe_customers": {
@@ -711,6 +3624,117 @@
         "type": "TIMESTAMPTZ",
         "pk": false,
         "required": true
+      }
+    },
+    "notification_state": {
+      "user_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "sent": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "last_high_priority_day": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "last_milestone": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "updated_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "home_importance_promotions": {
+      "promotion_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": true
+      },
+      "component_id": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "tier": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "trigger": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "evidence_refs": {
+        "type": "JSONB",
+        "pk": false,
+        "required": true
+      },
+      "promoted_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "assessment_verification_coverage": {
+      "assessment_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "session_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "questions_required": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "questions_bound": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "questions_answered": {
+        "type": "BIGINT",
+        "pk": false,
+        "required": false
+      },
+      "covered": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": false
       }
     },
     "error_logs": {
@@ -761,6 +3785,140 @@
       },
       "context": {
         "type": "JSONB",
+        "pk": false,
+        "required": false
+      }
+    },
+    "parent_share_policies": {
+      "student_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": true
+      },
+      "version": {
+        "type": "INTEGER",
+        "pk": true,
+        "required": true
+      },
+      "score_trajectory": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "dimension_breakdown": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "subject_state": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "progress_fixing": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "consistency": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "upcoming_exams": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "assessment_activity": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "digest_enabled": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "effective_from": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      },
+      "changed_by": {
+        "type": "TEXT",
+        "pk": false,
+        "required": true
+      },
+      "change_reason": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "is_current": {
+        "type": "BOOLEAN",
+        "pk": false,
+        "required": true
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": true
+      }
+    },
+    "retained_question_bank": {
+      "question_id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "concept_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "depth": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "format": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stem": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "stem_hash": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "options": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "marks": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "admitted_at": {
+        "type": "TIMESTAMPTZ",
         "pk": false,
         "required": false
       }
@@ -835,6 +3993,133 @@
       },
       "session_end": {
         "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      }
+    },
+    "confirmed_occurrences": {
+      "id": {
+        "type": "UUID",
+        "pk": true,
+        "required": false
+      },
+      "student_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "evidence_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "source": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "subject": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "chapter": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "topic": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "concept_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "question_ref": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "marks_lost": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "marks_available": {
+        "type": "INTEGER",
+        "pk": false,
+        "required": false
+      },
+      "cognitive_error": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "execution_error": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "confidence_before": {
+        "type": "SMALLINT",
+        "pk": false,
+        "required": false
+      },
+      "student_answer": {
+        "type": "JSONB",
+        "pk": false,
+        "required": false
+      },
+      "expected_answer": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "marker_note": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "pattern_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "pattern_tier": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "supersedes": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "created_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "confirmed_at": {
+        "type": "TIMESTAMPTZ",
+        "pk": false,
+        "required": false
+      },
+      "origin": {
+        "type": "TEXT",
+        "pk": false,
+        "required": false
+      },
+      "ingestion_run_id": {
+        "type": "UUID",
+        "pk": false,
+        "required": false
+      },
+      "proposal_confidence": {
+        "type": "NUMERIC",
         "pk": false,
         "required": false
       }

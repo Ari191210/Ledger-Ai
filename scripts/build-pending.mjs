@@ -28,6 +28,9 @@ const PARTS = [
   ["023", "024", "025"],
   ["026", "027", "028", "029", "030"],
   ["031", "032", "033", "034", "035"],
+  // 036 fixes a defect in 029. 029 is already applied and checksum-locked, so
+  // 009 refuses an edit to it; the fix ships as its own part.
+  ["036"],
 ];
 
 const files = fs.readdirSync(MIG).filter((f) => f.endsWith(".sql"));

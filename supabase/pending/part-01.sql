@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- STUDYLEDGER — PENDING MIGRATIONS, PART 1 OF 6
+-- STUDYLEDGER — PENDING MIGRATIONS, PART 1 OF 7
 --
 -- 008, 009, 010, 011, 012, 013
 --

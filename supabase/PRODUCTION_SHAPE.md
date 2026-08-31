@@ -1,12 +1,18 @@
-# Production's real shape, measured 2026-08-30
+# Production's shape before the migrations, measured 2026-08-30
+
+> **Superseded later the same day: all 37 migrations have since been applied.**
+> Production now holds 71 tables, not 16. This document is kept for two
+> reasons. The drifts recorded below are what made the migrations fail in the
+> first place, and the METHOD section is the part worth reusing before any
+> future migration touches a pre-existing table.
+>
+> For the current shape, run `node scripts/capture-production-schema.mjs`.
 
 Not read from migration files. Measured against
-`heppfjyimtvuullxlwwa.supabase.co` with the service-role key, by
-`scripts/probe-production-types.mjs`.
+`heppfjyimtvuullxlwwa.supabase.co` with the service-role key.
 
 This file exists because three defects in a row came from assuming production
-looked like staging. It is the reference any future migration touching a
-pre-ledger table should be checked against.
+looked like staging.
 
 ## How the types were established
 

@@ -8,7 +8,7 @@
 //
 // So this builds a database from supabase/production-schema.json, which is
 // captured from production's own PostgREST OpenAPI spec rather than
-// transcribed by hand, then runs the six pasteable parts against it in order,
+// transcribed by hand, then runs the pasteable parts against it in order,
 // exactly as the user would. A failure here is a failure the user would hit.
 //
 // ── SAFETY ───────────────────────────────────────────────────────────────
@@ -65,15 +65,40 @@ const ORDER = ["user_data", "rooms", "ai_history", "error_logs", "announcements"
   "score_history", "push_subscriptions", "ai_rate_limits", "page_events", "jobs",
   "stripe_customers", "stripe_events", "concepts", "evidence", "patterns", "occurrences"];
 
+/**
+ * Columns the MIGRATIONS add to pre-existing tables.
+ *
+ * production-schema.json is now captured from a migrated production, so it
+ * describes the END state. The rehearsal has to start from the state before
+ * the migrations ran, or every `ADD COLUMN IF NOT EXISTS` becomes a no-op and
+ * the run proves nothing about a fresh database.
+ */
+const ADDED_BY_MIGRATIONS = {
+  user_data: ["legacy_blob", "legacy_blob_frozen_at", "legacy_backfill_at",
+    "legacy_backfill_events"],                                   // 017
+  score_history: ["active"],                                     // 010
+  patterns: ["severity_version", "severity_factors"],            // 025
+  occurrences: ["confirmed_at", "origin", "ingestion_run_id",
+    "proposal_confidence"],                                      // 020
+  concepts: ["search_vector"],                                   // 035
+};
+
 const ddl = (t) => {
   const cols = measured.tables[t];
   if (!cols) return null;
-  const parts = Object.entries(cols).map(([c, m]) => {
-    const fk = FKS[t]?.[c];
-    return `  ${/[A-Z]/.test(c) ? `"${c}"` : c} ${m.type}`
-      + (m.pk ? " PRIMARY KEY" : "")
-      + (fk ? ` REFERENCES ${fk} ON DELETE CASCADE` : "");
-  });
+  const parts = Object.entries(cols)
+    // The measurement is now taken from a MIGRATED production, so it includes
+    // objects the migrations themselves create. A rehearsal must start from
+    // the pre-migration state, or it is not rehearsing anything: recreating
+    // 035's `vector` columns here would both fail (the type lives in the
+    // renamed-aside schema) and defeat the purpose.
+    .filter(([c, m]) => !ADDED_BY_MIGRATIONS[t]?.includes(c) && !/vector/i.test(m.type))
+    .map(([c, m]) => {
+      const fk = FKS[t]?.[c];
+      return `  ${/[A-Z]/.test(c) ? `"${c}"` : c} ${m.type}`
+        + (m.pk ? " PRIMARY KEY" : "")
+        + (fk ? ` REFERENCES ${fk} ON DELETE CASCADE` : "");
+    });
   return `CREATE TABLE public.${t} (\n${parts.join(",\n")}\n);`;
 };
 
@@ -244,5 +269,5 @@ console.log(`\nstaging restored: public.user_data ${ok.rows[0].live ? "present" 
 await c.end();
 console.log(failed
   ? `\nA user pasting ${failed} would have hit that.`
-  : "\nAll six parts apply cleanly to production's measured shape.");
+  : `\nAll ${parts.length} parts apply cleanly to production's measured shape.`);
 process.exit(failed ? 1 : 0);
