@@ -1,0 +1,315 @@
+"use client";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROFILE FIELDS — extracted from the retired `/dashboard/profile` (M16-1).
+//
+// `PRODUCT_DECISIONS` §2.4: *"**Settings** ← `/dashboard/profile`,
+// `personalise`. Two profile editors."* §3, route 8: *"`/settings` — Table
+// stakes."*
+//
+// M16 is a structural consolidation, the same class of milestone as M3, M8 and
+// M13-1/3's shell merges — *"not licensed to redesign anything"*. The controls
+// below are therefore carried over with their logic and their tokens
+// UNCHANGED from `app/dashboard/profile/page.tsx`; only the outer chrome
+// (header, section switcher) moves to the Console shell `/settings` now
+// shares with `/home`, `/capture`, `/diagnosis` and `/record`. The legacy
+// editorial tokens (`var(--ink)`, `var(--paper)`, `.btn`) still resolve inside
+// a Console-scoped page because they are declared on `:root` in
+// `app/globals.css`, not inside `[data-console]` — the two systems do not
+// conflict, they simply do not share a redesign.
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { loadUserData, saveUserData, patchUserData, type AiProfile } from "@/lib/user-data";
+import { supabase } from "@/lib/supabase";
+import { userTier, TIER_LABELS } from "@/lib/tier";
+
+const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
+
+const GRADES   = ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "First Year (College)", "Second Year+ (College)"];
+const GRADE_SHORT: Record<string,string> = { "First Year (College)": "1st yr", "Second Year+ (College)": "2nd yr+" };
+const BOARDS   = ["CBSE", "ICSE", "IB (International Baccalaureate)", "IGCSE / Cambridge", "State Board", "Home School / Other"];
+const BOARD_SHORT: Record<string,string> = { "IB (International Baccalaureate)": "IB", "IGCSE / Cambridge": "IGCSE", "State Board": "State", "Home School / Other": "Other" };
+const STREAMS  = ["Science — PCM (Physics, Chemistry, Maths)", "Science — PCB (Physics, Chemistry, Biology)", "Commerce", "Arts / Humanities", "Not applicable yet"];
+const STREAM_SHORT: Record<string,string> = { "Science — PCM (Physics, Chemistry, Maths)": "Science PCM", "Science — PCB (Physics, Chemistry, Biology)": "Science PCB", "Not applicable yet": "N/A" };
+const EXAMS    = ["JEE Main / Advanced", "NEET UG", "CUET", "IPMAT", "CA Foundation", "SAT / ACT", "A-Levels / IGCSE Boards", "IELTS / TOEFL", "No specific exam — just school boards"];
+const EXAM_SHORT: Record<string,string> = { "JEE Main / Advanced": "JEE", "A-Levels / IGCSE Boards": "A-Level", "No specific exam — just school boards": "School only" };
+const LEARNING = [
+  { value: "examples-first", label: "Examples first" },
+  { value: "theory-first",   label: "Theory first" },
+  { value: "bullet-points",  label: "Bullet points" },
+  { value: "step-by-step",   label: "Step by step" },
+] as const;
+const COMMS = [
+  { value: "simple",         label: "Simple" },
+  { value: "conversational", label: "Conversational" },
+  { value: "detailed",       label: "Detailed" },
+  { value: "direct",         label: "Direct" },
+] as const;
+
+export function ProfileIdentityCard() {
+  const { user, session } = useAuth();
+
+  const [portalBusy,  setPortalBusy]  = useState(false);
+  const [portalError, setPortalError] = useState("");
+
+  async function openBillingPortal() {
+    if (!session) return;
+    setPortalBusy(true); setPortalError("");
+    try {
+      const res = await fetch("/api/billing-portal", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) { window.location.assign(data.url); return; }
+      setPortalError(data.error || "Could not open the billing portal.");
+    } catch {
+      setPortalError("Network error. Please try again.");
+    } finally {
+      setPortalBusy(false);
+    }
+  }
+
+  const [username,  setUsername]  = useState("");
+  const [draft,     setDraft]     = useState("");
+  const [checking,  setChecking]  = useState(false);
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [saving,    setSaving]    = useState(false);
+  const [saved,     setSaved]     = useState(false);
+  const [error,     setError]     = useState("");
+  const [loaded,    setLoaded]    = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then(ud => {
+      const u = ud?.username || user.email?.split("@")[0] || "";
+      setUsername(u); setDraft(u);
+      setLoaded(true);
+    });
+  }, [user]);
+
+  useEffect(() => {
+    if (!draft || draft === username) { setAvailable(null); return; }
+    if (!USERNAME_REGEX.test(draft))  { setAvailable(null); return; }
+    setChecking(true); setAvailable(null);
+    const timer = setTimeout(async () => {
+      const { data } = await supabase
+        .from("user_data").select("id")
+        .eq("username", draft).neq("id", user?.id ?? "").maybeSingle();
+      setAvailable(!data); setChecking(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [draft, username, user?.id]);
+
+  async function saveUsername() {
+    if (!user) return;
+    if (!USERNAME_REGEX.test(draft)) { setError("Username must be 3–20 chars: letters, numbers, underscores only."); return; }
+    if (available === false) { setError("That username is taken."); return; }
+    setSaving(true); setError("");
+    const { error: err } = await patchUserData(user.id, "username", draft);
+    if (err) { setError("Save failed — " + err); setSaving(false); return; }
+    setUsername(draft); setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+    setSaving(false);
+  }
+
+  const isValid    = USERNAME_REGEX.test(draft);
+  const changed    = draft !== username;
+  const initial    = (username || user?.email || "?")[0].toUpperCase();
+  const joinedDate = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    : "—";
+
+  return (
+    <div>
+      {/* Avatar + name */}
+      <div className="mob-profile" style={{ display: "flex", alignItems: "center", gap: 28, marginBottom: 40, paddingBottom: 32, borderBottom: "1px solid var(--ink)" }}>
+        <div style={{ width: 80, height: 80, background: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <span style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, color: "var(--paper)", lineHeight: 1 }}>{initial}</span>
+        </div>
+        <div>
+          <div className="profile-username" style={{ fontFamily: "var(--serif)", fontSize: 32, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
+            @{loaded ? username : "…"}
+          </div>
+          <div className="mono" style={{ color: "var(--ink-3)", marginTop: 8 }}>{user?.email}</div>
+          <div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>Member since {joinedDate}</div>
+        </div>
+      </div>
+
+      {/* Username */}
+      <div style={{ marginBottom: 40, paddingBottom: 40, borderBottom: "1px solid var(--rule)" }}>
+        <div className="mono cin" style={{ marginBottom: 6 }}>Username</div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 16, lineHeight: 1.5 }}>
+          Appears on your dashboard, parent view, and referral link. Letters, numbers, underscores only. 3–20 characters.
+        </div>
+        <div style={{ display: "flex", gap: 0, border: "1px solid var(--ink)" }}>
+          <div style={{ padding: "12px 14px", background: "var(--paper-2)", borderRight: "1px solid var(--rule)", fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-3)", flexShrink: 0, display: "flex", alignItems: "center" }}>@</div>
+          <input
+            value={draft}
+            onChange={e => { setDraft(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")); setSaved(false); }}
+            maxLength={20}
+            placeholder="your_username"
+            aria-label="Username"
+            style={{ flex: 1, padding: "12px 14px", fontFamily: "var(--mono)", fontSize: 14, border: "none", background: "var(--paper)", color: "var(--ink)", outline: "none" }}
+          />
+          <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", borderLeft: "1px solid var(--rule)", flexShrink: 0 }}>
+            {checking && <span className="mono" style={{ fontSize: 10, color: "var(--ink-3)" }}>checking…</span>}
+            {!checking && changed && isValid && available === true  && <span className="mono" style={{ fontSize: 10, color: "var(--severity-success-color)" }}>✓ available</span>}
+            {!checking && changed && isValid && available === false && <span className="mono" style={{ fontSize: 10, color: "var(--cinnabar-ink)" }}>✗ taken</span>}
+            {!checking && changed && !isValid && draft.length > 0   && <span className="mono" style={{ fontSize: 10, color: "var(--cinnabar-ink)" }}>invalid</span>}
+          </div>
+        </div>
+        <div style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "center" }}>
+          <button className="btn" onClick={saveUsername} disabled={saving || !changed || !isValid || available === false || checking} style={{ opacity: saving || !changed || !isValid || available === false || checking ? 0.4 : 1 }}>
+            {saving ? "Saving…" : saved ? "Saved ✓" : "Save username →"}
+          </button>
+          {changed && <button className="btn ghost" onClick={() => { setDraft(username); setAvailable(null); }} style={{ padding: "8px 14px", fontSize: 11 }}>Cancel</button>}
+        </div>
+        {error && <div style={{ marginTop: 10, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{error}</div>}
+      </div>
+
+      {/* Account info */}
+      <div style={{ border: "1px solid var(--rule)" }}>
+        <div style={{ padding: "12px 18px", background: "var(--paper-2)", borderBottom: "1px solid var(--rule)" }}>
+          <span className="mono" style={{ color: "var(--ink-3)" }}>Account details</span>
+        </div>
+        {[
+          { label: "Email",        value: user?.email || "—" },
+          { label: "User ID",      value: (user?.id?.slice(0, 8) + "…") || "—" },
+          { label: "Member since", value: joinedDate },
+          { label: "Plan",         value: TIER_LABELS[userTier(user)] },
+        ].map((row, i, arr) => (
+          <div key={row.label} className="profile-detail-row" style={{ display: "flex", justifyContent: "space-between", padding: "12px 18px", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}>
+            <div className="mono" style={{ color: "var(--ink-3)" }}>{row.label}</div>
+            <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink)" }}>
+              {row.value}
+              {row.label === "Plan" && userTier(user) === "free" && (
+                <Link href="/pricing" className="mono" style={{ marginLeft: 10, fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  Upgrade →
+                </Link>
+              )}
+              {row.label === "Plan" && userTier(user) !== "free" && (
+                <button
+                  onClick={openBillingPortal}
+                  disabled={portalBusy}
+                  className="mono"
+                  style={{ marginLeft: 10, fontSize: 9, color: "var(--cinnabar-ink)", letterSpacing: "0.06em", textTransform: "uppercase", background: "none", border: "none", padding: 0, cursor: portalBusy ? "default" : "pointer", opacity: portalBusy ? 0.4 : 1 }}
+                >
+                  {portalBusy ? "Opening…" : "Manage →"}
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {portalError && (
+          <div style={{ padding: "12px 18px", borderTop: "1px solid var(--rule)", fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>
+            {portalError}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function StudyProfileCard() {
+  const { user } = useAuth();
+
+  const [grade,    setGrade]    = useState("");
+  const [board,    setBoard]    = useState("");
+  const [stream,   setStream]   = useState("");
+  const [exam,     setExam]     = useState("");
+  const [learn,    setLearn]    = useState("");
+  const [comm,     setComm]     = useState("");
+  const [pSaving,  setPSaving]  = useState(false);
+  const [pSaved,   setPSaved]   = useState(false);
+  const [pError,   setPError]   = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    loadUserData(user.id).then(ud => {
+      setGrade(ud?.grade || "");
+      setBoard(ud?.board || "");
+      setStream(ud?.stream || "");
+      setExam(ud?.targetExam || "");
+      setLearn(ud?.aiProfile?.learningStyle || "");
+      setComm(ud?.aiProfile?.communicationStyle || "");
+    });
+  }, [user]);
+
+  async function saveStudyProfile() {
+    if (!user) return;
+    setPSaving(true); setPError("");
+    const aiProfile: AiProfile = {};
+    if (learn) aiProfile.learningStyle = learn as AiProfile["learningStyle"];
+    if (comm)  aiProfile.communicationStyle = comm as AiProfile["communicationStyle"];
+    const { error: err } = await saveUserData(user.id, {
+      grade:      grade || undefined,
+      board:      board || undefined,
+      stream:     stream || undefined,
+      targetExam: exam  || undefined,
+      aiProfile:  Object.keys(aiProfile).length ? aiProfile : undefined,
+    });
+    if (err) { setPError("Save failed — " + err); setPSaving(false); return; }
+    setPSaved(true);
+    setTimeout(() => setPSaved(false), 2500);
+    setPSaving(false);
+  }
+
+  const label: React.CSSProperties = { fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6, display: "block" };
+  const row: React.CSSProperties   = { marginBottom: 18 };
+
+  return (
+    <div>
+      <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-2)", marginBottom: 24, lineHeight: 1.5 }}>
+        Every AI tool is calibrated to these settings. Update them whenever your grade or goals change.
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={row}>
+          <span style={label}>Grade</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {GRADES.map(g => <button key={g} type="button" onClick={() => setGrade(g)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${grade === g ? "var(--ink)" : "var(--rule)"}`, background: grade === g ? "var(--ink)" : "var(--paper)", color: grade === g ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{GRADE_SHORT[g] || g}</button>)}
+          </div>
+        </div>
+        <div style={row}>
+          <span style={label}>Board</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {BOARDS.map(b => <button key={b} type="button" onClick={() => setBoard(b)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${board === b ? "var(--ink)" : "var(--rule)"}`, background: board === b ? "var(--ink)" : "var(--paper)", color: board === b ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{BOARD_SHORT[b] || b}</button>)}
+          </div>
+        </div>
+        <div style={row}>
+          <span style={label}>Stream</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {STREAMS.map(s => <button key={s} type="button" onClick={() => setStream(s)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${stream === s ? "var(--cinnabar-ink)" : "var(--rule)"}`, background: stream === s ? "var(--cinnabar-ink)" : "var(--paper)", color: stream === s ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{STREAM_SHORT[s] || s}</button>)}
+          </div>
+        </div>
+        <div style={row}>
+          <span style={label}>Target Exam</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {EXAMS.map(e => <button key={e} type="button" onClick={() => setExam(e)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${exam === e ? "var(--ink)" : "var(--rule)"}`, background: exam === e ? "var(--ink)" : "var(--paper)", color: exam === e ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{EXAM_SHORT[e] || e}</button>)}
+          </div>
+        </div>
+        <div style={row}>
+          <span style={label}>Learning Style</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {LEARNING.map(l => <button key={l.value} type="button" onClick={() => setLearn(l.value)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${learn === l.value ? "var(--sage)" : "var(--rule)"}`, background: learn === l.value ? "var(--sage)" : "var(--paper)", color: learn === l.value ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l.label}</button>)}
+          </div>
+        </div>
+        <div style={row}>
+          <span style={label}>AI Tone</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+            {COMMS.map(c => <button key={c.value} type="button" onClick={() => setComm(c.value)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${comm === c.value ? "var(--gold)" : "var(--rule)"}`, background: comm === c.value ? "var(--gold)" : "var(--paper)", color: comm === c.value ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{c.label}</button>)}
+          </div>
+        </div>
+      </div>
+
+      <button className="btn" onClick={saveStudyProfile} disabled={pSaving} style={{ marginTop: 6, opacity: pSaving ? 0.4 : 1 }}>
+        {pSaving ? "Saving…" : pSaved ? "Saved ✓" : "Save study profile →"}
+      </button>
+      {pError && <div style={{ marginTop: 10, fontFamily: "var(--sans)", fontSize: 13, color: "var(--cinnabar-ink)" }}>{pError}</div>}
+    </div>
+  );
+}

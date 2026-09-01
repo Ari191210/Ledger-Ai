@@ -120,7 +120,13 @@ export default function PaperTraumaPage() {
     const drills = result.patch_protocol
       .map((d, i) => `${i + 1}. ${d.drill_name} (${d.time_required}): ${d.exact_method}`)
       .join("\n");
-    const text = `📌 My Paper Trauma Signature: "${result.trauma_signature}"\n\nSeverity: ${result.severity.toUpperCase()}\n\n48-Hour Patch Protocol:\n${drills}\n\n— via Paper Trauma Map`;
+    // M13-4 — `PRODUCT_PRINCIPLES` §4.1. The SHARED text is the most public
+    // copy this tool produces; it no longer carries the banned word. The
+    // `trauma_signature` FIELD keeps its name: it is the wire contract with
+    // `/api/ai`'s `paper_trauma_map` capability and with every `ai_history`
+    // row already stored under it, and renaming it would break the history
+    // panel below without removing a word anyone reads.
+    const text = `📌 My repeat-failure signature: "${result.trauma_signature}"\n\nSeverity: ${result.severity.toUpperCase()}\n\n48-Hour Patch Protocol:\n${drills}\n\n— via Repeat Failure Map`;
     navigator.clipboard?.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
@@ -196,7 +202,7 @@ export default function PaperTraumaPage() {
             letterSpacing: "0.04em",
           }}
         >
-          Paper Trauma Map
+          Repeat Failure Map
         </span>
       </header>
 
@@ -219,7 +225,7 @@ export default function PaperTraumaPage() {
               lineHeight: 1.2,
             }}
           >
-            Paper Trauma Map
+            Repeat Failure Map
           </h1>
           <p
             style={{
@@ -337,7 +343,7 @@ export default function PaperTraumaPage() {
               opacity: loading || !mockData.trim() ? 0.6 : 1,
             }}
           >
-            {loading ? "Analysing…" : "Generate Trauma Map →"}
+            {loading ? "Analysing…" : "Generate Failure Map →"}
           </button>
         </div>
 
@@ -381,7 +387,7 @@ export default function PaperTraumaPage() {
               <AIOutput text={result.one_line_verdict} variant="principle" />
             </div>
 
-            {/* Section 1: Trauma Signature */}
+            {/* Section 1: Failure Signature */}
             <div
               style={{
                 border: "1px solid var(--rule)",
@@ -424,7 +430,7 @@ export default function PaperTraumaPage() {
                       color: "var(--ink)",
                     }}
                   >
-                    Trauma Signature
+                    Failure Signature
                   </span>
                   <span
                     style={{
@@ -722,8 +728,8 @@ export default function PaperTraumaPage() {
                       fontStyle: "italic",
                     }}
                   >
-                    These question types are statistically likely to carry your trauma
-                    pattern in tomorrow&apos;s paper. Watch for them.
+                    These question types are statistically likely to carry your
+                    repeat-failure pattern in tomorrow&apos;s paper. Watch for them.
                   </p>
                   <ul
                     style={{
@@ -925,7 +931,7 @@ export default function PaperTraumaPage() {
           </div>
         )}
 
-        {/* Past Trauma Maps history panel */}
+        {/* Past Failure Maps history panel */}
         <div style={{ marginTop: "3rem", borderTop: "1px solid var(--rule)", paddingTop: "2rem" }}>
           <div
             style={{
@@ -937,7 +943,7 @@ export default function PaperTraumaPage() {
               marginBottom: "1rem",
             }}
           >
-            Past Trauma Maps
+            Past Failure Maps
           </div>
 
           {history === null && (
@@ -1001,7 +1007,7 @@ export default function PaperTraumaPage() {
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {entry.result?.trauma_signature?.split("—")[0]?.trim() ?? "Trauma analysis"}
+                          {entry.result?.trauma_signature?.split("—")[0]?.trim() ?? "Failure analysis"}
                         </span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>

@@ -19,6 +19,23 @@
 // Sector → score_history column mapping (unchanged schema):
 //   Examination → pqa (0–400)     Coverage → syllabus (0–250)
 //   Recovery    → mistakes (0–200) Momentum → consistency (0–150)
+//
+// M14-2 (2026-08-17): the Momentum/consistency term is DELETED (§9.3). The
+// column mapping is retained above as the record of what the shipped schema
+// means; `consistency` is now a constant 0 and is not summed.
+//
+// M14-2's RETIREMENT DECISION FOR THIS FILE, recorded rather than assumed.
+// S.2 classifies v2 **ADAPT**, not DELETE, and three live dependencies say it
+// must not be deleted in this pass: `app/api/cron/score-snapshot/route.ts:4`
+// imports the engine (that route is M14-6's file, and M14-6 is the cutover),
+// `scripts/test-score-v2.ts` runs its invariants, and two test suites assert
+// this file still declares `RECOVERY_EPOCH_MS`, `DAILY_QUESTION_CAP` and
+// `MIN_SESSION_QUESTIONS` — the numbers M10's blueprint is fenced against.
+// Everything S.2 says to KEEP from it (decay, log-volume, sequence-improvement,
+// proof-gated coverage, the caps, `RECOVERY_EPOCH_MS`) has been carried into
+// `lib/score-engine.ts` and `lib/score-continuity.ts` by reimplementation over
+// the new substrate, so retiring the file is now a mechanical deletion — and it
+// belongs in the same diff as the cutover that removes its last importer.
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type PaperEntryV2 = { score: number; total: number; subject?: string; date: string };
@@ -215,11 +232,23 @@ export function computeScoreFromInputsV2(inputs: ScoreInputsV2, now: Date = new 
   }
   recovery = clamp(recovery, 0, 200);
 
-  // ── 4. MOMENTUM (0–150) ───────────────────────────────────────────────────
+  // ── 4. MOMENTUM — DELETED (M14-2, §9.3, S.2, J.2.a) ──────────────────────
+  //
+  // `Math.min(150, Math.round(streak * 7.5))` stood here, identical to the v1
+  // engine's `:218` and *"identically in breach of PRODUCT_PRINCIPLES.md:151"*
+  // (J.8). S.2 lists this exact line under **REMOVE FROM SCORING** and adds:
+  // *"The consecutive-day term is **deleted**, not renamed."* It is deleted,
+  // `total` has lost its fourth addend, and no replacement is computed here —
+  // Continuity is a different computation over inputs this shadow engine never
+  // had (`lib/score-continuity.ts`).
+  //
+  // `activeStreak` and `streak` survive on the input and breakdown types alone,
+  // because `app/api/cron/score-snapshot/route.ts` writes `streak` to
+  // `score_history` and that route is M14-6's. Neither is read by the formula.
   const streak = Math.max(0, Math.round(inputs.activeStreak) || 0);
-  const consistency = Math.min(150, Math.round(streak * 7.5));
+  const consistency = 0;
 
-  const total = Math.min(1000, pqa + syllabus + recovery + consistency);
+  const total = Math.min(1000, pqa + syllabus + recovery);
 
   return {
     total, pqa, syllabus, mistakes: recovery, consistency,

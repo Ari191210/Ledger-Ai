@@ -1,0 +1,22 @@
+{
+  "//": "M22. Separate outDir per suite — see tests/tsconfig.today.json for why. lib/home/*.ts is I/O-free (no database, no clock, no randomness, no framework import), which is what makes M.2/M.3/M.4/M.5 provable with no Supabase project in reach (U.3, the determinism boundary).",
+  "compilerOptions": {
+    "outDir": "../.test-build-home",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/home/types.ts",
+    "../lib/home/registry.ts",
+    "../lib/home/importance.ts",
+    "../lib/home/layout.ts"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "//": "Separate outDir per suite — see tests/tsconfig.registry.json for why. The four M7 modules compiled here import nothing outside `lib/` and nothing with I/O: `lib/event-contract.ts` and `lib/event-ingest.ts` import each other and nothing else, `lib/audit.ts` and `lib/event-outbox.ts` add only `lib/sha256.ts` and `lib/ingest/hash.ts`. That is what makes M7-1's seq-ordering rule, M7-2's quarantine routing, M7-3's retry-stable id and M7-4's tamper detection provable with no Supabase project in reach (U.3, the determinism boundary).",
+  "compilerOptions": {
+    "outDir": "../.test-build-events",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/sha256.ts",
+    "../lib/event-contract.ts",
+    "../lib/event-ingest.ts",
+    "../lib/event-outbox.ts",
+    "../lib/audit.ts",
+    "../lib/ingest/hash.ts"
+  ]
+}

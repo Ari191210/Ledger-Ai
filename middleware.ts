@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authDecision, isEnforcementEnabled } from "@/lib/auth-routes";
 
 // Composite key: "endpoint-group:ip"
 // COLD-START NOTE: this Map is per-serverless-instance and resets on every Vercel cold start.
@@ -52,49 +53,108 @@ function checkLimit(key: string, limit: number, windowMs: number) {
   };
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// M4-1 — this middleware now does two things, in this order:
+//
+//   1. THE RATE LIMITER, UNCHANGED. Every `RULES` prefix, every limit, every
+//      window, the CRON_SECRET bypass, the 429 body and all four response
+//      headers are byte-for-byte what they were. The only structural change is
+//      that a request which the limiter does not act on now FALLS THROUGH to
+//      step 2 instead of returning early — `RULES` prefixes are all `/api/…`
+//      and no page route can ever match one, so the limiter's behaviour on
+//      every path it governs is identical.
+//
+//   2. EDGE AUTHENTICATION for student page routes (architecture R.1, T11).
+//      The decision is `lib/auth-routes.ts`; this file only supplies the
+//      request and acts on the verdict.
+//
+// **Read the header of `lib/auth-routes.ts` before enabling enforcement.** The
+// session now travels as a cookie (`@supabase/ssr`, see `lib/supabase.ts`), so
+// the edge CAN see it — the architectural blocker is gone. What is not yet done
+// is a single human confirmation in a real browser that the cookie lands on a
+// real sign-in against the real project. Until that happens, enforcement stays
+// gated on `AUTH_MIDDLEWARE_ENFORCE=1` and OFF by default, because the failure
+// mode of getting it wrong is that nobody can use the product.
+// ═══════════════════════════════════════════════════════════════════════════
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // ── 1. Rate limiter ──────────────────────────────────────────────────────
   const rule = RULES.find(r => pathname.startsWith(r.prefix));
-  if (!rule) return NextResponse.next();
 
   // Trusted internal callers (the cron job runner, authenticated via the
   // same CRON_SECRET the target routes themselves require) bypass the IP
   // guard — a single batch run can legitimately fire many requests from
   // one server-side origin and shouldn't trip a per-IP abuse limit meant
   // for untrusted traffic.
-  if (process.env.CRON_SECRET && req.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.next();
+  const internalCaller =
+    !!process.env.CRON_SECRET &&
+    req.headers.get("authorization") === `Bearer ${process.env.CRON_SECRET}`;
+
+  let rateHeaders: Record<string, string> | null = null;
+
+  if (rule && !internalCaller) {
+    const ip = getIp(req);
+    const key = `${rule.prefix}:${ip}`;
+    const { ok, remaining, resetAt } = checkLimit(key, rule.limit, rule.windowMs);
+
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait before trying again." },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit":     String(rule.limit),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset":     String(Math.ceil(resetAt / 1000)),
+            "Retry-After":           String(Math.ceil((resetAt - Date.now()) / 1000)),
+          },
+        }
+      );
+    }
+
+    rateHeaders = {
+      "X-RateLimit-Limit":     String(rule.limit),
+      "X-RateLimit-Remaining": String(remaining),
+      "X-RateLimit-Reset":     String(Math.ceil(resetAt / 1000)),
+    };
   }
 
-  const ip = getIp(req);
-  const key = `${rule.prefix}:${ip}`;
-  const { ok, remaining, resetAt } = checkLimit(key, rule.limit, rule.windowMs);
+  // ── 2. Edge authentication ───────────────────────────────────────────────
+  const verdict = authDecision({
+    pathname,
+    cookieNames: req.cookies.getAll().map(c => c.name),
+    // Read as a static member access, not by passing `process.env` wholesale:
+    // the edge runtime inlines `process.env.FOO` at build time and cannot
+    // inline a spread of the whole object.
+    enforce: isEnforcementEnabled({
+      AUTH_MIDDLEWARE_ENFORCE: process.env.AUTH_MIDDLEWARE_ENFORCE,
+    }),
+  });
 
-  if (!ok) {
-    return NextResponse.json(
-      { error: "Too many requests. Please wait before trying again." },
-      {
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit":     String(rule.limit),
-          "X-RateLimit-Remaining": "0",
-          "X-RateLimit-Reset":     String(Math.ceil(resetAt / 1000)),
-          "Retry-After":           String(Math.ceil((resetAt - Date.now()) / 1000)),
-        },
-      }
-    );
+  if (verdict.action === "redirect") {
+    const url = req.nextUrl.clone();
+    url.pathname = verdict.location!;
+    // The sign-in page reads `?forgot=1` and `?error=…` and nothing else, so
+    // carrying the protected route's query string forward would only leak it
+    // into a URL that ignores it. Returning to the intended destination after
+    // sign-in needs `app/auth/page.tsx` to honour a `next` param — that page is
+    // rebuilt in M5-3, and the round-trip belongs there rather than half-built
+    // here.
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
   const res = NextResponse.next();
-  res.headers.set("X-RateLimit-Limit",     String(rule.limit));
-  res.headers.set("X-RateLimit-Remaining", String(remaining));
-  res.headers.set("X-RateLimit-Reset",     String(Math.ceil(resetAt / 1000)));
+  if (rateHeaders) {
+    for (const [k, v] of Object.entries(rateHeaders)) res.headers.set(k, v);
+  }
   return res;
 }
 
 export const config = {
   matcher: [
+    // — Rate-limited API surfaces (unchanged) —
     "/api/ai/:path*",
     "/api/auth/:path*",
     "/api/welcome",
@@ -104,5 +164,19 @@ export const config = {
     "/api/track",
     "/api/errors",
     "/api/jobs/enqueue",
+    // — M4-1: student page routes, authenticated at the edge —
+    // `/home` is the one shell (M3-1). `/dashboard` and `/console` are 308
+    // redirects on their exact paths only, so their SUBPATHS — `/dashboard/
+    // profile`, `/dashboard/saved`, `/console/ai`, `/console/analytics`,
+    // `/console/practice`, `/console/work` — are still real student surfaces
+    // and are matched here. `/tools/:path*` covers all 46.
+    "/dashboard/:path*",
+    "/console/:path*",
+    "/tools/:path*",
+    "/onboard",
+    // Bare segments too: `:path*` does not match the segment on its own.
+    "/dashboard",
+    "/console",
+    "/tools",
   ],
 };

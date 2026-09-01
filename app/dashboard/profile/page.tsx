@@ -6,6 +6,13 @@ import { useAuth } from "@/components/auth-provider";
 import { loadUserData, saveUserData, patchUserData, type AiProfile } from "@/lib/user-data";
 import { supabase } from "@/lib/supabase";
 import { userTier, TIER_LABELS } from "@/lib/tier";
+// M3-3 — these three moved here from the retired `/dashboard`. Each was the
+// product's ONLY host for a capability (dated exams, parent access, push
+// opt-in), and a shell merge may not delete a capability. §2.2 puts all three
+// behind Settings, which is what this route becomes.
+import ExamSchedule from "@/components/settings/exam-schedule";
+import SharePanel from "@/components/settings/share-panel";
+import PushOptIn from "@/components/push-opt-in";
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
 
@@ -292,8 +299,21 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/* Exams, parent access and push — moved from the retired dashboard. */}
+        {user && (
+          <div style={{ marginTop: 40 }}>
+            <ExamSchedule
+              userId={user.id}
+              userEmail={user.email || ""}
+              userName={username || user.email?.split("@")[0] || "Student"}
+            />
+            <PushOptIn />
+            <SharePanel token={session?.access_token} />
+          </div>
+        )}
+
         <div style={{ marginTop: 60, borderTop: "1px solid var(--ink)", paddingTop: 20, display: "flex", justifyContent: "space-between" }}>
-          <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)" }}>← Dashboard</Link>
+          <Link href="/today" className="mono" style={{ color: "var(--ink-3)" }}>← Today</Link>
         </div>
       </main>
     </div>

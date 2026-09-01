@@ -1,0 +1,20 @@
+{
+  "//": "Separate outDir from tests/tsconfig.json ON PURPOSE. `node --test tests/` runs each test file in its own process, in parallel; two suites compiling into one directory race and corrupt each other's output. One outDir per suite removes the race by construction.",
+  "compilerOptions": {
+    "outDir": "../.test-build-workspace",
+    // Pinned so output lands at console/*.js. Left implicit, tsc infers the
+    // common root of the file list (lib/console) and flattens the directory
+    // away — which appears to work only while a stale build from an earlier
+    // layout happens to still be on disk.
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": ["../lib/console/color.ts", "../lib/console/workspace.ts", "../lib/sync-merge.ts"]
+}

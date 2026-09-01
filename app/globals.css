@@ -105,7 +105,7 @@
 }
 
 /* â”€â”€â”€ Border-radius scale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-/* â”€â”€â”€ Severity tier tokens (Paper Trauma Map + future severity UI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€â”€ Severity tier tokens (Repeat Failure Map + future severity UI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
   --severity-low-color:     oklch(0.45 0.13 72);
   --severity-low-bg:        oklch(0.97 0.04 90);
@@ -330,7 +330,12 @@ a:hover { opacity: 0.75; }
 * { box-sizing: border-box; font-synthesis: none; }
 
 /* Headings default to serif italic â€” Newsreader reads best at 400â€“500 */
-h1, h2, h3, h4, h5 {
+/* :not([data-console] *):not([data-warm] *) keeps this off Console routes. A direct h1-h5 match
+   here beats [data-console]'s inherited font-family: var(--type-interface)
+   no matter how that block's own specificity compares — a directly matched
+   rule always outranks an inherited value — so every heading inside Console
+   silently rendered in the legacy serif regardless of the accent/Mulish work. */
+h1:not([data-console] *):not([data-warm] *), h2:not([data-console] *):not([data-warm] *), h3:not([data-console] *):not([data-warm] *), h4:not([data-console] *):not([data-warm] *), h5:not([data-console] *):not([data-warm] *) {
   font-family: var(--serif);
   font-weight: 600;
   font-style: normal;
@@ -459,7 +464,12 @@ hr.rule-double { border-top: 3px double var(--ink); }
 }
 
 /* â”€â”€â”€ Global button glass base (overridden by .btn / .ui-btn-* / inline styles) */
-button:not(.btn):not([class*="ui-btn"]) {
+/* :not([data-console] *):not([data-warm] *) keeps this legacy fallback off Console-scoped
+   routes — same fix as the /auth input rule above. Without it, every plain
+   <button> built for Console (which relies on its own className for styling,
+   same as .auth-input did) got this dark-mode --ink text colour painted over
+   a near-transparent fill, rendering as pale-on-pale/near-invisible. */
+button:not(.btn):not([class*="ui-btn"]):not([data-console] *):not([data-warm] *) {
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   border: none;
   color: var(--ink);
@@ -468,13 +478,13 @@ button:not(.btn):not([class*="ui-btn"]) {
   cursor: pointer;
   transition: background 160ms ease;
 }
-button:not(.btn):not([class*="ui-btn"]):hover:not(:disabled) {
+button:not(.btn):not([class*="ui-btn"]):not([data-console] *):not([data-warm] *):hover:not(:disabled) {
   background: color-mix(in srgb, var(--ink) 14%, transparent);
 }
-button:not(.btn):not([class*="ui-btn"]):active:not(:disabled) {
+button:not(.btn):not([class*="ui-btn"]):not([data-console] *):not([data-warm] *):active:not(:disabled) {
   transform: translateY(1px);
 }
-button:not(.btn):not([class*="ui-btn"]):disabled {
+button:not(.btn):not([class*="ui-btn"]):not([data-console] *):not([data-warm] *):disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -637,8 +647,8 @@ input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="
 textarea:hover:not(:focus) {
   border-color: var(--ink-3);
 }
-input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):focus,
-textarea:focus {
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):not([data-console] *):not([data-warm] *):focus,
+textarea:not([data-console] *):not([data-warm] *):focus {
   border-color: var(--cinnabar-ink) !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--cinnabar-ink) 18%, transparent);
   background: color-mix(in srgb, var(--paper-2) 95%, transparent);
@@ -1691,7 +1701,7 @@ main {
   .nav-signout { padding: 0 10px !important; }
 }
 
-/* â”€â”€â”€ Mobile: full-height split panels (exam mode, slide viewer, cremator) â”€â”€â”€â”€â”€ */
+/* â”€â”€â”€ Mobile: full-height split panels (exam mode, slide viewer, syllabus ranking) â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
   /* Outer container: stop being a fixed-height flex/grid, stack vertically */
   .tool-split {
@@ -1842,8 +1852,13 @@ h1, h2, h3 { -webkit-font-smoothing: antialiased; text-rendering: geometricPreci
 :focus:not(:focus-visible) { outline: none; box-shadow: none; }
 
 /* â”€â”€â”€ Input fields: premium focus state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):focus,
-textarea:focus {
+/* :not([data-console] *):not([data-warm] *) keeps this legacy rule off Console-scoped routes.
+   Without it, this !important background/box-shadow beat every Console
+   input's own focus styling on specificity alone, painting a dark
+   color-mix(paper-2, cinnabar-ink) fill over text set to Console's --g-7 —
+   a near-invisible-text bug on /auth's Email/Password/Name fields. */
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):not([data-console] *):not([data-warm] *):focus,
+textarea:not([data-console] *):not([data-warm] *):focus {
   background: color-mix(in srgb, var(--paper-2) 97%, var(--cinnabar-ink)) !important;
   box-shadow:
     0 0 0 1px var(--cinnabar-ink),

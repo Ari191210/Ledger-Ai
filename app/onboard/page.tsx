@@ -1,432 +1,435 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Mulish, IBM_Plex_Mono, Noto_Sans_Devanagari, Noto_Sans_Tamil } from "next/font/google";
 import { useAuth } from "@/components/auth-provider";
-import { saveUserData, loadUserData } from "@/lib/user-data";
+import { saveStudentProfile, loadUserData } from "@/lib/user-data";
+import { supabase } from "@/lib/supabase";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { GRADES, BOARDS, STREAMS } from "@/lib/onboarding-constants";
+import {
+  ONBOARDING_PAGES,
+  PAGE_COUNT,
+  isComplete,
+  dimensionWrites,
+  type OnboardingAnswers,
+  type OnboardingQuestion,
+} from "@/lib/onboarding-questions";
+import "../console/console.css";
 gsap.registerPlugin(useGSAP);
-const INTERESTS = [
-  "Mathematics", "Physics", "Chemistry", "Biology",
-  "Computer Science", "Psychology", "History", "Geography",
-  "Economics", "English Literature", "Accountancy", "Political Science",
-];
-const EXAMS = [
-  "JEE Main / Advanced", "NEET UG", "CUET", "IPMAT",
-  "CA Foundation", "SAT / ACT", "A-Levels / IGCSE Boards",
-  "IELTS / TOEFL", "No specific exam — just school boards",
-];
-const LEARNING_STYLES = [
-  { value: "examples-first", label: "Show me examples first", sub: "See it in action, then understand why" },
-  { value: "theory-first",   label: "Explain the theory first", sub: "Understand the principle, then apply it" },
-  { value: "bullet-points",  label: "Bullet points and lists", sub: "Quick, scannable — no long paragraphs" },
-  { value: "step-by-step",   label: "Step by step", sub: "One thing at a time, nothing skipped" },
-] as const;
-const COMM_STYLES = [
-  { value: "simple",         label: "Simple and clear", sub: "Everyday English, no jargon" },
-  { value: "conversational", label: "Conversational", sub: "Friendly, like a knowledgeable study buddy" },
-  { value: "detailed",       label: "Detailed and thorough", sub: "Full context, the bigger picture" },
-  { value: "direct",         label: "Direct and concise", sub: "Just the essentials — no filler" },
-] as const;
 
-// Step 0 = welcome, steps 1-8 = data, step 9 = done
-const TOTAL_DATA_STEPS = 8;
+// ═══════════════════════════════════════════════════════════════════════════
+// ONBOARDING — ten pages, one question each.
+//
+// `PRODUCT_DECISIONS` §2.6 as rewritten 2026-08-30; the reversal and its
+// reasoning are recorded at §7.7. This file REPLACES the two-question single
+// screen that M5-3 shipped under the previous §2.6.
+//
+// The script is not here. Every question, option, ordering and piece of
+// helper copy lives in `lib/onboarding-questions.ts`, so this file is a
+// renderer with no opinions of its own and the flow can be audited, tested
+// and reordered without touching React.
+//
+// ── WHAT THE STRUCTURE GUARANTEES ────────────────────────────────────────
+// · ONE question per page. Page 1 carries board and subjects together, for
+//   the reason the script file states.
+// · Progress is visible and BACK always works. §2.6: "a question a student
+//   cannot un-answer is an interrogation."
+// · Answers persist AS THEY ARE GIVEN, not at the end. A student who closes
+//   the tab on page 6 keeps five answers; the profile is partial, which
+//   architecture J.3.a treats as a legal state rather than an error.
+// · Only board and subjects gate completion. The nine preference questions
+//   are skippable by design — `isComplete()` in the script file is the same
+//   rule `isOnboarded()` applies server-side, and it names those two only.
+//
+// ── WHY THE ANSWERS ARE WRITTEN AS EXPLICIT ──────────────────────────────
+// The nine dimension answers go to `personal_model` as `explicit` signals,
+// which architecture I.6 guarantees outrank anything later inferred from
+// behaviour. That is the entire point of asking: an inferred model has
+// nothing to say about a student on their first day.
+// ═══════════════════════════════════════════════════════════════════════════
 
-function OptionPill({ label, sub, selected, onClick }: { label: string; sub?: string; selected: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        width: "100%",
-        padding: sub ? "16px 20px" : "15px 20px",
-        borderRadius: 14,
-        border: `1.5px solid ${selected ? "var(--cinnabar)" : "var(--rule)"}`,
-        background: selected ? "color-mix(in srgb, var(--cinnabar) 9%, var(--paper))" : "color-mix(in srgb, var(--ink) 3%, var(--paper))",
-        color: "var(--ink)",
-        cursor: "pointer",
-        textAlign: "left",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 12,
-        transition: "border-color 160ms ease, background 160ms ease",
-      }}
-    >
-      <div>
-        <div style={{ fontFamily: "var(--sans)", fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>{label}</div>
-        {sub && <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 3 }}>{sub}</div>}
-      </div>
-      <span style={{
-        width: 20, height: 20, borderRadius: "50%",
-        border: `1.5px solid ${selected ? "var(--cinnabar)" : "var(--rule)"}`,
-        background: selected ? "var(--cinnabar)" : "transparent",
-        flexShrink: 0,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        transition: "background 160ms ease, border-color 160ms ease",
-        fontSize: 11,
-        color: selected ? "var(--paper)" : "transparent",
-      }}>
-        {selected && "✓"}
-      </span>
-    </button>
-  );
-}
+const sans = Mulish({
+  subsets: ["latin"], weight: ["400", "500", "600"], variable: "--console-sans", display: "swap",
+});
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"], weight: ["400", "500", "600"], variable: "--console-mono", display: "swap",
+});
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"], weight: ["400", "500", "600"], variable: "--console-deva", display: "swap", preload: false,
+});
+const tamil = Noto_Sans_Tamil({
+  subsets: ["tamil"], weight: ["400", "500", "600"], variable: "--console-tamil", display: "swap", preload: false,
+});
+
+/** Where a half-finished flow is kept between visits. Local only: these are
+ *  preferences, not academic record, and nothing here is evidence. */
+const DRAFT_KEY = "ledger-onboarding-draft";
 
 export default function OnboardPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  // step 0 = welcome, 1-8 = data collection, 9 = done
-  const [step, setStep] = useState(0);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const dirRef = useRef<1 | -1>(1);
+  const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState<OnboardingAnswers>({});
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    if (!contentRef.current) return;
-    const dir = dirRef.current;
-    gsap.fromTo(
-      contentRef.current,
-      { opacity: 0, x: dir * 32 },
-      { opacity: 1, x: 0, duration: 0.38, ease: "power3.out", clearProps: "opacity,transform" }
-    );
-  }, { dependencies: [step], revertOnUpdate: true });
+  const page = ONBOARDING_PAGES[index];
+  const isLast = index === PAGE_COUNT - 1;
 
-  const [grade,              setGrade]              = useState("");
-  const [board,              setBoard]              = useState("");
-  const [stream,             setStream]             = useState("");
-  const [interests,          setInterests]          = useState<string[]>([]);
-  const [learningStyle,      setLearningStyle]      = useState("");
-  const [communicationStyle, setCommunicationStyle] = useState("");
-  const [targetExam,         setTargetExam]         = useState("");
-  const [saving,             setSaving]             = useState(false);
+  // Restore a partial flow before anything renders, so a returning student
+  // resumes rather than restarts.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as { answers?: OnboardingAnswers; index?: number };
+      if (draft.answers) setAnswers(draft.answers);
+      if (typeof draft.index === "number" && draft.index > 0 && draft.index < PAGE_COUNT) {
+        setIndex(draft.index);
+      }
+    } catch { /* a corrupt draft is discarded, never surfaced */ }
+  }, []);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.push("/auth"); return; }
+    // A student who has already declared board and subjects does not answer
+    // again. Same rule as `isOnboarded()` server-side, with the pre-M5
+    // `onboardingDone` flag still honoured.
     loadUserData(user.id)
-      .then(ud => { if (ud?.onboardingDone === true) router.push("/dashboard"); })
+      .then((ud) => {
+        if (!ud) return;
+        const declared = Boolean(ud.board) && Array.isArray(ud.interests) && ud.interests.length > 0;
+        if (ud.onboardingDone === true || declared) router.replace("/today");
+      })
       .catch(() => {});
   }, [user, authLoading, router]);
 
-  const needsStream = grade === "Class 11" || grade === "Class 12";
+  // Slide, not fade (PRODUCT_PRINCIPLES §6.5: press, slide, roll, fill).
+  // Direction carries meaning: forward enters from the right, back from the
+  // left, so the flow has a spatial sense rather than being a stack of modals.
+  const directionRef = useRef(1);
+  useGSAP(() => {
+    if (!cardRef.current) return;
+    gsap.from(cardRef.current, {
+      x: 24 * directionRef.current, autoAlpha: 0, duration: 0.34, ease: "power3.out",
+      clearProps: "transform,opacity,visibility",
+    });
+  }, { dependencies: [index], scope: cardRef });
 
-  const STEP_VALID: Record<number, boolean> = {
-    0: true,
-    1: grade !== "",
-    2: board !== "",
-    3: !needsStream || stream !== "",
-    4: interests.length >= 2,
-    5: learningStyle !== "",
-    6: communicationStyle !== "",
-    7: targetExam !== "",
-    8: true,
-    9: true,
+  const persistDraft = useCallback((next: OnboardingAnswers, nextIndex: number) => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ answers: next, index: nextIndex }));
+    } catch { /* private mode: the flow still works, it just will not resume */ }
+  }, []);
+
+  function answer(q: OnboardingQuestion, optionId: string) {
+    setAnswers((prev) => {
+      let next: OnboardingAnswers;
+      if (q.select === "many") {
+        const current = Array.isArray(prev[q.id]) ? (prev[q.id] as string[]) : [];
+        const toggled = current.includes(optionId)
+          ? current.filter((x) => x !== optionId)
+          : [...current, optionId];
+        next = { ...prev, [q.id]: toggled };
+      } else {
+        next = { ...prev, [q.id]: optionId };
+      }
+      persistDraft(next, index);
+      return next;
+    });
+  }
+
+  const answered = (q: OnboardingQuestion, optionId: string) => {
+    const v = answers[q.id];
+    return Array.isArray(v) ? v.includes(optionId) : v === optionId;
   };
 
-  function toggleInterest(s: string) {
-    setInterests(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+  // A page is passable when every question on it has an answer. Identity is
+  // required; a preference page is passable the moment it is answered, and
+  // skippable without one.
+  const pageAnswered = page.questions.every((q) => {
+    const v = answers[q.id];
+    return Array.isArray(v) ? v.length > 0 : typeof v === "string" && v.length > 0;
+  });
+  const identityPage = page.questions.some((q) => q.kind === "identity");
+
+  function go(delta: number) {
+    directionRef.current = delta;
+    const next = Math.max(0, Math.min(PAGE_COUNT - 1, index + delta));
+    setIndex(next);
+    persistDraft(answers, next);
   }
 
-  async function finish(skipRedirect = false) {
+  async function finish() {
     if (!user) return;
-    setSaving(true);
-    try {
-      await saveUserData(user.id, {
-        onboardingDone: true,
-        grade,
-        board: board.split(" —")[0].split(" /")[0].trim(),
-        stream: stream ? stream.split(" —")[0].split(" (")[0].trim() : undefined,
-        interests,
-        targetExam: targetExam.split(" /")[0].trim(),
-        aiProfile: {
-          learningStyle: learningStyle as "examples-first" | "theory-first" | "bullet-points" | "step-by-step",
-          communicationStyle: communicationStyle as "simple" | "conversational" | "detailed" | "direct",
-        },
-      });
-    } catch {}
-    localStorage.setItem("ledger-onboarding-done", "1");
-    if (!skipRedirect) router.push("/dashboard");
-  }
+    if (!isComplete(answers)) { setIndex(0); return; }
+    setSaving(true); setError("");
 
-  function goNext() {
-    dirRef.current = 1;
-    if (step === 3 && !needsStream) { setStep(4); return; }
-    if (step === 8) {
-      // syllabus step — done is handled by buttons inside
+    const board = answers.board as string;
+    const subjects = answers.subjects as string[];
+
+    const { error: err } = await saveStudentProfile(
+      user.id, { board, subjects, onboardingDone: true }, "onboarding",
+    );
+    if (err) {
+      setError("Could not save. Check your connection and try again.");
+      setSaving(false);
       return;
     }
-    setStep(s => s + 1);
+
+    // The nine preferences, as EXPLICIT signals. Written straight from the
+    // browser because `031_personal_model.sql` grants exactly this and nothing
+    // more: `GRANT INSERT (student_id, dimension, explicit_value,
+    // overridden_at)` and `GRANT UPDATE (explicit_value, overridden_at)` to
+    // `authenticated`, under RLS scoped to `auth.uid() = student_id`. A student
+    // can state a preference and can never touch `inferred_value` or
+    // `confidence`, which is the column-level GRANT I.6 asks for.
+    //
+    // Deliberately not awaited into a hard failure: identity is already saved,
+    // so nobody is held at the door because a preference write was slow. A
+    // dropped preference is recoverable in Settings; a blocked signup is not.
+    const writes = dimensionWrites(answers);
+    if (writes.length > 0) {
+      const now = new Date().toISOString();
+      supabase
+        .from("personal_model")
+        .upsert(
+          writes.map((w) => ({
+            student_id: user.id,
+            dimension: w.dimension,
+            explicit_value: w.value,
+            overridden_at: now,
+          })),
+          { onConflict: "student_id,dimension" },
+        )
+        .then(({ error: pmErr }) => {
+          if (pmErr && process.env.NODE_ENV !== "production") {
+            console.info("[onboarding] preference write failed:", pmErr.message);
+          }
+        });
+    }
+
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+    // The walkthrough runs on first arrival and never again.
+    router.replace("/today?first=1");
   }
 
-  function goBack() {
-    dirRef.current = -1;
-    if (step === 4 && !needsStream) { setStep(3); return; }
-    setStep(s => s - 1);
-  }
-
-  const firstName = user?.email?.split("@")[0]?.split(".")?.[0] ?? "there";
-  const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  const shellClass = `${sans.variable} ${mono.variable} ${devanagari.variable} ${tamil.variable}`;
 
   if (authLoading || !user) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-      <div className="mono" style={{ color: "var(--ink-3)" }}>Loading…</div>
+    <div data-console className={shellClass} style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "var(--g-0)" }}>
+      <span style={{ fontFamily: "var(--type-instrument)", fontSize: "var(--t-label)", color: "var(--g-6)" }}>Loading…</span>
     </div>
   );
 
-  // Progress: 0 on welcome, 1-8 on data steps, full on done
-  const progressPct = step === 0 ? 0 : step === 9 ? 100 : ((step) / TOTAL_DATA_STEPS) * 100;
-
   return (
-    <div style={{ minHeight: "100vh", background: "transparent", color: "var(--ink)", display: "flex", flexDirection: "column", position: "relative", zIndex: 1 }}>
-
-      {/* Top bar */}
-      <div style={{ padding: "18px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--rule-2)" }}>
-        <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontWeight: 700, fontSize: 19, letterSpacing: "-0.02em" }}>
-          Ledger<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
-        </span>
-        {step > 0 && step < 9 && (
-          <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9, letterSpacing: "0.08em" }}>
-            {step} of {TOTAL_DATA_STEPS}
-          </span>
-        )}
+    <div data-console className={shellClass} style={{ minHeight: "100vh", background: "var(--g-0)" }}>
+      <div className="ob-header">
+        <span className="ob-wordmark">StudyLedger</span>
+        <span className="ob-count">{index + 1} of {PAGE_COUNT}</span>
       </div>
 
-      {/* Progress bar */}
-      <div style={{ height: 2, background: "var(--rule-2)", position: "relative" }}>
-        <div style={{
-          position: "absolute", left: 0, top: 0, height: "100%",
-          width: `${progressPct}%`,
-          background: "var(--cinnabar)",
-          transition: "width 400ms cubic-bezier(0.4, 0, 0.2, 1)",
-        }} />
+      {/* A track, filled. Not a checklist: it reports position, and claims
+          nothing about achievement (PRINCIPLES §4.3). */}
+      <div className="ob-track" role="progressbar" aria-valuenow={index + 1} aria-valuemin={1} aria-valuemax={PAGE_COUNT}>
+        <div className="ob-track-fill" style={{ width: `${((index + 1) / PAGE_COUNT) * 100}%` }} />
       </div>
 
-      {/* Content */}
-      <div className="onboard-outer" style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "56px 24px 80px" }}>
-        <div ref={contentRef} style={{ width: "100%", maxWidth: 520 }}>
-
-          {/* Step 0: Welcome */}
-          {step === 0 && (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 13, fontStyle: "italic", color: "var(--cinnabar-ink)", marginBottom: 20, letterSpacing: "0.02em" }}>
-                Welcome to Ledger
+      <div className="ob-outer">
+        <div ref={cardRef} className="ob-card">
+          {page.questions.map((q) => (
+            <div key={q.id} className="ob-question">
+              <h1 className="ob-prompt">{q.prompt}</h1>
+              <p className="ob-because">{q.because}</p>
+              <div className={`ob-grid ${q.options.length > 6 ? "ob-grid--dense" : ""}`}>
+                {q.options.map((o) => (
+                  <button
+                    key={o.id}
+                    onClick={() => answer(q, o.id)}
+                    aria-pressed={answered(q, o.id)}
+                    className={`ob-pill ${answered(q, o.id) ? "ob-pill--selected" : ""}`}
+                  >
+                    <span className="ob-pill-text">
+                      <span className="ob-pill-label">{o.label}</span>
+                      {o.hint && <span className="ob-pill-hint">{o.hint}</span>}
+                    </span>
+                    <span className="ob-pill-check">{answered(q, o.id) && "✓"}</span>
+                  </button>
+                ))}
               </div>
-              <div className="onboard-hello" style={{ fontFamily: "var(--serif)", fontSize: 36, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 16 }}>
-                Hello, {displayName}<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
-              </div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-2)", lineHeight: 1.65, marginBottom: 40, maxWidth: 400, margin: "0 auto 40px" }}>
-                Eight quick questions. Then every AI tool on Ledger is calibrated to your grade, board, and learning style — permanently.
-              </div>
-              <button className="btn" onClick={goNext} style={{ padding: "14px 36px", fontSize: 13 }}>
-                Let&apos;s go →
-              </button>
-              <div className="mono" style={{ marginTop: 16, fontSize: 9, color: "var(--ink-3)" }}>Takes about 90 seconds</div>
             </div>
-          )}
+          ))}
 
-          {/* Step 1: Grade */}
-          {step === 1 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                What grade are you in?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>Sets the difficulty level across every tool.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {GRADES.map(g => (
-                  <OptionPill key={g} label={g} selected={grade === g} onClick={() => setGrade(g)} />
-                ))}
-              </div>
-            </>
-          )}
+          {error && <div className="ob-error">{error}</div>}
 
-          {/* Step 2: Board */}
-          {step === 2 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                Which board do you follow?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>We&apos;ll surface papers and content relevant to your curriculum.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {BOARDS.map(b => (
-                  <OptionPill key={b} label={b} selected={board === b} onClick={() => setBoard(b)} />
-                ))}
-              </div>
-            </>
-          )}
+          <div className="ob-actions">
+            <button className="ob-back" onClick={() => go(-1)} disabled={index === 0}>
+              ← Back
+            </button>
 
-          {/* Step 3: Stream */}
-          {step === 3 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                {needsStream ? "What's your stream?" : "Stream doesn't apply yet."}
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>
-                {needsStream ? "The AI uses this for subject-specific advice." : `You're in ${grade} — stream selection comes in Class 11.`}
-              </div>
-              {needsStream ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {STREAMS.map(s => (
-                    <OptionPill key={s} label={s} selected={stream === s} onClick={() => setStream(s)} />
-                  ))}
-                </div>
-              ) : (
-                <div style={{ padding: "20px", borderRadius: 14, border: "1px solid var(--rule)", background: "color-mix(in srgb, var(--ink) 3%, transparent)", fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", lineHeight: 1.6 }}>
-                  You can update this any time from your profile once you reach Class 11.
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Step 4: Interests */}
-          {step === 4 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                Which subjects interest you?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>Pick at least 2. The AI learns what to focus on.</div>
-              <div className="onboard-interests" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                {INTERESTS.map(s => (
-                  <OptionPill key={s} label={s} selected={interests.includes(s)} onClick={() => toggleInterest(s)} />
-                ))}
-              </div>
-              {interests.length > 0 && (
-                <div className="mono" style={{ marginTop: 12, color: "var(--cinnabar-ink)", fontSize: 10 }}>
-                  {interests.length} selected{interests.length < 2 ? " — pick one more" : " ✓"}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Step 5: Learning Style */}
-          {step === 5 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                How do you learn best?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>Every AI response will match this style.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {LEARNING_STYLES.map(opt => (
-                  <OptionPill key={opt.value} label={opt.label} sub={opt.sub} selected={learningStyle === opt.value} onClick={() => setLearningStyle(opt.value)} />
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Step 6: Communication Style */}
-          {step === 6 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                How should the AI talk to you?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>Every tool on Ledger uses this voice — you can change it any time.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {COMM_STYLES.map(opt => (
-                  <OptionPill key={opt.value} label={opt.label} sub={opt.sub} selected={communicationStyle === opt.value} onClick={() => setCommunicationStyle(opt.value)} />
-                ))}
-              </div>
-              <div style={{ marginTop: 16, padding: "14px 16px", borderRadius: 12, border: "1px solid var(--rule-2)", background: "color-mix(in srgb, var(--cinnabar) 5%, transparent)" }}>
-                <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 4, letterSpacing: "0.1em" }}>WHY THIS MATTERS</div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>
-                  The AI doesn&apos;t just answer questions — it learns how to talk to you. Notes, Doubt Solver, Coach — all calibrated.
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Step 7: Target Exam */}
-          {step === 7 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                What&apos;s your target exam?
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>Study Planner and Exam Triage will build around this.</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {EXAMS.map(e => (
-                  <OptionPill key={e} label={e} selected={targetExam === e} onClick={() => setTargetExam(e)} />
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Step 8: Syllabus */}
-          {step === 8 && (
-            <>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.015em", marginBottom: 6 }}>
-                One last thing.
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 28, fontSize: 11 }}>
-                This step unlocks the full power of Ledger.
-              </div>
-              <div style={{ borderRadius: 16, border: "1px solid var(--rule)", overflow: "hidden", marginBottom: 20 }}>
-                {[
-                  ["01", "Upload your syllabus", "A PDF, photo, or even a messy Word doc."],
-                  ["02", "AI reads it in seconds", "Subjects, chapters, topics — extracted automatically."],
-                  ["03", "Everything personalised", "Every tool calibrated to your exact curriculum from day one."],
-                ].map(([num, title, desc], i, arr) => (
-                  <div key={i} style={{ display: "flex", gap: 16, padding: "18px 20px", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none", background: "color-mix(in srgb, var(--ink) 2%, transparent)" }}>
-                    <span className="mono" style={{ color: "var(--cinnabar-ink)", flexShrink: 0, fontSize: 11 }}>{num}</span>
-                    <div>
-                      <div style={{ fontFamily: "var(--sans)", fontSize: 14, fontWeight: 600, marginBottom: 3 }}>{title}</div>
-                      <div style={{ fontFamily: "var(--sans)", fontSize: 13, color: "var(--ink-2)" }}>{desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", gap: 10 }}>
-                <button className="btn" onClick={async () => { await finish(true); router.push("/tools/syllabus"); }} disabled={saving} style={{ flex: 1 }}>
-                  {saving ? "Saving…" : "Upload my syllabus →"}
-                </button>
-                <button className="btn ghost" onClick={() => { dirRef.current = 1; setStep(9); finish(true); }} disabled={saving} style={{ flexShrink: 0 }}>
-                  Skip
-                </button>
-              </div>
-              <div className="mono" style={{ color: "var(--ink-3)", marginTop: 10, fontSize: 9 }}>You can always do this later from the Syllabus tool.</div>
-            </>
-          )}
-
-          {/* Step 9: Done */}
-          {step === 9 && (
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 48, marginBottom: 20 }}>✦</div>
-              <div style={{ fontFamily: "var(--serif)", fontSize: 34, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 12 }}>
-                Your Ledger is ready<span style={{ color: "var(--cinnabar-ink)" }}>.</span>
-              </div>
-              <div style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7, marginBottom: 8 }}>
-                {grade && board && <span>{grade} · {board.split(" /")[0].split("(")[0].trim()}</span>}
-                {targetExam && <><br /><span style={{ color: "var(--ink-3)" }}>Targeting</span> {targetExam.split(" /")[0].trim()}</>}
-              </div>
-              <div className="mono" style={{ fontSize: 10, color: "var(--ink-3)", marginBottom: 36 }}>
-                {interests.slice(0, 3).join(" · ")}{interests.length > 3 ? ` +${interests.length - 3} more` : ""}
-              </div>
-              <button className="btn" onClick={() => router.push("/dashboard")} style={{ padding: "14px 36px", fontSize: 13 }}>
-                Open my dashboard →
+            {isLast ? (
+              <button className="ob-next" onClick={finish} disabled={saving}>
+                {saving ? "Saving…" : "Open my ledger →"}
               </button>
-            </div>
-          )}
-
-          {/* Navigation — visible on data steps 1-7 */}
-          {step >= 1 && step <= 7 && (
-            <div style={{ marginTop: 28, display: "flex", gap: 10, justifyContent: "space-between", alignItems: "center" }}>
-              <button className="btn ghost" onClick={goBack} style={{ padding: "10px 20px" }}>← Back</button>
+            ) : (
               <button
-                className="btn"
-                onClick={goNext}
-                disabled={!STEP_VALID[step]}
-                style={{ padding: "10px 28px", opacity: !STEP_VALID[step] ? 0.35 : 1 }}
+                className="ob-next"
+                onClick={() => go(1)}
+                disabled={identityPage && !pageAnswered}
               >
-                Continue →
+                {pageAnswered ? "Next →" : identityPage ? "Next →" : "Skip →"}
               </button>
-            </div>
-          )}
-          {/* Back button on step 8 */}
-          {step === 8 && (
-            <div style={{ marginTop: 16, textAlign: "left" }}>
-              <button className="btn ghost" onClick={goBack} style={{ padding: "8px 16px", fontSize: 11 }}>← Back</button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        .ob-header {
+          padding: var(--s-3) var(--s-5);
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: var(--s-3);
+        }
+        .ob-wordmark {
+          font-family: var(--type-interface);
+          font-weight: 600;
+          font-size: var(--t-label);
+          letter-spacing: 0.02em;
+          color: var(--accent);
+        }
+        .ob-count {
+          font-family: var(--type-instrument);
+          font-size: var(--t-micro);
+          letter-spacing: 0.1em;
+          color: var(--g-6);
+          font-variant-numeric: tabular-nums;
+        }
+        .ob-track {
+          height: 2px;
+          background: var(--g-1);
+        }
+        .ob-track-fill {
+          height: 100%;
+          background: var(--g-7);
+          transition: width var(--m-base) var(--ease-settle);
+        }
+        .ob-outer {
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          padding: var(--s-6) var(--s-4);
+        }
+        .ob-card { width: 100%; max-width: 560px; }
+        .ob-question { margin-bottom: var(--s-5); }
+        .ob-prompt {
+          font-family: var(--type-interface);
+          font-weight: 500;
+          font-size: var(--t-figure);
+          letter-spacing: -0.01em;
+          line-height: 1.2;
+          color: var(--g-7);
+          margin: 0 0 var(--s-1);
+        }
+        .ob-because {
+          font-family: var(--type-interface);
+          font-size: var(--t-body);
+          color: var(--g-6);
+          line-height: 1.5;
+          margin: 0 0 var(--s-4);
+        }
+        .ob-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-2); }
+        .ob-grid--dense {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        .ob-pill {
+          width: 100%;
+          min-height: 44px;
+          padding: var(--control-pad-y) var(--s-3) !important;
+          border-radius: var(--r-control);
+          border: 1px solid var(--g-4) !important;
+          background: var(--g-3) !important;
+          color: var(--g-7) !important;
+          cursor: pointer;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: var(--s-2);
+          transition: border-color var(--m-fast) var(--ease-out), background var(--m-fast) var(--ease-out);
+          font-family: var(--type-interface) !important;
+          font-size: var(--t-body) !important;
+          font-weight: 500;
+        }
+        .ob-pill:hover { border-color: var(--g-5) !important; }
+        .ob-pill--selected {
+          border-color: var(--g-7) !important;
+          background: var(--g-1) !important;
+        }
+        .ob-pill-text { display: flex; flex-direction: column; gap: 2px; }
+        .ob-pill-label { line-height: 1.3; }
+        .ob-pill-hint {
+          font-size: var(--t-label);
+          font-weight: 400;
+          color: var(--g-6);
+          line-height: 1.35;
+        }
+        .ob-pill-check {
+          width: 20px; height: 20px;
+          border-radius: 50%;
+          border: 1px solid var(--g-4) !important;
+          background: transparent !important;
+          flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 11px;
+          color: var(--g-0) !important;
+          transition: background var(--m-fast) var(--ease-out), border-color var(--m-fast) var(--ease-out);
+        }
+        .ob-pill--selected .ob-pill-check {
+          border-color: var(--g-7) !important;
+          background: var(--g-7) !important;
+        }
+        .ob-error {
+          margin-bottom: var(--s-3);
+          font-family: var(--type-interface);
+          font-size: var(--t-label);
+          color: var(--error);
+        }
+        .ob-actions {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--s-3);
+          margin-top: var(--s-5);
+        }
+        .ob-back, .ob-next {
+          min-height: 44px;
+          padding: var(--control-pad-y) var(--s-4) !important;
+          border-radius: var(--r-control);
+          font-family: var(--type-instrument) !important;
+          font-size: var(--t-label) !important;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: opacity var(--m-fast) var(--ease-out);
+        }
+        .ob-back {
+          border: 1px solid var(--g-4) !important;
+          background: transparent !important;
+          color: var(--g-6) !important;
+        }
+        .ob-next {
+          border: 1px solid var(--g-7) !important;
+          background: var(--g-7) !important;
+          color: var(--g-0) !important;
+        }
+        .ob-back:disabled, .ob-next:disabled { cursor: not-allowed; opacity: 0.35; }
+      `}</style>
     </div>
   );
 }

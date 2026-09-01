@@ -467,7 +467,11 @@ export default function MarksForensicsPage() {
             letterSpacing: 0.3,
           }}
         >
-          Marks Forensics
+          {/* M13-4 — `PRODUCT_PRINCIPLES` §4.1. Rendered copy only; the route
+              path, the `ForensicsResult` type and the `marks_forensics`
+              capability key are unchanged, so M13-2's 301 and the
+              `forensics_sessions` history already on disk still resolve. */}
+          Mark Scheme Check
         </span>
         <span
           style={{
@@ -505,7 +509,7 @@ export default function MarksForensicsPage() {
               lineHeight: 1.25,
             }}
           >
-            Marks Forensics
+            Mark Scheme Check
           </h1>
           <p
             style={{
@@ -664,7 +668,7 @@ export default function MarksForensicsPage() {
               marginTop: 4,
             }}
           >
-            Run Forensics
+            Run Check
           </button>
         </form>
 
@@ -706,7 +710,7 @@ export default function MarksForensicsPage() {
                 margin: "0 0 20px 0",
               }}
             >
-              Forensic Report
+              Line-by-Line Report
             </h2>
 
             <SummaryBar
@@ -823,7 +827,7 @@ export default function MarksForensicsPage() {
                 letterSpacing: 0.2,
               }}
             >
-              Run Another Forensics
+              Run Another Check
             </button>
           </div>
         )}

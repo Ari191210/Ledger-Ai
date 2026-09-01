@@ -1,0 +1,22 @@
+{
+  "//": "M23. Separate outDir per suite — see tests/tsconfig.registry.json for why. lib/academic-memory/*.ts is I/O-free (no Anthropic client, no Supabase client, no clock), which is what makes M23-2/M23-3's guarantees provable with nothing live in reach (U.3).",
+  "compilerOptions": {
+    "outDir": "../.test-build-academic-memory",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/academic-memory/types.ts",
+    "../lib/academic-memory/structured-query.ts",
+    "../lib/academic-memory/narration.ts",
+    "../lib/academic-memory/query-planner.ts"
+  ]
+}

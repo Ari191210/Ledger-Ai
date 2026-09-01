@@ -1,9 +1,68 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// THE PRE-CUTOVER ENGINE. M14-2 HAS DELETED ITS STREAK TERM.
+//
+// This is the engine the M0–M13 surfaces still call. The REBUILD lives in
+// `lib/score-engine.ts` (four dimensions, `insufficient evidence` as a state,
+// a baseline period) fed by `lib/score-inputs.ts` (the event-derived input
+// builder). Wiring the consumers across to it is M14-6 — *"cut over via the
+// existing shadow-mode cron; stop discarding the candidate result"* — which is
+// deliberately a separate task, because O.4.3 requires *"an explicit
+// restatement, never a silent recompute."*
+//
+// WHAT M14-2 DID TO THIS FILE, AND WHAT IT DID NOT DO
+//
+// `PRODUCT_DECISIONS` §9.3, ratified 2026-08-10, classifies the consecutive-day
+// term **REMOVE FROM SCORING** and says the implementation test out loud:
+//
+//   > **This is a rebuild, not a rename.** … Renaming the existing streak
+//   > variable to `continuity` is explicitly **not** an implementation of this
+//   > decision.
+//
+// So the term at the old `:218` — `Math.min(150, Math.round(streak * 7.5))` —
+// is GONE. It is not renamed, not moved, not reduced in weight and not guarded
+// behind a flag. `consistencyScore` remains on the breakdown at a constant 0
+// and is NOT summed into `total`, because five surfaces this milestone may not
+// touch read the field by name and would fail to compile without it. Those
+// surfaces are M14-6's, and until then the field carries `consistencyState:
+// "retired"` so the zero is at least labelled rather than passing for a
+// measurement.
+//
+// `ScoreInputs.streak` is likewise retained and is NO LONGER READ BY THE
+// FORMULA. `lib/console/vitality.ts`, `lib/console/next-move.ts` and
+// `lib/score-projection.ts` still read the raw figure off the inputs for their
+// own non-score purposes; removing the field would edit three files this
+// milestone's scope excludes. The scoring engine's use of it is what §9.3
+// bans, and that use is what has been removed.
+//
+// **Continuity is not computed here.** It has entirely different inputs —
+// verified sessions and assessment participation — and it lives in
+// `lib/score-continuity.ts`, which reads neither `ledger-focus-streak` nor any
+// per-day index. That file's header is the argument.
+// ═══════════════════════════════════════════════════════════════════════════
+
 export type ScoreBreakdown = {
   total: number;
   pqaScore: number;        // 0–400
   syllabusScore: number;   // 0–250
-  mistakeScore: number;    // 0–200
-  consistencyScore: number; // 0–150
+  mistakeScore: number;    // 0–200  — see MISTAKE PILLAR below
+  /**
+   * RETIRED (M14-2, §9.3). Always 0, never summed into `total`, never a
+   * measurement. `consistencyState` says so in the data; read that, not this.
+   */
+  consistencyScore: number;
+  /** M14-2. `retired` — the dimension no longer exists in this engine. */
+  consistencyState?: "retired";
+
+  // The three components of the mistake pillar, exposed so the score is
+  // explainable rather than a single opaque figure (PRODUCT_DECISIONS §4.11).
+  // Optional so existing consumers that build a ScoreBreakdown literal keep
+  // compiling.
+  // TODO(M9): make these required once the Console surfaces are rebuilt.
+  resolutionScore?: number;      // 0–120
+  evidenceScore?: number;        // 0–50
+  acknowledgementScore?: number; // 0–30
+  resolvedCount?: number;
+  evidenceCount?: number;
   pqaAccuracy: number;     // 0–1
   papersCount: number;
   syllabusUploaded: boolean;
@@ -16,7 +75,8 @@ export type ScoreBreakdown = {
 };
 
 const EMPTY: ScoreBreakdown = {
-  total: 0, pqaScore: 0, syllabusScore: 0, mistakeScore: 0, consistencyScore: 0,
+  total: 0, pqaScore: 0, syllabusScore: 0, mistakeScore: 0,
+  consistencyScore: 0, consistencyState: "retired",
   pqaAccuracy: 0, papersCount: 0, syllabusUploaded: false,
   subjectsCovered: 0, subjectsTotal: 0, recentMistakes: 0, streak: 0,
   actions: [], subjectAccuracy: [],
@@ -33,7 +93,27 @@ export type ScoreInputs = {
   syllabusSubjects: string[];
   syllabusUploaded: boolean;
   notesHistory: Array<{ subject?: string }>;
-  mistakes: Array<{ date: string }>;
+  /**
+   * A recorded mistake. `date` is all that legacy localStorage rows carry;
+   * the richer fields arrive with the server-owned record (M1-7). A row with
+   * no `status` is treated as `open` — never as resolved, never as absent.
+   */
+  mistakes: Array<{
+    date: string;
+    /** Pattern identity. Used to deduplicate — see MISTAKE PILLAR. */
+    id?: string;
+    /** Lifecycle status (PRODUCT_DECISIONS §4.8). */
+    status?: string;
+    /** The evidence this was captured from. Deduplicated by this. */
+    evidenceId?: string;
+  }>;
+  /**
+   * DEPRECATED AS A SCORING INPUT (M14-2, §9.3). The formula below does not
+   * read it, and no dimension anywhere is derived from it. It is still
+   * populated because three non-score surfaces read the raw figure off this
+   * struct and live in files this milestone's scope excludes; M14-6 removes
+   * both the field and its readers.
+   */
   streak: number;
 };
 
@@ -86,7 +166,9 @@ export function scoreInputsFromBlob(blob: Record<string, string> | null): ScoreI
 export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
   try {
 
-  const { papersLog, syllabusSubjects, syllabusUploaded, notesHistory, mistakes, streak } = inputs;
+  // `streak` is deliberately NOT destructured. M14-2 deleted the term that read
+  // it; leaving the binding in place would be the rename §9.3 refuses.
+  const { papersLog, syllabusSubjects, syllabusUploaded, notesHistory, mistakes } = inputs;
 
   // --- 1. PYQ Accuracy (0–400) ---
   const papersCount = papersLog.length;
@@ -130,20 +212,84 @@ export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
   }
   syllabusScore = Math.min(250, syllabusScore);
 
-  // --- 3. Mistake Velocity (0–200) ---
+  // ════════════════════════════════════════════════════════════════════════
+  // 3. MISTAKE PILLAR (0–200) — PRODUCT_DECISIONS §4.11
+  //
+  // THE INVARIANT: recording evidence must NEVER reduce a student's score.
+  // PRODUCT_PRINCIPLES §3.3 — the entire company depends on students logging
+  // honestly, so a scoreboard that penalises logging punishes exactly the
+  // behaviour we exist to create, and rewards hiding evidence.
+  //
+  // The previous model was `200 - recentMistakes * 6`: it paid a student six
+  // points for every mistake they did not write down.
+  //
+  // Every component below is a COUNT with a ceiling, never a proportion.
+  // That is what makes the invariant structural: a new unresolved occurrence
+  // enters no denominator, so it cannot move any term downward. Capture can
+  // only ever add. Resolution adds four times faster.
+  //
+  //   resolution     0–120  20 per resolved pattern
+  //   evidence       0–50    5 per DISTINCT piece of evidence
+  //   acknowledgement 0–30   5 per pattern faced rather than avoided
+  //
+  // TODO(§4.11): the ratified text describes resolution as a "proportion of
+  // patterns proven resolved". A proportion cannot satisfy the invariant — its
+  // denominator grows with capture, so logging a new mistake would lower the
+  // score. Implemented as a count; §4.11's wording needs amending to match.
+  // ════════════════════════════════════════════════════════════════════════
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const recentMistakes = mistakes.filter(m => new Date(m.date).getTime() > sevenDaysAgo).length;
-  let mistakeScore: number;
-  if (papersCount === 0 && mistakes.length === 0) {
-    mistakeScore = 100;
-  } else {
-    mistakeScore = Math.max(0, Math.round(200 - recentMistakes * 6));
-  }
 
-  // --- 4. Consistency (0–150) ---
-  const consistencyScore = Math.min(150, Math.round(streak * 7.5));
+  // Deduplicate by pattern id. Recording the same mistake twice is one
+  // mistake — repetition must never manufacture score.
+  const seenIds = new Set<string>();
+  const uniqueMistakes = mistakes.filter(m => {
+    if (!m.id) return true;              // legacy rows have no identity
+    if (seenIds.has(m.id)) return false;
+    seenIds.add(m.id);
+    return true;
+  });
 
-  const total = Math.min(1000, pqaScore + syllabusScore + mistakeScore + consistencyScore);
+  // Evidence QUALITY: distinct evidence only. Ten occurrences extracted from
+  // one photographed paper are one piece of evidence, so re-logging the same
+  // paper earns nothing.
+  const evidenceCount = new Set(
+    uniqueMistakes.map(m => m.evidenceId).filter((e): e is string => typeof e === "string" && e.length > 0)
+  ).size;
+
+  // Only the system can set 'resolved' (PRINCIPLES §3.1), so this cannot be
+  // self-awarded.
+  const resolvedCount = uniqueMistakes.filter(m => m.status === "resolved").length;
+
+  // Faced rather than avoided. An 'open' pattern has not been looked at;
+  // 'dormant' means it was left alone. Neither counts.
+  const FACED = ["acknowledged", "practising", "resolved", "recurred"];
+  const facedCount = uniqueMistakes.filter(m => typeof m.status === "string" && FACED.includes(m.status)).length;
+
+  const resolutionScore     = Math.min(120, resolvedCount  * 20);
+  const evidenceScore       = Math.min(50,  evidenceCount  * 5);
+  const acknowledgementScore = Math.min(30, facedCount     * 5);
+
+  const mistakeScore = resolutionScore + evidenceScore + acknowledgementScore;
+
+  // ════════════════════════════════════════════════════════════════════════
+  // 4. THE CONSECUTIVE-DAY TERM — DELETED (M14-2, §9.3, S.2, J.2.a)
+  //
+  // What stood here was `Math.min(150, Math.round(streak * 7.5))`. It is not
+  // here any more, under this name or any other, and `total` no longer has a
+  // fourth addend. `PRODUCT_PRINCIPLES` §4.2 bans streaks permanently and §9.3
+  // removed the dependency *"you studied X days in a row, therefore your
+  // academic state is better"* from the model rather than relocating it inside
+  // it.
+  //
+  // The dimension that REPLACES it is Continuity, and it is not here either —
+  // it is computed in `lib/score-continuity.ts` from verified sessions and
+  // assessment participation, over inputs this legacy engine has no access to.
+  // That is the whole content of *"a rebuild, not a rename."*
+  // ════════════════════════════════════════════════════════════════════════
+  const consistencyScore = 0;
+
+  const total = Math.min(1000, pqaScore + syllabusScore + mistakeScore);
 
   // --- Actions ---
   type Action = { text: string; gain: number };
@@ -168,11 +314,11 @@ export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
     candidates.push({ text: "Open Mistake DNA — you have recurring errors to resolve this week", gain: 25 });
   }
 
-  if (streak === 0) {
-    candidates.push({ text: "Start a Focus session today to open your streak", gain: 15 });
-  } else if (streak < 7) {
-    candidates.push({ text: `Protect your ${streak}-day streak — complete a Focus session today`, gain: 10 });
-  }
+  // The two streak-framed actions that stood here are DELETED with the term
+  // (M14-2). A recommendation may state an expected benefit only if the
+  // mechanism that delivers it exists and is reachable (B.11); with the term
+  // gone, *"protect your N-day streak"* promised points nothing could pay, and
+  // §4.2 bans the framing regardless of the arithmetic.
 
   const actions = candidates
     .sort((a, b) => b.gain - a.gain)
@@ -180,37 +326,69 @@ export function computeScoreFromInputs(inputs: ScoreInputs): ScoreBreakdown {
     .map(a => a.text);
 
   return {
-    total, pqaScore, syllabusScore, mistakeScore, consistencyScore,
+    total, pqaScore, syllabusScore, mistakeScore,
+    consistencyScore, consistencyState: "retired",
     pqaAccuracy, papersCount, syllabusUploaded, subjectsCovered, subjectsTotal,
-    recentMistakes, streak, actions, subjectAccuracy,
+    recentMistakes, streak: inputs.streak, actions, subjectAccuracy,
+    resolutionScore, evidenceScore, acknowledgementScore,
+    resolvedCount, evidenceCount,
   };
   } catch { return EMPTY; }
 }
 
-// ── Temporary (cold-start) score ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// M14-7 — THE COLD-START PATH. IT IS A GAP FINDER NOW, AND IT IS NOT A SCORE.
 //
-// A student opening Exam-Day Mode with zero history gets a Temporary Ledger
-// Score from a 5-minute self-report diagnostic. It is computed by feeding a
-// SYNTHETIC ScoreInputs through the same computeScoreFromInputs engine — no
-// separate formula — and it is NEVER written to localStorage or Supabase, so
-// it cannot pollute the real score. The discriminated `kind` field keeps the
-// two from ever being mixed at the type level.
+// EXECUTION_PLAN M14-7: *"Carry `gapTopics` as a diagnostic; **stop calling a
+// self-report a score.** ADAPT. Done when: J.4."*
+//
+// J.4, *"CURRENT FACT — the cold-start path that must not survive"*:
+//
+//   > `computeTemporaryScore` builds a **synthetic `ScoreInputs`** from
+//   > self-rated confidence (`shaky 0.3 / ok 0.6 / solid 0.9`), including a
+//   > fabricated 20-mark paper, and runs it through the real engine. It is
+//   > carefully typed to prevent mixing (`kind: "temporary" | "real"`) and is
+//   > never persisted — that discipline is real and commendable. **But it is a
+//   > score derived from self-report**, and self-reported competence is the
+//   > fluency illusion the product exists to replace. The baseline model
+//   > replaces it. **ADAPT: keep the diagnostic as a *gap finder* — its
+//   > `gapTopics` output is genuinely useful — and stop calling its output a
+//   > score.**
+//
+//
+// WHAT WAS DELETED, AND WHY THE TYPE DISCIPLINE WAS NOT ENOUGH
+//
+// The old path was type-safe and still wrong. `kind: "temporary"` stopped a
+// self-reported figure from being MIXED with a real one; it did nothing to stop
+// it from being DISPLAYED as one, and `app/tools/exam-day/page.tsx` rendered it
+// at 44px over " / 1000" under the heading *"Temporary Ledger Score"* with four
+// dimension bars. A student cannot see a discriminated union. They see a score.
+//
+// So the numbers are gone, not relabelled:
+//
+//   · the fabricated 20-mark paper                    DELETED
+//   · the `shaky 0.3 / ok 0.6 / solid 0.9` mapping    DELETED
+//   · the synthetic `ScoreInputs`                     DELETED
+//   · the `computeScoreFromInputs` call               DELETED
+//   · `total` / `pqaScore` / `syllabusScore` /
+//     `mistakeScore` / `consistencyScore` on the
+//     returned object                                 DELETED — THE TYPE HAS
+//                                                     NO NUMBER TO RENDER
+//
+// The type is the guarantee, exactly as `LedgerScore.total: number | null` is
+// in `lib/score-engine.ts`: a surface cannot show a self-reported score because
+// the value it is handed does not contain one. `assertNotAScore` below is the
+// same claim as a runtime assertion, so a test can state it without reading a
+// type.
+//
+// WHAT SURVIVES. `gapTopics` — *"genuinely useful"* per J.4, and unchanged in
+// its ordering: declared weaknesses first, then the merely-shaky. It is a list
+// of topics the student themselves named, which is an honest thing for a
+// self-report to produce. `source: "self_report"` and `verified: false` ride
+// along on the value so a surface has to acknowledge what it is rendering.
+// ═══════════════════════════════════════════════════════════════════════════
 
 export type RealLedgerScore = ScoreBreakdown & { kind: "real" };
-
-export type TemporaryLedgerScore = {
-  kind: "temporary";
-  total: number;
-  pqaScore: number;
-  syllabusScore: number;
-  mistakeScore: number;
-  consistencyScore: number;
-  /** Topics to drill right now, weakest first. */
-  gapTopics: string[];
-  actions: string[];
-};
-
-export type LedgerScoreValue = RealLedgerScore | TemporaryLedgerScore;
 
 export function realLedgerScore(): RealLedgerScore {
   return { ...computeLedgerScore(), kind: "real" };
@@ -225,60 +403,94 @@ export type DiagnosticInputs = {
   subject: string;
   /** Self-rated confidence per topic in that subject. */
   topicConfidence: Array<{ topic: string; confidence: Confidence }>;
-  /** Most recent marks in this subject, as a percentage. Optional. */
+  /**
+   * Most recent marks in this subject, as a percentage. Optional, and
+   * **deliberately not converted into anything.** It used to be the accuracy
+   * input to a fabricated paper; it is retained on the input type because the
+   * student is asked for it and discarding an answer they gave would be rude,
+   * but a remembered mark is a self-report too and M14-7 pays no number for one.
+   */
   recentMarksPercent?: number;
   /** Free-form weak areas the student already knows about. */
   weakAreas: string[];
 };
 
-export function computeTemporaryScore(diag: DiagnosticInputs): TemporaryLedgerScore {
+/**
+ * The output of the five-minute cold-start questionnaire.
+ *
+ * **There is no `total` here, and there is no dimension here.** J.4: *"stop
+ * calling its output a score."* Every field is either a topic the student
+ * named or a count of topics the student named.
+ */
+export type ColdStartDiagnostic = {
+  /** Not `"temporary"` — a temporary score is still a score. */
+  kind: "diagnostic";
+  /** Where this came from. The one word J.4's whole objection is about. */
+  source: "self_report";
+  /** Never true for this type. Present so a surface must render the caveat. */
+  verified: false;
+  /** Topics to drill right now, weakest first. J.4's *"genuinely useful"* half. */
+  gapTopics: string[];
+  /** How many topics the student rated — what the list above is drawn from. */
+  topicsRated: number;
+  /** How many they rated `shaky`, plus the weak areas they typed. */
+  weaknessesNamed: number;
+  /** The subject the questionnaire was about. */
+  subject: string;
+  actions: string[];
+};
+
+/**
+ * The five-minute questionnaire, as a gap finder.
+ *
+ * No engine call, no synthetic inputs, no arithmetic on a confidence rating.
+ * The only transformation is an ordering: what the student called weak comes
+ * before what they called shaky-but-not-weak, because that is the order they
+ * should sweep in and it is a restatement of their own answers rather than a
+ * measurement of them.
+ */
+export function computeColdStartDiagnostic(diag: DiagnosticInputs): ColdStartDiagnostic {
   const topics = diag.topicConfidence;
-  const rated = topics.length;
 
-  // Accuracy evidence: real marks if given, else confidence self-report
-  // (shaky 30% / ok 60% / solid 90%) — expressed as ONE synthetic 20-mark
-  // paper so the engine's session bonus stays at first-session level.
-  const confidenceAccuracy = rated > 0
-    ? topics.reduce((a, t) => a + ({ shaky: 0.3, ok: 0.6, solid: 0.9 } as const)[t.confidence], 0) / rated
-    : 0.5;
-  const accuracy = diag.recentMarksPercent != null
-    ? Math.min(1, Math.max(0, diag.recentMarksPercent / 100))
-    : confidenceAccuracy;
-
-  // Known weaknesses count as this week's open mistakes.
   const shakyTopics = topics.filter(t => t.confidence === "shaky").map(t => t.topic);
   const weakSet = [...new Set([...shakyTopics, ...diag.weakAreas.filter(Boolean)])];
-  const now = new Date().toISOString();
-
-  const synthetic: ScoreInputs = {
-    papersLog: [{ score: Math.round(accuracy * 20), total: 20, subject: diag.subject, date: now }],
-    syllabusSubjects: [diag.subject],
-    syllabusUploaded: true, // the diagnostic itself declares the syllabus subject
-    // Coverage credit only when the majority of the subject's topics are solid
-    notesHistory: rated > 0 && topics.filter(t => t.confidence === "solid").length * 2 >= rated
-      ? [{ subject: diag.subject }] : [],
-    mistakes: weakSet.map(() => ({ date: now })),
-    streak: 0, // no history — consistency cannot be self-reported
-  };
-
-  const b = computeScoreFromInputs(synthetic);
   const okTopics = topics.filter(t => t.confidence === "ok").map(t => t.topic);
 
   return {
-    kind: "temporary",
-    total: b.total,
-    pqaScore: b.pqaScore,
-    syllabusScore: b.syllabusScore,
-    mistakeScore: b.mistakeScore,
-    consistencyScore: b.consistencyScore,
+    kind: "diagnostic",
+    source: "self_report",
+    verified: false,
     gapTopics: [...weakSet, ...okTopics.filter(t => !weakSet.includes(t))].slice(0, 6),
+    topicsRated: topics.length,
+    weaknessesNamed: weakSet.length,
+    subject: diag.subject,
     actions: [
       weakSet.length > 0
         ? `Sweep your ${weakSet.length} weakest topic${weakSet.length === 1 ? "" : "s"} before the paper`
         : "Do a quick sweep to confirm your strong topics hold under exam pressure",
-      "After today: log a real past paper — your real Ledger Score starts there",
+      // The old copy promised *"your real Ledger Score starts there"*. It now
+      // says what J.4's baseline model actually does, because a score does not
+      // start from one paper (V.6.1, V.6.2).
+      "This is your own read of your topics — not a score. A Ledger Score needs assessed work behind it.",
     ],
   };
+}
+
+/**
+ * M14-7's done-when, as a runtime assertion.
+ *
+ * *"Stop calling a self-report a score"* is a claim about an ABSENCE, and there
+ * is no unit test for an absence — only a check that comes back empty. This is
+ * that check, exported so `tests/` can state the guarantee over a real returned
+ * value rather than over the type declaration alone.
+ */
+export const SCORE_FIELD_NAMES = Object.freeze([
+  "total", "pqaScore", "syllabusScore", "mistakeScore", "consistencyScore",
+  "score", "ledgerScore", "points", "tier",
+] as const);
+
+export function selfReportedScoreFields(value: object): string[] {
+  return SCORE_FIELD_NAMES.filter(k => k in value);
 }
 
 export function scoreTier(score: number): { label: string; next: string; nextAt: number } {

@@ -1,0 +1,21 @@
+{
+  "//": "M20. Separate outDir per suite — see tests/tsconfig.registry.json for why. lib/recommendations/*.ts are I/O-free (no imports, no clock, no network), which is what makes K.1/K.2/K.7/K.8 provable with no Supabase project in reach (U.3, the determinism boundary).",
+  "compilerOptions": {
+    "outDir": "../.test-build-recommendations",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/recommendations/types.ts",
+    "../lib/recommendations/engine.ts",
+    "../lib/recommendations/outcomes.ts"
+  ]
+}

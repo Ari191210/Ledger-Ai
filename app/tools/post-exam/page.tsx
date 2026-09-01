@@ -5,8 +5,7 @@ import EditorialRange from "@/components/ui/editorial-range";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
-import ScoreImpactStrip from "@/components/score-impact-strip";
-import { currentInputs, projectMistakeReductionImpact, type ScoreProjection } from "@/lib/score-projection";
+import MistakePillarNotice from "@/components/mistake-pillar-notice";
 
 type Tab = "dna" | "debrief" | "strategy";
 
@@ -40,16 +39,15 @@ function saveEntry(e: DebriefEntry) { const ex = loadHistory(); localStorage.set
 
 function DNATab() {
   const [mistakes, setMistakes] = useState<MistakeEntry[]>([]);
-  const [scoreImpact, setScoreImpact] = useState<ScoreProjection | null>(null);
 
+  // No projected score gain is shown here. The projection assumed a mistake
+  // could reach `status: "resolved"`, and no production action produces that
+  // state — so the figure was a promise the system cannot pay
+  // (PRODUCT_PRINCIPLES Law 7, architecture J.9.a). It returns when the
+  // evidence pipeline makes resolution real, not before.
   useEffect(() => {
     try {
       setMistakes(JSON.parse(localStorage.getItem("ledger-mistakes") || "[]"));
-      const inputs = currentInputs();
-      if (inputs) {
-        const p = projectMistakeReductionImpact(inputs, inputs.mistakes.length);
-        setScoreImpact(p.delta > 0 ? p : null);
-      }
     } catch {}
   }, []);
 
@@ -79,17 +77,9 @@ function DNATab() {
 
   return (
     <div>
-      {scoreImpact && (
-        <div style={{ marginBottom: 24 }}>
-          <ScoreImpactStrip
-            currentScore={scoreImpact.current}
-            projectedScore={scoreImpact.projected}
-            scoreDelta={scoreImpact.delta}
-            affectedPillar="mistakes"
-            nextAction="Resolve this week's recurring mistakes — drill them until they stop repeating."
-          />
-        </div>
-      )}
+      <div style={{ marginBottom: 24 }}>
+        <MistakePillarNotice />
+      </div>
       <div className="mob-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, border: "none", marginBottom: 28 }}>
         <div style={{ padding: "28px 24px", borderRight: "1px solid var(--rule)" }}>
           <div className="mono cin" style={{ marginBottom: 8 }}>Biggest Leak</div>
@@ -135,9 +125,14 @@ function DNATab() {
       </div>
 
       <div style={{ border: "none" }}>
-        <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {/* No "Clear all". A one-click, unconfirmed, unaudited wipe of
+            `ledger-mistakes` destroyed the persistent academic memory the whole
+            product is built on (PRODUCT_PRINCIPLES §3.1). Deletion, when it
+            exists, is a controlled data-rights workflow — not a text button
+            beside a list. */}
+        <div style={{ padding: "12px 20px", borderBottom: "1px solid var(--rule)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div className="mono cin">Recent Mistakes</div>
-          <button onClick={() => { localStorage.removeItem("ledger-mistakes"); setMistakes([]); }} className="mono" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)", fontSize: 9 }}>Clear all</button>
+          <span className="mono" style={{ color: "var(--ink-3)", fontSize: 9, textAlign: "right" }}>Kept permanently</span>
         </div>
         {recent.map((m, i) => (
           <div key={i} style={{ padding: "12px 20px", borderBottom: i < recent.length - 1 ? "1px solid var(--rule)" : "none", display: "flex", gap: 16, alignItems: "center" }}>

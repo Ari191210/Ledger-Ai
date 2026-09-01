@@ -212,7 +212,7 @@ function buildEmailHtml(params: {
     <!-- Footer -->
     <div style="padding:20px 24px;border-top:1px solid #222;">
       <div style="font-family:monospace;font-size:10px;color:#888;line-height:1.8;">
-        <a href="https://studyledger.in/dashboard" style="color:#b83c1a;text-decoration:none;">Open Ledger →</a>
+        <a href="https://studyledger.in/home" style="color:#b83c1a;text-decoration:none;">Open Ledger →</a>
         &nbsp;·&nbsp; studyledger.in
         &nbsp;·&nbsp; © MMXXVI Ledger Study Co.
       </div>

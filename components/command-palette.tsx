@@ -1,14 +1,17 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TOOLS_REGISTRY, CAT_COLOR } from "@/lib/tools-registry";
+// M2-3 — the palette is a navigation surface, so it searches the ratified CORE
+// register (PRODUCT_DECISIONS §1.4: "navigation, search and the command palette
+// render core"). Non-core tools are unlinked, not deleted — all 46
+// `/tools/<slug>` URLs still resolve by direct link (§2.3).
+import { NAV_TOOLS, CAT_COLOR } from "@/lib/tools-registry";
 import { getRecentTools } from "@/lib/recent-tools";
 
 const QUICK_ACTIONS = [
-  { name: "Dashboard",           path: "/dashboard",         category: "NAV", subtitle: "Your study overview" },
-  { name: "Profile & Settings",  path: "/dashboard/profile", category: "NAV", subtitle: "Account and preferences" },
+  { name: "Profile & Settings",  path: "/settings",          category: "NAV", subtitle: "Account and preferences" },
   { name: "Ledger Score",        path: "/tools/grade-tracker",       category: "NAV", subtitle: "Your real-time readiness" },
-  { name: "Themes",              path: "/tools/personalise", category: "NAV", subtitle: "Palette, mode, density" },
+  { name: "Themes",              path: "/settings",          category: "NAV", subtitle: "Palette, mode, density" },
 ];
 
 type Item =
@@ -55,7 +58,7 @@ export default function CommandPalette() {
   const triggerRef = useRef<HTMLElement | null>(null);
 
   // Build a merged+sorted item list
-  const allTools: Item[] = TOOLS_REGISTRY.map(t => ({
+  const allTools: Item[] = NAV_TOOLS.map(t => ({
     kind:     "tool" as const,
     title:    t.title,
     subtitle: t.subtitle,
@@ -394,7 +397,7 @@ export default function CommandPalette() {
                 <span className="cp-hint-label">close</span>
               </div>
               <span className="cp-count">
-                {query.trim() ? `${filtered.length} result${filtered.length !== 1 ? "s" : ""}` : `${TOOLS_REGISTRY.length} tools`}
+                {query.trim() ? `${filtered.length} result${filtered.length !== 1 ? "s" : ""}` : `${NAV_TOOLS.length} tools`}
               </span>
             </div>
           </div>

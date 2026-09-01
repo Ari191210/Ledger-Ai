@@ -1,0 +1,25 @@
+{
+  "//": "M18. Separate outDir per suite — see tests/tsconfig.registry.json for why. `lib/correction.ts` is I/O-free (types only besides its own logic); `lib/restatement.ts` adds only `lib/score-engine.ts`'s exported types, and `lib/score-engine.ts` itself is a pure computation module (no Supabase client, no clock except injected args). That is what makes O.3's outcome classification and O.4/V.6.9's restatement decision provable with no live database in reach (U.3, the determinism boundary). The I/O modules (`lib/correction-server.ts`, `lib/score-recompute-server.ts`, `lib/evidence-deletion.ts`, `lib/account-deletion.ts`, `lib/data-export.ts`) are deliberately NOT compiled here — they import `lib/supabase-server.ts`, which requires a live project, and are exercised instead by tsc/build (already green) and by structural assertions over their source text.",
+  "compilerOptions": {
+    "outDir": "../.test-build-data-ownership",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/correction.ts",
+    "../lib/restatement.ts",
+    "../lib/score-engine.ts",
+    "../lib/score-inputs.ts",
+    "../lib/score-continuity.ts",
+    "../lib/score-recovery.ts",
+    "../lib/coverage-state.ts"
+  ]
+}

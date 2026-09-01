@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getStripe().billingPortal.sessions.create({
       customer: mapping.customer_id,
-      return_url: `${base}/dashboard`,
+      return_url: `${base}/home`,
     });
     return NextResponse.json({ url: session.url });
   } catch (e) {

@@ -22,7 +22,7 @@ type Stats = {
 type UserProfile = {
   id: string; email: string; createdAt: string; lastSignIn: string | null;
   confirmed: boolean; grade: string | null; board: string | null; stream: string | null;
-  onboarded: boolean | null; parentCode: string | null; focusStreak: number | null;
+  onboarded: boolean | null; activeParentConnections: number | null; focusStreak: number | null;
   weakTopics: string[] | null; totalAiCalls: number;
   topTools: { tool: string; count: number }[];
   recentQueries: { tool: string; input_text: string | null; created_at: string }[];
@@ -46,7 +46,11 @@ const TOOL_LABELS: Record<string, string> = {
   "exam-strategy": "Exam Strategy", "concept-connect": "Concept Connect",
   "model-answer": "Model Answer Factory", compare: "Comparison Chart", source: "Text Analyst",
   practice: "Practice Suite", citation: "Citation Generator",
-  cremator: "Syllabus Cremator", "formula-recall": "Formula Recall",
+  // M13-4 — `PRODUCT_PRINCIPLES` §4.1. The KEY is the AI capability's wire
+  // name and is unchanged (renaming it would orphan every `ai_history` row
+  // already written under it); the LABEL is what a reader sees, and it no
+  // longer says the banned word.
+  cremator: "Syllabus Ranking", "formula-recall": "Formula Recall",
   "exam-debrief": "Exam Debrief", "circuit-breaker": "Circuit Breaker",
   "half-life": "Topic Half-Life", "gpa-sim": "GPA Simulator",
 };
@@ -224,7 +228,7 @@ function UserCard({ user }: { user: UserProfile }) {
             { l: "Last AI call",  v: user.lastAiCall  ? timeAgo(user.lastAiCall) : "Never" },
             { l: "First AI call", v: user.firstAiCall ? fmtDate(user.firstAiCall) : "Never" },
             { l: "Onboarded",     v: user.onboarded ? "Yes" : "No" },
-            { l: "Parent code",   v: user.parentCode ?? "None" },
+            { l: "Parent connections", v: String(user.activeParentConnections ?? 0) },
           ].map(({ l, v }) => (
             <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: "1px solid #0d0d0d" }}>
               <span style={{ fontFamily: "var(--mono)", fontSize: 7, color: "#555", letterSpacing: "0.06em" }}>{l}</span>

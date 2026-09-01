@@ -28,6 +28,9 @@ export default function Tracker() {
     }).catch(() => {});
 
     if (toolSlug) {
+      // M2-3 — analytics lookup, not a navigation surface: it reads the whole
+      // register, not `NAV_TOOLS`. A non-core tool reached by direct URL
+      // (PRODUCT_DECISIONS §2.3) must still be attributed to its real category.
       const entry = TOOLS_REGISTRY.find((t) => t.slug === toolSlug);
       track.toolOpen(toolSlug, entry?.cat ?? "UNKNOWN");
     }

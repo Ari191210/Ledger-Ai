@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { callAIOrThrow } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import MistakePillarNotice from "@/components/mistake-pillar-notice";
 
 // recharts is ~60 KB gz — load the radar chart after hydration so it stays
 // out of the page's first-load bundle. Placeholder matches the chart's box
@@ -58,7 +59,10 @@ function Bar({ value, max, color = "var(--ink)" }: { value: number; max: number;
 const PILLARS = [
   { key: "pqaScore",         label: "PYQ Accuracy",       max: 400, weight: "40%", desc: "Correct answers across Past Paper sessions"     },
   { key: "syllabusScore",    label: "Syllabus Coverage",  max: 250, weight: "25%", desc: "Subjects & chapters covered via Notes and Tutor" },
-  { key: "mistakeScore",     label: "Mistake Velocity",   max: 200, weight: "20%", desc: "Fewer recent errors = higher score"              },
+  // Recording a mistake never costs score (PRODUCT_DECISIONS §4.11) — the old
+  // "fewer recent errors = higher score" description survived the inversion and
+  // was false. The pillar is also not active yet; see MistakePillarNotice.
+  { key: "mistakeScore",     label: "Mistake Velocity",   max: 200, weight: "20%", desc: "Not active yet"                                  },
   { key: "consistencyScore", label: "Consistency",        max: 150, weight: "15%", desc: "Daily Focus streak and study frequency"          },
 ] as const;
 
@@ -278,10 +282,24 @@ function ScoreTab() {
   const [score, setScore] = useState<ScoreBreakdown | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // A failed computation renders as UNAVAILABLE, never as a number. The old
+  // catch branch invented `total: 100` and showed it as a real score — a
+  // fabricated figure indistinguishable from a measured one (Law 7).
+  const [failed, setFailed] = useState(false);
+
   useEffect(() => {
-    try { setScore(computeLedgerScore()); } catch { setScore({ total: 100, pqaScore: 0, syllabusScore: 0, mistakeScore: 100, consistencyScore: 0, pqaAccuracy: 0, papersCount: 0, syllabusUploaded: false, subjectsCovered: 0, subjectsTotal: 0, recentMistakes: 0, streak: 0, actions: ["Do your first Past Papers session — PYQ accuracy is 40% of your score", "Upload your syllabus — this alone unlocks up to 250 score points", "Start a Focus session today to open your streak"], subjectAccuracy: [] }); }
+    try { setScore(computeLedgerScore()); } catch { setFailed(true); }
     setMounted(true);
   }, []);
+
+  if (mounted && failed) return (
+    <div style={{ maxWidth: 560, paddingTop: 32 }}>
+      <div style={{ fontFamily: "var(--serif)", fontSize: 30, fontStyle: "italic", fontWeight: 500, letterSpacing: "-0.02em", marginBottom: 12 }}>Your score is unavailable.</div>
+      <div className="mono" style={{ color: "var(--ink-3)", lineHeight: 1.7 }}>
+        We could not read your record on this device, so there is no score to show. Nothing has been lost — reload the page, or open Ledger on the device you usually study on.
+      </div>
+    </div>
+  );
 
   if (!mounted || !score) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}><div className="mono" style={{ color: "var(--ink-3)" }}>Computing score…</div></div>;
 
@@ -333,6 +351,11 @@ function ScoreTab() {
                 </div>
                 <Bar value={val} max={p.max} color={pct >= 70 ? "var(--ink)" : pct >= 40 ? "var(--ink-2)" : "var(--ink-3)"} />
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}><span className="mono" style={{ color: "var(--ink-3)", fontSize: 9 }}>{p.desc}</span><span className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 9 }}>{p.weight} of total</span></div>
+                {p.key === "mistakeScore" && (
+                  <div style={{ marginTop: 10 }}>
+                    <MistakePillarNotice />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -371,7 +394,7 @@ function ScoreTab() {
           )}
           <div style={{ marginTop: 32, border: "1px solid var(--rule)", padding: "20px" }}>
             <div className="mono cin" style={{ marginBottom: 12 }}>How it&apos;s calculated</div>
-            {[["PYQ Accuracy", "400 pts", "Correct answers on past papers, weighted by sessions done"], ["Syllabus Coverage", "250 pts", "Subjects covered via Notes and Tutor vs your uploaded syllabus"], ["Mistake Velocity", "200 pts", "Inversely proportional to mistakes logged in the last 7 days"], ["Consistency", "150 pts", "Daily Focus streak — compound interest of your study habit"]].map(([label, pts, desc], i, arr) => (
+            {[["PYQ Accuracy", "400 pts", "Correct answers on past papers, weighted by sessions done"], ["Syllabus Coverage", "250 pts", "Subjects covered via Notes and Tutor vs your uploaded syllabus"], ["Mistake Velocity", "200 pts", "Not active yet — this part of the score currently reads 0 for everyone"], ["Consistency", "150 pts", "Daily Focus streak — compound interest of your study habit"]].map(([label, pts, desc], i, arr) => (
               <div key={i} style={{ display: "flex", gap: 14, padding: "10px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "none" }}><span className="mono" style={{ color: "var(--cinnabar-ink)", flexShrink: 0, width: 28 }}>{pts}</span><div><div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 600 }}>{label}</div><div style={{ fontFamily: "var(--sans)", fontSize: 11, color: "var(--ink-2)", marginTop: 2, lineHeight: 1.4 }}>{desc}</div></div></div>
             ))}
           </div>

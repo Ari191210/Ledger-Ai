@@ -4,7 +4,12 @@ import { usePathname } from "next/navigation";
 import { useUI } from "./ui-context";
 import { TOOLS_REGISTRY } from "@/lib/tools-registry";
 
-// Slug → display name, derived from the registry so it can't drift
+// Slug → display name, derived from the registry so it can't drift.
+//
+// M2-3 — this is a LOOKUP, not a navigation surface, so it reads the whole
+// register and NOT `NAV_TOOLS`. Every one of the 46 routes still resolves
+// (PRODUCT_DECISIONS §2.3); a non-core tool opened by direct URL must still
+// show its real name in the split pane rather than falling back to its slug.
 const TOOL_NAMES: Record<string, string> = Object.fromEntries(
   TOOLS_REGISTRY.map(t => [t.slug, t.title])
 );

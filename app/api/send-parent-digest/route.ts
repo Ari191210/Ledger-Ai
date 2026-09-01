@@ -1,33 +1,24 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseServer } from "@/lib/supabase-server";
-import { computeScoreFromInputs, scoreInputsFromBlob } from "@/lib/ledger-score";
 import {
   buildParentEmailHtml,
   computeRiskFlags,
   digestSubject,
   type DigestMode,
+  type ParentDigestData,
 } from "@/lib/parent-digest";
+import { getCurrentSharePolicy, buildParentProjectionForDelivery } from "@/lib/parent-projection-server";
 import { isInternalCaller } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
-type Exam = { name: string; subject: string; date: string };
-type Row = {
-  exams?: Exam[];
-  marks?: { subjects: Array<{ name: string; score: number }>; target: number };
-  focus?: { streak: number; lastDate: string };
-  weakTopics?: Record<string, number>;
-  parentCode?: string;
-  parentName?: string;
-  parentEmail?: string;
-  parentDigestEnabled?: boolean;
-  blob?: Record<string, string> | null;
-};
-
-// Sends the parent weekly digest or a risk alert. Same caller contract as
-// /api/send-report: the internal job runner (CRON_SECRET) or the signed-in
-// student themselves ("send a test digest" style calls).
+// REBUILT for M17. The old version read `user_data.parentCode/parentEmail`
+// (one parent per student). A student can now have several active parent
+// connections, so this sends to every one of them whose share policy has
+// `digest_enabled` — and reads the digest content ONLY from
+// `buildParentProjectionForDelivery()`, which is scoped to the same five
+// Shared views the interactive parent report reads (architecture N.5/N.6).
 export async function POST(req: Request) {
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: "RESEND_API_KEY not set." }, { status: 500 });
@@ -50,7 +41,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     userId = body.userId;
     mode = body.mode ?? "digest";
-    if (!userId || !["digest", "inactivity", "exam-risk"].includes(mode)) throw new Error("bad input");
+    if (!userId || !["digest", "exam-risk"].includes(mode)) throw new Error("bad input");
   } catch {
     return NextResponse.json({ error: "Expected { userId, mode? }." }, { status: 400 });
   }
@@ -58,53 +49,51 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Cannot send a digest for another account." }, { status: 403 });
   }
 
-  const { data, error } = await supabaseServer
-    .from("user_data")
-    .select("exams, marks, focus, weakTopics, parentCode, parentName, parentEmail, parentDigestEnabled, blob")
-    .eq("id", userId)
-    .single();
-  if (error || !data) return NextResponse.json({ error: "User data not found." }, { status: 404 });
-
-  const row = data as Row;
-  if (!row.parentDigestEnabled || !row.parentEmail || !row.parentCode) {
+  const policy = await getCurrentSharePolicy(userId);
+  if (!policy || !policy.digest_enabled) {
     return NextResponse.json({ error: "Parent digest is not enabled for this account." }, { status: 403 });
   }
 
-  const breakdown = computeScoreFromInputs(scoreInputsFromBlob(row.blob ?? null));
-  const streak = row.focus?.streak ?? breakdown.streak;
-  const lastStudied = row.focus?.lastDate ?? null;
-  const exams = row.exams ?? [];
+  const { data: connections } = await supabaseServer
+    .from("parent_connections")
+    .select("connection_id, parent_id")
+    .eq("student_id", userId)
+    .eq("state", "active");
 
-  const digest = {
-    studentName: row.parentName || "Your student",
-    parentCode: row.parentCode,
-    breakdown,
-    streak,
-    lastStudied,
-    exams,
-    marks: row.marks?.subjects?.map(s => ({ name: s.name, score: s.score, target: row.marks!.target })) ?? [],
-    weakTopics: Object.entries(row.weakTopics ?? {})
-      .sort(([, a], [, b]) => b - a)
-      .map(([topic, count]) => ({ topic, count })),
-  };
-  const flags = computeRiskFlags({ breakdown, streak, lastStudied, exams });
+  if (!connections?.length) {
+    return NextResponse.json({ ok: true, skipped: "no active parent connection" });
+  }
 
-  // An alert send with nothing to alert about is a no-op, not an email —
-  // the cron decides eligibility, but this is the final guard.
-  if (mode === "inactivity" && flags.inactiveDays === undefined) {
-    return NextResponse.json({ ok: true, skipped: "no inactivity risk" });
-  }
-  if (mode === "exam-risk" && !flags.examSoon) {
-    return NextResponse.json({ ok: true, skipped: "no exam risk" });
-  }
+  const { data: studentAuth } = await supabaseServer.auth.admin.getUserById(userId);
+  const studentName = studentAuth?.user?.user_metadata?.full_name || studentAuth?.user?.email?.split("@")[0] || "Your student";
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const { error: sendError } = await resend.emails.send({
-    from: "Ledger <reports@studyledger.in>",
-    to: row.parentEmail,
-    subject: digestSubject(mode, digest, flags),
-    html: buildParentEmailHtml(mode, digest, flags),
-  });
-  if (sendError) return NextResponse.json({ error: sendError.message }, { status: 500 });
-  return NextResponse.json({ ok: true });
+  let sent = 0;
+  const errors: string[] = [];
+
+  for (const conn of connections) {
+    const projection = await buildParentProjectionForDelivery(userId, conn.parent_id, conn.connection_id, policy);
+    const digest: ParentDigestData = { studentName, projection };
+    const flags = computeRiskFlags(digest);
+
+    if (mode === "exam-risk" && !flags.examSoon) continue; // no-op, not an email, per connection
+
+    const { data: parentAuth } = await supabaseServer.auth.admin.getUserById(conn.parent_id);
+    const parentEmail = parentAuth?.user?.email;
+    if (!parentEmail) continue;
+
+    const { error: sendError } = await resend.emails.send({
+      from: "Ledger <reports@studyledger.in>",
+      to: parentEmail,
+      subject: digestSubject(mode, digest, flags),
+      html: buildParentEmailHtml(mode, digest, flags),
+    });
+    if (sendError) errors.push(sendError.message);
+    else sent++;
+  }
+
+  if (sent === 0 && errors.length > 0) {
+    return NextResponse.json({ error: errors.join("; ") }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true, sent });
 }

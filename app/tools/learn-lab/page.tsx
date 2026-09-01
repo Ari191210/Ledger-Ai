@@ -10,6 +10,8 @@ import { useUserLevel } from "@/hooks/use-user-level";
 import { callAIOrThrow, AIError } from "@/lib/ai-fetch";
 import { AIOutput } from "@/components/ai-output";
 import { AIThinking } from "@/components/ai-thinking";
+import { Branch, useMindMap, MINDMAP_DETAIL_LEVELS } from "@/components/tools/mind-map";
+import { ConnectionBody, type Connection } from "@/components/tools/concept-connect";
 import { AIErrorDisplay } from "@/components/ai-error";
 import SaveOutputButton from "@/components/save-output-button";
 import ScoreImpactStrip from "@/components/score-impact-strip";
@@ -58,7 +60,13 @@ function saveToHistory(input: string, output: NotesOutput, subject?: string) {
   try {
     const existing: HistoryEntry[] = JSON.parse(localStorage.getItem("ledger-notes-history") || "[]");
     const entry: HistoryEntry = { id: Date.now(), title: input.trim().slice(0, 60), date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" }), input, output, subject };
-    localStorage.setItem("ledger-notes-history", JSON.stringify([entry, ...existing].slice(0, 10)));
+    // M2-4 — the `.slice(0, 10)` that used to sit here capped the stored
+    // history at ten entries, and `ledger-notes-history` IS the Ledger Score's
+    // coverage numerator (architecture P.4, Finding A.3.e): a student with more
+    // than ten notes silently stopped accruing subject coverage. The numerator
+    // is now uncapped. History is written behind try/catch, so an eventual
+    // storage-quota failure degrades to "this note did not save", not a crash.
+    localStorage.setItem("ledger-notes-history", JSON.stringify([entry, ...existing]));
   } catch {}
 }
 
@@ -72,12 +80,13 @@ function detectSubject(input: string, syllabusSubjects: string[]): string | unde
   );
 }
 
-// ─── Mind Map types ──────────────────────────────────────────────────────────
-type MapNode = { label: string; children?: MapNode[] };
-type MapData = { center: string; branches: MapNode[] };
+// ─── Mind Map ───────────────────────────────────────────────────────────────
+// M2-5 — the node type, the recursive `Branch` renderer and the generate cycle
+// were duplicated byte-for-byte in `app/tools/reference-builder/page.tsx`. They
+// now have one definition in `components/tools/mind-map.tsx`. This host keeps
+// its own layout, which differs from reference-builder's and is unchanged.
 
 // ─── Concept Connect types ───────────────────────────────────────────────────
-type Connection = { conceptA: string; conceptB: string; links: { type: string; description: string; example: string }[]; deepInsight: string; crossSubjectValue: string; examAngles: string[]; examTip: string };
 
 // ─── Study Engine sub-components ─────────────────────────────────────────────
 function FlashcardView({ cards }: { cards: Flashcard[] }) {
@@ -174,27 +183,6 @@ function PracticeView({ items, subject }: { items: NotesPracticeQ[]; subject?: s
         );
       })}
       {done && <div style={{ padding: "16px 18px", border: "none", background: "var(--paper-2)", marginTop: 4 }}><div className="mono cin">Practice Score</div><div style={{ fontFamily: "var(--serif)", fontSize: 40, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>{score}/{items.length}</div><div className="mono" style={{ color: "var(--ink-3)", marginTop: 4 }}>{score === items.length ? "Perfect — you've got this topic." : score >= items.length / 2 ? "Good start — review the concept once more." : "Revisit the concept section above."}</div></div>}
-    </div>
-  );
-}
-
-// ─── Mind Map sub-component ──────────────────────────────────────────────────
-function Branch({ node, depth = 0 }: { node: MapNode; depth?: number }) {
-  const [open, setOpen] = useState(true);
-  const colors = ["var(--cinnabar-ink)", "var(--ink-2)", "var(--sage)", "var(--gold)", "var(--ink-2)"];
-  const color  = colors[depth % colors.length];
-  return (
-    <div style={{ marginLeft: depth === 0 ? 0 : 20 }}>
-      <div onClick={() => node.children?.length && setOpen(o => !o)}
-        style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: `${depth === 0 ? 10 : 6}px ${depth === 0 ? 16 : 12}px`, border: `1px solid ${color}`, marginBottom: 6, cursor: node.children?.length ? "pointer" : "default", background: depth === 0 ? color : "transparent", color: depth === 0 ? "var(--paper)" : color }}>
-        {node.children?.length ? <span style={{ fontFamily: "var(--mono)", fontSize: 9 }}>{open ? "▾" : "▸"}</span> : null}
-        <span style={{ fontFamily: depth === 0 ? "var(--serif)" : "var(--sans)", fontSize: depth === 0 ? 15 : 13, fontWeight: depth === 0 ? 700 : 400, fontStyle: depth === 0 ? "italic" : "normal" }}>{node.label}</span>
-      </div>
-      {open && node.children?.map((c, i) => (
-        <div key={i} style={{ paddingLeft: 16, borderLeft: `1px solid ${color}20`, marginLeft: depth === 0 ? 8 : 0 }}>
-          <Branch node={c} depth={depth + 1} />
-        </div>
-      ))}
     </div>
   );
 }
@@ -903,21 +891,7 @@ function NotesTab() {
 
 // ─── Mind Map tab ─────────────────────────────────────────────────────────────
 function MindMapTab() {
-  const [topic, setTopic] = useState("");
-  const [detail, setDetail] = useState("medium");
-  const [map, setMap] = useState<MapData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function generate() {
-    if (!topic.trim()) return;
-    setLoading(true); setError(""); setMap(null);
-    try {
-      const data = await callAIOrThrow<MapData>({ tool: "mindmap", topic, detail });
-      setMap(data);
-    } catch { setError("Network error."); }
-    finally { setLoading(false); }
-  }
+  const { topic, setTopic, detail, setDetail, map, setMap, loading, error, generate } = useMindMap();
 
   if (!map) return (
     <div style={{ maxWidth: 820, margin: "0 auto" }}>
@@ -927,7 +901,7 @@ function MindMapTab() {
         <input value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === "Enter" && generate()} placeholder="e.g. Photosynthesis, French Revolution, Machine Learning, Supply and Demand…"
           style={{ fontFamily: "var(--sans)", fontSize: 14, border: "none", background: "var(--paper)", padding: "12px 14px", color: "var(--ink)" }} />
         <div style={{ display: "flex", gap: 6 }}>
-          {[["brief","Overview"],["medium","Standard"],["deep","Deep dive"]].map(([v,l]) => (
+          {MINDMAP_DETAIL_LEVELS.map(([v, l]) => (
             <button key={v} onClick={() => setDetail(v)} style={{ fontFamily: "var(--mono)", fontSize: 10, padding: "5px 10px", border: `1px solid ${detail === v ? "var(--ink)" : "var(--rule)"}`, background: detail === v ? "var(--ink)" : "var(--paper)", color: detail === v ? "var(--paper)" : "var(--ink)", cursor: "pointer" }}>{l}</button>
           ))}
         </div>
@@ -990,36 +964,7 @@ function ConceptConnectTab() {
         <div className="mono" style={{ color: "var(--ink-3)" }}>{result.conceptA} ↔ {result.conceptB}</div>
         <button className="btn ghost" onClick={() => setResult(null)}>New connection</button>
       </div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 24, alignItems: "center" }}>
-        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}><div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptA}</div></div>
-        <div className="mono" style={{ color: "var(--cinnabar-ink)", fontSize: 20, flexShrink: 0 }}>↔</div>
-        <div style={{ flex: 1, border: "none", padding: "14px 18px", textAlign: "center" }}><div style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 600 }}>{result.conceptB}</div></div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-        {result.links.map((l, i) => (
-          <div key={i} style={{ border: "1px solid var(--rule)", padding: "14px 16px" }}>
-            <div className="mono" style={{ fontSize: 9, color: "var(--cinnabar-ink)", marginBottom: 6 }}>{l.type}</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6, marginBottom: 6 }}>{l.description}</div>
-            <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", fontStyle: "italic" }}>e.g. {l.example}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ border: "none", padding: "16px 20px", marginBottom: 12 }}>
-        <div className="mono cin" style={{ marginBottom: 8 }}>Deep Insight</div>
-        <AIOutput text={result.deepInsight} variant="principle" />
-      </div>
-      <div style={{ border: "1px solid var(--sage)", padding: "14px 16px", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--sage)", marginBottom: 8 }}>CROSS-SUBJECT VALUE</div>
-        <AIOutput text={result.crossSubjectValue} />
-      </div>
-      <div style={{ border: "1px solid var(--rule)", padding: "14px 16px", marginBottom: 12 }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginBottom: 8 }}>EXAM ANGLES THIS UNLOCKS</div>
-        {result.examAngles.map((a, i) => <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 13, marginBottom: 5 }}>· {a}</div>)}
-      </div>
-      <div style={{ border: "1px solid var(--ink-2)", padding: "14px 16px", background: "color-mix(in oklch, var(--ink-2) 4%, transparent)" }}>
-        <div className="mono" style={{ fontSize: 9, color: "var(--ink-2)", marginBottom: 6 }}>EXAM TIP</div>
-        <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 1.6 }}>{result.examTip}</div>
-      </div>
+      <ConnectionBody result={result} />
     </div>
   );
 

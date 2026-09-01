@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         ? { customer: existing.customer_id }
         : { customer_email: user.email ?? undefined }),
       client_reference_id: user.id,
-      success_url: `${base}/dashboard?upgraded=1`,
+      success_url: `${base}/home?upgraded=1`,
       cancel_url: `${base}/pricing`,
       allow_promotion_codes: true,
     });

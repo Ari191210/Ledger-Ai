@@ -506,7 +506,11 @@ export default function PaperAutopsyPage() {
           ← Dashboard
         </Link>
         <span style={{ color: "var(--rule)" }}>|</span>
-        <span style={toolNameStyle}>Paper Autopsy</span>
+        {/* M13-4 — `PRODUCT_PRINCIPLES` §4.1. Rendered copy only; the route
+            path, the type name and the `paper_autopsy` capability key are
+            unchanged, so M13-2's 301 and this page's stored history still
+            resolve. */}
+        <span style={toolNameStyle}>Paper Breakdown</span>
         <div style={{ marginLeft: "auto", display: "flex", gap: "8px" }}>
           <button
             style={ghostBtnStyle}
@@ -738,7 +742,7 @@ export default function PaperAutopsyPage() {
                       onClick={handleAnalyse}
                       disabled={loading}
                     >
-                      {loading ? "Analysing…" : "Run Autopsy →"}
+                      {loading ? "Analysing…" : "Run Breakdown →"}
                     </button>
                   </div>
                 </div>

@@ -1,0 +1,21 @@
+{
+  "//": "Separate outDir per suite — see tests/tsconfig.registry.json for why. `lib/concept-resolution.ts` imports nothing, exactly as `lib/auth-routes.ts` and `lib/student-profile.ts` import nothing, so the M6-3 resolution order and the M6-2 merge chain are provable with no Supabase project in reach. The taxonomy modules compile alongside it so the same suite can resolve against the REAL seeded tree, not only fixtures.",
+  "compilerOptions": {
+    "outDir": "../.test-build-concepts",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": [
+    "../lib/concept-resolution.ts",
+    "../lib/taxonomy/build.ts",
+    "../lib/taxonomy/cbse-physics.ts"
+  ]
+}

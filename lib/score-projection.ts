@@ -107,20 +107,26 @@ export function projectFocusImpact(
 }
 
 /**
- * Projected impact of resolving `resolvedCount` of this week's mistakes —
- * i.e. what the score becomes once those recent misses age out or stop
- * recurring. Simulated by removing the most recent in-window entries.
+ * Projected impact of RESOLVING `resolvedCount` open mistakes.
+ *
+ * Resolving marks a pattern `resolved` — it never deletes the record
+ * (PRODUCT_DECISIONS §4.11). The previous implementation simulated resolution
+ * by REMOVING entries, which was correct only under the old penalty model
+ * where forgetting a mistake raised your score. Evidence is immutable and
+ * resolution is proven, not erased.
  */
 export function projectMistakeReductionImpact(
   inputs: ScoreInputs,
   resolvedCount: number,
 ): ScoreProjection {
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   return project(inputs, "mistakes", d => {
     let left = resolvedCount;
-    d.mistakes = d.mistakes.filter(m => {
-      if (left > 0 && new Date(m.date).getTime() > sevenDaysAgo) { left--; return false; }
-      return true;
+    d.mistakes = d.mistakes.map(m => {
+      if (left > 0 && m.status !== "resolved") {
+        left--;
+        return { ...m, status: "resolved" };
+      }
+      return m;
     });
   });
 }

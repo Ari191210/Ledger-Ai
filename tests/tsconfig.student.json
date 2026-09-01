@@ -1,0 +1,17 @@
+{
+  "//": "Separate outDir per suite — see tests/tsconfig.registry.json for why. lib/student-profile.ts imports nothing, so it compiles and runs standalone with no Next.js or Supabase runtime in reach; that is the point of keeping the profile PRECEDENCE RULE pure, exactly as lib/auth-routes.ts keeps the auth decision pure.",
+  "compilerOptions": {
+    "outDir": "../.test-build-student",
+    "rootDir": "../lib",
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["es2022", "dom"],
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": { "@/*": ["./*"] },
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "files": ["../lib/student-profile.ts"]
+}

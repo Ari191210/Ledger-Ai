@@ -5,85 +5,24 @@ import { callAIOrThrow, type AIError } from "@/lib/ai-fetch";
 import { AIThinking } from "@/components/ai-thinking";
 import { AIErrorDisplay } from "@/components/ai-error";
 import { useUserLevel } from "@/hooks/use-user-level";
-import ScoreImpactStrip from "@/components/score-impact-strip";
-import { currentInputs, projectMistakeReductionImpact, type ScoreProjection } from "@/lib/score-projection";
+import MistakePillarNotice from "@/components/mistake-pillar-notice";
 import ExamDayDiagnostic from "@/components/exam-day-diagnostic";
-import type { DiagnosticInputs, TemporaryLedgerScore } from "@/lib/ledger-score";
+import type { ColdStartDiagnostic, DiagnosticInputs } from "@/lib/ledger-score";
+// M3-2 — the exam-day *state* (proximity, the gap list, the subject fallback)
+// now lives in `lib/exam-day.ts` so `/home` can express it in-page instead of
+// requiring a student to navigate here. This route is unchanged in behaviour
+// and still resolves in full: the logic was extracted, not moved away.
+import {
+  WINDOW_DAYS,
+  getTodayExam,
+  getGaps,
+  mostMissedSubject,
+  type Gap,
+} from "@/lib/exam-day";
 
 type Question = { q: string; options: string[]; answer: number; explanation: string };
 type ExamData = { title: string; timeMinutes: number; questions: Question[] };
 type Phase = "brief" | "diagnostic" | "sweep" | "done";
-
-type Mistake = { date: string; subject: string; topic: string; category: string };
-type Gap = { topic: string; count: number; topCategory: string | null };
-
-const WINDOW_DAYS = 14;
-
-function getTodayExam(): { name: string; days: number } | null {
-  try {
-    const plan = JSON.parse(localStorage.getItem("ledger-plan-v1") || "{}");
-    if (!plan.subjects?.length) return null;
-    const today = new Date();
-    const upcoming = (plan.subjects as Array<{ name: string; exam: string }>)
-      .map(s => ({ name: s.name, days: Math.ceil((new Date(s.exam).getTime() - today.getTime()) / 86400000) }))
-      .filter(s => s.days >= 0 && !Number.isNaN(s.days))
-      .sort((a, b) => a.days - b.days);
-    return upcoming[0] ?? null;
-  } catch { return null; }
-}
-
-// Gaps = what you got wrong in the last 14 days, grouped by topic.
-// Prefers mistakes matching the day's subject; falls back to all recent,
-// then to the all-time weak-topics ledger.
-function getGaps(subjectHint?: string): { gaps: Gap[]; misses: number; source: "recent" | "all-time" } {
-  try {
-    const all: Mistake[] = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
-    const cutoff = Date.now() - WINDOW_DAYS * 86400000;
-    const recent = all.filter(m => new Date(m.date).getTime() >= cutoff);
-    let pool = recent;
-    if (subjectHint) {
-      const hint = subjectHint.toLowerCase();
-      const matched = recent.filter(m => { const subj = (m.subject || "").toLowerCase(); return subj !== "" && (subj.includes(hint) || hint.includes(subj)); });
-      if (matched.length > 0) pool = matched;
-    }
-    if (pool.length > 0) {
-      const byTopic: Record<string, { count: number; cats: Record<string, number> }> = {};
-      pool.forEach(m => {
-        const t = m.topic || m.subject || "General";
-        byTopic[t] = byTopic[t] || { count: 0, cats: {} };
-        byTopic[t].count += 1;
-        if (m.category) byTopic[t].cats[m.category] = (byTopic[t].cats[m.category] || 0) + 1;
-      });
-      const gaps = Object.entries(byTopic)
-        .sort(([, a], [, b]) => b.count - a.count)
-        .slice(0, 6)
-        .map(([topic, v]) => ({
-          topic,
-          count: v.count,
-          topCategory: Object.entries(v.cats).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null,
-        }));
-      return { gaps, misses: pool.length, source: "recent" };
-    }
-    const wt: Record<string, number> = JSON.parse(localStorage.getItem("ledger-weak-topics") || "{}");
-    const gaps = Object.entries(wt)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 6)
-      .map(([topic, count]) => ({ topic, count, topCategory: null }));
-    return { gaps, misses: gaps.reduce((a, g) => a + g.count, 0), source: "all-time" };
-  } catch { return { gaps: [], misses: 0, source: "recent" }; }
-}
-
-function mostMissedSubject(): string | null {
-  try {
-    const all: Mistake[] = JSON.parse(localStorage.getItem("ledger-mistakes") || "[]");
-    const cutoff = Date.now() - WINDOW_DAYS * 86400000;
-    const counts: Record<string, number> = {};
-    all.filter(m => new Date(m.date).getTime() >= cutoff).forEach(m => {
-      if (m.subject) counts[m.subject] = (counts[m.subject] || 0) + 1;
-    });
-    return Object.entries(counts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null;
-  } catch { return null; }
-}
 
 export default function ExamDayPage() {
   const level = useUserLevel();
@@ -101,12 +40,12 @@ export default function ExamDayPage() {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState<AIError | string | null>(null);
 
-  const [scoreImpact, setScoreImpact] = useState<ScoreProjection | null>(null);
-
-  // Cold start: a zero-history student gets a Temporary Ledger Score from the
-  // diagnostic (kind: "temporary" — computed but never persisted, so the real
-  // score stays untouched until real evidence exists).
-  const [tempScore,   setTempScore]   = useState<TemporaryLedgerScore | null>(null);
+  // Cold start: a zero-history student gets a GAP LIST from the five-minute
+  // questionnaire — `kind: "diagnostic"`, never a score. M14-7 / J.4: a
+  // self-report is not a measurement, so this value has no total and no
+  // dimension for this page to render. What it has is the topics the student
+  // named, which is an honest thing for a self-report to produce.
+  const [selfReport,  setSelfReport]  = useState<ColdStartDiagnostic | null>(null);
   const [diagSubject, setDiagSubject] = useState<string | null>(null);
 
   useEffect(() => {
@@ -114,23 +53,19 @@ export default function ExamDayPage() {
     setExam(e);
     const g = getGaps(e?.name);
     setGaps(g.gaps); setMisses(g.misses); setSource(g.source);
-    // What clearing these gaps is worth: the sweep drills recent misses,
-    // so project the score once they stop recurring.
-    const inputs = currentInputs();
-    if (inputs) {
-      const p = projectMistakeReductionImpact(inputs, inputs.mistakes.length);
-      setScoreImpact(p.delta > 0 ? p : null);
-    }
+    // No projected score gain for sweeping these gaps. The projection assumed
+    // a mistake could reach `status: "resolved"`, and no production action
+    // produces that state, so the figure was unpayable (Law 7, J.9.a).
     setReady(true);
   }, []);
 
   const subject = diagSubject ?? exam?.name ?? mostMissedSubject() ?? "General";
 
-  function onDiagnosticComplete(diag: DiagnosticInputs, temp: TemporaryLedgerScore) {
-    setTempScore(temp);
+  function onDiagnosticComplete(diag: DiagnosticInputs, found: ColdStartDiagnostic) {
+    setSelfReport(found);
     setDiagSubject(diag.subject);
-    setGaps(temp.gapTopics.map(topic => ({ topic, count: 1, topCategory: null })));
-    setMisses(temp.gapTopics.length);
+    setGaps(found.gapTopics.map(topic => ({ topic, count: 1, topCategory: null })));
+    setMisses(found.gapTopics.length);
     setPhase("brief");
   }
   const topics  = useMemo(() => gaps.map(g => g.topic).join(", "), [gaps]);
@@ -203,7 +138,7 @@ export default function ExamDayPage() {
       <div className="mob-p" style={{ maxWidth: 620, margin: "0 auto", padding: "56px 24px 80px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 48 }}>
           <div className="mono cin">Exam-Day Mode</div>
-          <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
+          <Link href="/today" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
         </div>
 
         {!ready ? null : (
@@ -214,8 +149,8 @@ export default function ExamDayPage() {
                 : "No paper on the schedule."}
             </h1>
             <div className="mono" style={{ color: "var(--ink-3)", marginBottom: 44 }}>
-              {tempScore
-                ? "From your 5-minute diagnostic. No decisions — just these."
+              {selfReport
+                ? "From your 5-minute diagnostic — your own read of your topics. No decisions — just these."
                 : gaps.length > 0
                   ? source === "recent"
                     ? `Last ${WINDOW_DAYS} days · ${misses} miss${misses === 1 ? "" : "es"} · ${gaps.length} gap${gaps.length === 1 ? "" : "s"}. No decisions — just these.`
@@ -223,52 +158,41 @@ export default function ExamDayPage() {
                   : "Nothing logged yet."}
             </div>
 
-            {tempScore && (
+            {selfReport && (
+              /* M14-7 / J.4 — WHAT THIS PANEL USED TO BE.
+                 A 44px figure over " / 1000" under the heading "Temporary
+                 Ledger Score", with four dimension bars, built from a
+                 fabricated 20-mark paper whose accuracy WAS the student's
+                 confidence rating. The `kind: "temporary"` discriminator kept
+                 that number out of the real score's types and did nothing at
+                 all about this: a student cannot see a discriminated union,
+                 they see a score. J.4: "self-reported competence is the
+                 fluency illusion the product exists to replace."
+                 There is no number left to render — the type has none. */
               <div style={{ border: "1px solid var(--rule)", borderLeft: "3px solid var(--cinnabar-ink)", background: "var(--paper-2)", padding: "16px 20px", marginBottom: 24 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
                   <span className="mono" style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)" }}>
-                    Temporary Ledger Score
+                    Your own read of {selfReport.subject}
                   </span>
                   <span className="mono" style={{ fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--cinnabar-ink)", border: "1px solid var(--cinnabar-ink)", padding: "1px 7px" }}>
-                    Estimate — not saved
+                    Self-reported — not a score
                   </span>
                 </div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 44, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.1, margin: "6px 0 12px" }}>
-                  {tempScore.total}<span style={{ fontSize: 18, color: "var(--ink-3)" }}> / 1000</span>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 15, lineHeight: 1.6, margin: "10px 0 4px" }}>
+                  You rated {selfReport.topicsRated} topic{selfReport.topicsRated === 1 ? "" : "s"} and named{" "}
+                  {selfReport.weaknessesNamed} weak {selfReport.weaknessesNamed === 1 ? "one" : "ones"}. Those lead the sweep below.
                 </div>
-                {([
-                  ["PYQ Accuracy", tempScore.pqaScore, 400],
-                  ["Syllabus Coverage", tempScore.syllabusScore, 250],
-                  ["Mistake Velocity", tempScore.mistakeScore, 200],
-                  ["Consistency", tempScore.consistencyScore, 150],
-                ] as const).map(([name, val, max]) => (
-                  <div key={name} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                    <span className="mono" style={{ fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--ink-3)", width: 130, flexShrink: 0 }}>{name}</span>
-                    <div style={{ flex: 1, height: 5, background: "var(--paper)", border: "1px solid var(--rule)", overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${Math.round((val / max) * 100)}%`, background: "var(--cinnabar)" }} />
-                    </div>
-                    <span className="mono" style={{ fontSize: 9, color: "var(--ink-2)", width: 58, textAlign: "right", flexShrink: 0 }}>{val} / {max}</span>
-                  </div>
-                ))}
+                <div style={{ marginTop: 10 }}>
+                  <MistakePillarNotice compact />
+                </div>
                 <div className="mono" style={{ fontSize: 9, color: "var(--ink-3)", marginTop: 10, lineHeight: 1.7 }}>
-                  {tempScore.actions.map((a, i) => <div key={i}>→ {a}</div>)}
+                  {selfReport.actions.map((a, i) => <div key={i}>→ {a}</div>)}
                 </div>
               </div>
             )}
 
             {gaps.length > 0 ? (
               <>
-                {scoreImpact && (
-                  <div style={{ marginBottom: 20 }}>
-                    <ScoreImpactStrip
-                      currentScore={scoreImpact.current}
-                      projectedScore={scoreImpact.projected}
-                      scoreDelta={scoreImpact.delta}
-                      affectedPillar="mistakes"
-                      nextAction="Sweeping these gaps is how this week's misses stop costing you points."
-                    />
-                  </div>
-                )}
                 <div style={{ borderTop: "1px solid var(--ink)" }}>
                   {gaps.map((g, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, padding: "14px 2px", borderBottom: "1px solid var(--rule)" }}>
@@ -319,7 +243,7 @@ export default function ExamDayPage() {
       <div className="mob-p" style={{ maxWidth: 620, margin: "0 auto", padding: "56px 24px 80px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 48 }}>
           <div className="mono cin">Exam-Day Mode</div>
-          <Link href="/dashboard" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
+          <Link href="/today" className="mono" style={{ color: "var(--ink-3)", textDecoration: "none" }}>← exit</Link>
         </div>
         <ExamDayDiagnostic onComplete={onDiagnosticComplete} onCancel={() => setPhase("brief")} />
       </div>
@@ -414,7 +338,7 @@ export default function ExamDayPage() {
           </div>
         )}
 
-        <Link href="/dashboard" className="btn" style={{ display: "inline-block" }}>Close the laptop →</Link>
+        <Link href="/today" className="btn" style={{ display: "inline-block" }}>Close the laptop →</Link>
       </div>
     </div>
   );
