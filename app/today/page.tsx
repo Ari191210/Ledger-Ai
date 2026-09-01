@@ -120,11 +120,18 @@ export default function TodayPage() {
             Today
           </Text>
 
-          {!user && !loading && (
-            <Text as="p" tone="secondary">
-              Sign in to see today.
-            </Text>
-          )}
+          {/* No signed-out branch here on purpose.
+
+              This used to render "Sign in to see today." as a bare sentence
+              with no control, which was a dead end: a student who arrived
+              without a session was told what was wrong and given no way to
+              fix it. That is what /today looked like before it had a layout.
+
+              `AuthGuard` in `app/today/layout.tsx` now owns this case. It
+              redirects to /auth and returns null while doing so, so a
+              signed-out student never reaches this component at all and the
+              old branch was unreachable. Two places deciding what a
+              signed-out student sees is one too many. */}
 
           {error && (
             <Text as="p" tone="error">
