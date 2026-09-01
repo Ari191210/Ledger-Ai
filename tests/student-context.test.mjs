@@ -397,7 +397,7 @@ describe('app/onboard/page.tsx — PRODUCT_DECISIONS §2.6', () => {
   });
 
   test('finishing goes to the walkthrough, never a done screen', () => {
-    assert.match(src, /router\.replace\("\/today\?first=1"\)/);
+    assert.match(src, /router\.replace\("\/dashboard\?first=1"\)/);
     assert.equal(/Your Ledger is ready|Open my dashboard/.test(src), false);
   });
 

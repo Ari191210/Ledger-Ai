@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import {
   Control,
@@ -16,7 +15,6 @@ import {
 } from "@/components/console/primitives";
 import type { TodayEmptyReason, TodayItem } from "@/lib/today/types";
 import LightsToggle from "@/components/lights-toggle";
-import Walkthrough from "@/components/walkthrough";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // /today — M21. Architecture Part L, B.12. "A continuously regenerated,
@@ -78,12 +76,6 @@ export default function TodayPage() {
   const [data, setData] = useState<TodayResponse | null>(null);
   const [error, setError] = useState("");
 
-  // FIRST RUN. Onboarding finishes with `router.replace("/today?first=1")`, and
-  // this is the flag that shows the walkthrough exactly once. It moved here
-  // from /capture when that route was retired: the redirect had already been
-  // repointed, so without these two lines the walkthrough would have silently
-  // stopped existing for every new student.
-  const firstRun = useSearchParams()?.get("first") === "1";
 
   useEffect(() => {
     if (loading || !user || !session) return;
@@ -158,7 +150,6 @@ export default function TodayPage() {
           )}
         </Stack>
       </Measure>
-      <Walkthrough active={firstRun} />
     </main>
   );
 }

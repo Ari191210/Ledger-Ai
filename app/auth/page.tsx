@@ -153,9 +153,9 @@ export default function AuthPage() {
       const ud = await loadUserData(userId);
       const declared =
         Boolean(ud?.board) && Array.isArray(ud?.interests) && ud.interests.length > 0;
-      if (ud?.onboardingDone === true || declared) return "/today";
+      if (ud?.onboardingDone === true || declared) return "/dashboard";
     } catch {
-      /* fall through — `/onboard` bounces an already-declared student to /today */
+      /* fall through — `/onboard` bounces an already-declared student to /dashboard */
     }
     return "/onboard";
   }
@@ -176,7 +176,7 @@ export default function AuthPage() {
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      router.push(data.user ? await landingRouteFor(data.user.id) : "/today");
+      router.push(data.user ? await landingRouteFor(data.user.id) : "/dashboard");
     }
     setLoading(false);
   }

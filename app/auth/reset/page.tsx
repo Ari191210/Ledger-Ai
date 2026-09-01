@@ -29,7 +29,7 @@ export default function ResetPasswordPage() {
 
     if (error) { setError(error.message); return; }
     setDone(true);
-    setTimeout(() => router.replace("/today"), 2000);
+    setTimeout(() => router.replace("/dashboard"), 2000);
   }
 
   const inp = (value: string, onChange: (v: string) => void, placeholder: string) => (

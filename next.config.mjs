@@ -48,8 +48,12 @@ const nextConfig = {
     // keep resolving — §2.5, unlinked, not deleted. `/console/analytics` is now
     // merged by M13-3's block below, which is what "later milestones deliver"
     // meant; the other four still resolve.
-    { source: "/dashboard",      destination: "/today",                          permanent: true },
-    { source: "/console",        destination: "/today",                          permanent: true },
+    // `/dashboard` is NO LONGER redirected: it is a real surface again as of
+    // PRODUCT_DECISIONS 7.10. The 301 that used to send it to /today (and
+    // before that to /capture, and before that to /home) is deleted rather
+    // than repointed, because an edge redirect wins over a page and would
+    // make the new dashboard unreachable.
+    { source: "/console",        destination: "/dashboard",                          permanent: true },
     { source: "/tools/dna",      destination: "/tools/post-exam?tab=dna",        permanent: true },
     { source: "/tools/cremator", destination: "/tools/exam-triage?tab=cremator", permanent: true },
     // doubt and notes are Learn Lab tabs. These two were never redirected, so

@@ -1040,6 +1040,60 @@ Rebuilding it against the surviving modules is unclaimed work.
 ---
 
 
+## 7.10 `/dashboard` rebuilt as the landing surface (2026-09-01)
+
+**Founder instruction:** *"after onboarding it should redirect to the
+dashboard"*, and *"i want today to be a button on the dashboard and not just
+open aise hi."*
+
+**What this settles.** The post-onboarding landing has moved three times
+without ever being decided: §7.6 pointed it at `/capture` when `/home` was
+deleted, §7.9 pointed it at `/today` when `/capture` was deleted, and both
+entries said explicitly that this was plumbing rather than a choice. This is
+the choice.
+
+**`/dashboard` answers again.** It had been a 301 stub since M3-3 and was
+shadowed twice over: by `app/dashboard/page.tsx`'s `permanentRedirect` and by
+an edge redirect in `next.config.mjs`, which wins over any page. Both are
+removed. `/console` now 301s to `/dashboard` rather than to `/today`, since
+it was always the second shell for this same surface.
+
+**Today is a card, not a room.** The founder's objection was to being dropped
+into Today without choosing it. The dashboard carries a TODAY panel showing
+how many items are open, with one control that opens it. A student decides to
+go there, and decides knowing whether anything is waiting.
+
+**The zero state is the designed state.** A student who has just answered ten
+questions has no papers, no sessions and no mistakes. `/home` was rejected
+three times partly for looking empty, so the record strip renders at the
+`figure` step rather than `display`: at `display` the four zeros were the
+loudest thing on a new student's first screen, which is the same failure in a
+different shape. A count is a quiet fact until there is something to count.
+
+**Figures are read, never invented.** The strip renders `RecordTotals` from
+`/api/record`: occurrences, papers, sessions, live patterns. Two of those are
+`number | null` at the source, where null means THAT SOURCE DID NOT ANSWER.
+Those render as "not read" rather than as 0, because printing a zero there
+would be the product asserting a fact it does not have (V.7.6, and
+`lib/record.ts`'s own rule that such columns are *"null, never 0"*).
+
+**The first-run walkthrough moved with the landing.** Onboarding now ends at
+`/dashboard?first=1` and the dashboard reads the flag. `/today` no longer
+mounts it, so the tour cannot fire twice.
+
+**`/today` is unchanged and still reachable.** It keeps its own shell, its own
+guard and its own empty states. It is simply no longer where a student arrives
+by default.
+
+**Not decided here.** What else belongs on the dashboard. The founder has
+reference images to supply, and this is the structure they will be applied to,
+not the final visual design. `components/dashboard/*` (six surviving panels
+from the retired `/home`) and `lib/home/*` (the composition engine) are still
+in the repository, unmounted, and are the obvious material for that pass.
+
+---
+
+
 ## 9.1 External study is supported, as a claim
 
 **Chosen.** A student may tell StudyLedger what they studied outside it — NCERT,
