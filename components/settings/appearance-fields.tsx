@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import {
   BASE_IDS, BASE_META, ACCENT_IDS, ACCENT_META,
   applyTheme, getActiveBase, getActiveAccent, resolveTheme,
-  type BaseId, type AccentId,
+  type BaseId, type AccentId, DEFAULT_BASE,
 } from "@/lib/palette";
 import { getDensity, applyDensity, type Density } from "@/lib/density";
 import { fetchHomeLayout, saveHomeLayout, toggleComponentVisibility, listHomeComponents } from "@/lib/dash-layout";
@@ -66,7 +66,11 @@ function SectionHead({ n, label, right }: { n: string; label: string; right?: st
 
 export function AppearanceFields() {
   const { session } = useAuth();
-  const [activeBase,   setActiveBase]   = useState<BaseId>("obsidian");
+  // A FOURTH hardcoded default. This said "obsidian", so the card shown as
+  // active on first render was the dark theme even for a student sitting in
+  // swan. DEFAULT_BASE is the shared answer, and there is no reason for this
+  // component to hold an opinion of its own.
+  const [activeBase,   setActiveBase]   = useState<BaseId>(DEFAULT_BASE);
   const [activeAccent, setActiveAccent] = useState<AccentId>("cinnabar");
   const [density, setDensity] = useState<Density>("default");
   const [layout,  setLayout]  = useState<HomeLayout>(defaultHomeLayout());

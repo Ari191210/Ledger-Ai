@@ -1135,6 +1135,49 @@ hatches, "Forgot password?" at 17px and "Create one free" at 23px, which are
 exactly the controls a student needs when they cannot get in. The type is
 unchanged. Only the hit area grew.
 
+### 7.10d Settings offered every palette except the one you were in (2026-09-01)
+
+`lib/palette.ts` predates the Console engine. It listed fifteen bases, ten of
+them dark, with `obsidian` as the default, and **no swan at all**. Settings >
+Appearance renders one card per entry from that list.
+
+This was not cosmetic. Settings writes the chosen id to
+`localStorage['theme-base']`, which is the **same key** `app/layout.tsx`'s
+pre-paint script reads. So the palette a student was actually looking at did
+not appear among the palettes offered, and `getActiveBase()` coerces any
+unrecognised value to `DEFAULT_BASE`. Opening Settings and touching nothing
+could throw a swan user into a near-black theme they never chose.
+
+There were **four** hardcoded defaults across the codebase and they did not
+agree: the pre-paint script said swan, the Console engine said swan,
+`lib/palette.ts` said obsidian, and `appearance-fields.tsx` said obsidian
+again. swan and swan-night are now the first two entries, their values taken
+from the engine's ramps, and both stragglers defer to `DEFAULT_BASE`.
+`tests/first-paint-palette.test.mjs` now checks the third copy too, so the
+three cannot drift.
+
+Obsidian survives as a choice. Removing it would silently re-theme anyone who
+deliberately picked it, which is the same fault in the other direction.
+
+### 7.10e Analytics had been blocked by our own CSP since launch (2026-09-01)
+
+PostHog appeared in `connect-src` but never in `script-src`. **connect-src
+governs where a page may send data; script-src governs what code may load.**
+Allowing the first without the second meant every PostHog script (`config.js`,
+the session recorder, surveys, web-vitals) was refused by the browser on every
+page load. Analytics looked configured and collected nothing, and nobody
+noticed because a blocked script is a console warning, not a broken page.
+
+Only `us-assets.i.posthog.com`, which serves the library, is added.
+`us.i.posthog.com` is the ingestion endpoint: it receives data and has no
+business executing script in the page, so it is deliberately left out.
+`tests/csp-posthog.test.mjs` pins that asymmetry, and that no wildcard host
+may ever execute script.
+
+This is the third defect of the same shape found this week, after the job
+runner losing `Authorization` across a redirect and swan never reaching the
+screen: **configuration that reads correctly but was never observed working.**
+
 ---
 
 

@@ -6,7 +6,11 @@ const CSP = [
   // unsafe-eval is required by Three.js/Spline WebGL shader compilation.
   // ACCEPTED RISK: unsafe-eval weakens XSS protection. Scoped to WebGL use only;
   // do not add new eval() dependencies. Remove when Spline/Three.js is eliminated.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  // us-assets.i.posthog.com serves the PostHog library itself. It was present
+  // in connect-src but absent here, so every PostHog script was blocked and
+  // analytics silently collected nothing. The ingestion host (us.i.posthog.com)
+  // is deliberately NOT added: it receives data and must never execute script.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://us-assets.i.posthog.com",
   // api.fontshare.com serves the Orsiri stylesheet; cdn.fontshare.com serves its font files
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
   "font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com",

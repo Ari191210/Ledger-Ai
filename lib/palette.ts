@@ -4,7 +4,25 @@
 // They're independent — any base can pair with any accent — so ink colours in
 // each base are deliberately neutral, not tinted toward one fixed accent.
 
+// SWAN FIRST. This module predates the Console engine and listed fifteen bases,
+// ten of them dark, with `obsidian` as the default. Meanwhile app/layout.tsx's
+// pre-paint script and lib/console/workspace.ts both default to `swan`, and the
+// product's identity is swan: light by default, with a dark toggle.
+//
+// The consequence was not cosmetic. Settings > Appearance renders one card per
+// BASE_IDS entry and writes the chosen id to localStorage['theme-base'], which
+// is the SAME key the pre-paint script reads. So the palette a student was
+// actually looking at could not be found in the list of palettes offered, and
+// getActiveBase() coerces any unrecognised value to DEFAULT_BASE: opening
+// Settings and touching nothing could throw a swan user into a near-black
+// theme they never chose.
+//
+// swan and swan-night lead because they are the default and its night
+// counterpart. Their values are the paper/paper-2/ink/ink-2/ink-3 positions of
+// the ramps in lib/console/workspace.ts, which is the single source of truth
+// for what swan looks like.
 export const BASE_IDS = [
+  "swan", "swan-night",
   "obsidian", "void", "graphite", "ink-navy", "deep-forest",
   "espresso", "wine", "violet-night", "slate-storm", "charcoal-warm",
   "paper", "linen", "fog", "porcelain", "bone",
@@ -23,6 +41,8 @@ export interface BaseDef {
 }
 
 export const BASE_META: Record<BaseId, BaseDef> = {
+  swan:          { name: "Swan",         description: "Warm off-white, near-black ink",        paper: "#fbfaf8", paper2: "#f1efeb", ink: "#17150f", ink2: "#6a645d", ink3: "#b0aaa2", isLight: true },
+  "swan-night":  { name: "Swan at Night", description: "The same warmth, unlit",               paper: "#14130f", paper2: "#0e0d0b", ink: "#f5f3ef", ink2: "#a8a29a", ink3: "#625d55" },
   obsidian:      { name: "Obsidian",     description: "Neutral near-black, warm undertone",   paper: "#0a0a0d", paper2: "#101014", ink: "#f2f1ed", ink2: "#a6a49e", ink3: "#68665f" },
   void:          { name: "Void",         description: "True AMOLED black",                    paper: "#000000", paper2: "#0a0a0a", ink: "#f0f0f0", ink2: "#999999", ink3: "#5c5c5c" },
   graphite:      { name: "Graphite",     description: "Cool dark gray, understated",           paper: "#0d0e11", paper2: "#15171b", ink: "#edeef0", ink2: "#9ba0a8", ink3: "#61666e" },
@@ -71,7 +91,9 @@ export const ACCENT_META: Record<AccentId, AccentDef> = {
   bronze:   { name: "Bronze",   accent: "#b45309", accentMid: "#92400e" },
 }
 
-export const DEFAULT_BASE: BaseId = "obsidian"
+// Was "obsidian", which disagreed with both app/layout.tsx's pre-paint script
+// and lib/console/workspace.ts's LIGHT_MATERIAL. Three defaults, two answers.
+export const DEFAULT_BASE: BaseId = "swan"
 export const DEFAULT_ACCENT: AccentId = "cinnabar"
 
 function hexToRgb(hex: string): [number, number, number] {
