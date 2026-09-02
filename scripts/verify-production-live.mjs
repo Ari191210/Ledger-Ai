@@ -35,7 +35,9 @@ let bad = 0;
 console.log("the tables each surface reads:");
 const SURFACE_NEEDS = {
   "/onboard writes":  ["students", "student_profiles", "personal_model"],
-  "/capture":         ["ingestion_runs", "evidence", "occurrences"],
+  // /capture was retired in §7.9; its tables are now reached from /today and
+  // /dashboard, which is where the same work happens.
+  "/dashboard":       ["ingestion_runs", "evidence", "occurrences"],
   // `mistake_dna` is the FILENAME of 025, not a table. It creates
   // mistake_retest_schedule and mistake_resolutions.
   "/diagnosis":       ["patterns", "mistake_resolutions", "mistake_retest_schedule"],
@@ -78,7 +80,9 @@ for (const [t, c] of [["students", "last_seen_at"], ["concepts", "label_embeddin
 
 // ── 3. The live site ─────────────────────────────────────────────────────
 console.log("\nlive routes:");
-for (const path of ["/", "/auth", "/onboard", "/capture", "/diagnosis", "/record", "/today"]) {
+// /capture is deliberately absent: §7.9 retired it and a 404 is now correct.
+// /dashboard replaces it as the surface a student actually lands on.
+for (const path of ["/", "/auth", "/onboard", "/dashboard", "/diagnosis", "/record", "/today"]) {
   const r = await fetch(SITE + path);
   const ok = r.status === 200;
   if (!ok) bad++;
