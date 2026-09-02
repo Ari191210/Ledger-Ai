@@ -31,6 +31,11 @@ const PARTS = [
   // 036 fixes a defect in 029. 029 is already applied and checksum-locked, so
   // 009 refuses an edit to it; the fix ships as its own part.
   ["036"],
+  // 037 restores the jobs.status CHECK that 004 declared but never created,
+  // because its CREATE TABLE IF NOT EXISTS found the table already present.
+  // Parts 01-07 are already applied in production, so this cannot join one of
+  // them: an applied part is history, and a new repair is a new part.
+  ["037"],
 ];
 
 const files = fs.readdirSync(MIG).filter((f) => f.endsWith(".sql"));

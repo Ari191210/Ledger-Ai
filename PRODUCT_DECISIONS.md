@@ -1242,6 +1242,47 @@ compared. **Requeuing is deliberately not automated:** it sends real mail to
 real people, and a welcome email six weeks late may deserve different words
 than the template. That is the founder's call, not a script's.
 
+### 7.13 A fourth schema drift: `jobs.status` has no constraint (2026-09-02)
+
+Found while preparing the requeue. The script intended to mark retired rows
+`superseded`, and both 000 and 004 declare:
+
+    status TEXT NOT NULL DEFAULT 'pending'
+      CHECK (status IN ('pending', 'running', 'done', 'failed'))
+
+so that write should have been rejected. It was accepted. Writing
+`status = 'not-a-real-status-xyzzy'` to a throwaway row was **also** accepted,
+which settles it: production's `jobs.status` has no CHECK at all.
+
+**How it drifted.** 004 creates the table with `CREATE TABLE IF NOT EXISTS`,
+and its own comment says jobs was "declared in 000, never applied". The table
+already existed when 004 ran, so `IF NOT EXISTS` did nothing whatsoever: not
+merely the constraint, the entire definition was skipped. The repo has
+described a constraint production never had.
+
+This is the **fourth** drift of this shape, after three in `user_data`.
+`CREATE TABLE IF NOT EXISTS` is silent by design, which makes it the wrong
+tool for evolving a table that may already exist.
+
+**Why it matters.** `lib/jobs.ts` selects work with `status = 'pending'`. A
+status it does not recognise is not an error, it is invisible: the row is
+never selected and never runs. One typo would strand a job permanently and
+silently, which is the same failure mode that let fifteen welcome emails sit
+unnoticed for six weeks.
+
+Repaired by **037**, which adds the constraint `NOT VALID` first so it governs
+new writes without rejecting existing rows, then validates separately so a
+surprise fails loudly rather than halfway. It ships as **part-08**: parts 01 to
+07 are already applied, and an applied part is history.
+
+Two things were caught only because the work was rehearsed rather than
+reasoned about. `scripts/rehearse-production.mjs` failed 037's verification
+block with a not-null violation on `jobs.id`, because the harness builds
+tables from the measured column list, which records types and nullability but
+not DEFAULTs. The migration now supplies the id explicitly: it depends on one
+thing less, and works in both places. The founder would otherwise have pasted
+a part that failed.
+
 ---
 
 
