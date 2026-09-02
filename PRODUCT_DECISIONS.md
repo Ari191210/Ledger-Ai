@@ -1283,6 +1283,46 @@ not DEFAULTs. The migration now supplies the id explicitly: it depends on one
 thing less, and works in both places. The founder would otherwise have pasted
 a part that failed.
 
+
+### 7.14 The welcome email was broken in three independent places (2026-09-02)
+
+Fixing the redirect was necessary and not sufficient. Preparing the requeue
+uncovered two further breaks, either of which would have let the script report
+success while the student still received nothing.
+
+**The Resend API key is revoked.** `GET /domains` returns
+`400 API key is invalid`. The key is well-formed (`re_`, 36 chars), so it was
+rotated or revoked rather than mistyped, exactly as `ANTHROPIC_API_KEY` was
+earlier this week. **No mail can currently be sent by anyone**, deployed fix or
+not. A revoked key does not fail loudly: `/api/welcome` returns 500, the job
+retries three times and lands back in `failed`, and the queue looks exactly as
+it did before.
+
+**Two of the three students are already flagged as having been welcomed.**
+`/api/welcome` is idempotent on `app_metadata.welcomeSent`, and that flag is
+written **only after** `resend.emails.send()` returns without error. Syed and
+Riddhi both carry it. So their sends were ACCEPTED by the provider and then
+never arrived: bounced, suppressed, or dropped for an unverified domain, none
+of which is visible at the call site. For those two accounts a requeue would
+call the endpoint, get `{skipped: true}`, mark the job done, and send nothing.
+
+That last point is the important one. **Accepted is not delivered**, and a
+success flag written on acceptance records the wrong fact. It is the same
+mistake as trusting a 200 from a redirect: the call returned, so the work was
+assumed done.
+
+`scripts/requeue-welcome.mjs` now checks all three preconditions before
+writing anything, reports every blocker in one run rather than revealing them
+one at a time, and refuses `--commit` while any stands. Verified: it currently
+refuses, naming all three.
+
+**What the founder must do, in order.** Issue a new Resend key and set it in
+Vercel. Deploy. Confirm `studyledger.in` is a verified sending domain in
+Resend, since an unverified domain would explain the two silent
+non-deliveries. Then clear `welcomeSent` on those two accounts, which is a
+deliberate act and not something a requeue script should do on its own
+initiative, and run the requeue.
+
 ---
 
 

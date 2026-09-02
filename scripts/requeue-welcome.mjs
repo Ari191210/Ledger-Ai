@@ -59,12 +59,9 @@ const api = async (path, init = {}) => {
 const probe = await fetch("https://studyledger.in/api/jobs/run", { redirect: "manual" });
 const redirects = probe.status >= 300 && probe.status < 400;
 console.log(`apex /api/jobs/run -> ${probe.status}${redirects ? "  (still redirecting)" : ""}`);
-if (redirects && COMMIT) {
-  console.log("\nREFUSING TO COMMIT: the apex still redirects, so the deployed build");
-  console.log("predates the normaliseOrigin() fix. Requeued jobs would fail a fourth");
-  console.log("time and exhaust their retries. Deploy first, then run this.");
-  process.exit(1);
-}
+// The refusal is deferred: all three preconditions are collected below and
+// reported together, so one run tells the whole story rather than revealing
+// blockers one at a time.
 
 // ── Classify ───────────────────────────────────────────────────────────────
 const jobs = await api("jobs?select=id,type,status,payload,attempts,created_at&order=created_at.desc&limit=200");
@@ -96,9 +93,61 @@ for (const j of toSend) console.log(`  ${j.payload?.name}   (row ${j.created_at.
 console.log(`\nWILL CLOSE ${toSupersede.length} duplicate rows for those same people (status done, reason recorded).`);
 console.log(`WILL CLOSE ${fixtures.length} test fixtures the same way. None of them are emailed.`);
 
+// ── Guard: would a requeue actually DELIVER? ───────────────────────────────
+// The redirect check above proves the runner can authenticate. It does not
+// prove an email can be sent, and two further preconditions were each found
+// broken by measurement. Both would let this script report success while the
+// student still receives nothing, which is the same silent failure in a new
+// costume.
+//
+// (a) The Resend key. A revoked key does not fail loudly: /api/welcome returns
+//     500, the job retries three times, and the queue ends up exactly as it
+//     started.
+const resendProbe = await fetch("https://api.resend.com/domains", {
+  headers: { Authorization: `Bearer ${env.RESEND_API_KEY}` },
+});
+console.log(`\nresend credentials: ${resendProbe.ok ? "valid" : `REJECTED (HTTP ${resendProbe.status})`}`);
+
+// (b) The idempotency flag. /api/welcome skips any account carrying
+//     app_metadata.welcomeSent. That flag is written only after a send returns
+//     without error, so an account can carry it having received nothing: the
+//     message was ACCEPTED by the provider and then never arrived. For those
+//     students a requeue marks the job done and sends nothing.
+const flagged = [];
+for (const id of [...new Set(real.map(j => j.payload?.userId).filter(Boolean))]) {
+  const r = await fetch(`${URL}/auth/v1/admin/users/${id}`, {
+    headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
+  });
+  if (!r.ok) continue;
+  const u = await r.json();
+  if (u.app_metadata?.welcomeSent) {
+    flagged.push(u.user_metadata?.full_name ?? u.user_metadata?.name ?? "(unnamed)");
+  }
+}
+if (flagged.length) {
+  console.log(`already flagged welcomeSent, so /api/welcome would SKIP: ${flagged.join(", ")}`);
+}
+
+const blockers = [];
+if (!resendProbe.ok) blockers.push("the Resend API key is rejected, so no mail can be sent by anyone");
+if (flagged.length) blockers.push(`${flagged.length} account(s) carry welcomeSent and would be skipped silently`);
+if (redirects) blockers.push("the apex still redirects, so the deployed build predates the normaliseOrigin() fix");
+
+if (blockers.length) {
+  console.log("\nBLOCKED. Requeuing now would mark rows done without delivering:");
+  for (const b of blockers) console.log(`  - ${b}`);
+}
+
 if (!COMMIT) {
   console.log("\nDRY RUN. Nothing was written. Re-run with --commit to apply.");
   process.exit(0);
+}
+
+if (blockers.length) {
+  console.log("\nREFUSING TO COMMIT while any blocker above stands. Each one would");
+  console.log("turn a visible failure into an invisible one, which is how these");
+  console.log("emails went unnoticed for six weeks in the first place.");
+  process.exit(1);
 }
 
 // ── Apply ──────────────────────────────────────────────────────────────────
