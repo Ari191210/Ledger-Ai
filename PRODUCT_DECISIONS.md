@@ -1209,6 +1209,39 @@ protocol. That is the same input answered with an account rather than a label.
 Left on its branch, unmerged. The tool count in EXECUTION_PLAN §1.5 does not
 move, because nothing was added.
 
+### 7.12 The welcome queue: three people, not fifteen rows (2026-09-02)
+
+Every outbound email failed from launch until 2026-09-01. `lib/jobs.ts` called
+itself at the apex, which 308s to `www`, and **a cross-host redirect strips the
+`Authorization` header**, so the runner arrived at its own endpoint
+unauthenticated. Fixed with `normaliseOrigin()`, locked by
+`tests/jobs-origin.test.mjs`. That fix is committed but **not deployed**, so
+the queue is still in its failed state.
+
+Auditing it before requeuing changed the picture twice, and both corrections
+matter more than the fix itself.
+
+**Fifteen failed rows are three human beings.** Each student is retried three
+times and can be enqueued more than once: `trương minh` alone accounts for
+twelve rows. Requeuing row by row would have mailed one person twelve welcome
+emails, turning a silent failure into a visible one.
+
+**Every currently PENDING row is mine.** Twelve jobs named `dash-<epoch>`,
+`flow-<epoch>` and `n406-<epoch>` were enqueued by local testing of the
+dashboard and onboarding this week. By status alone they are indistinguishable
+from real sign-ups, and the first cron run after deploy would have picked them
+up. They must be discarded, not sent.
+
+So the real backlog is **Syed (19 July), Riddhi (1 August) and trương minh
+(19 August)**: three students who signed up, got nothing, and in two cases have
+been waiting over a month.
+
+`scripts/audit-welcome-queue.mjs` performs this classification and is
+read-only. It is to be run before and after any requeue, and the two outputs
+compared. **Requeuing is deliberately not automated:** it sends real mail to
+real people, and a welcome email six weeks late may deserve different words
+than the template. That is the founder's call, not a script's.
+
 ---
 
 
