@@ -1,0 +1,958 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { callAIOrThrow } from "@/lib/ai-fetch";
+import { AIOutput } from "@/components/ai-output";
+import { AIThinking } from "@/components/ai-thinking";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type ExamType =
+  | "JEE Mains"
+  | "JEE Advanced"
+  | "NEET"
+  | "CBSE Boards"
+  | "ISC"
+  | "State Board CET"
+  | "";
+
+interface MarkRow {
+  id: string;
+  subject: string;
+  marks: string;
+  maxMarks: string;
+}
+
+interface SubjectVerdict {
+  subject: string;
+  marks: number;
+  max_marks: number;
+  label: "Strength" | "Holding" | "Sinking" | "Critical";
+  insight: string;
+  marks_lost: number;
+}
+
+interface TotalVerdict {
+  percentile_band: string;
+  rank_band: string;
+  college_tier_bracket: string;
+  confidence: "low" | "medium" | "high";
+  one_line_summary: string;
+}
+
+interface DeltaAnalysis {
+  subject: string;
+  current_marks: number;
+  target_marks: number;
+  marks_gap: number;
+  unlocks_bracket: string;
+}
+
+interface ExamContext {
+  exam_type: string;
+  year_reference: string;
+  caveat: string;
+}
+
+interface TranslatorResult {
+  subject_verdicts: SubjectVerdict[];
+  total_verdict: TotalVerdict;
+  delta_analysis: DeltaAnalysis;
+  next_move: string;
+  exam_context: ExamContext;
+}
+
+// ── Label colour tokens ───────────────────────────────────────────────────────
+// Mapped to CSS custom properties so the design system owns the values.
+
+type LabelVariant = SubjectVerdict["label"];
+type ConfidenceVariant = TotalVerdict["confidence"];
+
+const LABEL_COLOR: Record<LabelVariant, string> = {
+  Strength: "var(--label-strength)",
+  Holding:  "var(--label-holding)",
+  Sinking:  "var(--label-sinking)",
+  Critical: "var(--label-critical)",
+};
+
+const LABEL_BG: Record<LabelVariant, string> = {
+  Strength: "var(--label-strength-bg)",
+  Holding:  "var(--label-holding-bg)",
+  Sinking:  "var(--label-sinking-bg)",
+  Critical: "var(--label-critical-bg)",
+};
+
+const CONFIDENCE_COLOR: Record<ConfidenceVariant, string> = {
+  high:   "var(--label-strength)",
+  medium: "var(--label-holding)",
+  low:    "var(--label-critical)",
+};
+
+// ── ResultCard ───────────────────────────────────────────────────────────────
+
+function ResultCard({ result }: { result: TranslatorResult }) {
+  const pct = (marks: number, max: number): number =>
+    Math.round((marks / max) * 100);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* Total Verdict */}
+      <div
+        style={{
+          border: "1px solid var(--rule)",
+          borderRadius: "10px",
+          padding: "24px",
+          background: "var(--paper-2)",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            margin: "0 0 12px",
+          }}
+        >
+          Overall Verdict
+        </p>
+        <p
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: "17px",
+            color: "var(--ink)",
+            margin: "0 0 16px",
+            lineHeight: 1.5,
+            fontStyle: "italic",
+          }}
+        >
+          {result.total_verdict.one_line_summary}
+        </p>
+
+        {/* Rank band visual */}
+        <div
+          style={{
+            background: "var(--paper)",
+            border: "1px solid var(--rule)",
+            borderRadius: "6px",
+            padding: "16px",
+            marginBottom: "12px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "8px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "11px",
+                color: "var(--ink-3)",
+              }}
+            >
+              Rank Band
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--mono)",
+                fontSize: "13px",
+                fontWeight: 600,
+                color: "var(--ink)",
+              }}
+            >
+              {result.total_verdict.rank_band}
+            </span>
+          </div>
+          <div
+            style={{
+              height: "6px",
+              background: "var(--rule)",
+              borderRadius: "99px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "60%",
+                background: "var(--cinnabar)",
+                borderRadius: "99px",
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "6px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "10px",
+                color: "var(--ink-3)",
+              }}
+            >
+              Percentile: {result.total_verdict.percentile_band}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "10px",
+                color: CONFIDENCE_COLOR[result.total_verdict.confidence],
+                fontWeight: 600,
+              }}
+            >
+              {result.total_verdict.confidence.toUpperCase()} CONFIDENCE
+            </span>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "var(--paper)",
+            border: "1px solid var(--rule)",
+            borderRadius: "6px",
+            padding: "6px 12px",
+          }}
+        >
+          <span style={{ fontSize: "11px", color: "var(--ink-3)", fontFamily: "var(--sans)" }}>
+            College Tier
+          </span>
+          <span
+            style={{
+              fontFamily: "var(--mono)",
+              fontSize: "12px",
+              fontWeight: 700,
+              color: "var(--ink)",
+            }}
+          >
+            {result.total_verdict.college_tier_bracket}
+          </span>
+        </div>
+      </div>
+
+      {/* Subject Verdicts */}
+      <div
+        style={{
+          border: "1px solid var(--rule)",
+          borderRadius: "10px",
+          padding: "24px",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            margin: "0 0 16px",
+          }}
+        >
+          Subject Breakdown
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {result.subject_verdicts.map((sv, i) => (
+            <div
+              key={i}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr auto",
+                alignItems: "start",
+                gap: "12px",
+                paddingBottom: "12px",
+                borderBottom:
+                  i < result.subject_verdicts.length - 1
+                    ? "1px solid var(--rule)"
+                    : "none",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--sans)",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "var(--ink)",
+                    }}
+                  >
+                    {sv.subject}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--mono)",
+                      fontSize: "12px",
+                      color: "var(--ink-2)",
+                    }}
+                  >
+                    {sv.marks}/{sv.max_marks}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--mono)",
+                      fontSize: "11px",
+                      color: "var(--ink-3)",
+                    }}
+                  >
+                    ({pct(sv.marks, sv.max_marks)}%)
+                  </span>
+                </div>
+                <p
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: "12px",
+                    color: "var(--ink-2)",
+                    margin: 0,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {sv.insight}
+                </p>
+                {sv.marks_lost > 0 && (
+                  <p
+                    style={{
+                      fontFamily: "var(--mono)",
+                      fontSize: "11px",
+                      color: "var(--ink-3)",
+                      margin: "4px 0 0",
+                    }}
+                  >
+                    −{sv.marks_lost} marks left on table
+                  </p>
+                )}
+              </div>
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "3px 10px",
+                  borderRadius: "99px",
+                  fontFamily: "var(--sans)",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  color: LABEL_COLOR[sv.label],
+                  background: LABEL_BG[sv.label],
+                  border: `1px solid ${LABEL_COLOR[sv.label]}`,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {sv.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Delta Analysis */}
+      <div
+        style={{
+          border: "1px solid var(--cinnabar)",
+          borderLeft: "3px solid var(--cinnabar)",
+          borderRadius: "0 10px 10px 0",
+          padding: "20px 24px",
+          background: "var(--paper-2)",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--cinnabar)",
+            margin: "0 0 10px",
+          }}
+        >
+          Delta — What changes if you score more
+        </p>
+        <p
+          style={{
+            fontFamily: "var(--serif)",
+            fontSize: "15px",
+            color: "var(--ink)",
+            margin: "0 0 8px",
+            lineHeight: 1.6,
+          }}
+        >
+          {result.delta_analysis.marks_gap} more marks in{" "}
+          <strong>{result.delta_analysis.subject}</strong> (
+          {result.delta_analysis.current_marks} → {result.delta_analysis.target_marks})
+          unlocks:
+        </p>
+        <p
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: "13px",
+            fontWeight: 700,
+            color: "var(--cinnabar-ink)",
+            margin: 0,
+          }}
+        >
+          {result.delta_analysis.unlocks_bracket}
+        </p>
+      </div>
+
+      {/* Next Move */}
+      <div
+        style={{
+          border: "1px solid var(--rule)",
+          borderRadius: "10px",
+          padding: "20px 24px",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--ink-3)",
+            margin: "0 0 10px",
+          }}
+        >
+          Your Next Move
+        </p>
+        <AIOutput text={result.next_move} />
+      </div>
+
+      {/* Caveat */}
+      {result.exam_context?.caveat && (
+        <p
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "11px",
+            color: "var(--ink-3)",
+            margin: 0,
+            lineHeight: 1.5,
+            fontStyle: "italic",
+          }}
+        >
+          * {result.exam_context.caveat} (Reference year: {result.exam_context.year_reference})
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Main Page ────────────────────────────────────────────────────────────────
+
+const EXAM_TYPES: ExamType[] = [
+  "JEE Mains",
+  "JEE Advanced",
+  "NEET",
+  "CBSE Boards",
+  "ISC",
+  "State Board CET",
+];
+
+const newRow = (): MarkRow => ({
+  id: Math.random().toString(36).slice(2),
+  subject: "",
+  marks: "",
+  maxMarks: "",
+});
+
+export default function MarksTranslatorPage() {
+  const [examType, setExamType] = useState<ExamType>("");
+  const [rows, setRows] = useState<MarkRow[]>([newRow(), newRow(), newRow()]);
+  const [rawPaste, setRawPaste] = useState<string>("");
+  const [inputMode, setInputMode] = useState<"manual" | "paste">("manual");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<TranslatorResult | null>(null);
+  const [error, setError] = useState<string>("");
+
+  const updateRow = (id: string, field: keyof MarkRow, value: string) => {
+    setRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+    );
+  };
+
+  const addRow = () => setRows((prev) => [...prev, newRow()]);
+
+  const removeRow = (id: string) => {
+    if (rows.length > 1) setRows((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleTranslate = async () => {
+    if (!examType) {
+      setError("Please select an exam type.");
+      return;
+    }
+
+    const marksheetData =
+      inputMode === "paste"
+        ? rawPaste.trim()
+        : rows
+            .filter((r) => r.subject && r.marks && r.maxMarks)
+            .map((r) => `${r.subject}: ${r.marks}/${r.maxMarks}`)
+            .join("\n");
+
+    if (!marksheetData) {
+      setError("Please enter at least one subject with marks.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+    setResult(null);
+
+    try {
+      // `callAIOrThrow<T>` rather than `callAI`: `callAI` returns a raw
+      // `Response`, so casting it straight to `TranslatorResult` was a type
+      // error AND would have handed the renderer a Response object instead
+      // of the parsed verdicts. `callAIOrThrow` parses the JSON, routes a
+      // 429 to /limit, and throws a typed AIError the catch below handles.
+      const res = await callAIOrThrow<TranslatorResult>({
+        tool: "marks_translator",
+        examType,
+        marksheetData,
+      });
+      setResult(res);
+    } catch (e) {
+      setError("Something went wrong. Please try again.");
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    fontFamily: "var(--mono)",
+    fontSize: "13px",
+    color: "var(--ink)",
+    background: "var(--paper)",
+    border: "1px solid var(--rule)",
+    borderRadius: "6px",
+    padding: "8px 10px",
+    width: "100%",
+    boxSizing: "border-box",
+    outline: "none",
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--paper)",
+        color: "var(--ink)",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          borderBottom: "1px solid var(--rule)",
+          padding: "0 32px",
+          height: "52px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "sticky",
+          top: 0,
+          background: "var(--paper)",
+          zIndex: 10,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <Link
+            href="/dashboard"
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: "12px",
+              color: "var(--ink-3)",
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            ← Dashboard
+          </Link>
+          <span style={{ color: "var(--rule)" }}>|</span>
+          <span
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: "var(--ink)",
+            }}
+          >
+            Marks Translator
+          </span>
+        </div>
+        <span
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "var(--cinnabar)",
+            background: "var(--paper-2)",
+            border: "1px solid var(--rule)",
+            borderRadius: "4px",
+            padding: "2px 8px",
+          }}
+        >
+          Track
+        </span>
+      </header>
+
+      {/* Body */}
+      <main
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "40px 32px",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "40px",
+          alignItems: "start",
+        }}
+      >
+        {/* LEFT PANEL */}
+        <div>
+          {/* Title */}
+          <div style={{ marginBottom: "28px" }}>
+            <h1
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "26px",
+                fontWeight: 700,
+                color: "var(--ink)",
+                margin: "0 0 8px",
+                lineHeight: 1.3,
+              }}
+            >
+              What do your marks actually mean?
+            </h1>
+            <p
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "13px",
+                color: "var(--ink-2)",
+                margin: 0,
+                lineHeight: 1.6,
+              }}
+            >
+              Enter your marksheet below. Get a rank band, college tier, and
+              subject-level verdict in seconds — no tab-switching required.
+            </p>
+          </div>
+
+          {/* Exam Type */}
+          <div style={{ marginBottom: "20px" }}>
+            <label
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--ink-3)",
+                display: "block",
+                marginBottom: "8px",
+              }}
+            >
+              Exam Type
+            </label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {EXAM_TYPES.map((et) => (
+                <button
+                  key={et}
+                  onClick={() => setExamType(et)}
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: "12px",
+                    fontWeight: examType === et ? 700 : 400,
+                    padding: "6px 14px",
+                    borderRadius: "99px",
+                    border: "1px solid",
+                    borderColor: examType === et ? "var(--cinnabar)" : "var(--rule)",
+                    background: examType === et ? "var(--cinnabar)" : "var(--paper)",
+                    color: examType === et ? "var(--paper)" : "var(--ink-2)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {et}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Input Mode Toggle */}
+          <div style={{ marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                border: "1px solid var(--rule)",
+                borderRadius: "8px",
+                overflow: "hidden",
+              }}
+            >
+              {(["manual", "paste"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setInputMode(mode)}
+                  style={{
+                    fontFamily: "var(--sans)",
+                    fontSize: "12px",
+                    fontWeight: inputMode === mode ? 600 : 400,
+                    padding: "7px 18px",
+                    border: "none",
+                    background: inputMode === mode ? "var(--paper-2)" : "var(--paper)",
+                    color: inputMode === mode ? "var(--ink)" : "var(--ink-3)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {mode === "manual" ? "Enter manually" : "Paste marksheet"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Manual Entry */}
+          {inputMode === "manual" && (
+            <div style={{ marginBottom: "20px" }}>
+              {/* Column headers */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 80px 80px 28px",
+                  gap: "8px",
+                  marginBottom: "6px",
+                }}
+              >
+                {["Subject", "Marks", "Max", ""].map((h, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      fontFamily: "var(--sans)",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: "var(--ink-3)",
+                    }}
+                  >
+                    {h}
+                  </span>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {rows.map((row) => (
+                  <div
+                    key={row.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 80px 80px 28px",
+                      gap: "8px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="e.g. Physics"
+                      value={row.subject}
+                      onChange={(e) => updateRow(row.id, "subject", e.target.value)}
+                      style={inputStyle}
+                    />
+                    <input
+                      type="number"
+                      placeholder="67"
+                      value={row.marks}
+                      onChange={(e) => updateRow(row.id, "marks", e.target.value)}
+                      style={inputStyle}
+                    />
+                    <input
+                      type="number"
+                      placeholder="100"
+                      value={row.maxMarks}
+                      onChange={(e) => updateRow(row.id, "maxMarks", e.target.value)}
+                      style={inputStyle}
+                    />
+                    <button
+                      onClick={() => removeRow(row.id)}
+                      style={{
+                        fontFamily: "var(--mono)",
+                        fontSize: "16px",
+                        color: "var(--ink-3)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "0",
+                        lineHeight: 1,
+                      }}
+                      title="Remove"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={addRow}
+                style={{
+                  marginTop: "10px",
+                  fontFamily: "var(--sans)",
+                  fontSize: "12px",
+                  color: "var(--ink-3)",
+                  background: "none",
+                  border: "1px dashed var(--rule)",
+                  borderRadius: "6px",
+                  padding: "6px 16px",
+                  cursor: "pointer",
+                  width: "100%",
+                }}
+              >
+                + Add subject
+              </button>
+            </div>
+          )}
+
+          {/* Paste Mode */}
+          {inputMode === "paste" && (
+            <div style={{ marginBottom: "20px" }}>
+              <p
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: "12px",
+                  color: "var(--ink-3)",
+                  margin: "0 0 8px",
+                }}
+              >
+                Paste your DigiLocker result or any text — Physics: 67/100,
+                Chemistry: 54/100, etc.
+              </p>
+              <textarea
+                rows={8}
+                placeholder={"Physics: 67/100\nChemistry: 54/100\nMaths: 72/100"}
+                value={rawPaste}
+                onChange={(e) => setRawPaste(e.target.value)}
+                style={{
+                  ...inputStyle,
+                  resize: "vertical",
+                  lineHeight: 1.6,
+                  fontFamily: "var(--mono)",
+                  fontSize: "12px",
+                }}
+              />
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <p
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "12px",
+                color: "var(--label-critical)",
+                margin: "0 0 12px",
+              }}
+            >
+              {error}
+            </p>
+          )}
+
+          {/* CTA */}
+          <button
+            onClick={handleTranslate}
+            disabled={loading}
+            style={{
+              fontFamily: "var(--sans)",
+              fontSize: "14px",
+              fontWeight: 700,
+              color: loading ? "var(--ink-3)" : "var(--paper)",
+              background: loading ? "var(--paper-2)" : "var(--cinnabar)",
+              border: "1px solid",
+              borderColor: loading ? "var(--rule)" : "var(--cinnabar)",
+              borderRadius: "8px",
+              padding: "12px 28px",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.15s",
+              width: "100%",
+            }}
+          >
+            {loading ? "Translating…" : "Translate My Marks →"}
+          </button>
+
+          {/* AI Thinking */}
+          {loading && (
+            <div style={{ marginTop: "16px" }}>
+              <AIThinking />
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div>
+          {!result && !loading && (
+            <div
+              style={{
+                border: "1px dashed var(--rule)",
+                borderRadius: "10px",
+                padding: "48px 32px",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontSize: "18px",
+                  color: "var(--ink-3)",
+                  fontStyle: "italic",
+                  margin: "0 0 8px",
+                }}
+              >
+                Your verdict will appear here
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--sans)",
+                  fontSize: "12px",
+                  color: "var(--ink-3)",
+                  margin: 0,
+                }}
+              >
+                Enter your marks on the left and hit Translate.
+              </p>
+            </div>
+          )}
+
+          {result && !loading && (
+            <div>
+              <div style={{ marginBottom: "20px" }}>
+                <AIOutput text={result.total_verdict.one_line_summary} variant="principle" />
+              </div>
+              <ResultCard result={result} />
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}

@@ -1178,6 +1178,37 @@ This is the third defect of the same shape found this week, after the job
 runner losing `Authorization` across a redirect and swan never reaching the
 screen: **configuration that reads correctly but was never observed working.**
 
+### 7.11 `marks-translator` is not adopted (2026-09-02)
+
+Another agent left a 959-line route, `app/tools/marks-translator/page.tsx`, on
+a branch of this repository. **It is not on `feat/console-now` and not on
+`master`**, so it cannot reach a student today and is not a launch blocker.
+The question is only whether to adopt it. Three findings say no.
+
+**It cannot work.** It calls `callAIOrThrow({ tool: "marks_translator" })`.
+That name appears in no backend file: not in `REQUIRED_PARAMS`, not in
+`lib/tools-registry.ts`'s `AI_CAPABILITIES`, nowhere. M15-3/M15-7 deliberately
+replaced the hand-written tool list with one derived from the manifest, so a
+name absent from it "cannot reach `buildPrompt` because there is no
+`buildPrompt` left to reach". Every use would 400. Registering it is therefore
+not a formality, it is adopting a feature.
+
+**It contradicts a principle.** Its central type is `SubjectVerdict`, and it
+labels each subject "Strength", "Holding", "Sinking" or "Critical" from a
+single marksheet. PRINCIPLES: *"State facts; offer the next move; never judge.
+A down day shows the honest figure and one recovery action, never a verdict."*
+Calling a student's Physics "Critical" off one paper is the judgement that
+sentence forbids, and it is inferred from marks alone with no evidence trail,
+which is the opposite of how every other figure in this product is earned.
+
+**The job is already done.** `marks-obituary` ("Marks Accounting") is in the
+registry and shipping: it takes 60 words on marks you should have got and
+returns what each was lost to, when in the paper it happened, and a prevention
+protocol. That is the same input answered with an account rather than a label.
+
+Left on its branch, unmerged. The tool count in EXECUTION_PLAN §1.5 does not
+move, because nothing was added.
+
 ---
 
 
