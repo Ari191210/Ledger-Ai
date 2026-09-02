@@ -147,9 +147,15 @@ async function fetchUserData(userId: string): Promise<UserData | null> {
   // Same rule for the one non-profile-shaped flag localStorage also holds:
   // a defined server value is the answer; the cache only fills a gap.
   const serverRow = data as UserData;
+  // Read from the COLUMN, not the field name. The column is
+  // `onboarding_done`; `serverRow.onboardingDone` is always undefined, so
+  // the server's answer could never win and this always fell through to
+  // localStorage. A student with a cold cache was sent back through
+  // onboarding they had already finished. See COLUMN_NAMES below.
+  const serverFlag = (data as Record<string, unknown>).onboarding_done;
   const onboardingDone =
-    serverRow.onboardingDone !== undefined && serverRow.onboardingDone !== null
-      ? serverRow.onboardingDone
+    serverFlag !== undefined && serverFlag !== null
+      ? (serverFlag as boolean)
       : localProfile.onboardingDone;
 
   // Refresh the cache from the record, so a new device is warm. Writing the
@@ -157,9 +163,41 @@ async function fetchUserData(userId: string): Promise<UserData | null> {
   // something the server disagrees with.
   writeLocalProfile({ ...(profile as Partial<UserData>), onboardingDone });
 
+  // `onboardingDone` last, so the mapped value wins over the raw column
+  // spread in from serverRow.
   return { ...serverRow, ...(profile as Partial<UserData>), onboardingDone };
 }
 
+/**
+ * Field names that DIFFER from their column name.
+ *
+ * saveUserData() spreads its keys straight into a PostgREST upsert, so every
+ * key must be a real column. `user_data` is inconsistent by history:
+ * `weakTopics`, `parentCode` and `papersCount` are genuinely camelCase
+ * columns, while `onboarding_done` is snake_case.
+ *
+ * Writing `onboardingDone` produced:
+ *
+ *   400 PGRST204 Could not find the 'onboardingDone' column of 'user_data'
+ *
+ * which surfaced to the student as "Could not save. Check your connection"
+ * on the last page of onboarding, with no way past it. Every new student was
+ * trapped at the final step of signup.
+ *
+ * Renaming the column would break every reader mid-flight, so the mismatch
+ * is resolved here, at the one boundary where field names become column
+ * names. Anything absent from this map passes through unchanged.
+ */
+const COLUMN_NAMES: Readonly<Record<string, string>> = {
+  onboardingDone: "onboarding_done",
+};
+
+/** The payload as columns. Pure: it renames keys and nothing else. */
+function toColumns(updates: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(updates)) out[COLUMN_NAMES[k] ?? k] = v;
+  return out;
+}
 export async function saveUserData(userId: string, updates: Partial<UserData>): Promise<{ error: string | null }> {
   // localStorage is a cache of the record, refreshed on every write so an
   // offline read is warm. It is never consulted ahead of Postgres — see
@@ -171,7 +209,9 @@ export async function saveUserData(userId: string, updates: Partial<UserData>): 
   // caller changing one field cannot touch a second.
   const { error } = await supabase.from("user_data").upsert({
     id: userId,
-    ...updates,
+    // Mapped, not spread: a field name is not always a column name. See
+    // COLUMN_NAMES above for why, and what it cost.
+    ...toColumns(updates as Record<string, unknown>),
     updated_at: new Date().toISOString(),
   });
   if (!error) inflightLoads.delete(userId);

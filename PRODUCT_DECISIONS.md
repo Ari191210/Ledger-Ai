@@ -1323,6 +1323,52 @@ non-deliveries. Then clear `welcomeSent` on those two accounts, which is a
 deliberate act and not something a requeue script should do on its own
 initiative, and run the requeue.
 
+
+### 7.15 Every new student was trapped at the end of onboarding (2026-09-02)
+
+**The worst defect found this week**, and the only one that stopped a person
+using the product at all. A student answered all ten onboarding pages, pressed
+**"Open my ledger →"**, and got:
+
+> Could not save. Check your connection and try again.
+
+The connection was fine. `saveUserData()` spreads its keys straight into a
+PostgREST upsert, so every key must **be** a column. `user_data` is
+inconsistent by history: `weakTopics`, `parentCode` and `papersCount` are
+genuinely camelCase columns, while the flag is `onboarding_done`. Writing
+`onboardingDone` returned:
+
+    400 PGRST204 Could not find the 'onboardingDone' column of 'user_data'
+
+So signup could not complete. Not degraded, **impossible**: the student was
+returned to the same page indefinitely, with an error blaming their network.
+
+The read had the same fault in reverse. `serverRow.onboardingDone` is always
+undefined, so the server's answer could never win and the value fell through
+to `localStorage`. Even a student whose flag was somehow set would be sent
+back through onboarding on any device with a cold cache.
+
+**Fixed by mapping at the boundary**, not by renaming the column: a rename
+would break every reader mid-flight, and the table's camelCase columns are
+real. `COLUMN_NAMES` translates field names to column names in the one place
+where the two meet.
+
+**How it was found.** By WALKING the journey in a browser, as a student, with
+`scripts/walk-journey.mjs`. It creates a real account, answers all ten pages,
+and asserts where it lands. Reading the code would not have found this: the
+call is correct TypeScript against a plausible field name, and the mismatch
+lives only in the database. Two of the walker's own bugs had to be fixed first,
+each of which had wrongly accused the product.
+
+`tests/user-data-columns.test.mjs` now checks every written field against
+production's measured column list, so the class of defect cannot return.
+
+This is the sixth production surprise this week, after the revoked Anthropic
+key, the apex redirect stripping `Authorization`, obsidian instead of swan,
+PostHog blocked by our own CSP, and the missing `jobs.status` constraint. All
+six shared one shape: **code that reads correctly and was never observed
+running.**
+
 ---
 
 
