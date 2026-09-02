@@ -21,75 +21,66 @@ import Walkthrough from "@/components/walkthrough";
 // ═══════════════════════════════════════════════════════════════════════════
 // /dashboard — the surface a student lands on after onboarding.
 //
-// ── WHY THIS EXISTS AGAIN ────────────────────────────────────────────────
-// `/dashboard` was retired into `/home` (M3-3), and `/home` was then deleted
-// after three rejected visual passes (PRODUCT_DECISIONS §7.6). Onboarding
-// has since pointed at `/capture` and then at `/today`, neither of which was
-// a decision so much as whatever route still existed.
+// Built to the founder's mockup (design-reference/dashboard/), which supplied
+// the card set, the ordering and the emphasis. Two of its seven cards named
+// data StudyLedger does not record, and the founder's ruling was to do
+// "everything acc to studyledger", so:
 //
-// The founder's instruction, 2026-09-01: *"after onboarding it should
-// redirect to the dashboard"*, and *"i want today to be a button on the
-// dashboard and not just open aise hi"* — Today should be something a
-// student CHOOSES to open, not the room they are dropped into.
+//   ASSIGNMENTS ("4 done, 3 in progress, 2 not started") became MISTAKE
+//   PATTERNS by status. There is no assignments table and no homework concept
+//   in this product; the card keeps the three-part shape and reads
+//   `patterns.status`, which is what StudyLedger actually owns.
 //
-// So Today is a card here, with a count on it. Opening it is a decision.
+//   GRADE TREND ("8.4 GPA avg") became the LEDGER SCORE trend.
+//   `score_history` holds the Ledger Score, not a GPA. The card says "Ledger
+//   Score" so the figure is not mistaken for a school grade.
 //
-// ── WHAT THIS SCREEN MAY SAY ─────────────────────────────────────────────
-// Every figure below is read from the student's own record or is absent.
-// There is no placeholder number, no peer comparison, no "students like you"
-// (V.7.6). A student who finished onboarding sixty seconds ago has nothing
-// on record, and this screen has to be correct and calm in exactly that
-// state — six empty boxes on day one is what killed `/home`.
-//
-// The zero case is therefore the DESIGNED case, not the degraded one: the
-// panels state what they are waiting for, in a sentence, and the actions
-// that would produce the first data are the only things emphasised.
+// ── THE ZERO STATE IS THE DESIGNED STATE ─────────────────────────────────
+// A student who finished onboarding sixty seconds ago has no sessions, no
+// answers and no patterns. `/home` was rejected three times partly for
+// looking empty, so every card here states what it is waiting for rather
+// than rendering a hollow figure. Nothing on this screen is a placeholder:
+// `null` from the API means the read failed, and renders as "not read", never
+// as 0.
 // ═══════════════════════════════════════════════════════════════════════════
 
-interface TodaySummary {
-  items: { itemId: string; kind: string; title?: string }[];
-  emptyReason: string | null;
+interface DashboardData {
+  thisWeek: { minutes: number | null; perDay: { day: string; minutes: number }[] };
+  // The engine's shape, not the table's. /api/dashboard derives these in
+  // memory via lib/recommendations/engine.ts (K.3/V.11 forbids reading the
+  // table outside the engine), and the engine speaks camelCase.
+  // `recommendationId` is null until a row is inserted, which never happens
+  // on this path, so the list key falls back to the evidence-bearing fields.
+  nextUp: { recommendationId: string | null; kind: string; subject: string | null; reasonTemplate: string }[];
+  mastery: { pct: number | null; conceptsTracked: number | null };
+  patterns: { resolved: number; practising: number; open: number } | null;
+  revisionQueue: { pattern_id: string; due_at: string; attempt_count: number }[] | null;
+  scoreTrend: { captured_on: string; total: number }[] | null;
 }
 
-/** Exactly the fields this screen reads, from `RecordTotals` in lib/record.ts.
- *  `papersCaptured` and `sessionsOpened` are `number | null` at the source and
- *  stay nullable here: null means THAT SOURCE DID NOT ANSWER, and showing it
- *  as 0 would be the product asserting a fact it does not have. */
-interface RecordTotals {
-  occurrenceCount: number;
-  papersCaptured: number | null;
-  sessionsOpened: number | null;
-  patternsLive: number;
-}
+/** Minutes to the "24.5h" shape the mockup uses. */
 
 export default function DashboardPage() {
   const { user, session, loading } = useAuth();
-  const [today, setToday] = useState<TodaySummary | null>(null);
-  const [record, setRecord] = useState<RecordTotals | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState("");
 
-  // FIRST RUN. Onboarding finishes with `router.replace("/dashboard?first=1")`
-  // and this is the flag that shows the walkthrough exactly once.
+  // FIRST RUN. Onboarding ends at `/dashboard?first=1`; this shows the
+  // walkthrough exactly once.
   const firstRun = useSearchParams()?.get("first") === "1";
 
   useEffect(() => {
     if (loading || !user || !session) return;
-    const auth = { Authorization: `Bearer ${session.access_token}` };
-
-    // Both reads are independent: one failing must not blank the other, so
-    // each settles on its own rather than through Promise.all.
-    fetch("/api/today", { headers: auth })
-      .then(r => (r.ok ? r.json() : Promise.reject(new Error("today"))))
-      .then(setToday)
-      .catch(() => setError("Could not read your current state."));
-
-    fetch("/api/record", { headers: auth })
-      .then(r => (r.ok ? r.json() : Promise.reject(new Error("record"))))
-      .then(body => setRecord(body?.record?.totals ?? null))
-      .catch(() => { /* the record panel shows its waiting state instead */ });
+    fetch("/api/dashboard", {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then(r => (r.ok ? r.json() : Promise.reject(new Error("read"))))
+      .then(setData)
+      .catch(() => setError("Could not read your ledger."));
   }, [loading, user, session]);
 
-  const openCount = today?.items.length ?? 0;
+  const openCount = data?.nextUp.length ?? 0;
+  const dueCount = data?.revisionQueue?.length ?? 0;
 
   return (
     <main id="main-content">
@@ -114,104 +105,193 @@ export default function DashboardPage() {
 
       <Measure wide>
         <Stack gap={6}>
-          <Stack gap={2}>
-            <Text step="title" as="h1" weight={500}>
-              Your ledger
-            </Text>
-            <Text as="p" tone="secondary">
-              Everything you record is filed here, permanently.
-            </Text>
-          </Stack>
-
           {error && (
             <Text as="p" tone="error">
               {error}
             </Text>
           )}
 
-          {/* ── TODAY, as a card you choose to open ──────────────────────
-              The founder's point: Today should not "just open aise hi". It
-              carries its own count, so the decision to open it is informed
-              rather than blind. */}
-          <Panel tone="raised" pad={5}>
-            <Stack gap={3}>
-              <Row gap={2}>
-                <Text step="label" tone="secondary">
-                  TODAY
-                </Text>
-                <Spacer />
-                {openCount > 0 && (
-                  <Chip tone="info">
-                    {openCount} open
-                  </Chip>
-                )}
-              </Row>
-
-              {openCount > 0 ? (
-                <Text as="p">
-                  {openCount === 1
-                    ? "One thing is waiting for you."
-                    : `${openCount} things are waiting for you.`}
-                </Text>
-              ) : (
+          {/* ── ROW 1: THIS WEEK · NEXT UP ─────────────────────────────── */}
+          <Cards>
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Text step="label" tone="secondary">THIS WEEK</Text>
+                {data?.thisWeek.minutes == null ? (
+                                  <Text step="label" tone="secondary">not read</Text>
+                                ) : data.thisWeek.minutes > 0 ? (
+                                  <Row gap={1} align="baseline">
+                                    <Readout step="display" value={Math.round(data.thisWeek.minutes / 6) / 10} />
+                                    <Text step="title" tone="secondary">h</Text>
+                                  </Row>
+                                ) : null}
                 <Text as="p" tone="secondary">
-                  Nothing is due right now. Today fills as your record grows.
+                  {data?.thisWeek.minutes
+                    ? "Time in closed sessions over the last seven days."
+                    : "Hours appear here once you have closed a study session."}
                 </Text>
-              )}
+                {data && data.thisWeek.perDay.length > 0 && (
+                  <Row gap={1} align="end">
+                    {data.thisWeek.perDay.map(d => (
+                      <DayBar key={d.day} minutes={d.minutes} />
+                    ))}
+                  </Row>
+                )}
+              </Stack>
+            </Panel>
 
-              <Row gap={3}>
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Row gap={2}>
+                  <Text step="label" tone="secondary">NEXT UP</Text>
+                  <Spacer />
+                  {openCount > 0 && <Chip tone="info">{openCount}</Chip>}
+                </Row>
+                {openCount > 0 ? (
+                  <Stack gap={2}>
+                    {data!.nextUp.map((r, i) => (
+                      <Text key={r.recommendationId ?? `${r.kind}:${r.subject ?? ""}:${i}`} as="p">
+                        {r.subject ? `${r.subject}: ` : ""}{r.kind.replace(/_/g, " ")}
+                      </Text>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Text as="p" tone="secondary">
+                    Nothing is queued. Recommendations appear once your record has
+                    something to read from.
+                  </Text>
+                )}
                 <Control tier="primary" href="/today">
                   Open Today
                 </Control>
-              </Row>
-            </Stack>
-          </Panel>
+              </Stack>
+            </Panel>
+          </Cards>
 
-          {/* ── WHAT IS ON RECORD ────────────────────────────────────────
-              Four figures, each from the student's own data. On day one they
-              are all zero, and the copy under them says what that means
-              rather than dressing it up. */}
-          <Stack gap={3}>
-            <Text step="label" tone="secondary">
-              ON RECORD
-            </Text>
-            <Row gap={4} wrap>
-              {/* Each figure is the student's own. A NULL is not a zero: it
-                  means that source did not answer, and `Stat` says so in
-                  words rather than printing a number nobody can trust. */}
-              <Stat label="OCCURRENCES" value={record?.occurrenceCount ?? null} />
-              <Stat label="PAPERS" value={record?.papersCaptured ?? null} />
-              <Stat label="SESSIONS" value={record?.sessionsOpened ?? null} />
-              <Stat label="OPEN PATTERNS" value={record?.patternsLive ?? null} />
-            </Row>
-            {!record && (
-              <Text step="label" tone="secondary">
-                Reading your record…
-              </Text>
-            )}
-          </Stack>
+          {/* ── ROW 2: MASTERY · PATTERNS · STREAK ─────────────────────── */}
+          <Cards>
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Text step="label" tone="secondary">SUBJECT MASTERY</Text>
+                {data?.mastery.pct === null ? (
+                  <Text as="p" tone="secondary">
+                    No answers on record yet. Mastery is measured from questions
+                    you have actually answered.
+                  </Text>
+                ) : (
+                  <>
+                    <Row gap={1} align="baseline">
+                                          <Readout step="display" value={data?.mastery.pct ?? 0} />
+                                          <Text step="title" tone="secondary">%</Text>
+                                        </Row>
+                    <Text step="label" tone="secondary">
+                      across {data?.mastery.conceptsTracked ?? 0} concepts
+                    </Text>
+                  </>
+                )}
+              </Stack>
+            </Panel>
 
-          <Rule />
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Text step="label" tone="secondary">MISTAKE PATTERNS</Text>
+                {data?.patterns ? (
+                  <Row gap={4}>
+                    <Stat n={data.patterns.resolved} label="Resolved" />
+                    <Stat n={data.patterns.practising} label="Practising" />
+                    <Stat n={data.patterns.open} label="Open" />
+                  </Row>
+                ) : (
+                  <Text as="p" tone="secondary">
+                    No patterns yet. One appears when the same mistake happens twice.
+                  </Text>
+                )}
+              </Stack>
+            </Panel>
 
-          {/* ── THE REST OF THE PRODUCT ──────────────────────────────────
-              Named plainly. A student who wants the long view goes to the
-              record; one who wants the breakdown goes to diagnosis. */}
-          <Stack gap={3}>
-            <Text step="label" tone="secondary">
-              GO TO
-            </Text>
-            <Row gap={3} wrap>
-              <Control tier="secondary" href="/record">
-                Your record
-              </Control>
-              <Control tier="secondary" href="/diagnosis">
-                Diagnosis
-              </Control>
-              <Control tier="secondary" href="/tools">
-                Tools
-              </Control>
-            </Row>
-          </Stack>
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Text step="label" tone="secondary">CONSISTENCY</Text>
+                {/* NOT a streak. M0-6 removed streak presentation from every
+                    surface deliberately, and tests/m0-integrity-fences.test.mjs
+                    exists to stop it returning. The founder's mockup drew a
+                    "14 days in a row" tile; a day-counter is the most
+                    stimulating thing a study product can show, and the brief
+                    for the streak was calm rather than stimulating.
+
+                    Consistency is the Ledger Score term computed from the same
+                    underlying activity. It reports steadiness without counting
+                    days at anyone, and it breaks nothing when a student misses
+                    a day. Restoring the streak would be an amendment to M0-6,
+                    which is the founder's call and not a side effect of a
+                    design file. */}
+                {data?.scoreTrend && data.scoreTrend.length > 0 ? (
+                  <Text as="p" tone="secondary">
+                    Your consistency is part of the Ledger Score below, computed
+                    from sessions you actually closed.
+                  </Text>
+                ) : (
+                  <Text as="p" tone="secondary">
+                    Consistency appears once you have closed a session. It measures
+                    steadiness, and missing a day does not erase it.
+                  </Text>
+                )}
+              </Stack>
+            </Panel>
+          </Cards>
+
+          {/* ── ROW 3: REVISION QUEUE · SCORE TREND ────────────────────── */}
+          <Cards>
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Row gap={2}>
+                  <Text step="label" tone="secondary">REVISION QUEUE</Text>
+                  <Spacer />
+                  {dueCount > 0 && <Chip tone="warn">{dueCount} due</Chip>}
+                </Row>
+                {dueCount > 0 ? (
+                  <Text as="p">
+                    {dueCount === 1
+                      ? "One pattern is due for a retest."
+                      : `${dueCount} patterns are due for a retest.`}
+                  </Text>
+                ) : (
+                  <Text as="p" tone="secondary">
+                    Nothing is due. Retests are scheduled after a mistake is
+                    acknowledged.
+                  </Text>
+                )}
+                <Control tier="secondary" href="/diagnosis">
+                  Diagnosis
+                </Control>
+              </Stack>
+            </Panel>
+
+            <Panel tone="raised" pad={5}>
+              <Stack gap={3}>
+                <Text step="label" tone="secondary">LEDGER SCORE</Text>
+                {data?.scoreTrend && data.scoreTrend.length > 0 ? (
+                  <>
+                    <Readout
+                      step="display"
+                      value={data.scoreTrend[data.scoreTrend.length - 1].total}
+                    />
+                    <Text step="label" tone="secondary">
+                      last {data.scoreTrend.length} snapshot
+                      {data.scoreTrend.length === 1 ? "" : "s"}
+                    </Text>
+                  </>
+                ) : (
+                  <Text as="p" tone="secondary">
+                    Your score is computed once there is evidence to compute it
+                    from. It is not a grade, and it is never estimated.
+                  </Text>
+                )}
+                <Control tier="secondary" href="/record">
+                  Your record
+                </Control>
+              </Stack>
+            </Panel>
+          </Cards>
         </Stack>
       </Measure>
 
@@ -220,32 +300,67 @@ export default function DashboardPage() {
   );
 }
 
+/**
+ * The card grid.
+ *
+ * The mockup lays its cards out in a grid, and `Row`/`Stack` cannot
+ * express a two-column grid that reflows to one column on a phone. Rather
+ * than adding a `grow` prop to `Panel` to fake it with flex (CONSOLE.md §6:
+ * patching the call site is how design systems die), the grid is composed
+ * here and the primitives sit inside it unchanged.
+ *
+ * `auto-fit` with a `minmax` floor is what makes it responsive without a
+ * media query: cards sit side by side while they each have 260px, and drop
+ * to one per row when they do not. That is the mockup's desktop layout and
+ * a usable phone layout from the same rule, which matters because the
+ * mockup itself overflows to 526px at 375px wide.
+ */
+function Cards({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+        gap: "var(--s-4)",
+        alignItems: "stretch",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** One figure in the three-part pattern strip. */
+function Stat({ n, label }: { n: number; label: string }) {
+  return (
+    <Stack gap={1}>
+      <Readout step="figure" value={n} />
+      <Text step="micro" tone="secondary">{label}</Text>
+    </Stack>
+  );
+}
 
 /**
- * One figure on the record strip.
- *
- * `value === null` is a real state, not a loading state: `RecordTotals`
- * returns null for a source that could not be read, and lib/record.ts is
- * explicit that those columns are "null, never 0". Printing 0 there would
- * be the product asserting something it does not know, so the panel says
- * "not read" instead and the number is simply absent.
+ * One day in the seven-day bar. Height is proportional to a four-hour day,
+ * which is the goal the mockup names, and capped so an eleven-hour Sunday
+ * does not flatten the rest of the week into invisibility.
  */
-function Stat({ label, value }: { label: string; value: number | null }) {
+function DayBar({ minutes }: { minutes: number }) {
+  const pct = Math.min(100, Math.round((minutes / 240) * 100));
   return (
-    <Panel tone="recessed" pad={4}>
-      <Stack gap={1}>
-        {value === null ? (
-          <Text step="label" tone="secondary">not read</Text>
-        ) : (
-          // `figure`, not `display`. On day one every one of these is 0, and
-          // at `display` the four zeros were the loudest thing on a new
-          // student's first screen. A count is a quiet fact until there is
-          // something to count; `display` is for a figure that has earned the
-          // attention.
-          <Readout step="figure" value={value} />
-        )}
-        <Text step="micro" tone="secondary">{label}</Text>
-      </Stack>
-    </Panel>
+    <div
+      aria-hidden
+      style={{
+        width: 12,
+        height: 40,
+        background: "var(--g-1)",
+        borderRadius: "var(--r-control)",
+        display: "flex",
+        alignItems: "flex-end",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ width: "100%", height: `${pct}%`, background: "var(--accent)" }} />
+    </div>
   );
 }

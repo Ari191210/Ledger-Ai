@@ -20,16 +20,21 @@ export default function NotFound() {
         </div>
         <div style={{ fontFamily: "monospace", fontSize: 11, color: "#555", marginBottom: 24, lineHeight: 1.7 }}>
           The link may be out of date, or the tool may have moved. Your work is
-          unaffected — nothing here is stored on this page.
+          unaffected. Nothing here is stored on this page.
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <Link href="/today"
-            style={{ fontFamily: "monospace", fontSize: 11, padding: "10px 20px", background: "#222", color: "#f7f4ee", border: "none", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}
+          {/* The label said "Capture" long after /capture was retired (§7.9).
+              The href had been repointed to /today, so this button sent a lost
+              student somewhere its own label did not name. The landing surface
+              is /dashboard (§7.10), which is where someone who took a dead
+              link should arrive. */}
+          <Link href="/dashboard"
+            style={{ fontFamily: "monospace", fontSize: 11, padding: "12px 20px", minHeight: 44, display: "inline-flex", alignItems: "center", background: "#222", color: "#f7f4ee", border: "none", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}
           >
-            Capture
+            Dashboard
           </Link>
           <Link href="/"
-            style={{ fontFamily: "monospace", fontSize: 11, padding: "10px 20px", background: "transparent", color: "#222", border: "1px solid #ddd", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}
+            style={{ fontFamily: "monospace", fontSize: 11, padding: "12px 20px", minHeight: 44, display: "inline-flex", alignItems: "center", background: "transparent", color: "#222", border: "1px solid #ddd", cursor: "pointer", letterSpacing: "0.06em", textTransform: "uppercase", textDecoration: "none" }}
           >
             Landing
           </Link>

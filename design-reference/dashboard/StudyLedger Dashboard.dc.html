@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#F3EEE5;}
+  *{box-sizing:border-box;}
+  a{color:#C56A3A;text-decoration:none;}
+  a:hover{color:#A85530;text-decoration:underline;}
+</style>
+</helmet>
+
+<div style="display:flex;width:100%;max-width:1250px;margin:0 auto;font-family:'IBM Plex Sans',sans-serif;color:#24221F;">
+
+  <!-- Nav rail -->
+  <div style="width:64px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 0 20px;">
+    <sc-for list="{{ railItems }}" as="n" hint-placeholder-count="6">
+      <div onClick="{{ n.onClick }}" style="{{ n.wrapStyle }}">
+        <div style="position:relative;width:20px;height:20px;">
+          <sc-for list="{{ n.layers }}" as="ly" hint-placeholder-count="2">
+            <div style="{{ ly }}"></div>
+          </sc-for>
+        </div>
+        <span style="{{ n.labelStyle }}">{{ n.label }}</span>
+      </div>
+    </sc-for>
+    <div style="margin-top:auto;width:30px;height:30px;border-radius:50%;background:repeating-linear-gradient(45deg, #D9D0C2, #D9D0C2 3px, #F3EEE5 3px, #F3EEE5 6px);"></div>
+  </div>
+
+  <div style="flex:1;min-width:0;padding:22px 24px 40px 0;">
+
+  <!-- Topbar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <div style="display:flex;align-items:center;gap:18px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:20px;height:20px;border-radius:5px;background:#C56A3A;"></div>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:-0.01em;">StudyLedger</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:2px;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:9px;padding:3px;">
+        <sc-for list="{{ navTabs }}" as="t" hint-placeholder-count="3">
+          <div onClick="{{ t.onClick }}" style="{{ t.style }}white-space:nowrap;">{{ t.label }}</div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:12.5px;font-weight:600;color:white;background:#C56A3A;padding:7px 13px;border-radius:8px;">+ Add task</div>
+      <div style="width:13px;height:13px;border-radius:50%;border:1.6px solid #777066;"></div>
+    </div>
+  </div>
+
+  <!-- Row 1 -->
+  <div style="display:flex;gap:14px;align-items:stretch;">
+
+    <!-- Module A: Week study time -->
+    <div style="flex:1.55;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:baseline;gap:10px;">
+        <span style="font-size:11.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#777066;white-space:nowrap;">This week</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px;margin-bottom:14px;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;">24.5h</span>
+        <span style="font-size:12px;font-weight:600;color:#6E8061;background:#F0E8DA;padding:3px 8px;border-radius:20px;">+3.5h vs last wk</span>
+      </div>
+      <div style="position:relative;flex:1;display:flex;align-items:flex-end;gap:12px;padding-top:10px;min-height:130px;">
+        <div style="position:absolute;left:0;right:0;top:{{ goalLineTop }}px;border-top:1.5px dashed #D9D0C2;"></div>
+        <span style="position:absolute;right:0;top:{{ goalLineLabelTop }}px;font-size:10.5px;color:#777066;">goal 4h</span>
+        <sc-for list="{{ dayBars }}" as="d" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;">
+            <div style="{{ d.barStyle }}"></div>
+            <span style="{{ d.labelStyle }}">{{ d.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid #D9D0C2;">
+        <span style="font-size:12px;color:#777066;">Goal: 4h / day</span>
+        <span style="font-size:12px;color:#777066;">5 of 7 days met goal</span>
+      </div>
+    </div>
+
+    <!-- Module B: Next up timeline -->
+    <div style="flex:1;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <span style="font-weight:600;font-size:14.5px;">Next up</span>
+        <span style="font-size:11px;font-weight:700;color:white;background:#C56A3A;border-radius:20px;padding:1px 7px;">4</span>
+      </div>
+      <div style="display:flex;flex-direction:column;flex:1;">
+        <sc-for list="{{ upcomingTasks }}" as="task" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #D9D0C2;">
+            <div style="font-size:11px;font-weight:600;color:#777066;background:#F3EEE5;border-radius:6px;padding:4px 6px;flex:none;width:44px;text-align:center;">{{ task.time }}</div>
+            <div style="width:6px;height:6px;border-radius:50%;background:{{ task.color }};flex:none;"></div>
+            <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+              <span style="font-size:13px;font-weight:600;">{{ task.title }}</span>
+              <span style="font-size:11px;color:#777066;">{{ task.subject }}</span>
+            </div>
+            <span style="font-size:11px;color:#777066;flex:none;">{{ task.duration }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2 -->
+  <div style="display:flex;gap:14px;margin-top:14px;">
+
+    <!-- Module C: Subject mastery -->
+    <div style="flex:1;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+<span style="font-weight:600;font-size:13.5px;white-space:nowrap;">Subject mastery</span>
+        <span style="font-size:12px;color:#777066;">avg <b style="color:#24221F;">78%</b></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;align-content:space-evenly;">
+        <sc-for list="{{ masteryItems }}" as="m" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:11px;">
+            <svg width="42" height="42" viewBox="0 0 42 42" style="flex:none;">
+              <circle cx="21" cy="21" r="17" fill="none" stroke="#D9D0C2" stroke-width="5"></circle>
+              <circle cx="21" cy="21" r="17" fill="none" stroke="{{ m.color }}" stroke-width="5" stroke-dasharray="{{ m.arc }}" stroke-linecap="round" transform="rotate(-90 21 21)"></circle>
+            </svg>
+            <div style="display:flex;flex-direction:column;">
+              <span style="font-size:12px;color:#777066;">{{ m.name }}</span>
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">{{ m.pct }}%</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- Module D: Assignment pipeline -->
+    <div style="flex:1;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <span style="font-weight:600;font-size:13.5px;">Assignments</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;">9</span>
+      </div>
+      <div style="display:flex;height:9px;border-radius:5px;overflow:hidden;">
+        <div style="width:44%;background:#6E8061;"></div>
+        <div style="width:33%;background:#C56A3A;"></div>
+        <div style="width:23%;background:#D9D0C2;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:18px;">
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">4</span>
+          <span style="font-size:11px;color:#777066;">Done</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">3</span>
+          <span style="font-size:11px;color:#777066;">In progress</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;">2</span>
+          <span style="font-size:11px;color:#777066;">Not started</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid #D9D0C2;">
+        <span style="font-size:11px;font-weight:600;color:#777066;">Due soon</span>
+        <sc-for list="{{ dueSoon }}" as="ds" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:{{ ds.color }};flex:none;"></div>
+            <span style="font-size:12px;flex:1;min-width:0;">{{ ds.title }}</span>
+            <span style="font-size:11px;color:#777066;flex:none;">{{ ds.due }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- Module E: Streak (dark) -->
+    <div style="flex:1;background:#15181D;border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;color:#FBF8F1;">
+      <span style="font-weight:600;font-size:13.5px;margin-bottom:8px;">Study streak</span>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;">14</span>
+        <span style="font-size:12px;color:#B5A996;">days in a row</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+        <sc-for list="{{ heatCells }}" as="c" hint-placeholder-count="35">
+          <div style="{{ c.style }}"></div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3 -->
+  <div style="display:flex;gap:14px;margin-top:14px;">
+
+    <!-- Module F: Revision queue (tinted) -->
+    <div style="flex:0.85;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;">
+      <span style="font-weight:600;font-size:13.5px;margin-bottom:12px;">Revision queue</span>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <sc-for list="{{ revisionItems }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <svg width="28" height="28" viewBox="0 0 28 28" style="flex:none;">
+              <circle cx="14" cy="14" r="11" fill="none" stroke="#D9D0C2" stroke-width="3"></circle>
+              <circle cx="14" cy="14" r="11" fill="none" stroke="{{ r.color }}" stroke-width="3" stroke-dasharray="{{ r.arc }}" stroke-linecap="round" transform="rotate(-90 14 14)"></circle>
+            </svg>
+            <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
+              <span style="font-size:12.5px;font-weight:600;">{{ r.name }}</span>
+              <span style="font-size:11px;color:#777066;">{{ r.mastered }}</span>
+            </div>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;">{{ r.count }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- Module G: Grade trend -->
+    <div style="flex:1.4;background:#FBF8F1;border:1px solid #D9D0C2;border-radius:16px;padding:20px 22px;position:relative;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div>
+          <span style="font-weight:600;font-size:13.5px;">Grade trend</span>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-top:6px;">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;">8.4</span>
+            <span style="font-size:12px;color:#777066;">GPA avg, last 5 terms</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <sc-for list="{{ trendLegend }}" as="lg" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:{{ lg.color }};"></div>
+              <span style="font-size:11.5px;color:#777066;">{{ lg.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <svg width="100%" height="130" viewBox="0 0 520 130" preserveAspectRatio="none" style="margin-top:6px;">
+        <line x1="0" y1="20" x2="520" y2="20" stroke="#D9D0C2" stroke-width="1"></line>
+        <line x1="0" y1="60" x2="520" y2="60" stroke="#D9D0C2" stroke-width="1"></line>
+        <line x1="0" y1="100" x2="520" y2="100" stroke="#D9D0C2" stroke-width="1"></line>
+        <sc-for list="{{ trendLines }}" as="ln" hint-placeholder-count="3">
+          <polyline points="{{ ln.points }}" fill="none" stroke="{{ ln.color }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+        </sc-for>
+      </svg>
+      <div style="display:flex;justify-content:space-between;padding:0 4px;">
+        <sc-for list="{{ termLabels }}" as="tl" hint-placeholder-count="5">
+          <span style="font-size:11px;color:#777066;">{{ tl }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { tab: 'today', page: 'home' };
+
+  navTab(id, label) {
+    const active = this.state.tab === id;
+    return {
+      label,
+      onClick: () => this.setState({ tab: id }),
+      style: `padding:6px 13px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;background:${active ? '#292722' : 'transparent'};color:${active ? 'white' : '#777066'};`
+    };
+  }
+
+  railItem(id, label, kind) {
+    const active = this.state.page === id;
+    const c = active ? '#C56A3A' : '#777066';
+    const abs = (x, y, w, h, extra) => `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}`;
+    const layers = {
+      home: [
+        abs(3, 8, 14, 10, `border:2px solid ${c};border-radius:2px;background:none;`),
+        abs(8, 12, 4, 6, `background:${c};border-radius:1px;`),
+      ],
+      subjects: [
+        abs(4, 2, 12, 16, `border:2px solid ${c};border-radius:2px;background:none;`),
+        abs(9.5, 2, 1.5, 16, `background:${c};`),
+      ],
+      planner: [
+        abs(2, 4, 16, 14, `border:2px solid ${c};border-radius:2px;background:none;`),
+        abs(2, 4, 16, 4, `background:${c};border-radius:2px 2px 0 0;`),
+      ],
+      tasks: [
+        abs(3, 3, 14, 14, `border:2px solid ${c};border-radius:3px;background:none;`),
+        abs(8, 8, 4, 4, `background:${c};border-radius:50%;`),
+      ],
+      notes: [
+        abs(4, 2, 12, 16, `border:2px solid ${c};border-radius:2px;background:none;`),
+        abs(7, 7, 6, 1.5, `background:${c};`),
+        abs(7, 11, 6, 1.5, `background:${c};`),
+      ],
+      tools: [
+        abs(2, 2, 10, 10, `border:2px solid ${c};border-radius:50%;background:none;`),
+        abs(10, 10, 8, 8, `background:${c};border-radius:50%;`),
+      ],
+    };
+    return {
+      label,
+      onClick: () => this.setState({ page: id }),
+      wrapStyle: `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:9px 4px;border-radius:10px;cursor:pointer;width:56px;background:${active ? '#FBF8F1' : 'transparent'};`,
+      labelStyle: `font-size:10px;font-weight:${active ? 600 : 500};color:${c};text-align:center;`,
+      layers: layers[kind],
+    };
+  }
+
+  arc(pct, r) {
+    const c = 2 * Math.PI * r;
+    return `${(pct / 100) * c} ${c}`;
+  }
+
+  renderVals() {
+    const dayHours = [3.5, 4.2, 2.8, 5.0, 3.0, 4.6, 1.4];
+    const days = ['M','T','W','T','F','S','S'];
+    const maxH = 5.6, chartH = 110, goal = 4;
+    const dayBars = dayHours.map((h, i) => {
+      const isToday = i === 5;
+      const barH = (h / maxH) * chartH;
+      return {
+        label: days[i],
+        labelStyle: `font-size:11px;font-weight:${isToday ? 700 : 500};color:${isToday ? '#24221F' : '#777066'};`,
+        barStyle: `width:20px;height:${barH}px;border-radius:5px 5px 3px 3px;background:${isToday ? '#C56A3A' : '#D9D0C2'};`
+      };
+    });
+
+    const heatCells = Array.from({ length: 35 }, (_, i) => {
+      const intensity = (i % 9 === 0) ? 0 : [0.25, 0.45, 0.65, 0.85, 1][i % 5];
+      const l = 30 + intensity * 30, c = 0.02 + intensity * 0.14;
+      return { style: `width:100%;padding-top:100%;border-radius:3px;background:oklch(${l}% ${c} 45);` };
+    });
+
+    const masteryItems = [
+      { name: 'Physics', pct: 82, color: '#607C91', arc: this.arc(82, 17) },
+      { name: 'Mathematics', pct: 65, color: '#D6A84F', arc: this.arc(65, 17) },
+      { name: 'Chemistry', pct: 74, color: '#6E8061', arc: this.arc(74, 17) },
+      { name: 'English', pct: 90, color: '#C56A3A', arc: this.arc(90, 17) },
+    ];
+
+    const revisionItems = [
+      { name: 'Physics — Optics', mastered: '62% mastered', count: 18, color: '#607C91', arc: this.arc(62, 11) },
+      { name: 'Chemistry — Bonding', mastered: '40% mastered', count: 24, color: '#6E8061', arc: this.arc(40, 11) },
+      { name: 'English — Grammar', mastered: '78% mastered', count: 9, color: '#C56A3A', arc: this.arc(78, 11) },
+    ];
+
+    const trendData = {
+      Physics: [7.2, 7.6, 7.9, 8.1, 8.6],
+      Mathematics: [6.8, 7.0, 7.5, 7.4, 7.9],
+      Chemistry: [8.0, 8.3, 8.1, 8.6, 8.9],
+    };
+    const colors = { Physics: '#607C91', Mathematics: '#D6A84F', Chemistry: '#6E8061' };
+    const xs = [10, 135, 260, 385, 510];
+    const toY = (v) => 110 - ((v - 6.5) / (9 - 6.5)) * 90;
+    const trendLines = Object.keys(trendData).map((k) => ({
+      color: colors[k],
+      points: trendData[k].map((v, i) => `${xs[i]},${toY(v)}`).join(' ')
+    }));
+
+    return {
+      navTabs: [this.navTab('today', 'Today'), this.navTab('week', 'This Week'), this.navTab('planner', 'Planner')],
+      railItems: [
+        this.railItem('home', 'Home', 'home'),
+        this.railItem('subjects', 'Subjects', 'subjects'),
+        this.railItem('planner', 'Planner', 'planner'),
+        this.railItem('tasks', 'Tasks', 'tasks'),
+        this.railItem('notes', 'Notes', 'notes'),
+        this.railItem('tools', 'Tools', 'tools'),
+      ],
+      goalLineTop: chartH - (goal / maxH) * chartH,
+      goalLineLabelTop: chartH - (goal / maxH) * chartH - 16,
+      dayBars,
+      upcomingTasks: [
+        { time: '09:00', color: '#607C91', title: 'Optics problem set', subject: 'Physics', duration: '45m' },
+        { time: '11:30', color: '#D6A84F', title: 'Calculus revision', subject: 'Mathematics', duration: '30m' },
+        { time: '14:00', color: '#C56A3A', title: 'Essay draft due', subject: 'English', duration: '—' },
+        { time: '16:15', color: '#6E8061', title: 'Titration lab writeup', subject: 'Chemistry', duration: '20m' },
+      ],
+      masteryItems,
+      dueSoon: [
+        { title: 'Essay draft — English', due: 'Today', color: '#C56A3A' },
+        { title: 'Lab writeup — Chemistry', due: 'Tomorrow', color: '#6E8061' },
+      ],
+      heatCells,
+      revisionItems,
+      trendLegend: [
+        { name: 'Physics', color: '#607C91' },
+        { name: 'Math', color: '#D6A84F' },
+        { name: 'Chem', color: '#6E8061' },
+      ],
+      trendLines,
+      termLabels: ['T1', 'T2', 'T3', 'T4', 'T5'],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

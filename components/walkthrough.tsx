@@ -45,7 +45,11 @@ type Step = {
 
 const STEPS: readonly Step[] = [
   {
-    title: "This is Capture",
+    // Titled "This is Capture" until §7.9 retired that route. The walkthrough
+    // now runs on /today, so the first thing a student is told about had no
+    // surface behind it. The step still describes the same ACT of recording a
+    // paper, which /today opens, so only the name changes.
+    title: "Start with a marked paper",
     body:
       "Photograph a marked paper, or paste what the marker wrote. It is stored " +
       "exactly as you upload it, and it is never shown to anyone else.",

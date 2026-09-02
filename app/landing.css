@@ -557,7 +557,23 @@
   margin-top: var(--s-7);
   letter-spacing: 0.03em;
 }
-.colophon a { color: var(--g-6); }
+/* The colophon anchors are the only way BACK IN for a returning student:
+   "Already have a record? Sign in", and the Sign in / Terms pair in the
+   footer. At 375px they measured 13px tall, because an inline anchor is only
+   as tall as its own text. They are deliberately quiet, so the fix must not
+   make them loud: inline-block with vertical padding grows the hit area to
+   44px while leaving the type size, colour and position untouched.
+
+   The negative margin absorbs the padding so the surrounding sentence does
+   not re-flow around a suddenly taller inline box. */
+.colophon a {
+  color: var(--g-6);
+  display: inline-block;
+  /* 14px landed the box at 43px, because the micro line-height is a
+     fractional number that floors to 15, not 16. Measured, not assumed. */
+  padding: 15px 4px;
+  margin: -15px 0;
+}
 
 /* ── CONTROLS ─────────────────────────────────────────────────────────────
    §6.6: a control has rest, hover, press, focus and disabled.

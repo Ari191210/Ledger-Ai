@@ -1091,6 +1091,50 @@ not the final visual design. `components/dashboard/*` (six surviving panels
 from the retired `/home`) and `lib/home/*` (the composition engine) are still
 in the repository, unmounted, and are the obvious material for that pass.
 
+### 7.10a The mockup's streak tile is not built (2026-09-01)
+
+**Founder instruction:** *"do everything acc to studyledger"*, twice, when
+asked whether to build the streak tile or keep the fence.
+
+The supplied HTML mockup has a "Study streak, 14 days" tile. §9.3 removed
+streaks from every surface and `tests/m0-integrity-fences.test.mjs` exists
+specifically to stop one returning, so the mockup and the product disagreed.
+The instruction resolves it in the product's favour: the tile renders
+**Consistency** instead, which is the same underlying signal expressed as
+§9.3's replacement rather than as a run of days a student can break.
+
+`score_history.streak` is still WRITTEN. `lib/ledger-score.ts` reads it as the
+raw input to the Consistency term, so deleting the write would silently move
+every student's score. §9.3 removed the PRESENTATION, not the storage, and
+`/api/dashboard` no longer returns the field, so no future card can render one
+without deliberately reopening this decision.
+
+### 7.10b Next Up is derived, never read from the table (2026-09-01)
+
+The card first queried the `recommendations` table directly. That was wrong
+twice. It was **dead**: nothing in the codebase inserts into that table, since
+`lib/recommendations/engine.ts` is I/O-free by design, so the card would have
+shown its empty state forever while looking perfectly normal. It also broke
+the K.3/V.11 fence, which confines that table to the engine so a recommendation
+can never be smuggled in as something that gates a student. The card now
+derives candidates in memory from open patterns and due retests, exactly as
+`/api/today` does, so the two surfaces cannot disagree about what to suggest.
+
+### 7.10c The retirement of `/capture` finished (2026-09-01)
+
+§7.9 repointed 31 references but three student-facing **labels** still named
+the deleted route while their hrefs pointed elsewhere: the 404's primary
+button read "Capture", the empty state's only control read "Open Capture", and
+the first-run walkthrough opened with "This is Capture". Each sent a student
+somewhere its own label did not name. Relabelled to Dashboard, Open Today, and
+"Start with a marked paper".
+
+Every tap target the product owns now clears 44px at 375px, measured by
+`scripts/render-375.mjs`. The two that failed were the sign-in screen's escape
+hatches, "Forgot password?" at 17px and "Create one free" at 23px, which are
+exactly the controls a student needs when they cannot get in. The type is
+unchanged. Only the hit area grew.
+
 ---
 
 

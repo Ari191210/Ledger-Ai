@@ -65,7 +65,10 @@ export default function EmptyChair({ daysSince, onDismiss }: Props) {
             Done. Start anywhere.
           </div>
           <Link href="/today" onClick={onDismiss} style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-3)", textDecoration: "none", letterSpacing: "0.06em" }}>
-            → Open Capture
+            {/* Said "Open Capture" after §7.9 deleted /capture. The href was
+                repointed to /today but the label was not, so the one control
+                on an empty screen named a route that no longer exists. */}
+            → Open Today
           </Link>
         </div>
       </div>

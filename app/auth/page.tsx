@@ -569,12 +569,29 @@ const authStyles = `
     font-family: var(--type-interface);
     font-size: var(--t-body);
     color: var(--g-6);
+    /* The nudge is "No account? Create one free": text and an inline-flex
+       button on one line. Without this they sit on different baselines. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-1);
   }
 
+  /* A zero padding collapsed these to text height: 17px and 23px against a
+     44px minimum, measured at 375px by scripts/render-375.mjs. They are the
+     two escape hatches on the sign-in screen, so a student who mistypes a
+     password or has no account yet is the one who has to hit them.
+
+     The target is grown with min-height and a flex centre rather than
+     padding, so the INK does not move: same size, same weight, same
+     position, just a box around it that a thumb can actually land on. */
   .auth-link-quiet {
     background: none !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 0 var(--s-2) !important;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     cursor: pointer;
     color: var(--g-6) !important;
     font-family: var(--type-interface);
@@ -584,7 +601,10 @@ const authStyles = `
   .auth-link {
     background: none !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 0 var(--s-1) !important;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
     cursor: pointer;
     color: var(--info) !important;
     font-family: var(--type-interface);
