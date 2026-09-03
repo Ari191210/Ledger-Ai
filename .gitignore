@@ -1,67 +1,29 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-
-# testing
-/coverage
 
 # next.js
 /.next/
 /out/
-
-# production
 /build
+next-env.d.ts
+*.tsbuildinfo
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
+# env
 .env
 .env.*
-!.env.local.example
-.env*.local
+!.env.example
 
 # vercel
-.vercel
+/.vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# editor / OS
+.DS_Store
+*.pem
+npm-debug.log*
 
-# Claude Code internals
-.agents/
+# claude code
 .claude/
-.continue/
-skills/
-skills-lock.json
-stitch-assets/
+.impeccable/
 
-# agent logs and scratch files
-.github/agent/*.log
-test.txt
-Studyledger/
-
-# OpenMontage — video production tool (not part of the Next.js app)
-/openmontage/
-
-# local tool artifacts
-ruvector.db
-.firecrawl/
-
-.vercel
-.env.local
-.test-build*
-.lights-build
-
-.vercel
-artifacts/  
+# local datasets not part of the app
+/the_well

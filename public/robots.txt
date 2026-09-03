@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://studyledger.in/sitemap.xml

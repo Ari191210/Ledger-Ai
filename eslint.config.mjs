@@ -1,21 +1,14 @@
-import { fixupConfigRules } from "@eslint/compat";
-import { fixupPluginRules } from "@eslint/compat";
-import pluginNext from "@next/eslint-plugin-next";
-import pluginReact from "eslint-plugin-react";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
 
-export default [
-  {
-    plugins: {
-      next: fixupPluginRules(pluginNext),
-      react: fixupPluginRules(pluginReact),
-    },
-    rules: {
-      ...fixupConfigRules(pluginNext.configs.recommended.rules),
-      ...fixupConfigRules(pluginNext.configs["core-web-vitals"].rules),
-      "react/react-in-jsx-scope": "off",
-    },
-  },
-  {
-    ignores: [".next/", "node_modules/", "out/", "build/"],
-  },
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({ baseDirectory: __dirname });
+
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
+
+export default eslintConfig;
