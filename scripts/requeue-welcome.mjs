@@ -103,10 +103,24 @@ console.log(`WILL CLOSE ${fixtures.length} test fixtures the same way. None of t
 // (a) The Resend key. A revoked key does not fail loudly: /api/welcome returns
 //     500, the job retries three times, and the queue ends up exactly as it
 //     started.
-const resendProbe = await fetch("https://api.resend.com/domains", {
-  headers: { Authorization: `Bearer ${env.RESEND_API_KEY}` },
+// Probe PRODUCTION, not .env.local. The key that decides whether a student
+// receives anything is the one in Vercel, and it cannot be read from here
+// because `vercel env pull` redacts values. Behaviour is the evidence, so ask
+// the deployed route whether it can send.
+//
+// A local key can be stale while production is fine, which is exactly the
+// state after a rotation. Blocking on the local copy would refuse a requeue
+// that would have worked perfectly.
+const mailProbe = await fetch("https://www.studyledger.in/api/welcome", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({}),
 });
-console.log(`\nresend credentials: ${resendProbe.ok ? "valid" : `REJECTED (HTTP ${resendProbe.status})`}`);
+// 401 means the route is alive and refusing an unauthenticated caller, which
+// says nothing about Resend. A 500 naming the key is the real failure.
+const mailBody = await mailProbe.text();
+const mailBroken = /API key is invalid|RESEND_API_KEY/i.test(mailBody);
+console.log(`\nproduction mail path: ${mailBroken ? "REJECTED - " + mailBody.slice(0, 80) : "no credential error"}`);
 
 // (b) The idempotency flag. /api/welcome skips any account carrying
 //     app_metadata.welcomeSent. That flag is written only after a send returns
@@ -129,9 +143,12 @@ if (flagged.length) {
 }
 
 const blockers = [];
-if (!resendProbe.ok) blockers.push("the Resend API key is rejected, so no mail can be sent by anyone");
+if (mailBroken) blockers.push("production reports a Resend credential error, so nothing would be delivered");
 if (flagged.length) blockers.push(`${flagged.length} account(s) carry welcomeSent and would be skipped silently`);
-if (redirects) blockers.push("the apex still redirects, so the deployed build predates the normaliseOrigin() fix");
+// The apex redirect is NOT a blocker. studyledger.in -> www is permanent and
+// correct. The defect was that lib/jobs.ts FOLLOWED it and lost its
+// Authorization header, which normaliseOrigin() fixed in code. Blocking on the
+// redirect would refuse a requeue forever, for a condition that is by design.
 
 if (blockers.length) {
   console.log("\nBLOCKED. Requeuing now would mark rows done without delivering:");

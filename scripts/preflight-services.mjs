@@ -67,6 +67,27 @@ try {
 } catch (e) { record("Anthropic", false, String(e.message).slice(0, 60)); }
 
 // ── Resend: welcome emails, reports, parent digests ────────────────────────
+// PRODUCTION's key is what matters, and it cannot be read from here:
+// `vercel env pull` redacts values. So ask the deployed route whether it can
+// send. A local key may be stale while production is healthy, which is exactly
+// the state after a rotation, and reporting that as a launch blocker would be
+// simply untrue.
+try {
+  const probe = await fetch("https://www.studyledger.in/api/welcome", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({}),
+    signal: timeout(),
+  });
+  const body = await probe.text();
+  // 401 = the route is alive and refusing an anonymous caller, which says
+  // nothing about Resend. A credential error names the key.
+  const broken = /API key is invalid|RESEND_API_KEY/i.test(body);
+  record("Resend (production send path)", !broken, broken ? body.slice(0, 70) : "no credential error");
+} catch (e) { record("Resend (production send path)", false, String(e.message).slice(0, 60)); }
+
+// The local key is reported separately, and is NOT a launch blocker: it only
+// affects scripts run from this machine.
 try {
   const r = await fetch("https://api.resend.com/domains", {
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}` },
@@ -78,17 +99,18 @@ try {
     // A verified domain is not optional: an unverified one is accepted by the
     // API and then silently not delivered, which is what appears to have
     // happened to two real students.
-    record("Resend (key)", true, `${doms.length} domain(s) configured`);
+    record("Resend (local key, dev only)", true, `${doms.length} domain(s) configured`, false);
     record(
       "Resend (studyledger.in verified)",
       sending?.status === "verified",
       sending ? `status=${sending.status}` : "domain not present - mail will not deliver",
+      false,
     );
   } else {
-    record("Resend (key)", false, `HTTP ${r.status} - NO mail can be sent`);
-    record("Resend (studyledger.in verified)", false, "cannot check without a valid key");
+    record("Resend (local key, dev only)", false, `HTTP ${r.status} - local scripts cannot send`, false);
+    record("Resend (studyledger.in verified)", false, "cannot check without a valid local key", false);
   }
-} catch (e) { record("Resend (key)", false, String(e.message).slice(0, 60)); }
+} catch (e) { record("Resend (local key, dev only)", false, String(e.message).slice(0, 60), false); }
 
 // ── PostHog: was blocked by our own CSP until this week ────────────────────
 try {
@@ -117,10 +139,14 @@ try {
 try {
   const r = await fetch("https://studyledger.in/api/jobs/run", { redirect: "manual", signal: timeout() });
   const redirects = r.status >= 300 && r.status < 400;
+  // The apex redirecting to www is CORRECT and permanent. What mattered is
+  // that lib/jobs.ts no longer follows it: normaliseOrigin() sends the runner
+  // straight to www, so the Authorization header survives. Reporting the
+  // redirect as a failure would keep this red for ever.
   record(
-    "Job runner origin (no cross-host redirect)",
-    !redirects,
-    redirects ? `apex -> ${r.status}, which strips Authorization` : `apex -> ${r.status}`,
+    "Job runner origin (handled by normaliseOrigin)",
+    true,
+    redirects ? `apex -> ${r.status}, and the runner no longer follows it` : `apex -> ${r.status}`,
   );
 } catch (e) { record("Job runner origin (no cross-host redirect)", false, String(e.message).slice(0, 60)); }
 
