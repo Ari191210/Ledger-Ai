@@ -87,7 +87,7 @@ ALTER TABLE public.jobs
   VALIDATE CONSTRAINT jobs_status_check;
 
 COMMENT ON CONSTRAINT jobs_status_check ON public.jobs IS
-  'Declared in 000 and 004 but never applied: 004 used CREATE TABLE IF NOT EXISTS against a table that already existed, so the whole definition was skipped. Added by 037 after production was measured accepting an arbitrary status. lib/jobs.ts selects on status = pending, so an unrecognised status does not raise, it strands the job silently.';
+  'Declared in 000 and 004 but never applied. 004 used CREATE TABLE IF NOT EXISTS on a table that was already present, so the whole definition was skipped. Added by 037 after production was measured accepting an arbitrary status. lib/jobs.ts selects on status = pending, so an unrecognised status does not raise; it strands the job silently.';
 
 
 -- ── Verification the founder can run after applying this file ──────────────
@@ -126,7 +126,7 @@ END $$;
 SELECT supabase_migrations.record_migration(
   '037',
   '037_jobs_status_check.sql',
-  'ec48999716e0a3b05bf50d26f8a9678c3c1c024729d0033a92c7fe82baa56393'
+  '5fc9cf744fc4c5e50fe9c85562b48f976bbe5c7c991bb97063dae0e36be10f01'
 );
 
 -- What this part left behind, from the database rather than from a claim:
