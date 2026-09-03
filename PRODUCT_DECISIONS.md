@@ -1369,6 +1369,61 @@ PostHog blocked by our own CSP, and the missing `jobs.status` constraint. All
 six shared one shape: **code that reads correctly and was never observed
 running.**
 
+
+### 7.16 Live, and the AI was dead on arrival (2026-09-03)
+
+**Founder instruction:** *"finish the whole site and make it live"*.
+
+Merged 70 commits to `master` and deployed. `/dashboard` serves 200,
+`/capture` correctly 404s, every tap target clears 44px at 375px, and
+`scripts/walk-journey.mjs --prod` walked a real account through all ten
+onboarding pages onto the dashboard in swan.
+
+**Then the core loop was exercised, and the AI returned 502 for every tool.**
+Deploying proves code shipped; it does not prove the product does anything.
+`scripts/exercise-core-loop.mjs` signs in as a real student and asks for a
+real answer, which is the difference.
+
+The diagnosis took four wrong turns worth recording, because each was a
+plausible story that the evidence refused:
+
+1. **Not the model.** `AI_MODEL_DEFAULT` is unset in production, and the
+   shipped `claude-sonnet-4-6` is in the key's own model list.
+2. **Not a timeout.** `maxDuration` is 60s; the failures returned in 2 to 7s,
+   which is a rejection, not a hang.
+3. **Not an empty variable.** `vercel env pull` reported `ANTHROPIC_API_KEY=""`
+   and 26 others as blank, which looked decisive. It was not: the public
+   Supabase URL was equally "empty" while the live site signs students in. The
+   values are **redacted** on pull, and the served JS chunks still contain
+   them. A conclusion drawn there would have been confidently wrong.
+4. **It was the key.** The identical request, same model and `max_tokens`,
+   succeeds with the local key and fails in production. Behaviour is the
+   evidence when the value cannot be read.
+
+Replaced `ANTHROPIC_API_KEY` in Vercel with the working key, **after probing
+it** so a bad key could never be promoted, and redeployed. Verified: the core
+loop now works for a real student on production, 11.5s for a full answer, and
+the answer carries no em-dash.
+
+**Also cleaned up after myself.** The verification runs enqueued 22 welcome
+jobs for accounts that were then deleted. Left pending they would have fired on
+the next cron, failed, and polluted the very queue that reports whether real
+students got their email. Closed as `done` with the reason recorded, never
+deleted (K.4). The three real students remain untouched and still waiting.
+
+**Two tests were wrong, not the product.** `tests/assessment-engine.test.mjs`
+split source on `"\n"` and anchored on `json({\n`, so on a CRLF checkout its
+comment stripper barely worked and its response anchor could never match. A
+comment mentioning `/api/ai` tripped a fence meant for code. Both are now
+line-ending agnostic, and both were confirmed to still catch a real violation.
+A test that fails on a correct product teaches you to ignore a red suite, which
+is how a real regression ships.
+
+**Still outstanding:** the Resend key. Production keeps its own copy which
+cannot be read, and `CRON_SECRET` here does not match production's, so the
+send path cannot be exercised from this machine. Local is definitely revoked.
+Until a working key is confirmed, `scripts/requeue-welcome.mjs` refuses to
+run, which is the correct behaviour.
 ---
 
 

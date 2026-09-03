@@ -1250,7 +1250,11 @@ describe('the route — the first typed capability module', () => {
   test('it does not import, call or route around /api/ai', () => {
     // The one surviving mention is a trailing comment citing the posture it
     // copied. What matters is that no CODE reaches that route.
-    const src = code(ROUTE).split('\n').map(l => l.replace(/\/\/.*$/, '')).join('\n');
+    // Split on /\r?\n/, not '\n'. On a CRLF checkout the old form left a
+    // trailing '\r' on every line, and /\/\/.*$/ without /m anchors at the end
+    // of the whole string, so comments were barely stripped and a comment
+    // naming `/api/ai` tripped a fence meant for CODE.
+    const src = code(ROUTE).split(/\r?\n/).map(l => l.replace(/\/\/.*$/, '')).join('\n');
     assert.doesNotMatch(src, /api\/ai/);
     assert.doesNotMatch(src, /fetch\(/, 'a capability module owns its model call; it does not proxy another route');
     assert.equal(read('app/api/ai/route.ts').includes('assessment-blueprint'), false,
@@ -1259,7 +1263,10 @@ describe('the route — the first typed capability module', () => {
 
   test('the response never carries an answer key', () => {
     const src = code(ROUTE);
-    const start = src.indexOf('return NextResponse.json({\n    ok: true');
+    // Line-ending agnostic: the literal '\n' form cannot match a CRLF file,
+    // so this silently found nothing and the assertion below failed on a
+    // correct route.
+    const start = src.search(/return NextResponse\.json\(\{\r?\n\s*ok: true/);
     assert.ok(start > 0, 'the success response must be findable');
     assert.doesNotMatch(src.slice(start), /answer_key/,
       'a question is presented; a key is graded against, server-side, by M10-5');
