@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
 import { playClick } from "@/lib/sound";
 import { logMistakeAction, logPyqAction, logFocusAction } from "@/app/(app)/dashboard/actions";
+import { SUBJECTS } from "@/lib/subjects";
 
-const SUBJECTS = ["Physics", "Chemistry", "Maths", "Biology", "English", "Economics"];
 type Tab = "mistake" | "pyq" | "focus";
 
 export function QuickLog({
