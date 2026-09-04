@@ -4,6 +4,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
+import { FocusChart } from "@/components/dashboard/focus-chart";
 import { getDashboardData } from "@/lib/score/inputs";
 import { getLedgerTape } from "@/lib/score/tape";
 
@@ -47,8 +48,10 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const name = user?.email?.split("@")[0] ?? "there";
-  const { score, activity, studiedDays, dayDetails, coveragePct, syllabusLogged, fixNext } =
+  const { score, activity, focusHistory, studiedDays, dayDetails, coveragePct, syllabusLogged, fixNext } =
     await getDashboardData(supabase, user!.id);
+  const focusHistoryTotal = focusHistory.reduce((s, d) => s + d.minutes, 0);
+  const focusHistoryAvg = Math.round(focusHistoryTotal / focusHistory.length);
   const tape = await getLedgerTape(supabase, user!.id);
 
   const now = new Date();
@@ -151,10 +154,25 @@ export default async function DashboardPage() {
         </Reveal>
       </div>
 
-      {/* ── coverage strip ──────────────────────────────── */}
+      {/* ── focus history ────────────────────────────────── */}
       <Reveal delay={0.1}>
+        <section className="u-card p-4">
+          <div className="flex items-center justify-between">
+            <Label index="04">focus history</Label>
+            <span className="u-mono text-2xs text-text-3">
+              {Math.round(focusHistoryTotal / 60)}h total · {focusHistoryAvg}m avg/day · 30d
+            </span>
+          </div>
+          <div className="mt-10">
+            <FocusChart data={focusHistory} />
+          </div>
+        </section>
+      </Reveal>
+
+      {/* ── coverage strip ──────────────────────────────── */}
+      <Reveal delay={0.11}>
         <section className="u-card flex items-center gap-5 p-4">
-          <Label index="04">syllabus coverage</Label>
+          <Label index="05">syllabus coverage</Label>
           <div className="flex flex-1 items-center gap-3">
             <div className="h-1 flex-1 bg-surface-3">
               <div className="h-full bg-accent" style={{ width: `${coveragePct}%` }} />
@@ -171,7 +189,7 @@ export default async function DashboardPage() {
       <Reveal delay={0.14}>
         <section className="u-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Label index="05">fix next</Label>
+            <Label index="06">fix next</Label>
             <Segmented options={["all", "phy", "chem", "maths"]} size="sm" />
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -219,7 +237,7 @@ export default async function DashboardPage() {
             }}
           />
           <div className="p-4 pt-5">
-            <Label index="06">ledger tape</Label>
+            <Label index="07">ledger tape</Label>
             <div className="mt-3 divide-y divide-dashed divide-border">
               {tape.length === 0 && (
                 <p className="u-mono py-3 text-2xs text-text-3">

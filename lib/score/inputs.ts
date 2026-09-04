@@ -44,6 +44,7 @@ export type DashboardData = {
   score: ScoreBreakdown;
   streakDays: number;
   activity: ActivityTile[];
+  focusHistory: { day: string; minutes: number }[];
   studiedDays: Set<number>;
   dayDetails: Record<number, DayDetail>;
   coveragePct: number;
@@ -147,6 +148,10 @@ export const getDashboardData = cache(async function getDashboardData(
     },
   ];
 
+  // ── 30-day focus history (bars + rolling average in the UI) ─────────
+  const days30 = lastDays(30);
+  const focusHistory = days30.map((d) => ({ day: d, minutes: minutesByDay.get(d) ?? 0 }));
+
   // ── calendar (current month) ─────────────────────────────────────────
   const curMonthPrefix = to.slice(0, 7);
   const studiedDays = new Set(
@@ -195,6 +200,7 @@ export const getDashboardData = cache(async function getDashboardData(
     score,
     streakDays,
     activity,
+    focusHistory,
     studiedDays,
     dayDetails,
     coveragePct: syllabusTotal > 0 ? Math.round((syllabusCovered / syllabusTotal) * 100) : 0,
