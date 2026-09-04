@@ -234,3 +234,7 @@ export async function setTopicCovered(
 ) {
   return supabase.from("syllabus_topics").update({ covered }).eq("id", id);
 }
+
+export async function deleteSyllabusTopic(supabase: SupabaseClient, id: string) {
+  return supabase.from("syllabus_topics").delete().eq("id", id);
+}

@@ -89,7 +89,7 @@ export const TOOLS: Tool[] = [
     blurb: "Ask a specific question, get a specific answer — no fluff." },
   { slug: "tutor", name: "Tutor", category: "learn", kind: "ai", icon: MessageCircle,
     blurb: "A conversational walkthrough of a concept you're stuck on." },
-  { slug: "syllabus", name: "Syllabus Tracker", category: "learn", kind: "ai", icon: ListTree,
+  { slug: "syllabus", name: "Syllabus Tracker", category: "learn", kind: "stub", icon: ListTree,
     blurb: "Break your syllabus into topics and mark what's covered." },
   { slug: "formula", name: "Formula Sheet", category: "learn", kind: "ai", icon: Sigma,
     blurb: "Auto-built formula sheet for a subject or chapter." },

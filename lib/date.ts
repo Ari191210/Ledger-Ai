@@ -41,3 +41,11 @@ export function firstWeekdayIST(year: number, month: number): number {
   const dow = new Date(Date.UTC(year, month - 1, 1)).getUTCDay(); // Sun=0
   return (dow + 6) % 7;
 }
+
+/** Hour of day (0-23) for the given instant, in IST. */
+export function hourIST(when: string | Date): number {
+  const d = typeof when === "string" ? new Date(when) : when;
+  return Number(
+    new Intl.DateTimeFormat("en-GB", { timeZone: IST, hour: "2-digit", hour12: false }).format(d),
+  ) % 24;
+}
