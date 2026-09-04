@@ -4,22 +4,7 @@ import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
-
-// ─── placeholder data — wired to real inputs later ─────────────────────
-const ACTIVITY = [
-  { label: "pyq accuracy", value: "78%", goal: "85%", avg: "71%", data: [61, 64, 62, 69, 67, 73, 78] },
-  { label: "mistakes fixed", value: "34", goal: "40", avg: "28", data: [19, 24, 22, 27, 30, 31, 34] },
-  { label: "focus time", value: "9h20", goal: "14h", avg: "8h", data: [6, 8, 5, 9, 7, 10, 9] },
-];
-
-const FIX = [
-  { topic: "Rotational motion", subject: "physics · torque sign", count: 6 },
-  { topic: "Mole concept", subject: "chemistry · limiting reagent", count: 4 },
-  { topic: "Definite integrals", subject: "maths · substitution limits", count: 3 },
-  { topic: "Thermodynamics", subject: "physics · work-done sign", count: 2 },
-];
-
-const STUDIED = new Set([1, 2, 4, 5, 8, 9, 10, 12, 15, 16, 18, 19, 22, 23]);
+import { getDashboardData } from "@/lib/score/inputs";
 
 function Label({ index, children }: { index: string; children: string }) {
   return (
@@ -50,17 +35,12 @@ function Mini({ data }: { data: number[] }) {
         strokeLinejoin="round"
         className="text-text-2"
       />
-      <circle
-        cx={x(data.length - 1)}
-        cy={y(hi)}
-        r={2.2}
-        className="fill-accent-strong"
-      />
+      <circle cx={x(data.length - 1)} cy={y(data[data.length - 1])} r={2.2} className="fill-accent-strong" />
     </svg>
   );
 }
 
-function Calendar() {
+function Calendar({ studiedDays }: { studiedDays: Set<number> }) {
   const now = new Date();
   const y = now.getFullYear();
   const m = now.getMonth();
@@ -95,7 +75,7 @@ function Calendar() {
                   "u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums",
                   d === today
                     ? "bg-accent font-bold text-accent-on"
-                    : STUDIED.has(d)
+                    : studiedDays.has(d)
                       ? "bg-surface-3 text-text"
                       : "text-text-3",
                 )}
@@ -125,6 +105,8 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const name = user?.email?.split("@")[0] ?? "there";
+  const { score, activity, studiedDays, coveragePct, syllabusLogged, fixNext } =
+    await getDashboardData(supabase, user!.id);
 
   return (
     <div className="mx-auto max-w-[1240px] space-y-4">
@@ -150,33 +132,29 @@ export default async function DashboardPage() {
               </div>
 
               <div className="mt-3 flex items-end gap-4">
-                <StatNumber value={742} className="text-[4rem] leading-none" />
+                <StatNumber value={score.total} className="text-[4rem] leading-none" />
                 <div className="mb-2 space-y-0.5">
-                  <div className="text-xs text-text-2">developing</div>
+                  <div className="text-xs text-text-2">{score.tier.toLowerCase()}</div>
                   <div className="u-mono text-2xs text-text-3">
-                    58 to strong &nbsp;·&nbsp;{" "}
-                    <span className="text-accent-strong">+18 / wk</span>
+                    {score.nextTier
+                      ? `${score.nextTier.at - score.total} to ${score.nextTier.label.toLowerCase()}`
+                      : "top tier"}
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
-                {[
-                  ["pyq", 288, 400],
-                  ["coverage", 160, 250],
-                  ["mistakes", 154, 200],
-                  ["consistency", 140, 150],
-                ].map(([k, v, max]) => (
-                  <div key={k as string} className="flex-1">
-                    <div className="u-label">{k}</div>
+                {score.pillars.map((p) => (
+                  <div key={p.key} className="flex-1">
+                    <div className="u-label">{p.label}</div>
                     <div className="mt-1 flex items-baseline gap-1">
-                      <span className="u-stat-number text-sm">{v}</span>
-                      <span className="u-mono text-2xs text-text-3">/{max}</span>
+                      <span className="u-stat-number text-sm">{p.pts}</span>
+                      <span className="u-mono text-2xs text-text-3">/{p.max}</span>
                     </div>
                     <div className="mt-1.5 h-1 bg-surface-3">
                       <div
                         className="h-full bg-accent"
-                        style={{ width: `${(Number(v) / Number(max)) * 100}%` }}
+                        style={{ width: `${(p.pts / p.max) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -193,15 +171,12 @@ export default async function DashboardPage() {
                 <Segmented options={["7d", "30d", "term"]} size="sm" />
               </div>
               <div className="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-3">
-                {ACTIVITY.map((a) => (
-                  <div key={a.label}>
+                {activity.map((a) => (
+                  <div key={a.key}>
                     <Mini data={a.data} />
                     <div className="mt-2 u-stat-number text-[1.6rem]">{a.value}</div>
                     <div className="u-label mt-0.5">{a.label}</div>
-                    <div className="mt-2 flex gap-4 u-mono text-2xs text-text-3">
-                      <span>goal {a.goal}</span>
-                      <span>avg {a.avg}</span>
-                    </div>
+                    <div className="mt-2 u-mono text-2xs text-text-3">{a.sub}</div>
                   </div>
                 ))}
               </div>
@@ -211,7 +186,7 @@ export default async function DashboardPage() {
 
         {/* ── study days (right rail) ────────────────────── */}
         <Reveal delay={0.06}>
-          <Calendar />
+          <Calendar studiedDays={studiedDays} />
         </Reveal>
       </div>
 
@@ -221,11 +196,13 @@ export default async function DashboardPage() {
           <Label index="04">syllabus coverage</Label>
           <div className="flex flex-1 items-center gap-3">
             <div className="h-1 flex-1 bg-surface-3">
-              <div className="h-full bg-accent" style={{ width: "64%" }} />
+              <div className="h-full bg-accent" style={{ width: `${coveragePct}%` }} />
             </div>
-            <span className="u-stat-number text-sm">64%</span>
+            <span className="u-stat-number text-sm">{coveragePct}%</span>
           </div>
-          <span className="u-mono text-2xs text-text-3">target 100% · mar</span>
+          <span className="u-mono text-2xs text-text-3">
+            {syllabusLogged ? "target 100%" : "no syllabus logged yet"}
+          </span>
         </section>
       </Reveal>
 
@@ -237,9 +214,14 @@ export default async function DashboardPage() {
             <Segmented options={["all", "phy", "chem", "maths"]} size="sm" />
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {FIX.map((f) => (
+            {fixNext.length === 0 && (
+              <p className="u-mono col-span-full py-2 text-2xs text-text-3">
+                no open mistakes logged — nothing flagged yet
+              </p>
+            )}
+            {fixNext.map((f) => (
               <div
-                key={f.topic}
+                key={`${f.subject}-${f.topic}`}
                 className="flex flex-col justify-between rounded-[13px] border border-border bg-surface-2 p-3"
               >
                 <div className="flex items-start justify-between">
