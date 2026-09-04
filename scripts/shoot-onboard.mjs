@@ -1,0 +1,35 @@
+import puppeteer from "puppeteer-core";
+
+const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+const OUT =
+  "C:\\Users\\DELL\\AppData\\Local\\Temp\\claude\\C--Users-DELL\\4c35c787-6729-4f38-ac07-1c8702faf298\\scratchpad";
+
+const browser = await puppeteer.launch({
+  executablePath: CHROME,
+  headless: "new",
+  args: ["--no-sandbox", "--window-size=1200,1100"],
+});
+const page = await browser.newPage();
+await page.setViewport({ width: 1200, height: 1100 });
+
+await page.goto("http://localhost:3000/login", { waitUntil: "networkidle2" });
+await page.type('input[type="email"]', "preview@studyledger.test");
+await page.type('input[type="password"]', "preview-pass-12345");
+await Promise.all([
+  page.waitForNavigation({ waitUntil: "networkidle2" }).catch(() => {}),
+  page.click('button[type="submit"]'),
+]);
+await new Promise((r) => setTimeout(r, 2000));
+await page.goto("http://localhost:3000/onboard", { waitUntil: "networkidle2" });
+await new Promise((r) => setTimeout(r, 500));
+console.log("url:", page.url());
+
+for (const t of ["dark", "light"]) {
+  await page.evaluate((x) => {
+    document.documentElement.dataset.theme = x;
+  }, t);
+  await new Promise((r) => setTimeout(r, 300));
+  await page.screenshot({ path: `${OUT}\\onboard-${t}.png`, fullPage: true });
+  console.log("shot", t);
+}
+await browser.close();

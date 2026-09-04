@@ -44,7 +44,8 @@ export function Button({
         onPointerDown?.(e);
       }}
       className={cn(
-        "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold outline-none transition-colors disabled:pointer-events-none disabled:opacity-55",
+        "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold outline-none transition-colors",
+        "disabled:pointer-events-none disabled:border-transparent disabled:bg-surface-2 disabled:text-text-3 disabled:shadow-none",
         VARIANTS[variant],
         SIZES[size],
         className,
