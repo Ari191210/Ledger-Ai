@@ -18,9 +18,9 @@ export default async function AppLayout({
   return (
     <div className="min-h-screen bg-bg">
       <IconRail />
-      <div className="flex min-h-screen flex-col pl-[68px]">
+      <div className="flex min-h-screen flex-col pl-[60px]">
         <TopBar email={user.email ?? ""} />
-        <main className="flex-1 px-6 py-6 lg:px-10">{children}</main>
+        <main className="flex-1 px-4 py-4 lg:px-6 lg:py-5">{children}</main>
       </div>
     </div>
   );

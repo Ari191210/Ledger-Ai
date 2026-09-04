@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeLab } from "./theme-lab";
+import { Button } from "@/components/ui/button";
 
 const stats = [
   { label: "Ledger Score", value: "742", unit: "", goal: "800", avg: "690", trend: "+18", dir: "up" as const },
@@ -103,12 +104,9 @@ export default function DesignPreview() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <button className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-on transition-colors hover:bg-accent-hover">
-            Primary action
-          </button>
-          <button className="rounded-md border border-border-2 bg-surface px-4 py-2 text-sm font-semibold text-text transition-colors hover:bg-surface-2">
-            Secondary
-          </button>
+          <Button>Primary action</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="ghost">Ghost</Button>
           <span className="u-badge u-badge--up">&uarr; 12.5%</span>
           <span className="u-badge u-badge--down">&darr; 4.3%</span>
           <span className="u-badge u-badge--flat">&mdash; 0.0%</span>

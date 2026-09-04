@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
 
 function LoginForm() {
   const router = useRouter();
@@ -90,13 +91,9 @@ function LoginForm() {
         {err && <p className="text-xs text-negative">{err}</p>}
         {msg && <p className="text-xs text-positive">{msg}</p>}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-on hover:bg-accent-hover disabled:opacity-60"
-        >
+        <Button type="submit" size="lg" disabled={busy} className="w-full">
           {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
-        </button>
+        </Button>
       </form>
 
       <button
