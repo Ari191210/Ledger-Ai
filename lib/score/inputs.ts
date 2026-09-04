@@ -34,11 +34,18 @@ export type ActivityTile = {
   data: number[];
 };
 
+export type DayDetail = {
+  minutes: number;
+  mistakes: { subject: string; topic: string }[];
+  pyq: { subject: string; correct: number; total: number }[];
+};
+
 export type DashboardData = {
   score: ScoreBreakdown;
   streakDays: number;
   activity: ActivityTile[];
   studiedDays: Set<number>;
+  dayDetails: Record<number, DayDetail>;
   coveragePct: number;
   syllabusLogged: boolean;
   fixNext: { subject: string; topic: string; count: number }[];
@@ -148,6 +155,32 @@ export const getDashboardData = cache(async function getDashboardData(
       .map((a) => Number(a.day.slice(8, 10))),
   );
 
+  const dayDetails: Record<number, DayDetail> = {};
+  const detailFor = (day: number): DayDetail =>
+    (dayDetails[day] ??= { minutes: 0, mistakes: [], pyq: [] });
+
+  for (const a of activity60) {
+    if (a.day.startsWith(curMonthPrefix) && a.minutes > 0) {
+      detailFor(Number(a.day.slice(8, 10))).minutes = a.minutes;
+    }
+  }
+  for (const m of mistakesAll) {
+    const d = m.created_at.slice(0, 10);
+    if (d.startsWith(curMonthPrefix)) {
+      detailFor(Number(d.slice(8, 10))).mistakes.push({ subject: m.subject, topic: m.topic });
+    }
+  }
+  for (const a of pyq30) {
+    const d = a.taken_at.slice(0, 10);
+    if (d.startsWith(curMonthPrefix)) {
+      detailFor(Number(d.slice(8, 10))).pyq.push({
+        subject: a.subject,
+        correct: a.correct,
+        total: a.total,
+      });
+    }
+  }
+
   // ── fix next: open mistakes grouped by subject + topic ──────────────
   const groups = new Map<string, { subject: string; topic: string; count: number }>();
   for (const m of openMistakes) {
@@ -163,6 +196,7 @@ export const getDashboardData = cache(async function getDashboardData(
     streakDays,
     activity,
     studiedDays,
+    dayDetails,
     coveragePct: syllabusTotal > 0 ? Math.round((syllabusCovered / syllabusTotal) * 100) : 0,
     syllabusLogged: syllabusTotal > 0,
     fixNext,

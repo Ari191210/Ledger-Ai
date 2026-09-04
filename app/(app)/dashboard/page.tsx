@@ -1,9 +1,9 @@
 import { ArrowUpRight, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
+import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { getDashboardData } from "@/lib/score/inputs";
 import { getLedgerTape } from "@/lib/score/tape";
 
@@ -41,74 +41,27 @@ function Mini({ data }: { data: number[] }) {
   );
 }
 
-function Calendar({ studiedDays }: { studiedDays: Set<number> }) {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  const today = now.getDate();
-  const dim = new Date(y, m + 1, 0).getDate();
-  const firstDow = (new Date(y, m, 1).getDay() + 6) % 7;
-  const cells: (number | null)[] = [
-    ...Array<null>(firstDow).fill(null),
-    ...Array.from({ length: dim }, (_, i) => i + 1),
-  ];
-
-  return (
-    <section className="u-card u-grille relative flex h-full flex-col p-4">
-      <div className="flex items-center justify-between">
-        <Label index="03">study days</Label>
-        <span className="u-mono text-2xs text-text-3">
-          {now.toLocaleDateString("en-GB", { month: "short", year: "2-digit" }).toLowerCase()}
-        </span>
-      </div>
-
-      <div className="mt-4 grid grid-cols-7 gap-1 text-center text-2xs text-text-3">
-        {["m", "t", "w", "t", "f", "s", "s"].map((d, i) => (
-          <span key={i} className="u-mono">{d}</span>
-        ))}
-      </div>
-      <div className="mt-1.5 grid grid-cols-7 gap-1">
-        {cells.map((d, i) => (
-          <div key={i} className="grid aspect-square place-items-center">
-            {d && (
-              <span
-                className={cn(
-                  "u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums",
-                  d === today
-                    ? "bg-accent font-bold text-accent-on"
-                    : studiedDays.has(d)
-                      ? "bg-surface-3 text-text"
-                      : "text-text-3",
-                )}
-              >
-                {d}
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-auto flex items-center gap-4 pt-4 text-2xs text-text-3">
-        <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-accent" /> today
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-surface-3" /> studied
-        </span>
-      </div>
-    </section>
-  );
-}
-
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const name = user?.email?.split("@")[0] ?? "there";
-  const { score, activity, studiedDays, coveragePct, syllabusLogged, fixNext } =
+  const { score, activity, studiedDays, dayDetails, coveragePct, syllabusLogged, fixNext } =
     await getDashboardData(supabase, user!.id);
   const tape = await getLedgerTape(supabase, user!.id);
+
+  const now = new Date();
+  const today = now.getDate();
+  const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const firstDow = (new Date(now.getFullYear(), now.getMonth(), 1).getDay() + 6) % 7;
+  const calendarCells: (number | null)[] = [
+    ...Array<null>(firstDow).fill(null),
+    ...Array.from({ length: dim }, (_, i) => i + 1),
+  ];
+  const monthLabel = now
+    .toLocaleDateString("en-GB", { month: "short", year: "2-digit" })
+    .toLowerCase();
 
   return (
     <div className="mx-auto max-w-[1240px] space-y-4">
@@ -188,7 +141,13 @@ export default async function DashboardPage() {
 
         {/* ── study days (right rail) ────────────────────── */}
         <Reveal delay={0.06}>
-          <Calendar studiedDays={studiedDays} />
+          <StudyDaysCalendar
+            cells={calendarCells}
+            today={today}
+            monthLabel={monthLabel}
+            studiedDays={studiedDays}
+            dayDetails={dayDetails}
+          />
         </Reveal>
       </div>
 
