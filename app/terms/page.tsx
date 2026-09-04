@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
-import { LegalTodo } from "@/components/marketing/legal-todo";
 
 export const metadata: Metadata = {
   title: "Terms of Service — StudyLedger",
@@ -99,11 +98,11 @@ export default function TermsPage() {
           Questions about these terms: <Link href="/contact">contact us</Link>.
         </p>
         <p>
-          Entity name: <LegalTodo>legal entity/founder name operating StudyLedger</LegalTodo>
+          Operator: Aryamman Ojha, based in New Delhi, India
           <br />
-          Governing law: <LegalTodo>state/country whose law governs this agreement</LegalTodo>
+          Governing law: India
           <br />
-          Dispute resolution / jurisdiction: <LegalTodo>courts or arbitration forum</LegalTodo>
+          Dispute resolution / jurisdiction: courts of Delhi, India
         </p>
       </LegalSection>
     </LegalPage>

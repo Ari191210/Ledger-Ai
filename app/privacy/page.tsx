@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
-import { LegalTodo } from "@/components/marketing/legal-todo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — StudyLedger",
@@ -95,13 +94,13 @@ export default function PrivacyPage() {
           directly: <Link href="/contact">contact us</Link>.
         </p>
         <p>
-          Entity name: <LegalTodo>legal entity/founder name operating StudyLedger</LegalTodo>
+          Operator: Aryamman Ojha
           <br />
-          Registered address: <LegalTodo>business address</LegalTodo>
+          Based in: New Delhi, India
           <br />
-          Grievance officer (per India's IT Rules 2021): <LegalTodo>name, email, and address</LegalTodo>
+          Grievance officer (per India's IT Rules 2021): Aryamman Ojha, <a href="mailto:hello@studyledger.in">hello@studyledger.in</a>
           <br />
-          Governing jurisdiction: <LegalTodo>state/country whose law governs this policy</LegalTodo>
+          Governing jurisdiction: India, courts of Delhi
         </p>
       </LegalSection>
     </LegalPage>
