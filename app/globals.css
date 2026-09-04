@@ -23,11 +23,12 @@
   --border-2:   #383838;
 
   /* accent — lime (text ON lime is dark) */
-  --accent:       #c6f432;
-  --accent-hover: #d2f855;
-  --accent-press: #aede1c;
-  --accent-weak:  #222b0c;
-  --accent-on:    #141600;
+  --accent:        #c6f432;
+  --accent-hover:  #d2f855;
+  --accent-press:  #aede1c;
+  --accent-weak:   #222b0c;
+  --accent-on:     #141600;
+  --accent-strong: #c6f432;   /* data marks + small text; deepens in light */
 
   /* feature — the electric-blue panel and elements sitting on it */
   --feature:      #3b5bff;
@@ -64,21 +65,23 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg:         #f6f6f3;
+  --bg:         #f4f4f0;
   --surface:    #ffffff;
-  --surface-2:  #f0f0ec;
-  --surface-3:  #e5e5e0;
+  --surface-2:  #eeeee8;
+  --surface-3:  #e3e3db;
   --text:       #18181b;
-  --text-2:     #5b5b5e;
-  --text-3:     #8a8a8d;
-  --border:     #e6e6e1;
-  --border-2:   #d7d7d1;
+  --text-2:     #57575a;
+  --text-3:     #86868a;
+  --border:     #e0e0d8;
+  --border-2:   #cfcfc6;
 
-  --accent:       #5c8a0a;
-  --accent-hover: #4e7606;
-  --accent-press: #3f6004;
-  --accent-weak:  #edf5da;
-  --accent-on:    #ffffff;
+  /* keep the bright lime for fills (button bg + near-black text) */
+  --accent:        #c6f432;
+  --accent-hover:  #d2f855;
+  --accent-press:  #b6e622;
+  --accent-weak:   #eef6d6;
+  --accent-on:     #1a1c08;
+  --accent-strong: #4a7c0c;   /* deep green — data marks, bars, small text */
 
   --feature:      #3b5bff;
   --feature-fg:   #ffffff;
@@ -90,9 +93,9 @@
   --negative:      #c23829;
   --negative-weak: #f8e6e3;
 
-  --ring: #5c8a0a;
+  --ring: #4a7c0c;
 
-  --shadow: 0 1px 2px rgb(17 17 20 / 0.04), 0 8px 24px rgb(17 17 20 / 0.08);
+  --shadow: 0 1px 2px rgb(17 17 20 / 0.05), 0 8px 24px rgb(17 17 20 / 0.09);
 }
 
 @theme inline {
@@ -110,6 +113,7 @@
   --color-accent-press:  var(--accent-press);
   --color-accent-weak:   var(--accent-weak);
   --color-accent-on:     var(--accent-on);
+  --color-accent-strong: var(--accent-strong);
   --color-feature:       var(--feature);
   --color-feature-fg:    var(--feature-fg);
   --color-feature-2:     var(--feature-2);

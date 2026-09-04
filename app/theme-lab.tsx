@@ -27,6 +27,7 @@ const TOKENS: { group: string; items: { var: string; label: string }[] }[] = [
       { var: "--accent-press", label: "Accent press" },
       { var: "--accent-weak", label: "Accent weak" },
       { var: "--accent-on", label: "Accent on" },
+      { var: "--accent-strong", label: "Accent strong" },
       { var: "--ring", label: "Focus ring" },
     ],
   },
@@ -64,6 +65,7 @@ const DEFAULTS: Record<string, string> = {
   "--accent-press": "#aede1c",
   "--accent-weak": "#222b0c",
   "--accent-on": "#141600",
+  "--accent-strong": "#c6f432",
   "--ring": "#c6f432",
   "--feature": "#3b5bff",
   "--feature-2": "#6c80ff",
@@ -182,7 +184,7 @@ export function ThemeLab() {
             row to paint it there.{" "}
             <button
               onClick={() => setPicked(null)}
-              className="font-semibold text-accent"
+              className="font-semibold text-accent-strong"
             >
               drop
             </button>

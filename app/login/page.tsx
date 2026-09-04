@@ -52,7 +52,7 @@ function LoginForm() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <div className="u-brand mb-8 text-xl text-accent">StudyLedger</div>
+      <div className="u-brand mb-8 text-xl text-accent-strong">StudyLedger</div>
 
       <h1 className="text-xl font-bold text-text">
         {mode === "signin" ? "Sign in" : "Create your account"}

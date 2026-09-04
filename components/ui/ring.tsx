@@ -4,7 +4,7 @@ export function Ring({
   size = 128,
   stroke = 12,
   track = "var(--surface-3)",
-  color = "var(--accent)",
+  color = "var(--accent-strong)",
   children,
 }: {
   value: number;

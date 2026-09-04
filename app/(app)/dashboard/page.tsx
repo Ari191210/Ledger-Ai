@@ -8,7 +8,7 @@ import { FilterPills } from "@/components/ui/filter-pills";
 
 // ─── placeholder data — wired to real inputs later ──────────────────────
 const ACTIVITY = [
-  { label: "PYQ accuracy", value: "78%", goal: "85%", avg: "71%", color: "var(--accent)", data: [61, 64, 62, 69, 67, 73, 78] },
+  { label: "PYQ accuracy", value: "78%", goal: "85%", avg: "71%", color: "var(--accent-strong)", data: [61, 64, 62, 69, 67, 73, 78] },
   { label: "Mistakes fixed", value: "34", goal: "40", avg: "28", color: "var(--feature-2)", data: [19, 24, 22, 27, 30, 31, 34] },
   { label: "Focus time", value: "9h 20m", goal: "14h", avg: "8h", color: "#a78bfa", data: [6, 8, 5, 9, 7, 10, 9] },
 ];
@@ -177,7 +177,13 @@ export default async function DashboardPage() {
                   <p className="mt-0.5 text-xs text-text-3">58 to Strong</p>
                 </div>
                 <div className="ml-auto">
-                  <Ring value={742} max={1000} size={104} stroke={10}>
+                  <Ring
+                    value={742}
+                    max={1000}
+                    size={104}
+                    stroke={10}
+                    color="var(--accent-strong)"
+                  >
                     <div>
                       <StatNumber value={742} className="text-xl" />
                       <div className="text-[0.6rem] text-text-3">/ 1000</div>
@@ -189,11 +195,11 @@ export default async function DashboardPage() {
               <section className="u-card p-5">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-text">Syllabus coverage</span>
-                  <span className="text-xs font-bold text-accent">64%</span>
+                  <span className="text-xs font-bold text-accent-strong">64%</span>
                 </div>
                 <p className="mt-1 text-xs text-text-2">On track for March boards</p>
                 <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-surface-3">
-                  <div className="h-full rounded-full bg-accent" style={{ width: "64%" }} />
+                  <div className="h-full rounded-full bg-accent-strong" style={{ width: "64%" }} />
                 </div>
                 <div className="mt-2 flex justify-between text-xs text-text-3">
                   <span>Now 64%</span>
@@ -228,14 +234,18 @@ export default async function DashboardPage() {
                 key={f.topic}
                 className={cn(
                   "flex flex-col justify-between rounded-[20px] p-4",
-                  i === 0 ? "bg-feature text-feature-fg" : "bg-surface-2",
+                  i === 0
+                    ? "bg-feature text-feature-fg"
+                    : "border border-border bg-surface-2",
                 )}
               >
                 <div className="flex items-start justify-between">
                   <span
                     className={cn(
                       "grid size-7 place-items-center rounded-full text-xs font-bold tabular-nums",
-                      i === 0 ? "bg-white/20 text-white" : "bg-accent-weak text-accent",
+                      i === 0
+                        ? "bg-white/20 text-white"
+                        : "bg-accent-weak text-accent-strong",
                     )}
                   >
                     {f.count}
@@ -243,7 +253,9 @@ export default async function DashboardPage() {
                   <span
                     className={cn(
                       "grid size-7 place-items-center rounded-full",
-                      i === 0 ? "bg-white/15 text-white" : "bg-surface-3 text-text-2",
+                      i === 0
+                        ? "bg-white/15 text-white"
+                        : "border border-border bg-surface-3 text-text-2",
                     )}
                   >
                     <ArrowUpRight size={14} />

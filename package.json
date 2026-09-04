@@ -13,11 +13,11 @@
     "@anthropic-ai/sdk": "^0.68.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.469.0",
     "next": "^16.2.6",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "framer-motion": "^12.23.12"
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -27,6 +27,7 @@
     "@types/react-dom": "^19.2.0",
     "eslint": "^9.38.0",
     "eslint-config-next": "^16.2.6",
+    "puppeteer-core": "^23.11.1",
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3"
   }

@@ -28,7 +28,7 @@ export default function DesignPreview() {
     <main className="mx-auto max-w-5xl px-6 py-16">
       <header className="mb-14">
         <div className="flex items-center justify-between">
-          <div className="u-brand text-2xl text-accent">StudyLedger</div>
+          <div className="u-brand text-2xl text-accent-strong">StudyLedger</div>
           <Link
             href="/login"
             className="rounded-md border border-border-2 bg-surface px-3 py-1.5 text-xs font-semibold text-text hover:bg-surface-2"

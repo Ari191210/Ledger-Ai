@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 // Runs before paint — sets the theme so there's no flash.
-const themeScript = `try{document.documentElement.dataset.theme=localStorage.getItem('sl-theme')||'dark'}catch(e){document.documentElement.dataset.theme='dark'}`;
+const themeScript = `try{var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('sl-theme')||'dark';document.documentElement.dataset.theme=t;if(q)localStorage.setItem('sl-theme',t)}catch(e){document.documentElement.dataset.theme='dark'}`;
 
 export default function RootLayout({
   children,
