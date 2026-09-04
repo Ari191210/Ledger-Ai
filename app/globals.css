@@ -5,9 +5,9 @@
    Synthesized 2026-09-04 from the reference set:
    · Dashboard structure  — bento cards, icon rail, oversized tabular
      numerals as the hero, ONE saturated accent, small trend badges
-   · Palette & mood       — deep teal, deep-indigo, mid-century modern,
+   · Palette & mood       — deep plum, deep-indigo, mid-century modern,
      warm neutrals, warm-against-cool
-   Light theme only. Rule: the teal accent lands on at most 1–2 elements
+   Light theme only. Rule: the plum accent lands on at most 1–2 elements
    per screen. Indigo is for data-viz and calendar highlights only.
    Everything else is warm greyscale.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -24,25 +24,25 @@
   --border:     #e7e0d4;
   --border-2:   #d8cfbe;
 
-  /* accent — deep teal (single saturated hue; the pool in the twilight refs) */
-  --accent:       #0f7a76;
-  --accent-hover: #0b6461;
-  --accent-press: #084f4c;
-  --accent-weak:  #e3efee;
+  /* accent — deep plum (single saturated hue; the dusk-sky band in the refs) */
+  --accent:       #87395f;
+  --accent-hover: #722f4f;
+  --accent-press: #5d2540;
+  --accent-weak:  #f3e6ee;
   --accent-on:    #ffffff;
 
   /* indigo — twilight blue (data-viz + calendar only) */
   --indigo:      #33409a;
   --indigo-weak: #e8eaf7;
 
-  /* status — success nudged to leaf/olive so it reads apart from teal accent */
-  --positive:      #5a7d3c;
-  --positive-weak: #ecf1e1;
+  /* status */
+  --positive:      #3e7a55;
+  --positive-weak: #e6f0e9;
   --negative:      #bf3b2b;
   --negative-weak: #f8e7e4;
 
   /* focus ring */
-  --ring: #0f7a76;
+  --ring: #87395f;
 
   /* shape */
   --r-sm:   8px;
