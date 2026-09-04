@@ -23,7 +23,7 @@ export function IconRail({ initial }: { initial: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-y-0 left-0 z-40 flex w-[60px] flex-col items-center border-r border-border bg-surface py-3">
+    <nav className="fixed inset-y-0 left-0 z-40 hidden w-[60px] flex-col items-center border-r border-border bg-surface py-3 md:flex">
       <Link
         href="/dashboard"
         aria-label="StudyLedger"

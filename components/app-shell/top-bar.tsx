@@ -19,7 +19,14 @@ export function TopBar({
 
   return (
     <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-6">
-      <div className="relative max-w-[220px] flex-1">
+      {/* the icon rail (with the brand mark) is hidden below md — this
+          fills that gap on mobile so there's still a sense of place */}
+      <div className="flex items-center gap-2 md:hidden">
+        <span className="u-led" />
+        <span className="u-brand text-sm text-text">StudyLedger</span>
+      </div>
+
+      <div className="relative hidden max-w-[220px] flex-1 md:block">
         <Search
           size={14}
           className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-text-3"

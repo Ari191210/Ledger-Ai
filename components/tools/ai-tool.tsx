@@ -113,12 +113,14 @@ export function AiTool({
                 />
               )}
               {f.type === "select" && (
-                <Segmented
-                  options={f.options}
-                  value={String(values[f.key])}
-                  onChange={(v) => set(f.key, v)}
-                  size="sm"
-                />
+                <div className="overflow-x-auto pb-1">
+                  <Segmented
+                    options={f.options}
+                    value={String(values[f.key])}
+                    onChange={(v) => set(f.key, v)}
+                    size="sm"
+                  />
+                </div>
               )}
             </div>
           ))}
