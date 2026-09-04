@@ -5,6 +5,7 @@ import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { FocusChart } from "@/components/dashboard/focus-chart";
+import { QuickLog } from "@/components/dashboard/quick-log";
 import { getDashboardData } from "@/lib/score/inputs";
 import { getLedgerTape } from "@/lib/score/tape";
 
@@ -71,11 +72,18 @@ export default async function DashboardPage() {
       <Reveal>
         <div className="flex items-baseline justify-between">
           <h1 className="text-base font-bold text-text">Hello, {name}</h1>
-          <span className="u-mono text-2xs text-text-3">
-            {new Date()
-              .toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" })
-              .toLowerCase()}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="u-mono text-2xs text-text-3">
+              {new Date()
+                .toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" })
+                .toLowerCase()}
+            </span>
+            <QuickLog defaultTab="focus">
+              <button className="u-mono flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-2xs font-bold text-accent-on hover:bg-accent-hover">
+                <Plus size={12} /> log
+              </button>
+            </QuickLog>
+          </div>
         </div>
       </Reveal>
 
@@ -215,9 +223,11 @@ export default async function DashboardPage() {
                 </div>
               </div>
             ))}
-            <button className="flex items-center justify-center gap-1.5 rounded-[13px] border border-dashed border-border-2 p-3 u-label hover:text-text">
-              <Plus size={13} /> add
-            </button>
+            <QuickLog defaultTab="mistake">
+              <button className="flex w-full items-center justify-center gap-1.5 rounded-[13px] border border-dashed border-border-2 p-3 u-label hover:text-text">
+                <Plus size={13} /> add
+              </button>
+            </QuickLog>
           </div>
         </section>
       </Reveal>
