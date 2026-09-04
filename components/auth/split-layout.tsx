@@ -26,7 +26,7 @@ function BrandPanel() {
         {[
           ["01", "the number"],
           ["06", "boards"],
-          ["40+", "tools"],
+          ["25", "tools"],
         ].map(([n, label]) => (
           <div key={label}>
             <dt className="u-stat-number text-xl text-text">{n}</dt>
