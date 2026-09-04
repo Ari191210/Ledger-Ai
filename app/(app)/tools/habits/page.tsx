@@ -3,13 +3,10 @@ import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getHabits, getHabitLogs } from "@/lib/study/habits";
 import { computeStreak } from "@/lib/study/streak";
+import { isoDaysAgoIST } from "@/lib/date";
 import { HabitsTracker, type HabitVM } from "@/components/tools/habits-tracker";
 
-function isoDaysAgo(n: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
-}
+const isoDaysAgo = isoDaysAgoIST;
 
 export default async function HabitsToolPage() {
   const supabase = await createClient();

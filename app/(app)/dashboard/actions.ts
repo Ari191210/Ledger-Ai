@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addMistake, addPyqAttempt, logActivity } from "@/lib/study/queries";
 import type { MistakeSource } from "@/lib/study/types";
+import { isoDateIST } from "@/lib/date";
 
 type Result = { ok: true } | { error: string };
 
@@ -62,7 +63,7 @@ export async function logFocusAction(input: { minutes: number }): Promise<Result
     return { error: "Enter minutes greater than zero." };
   }
   const { supabase, id } = await currentUser();
-  const day = new Date().toISOString().slice(0, 10);
+  const day = isoDateIST();
 
   const { data: existing, error: readErr } = await supabase
     .from("activity_days")

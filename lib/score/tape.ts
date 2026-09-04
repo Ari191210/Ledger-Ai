@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getMistakes, getPyqAttempts, getActivityRange } from "@/lib/study/queries";
+import { isoDateIST } from "@/lib/date";
 
 export type TapeEntry = {
   id: string;
@@ -10,12 +11,10 @@ export type TapeEntry = {
 };
 
 function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  return isoDateIST(d);
 }
 function daysAgo(n: number): Date {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d;
+  return new Date(Date.now() - n * 86_400_000);
 }
 
 /** Recent mistakes, PYQ attempts, and study sessions merged into one

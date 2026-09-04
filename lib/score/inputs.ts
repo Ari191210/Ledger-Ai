@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeScore, type ScoreBreakdown } from "./compute";
+import { isoDateIST } from "@/lib/date";
 import {
   getActivityRange,
   getCurrentStreak,
@@ -10,13 +11,11 @@ import {
 } from "@/lib/study/queries";
 
 function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  return isoDateIST(d);
 }
 
 function daysAgo(n: number): Date {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d;
+  return new Date(Date.now() - n * 86_400_000);
 }
 
 /** Last n ISO dates, oldest first, ending today. */

@@ -8,6 +8,7 @@ import { FocusChart } from "@/components/dashboard/focus-chart";
 import { QuickLog } from "@/components/dashboard/quick-log";
 import { getDashboardData } from "@/lib/score/inputs";
 import { getLedgerTape } from "@/lib/score/tape";
+import { todayPartsIST, daysInMonthIST, firstWeekdayIST } from "@/lib/date";
 
 function Label({ index, children }: { index: string; children: string }) {
   return (
@@ -55,16 +56,15 @@ export default async function DashboardPage() {
   const focusHistoryAvg = Math.round(focusHistoryTotal / focusHistory.length);
   const tape = await getLedgerTape(supabase, user!.id);
 
-  const now = new Date();
-  const today = now.getDate();
-  const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const firstDow = (new Date(now.getFullYear(), now.getMonth(), 1).getDay() + 6) % 7;
+  const { year, month, day: today } = todayPartsIST();
+  const dim = daysInMonthIST(year, month);
+  const firstDow = firstWeekdayIST(year, month);
   const calendarCells: (number | null)[] = [
     ...Array<null>(firstDow).fill(null),
     ...Array.from({ length: dim }, (_, i) => i + 1),
   ];
-  const monthLabel = now
-    .toLocaleDateString("en-GB", { month: "short", year: "2-digit" })
+  const monthLabel = new Date(Date.UTC(year, month - 1, 1))
+    .toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" })
     .toLowerCase();
 
   return (
@@ -75,7 +75,12 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-3">
             <span className="u-mono text-2xs text-text-3">
               {new Date()
-                .toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" })
+                .toLocaleDateString("en-GB", {
+                  weekday: "short",
+                  day: "2-digit",
+                  month: "short",
+                  timeZone: "Asia/Kolkata",
+                })
                 .toLowerCase()}
             </span>
             <QuickLog defaultTab="focus">

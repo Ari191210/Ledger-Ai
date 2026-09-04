@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { computeStreak } from "./streak";
 import type {
   ActivityDay,
   Mistake,
@@ -60,16 +61,7 @@ export async function getCurrentStreak(
   if (error) throw error;
   if (!data?.length) return 0;
 
-  const days = new Set(data.map((d) => d.day));
-  let streak = 0;
-  const cursor = new Date();
-  for (;;) {
-    const iso = cursor.toISOString().slice(0, 10);
-    if (!days.has(iso)) break;
-    streak++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
+  return computeStreak(new Set(data.map((d) => d.day)));
 }
 
 // ─── mistakes ────────────────────────────────────────────────────────────
