@@ -1,17 +1,267 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════
+   StudyLedger — design tokens
+   Synthesized 2026-09-04 from the reference set:
+   · Dashboard structure  — bento cards, icon rail, oversized tabular
+     numerals as the hero, ONE saturated accent, small trend badges
+   · Palette & mood       — burnt orange against deep-indigo twilight,
+     mid-century modern, warm neutrals, warm-against-cool
+   Rule: the orange accent lands on at most 1–2 elements per screen.
+   Indigo is for data-viz and calendar highlights only. Everything else
+   is warm greyscale.
+   ═══════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* warm neutrals — light (primary) */
+  --bg:         #fbf7f1;
+  --surface:    #ffffff;
+  --surface-2:  #f4eee3;
+  --surface-3:  #ece4d6;
+  --text:       #1c1a17;
+  --text-2:     #6b6459;
+  --text-3:     #9a9186;
+  --border:     #e7e0d4;
+  --border-2:   #d8cfbe;
+
+  /* accent — burnt orange (single saturated hue) */
+  --accent:       #e0561f;
+  --accent-hover: #c74815;
+  --accent-press: #ae3d10;
+  --accent-weak:  #fbebe0;
+  --accent-on:    #ffffff;
+
+  /* indigo — twilight blue (data-viz + calendar only) */
+  --indigo:      #33409a;
+  --indigo-weak: #e8eaf7;
+
+  /* status */
+  --positive:      #3e7a55;
+  --positive-weak: #e6f0e9;
+  --negative:      #bf3b2b;
+  --negative-weak: #f8e7e4;
+
+  /* focus ring */
+  --ring: #e0561f;
+
+  /* shape */
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   24px;
+  --r-full: 999px;
+
+  /* elevation — one soft level; prefer hairline borders for separation */
+  --shadow: 0 1px 2px rgb(28 26 23 / 0.04), 0 2px 8px rgb(28 26 23 / 0.06);
+
+  /* fonts — *-poiret / *-urbanist vars are set on <html> by next/font */
+  --font-sans:    var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-poiret), var(--font-sans);
+  --font-brand:   "Ragick", var(--font-sans);
 }
 
+/* dark — first-class alternate (the reference dashboards) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0e0d0c;
+    --surface:   #1a1815;
+    --surface-2: #24211c;
+    --surface-3: #2e2a24;
+    --text:      #f5f0e6;
+    --text-2:    #a79e8e;
+    --text-3:    #756d5f;
+    --border:    #2e2a24;
+    --border-2:  #3a352d;
+
+    --accent:       #ff6b35;
+    --accent-hover: #ff7f4f;
+    --accent-press: #e85a25;
+    --accent-weak:  #2a1d14;
+    --accent-on:    #1a1815;
+
+    --indigo:      #6474e8;
+    --indigo-weak: #1c1f33;
+
+    --positive:      #5fb07e;
+    --positive-weak: #16221b;
+    --negative:      #e06a5a;
+    --negative-weak: #2a1917;
+
+    --ring: #ff6b35;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.4);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:        #0e0d0c;
+  --surface:   #1a1815;
+  --surface-2: #24211c;
+  --surface-3: #2e2a24;
+  --text:      #f5f0e6;
+  --text-2:    #a79e8e;
+  --text-3:    #756d5f;
+  --border:    #2e2a24;
+  --border-2:  #3a352d;
+
+  --accent:       #ff6b35;
+  --accent-hover: #ff7f4f;
+  --accent-press: #e85a25;
+  --accent-weak:  #2a1d14;
+  --accent-on:    #1a1815;
+
+  --indigo:      #6474e8;
+  --indigo-weak: #1c1f33;
+
+  --positive:      #5fb07e;
+  --positive-weak: #16221b;
+  --negative:      #e06a5a;
+  --negative-weak: #2a1917;
+
+  --ring: #ff6b35;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.4);
+}
+
+/* ─── expose tokens to Tailwind utilities ─────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg:            var(--bg);
+  --color-surface:       var(--surface);
+  --color-surface-2:     var(--surface-2);
+  --color-surface-3:     var(--surface-3);
+  --color-text:          var(--text);
+  --color-text-2:        var(--text-2);
+  --color-text-3:        var(--text-3);
+  --color-border:        var(--border);
+  --color-border-2:      var(--border-2);
+  --color-accent:        var(--accent);
+  --color-accent-hover:  var(--accent-hover);
+  --color-accent-press:  var(--accent-press);
+  --color-accent-weak:   var(--accent-weak);
+  --color-accent-on:     var(--accent-on);
+  --color-indigo:        var(--indigo);
+  --color-indigo-weak:   var(--indigo-weak);
+  --color-positive:      var(--positive);
+  --color-positive-weak: var(--positive-weak);
+  --color-negative:      var(--negative);
+  --color-negative-weak: var(--negative-weak);
+
+  --radius-sm:   var(--r-sm);
+  --radius-md:   var(--r-md);
+  --radius-lg:   var(--r-lg);
+  --radius-xl:   var(--r-xl);
+  --radius-full: var(--r-full);
+
+  --shadow-card: var(--shadow);
+
+  --font-sans:    var(--font-sans);
+  --font-display: var(--font-display);
+  --font-brand:   var(--font-brand);
+
+  /* restrained type scale — 12 · 13 · 14 · 16 · 20 · 26 · 34 · 46 · 64 */
+  --text-2xs: 0.75rem;    --text-2xs--line-height: 1.4;
+  --text-xs:  0.8125rem;  --text-xs--line-height: 1.45;
+  --text-sm:  0.875rem;   --text-sm--line-height: 1.5;
+  --text-base: 1rem;      --text-base--line-height: 1.55;
+  --text-lg:  1.25rem;    --text-lg--line-height: 1.4;
+  --text-xl:  1.625rem;   --text-xl--line-height: 1.3;
+  --text-2xl: 2.125rem;   --text-2xl--line-height: 1.2;
+  --text-3xl: 2.875rem;   --text-3xl--line-height: 1.1;
+  --text-4xl: 4rem;       --text-4xl--line-height: 1.05;
+
+  /* 4px spacing base is Tailwind's default — nothing to override */
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+/* ─── base ───────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--accent-weak);
+    color: var(--accent-press);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
 }
+
+/* ─── primitives ─────────────────────────────────────────────────────── */
+@layer components {
+  /* the reference stat-card number: large, heavy, tabular, tight */
+  .u-stat-number {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .u-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.005em;
+  }
+
+  .u-brand {
+    font-family: var(--font-brand);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .u-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+  }
+
+  /* trend micro-badge — pill, tinted, 12px, arrow glyph inline */
+  .u-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--r-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+  }
+  .u-badge--up   { background: var(--positive-weak); color: var(--positive); }
+  .u-badge--down { background: var(--negative-weak); color: var(--negative); }
+  .u-badge--flat { background: var(--surface-2);     color: var(--text-2); }
+}
+
+/* Ragick — activate once the licensed file is at /public/fonts/Ragick.woff2
+@font-face {
+  font-family: "Ragick";
+  src: url("/fonts/Ragick.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+}
+*/
