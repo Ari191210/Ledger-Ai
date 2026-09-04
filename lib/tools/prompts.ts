@@ -106,14 +106,14 @@ export const PROMPTS: Record<string, PromptSpec> = {
   assignment: {
     slug: "assignment",
     resultKind: "list",
-    maxTokens: 3400,
+    maxTokens: 4200,
     fields: [
       SUBJECT_FIELD,
       { key: "prompt", label: "assignment prompt", type: "textarea", required: true, rows: 4 },
-      { key: "words", label: "target length (words)", type: "number", default: 300, min: 100, max: 2000 },
+      { key: "words", label: "target length (words)", type: "number", default: 300, min: 100, max: 800 },
     ],
     buildPrompt: (v) => ({
-      system: `Structure and draft an assignment response. Each item is one section of the piece (e.g. introduction, body, conclusion), title as the section name, body as drafted content for that section. Aim for roughly ${v.words} words total across sections. ${JSON_LIST}`,
+      system: `Structure and draft an assignment response, aiming for roughly ${v.words} words total. Each item is one section of the piece (e.g. introduction, body, conclusion), title as the section name, body as drafted content for that section, however many words that section needs to reach the target, not capped to a few sentences. Use 2 to 6 sections depending on what the prompt needs. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.`,
       user: `Subject: ${v.subject}\nAssignment prompt: ${v.prompt}`,
     }),
   },
@@ -182,14 +182,14 @@ export const PROMPTS: Record<string, PromptSpec> = {
   "mark-scheme": {
     slug: "mark-scheme",
     resultKind: "list",
-    maxTokens: 3200,
+    maxTokens: 3400,
     fields: [
       SUBJECT_FIELD,
       { key: "question", label: "past question", type: "textarea", required: true, rows: 3 },
       { key: "totalMarks", label: "total marks", type: "number", default: 5, min: 1, max: 20 },
     ],
     buildPrompt: (v) => ({
-      system: `Break down exactly how marks are awarded on this ${v.totalMarks}-mark question, one item per mark-earning point. Title is a short label (e.g. "1 mark: states the law"), body explains what the answer must contain to earn it. ${JSON_LIST}`,
+      system: `Break down exactly how marks are awarded on this ${v.totalMarks}-mark question. Produce exactly one item per mark-earning point, up to ${v.totalMarks} items total, do not bundle multiple marks into one item. Title is a short label (e.g. "1 mark: states the law"), body explains what the answer must contain to earn it. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.`,
       user: `Subject: ${v.subject}\nQuestion (${v.totalMarks} marks): ${v.question}`,
     }),
   },
@@ -204,7 +204,7 @@ export const PROMPTS: Record<string, PromptSpec> = {
       { key: "hours", label: "hours available", type: "number", default: 6, min: 1, max: 48 },
     ],
     buildPrompt: (v, dataContext) => ({
-      system: `Build the highest-yield revision list for the last ${v.hours} hours before an exam, using ONLY the student's real open mistakes and uncovered syllabus topics given below. Rank items by yield: recurring mistakes first, then high-debt topics. Do not invent topics not present in the data. If the data is empty, say plainly there's nothing logged to prioritise instead of inventing a plan. ${JSON_LIST}`,
+      system: `Build the highest-yield revision list for the last ${v.hours} hours before an exam, using ONLY the student's real open mistakes and uncovered syllabus topics given below. Rank items by yield: recurring mistakes first, then high-debt topics. One item per distinct topic, do not bundle several topics into a single catch-all item, use up to 12 items if the data has that many distinct topics. Do not invent topics not present in the data. If the data is empty, say plainly there's nothing logged to prioritise instead of inventing a plan. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.`,
       user: `Scope: ${v.subject}\nHours available: ${v.hours}\n\nStudent's real data:\n${dataContext}`,
     }),
   },

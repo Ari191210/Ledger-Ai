@@ -12,7 +12,7 @@ export default function TutorPage() {
       <div className="mt-4 mb-3">
         <span className="u-label">learn</span>
         <h1 className="mt-1 text-lg font-bold text-text">Tutor</h1>
-        <p className="u-mono mt-1 text-2xs text-text-3">one walkthrough per question, ask again to continue</p>
+        <p className="u-mono mt-1 text-2xs text-text-3">one focused walkthrough per question, it won't remember earlier ones</p>
       </div>
       <AiTool slug="tutor" fields={PROMPTS.tutor.fields} />
     </div>
