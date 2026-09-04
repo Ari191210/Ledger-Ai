@@ -1,72 +1,63 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   StudyLedger — design tokens
-   Synthesized 2026-09-04 from the reference set:
-   · Dashboard structure  — bento cards, icon rail, oversized tabular
-     numerals as the hero, ONE saturated accent, small trend badges
-   · Palette & mood       — burnt orange, deep-indigo, mid-century modern,
-     warm neutrals, warm-against-cool
-   Light theme only. Rule: the orange accent lands on at most 1–2 elements
-   per screen. Indigo is for data-viz and calendar highlights only.
-   Everything else is warm greyscale.
+   StudyLedger — design tokens  ·  DARK
+   Matched to the fitness-dashboard reference: near-black ground, dark
+   rounded cards, ONE electric-blue feature panel, lime-green accent.
+   Rule: lime lands on active state / one primary action / the score arc.
+   Electric blue is the feature-panel colour only. Rest is greyscale.
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* warm neutrals */
-  --bg:         #fbf7f1;
-  --surface:    #ffffff;
-  --surface-2:  #f4eee3;
-  --surface-3:  #ece4d6;
-  --text:       #1c1a17;
-  --text-2:     #6b6459;
-  --text-3:     #9a9186;
-  --border:     #e7e0d4;
-  --border-2:   #d8cfbe;
+  color-scheme: dark;
 
-  /* accent — burnt orange (single saturated hue) */
-  --accent:       #e0561f;
-  --accent-hover: #c74815;
-  --accent-press: #ae3d10;
-  --accent-weak:  #fbebe0;
-  --accent-on:    #ffffff;
+  /* ground */
+  --bg:         #101010;
+  --surface:    #1a1a1a;
+  --surface-2:  #242424;
+  --surface-3:  #2f2f2f;
+  --text:       #f4f3f0;
+  --text-2:     #a2a2a0;
+  --text-3:     #6c6c6a;
+  --border:     #262626;
+  --border-2:   #383838;
 
-  /* indigo — twilight blue (data-viz + calendar only) */
-  --indigo:      #33409a;
-  --indigo-weak: #e8eaf7;
+  /* accent — lime (text ON lime is dark) */
+  --accent:       #c6f432;
+  --accent-hover: #d2f855;
+  --accent-press: #aede1c;
+  --accent-weak:  #222b0c;
+  --accent-on:    #141600;
 
-  /* ink — the one dark anchor panel on the light page (see the ref dashboards) */
-  --ink:      #1b1915;
-  --ink-fg:   #f7f2e9;
-  --ink-fg-2: #9a9184;
-  --ink-line: #39342c;
+  /* feature — the electric-blue panel and elements sitting on it */
+  --feature:      #3b5bff;
+  --feature-fg:   #ffffff;
+  --feature-2:    #6c80ff;
+  --feature-ink:  #2c43d4;
 
   /* status */
-  --positive:      #3e7a55;
-  --positive-weak: #e6f0e9;
-  --negative:      #bf3b2b;
-  --negative-weak: #f8e7e4;
+  --positive:      #86dd57;
+  --positive-weak: #1f2b12;
+  --negative:      #ff6f5d;
+  --negative-weak: #2f1613;
 
-  /* focus ring */
-  --ring: #e0561f;
+  --ring: #c6f432;
 
-  /* shape */
-  --r-sm:   8px;
-  --r-md:   12px;
-  --r-lg:   16px;
-  --r-xl:   24px;
+  /* shape — the reference runs large radii */
+  --r-sm:   10px;
+  --r-md:   14px;
+  --r-lg:   20px;
+  --r-xl:   28px;
   --r-full: 999px;
 
-  /* elevation — one soft level; prefer hairline borders for separation */
-  --shadow: 0 1px 2px rgb(28 26 23 / 0.04), 0 2px 8px rgb(28 26 23 / 0.06);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 10px 30px rgb(0 0 0 / 0.30);
 
-  /* fonts — *-poiret / *-urbanist vars are set on <html> by next/font */
+  /* fonts — *-urbanist / *-poiret set on <html> by next/font */
   --font-sans:    var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: var(--font-poiret), var(--font-sans);
   --font-brand:   "Ragick", var(--font-sans);
 }
 
-/* ─── expose tokens to Tailwind utilities ─────────────────────────────── */
 @theme inline {
   --color-bg:            var(--bg);
   --color-surface:       var(--surface);
@@ -82,12 +73,10 @@
   --color-accent-press:  var(--accent-press);
   --color-accent-weak:   var(--accent-weak);
   --color-accent-on:     var(--accent-on);
-  --color-indigo:        var(--indigo);
-  --color-indigo-weak:   var(--indigo-weak);
-  --color-ink:           var(--ink);
-  --color-ink-fg:        var(--ink-fg);
-  --color-ink-fg-2:      var(--ink-fg-2);
-  --color-ink-line:      var(--ink-line);
+  --color-feature:       var(--feature);
+  --color-feature-fg:    var(--feature-fg);
+  --color-feature-2:     var(--feature-2);
+  --color-feature-ink:   var(--feature-ink);
   --color-positive:      var(--positive);
   --color-positive-weak: var(--positive-weak);
   --color-negative:      var(--negative);
@@ -105,21 +94,18 @@
   --font-display: var(--font-display);
   --font-brand:   var(--font-brand);
 
-  /* restrained type scale — 12 · 13 · 14 · 16 · 20 · 26 · 34 · 46 · 64 */
+  /* type scale — 12 · 13 · 14 · 15 · 20 · 26 · 34 · 46 · 64 */
   --text-2xs: 0.75rem;    --text-2xs--line-height: 1.4;
   --text-xs:  0.8125rem;  --text-xs--line-height: 1.45;
   --text-sm:  0.875rem;   --text-sm--line-height: 1.5;
-  --text-base: 1rem;      --text-base--line-height: 1.55;
-  --text-lg:  1.25rem;    --text-lg--line-height: 1.4;
-  --text-xl:  1.625rem;   --text-xl--line-height: 1.3;
-  --text-2xl: 2.125rem;   --text-2xl--line-height: 1.2;
-  --text-3xl: 2.875rem;   --text-3xl--line-height: 1.1;
-  --text-4xl: 4rem;       --text-4xl--line-height: 1.05;
-
-  /* 4px spacing base is Tailwind's default — nothing to override */
+  --text-base: 0.9375rem; --text-base--line-height: 1.5;
+  --text-lg:  1.25rem;    --text-lg--line-height: 1.35;
+  --text-xl:  1.625rem;   --text-xl--line-height: 1.25;
+  --text-2xl: 2.125rem;   --text-2xl--line-height: 1.15;
+  --text-3xl: 2.875rem;   --text-3xl--line-height: 1.05;
+  --text-4xl: 4rem;       --text-4xl--line-height: 1;
 }
 
-/* ─── base ───────────────────────────────────────────────────────────── */
 @layer base {
   * {
     border-color: var(--border);
@@ -127,7 +113,6 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    color-scheme: light;
   }
 
   body {
@@ -140,18 +125,9 @@
     text-rendering: optimizeLegibility;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
   ::selection {
-    background: var(--accent-weak);
-    color: var(--accent-press);
+    background: var(--accent);
+    color: var(--accent-on);
   }
 
   :focus-visible {
@@ -165,16 +141,21 @@
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
-/* ─── primitives ─────────────────────────────────────────────────────── */
 @layer components {
-  /* the reference stat-card number: large, heavy, tabular, tight */
   .u-stat-number {
     font-family: var(--font-sans);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     line-height: 1;
     color: var(--text);
   }
@@ -194,23 +175,19 @@
   .u-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow);
-    transition: transform 0.16s ease, box-shadow 0.16s ease,
+    border-radius: var(--r-xl);
+    transition: transform 0.16s ease, background-color 0.16s ease,
       border-color 0.16s ease;
   }
-
-  /* interactive cards lift on hover */
   .u-card--hover:hover {
     transform: translateY(-2px);
+    background: var(--surface-2);
     border-color: var(--border-2);
-    box-shadow: 0 2px 4px rgb(28 26 23 / 0.05), 0 10px 24px rgb(28 26 23 / 0.09);
   }
   .u-card--hover:active {
     transform: translateY(-1px);
   }
 
-  /* trend micro-badge — pill, tinted, 12px, arrow glyph inline */
   .u-badge {
     display: inline-flex;
     align-items: center;
