@@ -31,7 +31,7 @@ export default function DesignPreview() {
         </h1>
         <p className="mt-4 max-w-xl text-base text-text-2">
           Design system preview — synthesized from the reference set. Warm light
-          canvas, one cobalt-blue accent, indigo reserved for data, oversized
+          canvas, one burnt-orange accent, indigo reserved for data, oversized
           tabular numerals as the hero.
         </p>
       </header>
@@ -86,7 +86,7 @@ export default function DesignPreview() {
           <Swatch name="Text" varName="--text" />
           <Swatch name="Text 2" varName="--text-2" />
           <Swatch name="Border" varName="--border" />
-          <Swatch name="Accent — cobalt blue" varName="--accent" />
+          <Swatch name="Accent — burnt orange" varName="--accent" />
           <Swatch name="Accent weak" varName="--accent-weak" />
           <Swatch name="Indigo — data only" varName="--indigo" />
           <Swatch name="Positive" varName="--positive" />

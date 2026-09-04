@@ -5,9 +5,9 @@
    Synthesized 2026-09-04 from the reference set:
    · Dashboard structure  — bento cards, icon rail, oversized tabular
      numerals as the hero, ONE saturated accent, small trend badges
-   · Palette & mood       — cobalt blue, deep-indigo, mid-century modern,
+   · Palette & mood       — burnt orange, deep-indigo, mid-century modern,
      warm neutrals, warm-against-cool
-   Light theme only. Rule: the blue accent lands on at most 1–2 elements
+   Light theme only. Rule: the orange accent lands on at most 1–2 elements
    per screen. Indigo is for data-viz and calendar highlights only.
    Everything else is warm greyscale.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -24,17 +24,16 @@
   --border:     #e7e0d4;
   --border-2:   #d8cfbe;
 
-  /* accent — cobalt blue (single saturated hue) */
-  --accent:       #2f63b6;
-  --accent-hover: #295aa4;
-  --accent-press: #224a88;
-  --accent-weak:  #e7eef8;
+  /* accent — burnt orange (single saturated hue) */
+  --accent:       #e0561f;
+  --accent-hover: #c74815;
+  --accent-press: #ae3d10;
+  --accent-weak:  #fbebe0;
   --accent-on:    #ffffff;
 
-  /* indigo — deep violet-blue (data-viz + calendar only; kept darker than the
-     accent so two-series charts still separate) */
-  --indigo:      #2b2f78;
-  --indigo-weak: #e6e7f4;
+  /* indigo — twilight blue (data-viz + calendar only) */
+  --indigo:      #33409a;
+  --indigo-weak: #e8eaf7;
 
   /* status */
   --positive:      #3e7a55;
@@ -43,7 +42,7 @@
   --negative-weak: #f8e7e4;
 
   /* focus ring */
-  --ring: #2f63b6;
+  --ring: #e0561f;
 
   /* shape */
   --r-sm:   8px;
