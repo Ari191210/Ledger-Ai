@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, User, ListTree, SlidersHorizontal } from "lucide-react";
+import { Check, User, ListTree, SlidersHorizontal, KeyRound, ShieldAlert } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
+import { PasswordForm } from "@/components/settings/password-form";
+import { DangerZone } from "@/components/settings/danger-zone";
 import { GRADES, BOARDS, STREAMS, EXAMS, streamApplies } from "@/lib/onboarding";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
 import { flashTheme } from "@/lib/theme-flash";
@@ -262,6 +264,18 @@ export function SettingsForm(p: Props) {
               <ToggleSwitch checked={sound} onChange={toggleSound} label="Interface sounds" />
             </div>
           </div>
+        </Section>
+      </Reveal>
+
+      <Reveal delay={0.12}>
+        <Section index="04" title="security" icon={KeyRound}>
+          <PasswordForm email={p.email} />
+        </Section>
+      </Reveal>
+
+      <Reveal delay={0.15}>
+        <Section index="05" title="data & account" icon={ShieldAlert}>
+          <DangerZone />
         </Section>
       </Reveal>
     </div>
