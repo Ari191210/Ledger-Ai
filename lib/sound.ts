@@ -26,7 +26,7 @@ export function setSoundOn(on: boolean): void {
   } catch {}
 }
 
-type Click = "tap" | "soft" | "nav";
+type Click = "tap" | "soft" | "nav" | "switch";
 
 export function playClick(kind: Click = "tap"): void {
   if (!isSoundOn()) return;
@@ -35,6 +35,24 @@ export function playClick(kind: Click = "tap"): void {
   try {
     if (c.state === "suspended") void c.resume();
     const t = c.currentTime;
+
+    if (kind === "switch") {
+      // a physical toggle: two quick low thunks, not a beep
+      for (const delay of [0, 0.045]) {
+        const osc = c.createOscillator();
+        const gain = c.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(delay === 0 ? 260 : 180, t + delay);
+        osc.frequency.exponentialRampToValueAtTime(delay === 0 ? 140 : 90, t + delay + 0.03);
+        gain.gain.setValueAtTime(0.0001, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.09, t + delay + 0.004);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + delay + 0.05);
+        osc.connect(gain).connect(c.destination);
+        osc.start(t + delay);
+        osc.stop(t + delay + 0.06);
+      }
+      return;
+    }
 
     const from = kind === "nav" ? 1400 : kind === "soft" ? 700 : 1100;
     const to = kind === "nav" ? 620 : kind === "soft" ? 340 : 420;

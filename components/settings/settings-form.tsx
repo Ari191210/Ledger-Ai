@@ -6,9 +6,10 @@ import { Check, User, ListTree, SlidersHorizontal, KeyRound } from "lucide-react
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
-import { Segmented } from "@/components/ui/segmented";
+import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { GRADES, BOARDS, STREAMS, EXAMS, streamApplies } from "@/lib/onboarding";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
+import { flashTheme } from "@/lib/theme-flash";
 import { saveSyllabus, saveDisplayName } from "@/app/(app)/settings/actions";
 
 type Props = {
@@ -125,20 +126,20 @@ export function SettingsForm(p: Props) {
     });
   }
 
-  function setThemeTo(next: "dark" | "light") {
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     try {
       localStorage.setItem("sl-theme", next);
     } catch {}
     setTheme(next);
-    playClick("soft");
+    flashTheme();
   }
 
-  function setSoundTo(next: "on" | "off") {
-    const on = next === "on";
-    setSoundOn(on);
-    setSound(on);
-    if (on) playClick("soft");
+  function toggleSound(next: boolean) {
+    setSoundOn(next);
+    setSound(next);
+    if (next) playClick("soft");
   }
 
   const initial = (name.trim()[0] || p.email[0] || "?").toUpperCase();
@@ -228,22 +229,18 @@ export function SettingsForm(p: Props) {
         <Section index="03" title="preferences" icon={SlidersHorizontal}>
           <div className="divide-y divide-border">
             <div className="flex items-center justify-between py-3 first:pt-0">
-              <span className="text-sm text-text">Appearance</span>
-              <Segmented
-                options={["dark", "light"]}
-                value={theme}
-                onChange={(v) => setThemeTo(v as "dark" | "light")}
-                size="sm"
-              />
+              <div>
+                <span className="text-sm text-text">Appearance</span>
+                <p className="u-mono text-2xs text-text-3">{theme}</p>
+              </div>
+              <ToggleSwitch checked={theme === "light"} onChange={toggleTheme} label="Appearance" />
             </div>
             <div className="flex items-center justify-between py-3">
-              <span className="text-sm text-text">Interface sounds</span>
-              <Segmented
-                options={["on", "off"]}
-                value={sound ? "on" : "off"}
-                onChange={(v) => setSoundTo(v as "on" | "off")}
-                size="sm"
-              />
+              <div>
+                <span className="text-sm text-text">Interface sounds</span>
+                <p className="u-mono text-2xs text-text-3">{sound ? "on" : "off"}</p>
+              </div>
+              <ToggleSwitch checked={sound} onChange={toggleSound} label="Interface sounds" />
             </div>
           </div>
         </Section>
