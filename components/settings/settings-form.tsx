@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, User, ListTree, SlidersHorizontal, KeyRound } from "lucide-react";
+import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
 import { Segmented } from "@/components/ui/segmented";
@@ -20,26 +23,45 @@ type Props = {
 function Section({
   index,
   title,
+  icon: Icon,
   children,
 }: {
   index: string;
   title: string;
+  icon: React.ComponentType<{ size?: number }>;
   children: React.ReactNode;
 }) {
   return (
     <section className="u-card p-4">
-      <span className="u-label">
-        {index} <span className="mx-1 text-text-3/60">—</span> {title}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className="grid size-6 place-items-center rounded-md border border-border bg-surface-2 text-text-3">
+          <Icon size={12} />
+        </span>
+        <span className="u-label">
+          {index} <span className="mx-1 text-text-3/60">—</span> {title}
+        </span>
+      </div>
       <div className="mt-4">{children}</div>
     </section>
   );
 }
 
 function Saved({ show }: { show: boolean }) {
-  return show ? (
-    <span className="u-mono text-2xs text-positive">saved</span>
-  ) : null;
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.span
+          initial={{ opacity: 0, scale: 0.8, x: -4 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{ type: "spring", stiffness: 500, damping: 28 }}
+          className="u-mono inline-flex items-center gap-1 text-2xs text-positive"
+        >
+          <Check size={12} /> saved
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
 }
 
 export function SettingsForm(p: Props) {
@@ -119,106 +141,129 @@ export function SettingsForm(p: Props) {
     if (on) playClick("soft");
   }
 
+  const initial = (name.trim()[0] || p.email[0] || "?").toUpperCase();
+  const summary = [grade && `grade ${grade}`, board, needsStream ? stream : null, exam]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <div>
-        <span className="u-label">settings</span>
-        <h1 className="mt-1 text-lg font-bold text-text">Settings</h1>
-      </div>
-
-      <Section index="01" title="profile">
-        <label className="block">
-          <span className="u-label">display name</span>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={60}
-            placeholder="Your name"
-            className="mt-1.5 w-full max-w-sm rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-          />
-        </label>
-        {nameErr && <p className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
-        <div className="mt-3 flex items-center gap-3">
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={!nameDirty || savingName}
-            onClick={saveName}
-          >
-            {savingName ? "Saving…" : "Save"}
-          </Button>
-          <Saved show={nameSaved} />
-        </div>
-      </Section>
-
-      <Section index="02" title="syllabus">
-        <div className="space-y-5">
-          <ChipGroup label="grade" options={GRADES} value={grade} onChange={setGrade} />
-          <ChipGroup label="board" options={BOARDS} value={board} onChange={setBoard} />
-          {needsStream && (
-            <ChipGroup
-              label="stream"
-              options={STREAMS}
-              value={stream}
-              onChange={setStream}
-            />
-          )}
-          <ChipGroup
-            label="target exam"
-            options={EXAMS}
-            value={exam}
-            onChange={setExam}
-          />
-        </div>
-        {sylErr && <p className="mt-3 u-mono text-2xs text-negative">{sylErr}</p>}
-        <div className="mt-4 flex items-center gap-3">
-          <Button
-            size="sm"
-            disabled={!sylDirty || !sylValid || savingSyl}
-            onClick={saveSyl}
-          >
-            {savingSyl ? "Saving…" : "Save changes"}
-          </Button>
-          <Saved show={sylSaved} />
-        </div>
-      </Section>
-
-      <Section index="03" title="preferences">
-        <div className="divide-y divide-border">
-          <div className="flex items-center justify-between py-3 first:pt-0">
-            <span className="text-sm text-text">Appearance</span>
-            <Segmented
-              options={["dark", "light"]}
-              value={theme}
-              onChange={(v) => setThemeTo(v as "dark" | "light")}
-              size="sm"
-            />
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm text-text">Interface sounds</span>
-            <Segmented
-              options={["on", "off"]}
-              value={sound ? "on" : "off"}
-              onChange={(v) => setSoundTo(v as "on" | "off")}
-              size="sm"
-            />
-          </div>
-        </div>
-      </Section>
-
-      <Section index="04" title="account">
+      <Reveal>
         <div className="flex items-center justify-between">
           <div>
-            <span className="u-label">signed in as</span>
-            <p className="u-mono mt-0.5 text-xs text-text">{p.email}</p>
+            <span className="u-label">settings</span>
+            <h1 className="mt-1 text-lg font-bold text-text">Settings</h1>
           </div>
-          <form action="/auth/signout" method="post">
-            <Button type="submit" size="sm" variant="secondary">
-              Sign out
-            </Button>
-          </form>
+          <div className="flex items-center gap-2.5">
+            <span className="u-mono hidden text-2xs text-text-3 sm:block">{summary}</span>
+            <span className="grid size-8 place-items-center rounded-full border border-border-2 bg-surface-2 text-xs font-bold text-text-2">
+              {initial}
+            </span>
+          </div>
         </div>
-      </Section>
+      </Reveal>
+
+      <Reveal delay={0.03}>
+        <Section index="01" title="profile" icon={User}>
+          <label className="block">
+            <span className="u-label">display name</span>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={60}
+              placeholder="Your name"
+              className="mt-1.5 w-full max-w-sm rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent"
+            />
+          </label>
+          {nameErr && <p className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
+          <div className="mt-3 flex items-center gap-3">
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!nameDirty || savingName}
+              onClick={saveName}
+            >
+              {savingName ? "Saving…" : "Save"}
+            </Button>
+            <Saved show={nameSaved} />
+          </div>
+        </Section>
+      </Reveal>
+
+      <Reveal delay={0.06}>
+        <Section index="02" title="syllabus" icon={ListTree}>
+          <div className="space-y-5">
+            <ChipGroup label="grade" options={GRADES} value={grade} onChange={setGrade} />
+            <ChipGroup label="board" options={BOARDS} value={board} onChange={setBoard} />
+            {needsStream && (
+              <ChipGroup
+                label="stream"
+                options={STREAMS}
+                value={stream}
+                onChange={setStream}
+              />
+            )}
+            <ChipGroup
+              label="target exam"
+              options={EXAMS}
+              value={exam}
+              onChange={setExam}
+            />
+          </div>
+          {sylErr && <p className="mt-3 u-mono text-2xs text-negative">{sylErr}</p>}
+          <div className="mt-4 flex items-center gap-3">
+            <Button
+              size="sm"
+              disabled={!sylDirty || !sylValid || savingSyl}
+              onClick={saveSyl}
+            >
+              {savingSyl ? "Saving…" : "Save changes"}
+            </Button>
+            <Saved show={sylSaved} />
+          </div>
+        </Section>
+      </Reveal>
+
+      <Reveal delay={0.09}>
+        <Section index="03" title="preferences" icon={SlidersHorizontal}>
+          <div className="divide-y divide-border">
+            <div className="flex items-center justify-between py-3 first:pt-0">
+              <span className="text-sm text-text">Appearance</span>
+              <Segmented
+                options={["dark", "light"]}
+                value={theme}
+                onChange={(v) => setThemeTo(v as "dark" | "light")}
+                size="sm"
+              />
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <span className="text-sm text-text">Interface sounds</span>
+              <Segmented
+                options={["on", "off"]}
+                value={sound ? "on" : "off"}
+                onChange={(v) => setSoundTo(v as "on" | "off")}
+                size="sm"
+              />
+            </div>
+          </div>
+        </Section>
+      </Reveal>
+
+      <Reveal delay={0.12}>
+        <Section index="04" title="account" icon={KeyRound}>
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="u-label">signed in as</span>
+              <p className="u-mono mt-0.5 text-xs text-text">{p.email}</p>
+            </div>
+            <form action="/auth/signout" method="post">
+              <Button type="submit" size="sm" variant="secondary">
+                Sign out
+              </Button>
+            </form>
+          </div>
+        </Section>
+      </Reveal>
     </div>
   );
 }
