@@ -1,19 +1,16 @@
-import { Urbanist, Poiret_One } from "next/font/google";
+import { Urbanist, JetBrains_Mono } from "next/font/google";
 
-// Workhorse — body, UI, labels, tables, forms, and the big tabular stat numbers.
+// UI text — labels, body, headings.
 export const urbanist = Urbanist({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-urbanist",
 });
 
-// Display only — landing hero, large editorial titles. Never below ~28px.
-export const poiretOne = Poiret_One({
-  weight: "400",
+// Instrument readout — every number, every technical label.
+export const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
   display: "swap",
-  variable: "--font-poiret",
+  variable: "--font-jbmono",
 });
-
-// Brand wordmark — Ragick (paid). Drop Ragick.woff2 into /public/fonts/ and
-// uncomment the @font-face block in globals.css; falls back to Urbanist 800.

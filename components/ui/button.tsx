@@ -9,16 +9,16 @@ type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-accent text-accent-on shadow-[0_1px_0_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.12)] hover:bg-accent-hover active:bg-accent-press",
+    "bg-accent text-accent-on shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_2px_rgba(0,0,0,0.35)] hover:bg-accent-hover active:bg-accent-press active:translate-y-px active:shadow-none",
   secondary:
-    "border border-border-2 bg-surface text-text hover:bg-surface-2 active:bg-surface-3",
+    "border border-border-2 bg-surface-2 text-text shadow-[inset_0_1px_0_var(--edge)] hover:bg-surface-3 active:translate-y-px active:shadow-none",
   ghost: "text-text-2 hover:bg-surface-2 hover:text-text",
 };
 
 const SIZES: Record<Size, string> = {
   sm: "h-8 px-3 text-xs",
   md: "h-9 px-4 text-sm",
-  lg: "h-11 px-6 text-base",
+  lg: "h-11 px-6 text-sm",
 };
 
 type ButtonProps = HTMLMotionProps<"button"> & {

@@ -1,50 +1,36 @@
 import { cn } from "@/lib/utils";
 
-// Big statement pulled from the product's thesis. Restated, not decorative.
 function BrandPanel() {
   return (
-    <aside className="relative hidden flex-col justify-between overflow-hidden bg-feature p-10 text-feature-fg lg:flex">
-      {/* faint concentric motif echoing the Ledger Score ring */}
-      <svg
-        className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] opacity-[0.12]"
-        viewBox="0 0 200 200"
-        aria-hidden
-      >
-        {[90, 68, 46].map((r) => (
-          <circle
-            key={r}
-            cx="100"
-            cy="100"
-            r={r}
-            fill="none"
-            stroke="#fff"
-            strokeWidth="2"
-          />
-        ))}
-      </svg>
+    <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-border bg-surface-2 p-10 shadow-[inset_0_0_0_1px_var(--edge)] lg:flex">
+      <div className="u-grille pointer-events-none absolute inset-0" />
 
-      <div className="u-brand text-lg">StudyLedger</div>
+      <div className="relative flex items-center gap-2">
+        <span className="u-led" />
+        <span className="u-brand text-base text-text">StudyLedger</span>
+      </div>
 
-      <div>
-        <h2 className="max-w-[14ch] text-[2.75rem] font-extrabold leading-[1.05] tracking-[-0.03em]">
+      <div className="relative">
+        <span className="u-label">the thesis</span>
+        <h2 className="mt-3 max-w-[16ch] text-[2.5rem] font-extrabold leading-[1.05] tracking-[-0.03em] text-text">
           Know where you stand.
-          <span className="block text-accent">Know what to fix next.</span>
+          <span className="block text-accent-strong">Know what to fix next.</span>
         </h2>
-        <p className="mt-4 max-w-[42ch] text-sm text-white/75">
+        <p className="mt-4 max-w-[40ch] text-sm text-text-2">
           Every PYQ, every mistake, every hour — folded into one number and one
           list of what to do about it.
         </p>
       </div>
 
-      <dl className="grid grid-cols-3 gap-6 border-t border-white/15 pt-6 text-white/80">
+      <dl className="relative grid grid-cols-3 gap-6 border-t border-border pt-6">
         {[
-          ["1", "the number"],
-          ["6", "boards"],
+          ["01", "the number"],
+          ["06", "boards"],
           ["40+", "tools"],
         ].map(([n, label]) => (
           <div key={label}>
-            <dt className="u-stat-number text-2xl text-white">{n}</dt>
-            <dd className="mt-1 text-xs">{label}</dd>
+            <dt className="u-stat-number text-xl text-text">{n}</dt>
+            <dd className="u-label mt-1">{label}</dd>
           </div>
         ))}
       </dl>
@@ -62,10 +48,10 @@ export function SplitLayout({
   return (
     <div
       className={cn(
-        "grid min-h-screen",
+        "grid min-h-screen bg-bg",
         form === "lg"
-          ? "lg:grid-cols-[1fr_minmax(0,580px)]"
-          : "lg:grid-cols-[1fr_minmax(0,460px)]",
+          ? "lg:grid-cols-[1fr_minmax(0,560px)]"
+          : "lg:grid-cols-[1fr_minmax(0,440px)]",
       )}
     >
       <BrandPanel />

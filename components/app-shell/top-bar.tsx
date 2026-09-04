@@ -31,14 +31,14 @@ export function TopBar({
         />
       </div>
 
-      {/* persistent stats — your ledger follows you */}
+      {/* persistent readouts — your ledger follows you */}
       <div className="ml-auto flex items-center gap-2">
-        <span className="hidden items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tabular-nums text-text-2 sm:flex">
-          <Flame size={13} className="text-accent-strong" />
-          {streak}
+        <span className="u-mono hidden items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-2xs font-medium text-text-2 sm:flex">
+          <Flame size={12} className="text-accent-strong" />
+          {streak}d
         </span>
-        <span className="hidden items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tabular-nums text-text sm:flex">
-          <TrendingUp size={13} className="text-accent-strong" />
+        <span className="u-mono hidden items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-2xs font-medium text-text sm:flex">
+          <TrendingUp size={12} className="text-accent-strong" />
           {score}
         </span>
 

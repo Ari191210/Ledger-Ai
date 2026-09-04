@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { urbanist, poiretOne } from "./fonts";
+import { urbanist, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${urbanist.variable} ${poiretOne.variable}`}
+      className={`${urbanist.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

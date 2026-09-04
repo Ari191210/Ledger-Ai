@@ -1,101 +1,92 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   StudyLedger — design tokens  ·  DARK
-   Matched to the fitness-dashboard reference: near-black ground, dark
-   rounded cards, ONE electric-blue feature panel, lime-green accent.
-   Rule: lime lands on active state / one primary action / the score arc.
-   Electric blue is the feature-panel colour only. Rest is greyscale.
+   StudyLedger — design tokens
+   Screen-native Braun: warm restraint, ONE lime accent used with
+   discipline (at most one lime element per panel), instrument-readout
+   numerals (mono), dot-grid grille texture, flat "device" panels, tiny
+   lowercase technical labels. Dark default, light alternate.
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
   color-scheme: dark;
 
   /* ground */
-  --bg:         #101010;
-  --surface:    #1a1a1a;
-  --surface-2:  #242424;
-  --surface-3:  #2f2f2f;
-  --text:       #f4f3f0;
-  --text-2:     #a2a2a0;
-  --text-3:     #6c6c6a;
-  --border:     #262626;
-  --border-2:   #383838;
+  --bg:         #0e0e0d;
+  --surface:    #191918;
+  --surface-2:  #212120;
+  --surface-3:  #2b2b29;
+  --text:       #f3f2ee;
+  --text-2:     #9d9c96;
+  --text-3:     #67665f;
+  --border:     #262625;
+  --border-2:   #383835;
 
-  /* accent — lime (text ON lime is dark) */
-  --accent:        #c6f432;
-  --accent-hover:  #d2f855;
-  --accent-press:  #aede1c;
-  --accent-weak:   #222b0c;
+  /* the one accent — lime. text ON lime is near-black. */
+  --accent:        #c8f43a;
+  --accent-hover:  #d4f85e;
+  --accent-press:  #b2dd22;
+  --accent-weak:   #23290d;
   --accent-on:     #141600;
-  --accent-strong: #c6f432;   /* data marks + small text; deepens in light */
+  --accent-strong: #c8f43a;
 
-  /* feature — the electric-blue panel and elements sitting on it */
-  --feature:      #3b5bff;
-  --feature-fg:   #ffffff;
-  --feature-2:    #6c80ff;
-  --feature-ink:  #2c43d4;
+  /* status — kept muted, used rarely */
+  --positive:      #8bd85f;
+  --positive-weak: #1e2a12;
+  --negative:      #e8705d;
+  --negative-weak: #2c1613;
 
-  /* status */
-  --positive:      #86dd57;
-  --positive-weak: #1f2b12;
-  --negative:      #ff6f5d;
-  --negative-weak: #2f1613;
+  /* grille dot colour */
+  --dot: rgb(255 255 255 / 0.09);
+  /* plastic-catches-light top edge on panels */
+  --edge: rgb(255 255 255 / 0.045);
 
-  --ring: #c6f432;
+  --ring: #c8f43a;
 
-  /* shape — the reference runs large radii */
-  --r-sm:   10px;
-  --r-md:   14px;
-  --r-lg:   20px;
-  --r-xl:   28px;
+  /* device radii — soft rounded-rect, not bubble */
+  --r-sm:   6px;
+  --r-md:   9px;
+  --r-lg:   13px;
+  --r-xl:   18px;
   --r-full: 999px;
 
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 10px 30px rgb(0 0 0 / 0.30);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.45);
 
-  /* fonts — *-urbanist / *-poiret set on <html> by next/font */
-  --font-sans:    var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-poiret), var(--font-sans);
-  --font-brand:   "Ragick", var(--font-sans);
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-/* ─── light mode ─────────────────────────────────────────────────────────
-   Same lime + electric-blue identity; accent deepens for legibility on a
-   light ground, the feature panel stays vivid blue. */
+/* ─── light ────────────────────────────────────────────────────────────── */
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg:         #f4f4f0;
-  --surface:    #ffffff;
-  --surface-2:  #eeeee8;
-  --surface-3:  #e3e3db;
-  --text:       #18181b;
-  --text-2:     #57575a;
-  --text-3:     #86868a;
-  --border:     #e0e0d8;
-  --border-2:   #cfcfc6;
+  --bg:         #eeede9;
+  --surface:    #f8f7f4;
+  --surface-2:  #efeee9;
+  --surface-3:  #e4e2db;
+  --text:       #1a1a17;
+  --text-2:     #56554e;
+  --text-3:     #8a887f;
+  --border:     #dcdad2;
+  --border-2:   #c9c6bc;
 
-  /* keep the bright lime for fills (button bg + near-black text) */
-  --accent:        #c6f432;
-  --accent-hover:  #d2f855;
-  --accent-press:  #b6e622;
+  --accent:        #c8f43a;
+  --accent-hover:  #d4f85e;
+  --accent-press:  #b2dd22;
   --accent-weak:   #eef6d6;
   --accent-on:     #1a1c08;
-  --accent-strong: #4a7c0c;   /* deep green — data marks, bars, small text */
+  --accent-strong: #4c7d0d;
 
-  --feature:      #3b5bff;
-  --feature-fg:   #ffffff;
-  --feature-2:    #6c80ff;
-  --feature-ink:  #2c43d4;
-
-  --positive:      #3d7a2e;
-  --positive-weak: #e6f0df;
+  --positive:      #3f7a2f;
+  --positive-weak: #e6efdd;
   --negative:      #c23829;
-  --negative-weak: #f8e6e3;
+  --negative-weak: #f6e5e2;
 
-  --ring: #4a7c0c;
+  --dot: rgb(0 0 0 / 0.08);
+  --edge: rgb(255 255 255 / 0.6);
 
-  --shadow: 0 1px 2px rgb(17 17 20 / 0.05), 0 8px 24px rgb(17 17 20 / 0.09);
+  --ring: #4c7d0d;
+  --shadow: 0 1px 2px rgb(20 20 16 / 0.06);
 }
 
 @theme inline {
@@ -114,10 +105,6 @@
   --color-accent-weak:   var(--accent-weak);
   --color-accent-on:     var(--accent-on);
   --color-accent-strong: var(--accent-strong);
-  --color-feature:       var(--feature);
-  --color-feature-fg:    var(--feature-fg);
-  --color-feature-2:     var(--feature-2);
-  --color-feature-ink:   var(--feature-ink);
   --color-positive:      var(--positive);
   --color-positive-weak: var(--positive-weak);
   --color-negative:      var(--negative);
@@ -131,20 +118,19 @@
 
   --shadow-card: var(--shadow);
 
-  --font-sans:    var(--font-sans);
-  --font-display: var(--font-display);
-  --font-brand:   var(--font-brand);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 
-  /* type scale — 12 · 13 · 14 · 15 · 20 · 26 · 34 · 46 · 64 */
-  --text-2xs: 0.75rem;    --text-2xs--line-height: 1.4;
-  --text-xs:  0.8125rem;  --text-xs--line-height: 1.45;
-  --text-sm:  0.875rem;   --text-sm--line-height: 1.5;
-  --text-base: 0.9375rem; --text-base--line-height: 1.5;
-  --text-lg:  1.25rem;    --text-lg--line-height: 1.35;
-  --text-xl:  1.625rem;   --text-xl--line-height: 1.25;
-  --text-2xl: 2.125rem;   --text-2xl--line-height: 1.15;
-  --text-3xl: 2.875rem;   --text-3xl--line-height: 1.05;
-  --text-4xl: 4rem;       --text-4xl--line-height: 1;
+  /* type scale — 11 · 12 · 13 · 14 · 18 · 22 · 30 · 44 · 60 */
+  --text-2xs: 0.6875rem;  --text-2xs--line-height: 1.4;
+  --text-xs:  0.75rem;    --text-xs--line-height: 1.45;
+  --text-sm:  0.8125rem;  --text-sm--line-height: 1.5;
+  --text-base: 0.875rem;  --text-base--line-height: 1.55;
+  --text-lg:  1.125rem;   --text-lg--line-height: 1.35;
+  --text-xl:  1.375rem;   --text-xl--line-height: 1.25;
+  --text-2xl: 1.875rem;   --text-2xl--line-height: 1.15;
+  --text-3xl: 2.75rem;    --text-3xl--line-height: 1.05;
+  --text-4xl: 3.75rem;    --text-4xl--line-height: 1;
 }
 
 @layer base {
@@ -160,8 +146,8 @@
     background: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: 0.875rem;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -174,12 +160,12 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
-    border-radius: 3px;
+    border-radius: 2px;
   }
 
   h1, h2, h3, h4 {
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
 
@@ -192,64 +178,62 @@
 }
 
 @layer components {
+  /* instrument readout — every figure the product shows */
   .u-stat-number {
-    font-family: var(--font-sans);
-    font-weight: 800;
+    font-family: var(--font-mono);
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.02em;
     line-height: 1;
     color: var(--text);
   }
 
-  .u-display {
-    font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: 0.005em;
+  /* tiny lowercase technical label — "01 — ledger score" */
+  .u-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--text-3);
+  }
+
+  .u-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 
   .u-brand {
-    font-family: var(--font-brand);
+    font-family: var(--font-sans);
     font-weight: 800;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
+  /* dot-grid grille — Braun speaker face. Use sparingly. */
+  .u-grille {
+    background-image: radial-gradient(var(--dot) 1.1px, transparent 1.4px);
+    background-size: 7px 7px;
+  }
+
+  /* a panel is a device: flat, crisp border, a light edge on top */
   .u-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--r-xl);
-    transition: transform 0.16s ease, background-color 0.16s ease,
-      border-color 0.16s ease;
+    border-radius: var(--r-lg);
+    box-shadow: inset 0 1px 0 var(--edge), var(--shadow);
+    transition: border-color 0.14s ease, background-color 0.14s ease;
   }
   .u-card--hover:hover {
-    transform: translateY(-2px);
-    background: var(--surface-2);
     border-color: var(--border-2);
-  }
-  .u-card--hover:active {
-    transform: translateY(-1px);
+    background: var(--surface-2);
   }
 
-  .u-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.125rem 0.5rem;
+  /* status dot — the little power LED */
+  .u-led {
+    width: 0.4rem;
+    height: 0.4rem;
     border-radius: var(--r-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.4;
+    background: var(--accent);
+    box-shadow: 0 0 6px -1px var(--accent);
   }
-  .u-badge--up   { background: var(--positive-weak); color: var(--positive); }
-  .u-badge--down { background: var(--negative-weak); color: var(--negative); }
-  .u-badge--flat { background: var(--surface-2);     color: var(--text-2); }
 }
-
-/* Ragick — activate once the licensed file is at /public/fonts/Ragick.woff2
-@font-face {
-  font-family: "Ragick";
-  src: url("/fonts/Ragick.woff2") format("woff2");
-  font-weight: 400 800;
-  font-display: swap;
-}
-*/

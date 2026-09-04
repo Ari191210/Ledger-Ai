@@ -32,14 +32,6 @@ const TOKENS: { group: string; items: { var: string; label: string }[] }[] = [
     ],
   },
   {
-    group: "Feature panel (electric blue)",
-    items: [
-      { var: "--feature", label: "Feature" },
-      { var: "--feature-2", label: "Feature light" },
-      { var: "--feature-ink", label: "Feature ink" },
-    ],
-  },
-  {
     group: "Status",
     items: [
       { var: "--positive", label: "Positive" },
@@ -51,29 +43,26 @@ const TOKENS: { group: string; items: { var: string; label: string }[] }[] = [
 ];
 
 const DEFAULTS: Record<string, string> = {
-  "--bg": "#101010",
-  "--surface": "#1a1a1a",
-  "--surface-2": "#242424",
-  "--surface-3": "#2f2f2f",
-  "--text": "#f4f3f0",
-  "--text-2": "#a2a2a0",
-  "--text-3": "#6c6c6a",
-  "--border": "#262626",
-  "--border-2": "#383838",
-  "--accent": "#c6f432",
-  "--accent-hover": "#d2f855",
-  "--accent-press": "#aede1c",
-  "--accent-weak": "#222b0c",
+  "--bg": "#0e0e0d",
+  "--surface": "#191918",
+  "--surface-2": "#212120",
+  "--surface-3": "#2b2b29",
+  "--text": "#f3f2ee",
+  "--text-2": "#9d9c96",
+  "--text-3": "#67665f",
+  "--border": "#262625",
+  "--border-2": "#383835",
+  "--accent": "#c8f43a",
+  "--accent-hover": "#d4f85e",
+  "--accent-press": "#b2dd22",
+  "--accent-weak": "#23290d",
   "--accent-on": "#141600",
-  "--accent-strong": "#c6f432",
-  "--ring": "#c6f432",
-  "--feature": "#3b5bff",
-  "--feature-2": "#6c80ff",
-  "--feature-ink": "#2c43d4",
-  "--positive": "#86dd57",
-  "--positive-weak": "#1f2b12",
-  "--negative": "#ff6f5d",
-  "--negative-weak": "#2f1613",
+  "--accent-strong": "#c8f43a",
+  "--ring": "#c8f43a",
+  "--positive": "#8bd85f",
+  "--positive-weak": "#1e2a12",
+  "--negative": "#e8705d",
+  "--negative-weak": "#2c1613",
 };
 
 const STORAGE_KEY = "sl-theme-overrides";
