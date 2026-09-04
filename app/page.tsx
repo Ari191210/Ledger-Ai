@@ -1,3 +1,5 @@
+import { ThemeLab } from "./theme-lab";
+
 const stats = [
   { label: "Ledger Score", value: "742", unit: "", goal: "800", avg: "690", trend: "+18", dir: "up" as const },
   { label: "Syllabus coverage", value: "64", unit: "%", goal: "100%", avg: "58%", trend: "+4%", dir: "up" as const },
@@ -103,6 +105,8 @@ export default function DesignPreview() {
           <span className="u-badge u-badge--flat">&mdash; 0.0%</span>
         </div>
       </section>
+
+      <ThemeLab />
     </main>
   );
 }
