@@ -5,15 +5,15 @@
    Synthesized 2026-09-04 from the reference set:
    · Dashboard structure  — bento cards, icon rail, oversized tabular
      numerals as the hero, ONE saturated accent, small trend badges
-   · Palette & mood       — burnt orange against deep-indigo twilight,
-     mid-century modern, warm neutrals, warm-against-cool
-   Rule: the orange accent lands on at most 1–2 elements per screen.
-   Indigo is for data-viz and calendar highlights only. Everything else
-   is warm greyscale.
+   · Palette & mood       — burnt orange, deep-indigo, mid-century modern,
+     warm neutrals, warm-against-cool
+   Light theme only. Rule: the orange accent lands on at most 1–2 elements
+   per screen. Indigo is for data-viz and calendar highlights only.
+   Everything else is warm greyscale.
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* warm neutrals — light (primary) */
+  /* warm neutrals */
   --bg:         #fbf7f1;
   --surface:    #ffffff;
   --surface-2:  #f4eee3;
@@ -58,67 +58,6 @@
   --font-sans:    var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: var(--font-poiret), var(--font-sans);
   --font-brand:   "Ragick", var(--font-sans);
-}
-
-/* dark — first-class alternate (the reference dashboards) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:        #0e0d0c;
-    --surface:   #1a1815;
-    --surface-2: #24211c;
-    --surface-3: #2e2a24;
-    --text:      #f5f0e6;
-    --text-2:    #a79e8e;
-    --text-3:    #756d5f;
-    --border:    #2e2a24;
-    --border-2:  #3a352d;
-
-    --accent:       #ff6b35;
-    --accent-hover: #ff7f4f;
-    --accent-press: #e85a25;
-    --accent-weak:  #2a1d14;
-    --accent-on:    #1a1815;
-
-    --indigo:      #6474e8;
-    --indigo-weak: #1c1f33;
-
-    --positive:      #5fb07e;
-    --positive-weak: #16221b;
-    --negative:      #e06a5a;
-    --negative-weak: #2a1917;
-
-    --ring: #ff6b35;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.4);
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg:        #0e0d0c;
-  --surface:   #1a1815;
-  --surface-2: #24211c;
-  --surface-3: #2e2a24;
-  --text:      #f5f0e6;
-  --text-2:    #a79e8e;
-  --text-3:    #756d5f;
-  --border:    #2e2a24;
-  --border-2:  #3a352d;
-
-  --accent:       #ff6b35;
-  --accent-hover: #ff7f4f;
-  --accent-press: #e85a25;
-  --accent-weak:  #2a1d14;
-  --accent-on:    #1a1815;
-
-  --indigo:      #6474e8;
-  --indigo-weak: #1c1f33;
-
-  --positive:      #5fb07e;
-  --positive-weak: #16221b;
-  --negative:      #e06a5a;
-  --negative-weak: #2a1917;
-
-  --ring: #ff6b35;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.4);
 }
 
 /* ─── expose tokens to Tailwind utilities ─────────────────────────────── */
@@ -178,7 +117,7 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    color-scheme: light dark;
+    color-scheme: light;
   }
 
   body {
