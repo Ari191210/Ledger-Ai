@@ -36,28 +36,36 @@ export function StudyDaysCalendar({
         ))}
       </div>
       <div className="mt-1.5 grid grid-cols-7 gap-1">
-        {cells.map((d, i) => (
-          <div key={i} className="grid aspect-square place-items-center">
-            {d && (
-              <button
-                type="button"
-                onPointerDown={() => playClick("soft")}
-                onClick={() => setSelected((s) => (s === d ? null : d))}
-                className={cn(
-                  "u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums transition-colors",
-                  d === today
-                    ? "bg-accent font-bold text-accent-on"
-                    : studiedDays.has(d)
-                      ? "bg-surface-3 text-text hover:bg-border-2"
-                      : "text-text-3 hover:bg-surface-2",
-                  selected === d && "ring-2 ring-accent ring-offset-2 ring-offset-surface",
-                )}
-              >
-                {d}
-              </button>
-            )}
-          </div>
-        ))}
+        {cells.map((d, i) => {
+          const isFuture = d != null && d > today;
+          return (
+            <div key={i} className="grid aspect-square place-items-center">
+              {d && isFuture && (
+                <span className="u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums text-text-3/40">
+                  {d}
+                </span>
+              )}
+              {d && !isFuture && (
+                <button
+                  type="button"
+                  onPointerDown={() => playClick("soft")}
+                  onClick={() => setSelected((s) => (s === d ? null : d))}
+                  className={cn(
+                    "u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums transition-colors",
+                    d === today
+                      ? "bg-accent font-bold text-accent-on"
+                      : studiedDays.has(d)
+                        ? "bg-surface-3 text-text hover:bg-border-2"
+                        : "text-text-3 hover:bg-surface-2",
+                    selected === d && "ring-2 ring-accent ring-offset-2 ring-offset-surface",
+                  )}
+                >
+                  {d}
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-3 min-h-[4.75rem] border-t border-border pt-3">
