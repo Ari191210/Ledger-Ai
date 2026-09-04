@@ -5,6 +5,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
 import { getDashboardData } from "@/lib/score/inputs";
+import { getLedgerTape } from "@/lib/score/tape";
 
 function Label({ index, children }: { index: string; children: string }) {
   return (
@@ -107,6 +108,7 @@ export default async function DashboardPage() {
   const name = user?.email?.split("@")[0] ?? "there";
   const { score, activity, studiedDays, coveragePct, syllabusLogged, fixNext } =
     await getDashboardData(supabase, user!.id);
+  const tape = await getLedgerTape(supabase, user!.id);
 
   return (
     <div className="mx-auto max-w-[1240px] space-y-4">
@@ -239,6 +241,46 @@ export default async function DashboardPage() {
             <button className="flex items-center justify-center gap-1.5 rounded-[13px] border border-dashed border-border-2 p-3 u-label hover:text-text">
               <Plus size={13} /> add
             </button>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* ── ledger tape ───────────────────────────────────── */}
+      <Reveal delay={0.18}>
+        <section className="u-card relative overflow-hidden">
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-2"
+            style={{
+              backgroundImage:
+                "linear-gradient(135deg, var(--bg) 50%, transparent 50%), linear-gradient(45deg, var(--bg) 50%, transparent 50%)",
+              backgroundSize: "10px 10px",
+              backgroundRepeat: "repeat-x",
+              backgroundPosition: "top",
+            }}
+          />
+          <div className="p-4 pt-5">
+            <Label index="06">ledger tape</Label>
+            <div className="mt-3 divide-y divide-dashed divide-border">
+              {tape.length === 0 && (
+                <p className="u-mono py-3 text-2xs text-text-3">
+                  nothing logged in the last 14 days
+                </p>
+              )}
+              {tape.map((e) => (
+                <div key={e.id} className="u-mono flex items-center gap-3 py-2 text-2xs">
+                  <span className="w-12 shrink-0 text-text-3">
+                    {new Date(e.at).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
+                  </span>
+                  <span className="w-28 shrink-0 text-text-2">{e.label}</span>
+                  <span className="flex-1 truncate text-text-3">{e.meta}</span>
+                  {e.delta && <span className="shrink-0 text-accent-strong">{e.delta}</span>}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </Reveal>
