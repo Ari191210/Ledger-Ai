@@ -24,7 +24,10 @@ export default async function ToolPage({
       </Link>
 
       <div className="u-card u-grille mt-4 p-8 text-center">
-        <span className="u-label">
+        <span className="mx-auto grid size-11 place-items-center rounded-md border border-border bg-surface-2 text-accent-strong">
+          <tool.icon size={20} />
+        </span>
+        <span className="u-label mt-4 block">
           {category?.label.toLowerCase()}
           {tool.signature && <span className="ml-1.5 text-accent-strong">★</span>}
         </span>
