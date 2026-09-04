@@ -58,6 +58,43 @@
   --font-brand:   "Ragick", var(--font-sans);
 }
 
+/* ─── light mode ─────────────────────────────────────────────────────────
+   Same lime + electric-blue identity; accent deepens for legibility on a
+   light ground, the feature panel stays vivid blue. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:         #f6f6f3;
+  --surface:    #ffffff;
+  --surface-2:  #f0f0ec;
+  --surface-3:  #e5e5e0;
+  --text:       #18181b;
+  --text-2:     #5b5b5e;
+  --text-3:     #8a8a8d;
+  --border:     #e6e6e1;
+  --border-2:   #d7d7d1;
+
+  --accent:       #5c8a0a;
+  --accent-hover: #4e7606;
+  --accent-press: #3f6004;
+  --accent-weak:  #edf5da;
+  --accent-on:    #ffffff;
+
+  --feature:      #3b5bff;
+  --feature-fg:   #ffffff;
+  --feature-2:    #6c80ff;
+  --feature-ink:  #2c43d4;
+
+  --positive:      #3d7a2e;
+  --positive-weak: #e6f0df;
+  --negative:      #c23829;
+  --negative-weak: #f8e6e3;
+
+  --ring: #5c8a0a;
+
+  --shadow: 0 1px 2px rgb(17 17 20 / 0.04), 0 8px 24px rgb(17 17 20 / 0.08);
+}
+
 @theme inline {
   --color-bg:            var(--bg);
   --color-surface:       var(--surface);

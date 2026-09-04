@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Search, LogOut, Volume2, VolumeX } from "lucide-react";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function TopBar({ email }: { email: string }) {
   const [sound, setSound] = useState(true);
@@ -23,6 +24,7 @@ export function TopBar({ email }: { email: string }) {
       </div>
 
       <div className="ml-auto flex items-center gap-1">
+        <ThemeToggle />
         <button
           onClick={() => {
             const next = !sound;

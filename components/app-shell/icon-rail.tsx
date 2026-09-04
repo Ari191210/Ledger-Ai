@@ -53,7 +53,7 @@ export function IconRail() {
                 onPointerDown={() => playClick("nav")}
                 className={`grid size-10 place-items-center rounded-lg transition-colors ${
                   active
-                    ? "bg-accent-weak text-accent"
+                    ? "bg-accent text-accent-on"
                     : "text-text-3 hover:bg-surface-2 hover:text-text"
                 }`}
               >
