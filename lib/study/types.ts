@@ -17,6 +17,8 @@ export type Mistake = {
   source: MistakeSource;
   created_at: string;
   resolved_at: string | null;
+  next_review_at: string;
+  review_count: number;
 };
 
 export type PyqAttempt = {

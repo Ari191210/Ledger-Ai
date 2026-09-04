@@ -104,6 +104,66 @@ export async function resolveMistake(supabase: SupabaseClient, id: string) {
     .eq("id", id);
 }
 
+// ─── spaced review ──────────────────────────────────────────────────────
+
+// days-until-next-review by review_count: 1 -> 3 -> 7 -> 14 -> 30, then holds
+const REVIEW_INTERVALS_DAYS = [1, 3, 7, 14, 30];
+const MASTERED_AT_REVIEW_COUNT = REVIEW_INTERVALS_DAYS.length;
+
+export async function getDueMistakes(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Mistake[]> {
+  const { data, error } = await supabase
+    .from("mistakes")
+    .select("*")
+    .eq("user_id", userId)
+    .is("resolved_at", null)
+    .lte("next_review_at", new Date().toISOString())
+    .order("next_review_at");
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Record a review. Remembered pushes the next review further out (and
+ * auto-resolves once it's been remembered enough times in a row); forgotten
+ * resets the interval to the start.
+ */
+export async function reviewMistake(
+  supabase: SupabaseClient,
+  id: string,
+  currentReviewCount: number,
+  remembered: boolean,
+) {
+  if (!remembered) {
+    return supabase
+      .from("mistakes")
+      .update({
+        review_count: 0,
+        next_review_at: new Date(Date.now() + 86_400_000).toISOString(),
+      })
+      .eq("id", id);
+  }
+
+  const nextCount = currentReviewCount + 1;
+  if (nextCount >= MASTERED_AT_REVIEW_COUNT) {
+    return supabase
+      .from("mistakes")
+      .update({ review_count: nextCount, resolved_at: new Date().toISOString() })
+      .eq("id", id);
+  }
+
+  const days = REVIEW_INTERVALS_DAYS[nextCount] ?? REVIEW_INTERVALS_DAYS.at(-1)!;
+  return supabase
+    .from("mistakes")
+    .update({
+      review_count: nextCount,
+      next_review_at: new Date(Date.now() + days * 86_400_000).toISOString(),
+    })
+    .eq("id", id);
+}
+
 // ─── PYQ attempts ────────────────────────────────────────────────────────
 
 export async function addPyqAttempt(
