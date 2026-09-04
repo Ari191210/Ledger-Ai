@@ -31,7 +31,8 @@ export async function callAIText(args: {
       // max_tokens and can truncate the actual answer.
       thinking: { type: "disabled" },
     });
-  } catch {
+  } catch (err) {
+    console.error("[ai] Anthropic call failed:", err);
     throw new AIError("The AI request failed. Try again in a moment.");
   }
   const text = firstText(message);
@@ -59,7 +60,8 @@ export async function callAIJson<T>(args: {
       messages: [{ role: "user", content: args.userText }],
       thinking: { type: "disabled" },
     });
-  } catch {
+  } catch (err) {
+    console.error("[ai] Anthropic call failed:", err);
     throw new AIError("The AI request failed. Try again in a moment.");
   }
   const raw = firstText(message).trim();
