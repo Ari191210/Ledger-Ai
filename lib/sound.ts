@@ -26,7 +26,7 @@ export function setSoundOn(on: boolean): void {
   } catch {}
 }
 
-type Click = "tap" | "soft" | "nav" | "switch";
+type Click = "tap" | "soft" | "nav" | "switch" | "done";
 
 export function playClick(kind: Click = "tap"): void {
   if (!isSoundOn()) return;
@@ -35,6 +35,24 @@ export function playClick(kind: Click = "tap"): void {
   try {
     if (c.state === "suspended") void c.resume();
     const t = c.currentTime;
+
+    if (kind === "done") {
+      // a phase complete: two clean ascending tones, not a beep
+      for (const [i, freq] of [523, 784].entries()) {
+        const delay = i * 0.1;
+        const osc = c.createOscillator();
+        const gain = c.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, t + delay);
+        gain.gain.setValueAtTime(0.0001, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.07, t + delay + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + delay + 0.16);
+        osc.connect(gain).connect(c.destination);
+        osc.start(t + delay);
+        osc.stop(t + delay + 0.18);
+      }
+      return;
+    }
 
     if (kind === "switch") {
       // a physical toggle: two quick low thunks, not a beep
