@@ -1,17 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, LogOut, Volume2, VolumeX } from "lucide-react";
+import { Search, LogOut, Volume2, VolumeX, Flame, TrendingUp } from "lucide-react";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-export function TopBar({ email }: { email: string }) {
+export function TopBar({
+  email,
+  score,
+  streak,
+}: {
+  email: string;
+  score: number;
+  streak: number;
+}) {
   const [sound, setSound] = useState(true);
   useEffect(() => setSound(isSoundOn()), []);
 
   return (
     <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-6">
-      <div className="relative max-w-[240px] flex-1">
+      <div className="relative max-w-[220px] flex-1">
         <Search
           size={14}
           className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-text-3"
@@ -23,7 +31,19 @@ export function TopBar({ email }: { email: string }) {
         />
       </div>
 
-      <div className="ml-auto flex items-center gap-1">
+      {/* persistent stats — your ledger follows you */}
+      <div className="ml-auto flex items-center gap-2">
+        <span className="hidden items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tabular-nums text-text-2 sm:flex">
+          <Flame size={13} className="text-accent-strong" />
+          {streak}
+        </span>
+        <span className="hidden items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tabular-nums text-text sm:flex">
+          <TrendingUp size={13} className="text-accent-strong" />
+          {score}
+        </span>
+
+        <span className="mx-1 h-4 w-px bg-border" />
+
         <ThemeToggle />
         <button
           onClick={() => {
@@ -39,7 +59,7 @@ export function TopBar({ email }: { email: string }) {
           {sound ? <Volume2 size={15} /> : <VolumeX size={15} />}
         </button>
 
-        <span className="mx-1 hidden text-xs text-text-3 sm:block">{email}</span>
+        <span className="mx-1 hidden text-xs text-text-3 md:block">{email}</span>
 
         <form action="/auth/signout" method="post">
           <button

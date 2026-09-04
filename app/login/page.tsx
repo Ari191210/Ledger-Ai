@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { SplitLayout } from "@/components/auth/split-layout";
 
 function LoginForm() {
   const router = useRouter();
@@ -51,8 +52,10 @@ function LoginForm() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <div className="u-brand mb-8 text-xl text-accent-strong">StudyLedger</div>
+    <div>
+      <div className="u-brand mb-8 text-xl text-accent-strong lg:hidden">
+        StudyLedger
+      </div>
 
       <h1 className="text-xl font-bold text-text">
         {mode === "signin" ? "Sign in" : "Create your account"}
@@ -108,14 +111,16 @@ function LoginForm() {
           ? "No account? Create one"
           : "Already have an account? Sign in"}
       </button>
-    </main>
+    </div>
   );
 }
 
 export default function LoginPage() {
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
-      <LoginForm />
+      <SplitLayout form="sm">
+        <LoginForm />
+      </SplitLayout>
     </Suspense>
   );
 }

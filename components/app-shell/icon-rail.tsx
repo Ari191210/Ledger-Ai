@@ -19,7 +19,7 @@ const NAV: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export function IconRail() {
+export function IconRail({ initial }: { initial: string }) {
   const pathname = usePathname();
 
   return (
@@ -28,7 +28,7 @@ export function IconRail() {
         href="/dashboard"
         aria-label="StudyLedger"
         onPointerDown={() => playClick("nav")}
-        className="mb-4 grid size-8 place-items-center rounded-md bg-accent text-sm font-extrabold text-accent-on"
+        className="mb-4 grid size-8 place-items-center rounded-lg bg-accent text-sm font-extrabold text-accent-on ring-2 ring-accent/25 ring-offset-2 ring-offset-surface"
       >
         S
       </Link>
@@ -51,7 +51,7 @@ export function IconRail() {
                 aria-label={label}
                 aria-current={active ? "page" : undefined}
                 onPointerDown={() => playClick("nav")}
-                className={`grid size-10 place-items-center rounded-lg transition-colors ${
+                className={`group grid size-10 place-items-center rounded-lg transition-colors ${
                   active
                     ? "bg-accent text-accent-on"
                     : "text-text-3 hover:bg-surface-2 hover:text-text"
@@ -63,6 +63,15 @@ export function IconRail() {
           );
         })}
       </ul>
+
+      <Link
+        href="/settings"
+        aria-label="Your profile"
+        onPointerDown={() => playClick("nav")}
+        className="mt-2 grid size-8 place-items-center rounded-full border border-border-2 bg-surface-2 text-xs font-bold text-text-2 transition-colors hover:text-text"
+      >
+        {initial}
+      </Link>
     </nav>
   );
 }

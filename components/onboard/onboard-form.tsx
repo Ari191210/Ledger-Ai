@@ -38,8 +38,10 @@ export function OnboardForm() {
   }
 
   return (
-    <div className="w-full max-w-lg">
-      <div className="u-brand mb-6 text-lg text-accent-strong">StudyLedger</div>
+    <div>
+      <div className="u-brand mb-6 text-lg text-accent-strong lg:hidden">
+        StudyLedger
+      </div>
       <h1 className="text-xl font-bold text-text">Set up your ledger</h1>
       <p className="mt-1 text-sm text-text-2">
         Four questions. This calibrates every tool to your syllabus.

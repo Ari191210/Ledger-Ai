@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardForm } from "@/components/onboard/onboard-form";
+import { SplitLayout } from "@/components/auth/split-layout";
 
 export default async function OnboardPage() {
   const supabase = await createClient();
@@ -18,8 +19,8 @@ export default async function OnboardPage() {
   if (profile?.onboarded_at) redirect("/dashboard");
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-16">
+    <SplitLayout form="lg">
       <OnboardForm />
-    </main>
+    </SplitLayout>
   );
 }
