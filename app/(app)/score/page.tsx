@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { StatNumber } from "@/components/ui/stat-number";
+import { Ring } from "@/components/ui/ring";
 import { getDashboardData } from "@/lib/score/inputs";
 
 const PILLAR_NOTE: Record<string, string> = {
@@ -22,21 +23,28 @@ export default async function ScorePage() {
       <h1 className="mt-1 text-lg font-bold text-text">Ledger Score</h1>
 
       <section className="u-card mt-4 p-6">
-        <div className="flex items-end gap-4">
-          <StatNumber value={score.total} className="text-[4.5rem] leading-none" />
-          <div className="mb-2 space-y-0.5">
-            <div className="text-sm text-text-2">{score.tier}</div>
-            <div className="u-mono text-2xs text-text-3">
+        <div className="flex items-center gap-8">
+          <Ring value={score.total} max={score.max} size={188} stroke={14} color="var(--accent-strong)">
+            <div>
+              <StatNumber value={score.total} className="text-4xl leading-none" />
+              <div className="u-mono mt-1 text-2xs text-text-3">/ {score.max}</div>
+            </div>
+          </Ring>
+
+          <div>
+            <div className="text-base font-semibold text-text">{score.tier}</div>
+            <div className="u-mono mt-1 text-2xs text-text-3">
               {score.nextTier
                 ? `${score.nextTier.at - score.total} points to ${score.nextTier.label}`
                 : "top tier"}
-              {" · "}
-              streak {streakDays}d
+            </div>
+            <div className="u-mono mt-3 flex items-center gap-1.5 text-2xs text-accent-strong">
+              <span className="size-1.5 rounded-full bg-accent" /> {streakDays}d streak
             </div>
           </div>
         </div>
 
-        <div className="mt-6 space-y-4 border-t border-border pt-5">
+        <div className="mt-8 space-y-4 border-t border-border pt-6">
           {score.pillars.map((p) => (
             <div key={p.key}>
               <div className="flex items-baseline justify-between">

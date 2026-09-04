@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, User, ListTree, SlidersHorizontal, KeyRound } from "lucide-react";
+import { Check, User, ListTree, SlidersHorizontal } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
@@ -166,27 +166,46 @@ export function SettingsForm(p: Props) {
 
       <Reveal delay={0.03}>
         <Section index="01" title="profile" icon={User}>
-          <label className="block">
-            <span className="u-label">display name</span>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={60}
-              placeholder="Your name"
-              className="mt-1.5 w-full max-w-sm rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent"
-            />
-          </label>
-          {nameErr && <p className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
-          <div className="mt-3 flex items-center gap-3">
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={!nameDirty || savingName}
-              onClick={saveName}
-            >
-              {savingName ? "Saving…" : "Save"}
-            </Button>
-            <Saved show={nameSaved} />
+          <div className="flex items-start gap-4">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full border border-border-2 bg-surface-2 text-sm font-bold text-text-2">
+              {initial}
+            </span>
+            <div className="flex-1">
+              <label className="block">
+                <span className="u-label">display name</span>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={60}
+                  placeholder="Your name"
+                  className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent"
+                />
+              </label>
+              {nameErr && <p className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
+              <div className="mt-3 flex items-center gap-3">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!nameDirty || savingName}
+                  onClick={saveName}
+                >
+                  {savingName ? "Saving…" : "Save"}
+                </Button>
+                <Saved show={nameSaved} />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+            <div>
+              <span className="u-label">signed in as</span>
+              <p className="u-mono mt-0.5 text-xs text-text">{p.email}</p>
+            </div>
+            <form action="/auth/signout" method="post">
+              <Button type="submit" size="sm" variant="secondary">
+                Sign out
+              </Button>
+            </form>
           </div>
         </Section>
       </Reveal>
@@ -242,22 +261,6 @@ export function SettingsForm(p: Props) {
               </div>
               <ToggleSwitch checked={sound} onChange={toggleSound} label="Interface sounds" />
             </div>
-          </div>
-        </Section>
-      </Reveal>
-
-      <Reveal delay={0.12}>
-        <Section index="04" title="account" icon={KeyRound}>
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="u-label">signed in as</span>
-              <p className="u-mono mt-0.5 text-xs text-text">{p.email}</p>
-            </div>
-            <form action="/auth/signout" method="post">
-              <Button type="submit" size="sm" variant="secondary">
-                Sign out
-              </Button>
-            </form>
           </div>
         </Section>
       </Reveal>

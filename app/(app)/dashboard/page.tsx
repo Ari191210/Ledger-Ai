@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { ArrowUpRight, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
+import { Ring } from "@/components/ui/ring";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { FocusChart } from "@/components/dashboard/focus-chart";
 import { QuickLog } from "@/components/dashboard/quick-log";
@@ -96,42 +98,49 @@ export default async function DashboardPage() {
         <div className="space-y-4">
           {/* ── ledger score ─────────────────────────────── */}
           <Reveal delay={0.04}>
-            <section className="u-card p-4">
+            <Link href="/score" className="u-card u-card--hover block p-5">
               <div className="flex items-center justify-between">
                 <Label index="01">ledger score</Label>
                 <span className="u-led" />
               </div>
 
-              <div className="mt-3 flex items-end gap-4">
-                <StatNumber value={score.total} className="text-[4rem] leading-none" />
-                <div className="mb-2 space-y-0.5">
-                  <div className="text-xs text-text-2">{score.tier.toLowerCase()}</div>
-                  <div className="u-mono text-2xs text-text-3">
+              <div className="mt-4 flex items-center gap-6">
+                <Ring value={score.total} max={score.max} size={132} stroke={11} color="var(--accent-strong)">
+                  <div>
+                    <StatNumber value={score.total} className="text-[2.1rem] leading-none" />
+                    <div className="u-mono text-2xs text-text-3">/{score.max}</div>
+                  </div>
+                </Ring>
+
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-text">{score.tier}</div>
+                  <div className="u-mono mt-0.5 text-2xs text-text-3">
                     {score.nextTier
                       ? `${score.nextTier.at - score.total} to ${score.nextTier.label.toLowerCase()}`
                       : "top tier"}
                   </div>
+
+                  <div className="mt-3 space-y-2">
+                    {score.pillars.map((p) => (
+                      <div key={p.key}>
+                        <div className="flex items-center justify-between">
+                          <span className="u-label">{p.label}</span>
+                          <span className="u-mono text-2xs text-text-2">
+                            {p.pts}<span className="text-text-3">/{p.max}</span>
+                          </span>
+                        </div>
+                        <div className="mt-1 h-1 bg-surface-3">
+                          <div
+                            className="h-full bg-accent"
+                            style={{ width: `${(p.pts / p.max) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-
-              <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
-                {score.pillars.map((p) => (
-                  <div key={p.key} className="flex-1">
-                    <div className="u-label">{p.label}</div>
-                    <div className="mt-1 flex items-baseline gap-1">
-                      <span className="u-stat-number text-sm">{p.pts}</span>
-                      <span className="u-mono text-2xs text-text-3">/{p.max}</span>
-                    </div>
-                    <div className="mt-1.5 h-1 bg-surface-3">
-                      <div
-                        className="h-full bg-accent"
-                        style={{ width: `${(p.pts / p.max) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            </Link>
           </Reveal>
 
           {/* ── study activity ───────────────────────────── */}
