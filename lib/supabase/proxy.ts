@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Routes that require a session. Everything else is public.
-const PROTECTED = ["/dashboard", "/tools", "/score", "/settings"];
+const PROTECTED = ["/dashboard", "/tools", "/score", "/settings", "/onboard"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

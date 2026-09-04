@@ -15,6 +15,14 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarded_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.onboarded_at) redirect("/onboard");
+
   return (
     <div className="min-h-screen bg-bg">
       <IconRail />
