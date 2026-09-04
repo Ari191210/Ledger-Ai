@@ -81,7 +81,14 @@ function LoginForm() {
           />
         </label>
         <label className="block">
-          <span className="u-label">password</span>
+          <div className="flex items-center justify-between">
+            <span className="u-label">password</span>
+            {mode === "signin" && (
+              <a href="/auth/reset" className="u-mono text-2xs text-text-2 hover:text-text">
+                forgot?
+              </a>
+            )}
+          </div>
           <input
             type="password"
             required
