@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPromptSpec, type ToolValues } from "@/lib/tools/prompts";
 import { getStudentProfile, buildProfileContext } from "@/lib/ai/profile-context";
 import { callAIText, callAIJson, AIError } from "@/lib/ai/client";
+import { checkRateLimit, recordInvocation } from "@/lib/ai/rate-limit";
 import { getMistakes, getSyllabus } from "@/lib/study/queries";
 import type { AiResult } from "@/lib/ai/types";
 
@@ -89,6 +90,10 @@ export async function POST(req: Request) {
   const values = sanitiseValues(spec, body?.values);
   const missing = missingRequired(spec, values);
   if (missing) return NextResponse.json({ error: missing }, { status: 400 });
+
+  const rateLimit = await checkRateLimit(supabase, user.id);
+  if (!rateLimit.allowed) return NextResponse.json({ error: rateLimit.message }, { status: 429 });
+  await recordInvocation(supabase, user.id, tool);
 
   const profile = await getStudentProfile(supabase, user.id);
   const profileCtx = buildProfileContext(profile);
