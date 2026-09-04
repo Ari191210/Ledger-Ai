@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Ring } from "@/components/ui/ring";
+import { SiteNav } from "@/components/marketing/site-nav";
+import { SiteFooter } from "@/components/marketing/site-footer";
 import { SignatureShowcase } from "@/components/marketing/signature-showcase";
 import { CATEGORIES } from "@/lib/tools/registry";
 import { BOARDS } from "@/lib/onboarding";
@@ -26,24 +28,7 @@ const SAMPLE_TOTAL = PILLARS.reduce((s, p) => s + p.pts, 0);
 export default function LandingPage() {
   return (
     <main className="mx-auto max-w-5xl px-6">
-      <nav className="flex items-center justify-between py-6">
-        <div className="flex items-center gap-2">
-          <span className="u-led" />
-          <span className="u-brand text-base text-text">StudyLedger</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/login">
-            <Button variant="ghost" size="sm">
-              Sign in
-            </Button>
-          </Link>
-          <Link href="/login">
-            <Button size="sm">
-              Get started <ArrowRight size={13} />
-            </Button>
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* ── hero ──────────────────────────────────────────────────────── */}
       <section className="grid gap-10 py-14 lg:grid-cols-[1fr_auto] lg:items-center lg:py-20">
@@ -230,13 +215,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="flex items-center justify-between border-t border-border py-8">
-        <div className="flex items-center gap-2">
-          <span className="u-led" />
-          <span className="u-brand text-sm text-text">StudyLedger</span>
-        </div>
-        <p className="u-mono text-2xs text-text-3">for students preparing for boards and entrance exams</p>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
