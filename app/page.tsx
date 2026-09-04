@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ThemeLab } from "./theme-lab";
 
 const stats = [
@@ -25,7 +26,15 @@ export default function DesignPreview() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-16">
       <header className="mb-14">
-        <div className="u-brand text-2xl text-accent">StudyLedger</div>
+        <div className="flex items-center justify-between">
+          <div className="u-brand text-2xl text-accent">StudyLedger</div>
+          <Link
+            href="/login"
+            className="rounded-md border border-border-2 bg-surface px-3 py-1.5 text-xs font-semibold text-text hover:bg-surface-2"
+          >
+            Sign in
+          </Link>
+        </div>
         <h1 className="u-display mt-6 text-4xl text-text">
           Know where you stand. Know what to fix next.
         </h1>
