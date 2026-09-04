@@ -1,8 +1,26 @@
-export default function SettingsPage() {
+import { createClient } from "@/lib/supabase/server";
+import { SettingsForm } from "@/components/settings/settings-form";
+
+export default async function SettingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name, grade, board, stream, target_exam")
+    .eq("id", user!.id)
+    .maybeSingle();
+
   return (
-    <div className="mx-auto max-w-6xl">
-      <h1 className="text-xl font-bold text-text">Settings</h1>
-      <p className="mt-1 text-sm text-text-2">Profile, board, stream, target exam — coming next.</p>
-    </div>
+    <SettingsForm
+      email={user!.email ?? ""}
+      displayName={profile?.display_name ?? ""}
+      grade={profile?.grade ?? ""}
+      board={profile?.board ?? ""}
+      stream={profile?.stream ?? ""}
+      targetExam={profile?.target_exam ?? ""}
+    />
   );
 }
