@@ -18,8 +18,8 @@ export function ChipGroup({
 }) {
   return (
     <div>
-      <div className="mb-2 text-xs font-semibold text-text-2">{label}</div>
-      <div className="flex flex-wrap gap-2">
+      <div className="u-label mb-2">{label}</div>
+      <div className="flex flex-wrap gap-1.5">
         {options.map((o) => {
           const on = o.value === value;
           return (
@@ -29,10 +29,10 @@ export function ChipGroup({
               onPointerDown={() => playClick("soft")}
               onClick={() => onChange(o.value)}
               className={cn(
-                "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+                "rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors",
                 on
-                  ? "border-accent bg-accent text-accent-on"
-                  : "border-border bg-surface-2 text-text-2 hover:text-text",
+                  ? "border-accent bg-accent text-accent-on shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  : "border-border bg-surface-2 text-text-2 hover:border-border-2 hover:text-text",
               )}
             >
               {o.label}

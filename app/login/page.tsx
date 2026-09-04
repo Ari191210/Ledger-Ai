@@ -53,11 +53,13 @@ function LoginForm() {
 
   return (
     <div>
-      <div className="u-brand mb-8 text-xl text-accent-strong lg:hidden">
-        StudyLedger
+      <div className="mb-8 flex items-center gap-2 lg:hidden">
+        <span className="u-led" />
+        <span className="u-brand text-lg text-text">StudyLedger</span>
       </div>
 
-      <h1 className="text-xl font-bold text-text">
+      <span className="u-label">{mode === "signin" ? "sign in" : "sign up"}</span>
+      <h1 className="mt-2 text-xl font-bold text-text">
         {mode === "signin" ? "Sign in" : "Create your account"}
       </h1>
       <p className="mt-1 text-sm text-text-2">
@@ -68,18 +70,18 @@ function LoginForm() {
 
       <form onSubmit={submit} className="mt-6 space-y-3">
         <label className="block">
-          <span className="text-xs font-semibold text-text-2">Email</span>
+          <span className="u-label">email</span>
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-border-2 bg-surface px-3 py-2 text-sm text-text outline-none focus:border-accent"
+            className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold text-text-2">Password</span>
+          <span className="u-label">password</span>
           <input
             type="password"
             required
@@ -87,12 +89,12 @@ function LoginForm() {
             autoComplete={mode === "signin" ? "current-password" : "new-password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border border-border-2 bg-surface px-3 py-2 text-sm text-text outline-none focus:border-accent"
+            className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
           />
         </label>
 
-        {err && <p className="text-xs text-negative">{err}</p>}
-        {msg && <p className="text-xs text-positive">{msg}</p>}
+        {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+        {msg && <p className="u-mono text-2xs text-positive">{msg}</p>}
 
         <Button type="submit" size="lg" disabled={busy} className="w-full">
           {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
@@ -105,7 +107,7 @@ function LoginForm() {
           setErr(null);
           setMsg(null);
         }}
-        className="mt-4 text-xs font-semibold text-text-2 hover:text-text"
+        className="mt-4 u-mono text-2xs text-text-2 hover:text-text"
       >
         {mode === "signin"
           ? "No account? Create one"

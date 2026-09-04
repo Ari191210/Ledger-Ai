@@ -39,27 +39,29 @@ export function OnboardForm() {
 
   return (
     <div>
-      <div className="u-brand mb-6 text-lg text-accent-strong lg:hidden">
-        StudyLedger
+      <div className="mb-6 flex items-center gap-2 lg:hidden">
+        <span className="u-led" />
+        <span className="u-brand text-lg text-text">StudyLedger</span>
       </div>
-      <h1 className="text-xl font-bold text-text">Set up your ledger</h1>
+      <span className="u-label">setup</span>
+      <h1 className="mt-2 text-xl font-bold text-text">Set up your ledger</h1>
       <p className="mt-1 text-sm text-text-2">
         Four questions. This calibrates every tool to your syllabus.
       </p>
 
       <div className="mt-7 space-y-6">
-        <ChipGroup label="Grade" options={GRADES} value={grade} onChange={setGrade} />
-        <ChipGroup label="Board" options={BOARDS} value={board} onChange={setBoard} />
+        <ChipGroup label="grade" options={GRADES} value={grade} onChange={setGrade} />
+        <ChipGroup label="board" options={BOARDS} value={board} onChange={setBoard} />
         {needsStream && (
           <ChipGroup
-            label="Stream"
+            label="stream"
             options={STREAMS}
             value={stream}
             onChange={setStream}
           />
         )}
         <ChipGroup
-          label="Target exam"
+          label="target exam"
           options={EXAMS}
           value={exam}
           onChange={setExam}

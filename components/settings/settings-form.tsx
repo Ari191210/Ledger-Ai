@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
+import { Segmented } from "@/components/ui/segmented";
 import { GRADES, BOARDS, STREAMS, EXAMS, streamApplies } from "@/lib/onboarding";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
 import { saveSyllabus, saveDisplayName } from "@/app/(app)/settings/actions";
@@ -17,15 +18,19 @@ type Props = {
 };
 
 function Section({
+  index,
   title,
   children,
 }: {
+  index: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="u-card p-5">
-      <h2 className="text-sm font-semibold text-text">{title}</h2>
+    <section className="u-card p-4">
+      <span className="u-label">
+        {index} <span className="mx-1 text-text-3/60">—</span> {title}
+      </span>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -33,19 +38,17 @@ function Section({
 
 function Saved({ show }: { show: boolean }) {
   return show ? (
-    <span className="text-xs font-medium text-positive">Saved</span>
+    <span className="u-mono text-2xs text-positive">saved</span>
   ) : null;
 }
 
 export function SettingsForm(p: Props) {
-  // ── profile ──
   const [name, setName] = useState(p.displayName);
   const [nameSaved, setNameSaved] = useState(false);
   const [nameErr, setNameErr] = useState<string | null>(null);
   const [savingName, startName] = useTransition();
   const nameDirty = name.trim() !== p.displayName;
 
-  // ── syllabus ──
   const [grade, setGrade] = useState(p.grade);
   const [board, setBoard] = useState(p.board);
   const [stream, setStream] = useState(p.stream);
@@ -60,10 +63,8 @@ export function SettingsForm(p: Props) {
     board !== p.board ||
     exam !== p.targetExam ||
     (needsStream ? stream : "") !== (streamApplies(p.grade) ? p.stream : "");
-  const sylValid =
-    grade && board && exam && (!needsStream || stream);
+  const sylValid = grade && board && exam && (!needsStream || stream);
 
-  // ── preferences ──
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [sound, setSound] = useState(true);
   useEffect(() => {
@@ -102,8 +103,7 @@ export function SettingsForm(p: Props) {
     });
   }
 
-  function toggleTheme() {
-    const next = theme === "dark" ? "light" : "dark";
+  function setThemeTo(next: "dark" | "light") {
     document.documentElement.dataset.theme = next;
     try {
       localStorage.setItem("sl-theme", next);
@@ -112,20 +112,23 @@ export function SettingsForm(p: Props) {
     playClick("soft");
   }
 
-  function toggleSound() {
-    const next = !sound;
-    setSoundOn(next);
-    setSound(next);
-    if (next) playClick("soft");
+  function setSoundTo(next: "on" | "off") {
+    const on = next === "on";
+    setSoundOn(on);
+    setSound(on);
+    if (on) playClick("soft");
   }
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <h1 className="text-lg font-bold text-text">Settings</h1>
+      <div>
+        <span className="u-label">settings</span>
+        <h1 className="mt-1 text-lg font-bold text-text">Settings</h1>
+      </div>
 
-      <Section title="Profile">
+      <Section index="01" title="profile">
         <label className="block">
-          <span className="text-xs font-semibold text-text-2">Display name</span>
+          <span className="u-label">display name</span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -134,7 +137,7 @@ export function SettingsForm(p: Props) {
             className="mt-1.5 w-full max-w-sm rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
           />
         </label>
-        {nameErr && <p className="mt-2 text-xs text-negative">{nameErr}</p>}
+        {nameErr && <p className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
         <div className="mt-3 flex items-center gap-3">
           <Button
             size="sm"
@@ -148,26 +151,26 @@ export function SettingsForm(p: Props) {
         </div>
       </Section>
 
-      <Section title="Syllabus">
+      <Section index="02" title="syllabus">
         <div className="space-y-5">
-          <ChipGroup label="Grade" options={GRADES} value={grade} onChange={setGrade} />
-          <ChipGroup label="Board" options={BOARDS} value={board} onChange={setBoard} />
+          <ChipGroup label="grade" options={GRADES} value={grade} onChange={setGrade} />
+          <ChipGroup label="board" options={BOARDS} value={board} onChange={setBoard} />
           {needsStream && (
             <ChipGroup
-              label="Stream"
+              label="stream"
               options={STREAMS}
               value={stream}
               onChange={setStream}
             />
           )}
           <ChipGroup
-            label="Target exam"
+            label="target exam"
             options={EXAMS}
             value={exam}
             onChange={setExam}
           />
         </div>
-        {sylErr && <p className="mt-3 text-xs text-negative">{sylErr}</p>}
+        {sylErr && <p className="mt-3 u-mono text-2xs text-negative">{sylErr}</p>}
         <div className="mt-4 flex items-center gap-3">
           <Button
             size="sm"
@@ -180,28 +183,34 @@ export function SettingsForm(p: Props) {
         </div>
       </Section>
 
-      <Section title="Preferences">
+      <Section index="03" title="preferences">
         <div className="divide-y divide-border">
           <div className="flex items-center justify-between py-3 first:pt-0">
             <span className="text-sm text-text">Appearance</span>
-            <Button size="sm" variant="secondary" onClick={toggleTheme}>
-              {theme === "dark" ? "Dark" : "Light"}
-            </Button>
+            <Segmented
+              options={["dark", "light"]}
+              value={theme}
+              onChange={(v) => setThemeTo(v as "dark" | "light")}
+              size="sm"
+            />
           </div>
           <div className="flex items-center justify-between py-3">
             <span className="text-sm text-text">Interface sounds</span>
-            <Button size="sm" variant="secondary" onClick={toggleSound}>
-              {sound ? "On" : "Off"}
-            </Button>
+            <Segmented
+              options={["on", "off"]}
+              value={sound ? "on" : "off"}
+              onChange={(v) => setSoundTo(v as "on" | "off")}
+              size="sm"
+            />
           </div>
         </div>
       </Section>
 
-      <Section title="Account">
+      <Section index="04" title="account">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-text-3">Signed in as</p>
-            <p className="text-sm text-text">{p.email}</p>
+            <span className="u-label">signed in as</span>
+            <p className="u-mono mt-0.5 text-xs text-text">{p.email}</p>
           </div>
           <form action="/auth/signout" method="post">
             <Button type="submit" size="sm" variant="secondary">
