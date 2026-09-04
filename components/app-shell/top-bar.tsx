@@ -38,7 +38,7 @@ export function TopBar({
           {streak}d
         </span>
         <span className="u-mono hidden items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-2xs font-medium text-text sm:flex">
-          <TrendingUp size={12} className="text-accent-strong" />
+          <TrendingUp size={12} className="text-accent-2-strong" />
           {score}
         </span>
 

@@ -55,7 +55,7 @@ export function FocusChart({ data }: { data: { day: string; minutes: number }[] 
             <path
               d={linePath}
               fill="none"
-              stroke="var(--chart-blue)"
+              stroke="var(--accent-2-strong)"
               strokeWidth={1.75}
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -87,7 +87,7 @@ export function FocusChart({ data }: { data: { day: string; minutes: number }[] 
           <span className="size-1.5 rounded-full bg-accent" /> daily focus
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-chart-blue" /> 7-day average
+          <span className="size-1.5 rounded-full bg-accent-2" /> 7-day average
         </span>
       </div>
     </div>

@@ -22,7 +22,7 @@
   --border:     #262625;
   --border-2:   #383835;
 
-  /* the one accent — lime. text ON lime is near-black. */
+  /* primary accent — lime. text ON lime is near-black. */
   --accent:        #c8f43a;
   --accent-hover:  #d4f85e;
   --accent-press:  #b2dd22;
@@ -30,15 +30,21 @@
   --accent-on:     #141600;
   --accent-strong: #c8f43a;
 
+  /* second accent — blue. Paired use: lime for the primary mark/action in a
+     panel, blue for the secondary one (e.g. a second data series, a second
+     persistent stat). Not a free-for-all third colour — still one job each. */
+  --accent-2:        #5b8cff;
+  --accent-2-hover:  #74a0ff;
+  --accent-2-press:  #4272e6;
+  --accent-2-weak:   #10192e;
+  --accent-2-on:     #ffffff;
+  --accent-2-strong: #5b8cff;
+
   /* status — kept muted, used rarely */
   --positive:      #8bd85f;
   --positive-weak: #1e2a12;
   --negative:      #e8705d;
   --negative-weak: #2c1613;
-
-  /* second data colour — charts with two series only (e.g. a trend line
-     against lime bars). Never a UI accent, never both on the same mark. */
-  --chart-blue: #6c9bff;
 
   /* grille dot colour */
   --dot: rgb(255 255 255 / 0.09);
@@ -81,12 +87,17 @@
   --accent-on:     #1a1c08;
   --accent-strong: #4c7d0d;
 
+  --accent-2:        #3a5fcc;
+  --accent-2-hover:  #2f4fb0;
+  --accent-2-press:  #26409a;
+  --accent-2-weak:   #e7ecfb;
+  --accent-2-on:     #ffffff;
+  --accent-2-strong: #3a5fcc;
+
   --positive:      #3f7a2f;
   --positive-weak: #e6efdd;
   --negative:      #c23829;
   --negative-weak: #f6e5e2;
-
-  --chart-blue: #3a5fcc;
 
   --dot: rgb(0 0 0 / 0.08);
   --edge: rgb(255 255 255 / 0.6);
@@ -111,11 +122,16 @@
   --color-accent-weak:   var(--accent-weak);
   --color-accent-on:     var(--accent-on);
   --color-accent-strong: var(--accent-strong);
+  --color-accent-2:        var(--accent-2);
+  --color-accent-2-hover:  var(--accent-2-hover);
+  --color-accent-2-press:  var(--accent-2-press);
+  --color-accent-2-weak:   var(--accent-2-weak);
+  --color-accent-2-on:     var(--accent-2-on);
+  --color-accent-2-strong: var(--accent-2-strong);
   --color-positive:      var(--positive);
   --color-positive-weak: var(--positive-weak);
   --color-negative:      var(--negative);
   --color-negative-weak: var(--negative-weak);
-  --color-chart-blue:    var(--chart-blue);
 
   --radius-sm:   var(--r-sm);
   --radius-md:   var(--r-md);
