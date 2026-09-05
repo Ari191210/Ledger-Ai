@@ -145,6 +145,24 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
     (seen in an exam-prep app reference) — overlaps conceptually with the
     existing Peer Heatmap tool rather than something the dashboard itself
     needs.
+- **2026-09-05** — Removed the tick-mark "backlog" dial (founder call) and
+  instead widened the Paper dashboard using tools that already exist in
+  the product rather than inventing new ones:
+  - **Coach briefing banner**: full-width, real weekly diff copy (headline
+    + two deltas) at the very top of the page — the one piece of narrative
+    text on an otherwise numeric dashboard.
+  - **Habits today** and **Deadlines** cards, built from the real
+    `habits`/`habit_logs` and `deadlines` tables — and using the exact
+    live `ToggleSwitch` and primary `Button` styling (the founder
+    specifically likes these from Settings) rather than inventing new
+    control styles.
+  - A three-up **insights strip** (Circadian's best-accuracy time window,
+    Spaced Review's due count, Mistake DNA's top pattern) — one line each,
+    all real tool outputs, not new metrics.
+  - Explicit ground rule going forward: the dashboard only shows what a
+    real table/tool already computes. If a new dashboard widget needs data
+    that doesn't exist yet, that's a signal to build the underlying
+    feature first, not to mock up a number.
   - Fix Next reworked as icon-chip rows (subject icon + count chip +
     dashed divider, fixed-width lanes) instead of a grid of bordered boxes
     — cleaner at a glance, easier to scan than 4 same-size tiles.
