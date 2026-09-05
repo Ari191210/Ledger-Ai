@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getActivityRange } from "@/lib/study/queries";
 import { isoDateIST } from "@/lib/date";
+import { getFocusBrief } from "@/lib/focus/brief";
 import { FocusTimer } from "@/components/tools/focus-timer";
 
 export default async function FocusToolPage() {
@@ -12,7 +13,10 @@ export default async function FocusToolPage() {
   } = await supabase.auth.getUser();
 
   const today = isoDateIST();
-  const rows = await getActivityRange(supabase, user!.id, today, today);
+  const [rows, brief] = await Promise.all([
+    getActivityRange(supabase, user!.id, today, today),
+    getFocusBrief(supabase, user!.id),
+  ]);
   const minutesToday = rows[0]?.minutes ?? 0;
 
   return (
@@ -25,7 +29,7 @@ export default async function FocusToolPage() {
       </Link>
 
       <div className="u-card u-grille mt-4 p-10">
-        <FocusTimer minutesToday={minutesToday} />
+        <FocusTimer minutesToday={minutesToday} brief={brief} />
       </div>
     </div>
   );
