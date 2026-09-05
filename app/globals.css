@@ -62,7 +62,10 @@
 
   --shadow: 0 1px 2px rgb(0 0 0 / 0.45);
 
-  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* body copy */
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* headings/display — swap this one line to change every heading sitewide */
+  --font-display: var(--font-urbanist), var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
@@ -141,7 +144,8 @@
 
   --shadow-card: var(--shadow);
 
-  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-urbanist), var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, "SF Mono", Menlo, monospace;
 
   /* type scale — 11 · 12 · 13 · 14 · 18 · 22 · 30 · 44 · 60 */
@@ -187,6 +191,7 @@
   }
 
   h1, h2, h3, h4 {
+    font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: -0.015em;
     text-wrap: balance;
@@ -227,7 +232,7 @@
   }
 
   .u-brand {
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-weight: 800;
     letter-spacing: -0.02em;
   }

@@ -1,6 +1,14 @@
-import { Urbanist, JetBrains_Mono } from "next/font/google";
+import { Nunito_Sans, Urbanist, JetBrains_Mono } from "next/font/google";
 
-// UI text — labels, body, headings.
+// Body text — paragraphs, labels, UI copy.
+export const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-nunito",
+});
+
+// Display/headings. Swap this one out when the heading face is chosen —
+// everything reads it through `--font-display`, nothing else needs touching.
 export const urbanist = Urbanist({
   subsets: ["latin"],
   display: "swap",

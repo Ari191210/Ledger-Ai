@@ -49,9 +49,8 @@ export default function LandingPage() {
       {/* ── 01 the number ──────────────────────────────────── */}
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
-          <span className="u-label">01 — the number</span>
-          <h2 className="mt-3 max-w-[24ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
-            Four things that actually predict an exam result.
+          <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            Four things that predict a real result.
           </h2>
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
             Each is measured from data you log, weighted, and rolled into a 0–1000 score.
@@ -82,8 +81,7 @@ export default function LandingPage() {
       {/* ── 02 the ladder ──────────────────────────────────── */}
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
-          <span className="u-label">02 — the ladder</span>
-          <h2 className="mt-3 max-w-[26ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+          <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
             Five tiers, from first log to exam ready.
           </h2>
         </ScrollReveal>
@@ -115,8 +113,7 @@ export default function LandingPage() {
       {/* ── 03 the tools ───────────────────────────────────── */}
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
-          <span className="u-label">03 — the tools</span>
-          <h2 className="mt-3 max-w-[24ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+          <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
             25 tools, in six honest buckets.
           </h2>
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
@@ -152,9 +149,8 @@ export default function LandingPage() {
       {/* ── 04 how it works ────────────────────────────────── */}
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
-          <span className="u-label">04 — how it works</span>
-          <h2 className="mt-3 max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
-            Three steps. About two minutes.
+          <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            Up and running in three steps.
           </h2>
         </ScrollReveal>
         <ScrollGroup className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -175,8 +171,7 @@ export default function LandingPage() {
       {/* ── 05 boards ──────────────────────────────────────── */}
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
-          <span className="u-label">05 — your board</span>
-          <h2 className="mt-3 max-w-[28ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+          <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
             One instrument, tuned to your syllabus.
           </h2>
         </ScrollReveal>
