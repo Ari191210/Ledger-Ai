@@ -1,21 +1,18 @@
-import { Nunito_Sans, Urbanist, JetBrains_Mono } from "next/font/google";
+import { Geist, JetBrains_Mono } from "next/font/google";
 
-// Body text — paragraphs, labels, UI copy.
-export const nunitoSans = Nunito_Sans({
+// The interface face — body AND headings. Geist is drawn tight and rational
+// (engineered for clarity, minimal personality), which is the "controlled and
+// calculated" register this product wants. One typeface, weight does the
+// hierarchy work.
+export const geist = Geist({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-nunito",
+  variable: "--font-geist",
 });
 
-// Display/headings. Swap this one out when the heading face is chosen —
-// everything reads it through `--font-display`, nothing else needs touching.
-export const urbanist = Urbanist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-urbanist",
-});
-
-// Instrument readout — every number, every technical label.
+// Instrument readout — every number, every technical label. Deliberately a
+// different register from the UI face, the way a device's LCD differs from
+// the labels printed on its case.
 export const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "700"],

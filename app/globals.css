@@ -63,9 +63,9 @@
   --shadow: 0 1px 2px rgb(0 0 0 / 0.45);
 
   /* body copy */
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
   /* headings/display — swap this one line to change every heading sitewide */
-  --font-display: var(--font-urbanist), var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
@@ -144,8 +144,8 @@
 
   --shadow-card: var(--shadow);
 
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-urbanist), var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, "SF Mono", Menlo, monospace;
 
   /* type scale — 11 · 12 · 13 · 14 · 18 · 22 · 30 · 44 · 60 */

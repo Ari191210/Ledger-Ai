@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { nunitoSans, urbanist, jetbrainsMono } from "./fonts";
+import { geist, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${nunitoSans.variable} ${urbanist.variable} ${jetbrainsMono.variable}`}
+      className={`${geist.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

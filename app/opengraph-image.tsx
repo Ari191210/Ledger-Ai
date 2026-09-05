@@ -8,7 +8,7 @@ export const contentType = "image/png";
 // Satori (next/og's renderer) can't parse WOFF2 or variable fonts, so pull
 // static per-weight WOFF (v1) files from the @fontsource package on jsDelivr.
 const FONT = (weight: number) =>
-  `https://cdn.jsdelivr.net/npm/@fontsource/urbanist/files/urbanist-latin-${weight}-normal.woff`;
+  `https://cdn.jsdelivr.net/npm/@fontsource/geist/files/geist-latin-${weight}-normal.woff`;
 
 export default async function Image() {
   const [regular, bold] = await Promise.all([
@@ -27,7 +27,7 @@ export default async function Image() {
           justifyContent: "space-between",
           background: "#0e0e0d",
           padding: "72px",
-          fontFamily: "Urbanist",
+          fontFamily: "Geist",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -92,8 +92,8 @@ export default async function Image() {
     {
       ...size,
       fonts: [
-        { name: "Urbanist", data: regular, weight: 400, style: "normal" },
-        { name: "Urbanist", data: bold, weight: 800, style: "normal" },
+        { name: "Geist", data: regular, weight: 400, style: "normal" },
+        { name: "Geist", data: bold, weight: 800, style: "normal" },
       ],
     },
   );
