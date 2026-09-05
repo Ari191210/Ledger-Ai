@@ -116,6 +116,26 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   Any exploratory redesign work (e.g. in Paper) should read these first,
   and log its own direction/outcome here once it settles into something
   worth keeping.
+- **2026-09-05** — Explored a dashboard redesign in Paper (not yet built in
+  code, exploration only), researched against real dashboard/study-app
+  references rather than re-deriving from the existing live page. Three
+  ideas worth carrying forward if the dashboard gets revisited:
+  - **Segmented instrument ring**: the 4 score pillars as ONE ring split
+    into consecutive arcs at descending lime opacity (100/72/48/28%),
+    with a small dot-legend beside it — replaces "ring + 4 separate bars"
+    with one instrument, stays inside the one-lime-accent rule since it's
+    still a single hue at different opacities.
+  - **Streak LED strip**: a horizontal row of small square lime "LEDs"
+    (14px, `--r-sm`-ish radius) for the last 14 days, today's dot marked
+    with a `--text` border — reads as an instrument-panel indicator strip,
+    fits the brand better than a literal flame icon or a full calendar
+    grid for this specific stat.
+  - **Human callout card**: a single stat framed as a sentence ("16 days
+    without a miss") with a comparison caption beneath it, not just a
+    number — a deliberate warm/human moment per Paper's design guidance.
+  - Fix Next reworked as icon-chip rows (subject icon + count chip +
+    dashed divider, fixed-width lanes) instead of a grid of bordered boxes
+    — cleaner at a glance, easier to scan than 4 same-size tiles.
 
 ---
 
