@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Ring } from "@/components/ui/ring";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SignatureShowcase } from "@/components/marketing/signature-showcase";
+import { HeroInstrument } from "@/components/marketing/hero-instrument";
+import { ScrollReveal, ScrollGroup, ScrollItem } from "@/components/motion/scroll-reveal";
+import { CountUp } from "@/components/motion/count-up";
 import { CATEGORIES } from "@/lib/tools/registry";
 import { BOARDS } from "@/lib/onboarding";
 
@@ -16,205 +17,226 @@ export const metadata: Metadata = {
     "One honest score built from your real PYQs, syllabus coverage, mistakes, and consistency, plus 25 tools to act on it. Built for CBSE, ICSE, IB, IGCSE, State Board, and home school.",
 };
 
-const TIERS = ["Beginner", "Building", "Developing", "Strong", "Exam Ready"];
-
 const PILLARS = [
-  { key: "pyq", label: "pyq accuracy", weight: "40%", pts: 320, max: 400, note: "Correct vs attempted on real PYQs, last 30 days." },
-  { key: "coverage", label: "syllabus coverage", weight: "25%", pts: 195, max: 250, note: "Topics you've actually marked covered, out of everything logged." },
-  { key: "mistakes", label: "mistake velocity", weight: "20%", pts: 142, max: 200, note: "Fewer new mistakes in the last 7 days scores higher." },
-  { key: "consistency", label: "consistency", weight: "15%", pts: 85, max: 150, note: "Current study streak, out of a 14-day target." },
+  { n: 40, label: "pyq accuracy", note: "Correct vs attempted on real past papers, last 30 days." },
+  { n: 25, label: "syllabus coverage", note: "Topics you've actually marked covered, out of everything logged." },
+  { n: 20, label: "mistake velocity", note: "Fewer new mistakes in the last 7 days scores higher." },
+  { n: 15, label: "consistency", note: "Your current study streak, against a 14-day target." },
 ];
-const SAMPLE_TOTAL = PILLARS.reduce((s, p) => s + p.pts, 0);
+
+const TIERS = [
+  { label: "Beginner", at: 0 },
+  { label: "Building", at: 200 },
+  { label: "Developing", at: 400 },
+  { label: "Strong", at: 600 },
+  { label: "Exam Ready", at: 800 },
+];
+
+const STEPS = [
+  { k: "log", t: "Log what you already do", b: "Past-paper attempts, mistakes, study time, syllabus. A few taps, or the Quick Log from any page." },
+  { k: "score", t: "Get one honest number", b: "Four weighted pillars roll into a single 0–1000 score and a tier. No vanity metrics, no streak confetti." },
+  { k: "act", t: "Work the shortlist", b: "Fix Next, Spaced Review, Debt Meter and 22 more tools turn the score into a specific thing to do today." },
+];
 
 export default function LandingPage() {
-  notFound();
   return (
     <main className="mx-auto max-w-5xl px-6">
       <SiteNav />
 
-      {/* ── hero ──────────────────────────────────────────────────────── */}
-      <section className="grid gap-10 py-14 lg:grid-cols-[1fr_auto] lg:items-center lg:py-20">
-        <div>
-          <span className="u-label">the thesis</span>
-          <h1 className="mt-3 max-w-[16ch] text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-text sm:text-5xl">
-            Know where you stand.{" "}
-            <span className="text-accent-strong">Know what to fix next.</span>
+      {/* ── hero ───────────────────────────────────────────── */}
+      <section className="grid items-center gap-10 pb-14 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:pb-16 lg:pt-10">
+        <ScrollReveal y={20}>
+          <span className="u-label">academic instrument · built for India</span>
+          <h1 className="mt-4 text-4xl font-extrabold leading-[1.03] tracking-[-0.03em] text-text sm:text-5xl lg:text-[3.75rem]">
+            Know where you stand.
+            <span className="block text-accent-strong">Know what to fix next.</span>
           </h1>
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-text-2">
-            Every PYQ, every mistake, every hour of study, folded into one
-            honest number and one list of what to do about it. No vague
-            encouragement, just what's actually behind and what closes the
-            gap fastest.
+          <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-text-2 sm:text-base">
+            Every past paper, every mistake, every hour you study — folded into one honest
+            score, and one shortlist of what to do about it. 25 tools, no fluff.
           </p>
-          <div className="mt-7 flex items-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link href="/login">
               <Button size="lg">
-                Get started <ArrowRight size={14} />
+                Start your ledger <ArrowRight size={15} />
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="secondary" size="lg">
-                Sign in
+              <Button size="lg" variant="secondary">
+                See a live score
               </Button>
             </Link>
           </div>
+          <p className="u-mono mt-4 text-2xs text-text-3">
+            free while in beta · no card · CBSE · ICSE · IB · IGCSE · State · NIOS
+          </p>
+        </ScrollReveal>
 
-          <dl className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-border pt-6">
-            {[
-              ["01", "the number"],
-              [String(BOARDS.length).padStart(2, "0"), "boards"],
-              ["25", "tools"],
-            ].map(([n, label]) => (
-              <div key={label}>
-                <dt className="u-stat-number text-xl text-text">{n}</dt>
-                <dd className="u-label mt-1">{label}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        <div className="u-card u-grille w-full max-w-sm p-6 lg:w-[22rem]">
-          <span className="u-label">the ledger score · example</span>
-          <div className="mt-4 flex items-center gap-6">
-            <Ring value={SAMPLE_TOTAL} max={1000} size={128} stroke={11} color="var(--accent-strong)">
-              <div>
-                <div className="u-stat-number text-3xl leading-none text-text">{SAMPLE_TOTAL}</div>
-                <div className="u-mono mt-1 text-2xs text-text-3">/ 1000</div>
-              </div>
-            </Ring>
-            <div>
-              <div className="text-sm font-semibold text-text">Strong</div>
-              <div className="u-mono mt-1 text-2xs text-text-3">
-                {800 - SAMPLE_TOTAL} points to Exam Ready
-              </div>
-              <div className="u-mono mt-3 flex items-center gap-1.5 text-2xs text-accent-strong">
-                <span className="size-1.5 rounded-full bg-accent" /> 12d streak
-              </div>
-            </div>
-          </div>
-        </div>
+        <ScrollReveal y={28} delay={0.08}>
+          <HeroInstrument />
+        </ScrollReveal>
       </section>
 
-      {/* ── how the score works ──────────────────────────────────────── */}
-      <section className="border-t border-border py-14">
-        <span className="u-label">01 — how the score works</span>
-        <h2 className="mt-2 max-w-md text-2xl font-bold tracking-[-0.02em] text-text">
-          Four real inputs. No fudge factor.
-        </h2>
+      {/* ── 01 the number ──────────────────────────────────── */}
+      <section className="border-t border-border py-12 sm:py-14">
+        <ScrollReveal>
+          <span className="u-label">01 — the number</span>
+          <h2 className="mt-3 max-w-[24ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            Four things that actually predict an exam result.
+          </h2>
+          <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
+            Each is measured from data you log, weighted, and rolled into a 0–1000 score.
+            Change the inputs and the number moves the same day.
+          </p>
+        </ScrollReveal>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-2">
-          <div className="space-y-5">
-            {PILLARS.map((p) => (
-              <div key={p.key}>
-                <div className="flex items-baseline justify-between">
-                  <span className="u-label">
-                    {p.label} <span className="text-text-3/60">· {p.weight}</span>
-                  </span>
-                  <span className="u-mono text-xs text-text">
-                    {p.pts}
-                    <span className="text-text-3">/{p.max}</span>
-                  </span>
+        <ScrollGroup className="mt-6 grid gap-3 sm:grid-cols-2">
+          {PILLARS.map((p) => (
+            <ScrollItem key={p.label}>
+              <div className="u-card h-full p-5">
+                <div className="flex items-baseline gap-2">
+                  <CountUp
+                    to={p.n}
+                    suffix="%"
+                    className="u-stat-number text-3xl leading-none text-accent-strong"
+                  />
+                  <span className="u-label">of the score</span>
                 </div>
-                <div className="mt-1.5 h-1.5 bg-surface-3">
-                  <div className="h-full bg-accent" style={{ width: `${(p.pts / p.max) * 100}%` }} />
-                </div>
-                <p className="mt-1.5 text-xs text-text-2">{p.note}</p>
+                <p className="mt-3 text-sm font-semibold text-text">{p.label}</p>
+                <p className="mt-1 text-xs leading-relaxed text-text-2">{p.note}</p>
               </div>
-            ))}
-          </div>
+            </ScrollItem>
+          ))}
+        </ScrollGroup>
+      </section>
 
-          <div className="u-card p-6">
-            <span className="u-label">tiers</span>
-            <div className="mt-4 space-y-3">
-              {TIERS.map((t, i) => (
-                <div key={t} className="flex items-center gap-3">
-                  <span
-                    className={
-                      "u-mono w-8 shrink-0 text-xs " +
-                      (i <= 3 ? "text-accent-strong" : "text-text-3")
-                    }
-                  >
-                    {String(i * 200).padStart(3, "0")}
-                  </span>
-                  <div className="h-1.5 flex-1 bg-surface-3">
-                    <div
-                      className="h-full bg-accent"
-                      style={{ width: `${((i + 1) / TIERS.length) * 100}%` }}
+      {/* ── 02 the ladder ──────────────────────────────────── */}
+      <section className="border-t border-border py-12 sm:py-14">
+        <ScrollReveal>
+          <span className="u-label">02 — the ladder</span>
+          <h2 className="mt-3 max-w-[26ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            Five tiers, from first log to exam ready.
+          </h2>
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.05} className="mt-6">
+          <div className="u-card p-5 sm:p-6">
+            <div className="relative flex items-center">
+              <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border" />
+              <div className="relative grid w-full grid-cols-5 gap-2">
+                {TIERS.map((t, i) => (
+                  <div key={t.label} className="flex flex-col items-center text-center">
+                    <span
+                      className={
+                        i === 3
+                          ? "u-led relative z-10"
+                          : "relative z-10 size-1.5 rounded-full bg-text-3"
+                      }
                     />
+                    <span className="mt-3 text-xs font-semibold text-text">{t.label}</span>
+                    <span className="u-mono mt-0.5 text-2xs text-text-3">{t.at}+</span>
                   </div>
-                  <span className="w-24 shrink-0 text-right text-xs text-text-2">{t}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-            <p className="u-mono mt-5 text-2xs text-text-3">
-              computed live from your data, no history stored, no scores
-              invented before you've logged anything.
-            </p>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
-      {/* ── the loop ──────────────────────────────────────────────────── */}
-      <section className="border-t border-border py-14">
-        <span className="u-label">02 — the loop</span>
-        <h2 className="mt-2 max-w-md text-2xl font-bold tracking-[-0.02em] text-text">
-          Plan it, learn it, practise it, track it.
-        </h2>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      {/* ── 03 the tools ───────────────────────────────────── */}
+      <section className="border-t border-border py-12 sm:py-14">
+        <ScrollReveal>
+          <span className="u-label">03 — the tools</span>
+          <h2 className="mt-3 max-w-[24ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            25 tools, in six honest buckets.
+          </h2>
+          <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
+            Every one reads from the same data your score does, so nothing you do in a tool
+            is busywork — it moves the number.
+          </p>
+        </ScrollReveal>
+
+        <ScrollGroup className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CATEGORIES.map((c) => (
-            <div key={c.id} className="u-card p-4">
-              <span className="grid size-9 place-items-center rounded-md border border-border bg-surface-2 text-accent-strong">
-                <c.icon size={16} />
-              </span>
-              <p className="mt-3 text-sm font-semibold text-text">{c.label}</p>
-              <p className="mt-1 text-xs text-text-2">{c.blurb}</p>
-            </div>
+            <ScrollItem key={c.id}>
+              <div className="u-card flex h-full items-center gap-3 p-4">
+                <span className="grid size-9 shrink-0 place-items-center rounded-md border border-border bg-surface-2 text-accent-strong">
+                  <c.icon size={16} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-text">{c.label}</p>
+                  <p className="u-mono text-2xs text-text-3">{c.blurb}</p>
+                </div>
+              </div>
+            </ScrollItem>
           ))}
-        </div>
-      </section>
+        </ScrollGroup>
 
-      {/* ── signature tools ──────────────────────────────────────────── */}
-      <section className="border-t border-border py-14">
-        <span className="u-label">03 — signature tools</span>
-        <h2 className="mt-2 max-w-md text-2xl font-bold tracking-[-0.02em] text-text">
-          The 10 tools unique to StudyLedger.
-        </h2>
-        <p className="mt-2 max-w-lg text-sm text-text-2">
-          Everything else is real too, just not the hook. All 25 read and
-          write your actual study data, no placeholders.
-        </p>
-        <div className="mt-8">
+        <ScrollReveal delay={0.05} className="mt-6">
+          <span className="u-label">signature tools</span>
+        </ScrollReveal>
+        <ScrollReveal delay={0.08} className="mt-3">
           <SignatureShowcase />
-        </div>
+        </ScrollReveal>
       </section>
 
-      {/* ── boards ────────────────────────────────────────────────────── */}
-      <section className="border-t border-border py-14">
-        <span className="u-label">04 — built for your board</span>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {BOARDS.map((b) => (
-            <span
-              key={b.value}
-              className="u-mono rounded-full border border-border-2 bg-surface-2 px-3 py-1.5 text-xs text-text-2"
-            >
-              {b.label}
-            </span>
+      {/* ── 04 how it works ────────────────────────────────── */}
+      <section className="border-t border-border py-12 sm:py-14">
+        <ScrollReveal>
+          <span className="u-label">04 — how it works</span>
+          <h2 className="mt-3 max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            Three steps. About two minutes.
+          </h2>
+        </ScrollReveal>
+        <ScrollGroup className="mt-6 grid gap-3 sm:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <ScrollItem key={s.k}>
+              <div className="u-card h-full p-5">
+                <span className="u-stat-number text-lg text-text-3">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <p className="mt-3 text-sm font-semibold text-text">{s.t}</p>
+                <p className="mt-1 text-xs leading-relaxed text-text-2">{s.b}</p>
+              </div>
+            </ScrollItem>
           ))}
-        </div>
+        </ScrollGroup>
       </section>
 
-      {/* ── final CTA ─────────────────────────────────────────────────── */}
-      <section className="border-t border-border py-16 text-center">
-        <h2 className="mx-auto max-w-lg text-2xl font-bold tracking-[-0.02em] text-text">
-          Stop guessing what to study next.
-        </h2>
-        <div className="mt-6">
-          <Link href="/login">
-            <Button size="lg">
-              Get started <ArrowRight size={14} />
-            </Button>
-          </Link>
-        </div>
+      {/* ── 05 boards ──────────────────────────────────────── */}
+      <section className="border-t border-border py-12 sm:py-14">
+        <ScrollReveal>
+          <span className="u-label">05 — your board</span>
+          <h2 className="mt-3 max-w-[28ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
+            One instrument, tuned to your syllabus.
+          </h2>
+        </ScrollReveal>
+        <ScrollGroup className="mt-6 flex flex-wrap gap-2.5">
+          {BOARDS.map((b) => (
+            <ScrollItem key={b.value}>
+              <span className="u-mono inline-block rounded-full border border-border-2 bg-surface-2 px-3.5 py-1.5 text-xs text-text-2">
+                {b.label}
+              </span>
+            </ScrollItem>
+          ))}
+        </ScrollGroup>
+      </section>
+
+      {/* ── final cta ──────────────────────────────────────── */}
+      <section className="border-t border-border py-16 text-center lg:py-20">
+        <ScrollReveal>
+          <h2 className="mx-auto max-w-[20ch] text-3xl font-extrabold tracking-[-0.03em] text-text sm:text-4xl">
+            Stop guessing how prepared you are.
+          </h2>
+          <div className="mt-7 flex justify-center">
+            <Link href="/login">
+              <Button size="lg">
+                Start your ledger <ArrowRight size={15} />
+              </Button>
+            </Link>
+          </div>
+          <p className="u-mono mt-4 text-2xs text-text-3">takes about two minutes to see a real number</p>
+        </ScrollReveal>
       </section>
 
       <SiteFooter />
