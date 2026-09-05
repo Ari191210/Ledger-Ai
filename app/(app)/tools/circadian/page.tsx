@@ -3,20 +3,8 @@ import { ArrowLeft, Sunrise } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getPyqAttempts, getMistakes } from "@/lib/study/queries";
 import { hourIST } from "@/lib/date";
+import { computeCircadianRows } from "@/lib/circadian";
 import { EmptyState } from "@/components/ui/empty-state";
-
-const WINDOWS = [
-  { id: "late", label: "late night", range: "12am–5am", from: 0, to: 5 },
-  { id: "early", label: "early morning", range: "5am–8am", from: 5, to: 8 },
-  { id: "morning", label: "morning", range: "8am–12pm", from: 8, to: 12 },
-  { id: "afternoon", label: "afternoon", range: "12pm–4pm", from: 12, to: 16 },
-  { id: "evening", label: "evening", range: "4pm–8pm", from: 16, to: 20 },
-  { id: "night", label: "night", range: "8pm–12am", from: 20, to: 24 },
-] as const;
-
-function windowFor(hour: number) {
-  return WINDOWS.find((w) => hour >= w.from && hour < w.to) ?? WINDOWS[0];
-}
 
 export default async function CircadianPage() {
   const supabase = await createClient();
@@ -28,37 +16,11 @@ export default async function CircadianPage() {
     getMistakes(supabase, user!.id),
   ]);
 
-  const stats = new Map<string, { correct: number; total: number; mistakes: number }>();
-  for (const w of WINDOWS) stats.set(w.id, { correct: 0, total: 0, mistakes: 0 });
-
-  for (const a of pyq) {
-    const s = stats.get(windowFor(hourIST(a.taken_at)).id)!;
-    s.correct += a.correct;
-    s.total += a.total;
-  }
-  for (const m of mistakes) {
-    const s = stats.get(windowFor(hourIST(m.created_at)).id)!;
-    s.mistakes++;
-  }
-
-  const rows = WINDOWS.map((w) => {
-    const s = stats.get(w.id)!;
-    const accuracy = s.total > 0 ? Math.round((s.correct / s.total) * 100) : null;
-    const volume = s.total + s.mistakes;
-    return { ...w, accuracy, volume, total: s.total };
-  });
-
-  const totalVolume = rows.reduce((sum, r) => sum + r.volume, 0);
+  const { rows, best, totalVolume } = computeCircadianRows(
+    pyq.map((a) => ({ correct: a.correct, total: a.total, hour: hourIST(a.taken_at) })),
+    mistakes.map((m) => hourIST(m.created_at)),
+  );
   const maxVolume = Math.max(1, ...rows.map((r) => r.volume));
-
-  // Best window: highest PYQ accuracy among windows with a meaningful sample,
-  // falling back to the highest-volume window when there isn't enough
-  // accuracy data yet to trust.
-  const withSample = rows.filter((r) => r.total >= 3);
-  const best =
-    withSample.length > 0
-      ? withSample.reduce((a, b) => (b.accuracy! > a.accuracy! ? b : a))
-      : rows.reduce((a, b) => (b.volume > a.volume ? b : a));
 
   return (
     <div className="mx-auto max-w-xl">
@@ -74,7 +36,7 @@ export default async function CircadianPage() {
         <h1 className="mt-1 text-lg font-bold text-text">Circadian</h1>
       </div>
 
-      {totalVolume === 0 ? (
+      {totalVolume === 0 || !best ? (
         <EmptyState
           icon={Sunrise}
           index="no data yet"
