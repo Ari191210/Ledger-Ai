@@ -5,7 +5,17 @@ export const alt = "StudyLedger — academic intelligence platform";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+// Satori (next/og's renderer) can't parse WOFF2 or variable fonts, so pull
+// static per-weight WOFF (v1) files from the @fontsource package on jsDelivr.
+const FONT = (weight: number) =>
+  `https://cdn.jsdelivr.net/npm/@fontsource/urbanist/files/urbanist-latin-${weight}-normal.woff`;
+
+export default async function Image() {
+  const [regular, bold] = await Promise.all([
+    fetch(FONT(400)).then((r) => r.arrayBuffer()),
+    fetch(FONT(800)).then((r) => r.arrayBuffer()),
+  ]);
+
   return new ImageResponse(
     (
       <div
@@ -17,7 +27,7 @@ export default function Image() {
           justifyContent: "space-between",
           background: "#0e0e0d",
           padding: "72px",
-          fontFamily: "sans-serif",
+          fontFamily: "Urbanist",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -79,6 +89,12 @@ export default function Image() {
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        { name: "Urbanist", data: regular, weight: 400, style: "normal" },
+        { name: "Urbanist", data: bold, weight: 800, style: "normal" },
+      ],
+    },
   );
 }
