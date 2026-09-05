@@ -7,7 +7,8 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { Ring } from "@/components/ui/ring";
 import { computeScore } from "@/lib/score/compute";
 
-const TITLE = "See how the score works · StudyLedger";
+const TITLE = "See how the score works";
+const OG_TITLE = "See how the score works · StudyLedger";
 const DESC =
   "A worked example: one student's logged past papers, mistakes, syllabus and streak, run through the real StudyLedger scoring engine.";
 
@@ -19,10 +20,10 @@ export const metadata: Metadata = {
     type: "website",
     url: "/sample",
     siteName: "StudyLedger",
-    title: TITLE,
+    title: OG_TITLE,
     description: DESC,
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
+  twitter: { card: "summary_large_image", title: OG_TITLE, description: DESC },
 };
 
 // ── the sample student's raw log ─────────────────────────────────────

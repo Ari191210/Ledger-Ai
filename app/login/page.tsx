@@ -122,38 +122,49 @@ function LoginForm() {
           : "Already have an account? Sign in"}
       </button>
 
-      {/* Who runs this and what happens to the data, before you hand any over. */}
-      <div className="mt-8 border-t border-border pt-5">
-        <p className="text-xs leading-relaxed text-text-2">
-          Built and run by Aryamman Ojha in New Delhi. Your study data is stored in a
-          private database only you can read, and anything you type into an AI tool is
-          sent to Anthropic to generate the answer. Nothing is sold, and you can export
-          or delete everything from Settings at any time.
-        </p>
-        <p className="u-mono mt-3 text-2xs text-text-3">
-          <Link href="/privacy" className="hover:text-text">
-            privacy
-          </Link>
-          {" · "}
-          <Link href="/terms" className="hover:text-text">
-            terms
-          </Link>
-          {" · "}
-          <a href="mailto:hello@studyledger.in" className="hover:text-text">
-            hello@studyledger.in
-          </a>
-        </p>
-      </div>
+    </div>
+  );
+}
+
+/**
+ * Rendered outside the Suspense boundary on purpose. LoginForm reads
+ * useSearchParams, which makes it client-only, so anything inside that
+ * boundary is missing from the initial HTML. This has to be in the HTML:
+ * it is the answer to "who are you and what happens to my data".
+ */
+function TrustBlock() {
+  return (
+    <div className="mt-8 border-t border-border pt-5">
+      <p className="text-xs leading-relaxed text-text-2">
+        Built and run by Aryamman Ojha in New Delhi. Your study data is stored in a
+        private database only you can read, and anything you type into an AI tool is
+        sent to Anthropic to generate the answer. Nothing is sold, and you can export
+        or delete everything from Settings at any time.
+      </p>
+      <p className="u-mono mt-3 text-2xs text-text-3">
+        <Link href="/privacy" className="hover:text-text">
+          privacy
+        </Link>
+        {" · "}
+        <Link href="/terms" className="hover:text-text">
+          terms
+        </Link>
+        {" · "}
+        <a href="mailto:hello@studyledger.in" className="hover:text-text">
+          hello@studyledger.in
+        </a>
+      </p>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
-      <SplitLayout form="sm">
+    <SplitLayout form="sm">
+      <Suspense fallback={<div className="min-h-[24rem]" />}>
         <LoginForm />
-      </SplitLayout>
-    </Suspense>
+      </Suspense>
+      <TrustBlock />
+    </SplitLayout>
   );
 }

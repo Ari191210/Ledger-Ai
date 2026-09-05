@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
-  title: "Terms of Service · StudyLedger",
+  title: "Terms of Service",
   description:
     "The terms you agree to when you use StudyLedger, including how AI output should be treated.",
   alternates: { canonical: "/terms" },

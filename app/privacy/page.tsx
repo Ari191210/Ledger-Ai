@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy · StudyLedger",
+  title: "Privacy Policy",
   description:
     "What StudyLedger collects, why, and how to export or delete it.",
   alternates: { canonical: "/privacy" },
