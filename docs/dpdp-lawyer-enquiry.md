@@ -80,15 +80,42 @@ studyledger.in
 
 ## Where to send it
 
-Look for a **data protection / privacy practice**, not a general corporate
-lawyer, and preferably one that lists DPDP work for startups. Publicly listed
-starting points include Ahlawat & Associates, LegaLogic and Escalade Legal.
-Send to two or three and compare scope and fee before instructing anyone, since
-this is a bounded opinion rather than an ongoing engagement.
+Send to two or three in parallel and compare scope, fee and turnaround before
+instructing anyone. This is a bounded opinion, not an ongoing engagement, so
+say that in the first line. Contact details below were taken from the firms'
+own public pages; verify them before sending.
+
+**Start here, because it is free and local.**
+
+- **SFLC.in** (Software Freedom Law Center, India), New Delhi.
+  `mail@sflc.in`, +91 11 43587126, K-9 Birbal Road, Jangpura Extension.
+  A donor-funded legal services organisation that has worked on Indian digital
+  rights and privacy law since 2010, and knows the DPDP Act as well as anyone.
+  **Honest caveat:** their work is digital rights defence, not commercial
+  compliance for companies, so they may decline. Worth an email anyway, framed
+  as what it is, a student-built product with a specific statutory question,
+  and ask them to point you at someone if it is outside what they do.
+
+**Commercial practices, for a paid written opinion.**
+
+- **AMLEGALS**, offices including New Delhi. `dataprivacy@amlegals.com` or
+  `info@amlegals.com`, +91-8448548549. Runs a dedicated data privacy practice.
+- **Ahlawat & Associates**, New Delhi. Enquire through
+  ahlawatassociates.com; they run a Technology and Data Protection practice.
+- **Anand and Anand**, Noida/Delhi NCR. anandandanand.com. Long-standing IP and
+  technology firm with a DPDP practice.
+
+**Also worth trying, and often overlooked.** Any incubator or startup cell you
+can reach through school usually has a legal partner who will answer a scoped
+question cheaply or free. So will a family contact who practises corporate law,
+even if privacy is not their area, because they can refer you to someone whose
+area it is.
 
 If cost is a barrier, say so explicitly in the first email and ask for a fixed
-fee for a written opinion limited to question 1 alone. Question 1 is the one
-that changes what gets built; the rest can wait.
+fee for a written opinion limited to **question 1 alone**. Question 1 is the
+one that changes what gets built; the rest can wait. A pre-revenue solo
+operator asking one precise question is a much easier thing to quote for than
+"help me comply with the DPDP Act".
 
 ## Sense of scale
 
