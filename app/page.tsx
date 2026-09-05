@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const PILLARS = [
 const SAMPLE_TOTAL = PILLARS.reduce((s, p) => s + p.pts, 0);
 
 export default function LandingPage() {
+  notFound();
   return (
     <main className="mx-auto max-w-5xl px-6">
       <SiteNav />
