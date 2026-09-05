@@ -55,7 +55,8 @@ if (action === "get-auth-config") {
     method: "PATCH",
     body: JSON.stringify({
       smtp_host: host,
-      smtp_port: 465,
+      // the Management API rejects a number here: "expected string, received number"
+      smtp_port: "465",
       smtp_user: user,
       smtp_pass: pass,
       smtp_sender_name: "StudyLedger",
