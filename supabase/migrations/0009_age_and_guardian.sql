@@ -1,4 +1,4 @@
--- 0009_age_and_guardian — date of birth, guardian contact, consent audit trail
+-- 0009_age_and_guardian: date of birth, guardian contact, consent audit trail
 -- Applied via: supabase db push  (never hand-pasted)
 --
 -- Groundwork for DPDP Act 2023 s.9 / DPDP Rules 2025 r.10, which require

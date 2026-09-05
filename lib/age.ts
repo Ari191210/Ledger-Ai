@@ -11,10 +11,10 @@ import { todayPartsIST } from "./date";
 
 /** Youngest and oldest we will accept. Keeps typos out of a legal signal. */
 export const MIN_AGE = 8;
-export const MAX_AGE = 100;
+const MAX_AGE = 100;
 
 /** Whole years old today, in IST. `dob` is an ISO date, "2009-04-17". */
-export function ageFromDob(dob: string): number | null {
+function ageFromDob(dob: string): number | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob);
   if (!m) return null;
 
@@ -30,13 +30,6 @@ export function ageFromDob(dob: string): number | null {
   // birthday not reached yet this year
   if (today.month < mo || (today.month === mo && today.day < d)) age -= 1;
   return age;
-}
-
-/** Under 18 is a child under the DPDP Act. Unknown DOB is not a claim either way. */
-export function isMinor(dob: string | null | undefined): boolean | null {
-  if (!dob) return null;
-  const age = ageFromDob(dob);
-  return age === null ? null : age < 18;
 }
 
 export function validateDob(dob: string): { ok: true } | { ok: false; error: string } {

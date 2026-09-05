@@ -21,8 +21,8 @@ const SIZES: Record<ButtonSize, string> = {
 
 /**
  * Shared button styling. Lives apart from button.tsx (which is a Client
- * Component for its click sound) so Server Components — and links, which must
- * never wrap a <button> — can render the same thing without shipping any JS.
+ * Component for its click sound) so Server Components, and links, which must
+ * never wrap a <button>, can render the same thing without shipping any JS.
  */
 export function buttonClasses({
   variant = "primary",
@@ -32,7 +32,7 @@ export function buttonClasses({
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
-} = {}) {
+}) {
   return cn(
     "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold",
     // the tactile press, done with CSS so this costs no JS: lift on hover,
