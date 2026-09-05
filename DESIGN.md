@@ -133,6 +133,18 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   - **Human callout card**: a single stat framed as a sentence ("16 days
     without a miss") with a comparison caption beneath it, not just a
     number — a deliberate warm/human moment per Paper's design guidance.
+  - **Dial-tip knob**: a small hollow lime-ringed dot marking the exact
+    tip of the ring's fill, like a needle position on a physical dial
+    (found via Pinterest/Behance research pass) — cheap addition, reads
+    more like a real instrument than a bare rounded stroke-cap. Also
+    considered but NOT applied: a tick-mark/dashed gauge style (radiating
+    ticks instead of a smooth stroke) — even more literally "Braun dial,"
+    worth trying if the ring gets revisited, bigger rebuild than this pass
+    warranted.
+  - Noted but not pursued: a "your score vs. class average" trend line
+    (seen in an exam-prep app reference) — overlaps conceptually with the
+    existing Peer Heatmap tool rather than something the dashboard itself
+    needs.
   - Fix Next reworked as icon-chip rows (subject icon + count chip +
     dashed divider, fixed-width lanes) instead of a grid of bordered boxes
     — cleaner at a glance, easier to scan than 4 same-size tiles.
