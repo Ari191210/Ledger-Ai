@@ -55,7 +55,7 @@ export async function saveDisplayName(name: string): Promise<Result> {
  * Deletes the account and everything under it. Every user-owned table
  * (activity_days, mistakes, pyq_attempts, syllabus_topics, habits,
  * habit_logs, deadlines, profiles) has `references auth.users (id) on
- * delete cascade` — removing the auth user removes all of it, no manual
+ * delete cascade`, removing the auth user removes all of it, no manual
  * per-table cleanup needed. Uses the service-role client because deleting
  * an auth user is an admin operation, not something the owning session can
  * do to itself.

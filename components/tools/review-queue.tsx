@@ -28,7 +28,7 @@ export function ReviewQueue({ due }: { due: Mistake[] }) {
         <span className="u-led mx-auto block" />
         <p className="mt-3 text-sm font-semibold text-text">Queue clear</p>
         <p className="u-mono mt-1 text-2xs text-text-3">
-          nothing due for review right now — check back later
+          nothing due for review right now, check back later
         </p>
       </section>
     );

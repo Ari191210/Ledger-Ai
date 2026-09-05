@@ -1,4 +1,4 @@
-// Pure scoring math — no Supabase, no I/O. Weights match the pre-rebuild
+// Pure scoring math, no Supabase, no I/O. Weights match the pre-rebuild
 // engine: PYQ accuracy 40% / syllabus coverage 25% / mistake velocity 20% /
 // consistency 15%, total out of 1000.
 

@@ -98,7 +98,7 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
 
       {deadlines.length === 0 && (
         <p className="u-mono py-6 text-center text-2xs text-text-3">
-          nothing on the calendar — add your first deadline above
+          nothing on the calendar, add your first deadline above
         </p>
       )}
 

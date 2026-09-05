@@ -1,4 +1,4 @@
-// Synthesized UI clicks — no audio assets. Low volume, ~55ms.
+// Synthesized UI clicks, no audio assets. Low volume, ~55ms.
 
 let ctx: AudioContext | null = null;
 

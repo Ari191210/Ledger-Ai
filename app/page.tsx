@@ -12,7 +12,7 @@ import { CATEGORIES } from "@/lib/tools/registry";
 import { BOARDS } from "@/lib/onboarding";
 
 export const metadata: Metadata = {
-  title: "StudyLedger — know where you stand, know what to fix next",
+  title: "StudyLedger · know where you stand, know what to fix next",
   description:
     "One honest score built from your real PYQs, syllabus coverage, mistakes, and consistency, plus 25 tools to act on it. Built for CBSE, ICSE, IB, IGCSE, State Board, and home school.",
 };
@@ -118,7 +118,7 @@ export default function LandingPage() {
           </h2>
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
             Every one reads from the same data your score does, so nothing you do in a tool
-            is busywork — it moves the number.
+            is busywork. It moves the number.
           </p>
         </ScrollReveal>
 

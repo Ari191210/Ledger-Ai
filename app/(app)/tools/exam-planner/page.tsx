@@ -53,7 +53,7 @@ export default async function ExamPlannerPage({
           icon={Flag}
           index="no exam set"
           title="No exam to count down to"
-          body="Add a deadline with kind “exam” in Deadlines and Exam Planner reverse-plans the runway to it — coverage pace, revision window, and what's still open."
+          body="Add a deadline with kind “exam” in Deadlines and Exam Planner reverse-plans the runway to it: coverage pace, revision window, and what's still open."
           hint="add an exam deadline to begin"
         />
       ) : (
@@ -159,10 +159,10 @@ function ExamPlanBody({
         </div>
         <p className="u-mono mt-2 text-2xs text-text-3">
           {plan.totalTopics === 0
-            ? "no syllabus logged for this scope yet — add topics in Syllabus Tracker"
+            ? "no syllabus logged for this scope yet, add topics in Syllabus Tracker"
             : plan.onTrack
-              ? "that pace is manageable — stay on it"
-              : "that's a steep pace — start today, or the revision window shrinks"}
+              ? "that pace is manageable, stay on it"
+              : "that's a steep pace, so start today or the revision window shrinks"}
         </p>
       </section>
 
@@ -170,7 +170,7 @@ function ExamPlanBody({
         <span className="u-label">clear before the exam · {scopedMistakes.length} open</span>
         {topOffenders.length === 0 ? (
           <p className="u-mono mt-3 text-2xs text-text-3">
-            no open mistakes logged in this scope — clean slate
+            no open mistakes logged in this scope, clean slate
           </p>
         ) : (
           <div className="mt-3 divide-y divide-border">

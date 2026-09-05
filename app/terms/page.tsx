@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — StudyLedger",
+  title: "Terms of Service · StudyLedger",
   description: "The terms for using StudyLedger.",
 };
 

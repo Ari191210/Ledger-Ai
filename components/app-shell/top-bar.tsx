@@ -19,7 +19,7 @@ export function TopBar({
 
   return (
     <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-6">
-      {/* the icon rail (with the brand mark) is hidden below md — this
+      {/* the icon rail (with the brand mark) is hidden below md, this
           fills that gap on mobile so there's still a sense of place */}
       <div className="flex items-center gap-2 md:hidden">
         <span className="u-led" />
@@ -38,7 +38,7 @@ export function TopBar({
         />
       </div>
 
-      {/* persistent readouts — your ledger follows you */}
+      {/* persistent readouts, your ledger follows you */}
       <div className="ml-auto flex items-center gap-2">
         <span className="u-mono hidden items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-2xs font-medium text-text-2 sm:flex">
           <Flame size={12} className="text-accent-strong" />

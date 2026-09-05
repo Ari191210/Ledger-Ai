@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
-  title: "Contact — StudyLedger",
+  title: "Contact · StudyLedger",
   description: "Get in touch with StudyLedger.",
 };
 

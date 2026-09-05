@@ -53,7 +53,7 @@ export default async function CircadianPage() {
             <p className="u-mono mt-3 text-2xs text-text-3">
               {best.accuracy !== null
                 ? `${best.accuracy}% pyq accuracy in this window`
-                : "highest logged volume — not enough pyq data for accuracy yet"}
+                : "highest logged volume, not enough pyq data for accuracy yet"}
             </p>
           </section>
 

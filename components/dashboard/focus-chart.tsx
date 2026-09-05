@@ -12,7 +12,7 @@ export function FocusChart({ data }: { data: { day: string; minutes: number }[] 
   const max = Math.max(...data.map((d) => d.minutes), 30);
   const barW = w / data.length;
 
-  // 7-day trailing average — the line overlay
+  // 7-day trailing average, the line overlay
   const avg = data.map((_, i) => {
     const slice = data.slice(Math.max(0, i - 6), i + 1);
     return slice.reduce((s, d) => s + d.minutes, 0) / slice.length;
@@ -36,7 +36,7 @@ export function FocusChart({ data }: { data: { day: string; minutes: number }[] 
           className="h-36 w-full"
           onMouseLeave={() => setHover(null)}
         >
-          {/* baseline — visible even with zero data, so the panel never reads as empty */}
+          {/* baseline, visible even with zero data, so the panel never reads as empty */}
           <line x1={0} y1={h - pad} x2={w} y2={h - pad} stroke="var(--border)" strokeWidth={1} />
 
           {data.map((d, i) => (

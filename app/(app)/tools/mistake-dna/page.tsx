@@ -55,7 +55,7 @@ export default async function MistakeDnaPage() {
           icon={Dna}
           index="no data yet"
           title="Nothing to analyse"
-          body="Log a mistake from any tool and its pattern shows up here — which subjects and topics you keep getting wrong."
+          body="Log a mistake from any tool and its pattern shows up here: which subjects and topics you keep getting wrong."
           hint="log a mistake to begin"
         />
       ) : (

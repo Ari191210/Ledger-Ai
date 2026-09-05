@@ -13,7 +13,7 @@ export type RateLimitResult = { allowed: true } | { allowed: false; message: str
 /**
  * Checks both windows against ai_invocations (migration 0008). Fails open
  * (allows the call) if the check itself errors, e.g. the migration hasn't
- * been applied yet — a missing rate-limit table shouldn't take down the AI
+ * been applied yet, a missing rate-limit table shouldn't take down the AI
  * tools entirely.
  */
 export async function checkRateLimit(
@@ -55,7 +55,7 @@ export async function checkRateLimit(
 }
 
 /** Records an attempt regardless of whether the model call itself later
- * succeeds — a failed call still cost a function invocation, and counting
+ * succeeds, a failed call still cost a function invocation, and counting
  * it discourages retry-storming past the limit. */
 export async function recordInvocation(supabase: SupabaseClient, userId: string, tool: string) {
   await supabase.from("ai_invocations").insert({ user_id: userId, tool });

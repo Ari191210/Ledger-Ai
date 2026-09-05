@@ -27,7 +27,7 @@ const PILLARS = [
 
 const CAPTIONS = [
   { at: 0.0, text: "Start with what you already do." },
-  { at: 0.22, text: "Every past paper, every mistake, every hour — logged." },
+  { at: 0.22, text: "Every past paper, every mistake, every hour, logged." },
   { at: 0.46, text: "Four weighted pillars, measured from real data." },
   { at: 0.7, text: "One honest number, and a tier you can trust." },
   { at: 0.88, text: "Then a shortlist of exactly what to fix next." },

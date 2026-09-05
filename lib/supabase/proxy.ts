@@ -28,7 +28,7 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // IMPORTANT: getUser() revalidates the token — do not remove.
+  // IMPORTANT: getUser() revalidates the token, do not remove.
   const {
     data: { user },
   } = await supabase.auth.getUser();

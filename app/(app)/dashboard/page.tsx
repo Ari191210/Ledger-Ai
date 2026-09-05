@@ -22,7 +22,7 @@ import { computeCircadianRows } from "@/lib/circadian";
 function Label({ index, children }: { index: string; children: string }) {
   return (
     <span className="u-label">
-      {index} <span className="mx-1 text-text-3/60">—</span> {children}
+      {index} <span className="mx-1 text-text-3/60">·</span> {children}
     </span>
   );
 }
@@ -198,7 +198,7 @@ export default async function DashboardPage() {
               <Megaphone size={16} />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="u-label block">coach — this week vs last</span>
+              <span className="u-label block">coach · this week vs last</span>
               <p className="mt-0.5 text-sm font-semibold text-text">{briefing.headline}</p>
             </div>
             <div className="ml-auto flex items-center gap-4">
@@ -318,7 +318,7 @@ export default async function DashboardPage() {
             <div className="mt-3">
               {dashboardHabits.length === 0 ? (
                 <p className="u-mono py-2 text-2xs text-text-3">
-                  no habits yet —{" "}
+                  no habits yet.{" "}
                   <Link href="/tools/habits" className="text-accent-strong hover:underline">
                     add one
                   </Link>
@@ -342,7 +342,7 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-3 divide-y divide-dashed divide-border">
               {upcomingDeadlines.length === 0 && (
-                <p className="u-mono py-2 text-2xs text-text-3">nothing coming up — nice</p>
+                <p className="u-mono py-2 text-2xs text-text-3">nothing coming up, nice</p>
               )}
               {upcomingDeadlines.map((d) => (
                 <div key={d.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
@@ -407,7 +407,7 @@ export default async function DashboardPage() {
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {fixNext.length === 0 && (
               <p className="u-mono col-span-full py-2 text-2xs text-text-3">
-                no open mistakes logged — nothing flagged yet
+                no open mistakes logged, nothing flagged yet
               </p>
             )}
             {fixNext.map((f) => (

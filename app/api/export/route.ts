@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// Full, honest export of everything StudyLedger stores for this user — one
+// Full, honest export of everything StudyLedger stores for this user, one
 // row set per table, unfiltered (not the score engine's derived views).
 const TABLES = [
   "activity_days",

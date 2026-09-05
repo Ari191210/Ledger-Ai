@@ -1,6 +1,6 @@
 // Adapted from docs/legacy/ai-route.ts (buildProfileContext). The legacy
 // version personalised against fields this rebuild doesn't collect
-// (interests, aiProfile learning/communication style) — dropped. Board,
+// (interests, aiProfile learning/communication style), dropped. Board,
 // stream, and target-exam calibration is kept: it's the actual product
 // differentiator, every AI tool gets it for free.
 

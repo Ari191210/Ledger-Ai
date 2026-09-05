@@ -38,7 +38,7 @@ function ResetRequestForm() {
       <span className="u-label">reset password</span>
       <h1 className="mt-2 text-xl font-bold text-text">Forgot your password?</h1>
       <p className="mt-1 text-sm text-text-2">
-        Enter your account email — we&apos;ll send a link to set a new one.
+        Enter your account email and we&apos;ll send a link to set a new one.
       </p>
 
       {sent ? (

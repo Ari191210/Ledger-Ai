@@ -7,7 +7,7 @@ const MODEL = "claude-sonnet-5";
 export class AIError extends Error {}
 
 /** The model can emit a leading "thinking" block before the actual answer
- * — content[0] is not reliably the text block, so find it explicitly. */
+ *, content[0] is not reliably the text block, so find it explicitly. */
 function firstText(message: Anthropic.Message): string {
   const block = message.content.find((b) => b.type === "text");
   return block?.type === "text" ? block.text : "";

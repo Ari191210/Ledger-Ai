@@ -41,7 +41,7 @@ function Section({
           <Icon size={12} />
         </span>
         <span className="u-label">
-          {index} <span className="mx-1 text-text-3/60">—</span> {title}
+          {index} <span className="mx-1 text-text-3/60">·</span> {title}
         </span>
       </div>
       <div className="mt-4">{children}</div>

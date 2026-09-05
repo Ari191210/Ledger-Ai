@@ -1,5 +1,5 @@
 // Shared time-of-day bucketing for the Circadian tool and the dashboard's
-// "best hours" widget — kept in one place so the two never drift.
+// "best hours" widget, kept in one place so the two never drift.
 
 export const CIRCADIAN_WINDOWS = [
   { id: "late", label: "late night", range: "12am–5am", from: 0, to: 5 },

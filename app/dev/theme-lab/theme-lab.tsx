@@ -169,7 +169,7 @@ export function ThemeLab() {
       <div className="border-b border-border px-4 py-2.5 text-xs text-text-2">
         {picked ? (
           <span>
-            Holding <code className="text-text">{picked}</code> — click another
+            Holding <code className="text-text">{picked}</code>, click another
             row to paint it there.{" "}
             <button
               onClick={() => setPicked(null)}

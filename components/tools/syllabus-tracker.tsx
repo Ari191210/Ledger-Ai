@@ -69,7 +69,7 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
 
       {grouped.length === 0 && (
         <p className="u-mono py-6 text-center text-2xs text-text-3">
-          no topics yet — add your first one above and mark it off as you cover it
+          no topics yet, add your first one above and mark it off as you cover it
         </p>
       )}
 

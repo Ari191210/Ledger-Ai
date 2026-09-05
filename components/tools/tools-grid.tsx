@@ -18,7 +18,7 @@ const FILTERS = ["all", ...CATEGORIES.map((c) => c.id)] as const;
 function SectionLabel({ index, children }: { index: string; children: string }) {
   return (
     <span className="u-label">
-      {index} <span className="mx-1 text-text-3/60">—</span> {children}
+      {index} <span className="mx-1 text-text-3/60">·</span> {children}
     </span>
   );
 }
@@ -71,7 +71,7 @@ export function ToolsGrid() {
             <div className="flex items-center gap-2">
               <c.icon size={13} className="text-text-3" />
               <SectionLabel index={String(idx).padStart(2, "0")}>{c.label.toLowerCase()}</SectionLabel>
-              <span className="u-mono hidden text-2xs text-text-3 sm:inline">— {c.blurb}</span>
+              <span className="u-mono hidden text-2xs text-text-3 sm:inline">· {c.blurb}</span>
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">

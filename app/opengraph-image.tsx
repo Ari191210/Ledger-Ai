@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "StudyLedger — academic intelligence platform";
+export const alt = "StudyLedger · academic intelligence platform";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -66,7 +66,7 @@ export default async function Image() {
             Know exactly where you stand.
           </div>
           <div style={{ fontSize: "30px", color: "#9d9c96", maxWidth: "820px", lineHeight: 1.4 }}>
-            One score for your prep. 25 tools that turn study data into a plan — built for Indian
+            One score for your prep. 25 tools that turn study data into a plan, built for Indian
             students.
           </div>
         </div>

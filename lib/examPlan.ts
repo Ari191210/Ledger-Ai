@@ -1,4 +1,4 @@
-// Pure reverse-planning logic for the Exam Planner tool — counts back from
+// Pure reverse-planning logic for the Exam Planner tool, counts back from
 // a real exam deadline (kind: "exam" in the deadlines table) and splits the
 // remaining time into a coverage phase (finish what's uncovered) and a
 // revision phase (spaced review of everything), same deterministic spirit
@@ -30,7 +30,7 @@ export function buildExamPlan(
   const daysLeft = Math.max(daysBetween(today, examDate), 0);
   const uncovered = scopedTopics.filter((t) => !t.covered);
 
-  // Reserve roughly the last fifth of the runway for pure revision — never
+  // Reserve roughly the last fifth of the runway for pure revision, never
   // less than 2 days (if there's runway at all) or more than 10.
   const revisionDays = daysLeft <= 2 ? 0 : Math.min(10, Math.max(2, Math.round(daysLeft * 0.2)));
   const coverageDays = Math.max(daysLeft - revisionDays, 0);

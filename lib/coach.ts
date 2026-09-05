@@ -1,4 +1,4 @@
-// Pure logic for the Coach tool — a weekly briefing built by diffing two
+// Pure logic for the Coach tool, a weekly briefing built by diffing two
 // real 7-day windows against each other. No AI call, no score-history
 // table: comparing two windows of the same underlying data works
 // retroactively on data that already exists, and never drifts from what

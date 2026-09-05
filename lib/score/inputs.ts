@@ -51,7 +51,7 @@ export type DashboardData = {
   fixNext: { subject: string; topic: string; count: number }[];
 };
 
-// cache() dedupes calls with the same arguments within one request — the
+// cache() dedupes calls with the same arguments within one request, the
 // (app) layout and the dashboard/score pages all ask for this per render.
 export const getDashboardData = cache(async function getDashboardData(
   supabase: SupabaseClient,

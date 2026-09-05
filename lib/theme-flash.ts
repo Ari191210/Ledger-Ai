@@ -1,4 +1,4 @@
-// A quick lime flash across the whole screen — the "power-on" moment when
+// A quick lime flash across the whole screen, the "power-on" moment when
 // you flip dark/light. Plain DOM, no React, so it works from anywhere
 // (top-bar toggle, settings switch) without threading state through.
 export function flashTheme(): void {

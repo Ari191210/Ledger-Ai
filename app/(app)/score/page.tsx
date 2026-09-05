@@ -6,7 +6,7 @@ import { getDashboardData } from "@/lib/score/inputs";
 const PILLAR_NOTE: Record<string, string> = {
   pyq: "PYQ questions attempted and answered correctly, last 30 days.",
   coverage: "Syllabus topics logged as covered, out of all topics logged.",
-  mistakes: "Fewer new mistakes in the last 7 days scores higher. Zero mistakes ever logged scores zero — no evidence yet, not a free pass.",
+  mistakes: "Fewer new mistakes in the last 7 days scores higher. Zero mistakes ever logged scores zero, because that is no evidence yet, not a free pass.",
   consistency: "Current study-day streak, out of a 14-day target.",
 };
 
@@ -66,7 +66,7 @@ export default async function ScorePage() {
       </section>
 
       <p className="u-mono mt-4 text-2xs text-text-3">
-        computed live from current data — history over time is not stored yet.
+        computed live from current data. History over time is not stored yet.
       </p>
     </div>
   );

@@ -1,4 +1,4 @@
-// Pure planning logic for the Planner tool — reverse-plans from real
+// Pure planning logic for the Planner tool, reverse-plans from real
 // deadlines and syllabus coverage gaps. No AI call: every number here is
 // derived deterministically from the user's own data, same spirit as the
 // Ledger Score engine (lib/score/compute.ts).
@@ -90,7 +90,7 @@ export function buildTodaysPlan(
 
     blocks.push({
       subject: p.subject,
-      topic: next?.topic ?? "review — syllabus fully covered",
+      topic: next?.topic ?? "review, syllabus fully covered",
       reason,
     });
   }

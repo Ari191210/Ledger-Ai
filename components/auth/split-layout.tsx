@@ -17,7 +17,7 @@ function BrandPanel() {
           <span className="block text-accent-strong">Know what to fix next.</span>
         </h2>
         <p className="mt-4 max-w-[40ch] text-sm text-text-2">
-          Every PYQ, every mistake, every hour — folded into one number and one
+          Every PYQ, every mistake, every hour, folded into one number and one
           list of what to do about it.
         </p>
       </div>

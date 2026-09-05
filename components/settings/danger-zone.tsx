@@ -15,7 +15,7 @@ export function DangerZone() {
     setErr(null);
     start(async () => {
       const res = await deleteAccount();
-      // deleteAccount redirects to /login on success — it only returns here
+      // deleteAccount redirects to /login on success, it only returns here
       // on failure.
       if (res && "error" in res) setErr(res.error);
     });

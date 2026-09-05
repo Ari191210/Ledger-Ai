@@ -18,7 +18,7 @@ function daysAgo(n: number): Date {
 }
 
 /** Recent mistakes, PYQ attempts, and study sessions merged into one
- * chronological feed — the "ledger tape" on the dashboard. */
+ * chronological feed, the "ledger tape" on the dashboard. */
 export async function getLedgerTape(
   supabase: SupabaseClient,
   userId: string,
@@ -55,7 +55,7 @@ export async function getLedgerTape(
         id: `a-${d.day}`,
         at: `${d.day}T12:00:00.000Z`,
         label: "focus session",
-        meta: "—",
+        meta: "logged",
         delta: `${d.minutes}m`,
       });
     }

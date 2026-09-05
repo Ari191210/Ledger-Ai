@@ -1,11 +1,11 @@
-// StudyLedger's "day" boundary is IST (Asia/Kolkata, UTC+5:30, no DST) —
+// StudyLedger's "day" boundary is IST (Asia/Kolkata, UTC+5:30, no DST) -
 // the product is for Indian students. A UTC or server-local day boundary
 // flips "today" at 5:30am IST instead of midnight, silently misattributing
 // anything logged late at night (exactly when students are studying).
 //
 // Every place that turns "now" (or any instant) into a calendar day for
 // streaks, the dashboard, or the Study Days calendar must go through this
-// file — never `.toISOString().slice(0, 10)` or `.getDate()` directly.
+// file, never `.toISOString().slice(0, 10)` or `.getDate()` directly.
 
 const IST = "Asia/Kolkata";
 

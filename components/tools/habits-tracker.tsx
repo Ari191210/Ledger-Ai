@@ -71,7 +71,7 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
 
       {habits.length === 0 && (
         <p className="u-mono py-6 text-center text-2xs text-text-3">
-          no habits yet — add one above
+          no habits yet, add one above
         </p>
       )}
 
@@ -97,7 +97,7 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
           <ToggleSwitch
             checked={h.doneToday}
             onChange={(v) => toggle(h.id, v)}
-            label={`${h.name} — today`}
+            label={`${h.name}, today`}
           />
           <button
             onClick={() => remove(h.id)}

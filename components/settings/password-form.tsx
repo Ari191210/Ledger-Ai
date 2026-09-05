@@ -22,7 +22,7 @@ export function PasswordForm({ email }: { email: string }) {
     setBusy(true);
     const supabase = createClient();
 
-    // Re-authenticate with the current password before changing it — a
+    // Re-authenticate with the current password before changing it, a
     // session alone shouldn't be enough to lock the real owner out from a
     // shared or unattended device.
     const { error: verifyError } = await supabase.auth.signInWithPassword({

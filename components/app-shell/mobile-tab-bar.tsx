@@ -13,9 +13,9 @@ const NAV: { href: string; label: string; icon: LucideIcon }[] = [
 ];
 
 // The icon rail (components/app-shell/icon-rail.tsx) doesn't fit a phone
-// screen — this is its mobile equivalent, a fixed bottom tab bar, same 4
+// screen, this is its mobile equivalent, a fixed bottom tab bar, same 4
 // destinations. Only one of the two ever renders (rail hidden below md,
-// this hidden at md and up — see app/(app)/layout.tsx).
+// this hidden at md and up, see app/(app)/layout.tsx).
 export function MobileTabBar() {
   const pathname = usePathname();
 

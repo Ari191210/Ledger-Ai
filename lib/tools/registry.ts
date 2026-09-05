@@ -1,16 +1,16 @@
-// The tool registry — single source of truth for /tools, /tools/[slug],
+// The tool registry, single source of truth for /tools, /tools/[slug],
 // and (later) the command palette.
 //
-// Cut from 59 to 25 on 2026-09-04 — the full 59 was quantity over quality:
+// Cut from 59 to 25 on 2026-09-04, the full 59 was quantity over quality:
 // a grid of unbuilt tools reads as a feature-list flex, not a product.
 // This is the real launch set: the 10 flagship "signature" tools plus the
 // strongest of the rest, spread thin but deliberately across categories so
 // the core loop (plan -> learn -> practise -> track) stays intact. The
-// other 34 aren't deleted from history — see git commit a2f41c9 — they
+// other 34 aren't deleted from history, see git commit a2f41c9, they
 // come back deliberately, one at a time, once these 25 are actually good.
 //
-// kind: "ai"   — calls the AI endpoint (lib/onboarding-aware prompt)
-//       "stub" — local/UI only, no model call
+// kind: "ai"  , calls the AI endpoint (lib/onboarding-aware prompt)
+//       "stub", local/UI only, no model call
 // signature: the flagship tools unique to StudyLedger, called out in nav /
 //            marketing. Everything else is still real, just not the hook.
 // icon: a distinct Lucide icon per tool.
@@ -86,7 +86,7 @@ export const TOOLS: Tool[] = [
   { slug: "notes", name: "Notes", category: "learn", kind: "ai", icon: NotebookPen,
     blurb: "Turn raw notes into structured, exam-ready summaries." },
   { slug: "doubt", name: "Doubt Solver", category: "learn", kind: "ai", icon: HelpCircle,
-    blurb: "Ask a specific question, get a specific answer — no fluff." },
+    blurb: "Ask a specific question, get a specific answer. No fluff." },
   { slug: "tutor", name: "Tutor", category: "learn", kind: "ai", icon: MessageCircle,
     blurb: "A conversational walkthrough of a concept you're stuck on." },
   { slug: "syllabus", name: "Syllabus Tracker", category: "learn", kind: "stub", icon: ListTree,
@@ -116,7 +116,7 @@ export const TOOLS: Tool[] = [
   { slug: "mark-scheme", name: "Mark Scheme Analyzer", category: "practise", kind: "ai", icon: ClipboardCheck,
     blurb: "See exactly how marks are awarded on a past question." },
   { slug: "crunch", name: "Crunch Mode", category: "practise", kind: "ai", icon: Zap,
-    blurb: "Last 48 hours before an exam — the highest-yield revision list." },
+    blurb: "Last 48 hours before an exam: the highest-yield revision list." },
 
   // ── future (1) ────────────────────────────────────────────────────
   { slug: "career", name: "Career Explorer", category: "future", kind: "ai", icon: Briefcase,

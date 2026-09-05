@@ -9,7 +9,7 @@ import type {
 } from "./types";
 
 // All of these assume `supabase` is a client already scoped to the calling
-// user (see lib/supabase/server.ts / client.ts) — RLS enforces `user_id`
+// user (see lib/supabase/server.ts / client.ts), RLS enforces `user_id`
 // ownership regardless, but every write still sets it explicitly so a bug
 // here fails closed (RLS rejects), not open.
 

@@ -1,4 +1,4 @@
-// Row shapes for migration 0003 — activity_days, mistakes, pyq_attempts,
+// Row shapes for migration 0003, activity_days, mistakes, pyq_attempts,
 // syllabus_topics. Kept separate from queries.ts so the score engine and UI
 // can import just the types without pulling in Supabase.
 
