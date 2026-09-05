@@ -15,7 +15,7 @@ export function SiteNav() {
       </Link>
       <div className="flex items-center gap-2">
         <Link href="/login">
-          <Button variant="ghost" size="md">
+          <Button variant="ghost" size="md" className="whitespace-nowrap">
             Sign in
           </Button>
         </Link>

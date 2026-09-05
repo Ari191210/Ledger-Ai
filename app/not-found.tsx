@@ -1,8 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
+
+// a 404 shouldn't advertise itself with the homepage's title/OG card
+export const metadata: Metadata = {
+  title: "Page not found · StudyLedger",
+  description: "That page doesn't exist.",
+  robots: { index: false, follow: true },
+  openGraph: {
+    type: "website",
+    siteName: "StudyLedger",
+    title: "Page not found · StudyLedger",
+    description: "That page doesn't exist.",
+  },
+};
 
 export default function NotFound() {
   return (

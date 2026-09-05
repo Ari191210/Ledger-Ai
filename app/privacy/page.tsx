@@ -4,7 +4,21 @@ import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
   title: "Privacy Policy · StudyLedger",
-  description: "What StudyLedger collects, why, and how to export or delete it.",
+  description:
+    "What StudyLedger collects, why, and how to export or delete it.",
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    type: "website",
+    url: "/privacy",
+    siteName: "StudyLedger",
+    title: "Privacy Policy · StudyLedger",
+    description: "What StudyLedger collects, why, and how to export or delete it.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy · StudyLedger",
+    description: "What StudyLedger collects, why, and how to export or delete it.",
+  },
 };
 
 export default function PrivacyPage() {

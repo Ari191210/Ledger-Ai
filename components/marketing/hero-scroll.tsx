@@ -50,6 +50,9 @@ function HeroScrubbed() {
   const tierOpacity = useTransform(scrollYProgress, [0.5, 0.62], [0, 1]);
   const ctaOpacity = useTransform(scrollYProgress, [0.8, 0.92], [0, 1]);
   const ctaY = useTransform(scrollYProgress, [0.8, 0.92], [14, 0]);
+  // the hint is only useful before you've started; fade it out rather than
+  // pulsing it (a pulse drops it to ~1.4:1 contrast at its dimmest)
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
   // one useTransform per pillar (fixed count -> hook-rules safe)
   const w0 = usePillarWidth(scrollYProgress, 0);
@@ -85,9 +88,8 @@ function HeroScrubbed() {
         </motion.div>
 
         <motion.span
-          className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 u-mono text-2xs text-text-3"
-          animate={{ opacity: [0.25, 0.9, 0.25] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 u-mono text-2xs text-text-2"
+          style={{ opacity: hintOpacity }}
         >
           keep scrolling
         </motion.span>
@@ -217,7 +219,7 @@ function Stage({
         </Link>
         <Link href="/login">
           <Button size="lg" variant="secondary">
-            See a live score
+            See how the score works
           </Button>
         </Link>
       </motion.div>

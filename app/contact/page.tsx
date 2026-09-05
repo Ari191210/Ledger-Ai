@@ -4,7 +4,21 @@ import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
   title: "Contact · StudyLedger",
-  description: "Get in touch with StudyLedger.",
+  description:
+    "How to reach StudyLedger for support, a privacy request, or a grievance.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    type: "website",
+    url: "/contact",
+    siteName: "StudyLedger",
+    title: "Contact · StudyLedger",
+    description: "How to reach StudyLedger for support, a privacy request, or a grievance.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact · StudyLedger",
+    description: "How to reach StudyLedger for support, a privacy request, or a grievance.",
+  },
 };
 
 export default function ContactPage() {

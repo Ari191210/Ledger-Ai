@@ -4,7 +4,21 @@ import { LegalPage, LegalSection } from "@/components/marketing/legal-page";
 
 export const metadata: Metadata = {
   title: "Terms of Service · StudyLedger",
-  description: "The terms for using StudyLedger.",
+  description:
+    "The terms you agree to when you use StudyLedger, including how AI output should be treated.",
+  alternates: { canonical: "/terms" },
+  openGraph: {
+    type: "website",
+    url: "/terms",
+    siteName: "StudyLedger",
+    title: "Terms of Service · StudyLedger",
+    description: "The terms you agree to when you use StudyLedger, including how AI output should be treated.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms of Service · StudyLedger",
+    description: "The terms you agree to when you use StudyLedger, including how AI output should be treated.",
+  },
 };
 
 export default function TermsPage() {

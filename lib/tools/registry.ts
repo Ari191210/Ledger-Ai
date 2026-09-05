@@ -106,7 +106,7 @@ export const TOOLS: Tool[] = [
   { slug: "spaced-review", name: "Spaced Review", category: "practise", kind: "stub", signature: true, icon: RotateCcw,
     blurb: "Spaced-repetition queue built from your actual mistakes." },
   { slug: "mistake-dna", name: "Mistake DNA", category: "practise", kind: "stub", signature: true, icon: Dna,
-    blurb: "Pattern-analyses your recurring mistakes across subjects." },
+    blurb: "Finds recurring mistake patterns across subjects." },
   { slug: "flashcards", name: "Flashcards", category: "practise", kind: "ai", icon: Layers,
     blurb: "Auto-generated flashcards from any topic or note." },
   { slug: "exam-sim", name: "Exam Simulator", category: "practise", kind: "ai", icon: Timer,

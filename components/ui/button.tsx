@@ -15,10 +15,12 @@ const VARIANTS: Record<Variant, string> = {
   ghost: "text-text-2 hover:bg-surface-2 hover:text-text",
 };
 
+// Touch targets: md/lg clear the 44px minimum on small screens and tighten up
+// on pointer devices where 44px is unnecessarily chunky.
 const SIZES: Record<Size, string> = {
-  sm: "h-8 px-3 text-xs",
-  md: "h-9 px-4 text-sm",
-  lg: "h-11 px-6 text-sm",
+  sm: "h-9 px-3 text-xs sm:h-8",
+  md: "h-11 px-4 text-sm sm:h-9",
+  lg: "h-12 px-6 text-sm sm:h-11",
 };
 
 type ButtonProps = HTMLMotionProps<"button"> & {
@@ -44,7 +46,9 @@ export function Button({
         onPointerDown?.(e);
       }}
       className={cn(
-        "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold outline-none transition-colors",
+        // no outline on mouse press, but keep a real ring for keyboard users
+        "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold transition-colors",
+        "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
         "disabled:pointer-events-none disabled:border-transparent disabled:bg-surface-2 disabled:text-text-3 disabled:shadow-none",
         VARIANTS[variant],
         SIZES[size],
