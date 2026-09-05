@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SignatureShowcase } from "@/components/marketing/signature-showcase";
-import { HeroInstrument } from "@/components/marketing/hero-instrument";
+import { HeroScroll } from "@/components/marketing/hero-scroll";
 import { ScrollReveal, ScrollGroup, ScrollItem } from "@/components/motion/scroll-reveal";
 import { CountUp } from "@/components/motion/count-up";
 import { CATEGORIES } from "@/lib/tools/registry";
@@ -43,39 +43,8 @@ export default function LandingPage() {
     <main className="mx-auto max-w-5xl px-6">
       <SiteNav />
 
-      {/* ── hero ───────────────────────────────────────────── */}
-      <section className="grid items-center gap-10 pb-14 pt-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:pb-16 lg:pt-10">
-        <ScrollReveal y={20}>
-          <span className="u-label">academic instrument · built for India</span>
-          <h1 className="mt-4 text-4xl font-extrabold leading-[1.03] tracking-[-0.03em] text-text sm:text-5xl lg:text-[3.75rem]">
-            Know where you stand.
-            <span className="block text-accent-strong">Know what to fix next.</span>
-          </h1>
-          <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-text-2 sm:text-base">
-            Every past paper, every mistake, every hour you study — folded into one honest
-            score, and one shortlist of what to do about it. 25 tools, no fluff.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <Link href="/login">
-              <Button size="lg">
-                Start your ledger <ArrowRight size={15} />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button size="lg" variant="secondary">
-                See a live score
-              </Button>
-            </Link>
-          </div>
-          <p className="u-mono mt-4 text-2xs text-text-3">
-            free while in beta · no card · CBSE · ICSE · IB · IGCSE · State · NIOS
-          </p>
-        </ScrollReveal>
-
-        <ScrollReveal y={28} delay={0.08}>
-          <HeroInstrument />
-        </ScrollReveal>
-      </section>
+      {/* ── hero: pinned scroll-scrubbed instrument ─────────── */}
+      <HeroScroll />
 
       {/* ── 01 the number ──────────────────────────────────── */}
       <section className="border-t border-border py-12 sm:py-14">
