@@ -122,6 +122,6 @@ before the questions below are answered would risk building the wrong thing.
 
 ## Deadline
 
-Substantive compliance under the DPDP Rules 2025 falls due **14 May 2027**.
+Substantive compliance under the DPDP Rules 2025 falls due in **mid-May 2027** (sources differ between the 13th and 14th).
 There is time, but question 1 should be answered before pricing or any
 significant new analytics feature is built on top of the current design.
