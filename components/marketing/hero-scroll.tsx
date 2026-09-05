@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 
 const TICKS = 40;
 const SCORE = 742;
@@ -164,16 +163,12 @@ export function HeroScroll() {
         className="mt-6 flex flex-wrap justify-center gap-3"
         style={{ opacity: ctaOpacity, transform: `translateY(${(1 - ctaOpacity) * 14}px)` }}
       >
-        <Link href="/login">
-          <Button size="lg">
-            Start your ledger <ArrowRight size={15} />
-          </Button>
-        </Link>
-        <Link href="/sample">
-          <Button size="lg" variant="secondary">
-            See how the score works
-          </Button>
-        </Link>
+        <ButtonLink href="/login" size="lg">
+          Start your ledger <ArrowRight size={15} />
+        </ButtonLink>
+        <ButtonLink href="/sample" size="lg" variant="secondary">
+          See how the score works
+        </ButtonLink>
       </div>
     </div>
   );

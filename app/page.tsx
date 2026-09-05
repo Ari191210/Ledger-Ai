@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SignatureShowcase } from "@/components/marketing/signature-showcase";
@@ -193,16 +192,12 @@ export default function LandingPage() {
             Stop guessing how prepared you are.
           </h2>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link href="/login">
-              <Button size="lg">
-                Start your ledger <ArrowRight size={15} />
-              </Button>
-            </Link>
-            <Link href="/sample">
-              <Button size="lg" variant="secondary">
-                See a worked example
-              </Button>
-            </Link>
+            <ButtonLink href="/login" size="lg">
+              Start your ledger <ArrowRight size={15} />
+            </ButtonLink>
+            <ButtonLink href="/sample" size="lg" variant="secondary">
+              See a worked example
+            </ButtonLink>
           </div>
           <p className="u-mono mt-4 text-2xs text-text-3">takes about two minutes to see a real number</p>
         </ScrollReveal>

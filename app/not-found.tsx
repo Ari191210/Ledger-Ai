@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
@@ -31,11 +30,9 @@ export default function NotFound() {
         <p className="mt-2 max-w-[36ch] text-sm text-text-2">
           The page you&apos;re looking for doesn&apos;t exist, or it moved.
         </p>
-        <Link href="/" className="mt-6">
-          <Button size="sm">
-            Back to StudyLedger <ArrowRight size={13} />
-          </Button>
-        </Link>
+        <ButtonLink href="/" className="mt-6" size="sm">
+          Back to StudyLedger <ArrowRight size={13} />
+        </ButtonLink>
       </div>
       <SiteFooter />
     </main>

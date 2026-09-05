@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { Ring } from "@/components/ui/ring";
@@ -55,11 +54,9 @@ export default async function SamplePage() {
             shortly.
           </p>
           <div className="mt-7">
-            <Link href="/login">
-              <Button size="lg">
-                Start your ledger <ArrowRight size={15} />
-              </Button>
-            </Link>
+            <ButtonLink href="/login" size="lg">
+              Start your ledger <ArrowRight size={15} />
+            </ButtonLink>
           </div>
         </section>
         <SiteFooter />
@@ -276,11 +273,9 @@ export default async function SamplePage() {
           Log one past paper and you get your first real number today.
         </p>
         <div className="mt-7 flex justify-center">
-          <Link href="/login">
-            <Button size="lg">
-              Start your ledger <ArrowRight size={15} />
-            </Button>
-          </Link>
+          <ButtonLink href="/login" size="lg">
+            Start your ledger <ArrowRight size={15} />
+          </ButtonLink>
         </div>
       </section>
 

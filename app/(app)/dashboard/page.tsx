@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Segmented } from "@/components/ui/segmented";
 import { Ring } from "@/components/ui/ring";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { FocusChart } from "@/components/dashboard/focus-chart";
 import { QuickLog } from "@/components/dashboard/quick-log";
@@ -334,11 +334,9 @@ export default async function DashboardPage() {
           <section className="u-card p-4">
             <div className="flex items-center justify-between">
               <Label index="05">deadlines</Label>
-              <Link href="/tools/deadlines">
-                <Button size="sm" className="h-7 px-2.5 text-2xs">
-                  <Plus size={12} /> add
-                </Button>
-              </Link>
+              <ButtonLink href="/tools/deadlines" size="sm" className="h-7 px-2.5 text-2xs">
+                <Plus size={12} /> add
+              </ButtonLink>
             </div>
             <div className="mt-3 divide-y divide-dashed divide-border">
               {upcomingDeadlines.length === 0 && (

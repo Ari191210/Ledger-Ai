@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button-link";
 import { BrandMark } from "./brand-mark";
 
 // Assumes it's rendered inside a container that already sets max-width and
@@ -14,16 +14,12 @@ export function SiteNav() {
         <span className="u-brand text-lg text-text">StudyLedger</span>
       </Link>
       <div className="flex items-center gap-2">
-        <Link href="/login">
-          <Button variant="ghost" size="md" className="whitespace-nowrap">
-            Sign in
-          </Button>
-        </Link>
-        <Link href="/login">
-          <Button size="md">
-            Get started <ArrowRight size={15} />
-          </Button>
-        </Link>
+        <ButtonLink href="/login" variant="ghost" size="md" className="whitespace-nowrap">
+          Sign in
+        </ButtonLink>
+        <ButtonLink href="/login" size="md">
+          Get started <ArrowRight size={15} />
+        </ButtonLink>
       </div>
     </nav>
   );
