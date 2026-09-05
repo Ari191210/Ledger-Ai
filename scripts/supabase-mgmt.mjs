@@ -38,8 +38,10 @@ if (action === "get-auth-config") {
   const { status, body } = await mgmt(`/projects/${ref}/config/auth`, {
     method: "PATCH",
     body: JSON.stringify({
-      site_url: "https://www.studyledger.in",
+      site_url: "https://studyledger.in",
       uri_allow_list:
+        // www still needs to be allowed: it 308s to the apex, but a magic link
+        // already sent to a www URL must keep working.
         "http://localhost:3000/**,https://studyledger.in/**,https://www.studyledger.in/**",
     }),
   });

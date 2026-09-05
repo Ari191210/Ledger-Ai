@@ -3,7 +3,7 @@ import { geist, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.studyledger.in"),
+  metadataBase: new URL("https://studyledger.in"),
   title: {
     default: "StudyLedger · know exactly where you stand",
     template: "%s · StudyLedger",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "One score for your prep. 25 tools that turn your study data into a plan. Planner, Mistake DNA, Exam Simulator, Peer Heatmap and more, built for Indian students.",
   openGraph: {
     type: "website",
-    url: "https://www.studyledger.in",
+    url: "https://studyledger.in",
     siteName: "StudyLedger",
     title: "StudyLedger · know exactly where you stand",
     description:
