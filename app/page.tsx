@@ -192,10 +192,15 @@ export default function LandingPage() {
           <h2 className="mx-auto max-w-[20ch] text-3xl font-extrabold tracking-[-0.03em] text-text sm:text-4xl">
             Stop guessing how prepared you are.
           </h2>
-          <div className="mt-7 flex justify-center">
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link href="/login">
               <Button size="lg">
                 Start your ledger <ArrowRight size={15} />
+              </Button>
+            </Link>
+            <Link href="/sample">
+              <Button size="lg" variant="secondary">
+                See a worked example
               </Button>
             </Link>
           </div>

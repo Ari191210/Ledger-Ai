@@ -28,3 +28,4 @@ npm-debug.log*
 # local datasets not part of the app
 /the_well
 supabase/.temp/
+scripts/tmp-*.mjs

@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,29 @@ function LoginForm() {
           ? "No account? Create one"
           : "Already have an account? Sign in"}
       </button>
+
+      {/* Who runs this and what happens to the data, before you hand any over. */}
+      <div className="mt-8 border-t border-border pt-5">
+        <p className="text-xs leading-relaxed text-text-2">
+          Built and run by Aryamman Ojha in New Delhi. Your study data is stored in a
+          private database only you can read, and anything you type into an AI tool is
+          sent to Anthropic to generate the answer. Nothing is sold, and you can export
+          or delete everything from Settings at any time.
+        </p>
+        <p className="u-mono mt-3 text-2xs text-text-3">
+          <Link href="/privacy" className="hover:text-text">
+            privacy
+          </Link>
+          {" · "}
+          <Link href="/terms" className="hover:text-text">
+            terms
+          </Link>
+          {" · "}
+          <a href="mailto:hello@studyledger.in" className="hover:text-text">
+            hello@studyledger.in
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

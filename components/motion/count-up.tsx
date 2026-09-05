@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useInView, useReducedMotion } from "framer-motion";
 
 /** Counts from 0 up to `to` the first time it scrolls into view. */
 export function CountUp({
@@ -16,23 +15,47 @@ export function CountUp({
   suffix?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -20% 0px" });
-  const reduce = useReducedMotion();
-  const [value, setValue] = useState(reduce ? to : 0);
+  const [value, setValue] = useState(0);
 
   useEffect(() => {
-    if (!inView || reduce) return;
+    const el = ref.current;
+    if (!el) return;
+
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || typeof IntersectionObserver === "undefined") {
+      setValue(to);
+      return;
+    }
+
     let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setValue(Math.round(eased * to));
-      if (p < 1) raf = requestAnimationFrame(tick);
+    const run = () => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - start) / duration);
+        setValue(Math.round((1 - Math.pow(1 - p, 3)) * to));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, reduce, to, duration]);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          io.disconnect();
+          run();
+        }
+      },
+      { rootMargin: "0px 0px -20% 0px" },
+    );
+    io.observe(el);
+
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [to, duration]);
 
   return (
     <span ref={ref} className={className}>

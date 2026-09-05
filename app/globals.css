@@ -256,12 +256,53 @@
     background: var(--surface-2);
   }
 
-  /* status dot — the little power LED */
+  /* status dot, the little power LED */
   .u-led {
     width: 0.4rem;
     height: 0.4rem;
     border-radius: var(--r-full);
     background: var(--accent);
     box-shadow: 0 0 6px -1px var(--accent);
+  }
+
+  /* Staggered scroll reveal, done in CSS so it costs no animation runtime.
+     ScrollGroup adds .is-shown when it scrolls into view; each .scroll-item
+     inherits a slightly later transition-delay than the one before it. */
+  [data-scroll-group] .scroll-item {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  [data-scroll-group].is-shown .scroll-item {
+    opacity: 1;
+    transform: none;
+  }
+  [data-scroll-group] .scroll-item:nth-child(1)  { transition-delay: 0s; }
+  [data-scroll-group] .scroll-item:nth-child(2)  { transition-delay: 0.07s; }
+  [data-scroll-group] .scroll-item:nth-child(3)  { transition-delay: 0.14s; }
+  [data-scroll-group] .scroll-item:nth-child(4)  { transition-delay: 0.21s; }
+  [data-scroll-group] .scroll-item:nth-child(5)  { transition-delay: 0.28s; }
+  [data-scroll-group] .scroll-item:nth-child(6)  { transition-delay: 0.35s; }
+  [data-scroll-group] .scroll-item:nth-child(7)  { transition-delay: 0.42s; }
+  [data-scroll-group] .scroll-item:nth-child(8)  { transition-delay: 0.49s; }
+  [data-scroll-group] .scroll-item:nth-child(n + 9) { transition-delay: 0.56s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-scroll-group] .scroll-item {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* hero caption swap: re-keying the element restarts this */
+  .hero-caption {
+    animation: hero-caption-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-caption-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
   }
 }

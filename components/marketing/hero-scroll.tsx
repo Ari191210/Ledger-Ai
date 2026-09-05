@@ -1,17 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-  useReducedMotion,
-  AnimatePresence,
-  type MotionValue,
-} from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 const TICKS = 40;
@@ -33,116 +24,76 @@ const CAPTIONS = [
   { at: 0.88, text: "Then a shortlist of exactly what to fix next." },
 ];
 
+const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
+/** maps p through [a,b] onto 0..1 */
+const seg = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
+
+/**
+ * Scroll progress (0..1) across a tall element, read with a passive listener
+ * on a rAF tick. Deliberately not an animation library: this page is the
+ * first thing a student loads on a slow phone, so it ships no runtime for it.
+ */
+function useScrollProgress(ref: React.RefObject<HTMLDivElement | null>, enabled: boolean) {
+  const [p, setP] = useState(0);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const el = ref.current;
+    if (!el) return;
+
+    let raf = 0;
+    let queued = false;
+
+    const measure = () => {
+      queued = false;
+      const rect = el.getBoundingClientRect();
+      const travel = rect.height - window.innerHeight;
+      setP(travel <= 0 ? 0 : clamp01(-rect.top / travel));
+    };
+
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      raf = requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [ref, enabled]);
+
+  return p;
+}
+
 export function HeroScroll() {
-  const reduce = useReducedMotion();
-  return reduce ? <HeroStatic /> : <HeroScrubbed />;
-}
-
-// ── the pinned, scroll-scrubbed version ──────────────────────────────
-function HeroScrubbed() {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  // start assuming motion is fine; correct after mount so SSR stays stable
+  const [animate, setAnimate] = useState(true);
+  useEffect(() => {
+    setAnimate(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
 
-  const litRaw = useTransform(scrollYProgress, [0.08, 0.44], [0, TICKS], { clamp: true });
-  const scoreRaw = useTransform(scrollYProgress, [0.08, 0.52], [0, SCORE], { clamp: true });
-  const dialRotate = useTransform(scrollYProgress, [0.1, 0.66], [-10, 6]);
-  const stageScale = useTransform(scrollYProgress, [0, 0.14, 0.86, 1], [0.9, 1, 1, 0.97]);
-  const tierOpacity = useTransform(scrollYProgress, [0.5, 0.62], [0, 1]);
-  const ctaOpacity = useTransform(scrollYProgress, [0.8, 0.92], [0, 1]);
-  const ctaY = useTransform(scrollYProgress, [0.8, 0.92], [14, 0]);
-  // the hint is only useful before you've started; fade it out rather than
-  // pulsing it (a pulse drops it to ~1.4:1 contrast at its dimmest)
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+  const p = useScrollProgress(ref, animate);
 
-  // one useTransform per pillar (fixed count -> hook-rules safe)
-  const w0 = usePillarWidth(scrollYProgress, 0);
-  const w1 = usePillarWidth(scrollYProgress, 1);
-  const w2 = usePillarWidth(scrollYProgress, 2);
-  const w3 = usePillarWidth(scrollYProgress, 3);
-  const widths = [w0, w1, w2, w3];
+  // everything below is derived from one number
+  const lit = animate ? Math.round(seg(p, 0.08, 0.44) * TICKS) : TICKS;
+  const score = animate ? Math.round(seg(p, 0.08, 0.52) * SCORE) : SCORE;
+  const dialRotate = animate ? -10 + seg(p, 0.1, 0.66) * 16 : 0;
+  const stageScale = animate ? 0.9 + seg(p, 0, 0.14) * 0.1 - seg(p, 0.86, 1) * 0.03 : 1;
+  const tierOpacity = animate ? seg(p, 0.5, 0.62) : 1;
+  const ctaOpacity = animate ? seg(p, 0.8, 0.92) : 1;
+  const hintOpacity = animate ? 1 - seg(p, 0, 0.05) : 0;
 
-  const [lit, setLit] = useState(0);
-  const [score, setScore] = useState(0);
-  const [capIndex, setCapIndex] = useState(0);
-  useMotionValueEvent(litRaw, "change", (v) => setLit(Math.round(v)));
-  useMotionValueEvent(scoreRaw, "change", (v) => setScore(Math.round(v)));
-  useMotionValueEvent(scrollYProgress, "change", (p) => {
-    let idx = 0;
-    for (let i = 0; i < CAPTIONS.length; i++) if (p >= CAPTIONS[i].at) idx = i;
-    setCapIndex(idx);
-  });
+  let capIndex = 0;
+  for (let i = 0; i < CAPTIONS.length; i++) if (p >= CAPTIONS[i].at) capIndex = i;
+  const caption = animate ? CAPTIONS[capIndex].text : CAPTIONS[CAPTIONS.length - 1].text;
 
-  return (
-    <div ref={ref} className="relative h-[300vh]">
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6">
-        <motion.div style={{ scale: stageScale }} className="w-full max-w-3xl">
-          <Stage
-            lit={lit}
-            score={score}
-            dialRotate={dialRotate}
-            tierOpacity={tierOpacity}
-            widths={widths}
-            caption={CAPTIONS[capIndex].text}
-            ctaStyle={{ opacity: ctaOpacity, y: ctaY }}
-          />
-        </motion.div>
-
-        <motion.span
-          className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 u-mono text-2xs text-text-2"
-          style={{ opacity: hintOpacity }}
-        >
-          keep scrolling
-        </motion.span>
-      </div>
-    </div>
-  );
-}
-
-function usePillarWidth(progress: MotionValue<number>, index: number) {
-  const start = 0.46 + index * 0.05;
-  return useTransform(progress, [start, start + 0.09], ["0%", `${PILLARS[index].pct}%`], { clamp: true });
-}
-
-// ── the reduced-motion / no-scroll fallback ──────────────────────────
-function HeroStatic() {
-  return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
-      <Stage
-        lit={TICKS}
-        score={SCORE}
-        dialRotate={0}
-        caption={CAPTIONS[CAPTIONS.length - 1].text}
-        ctaStyle={{}}
-        staticPillarPct={PILLARS.map((p) => p.pct)}
-        forceTier
-      />
-    </div>
-  );
-}
-
-// ── the shared visual ───────────────────────────────────────────────
-function Stage({
-  lit,
-  score,
-  dialRotate,
-  tierOpacity,
-  widths,
-  caption,
-  ctaStyle,
-  staticPillarPct,
-  forceTier,
-}: {
-  lit: number;
-  score: number;
-  dialRotate: MotionValue<number> | number;
-  tierOpacity?: MotionValue<number>;
-  widths?: MotionValue<string>[];
-  caption: string;
-  ctaStyle: Record<string, unknown>;
-  staticPillarPct?: number[];
-  forceTier?: boolean;
-}) {
-  return (
+  const stage = (
     <div className="flex flex-col items-center text-center">
       <span className="u-label">academic instrument · built for India</span>
       <h1 className="mt-3 max-w-[16ch] text-3xl font-extrabold leading-[1.05] tracking-[-0.03em] text-text sm:text-4xl">
@@ -150,7 +101,12 @@ function Stage({
       </h1>
 
       <div className="relative mt-6 size-56 sm:size-72">
-        <motion.svg viewBox="0 0 260 260" className="h-full w-full" style={{ rotate: dialRotate }} aria-hidden>
+        <svg
+          viewBox="0 0 260 260"
+          className="h-full w-full"
+          style={{ transform: `rotate(${dialRotate}deg)` }}
+          aria-hidden
+        >
           {Array.from({ length: TICKS }, (_, i) => (
             <line
               key={i}
@@ -164,65 +120,81 @@ function Stage({
               transform={`rotate(${(i / TICKS) * 360} 130 130)`}
             />
           ))}
-        </motion.svg>
+        </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="u-stat-number text-6xl leading-none text-text sm:text-7xl">{score}</span>
           <span className="u-mono mt-1 text-2xs text-text-3">of {MAX}</span>
-          <motion.span
-            style={forceTier ? undefined : { opacity: tierOpacity }}
+          <span
             className="mt-2 text-sm font-semibold text-accent-strong"
+            style={{ opacity: tierOpacity }}
           >
             Strong
-          </motion.span>
+          </span>
         </div>
       </div>
 
       <div className="mt-8 w-full max-w-sm space-y-2.5">
-        {PILLARS.map((p, j) => (
-          <div key={p.label}>
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="u-label truncate">{p.label}</span>
-              <span className="u-mono shrink-0 text-2xs text-text-3">{p.weight}%</span>
+        {PILLARS.map((pillar, j) => {
+          const start = 0.46 + j * 0.05;
+          const fill = animate ? seg(p, start, start + 0.09) * pillar.pct : pillar.pct;
+          return (
+            <div key={pillar.label}>
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="u-label truncate">{pillar.label}</span>
+                <span className="u-mono shrink-0 text-2xs text-text-3">{pillar.weight}%</span>
+              </div>
+              <div className="mt-1.5 h-1 overflow-hidden bg-surface-3">
+                <div className="h-full bg-accent" style={{ width: `${fill}%` }} />
+              </div>
             </div>
-            <div className="mt-1.5 h-1 overflow-hidden bg-surface-3">
-              <motion.div
-                className="h-full bg-accent"
-                style={
-                  staticPillarPct ? { width: `${staticPillarPct[j]}%` } : { width: widths?.[j] ?? "0%" }
-                }
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <div className="mt-8 h-10 max-w-[42ch]">
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={caption}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
-            className="text-sm leading-relaxed text-text-2 sm:text-base"
-          >
-            {caption}
-          </motion.p>
-        </AnimatePresence>
+      <div className="mt-8 flex h-10 items-start justify-center">
+        <p
+          key={caption}
+          className="hero-caption max-w-[42ch] text-sm leading-relaxed text-text-2 sm:text-base"
+        >
+          {caption}
+        </p>
       </div>
 
-      <motion.div style={ctaStyle} className="mt-6 flex flex-wrap justify-center gap-3">
+      <div
+        className="mt-6 flex flex-wrap justify-center gap-3"
+        style={{ opacity: ctaOpacity, transform: `translateY(${(1 - ctaOpacity) * 14}px)` }}
+      >
         <Link href="/login">
           <Button size="lg">
             Start your ledger <ArrowRight size={15} />
           </Button>
         </Link>
-        <Link href="/login">
+        <Link href="/sample">
           <Button size="lg" variant="secondary">
             See how the score works
           </Button>
         </Link>
-      </motion.div>
+      </div>
+    </div>
+  );
+
+  if (!animate) {
+    return <div className="mx-auto max-w-3xl px-6 py-16">{stage}</div>;
+  }
+
+  return (
+    <div ref={ref} className="relative h-[300vh]">
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6">
+        <div className="w-full max-w-3xl" style={{ transform: `scale(${stageScale})` }}>
+          {stage}
+        </div>
+        <span
+          className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 u-mono text-2xs text-text-2"
+          style={{ opacity: hintOpacity }}
+        >
+          keep scrolling
+        </span>
+      </div>
     </div>
   );
 }
