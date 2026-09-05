@@ -9,6 +9,7 @@ export async function completeOnboarding(raw: {
   board?: string;
   stream?: string | null;
   target_exam?: string;
+  date_of_birth?: string;
 }): Promise<{ error: string } | void> {
   const parsed = validateOnboarding(raw);
   if (!parsed.ok) return { error: parsed.error };

@@ -1,3 +1,5 @@
+import { validateDob } from "./age";
+
 export const GRADES = [
   { value: "9", label: "Class 9" },
   { value: "10", label: "Class 10" },
@@ -51,6 +53,7 @@ export type OnboardingInput = {
   board: string;
   stream: string | null;
   target_exam: string;
+  date_of_birth: string;
 };
 
 export function validateOnboarding(raw: {
@@ -58,14 +61,19 @@ export function validateOnboarding(raw: {
   board?: string;
   stream?: string | null;
   target_exam?: string;
+  date_of_birth?: string;
 }): { ok: true; value: OnboardingInput } | { ok: false; error: string } {
   const grade = raw.grade ?? "";
   const board = raw.board ?? "";
   const target_exam = raw.target_exam ?? "";
+  const date_of_birth = raw.date_of_birth ?? "";
   if (!VALUES.grade.includes(grade as never)) return { ok: false, error: "Pick a grade." };
   if (!VALUES.board.includes(board as never)) return { ok: false, error: "Pick a board." };
   if (!VALUES.target_exam.includes(target_exam as never))
     return { ok: false, error: "Pick a target." };
+
+  const dob = validateDob(date_of_birth);
+  if (!dob.ok) return { ok: false, error: dob.error };
 
   let stream: string | null = null;
   if (streamApplies(grade)) {
@@ -73,5 +81,5 @@ export function validateOnboarding(raw: {
     if (!VALUES.stream.includes(stream as never))
       return { ok: false, error: "Pick a stream." };
   }
-  return { ok: true, value: { grade, board, stream, target_exam } };
+  return { ok: true, value: { grade, board, stream, target_exam, date_of_birth } };
 }

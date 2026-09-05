@@ -71,6 +71,26 @@ if (action === "get-auth-config") {
     smtp_sender_name: body.smtp_sender_name,
     smtp_admin_email: body.smtp_admin_email,
   }, null, 2));
+} else if (action === "apply-migration") {
+  // Runs a .sql file against the project. There is no migration runner here,
+  // and hand-pasting into the SQL editor was the standing manual step; this
+  // removes it. Migrations are written to be idempotent (if not exists /
+  // drop policy if exists) so re-running one is safe.
+  const file = process.argv[3];
+  if (!file) {
+    console.log("usage: apply-migration <path to .sql>");
+    process.exit(1);
+  }
+  const sql = fs.readFileSync(file, "utf8");
+  console.log(`applying ${file} (${sql.length} bytes)`);
+  const { status, body } = await mgmt(`/projects/${ref}/database/query`, {
+    method: "POST",
+    body: JSON.stringify({ query: sql }),
+  });
+  console.log("status:", status);
+  console.log(JSON.stringify(body, null, 2).slice(0, 800));
 } else {
-  console.log("usage: node scripts/supabase-mgmt.mjs get-auth-config");
+  console.log(
+    "usage: node scripts/supabase-mgmt.mjs get-auth-config | set-redirect-urls | set-smtp | apply-migration <file>",
+  );
 }

@@ -11,6 +11,7 @@ const TABLES = [
   "habits",
   "habit_logs",
   "deadlines",
+  "parental_consents",
 ] as const;
 
 export async function GET() {

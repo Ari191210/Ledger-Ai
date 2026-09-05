@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalPage label="legal" title="Privacy Policy" updated="5 September 2026">
+    <LegalPage label="legal" title="Privacy Policy" updated="6 September 2026">
       <LegalSection title="What this covers">
         <p>
           This describes what StudyLedger (studyledger.in) collects when you
@@ -37,6 +37,7 @@ export default function PrivacyPage() {
         <ul>
           <li>Your email address and password (password is handled entirely by our authentication provider, Supabase; we never see or store it in plain text).</li>
           <li>Your display name, grade, board, stream, and target exam, if you provide them.</li>
+          <li>Your date of birth. We ask for this because India&apos;s data protection law sets different obligations for users under 18, so we need to know which accounts those are. It is not shown on your profile and is not used for anything else.</li>
         </ul>
         <p>Study data you create by using the product:</p>
         <ul>
@@ -88,10 +89,36 @@ export default function PrivacyPage() {
 
       <LegalSection title="Students under 18">
         <p>
-          StudyLedger is built for school and exam-prep students, many of
-          whom are minors. We don't knowingly collect more than what's
-          described above, and a parent or guardian can request an export
-          or deletion on a student's behalf via the contact below.
+          StudyLedger is built for school and exam-prep students, so most of
+          the people using it are under 18. India&apos;s Digital Personal Data
+          Protection Act, 2023 treats anyone under 18 as a child and sets
+          stricter rules for their data. We ask for your date of birth at
+          signup so we know which accounts those are.
+        </p>
+        <p>
+          Three things we do not do, to any user, and will not start doing to
+          students: we run no advertising of any kind, we run no third-party
+          analytics or tracking scripts, and we do not build behavioural
+          profiles for advertising or sell data to anyone. What StudyLedger
+          records is the study activity you enter yourself, used to produce the
+          score and suggestions that are the product you asked for, and shown
+          only back to you.
+        </p>
+        <p>
+          We want to be straight about where we are rather than claim more than
+          is true. The Act requires verifiable parental consent before
+          processing a child&apos;s data, and the 2025 Rules point to
+          government-backed identity verification as the way to obtain it. That
+          mechanism is not built yet. The compliance date set by the Rules is 14
+          May 2027, and we intend to have it in place before then. Until it is,
+          collecting your date of birth is groundwork, and nothing about how
+          your account works changes because of your age.
+        </p>
+        <p>
+          A parent or guardian can request an export or deletion on a
+          student&apos;s behalf at any time using the contact below, and any
+          student can do both themselves from{" "}
+          <Link href="/settings">Settings</Link> without asking anyone.
         </p>
       </LegalSection>
 
