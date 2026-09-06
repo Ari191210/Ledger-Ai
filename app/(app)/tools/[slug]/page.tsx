@@ -15,7 +15,7 @@ export default async function ToolPage({
   const category = CATEGORIES.find((c) => c.id === tool.category);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto w-full max-w-5xl">
       <Link
         href="/tools"
         className="u-mono inline-flex items-center gap-1.5 text-2xs text-text-3 hover:text-text"

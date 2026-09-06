@@ -5,7 +5,7 @@ import { PROMPTS } from "@/lib/tools/prompts";
 
 export default function MarkSchemePage() {
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto w-full max-w-[1400px]">
       <Link href="/tools" className="u-mono inline-flex items-center gap-1.5 text-2xs text-text-3 hover:text-text">
         <ArrowLeft size={12} /> tools
       </Link>

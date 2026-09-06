@@ -99,7 +99,16 @@ export function AiTool({
   }
 
   return (
-    <div className="space-y-3">
+    // Two panes on a wide screen: what you ask on the left, what came back on
+    // the right. The tool used to be one 576px column down the middle of a
+    // 1440px page, so an answer pushed the form off the top of the screen and
+    // most of the display showed nothing at all. The form stays put now, and
+    // the answer has the room a worked solution actually needs.
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)]">
+      {/* min-w-0: a grid item is min-width:auto by default, so the horizontally
+          scrolling subject picker inside would push the whole pane wider than
+          the phone instead of scrolling within it. */}
+      <div className="min-w-0 lg:sticky lg:top-4">
       <section className="u-card p-4">
         <div className="space-y-3">
           {fields.map((f) => (
@@ -164,7 +173,9 @@ export function AiTool({
           </p>
         )}
       </section>
+      </div>
 
+      <div className="min-w-0 space-y-3">
       {result && secondsLeft !== null && (
         <section
           className={cn(
@@ -218,6 +229,27 @@ export function AiTool({
           {logError && <p className="u-mono w-full text-2xs text-negative">{logError}</p>}
         </section>
       )}
+
+      {/* An empty right pane on a wide screen reads as a broken page rather
+          than as a tool waiting for input. Flat is evidence, not emptiness:
+          say what will land here and what it costs. */}
+      {!result && !pending && (
+        <section className="u-card u-grille grid min-h-[16rem] place-items-center p-6 text-center">
+          <div>
+            <span className="u-label">no answer yet</span>
+            <p className="u-mono mt-2 text-2xs text-text-3">
+              fill the form and generate
+            </p>
+          </div>
+        </section>
+      )}
+
+      {pending && (
+        <section className="u-card u-grille grid min-h-[16rem] place-items-center p-6 text-center">
+          <span className="u-mono text-2xs text-text-3">working on it</span>
+        </section>
+      )}
+      </div>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default async function CircadianPage() {
   const maxVolume = Math.max(1, ...rows.map((r) => r.volume));
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto w-full max-w-5xl">
       <Link
         href="/tools"
         className="u-mono inline-flex items-center gap-1.5 text-2xs text-text-3 hover:text-text"
