@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { TIER_MARKS } from "@/lib/score/compute";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Ring } from "@/components/ui/ring";
 import { getDashboardData } from "@/lib/score/inputs";
@@ -24,7 +25,14 @@ export default async function ScorePage() {
 
       <section className="u-card mt-4 p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
-          <Ring value={score.total} max={score.max} size={188} stroke={14} color="var(--accent-strong)">
+          <Ring
+            value={score.total}
+            max={score.max}
+            size={188}
+            stroke={14}
+            color="var(--accent-strong)"
+            marks={TIER_MARKS}
+          >
             <div>
               <StatNumber value={score.total} className="text-4xl leading-none" />
               <div className="u-mono mt-1 text-2xs text-text-3">/ {score.max}</div>
@@ -64,7 +72,7 @@ export default async function ScorePage() {
                 aria-valuemin={0}
                 aria-valuemax={p.max}
               >
-                <div className="h-full bg-accent" style={{ width: `${(p.pts / p.max) * 100}%` }} />
+                <div className="h-full bg-text-3" style={{ width: `${(p.pts / p.max) * 100}%` }} />
               </div>
               <p className="mt-1.5 text-xs text-text-2">{PILLAR_NOTE[p.key]}</p>
             </div>

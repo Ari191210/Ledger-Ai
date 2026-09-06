@@ -35,6 +35,12 @@ export type ScoreBreakdown = {
 
 const MAX_SCORE = 1000;
 
+/** The tier boundaries, exported so the score ring can print them on its face.
+ *  An instrument that shows a value without its scale invites the reader to
+ *  invent one: aircraft dials paint the redline on the dial, visible even when
+ *  the needle rests at zero. */
+export const TIER_MARKS = [200, 400, 600, 800] as const;
+
 const TIERS = [
   { label: "Beginner", at: 0 },
   { label: "Building", at: 200 },

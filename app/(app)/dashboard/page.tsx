@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TIER_MARKS } from "@/lib/score/compute";
 import { ArrowUpRight, Plus, Megaphone, Sunrise, RotateCcw, Dna } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
@@ -233,7 +234,14 @@ export default async function DashboardPage() {
               </div>
 
               <div className="mt-4 flex items-center gap-6">
-                <Ring value={score.total} max={score.max} size={132} stroke={11} color="var(--accent-strong)">
+                <Ring
+                  value={score.total}
+                  max={score.max}
+                  size={132}
+                  stroke={11}
+                  color="var(--accent-strong)"
+                  marks={TIER_MARKS}
+                >
                   <div>
                     <StatNumber value={score.total} className="text-[2.1rem] leading-none" />
                     <div className="u-mono text-2xs text-text-3">/{score.max}</div>
@@ -248,6 +256,13 @@ export default async function DashboardPage() {
                       : "top tier"}
                   </div>
 
+                  {/* The bars are grey on purpose. Ledger paper spends its
+                      one strong colour twice: a rule fencing the money column,
+                      and the closing balance. Everything else is black on
+                      feint. Four lime bars beside a lime ring is five accents
+                      in one panel, which is both against the house rule and
+                      why nothing here had a foreground. The ring is the
+                      closing figure; these are the workings. */}
                   <div className="mt-3 space-y-2">
                     {score.pillars.map((p) => (
                       <div key={p.key}>
@@ -266,7 +281,7 @@ export default async function DashboardPage() {
                           aria-valuemax={p.max}
                         >
                           <div
-                            className="h-full bg-accent"
+                            className="h-full bg-text-3"
                             style={{ width: `${(p.pts / p.max) * 100}%` }}
                           />
                         </div>

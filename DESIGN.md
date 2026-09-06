@@ -218,6 +218,55 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   - Kept from part one: CTA never gated on scroll, 200vh pin, "example ledger"
     chip, meter opacity tracking pillar weight.
 
+- **2026-09-06** — Dashboard reference research (three parallel passes: physical
+  instruments, historical record-keeping, contemporary digital craft). Four
+  principles came back independently from all three, and they are worth keeping
+  whether or not the larger direction below ever gets built:
+  - **The accent marks the boundary and the closing figure, nothing else.**
+    Double-entry ledger paper (Venice, 1494) spends red exactly twice: one
+    hairline fencing the money column, and the balance carried forward. Red
+    never carries information. Braun's own ET66 calculator is the same move, a
+    grey keypad with one yellow "=" key. This is REFERENCE.md rule 1 with five
+    centuries behind it.
+  - **Quiet has to be legible.** A seismograph helicorder stacks each hour as a
+    line down the page, dead flat where nothing happened: flat is evidence, not
+    emptiness. Cricket's dot ball is the same idea. A study log is mostly
+    nothing-happened and should say so without apology.
+  - **Thresholds are printed, not drawn.** Aircraft dials paint the arc bands
+    and the redline on the face, so the limit is visible with the needle at
+    zero. A number with no printed scale invites the reader to invent one.
+  - **A good instrument refuses to show noise.** The VU meter's 300ms
+    integration time was chosen in 1939 so the needle physically cannot show a
+    spike. The BBC PPM has seven bare numerals and no units, because false
+    precision is a lie about how well anyone knows their own level. That is this
+    product's thesis, already solved by broadcast engineers.
+
+  **Applied immediately (built):** the ledger score panel had five lime elements,
+  the ring plus four pillar bars, which broke rule 1 outright and left the panel
+  with no foreground. The bars are now grey and the ring is the panel's one
+  accent. The effect is that consistency at 11/150 became the obvious problem in
+  the panel, where before it was the least visible thing in it. The ring also
+  carries the tier boundaries (200/400/600/800) as notches cut through the arc in
+  the ground colour, drawn above the arc rather than below it so they stay
+  visible at every reading, which is the whole point of a printed threshold.
+
+  **Direction proposed, not yet built: "the scorebook."** A cricket scorebook
+  crossed with ledger paper, chosen because the audience knows the notation
+  natively. The dot ball is a session with nothing to show for it; a maiden, six
+  dots joined into one stroked M, is a whole session of honest work with no
+  visible return, which is this product's moral position in a single glyph.
+  Dismissal notation records *how* a topic beat you, not merely that it did.
+  The wagon wheel, spokes from one centre with length by scoring, is the
+  best-hours data drawn properly. Buildable against existing tables: helicorder
+  focus history (focus_sessions), wagon-wheel best hours (pyq_attempts.taken_at,
+  already computed by circadian), punch-card syllabus coverage
+  (syllabus_topics.position, fixed columns so gaps stay countable). Dismissal
+  notation needs a new column: mistakes.source records where, not how.
+
+  Rejected on sight: Teenage Engineering's OP-1, whose signature move is four
+  colour-coded encoders matched to same-colour on-screen parameters. It is
+  multi-accent by design and collides head-on with rule 1.
+
 ---
 
 *When a new UI pattern gets built and kept, add it to §4. When a real brand
