@@ -68,23 +68,6 @@ Where a section touches a topic the student has open mistakes in, go a level dee
     }),
   },
 
-  tutor: {
-    slug: "tutor",
-    resultKind: "text",
-    usesStudentData: true,
-    fields: [
-      SUBJECT_FIELD,
-      { key: "concept", label: "concept", type: "text", required: true, placeholder: "e.g. Newton's second law" },
-      { key: "stuck", label: "what's confusing (optional)", type: "textarea", rows: 3, placeholder: "Say what specifically isn't clicking, if you know." },
-    ],
-    buildPrompt: (v) => ({
-      system: `Walk the student through one concept conversationally, as a single tutoring turn. End by asking them to apply it to one small case or state it back in their own words, per house style.
-
-If the concept relates to something the student has already logged mistakes in, teach from that gap rather than from scratch. This is a single turn with no memory of previous conversations, so do not imply continuity you do not have.`,
-      user: `Subject: ${v.subject}\nConcept: ${v.concept}${v.stuck ? `\nWhat's confusing: ${v.stuck}` : ""}`,
-    }),
-  },
-
   formula: {
     slug: "formula",
     resultKind: "list",
@@ -116,24 +99,6 @@ Put formulas belonging to the student's open mistake topics first, and mark them
 
 If the student's measured accuracy is low, be concrete about the single biggest fix rather than listing everything at once.`,
       user: `Subject: ${v.subject}${v.prompt ? `\nQuestion: ${v.prompt}` : ""}\nEssay:\n${v.essay}`,
-    }),
-  },
-
-  assignment: {
-    slug: "assignment",
-    resultKind: "list",
-    usesStudentData: true,
-    maxTokens: 4200,
-    fields: [
-      SUBJECT_FIELD,
-      { key: "prompt", label: "assignment prompt", type: "textarea", required: true, rows: 4 },
-      { key: "words", label: "target length (words)", type: "number", default: 300, min: 100, max: 800 },
-    ],
-    buildPrompt: (v) => ({
-      system: `Structure and draft an assignment response, aiming for roughly ${v.words} words total. Each item is one section of the piece (e.g. introduction, body, conclusion), title as the section name, body as drafted content for that section, however many words that section needs to reach the target, not capped to a few sentences. Use 2 to 6 sections depending on what the prompt needs. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.
-
-Anchor examples in topics the student has already covered where possible, and avoid leaning on topics they have not covered yet.`,
-      user: `Subject: ${v.subject}\nAssignment prompt: ${v.prompt}`,
     }),
   },
 
@@ -240,18 +205,6 @@ If the question touches a topic they keep losing marks on, say which step tends 
     buildPrompt: (v, dataContext) => ({
       system: `Build the highest-yield revision list for the last ${v.hours} hours before an exam, using ONLY the student's real open mistakes and uncovered syllabus topics given below. Rank items by yield: recurring mistakes first, then high-debt topics. One item per distinct topic, do not bundle several topics into a single catch-all item, use up to 12 items if the data has that many distinct topics. Do not invent topics not present in the data. If the data is empty, say plainly there's nothing logged to prioritise instead of inventing a plan. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.`,
       user: `Scope: ${v.subject}\nHours available: ${v.hours}\n\nStudent's real data:\n${dataContext}`,
-    }),
-  },
-
-  career: {
-    slug: "career",
-    resultKind: "list",
-    fields: [
-      { key: "interests", label: "interests (optional)", type: "textarea", rows: 3, placeholder: "Subjects, hobbies, or activities you enjoy." },
-    ],
-    buildPrompt: (v) => ({
-      system: `Suggest 4 to 6 careers that fit the student's academic stream and stated interests. Title is the career name, body explains the fit and one concrete next step (a subject to lean into, a skill to build). ${JSON_LIST}`,
-      user: v.interests ? `Interests: ${v.interests}` : "No specific interests given, infer from academic stream alone.",
     }),
   },
 };

@@ -9,6 +9,14 @@
 // other 34 aren't deleted from history, see git commit a2f41c9, they
 // come back deliberately, one at a time, once these 25 are actually good.
 //
+// Cut again to 22 on 2026-09-06, this time on a stated bar rather than on
+// volume: a tool earns its place only if the student's own ledger changes
+// what it says. Tutor was a single turn pretending to be a conversation and
+// lost to the chatbot it imitated. Career Explorer read the same for a
+// stranger with no account. Assignment Helper drafted the work itself,
+// which is the one tool whose success would undercut the product. All three
+// are recoverable from git history if any of those reasons stops holding.
+//
 // kind: "ai"  , calls the AI endpoint (lib/onboarding-aware prompt)
 //       "stub", local/UI only, no model call
 // signature: the flagship tools unique to StudyLedger, called out in nav /
@@ -25,7 +33,6 @@ import {
   Sunrise,
   NotebookPen,
   HelpCircle,
-  MessageCircle,
   ListTree,
   Sigma,
   CheckSquare,
@@ -37,7 +44,6 @@ import {
   Dumbbell,
   Zap,
   Dna,
-  Briefcase,
   BarChart3,
   Megaphone,
   Grid3x3,
@@ -45,14 +51,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type ToolCategory = "plan" | "learn" | "write" | "practise" | "future" | "track";
+export type ToolCategory = "plan" | "learn" | "write" | "practise" | "track";
 
 export const CATEGORIES: { id: ToolCategory; label: string; blurb: string; icon: LucideIcon }[] = [
   { id: "plan", label: "Plan", blurb: "organise the time you have", icon: CalendarDays },
   { id: "learn", label: "Learn", blurb: "build understanding", icon: NotebookPen },
   { id: "write", label: "Write", blurb: "produce written work", icon: PenSquare },
   { id: "practise", label: "Practise", blurb: "drill and test", icon: Dumbbell },
-  { id: "future", label: "Future", blurb: "careers and admissions", icon: Briefcase },
   { id: "track", label: "Track", blurb: "measure and hold accountable", icon: BarChart3 },
 ];
 
@@ -83,23 +88,19 @@ export const TOOLS: Tool[] = [
   { slug: "circadian", name: "Circadian", category: "plan", kind: "stub", signature: true, icon: Sunrise,
     blurb: "Recommends what to study when, based on your energy patterns." },
 
-  // ── learn (5) ─────────────────────────────────────────────────────
+  // ── learn (4) ─────────────────────────────────────────────────────
   { slug: "notes", name: "Notes", category: "learn", kind: "ai", icon: NotebookPen,
     blurb: "Turn raw notes into structured, exam-ready summaries." },
   { slug: "doubt", name: "Doubt Solver", category: "learn", kind: "ai", icon: HelpCircle,
     blurb: "Ask a specific question, get a specific answer. No fluff." },
-  { slug: "tutor", name: "Tutor", category: "learn", kind: "ai", icon: MessageCircle,
-    blurb: "A conversational walkthrough of a concept you're stuck on." },
   { slug: "syllabus", name: "Syllabus Tracker", category: "learn", kind: "stub", icon: ListTree,
     blurb: "Break your syllabus into topics and mark what's covered." },
   { slug: "formula", name: "Formula Sheet", category: "learn", kind: "ai", icon: Sigma,
     blurb: "Auto-built formula sheet for a subject or chapter." },
 
-  // ── write (3) ─────────────────────────────────────────────────────
+  // ── write (2) ─────────────────────────────────────────────────────
   { slug: "essay-grader", name: "Essay Grader", category: "write", kind: "ai", icon: CheckSquare,
     blurb: "Rubric-based feedback on an essay before you submit it." },
-  { slug: "assignment", name: "Assignment Helper", category: "write", kind: "ai", icon: PenSquare,
-    blurb: "Structure and draft an assignment from a prompt." },
   { slug: "model-answer", name: "Model Answer", category: "write", kind: "ai", icon: FileCheck,
     blurb: "See what a full-marks answer to a question looks like." },
 
@@ -119,11 +120,7 @@ export const TOOLS: Tool[] = [
   { slug: "crunch", name: "Crunch Mode", category: "practise", kind: "ai", icon: Zap,
     blurb: "Last 48 hours before an exam: the highest-yield revision list." },
 
-  // ── future (1) ────────────────────────────────────────────────────
-  { slug: "career", name: "Career Explorer", category: "future", kind: "ai", icon: Briefcase,
-    blurb: "Explore careers that fit your subjects and interests." },
-
-  // ── track (2, 1 signature) ────────────────────────────────────────
+  // ── track (3, 2 signature) ────────────────────────────────────────
   { slug: "peer-heatmap", name: "Peer Heatmap", category: "track", kind: "stub", signature: true, icon: Grid3x3,
     blurb: "Anonymised view of what topics peers are struggling with." },
   { slug: "patterns", name: "Patterns", category: "track", kind: "stub", signature: true, icon: Activity,

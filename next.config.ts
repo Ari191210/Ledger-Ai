@@ -16,6 +16,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // Tools cut on 2026-09-06. Anyone holding a bookmark lands on the tool that
+  // does the nearest honest version of the job rather than on a 404.
+  async redirects() {
+    return [
+      { source: "/tools/tutor", destination: "/tools/doubt", permanent: true },
+      { source: "/tools/assignment", destination: "/tools/model-answer", permanent: true },
+      { source: "/tools/career", destination: "/tools", permanent: true },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {
