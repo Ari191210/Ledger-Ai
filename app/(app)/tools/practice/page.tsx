@@ -13,7 +13,7 @@ export default function PracticePage() {
         <span className="u-label">practise</span>
         <h1 className="mt-1 text-lg font-bold text-text">Practice Sets</h1>
       </div>
-      <AiTool slug="practice" fields={PROMPTS.practice.fields} />
+      <AiTool slug="practice" fields={PROMPTS.practice.fields} logMistake={{ subjectKey: "subject", topicKey: "topic" }} />
     </div>
   );
 }

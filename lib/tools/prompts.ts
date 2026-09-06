@@ -43,11 +43,10 @@ export const PROMPTS: Record<string, PromptSpec> = {
       { key: "topic", label: "topic", type: "text", placeholder: "e.g. Mole concept", required: true },
       { key: "question", label: "your question", type: "textarea", required: true, rows: 4, placeholder: "Ask exactly what you're stuck on." },
     ],
-    buildPrompt: (v, data) => ({
+    buildPrompt: (v) => ({
       system: `You are a precise subject tutor answering one specific student doubt. Answer only what was asked, no unrelated background. Be direct and concrete.
 
-If this doubt touches a topic the student has already logged mistakes in, say so once, briefly, and address the underlying confusion rather than only the surface question. That is the point of answering this student rather than a stranger.
-${data ?? ""}`,
+If this doubt touches a topic the student has already logged mistakes in, say so once, briefly, and address the underlying confusion rather than only the surface question. That is the point of answering this student rather than a stranger.`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}\nQuestion: ${v.question}`,
     }),
   },
@@ -55,13 +54,16 @@ ${data ?? ""}`,
   notes: {
     slug: "notes",
     resultKind: "list",
+    usesStudentData: true,
     maxTokens: 3200,
     fields: [
       SUBJECT_FIELD,
       { key: "raw", label: "raw notes", type: "textarea", required: true, rows: 8, placeholder: "Paste your rough notes, lecture text, or textbook excerpt." },
     ],
     buildPrompt: (v) => ({
-      system: `Turn a student's raw notes into a structured, exam-ready summary. Organise into clear sections, one idea per section. ${JSON_LIST}`,
+      system: `Turn a student's raw notes into a structured, exam-ready summary. Organise into clear sections, one idea per section. ${JSON_LIST}
+
+Where a section touches a topic the student has open mistakes in, go a level deeper on that section rather than treating every section as equally understood.`,
       user: `Subject: ${v.subject}\nRaw notes:\n${v.raw}`,
     }),
   },
@@ -69,13 +71,16 @@ ${data ?? ""}`,
   tutor: {
     slug: "tutor",
     resultKind: "text",
+    usesStudentData: true,
     fields: [
       SUBJECT_FIELD,
       { key: "concept", label: "concept", type: "text", required: true, placeholder: "e.g. Newton's second law" },
       { key: "stuck", label: "what's confusing (optional)", type: "textarea", rows: 3, placeholder: "Say what specifically isn't clicking, if you know." },
     ],
     buildPrompt: (v) => ({
-      system: "Walk the student through one concept conversationally, as a single tutoring turn. End by asking them to apply it to one small case or state it back in their own words, per house style.",
+      system: `Walk the student through one concept conversationally, as a single tutoring turn. End by asking them to apply it to one small case or state it back in their own words, per house style.
+
+If the concept relates to something the student has already logged mistakes in, teach from that gap rather than from scratch. This is a single turn with no memory of previous conversations, so do not imply continuity you do not have.`,
       user: `Subject: ${v.subject}\nConcept: ${v.concept}${v.stuck ? `\nWhat's confusing: ${v.stuck}` : ""}`,
     }),
   },
@@ -83,12 +88,15 @@ ${data ?? ""}`,
   formula: {
     slug: "formula",
     resultKind: "list",
+    usesStudentData: true,
     fields: [
       SUBJECT_FIELD,
       { key: "chapter", label: "chapter or topic", type: "text", required: true, placeholder: "e.g. Rotational motion" },
     ],
     buildPrompt: (v) => ({
-      system: `Build a formula sheet for one chapter. Each item's title is the formula itself (in plain text, e.g. "v = u + at"), and the body names it and says exactly when to use it. ${JSON_LIST}`,
+      system: `Build a formula sheet for one chapter. Each item's title is the formula itself (in plain text, e.g. "v = u + at"), and the body names it and says exactly when to use it. ${JSON_LIST}
+
+Put formulas belonging to the student's open mistake topics first, and mark them as the ones they keep losing marks on.`,
       user: `Subject: ${v.subject}\nChapter: ${v.chapter}`,
     }),
   },
@@ -96,6 +104,7 @@ ${data ?? ""}`,
   "essay-grader": {
     slug: "essay-grader",
     resultKind: "score",
+    usesStudentData: true,
     maxTokens: 3200,
     fields: [
       SUBJECT_FIELD,
@@ -103,7 +112,9 @@ ${data ?? ""}`,
       { key: "essay", label: "your essay", type: "textarea", required: true, rows: 10 },
     ],
     buildPrompt: (v) => ({
-      system: `Grade a student essay against argument structure, evidence, and clarity. Pick 3 to 4 criteria appropriate to the subject. ${JSON_SCORE}`,
+      system: `Grade a student essay against argument structure, evidence, and clarity. Pick 3 to 4 criteria appropriate to the subject. ${JSON_SCORE}
+
+If the student's measured accuracy is low, be concrete about the single biggest fix rather than listing everything at once.`,
       user: `Subject: ${v.subject}${v.prompt ? `\nQuestion: ${v.prompt}` : ""}\nEssay:\n${v.essay}`,
     }),
   },
@@ -111,6 +122,7 @@ ${data ?? ""}`,
   assignment: {
     slug: "assignment",
     resultKind: "list",
+    usesStudentData: true,
     maxTokens: 4200,
     fields: [
       SUBJECT_FIELD,
@@ -118,7 +130,9 @@ ${data ?? ""}`,
       { key: "words", label: "target length (words)", type: "number", default: 300, min: 100, max: 800 },
     ],
     buildPrompt: (v) => ({
-      system: `Structure and draft an assignment response, aiming for roughly ${v.words} words total. Each item is one section of the piece (e.g. introduction, body, conclusion), title as the section name, body as drafted content for that section, however many words that section needs to reach the target, not capped to a few sentences. Use 2 to 6 sections depending on what the prompt needs. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.`,
+      system: `Structure and draft an assignment response, aiming for roughly ${v.words} words total. Each item is one section of the piece (e.g. introduction, body, conclusion), title as the section name, body as drafted content for that section, however many words that section needs to reach the target, not capped to a few sentences. Use 2 to 6 sections depending on what the prompt needs. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.
+
+Anchor examples in topics the student has already covered where possible, and avoid leaning on topics they have not covered yet.`,
       user: `Subject: ${v.subject}\nAssignment prompt: ${v.prompt}`,
     }),
   },
@@ -126,13 +140,16 @@ ${data ?? ""}`,
   "model-answer": {
     slug: "model-answer",
     resultKind: "list",
+    usesStudentData: true,
     fields: [
       SUBJECT_FIELD,
       { key: "question", label: "question", type: "textarea", required: true, rows: 3 },
       { key: "marks", label: "marks", type: "number", default: 5, min: 1, max: 20 },
     ],
     buildPrompt: (v) => ({
-      system: `Write a full-marks model answer to an exam question worth ${v.marks} marks. First item: title "Model answer", body is the answer itself, written the way a top student would write it under exam conditions. Second item: title "Why this earns full marks", body explains which parts of the answer map to which marks. ${JSON_LIST}`,
+      system: `Write a full-marks model answer to an exam question worth ${v.marks} marks. First item: title "Model answer", body is the answer itself, written the way a top student would write it under exam conditions. Second item: title "Why this earns full marks", body explains which parts of the answer map to which marks. ${JSON_LIST}
+
+If the question touches a topic they keep getting wrong, make the step they usually miss explicit.`,
       user: `Subject: ${v.subject}\nQuestion (${v.marks} marks): ${v.question}`,
     }),
   },
@@ -140,6 +157,7 @@ ${data ?? ""}`,
   flashcards: {
     slug: "flashcards",
     resultKind: "qa",
+    usesStudentData: true,
     maxTokens: 3200,
     fields: [
       SUBJECT_FIELD,
@@ -147,7 +165,9 @@ ${data ?? ""}`,
       { key: "count", label: "number of cards", type: "number", default: 8, min: 4, max: 20 },
     ],
     buildPrompt: (v) => ({
-      system: `Generate exactly ${v.count} flashcards for the given topic. Question is the front of the card, answer is the back (short, precise), explanation adds one sentence of context. ${JSON_QA}`,
+      system: `Generate exactly ${v.count} flashcards for the given topic. Question is the front of the card, answer is the back (short, precise), explanation adds one sentence of context. ${JSON_QA}
+
+Weight the cards toward the student's open mistake topics. A card on something they already have right is wasted.`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}`,
     }),
   },
@@ -155,6 +175,7 @@ ${data ?? ""}`,
   "exam-sim": {
     slug: "exam-sim",
     resultKind: "qa",
+    usesStudentData: true,
     maxTokens: 4800,
     fields: [
       SUBJECT_FIELD,
@@ -163,7 +184,9 @@ ${data ?? ""}`,
       { key: "minutes", label: "time limit (minutes)", type: "number", default: 20, min: 5, max: 90 },
     ],
     buildPrompt: (v) => ({
-      system: `Write exactly ${v.count} full-length exam-style questions on the given topic, varying in difficulty like a real paper. Question is the exam question, answer is the correct/expected answer, explanation is the mark-earning reasoning. ${JSON_QA}`,
+      system: `Write exactly ${v.count} full-length exam-style questions on the given topic, varying in difficulty like a real paper. Question is the exam question, answer is the correct/expected answer, explanation is the mark-earning reasoning. ${JSON_QA}
+
+Weight the paper toward the student's open mistake topics and uncovered syllabus, because that is what a real exam would expose.`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}\nTime limit: ${v.minutes} minutes (for context on question depth)`,
     }),
   },
@@ -171,6 +194,7 @@ ${data ?? ""}`,
   practice: {
     slug: "practice",
     resultKind: "qa",
+    usesStudentData: true,
     maxTokens: 3800,
     fields: [
       SUBJECT_FIELD,
@@ -179,7 +203,9 @@ ${data ?? ""}`,
       { key: "count", label: "number of questions", type: "number", default: 6, min: 3, max: 15 },
     ],
     buildPrompt: (v) => ({
-      system: `Generate ${v.count} ${v.difficulty}-difficulty practice questions on the given topic. ${JSON_QA}`,
+      system: `Generate ${v.count} ${v.difficulty}-difficulty practice questions on the given topic. ${JSON_QA}
+
+Weight questions toward the student's open mistake topics, and pitch difficulty at their measured accuracy rather than a generic level.`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}\nDifficulty: ${v.difficulty}`,
     }),
   },
@@ -187,6 +213,7 @@ ${data ?? ""}`,
   "mark-scheme": {
     slug: "mark-scheme",
     resultKind: "list",
+    usesStudentData: true,
     maxTokens: 3400,
     fields: [
       SUBJECT_FIELD,
@@ -194,7 +221,9 @@ ${data ?? ""}`,
       { key: "totalMarks", label: "total marks", type: "number", default: 5, min: 1, max: 20 },
     ],
     buildPrompt: (v) => ({
-      system: `Break down exactly how marks are awarded on this ${v.totalMarks}-mark question. Produce exactly one item per mark-earning point, up to ${v.totalMarks} items total, do not bundle multiple marks into one item. Title is a short label (e.g. "1 mark: states the law"), body explains what the answer must contain to earn it. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.`,
+      system: `Break down exactly how marks are awarded on this ${v.totalMarks}-mark question. Produce exactly one item per mark-earning point, up to ${v.totalMarks} items total, do not bundle multiple marks into one item. Title is a short label (e.g. "1 mark: states the law"), body explains what the answer must contain to earn it. Respond with a JSON object: { "items": [ { "title": string, "body": string } ] }.
+
+If the question touches a topic they keep losing marks on, say which step tends to cost them.`,
       user: `Subject: ${v.subject}\nQuestion (${v.totalMarks} marks): ${v.question}`,
     }),
   },

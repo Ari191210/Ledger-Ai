@@ -14,7 +14,7 @@ export default function ExamSimPage() {
         <h1 className="mt-1 text-lg font-bold text-text">Exam Simulator</h1>
         <p className="u-mono mt-1 text-2xs text-text-3">a real countdown starts once the paper generates</p>
       </div>
-      <AiTool slug="exam-sim" fields={PROMPTS["exam-sim"].fields} timerFieldKey="minutes" />
+      <AiTool slug="exam-sim" fields={PROMPTS["exam-sim"].fields} logMistake={{ subjectKey: "subject", topicKey: "topic" }} timerFieldKey="minutes" />
     </div>
   );
 }

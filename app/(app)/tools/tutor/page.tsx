@@ -14,7 +14,7 @@ export default function TutorPage() {
         <h1 className="mt-1 text-lg font-bold text-text">Tutor</h1>
         <p className="u-mono mt-1 text-2xs text-text-3">one focused walkthrough per question, it won't remember earlier ones</p>
       </div>
-      <AiTool slug="tutor" fields={PROMPTS.tutor.fields} />
+      <AiTool slug="tutor" fields={PROMPTS.tutor.fields} logMistake={{ subjectKey: "subject", topicKey: "concept" }} />
     </div>
   );
 }

@@ -14,7 +14,7 @@ export default function FlashcardsPage() {
         <h1 className="mt-1 text-lg font-bold text-text">Flashcards</h1>
         <p className="u-mono mt-1 text-2xs text-text-3">tap a card to reveal the answer</p>
       </div>
-      <AiTool slug="flashcards" fields={PROMPTS.flashcards.fields} />
+      <AiTool slug="flashcards" fields={PROMPTS.flashcards.fields} logMistake={{ subjectKey: "subject", topicKey: "topic" }} />
     </div>
   );
 }

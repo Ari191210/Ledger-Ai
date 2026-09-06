@@ -68,7 +68,16 @@ export async function POST(req: Request) {
     : undefined;
 
   const { system, user: userText } = spec.buildPrompt(values, dataContext);
-  const fullSystem = `${system}\n${profileCtx}`;
+
+  // Most tools opt in with `usesStudentData: true` and nothing else: the ledger
+  // is appended here so enabling it never means rewriting a prompt builder. A
+  // few (Crunch) weave the data into their user message because the prompt
+  // refers to it directly, so skip those rather than sending it twice.
+  const alreadyInPrompt =
+    !!dataContext && (system.includes(dataContext) || userText.includes(dataContext));
+  const fullSystem = [system, profileCtx, alreadyInPrompt ? "" : (dataContext ?? "")]
+    .filter(Boolean)
+    .join("\n");
 
   try {
     let result: AiResult;

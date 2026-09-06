@@ -13,7 +13,7 @@ export default function FormulaPage() {
         <span className="u-label">learn</span>
         <h1 className="mt-1 text-lg font-bold text-text">Formula Sheet</h1>
       </div>
-      <AiTool slug="formula" fields={PROMPTS.formula.fields} />
+      <AiTool slug="formula" fields={PROMPTS.formula.fields} logMistake={{ subjectKey: "subject", topicKey: "chapter" }} />
     </div>
   );
 }

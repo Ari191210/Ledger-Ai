@@ -57,6 +57,15 @@ export function AiTool({
     setValues((prev) => ({ ...prev, [key]: v }));
   }
 
+  // Question sets mark misses per question; everything else offers one button
+  // under the answer. Both end up writing the same kind of mistake row.
+  const topicValue = logMistake ? String(values[logMistake.topicKey] ?? "").trim() : "";
+  const qaLogTarget =
+    logMistake && topicValue
+      ? { subject: String(values[logMistake.subjectKey] ?? "").trim(), topic: topicValue }
+      : undefined;
+  const showLogCard = !!logMistake && result?.kind !== "qa";
+
   async function run() {
     setPending(true);
     setError(null);
@@ -160,9 +169,9 @@ export function AiTool({
         </section>
       )}
 
-      {result && <ResultView result={result} />}
+      {result && <ResultView result={result} qaLogTarget={qaLogTarget} />}
 
-      {result && logMistake && (
+      {result && showLogCard && (
         <section className="u-card flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="min-w-0">
             <p className="text-sm text-text">Still shaky on this?</p>
@@ -201,7 +210,13 @@ export function AiTool({
   );
 }
 
-function ResultView({ result }: { result: AiResult }) {
+function ResultView({
+  result,
+  qaLogTarget,
+}: {
+  result: AiResult;
+  qaLogTarget?: { subject: string; topic: string };
+}) {
   if (result.kind === "text") {
     return (
       <section className="u-card space-y-3 p-4">
@@ -230,7 +245,7 @@ function ResultView({ result }: { result: AiResult }) {
   }
 
   if (result.kind === "qa") {
-    return <QaResult items={result.items} />;
+    return <QaResult items={result.items} logTarget={qaLogTarget} />;
   }
 
   return (
@@ -266,8 +281,31 @@ function ResultView({ result }: { result: AiResult }) {
   );
 }
 
-function QaResult({ items }: { items: { question: string; answer: string; explanation?: string }[] }) {
+function QaResult({
+  items,
+  logTarget,
+}: {
+  items: { question: string; answer: string; explanation?: string }[];
+  /**
+   * When present, each question can be marked as missed and becomes a real
+   * mistake row. This is what turns a generated practice set from a disposable
+   * quiz into something that feeds Fix Next and Spaced Review: miss four
+   * questions on one topic and that topic climbs your list on its own.
+   */
+  logTarget?: { subject: string; topic: string };
+}) {
   const [open, setOpen] = useState<Set<number>>(new Set());
+  const [missed, setMissed] = useState<Set<number>>(new Set());
+  const [, startLogging] = useTransition();
+
+  function markMissed(i: number) {
+    if (!logTarget || missed.has(i)) return;
+    playClick("tap");
+    setMissed((s) => new Set(s).add(i));
+    startLogging(async () => {
+      await logMistakeAction({ subject: logTarget.subject, topic: logTarget.topic });
+    });
+  }
 
   function toggle(i: number) {
     playClick("soft");
@@ -310,6 +348,22 @@ function QaResult({ items }: { items: { question: string; answer: string; explan
                     <p className="text-sm font-semibold text-accent-strong">{item.answer}</p>
                     {item.explanation && (
                       <p className="mt-1.5 text-xs text-text-2">{item.explanation}</p>
+                    )}
+                    {logTarget && (
+                      <button
+                        type="button"
+                        onClick={() => markMissed(i)}
+                        disabled={missed.has(i)}
+                        className={cn(
+                          "u-mono mt-3 inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-2xs transition-colors",
+                          missed.has(i)
+                            ? "border-border-2 bg-surface-2 text-text-3"
+                            : "border-border-2 bg-surface-2 text-text-2 hover:text-text",
+                        )}
+                      >
+                        {missed.has(i) ? <Check size={11} /> : <Plus size={11} />}
+                        {missed.has(i) ? "logged to Fix Next" : "I got this wrong"}
+                      </button>
                     )}
                   </div>
                 </motion.div>
