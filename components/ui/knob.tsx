@@ -52,6 +52,9 @@ export function Knob({
   const index = Math.max(0, positions.indexOf(value));
   const last = positions.length - 1;
   const ref = useRef<HTMLDivElement>(null);
+  /** Where the pointer was last frame, so a crossing of the seam below the
+   *  dial can be told apart from a genuine sweep to the other end. */
+  const lastDeg = useRef(0);
   const [dragging, setDragging] = useState(false);
 
   const angleFor = (i: number) => -sweep / 2 + (last === 0 ? sweep / 2 : (i / last) * sweep);
@@ -74,11 +77,25 @@ export function Knob({
       const el = ref.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
-      const deg =
+      // atan2 gives (-180, 180]; rotating it a quarter turn so that zero is
+      // twelve o'clock pushes the top of the range to 270, which leaves every
+      // angle below -90 unreachable. On a dial sweeping wider than 180 degrees
+      // that is most of one side: the pointer would not travel past the
+      // nine o'clock position no matter how far round you dragged. Fold it back
+      // into (-180, 180] so the whole sweep is reachable.
+      const raw =
         (Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180) /
           Math.PI +
         90;
-      const clamped = Math.max(-sweep / 2, Math.min(sweep / 2, deg));
+      const deg = raw > 180 ? raw - 360 : raw;
+      // The seam between 180 and -180 sits in the gap below the dial, outside
+      // the sweep. Dragging across it reads as a jump from one end of the scale
+      // to the other, so a crossing is resolved to the end you were already
+      // nearest instead of teleporting the pointer to the far stop.
+      const prev = lastDeg.current;
+      const unwrapped = deg - prev > 180 ? -sweep / 2 : prev - deg > 180 ? sweep / 2 : deg;
+      const clamped = Math.max(-sweep / 2, Math.min(sweep / 2, unwrapped));
+      lastDeg.current = clamped;
       select(Math.round(((clamped + sweep / 2) / sweep) * last));
     };
     const up = () => setDragging(false);
@@ -166,6 +183,7 @@ export function Knob({
           aria-valuetext={value}
           onPointerDown={(e) => {
             e.preventDefault();
+            lastDeg.current = angleFor(index);
             setDragging(true);
           }}
           onClick={() => select(index >= last ? 0 : index + 1)}
@@ -186,7 +204,8 @@ export function Knob({
           }}
           className={cn(
             "absolute left-0 top-0 cursor-grab rounded-full outline-none",
-            "transition-[rotate,box-shadow] duration-[260ms] ease-spring",
+            "transition-[rotate,box-shadow] ease-spring",
+            dragging ? "duration-[90ms]" : "duration-[260ms]",
             "focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]",
             dragging && "cursor-grabbing",
           )}
