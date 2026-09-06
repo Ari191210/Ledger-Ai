@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { HourDial } from "@/components/dashboard/hour-dial";
+import { SyllabusCard } from "@/components/dashboard/syllabus-card";
 import { TIER_MARKS } from "@/lib/score/compute";
 import { ArrowUpRight, Plus, Megaphone, Sunrise, RotateCcw, Dna } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -68,6 +70,8 @@ export default async function DashboardPage() {
     dayDetails,
     coveragePct,
     syllabusLogged,
+    syllabusCard,
+    hourAccuracy,
     fixNext,
     streakDays,
   } = await getDashboardData(supabase, uid);
@@ -407,17 +411,13 @@ export default async function DashboardPage() {
 
       {/* ── coverage strip ──────────────────────────────── */}
       <Reveal delay={0.11}>
-        <section className="u-card flex items-center gap-5 p-4">
+        <section className="u-card p-4">
           <Label index="07">syllabus coverage</Label>
-          <div className="flex flex-1 items-center gap-3">
-            <div className="h-1 flex-1 bg-surface-3">
-              <div className="h-full bg-accent" style={{ width: `${coveragePct}%` }} />
-            </div>
-            <span className="u-stat-number text-sm">{coveragePct}%</span>
-          </div>
-          <span className="u-mono text-2xs text-text-3">
-            {syllabusLogged ? "target 100%" : "no syllabus logged yet"}
-          </span>
+          {syllabusLogged ? (
+            <SyllabusCard card={syllabusCard} coveragePct={coveragePct} />
+          ) : (
+            <p className="u-mono mt-3 text-2xs text-text-3">no syllabus logged yet</p>
+          )}
         </section>
       </Reveal>
 
@@ -467,17 +467,7 @@ export default async function DashboardPage() {
               <Sunrise size={13} className="text-text-3" />
               <Label index="09">best hours</Label>
             </div>
-            {bestWindow ? (
-              <>
-                <p className="mt-2 text-sm font-bold text-text">{bestWindow.label}</p>
-                <p className="u-mono mt-0.5 text-2xs text-text-3">
-                  {bestWindow.range}
-                  {bestWindow.accuracy !== null ? ` · ${bestWindow.accuracy}% accuracy` : " · not enough data"}
-                </p>
-              </>
-            ) : (
-              <p className="u-mono mt-2 text-2xs text-text-3">no pattern yet</p>
-            )}
+            <HourDial hours={hourAccuracy} />
           </Link>
 
           <Link href="/tools/spaced-review" className="u-card u-card--hover p-4">

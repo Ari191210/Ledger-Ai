@@ -2,7 +2,7 @@ import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeScore, type ScoreBreakdown } from "./compute";
 import { buildScoreInputs } from "./build-inputs";
-import { isoDateIST } from "@/lib/date";
+import { isoDateIST, hourIST } from "@/lib/date";
 import {
   getActivityRange,
   getCurrentStreak,
@@ -49,6 +49,13 @@ export type DashboardData = {
   dayDetails: Record<number, DayDetail>;
   coveragePct: number;
   syllabusLogged: boolean;
+  /** One slot per topic, in the order the student listed them, grouped by
+   *  subject. A punch card: the slots do not reflow as they fill, so the gaps
+   *  stay where they are and stay countable. */
+  syllabusCard: { subject: string; slots: boolean[] }[];
+  /** Accuracy per hour of the day, 24 entries, null where nothing was logged
+   *  at that hour. Null is not zero and must not be drawn as zero. */
+  hourAccuracy: (number | null)[];
   fixNext: { subject: string; topic: string; count: number }[];
 };
 
@@ -187,6 +194,27 @@ export const getDashboardData = cache(async function getDashboardData(
   }
   const fixNext = [...groups.values()].sort((a, b) => b.count - a.count).slice(0, 4);
 
+  // Grouped in listing order, not alphabetically: the student's own sequence
+  // is the one they revise in, and reordering it would hide where they stopped.
+  const bySubject = new Map<string, boolean[]>();
+  for (const t of syllabus) {
+    bySubject.set(t.subject, [...(bySubject.get(t.subject) ?? []), t.covered]);
+  }
+  const syllabusCard = [...bySubject.entries()].map(([subject, slots]) => ({ subject, slots }));
+
+  // Per hour rather than per window. The six circadian windows are the right
+  // grain for a sentence ("you are sharpest at night") and the wrong grain for
+  // a dial, which can afford 24 marks and is more honest for having them.
+  const byHour = Array.from({ length: 24 }, () => ({ correct: 0, total: 0 }));
+  for (const a of pyq30) {
+    const h = hourIST(a.taken_at);
+    byHour[h].correct += a.correct;
+    byHour[h].total += a.total;
+  }
+  const hourAccuracy = byHour.map((b) =>
+    b.total > 0 ? Math.round((b.correct / b.total) * 100) : null,
+  );
+
   return {
     score,
     streakDays,
@@ -196,6 +224,8 @@ export const getDashboardData = cache(async function getDashboardData(
     dayDetails,
     coveragePct: syllabusTotal > 0 ? Math.round((syllabusCovered / syllabusTotal) * 100) : 0,
     syllabusLogged: syllabusTotal > 0,
+    syllabusCard,
+    hourAccuracy,
     fixNext,
   };
 });
