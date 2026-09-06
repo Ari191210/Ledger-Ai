@@ -92,7 +92,11 @@ export async function getMistakes(
     since.setDate(since.getDate() - opts.sinceDays);
     q = q.gte("created_at", since.toISOString());
   }
-  const { data, error } = await q.order("created_at", { ascending: false });
+  // Explicit, because PostgREST applies its own default row cap otherwise and
+  // silently returns a short list. Every caller counts these (repeat tallies in
+  // the AI context, mistake half life, contagion), so a quiet truncation would
+  // read as real numbers rather than as missing data.
+  const { data, error } = await q.order("created_at", { ascending: false }).limit(2000);
   if (error) throw error;
   return data ?? [];
 }

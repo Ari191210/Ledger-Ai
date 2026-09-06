@@ -45,9 +45,14 @@ export async function buildLedgerContext(
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   if (counts.size > 0) {
+    // Capped for the same reason the syllabus is: a student a year in has
+    // hundreds of these, and the tail of one-off mistakes crowds out the
+    // repeat offenders that matter. Sorted first, so the cut loses the least.
+    const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
     lines.push("Open mistakes (subject · topic, times logged):");
-    for (const [key, n] of [...counts.entries()].sort((a, b) => b[1] - a[1])) {
-      lines.push(`- ${key} (${n}x)`);
+    for (const [key, n] of ranked.slice(0, 25)) lines.push(`- ${key} (${n}x)`);
+    if (ranked.length > 25) {
+      lines.push(`- and ${ranked.length - 25} more, logged ${ranked[25][1]}x or fewer`);
     }
   }
 
