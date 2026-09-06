@@ -16,6 +16,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getMistakes, getSyllabus, getPyqAttempts } from "@/lib/study/queries";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { isoDateIST } from "@/lib/date";
+import { derivedPatterns } from "./patterns-context";
 
 const ALL = "All subjects";
 
@@ -26,12 +27,17 @@ export async function buildLedgerContext(
 ): Promise<string> {
   const scope = subjectFilter && subjectFilter !== ALL ? subjectFilter : null;
 
-  const [mistakes, syllabus, attempts, deadlines] = await Promise.all([
-    getMistakes(supabase, userId, { onlyOpen: true }),
+  // Every mistake, not just the open ones. The same query either way, and the
+  // derived patterns below need the full history: a topic that was fixed and
+  // broke again is precisely the thing worth knowing, and it is invisible if
+  // resolved rows are filtered out in the database.
+  const [allMistakes, syllabus, attempts, deadlines] = await Promise.all([
+    getMistakes(supabase, userId),
     getSyllabus(supabase, userId),
     getPyqAttempts(supabase, userId),
     getDeadlines(supabase, userId),
   ]);
+  const mistakes = allMistakes.filter((m) => m.resolved_at === null);
 
   const inScope = <T extends { subject: string }>(rows: T[]) =>
     scope ? rows.filter((r) => r.subject === scope) : rows;
@@ -96,6 +102,20 @@ export async function buildLedgerContext(
     }
   }
 
+  // What the facts above add up to over time. Scoped like everything else,
+  // except contagion, which is fed the full set because a pair breaking across
+  // two subjects is the finding a single-subject view would throw away.
+  const patterns = derivedPatterns({
+    mistakes: inScope(allMistakes),
+    allMistakes,
+    syllabus: inScope(syllabus),
+    attempts: inScope(attempts),
+  });
+  if (patterns.length > 0) {
+    lines.push("Patterns in how they study, measured from the rows above:");
+    for (const p of patterns) lines.push(`- ${p}`);
+  }
+
   if (lines.length === 0) {
     return "This student has not logged any mistakes, syllabus topics, past papers or deadlines yet. Do not refer to their history, because there is none.";
   }
@@ -104,7 +124,8 @@ export async function buildLedgerContext(
     "--- THIS STUDENT'S LOGGED DATA ---",
     ...lines,
     "",
-    "Use this to ground your answer: connect to topics they already struggle with where it is genuinely relevant, and pitch difficulty at their measured accuracy. Never quote these figures back at them as though reading a report, and never invent a figure that is not listed here.",
+    "Use this to ground your answer: connect to topics they already struggle with where it is genuinely relevant, and pitch difficulty at their measured accuracy. Where a pattern above explains something, let it change what you actually advise, not just what you say. A topic they re-break every few days needs a different explanation than the one that has already failed, not the same one repeated more slowly.",
+    "Never quote these figures or patterns back at them as though reading a report, and never invent a figure that is not listed here. They can already see their own statistics on the Patterns page; your job is to act on them.",
     "--- END LOGGED DATA ---",
   ].join("\n");
 }
