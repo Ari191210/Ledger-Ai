@@ -43,6 +43,7 @@ export function AiTool({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AiResult | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
   const [logged, setLogged] = useState(false);
   const [logError, setLogError] = useState<string | null>(null);
   const [logging, startLogging] = useTransition();
@@ -86,6 +87,7 @@ export function AiTool({
       }
       playClick("done");
       setResult(data.result);
+      if (typeof data.remaining === "number") setRemaining(data.remaining);
       if (timerFieldKey) {
         const minutes = Number(values[timerFieldKey]) || 0;
         if (minutes > 0) setSecondsLeft(minutes * 60);
@@ -151,6 +153,17 @@ export function AiTool({
           <Sparkles size={14} /> {pending ? "thinking…" : "generate"}
         </Button>
         {error && <p className="mt-2 u-mono text-2xs text-negative">{error}</p>}
+
+        {/* Only near the end. Counting down from the first request would make
+            the allowance feel like the point, when most sessions never reach
+            it. Running out with no warning at all is the thing to avoid. */}
+        {remaining !== null && remaining <= 3 && (
+          <p className="mt-2 u-mono text-2xs text-text-3">
+            {remaining === 0
+              ? "that was your last AI request for today"
+              : `${remaining} AI ${remaining === 1 ? "request" : "requests"} left today`}
+          </p>
+        )}
       </section>
 
       {result && secondsLeft !== null && (

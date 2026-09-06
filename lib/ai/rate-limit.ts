@@ -1,20 +1,21 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  BURST_WINDOW_MS,
+  DAILY_WINDOW_MS,
+  limitsFor,
+  planFromRow,
+  type Plan,
+} from "./plans";
 
-// Two windows: a burst cap to stop scripted hammering, a daily cap to stop
-// one account from running up the real Anthropic bill unbounded. Both are
-// deliberately generous for a real study session, not tuned to be stingy.
-const BURST_LIMIT = 8;
-const BURST_WINDOW_MS = 10 * 60 * 1000;
-const DAILY_LIMIT = 50;
-const DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
-
-export type RateLimitResult = { allowed: true } | { allowed: false; message: string };
+export type RateLimitResult =
+  | { allowed: true; plan: Plan; remaining: number; limit: number }
+  | { allowed: false; plan: Plan; remaining: 0; limit: number; message: string };
 
 /**
- * Checks both windows against ai_invocations (migration 0008). Fails open
- * (allows the call) if the check itself errors, e.g. the migration hasn't
- * been applied yet, a missing rate-limit table shouldn't take down the AI
- * tools entirely.
+ * Checks both windows against ai_invocations (migration 0008) for the caller's
+ * plan (migration 0012). Fails open (allows the call) if the check itself
+ * errors, e.g. a migration hasn't been applied yet, a missing table shouldn't
+ * take down the AI tools entirely.
  */
 export async function checkRateLimit(
   supabase: SupabaseClient,
@@ -24,7 +25,7 @@ export async function checkRateLimit(
   const burstSince = new Date(now - BURST_WINDOW_MS).toISOString();
   const dailySince = new Date(now - DAILY_WINDOW_MS).toISOString();
 
-  const [burst, daily] = await Promise.all([
+  const [burst, daily, sub] = await Promise.all([
     supabase
       .from("ai_invocations")
       .select("id", { count: "exact", head: true })
@@ -35,23 +36,42 @@ export async function checkRateLimit(
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .gte("created_at", dailySince),
+    supabase.from("subscriptions").select("plan, expires_at").eq("user_id", userId).maybeSingle(),
   ]);
 
-  if (burst.error || daily.error) return { allowed: true };
+  // A missing subscriptions table means nobody has upgraded yet, which is the
+  // same answer as a missing row: free.
+  const plan = planFromRow(sub.error ? null : sub.data);
+  const limits = limitsFor(plan);
 
-  if ((burst.count ?? 0) >= BURST_LIMIT) {
+  if (burst.error || daily.error) {
+    return { allowed: true, plan, remaining: limits.daily, limit: limits.daily };
+  }
+
+  const dailyUsed = daily.count ?? 0;
+  const remaining = Math.max(0, limits.daily - dailyUsed);
+
+  if ((burst.count ?? 0) >= limits.burst) {
     return {
       allowed: false,
+      plan,
+      remaining: 0,
+      limit: limits.daily,
       message: "Too many AI requests in a short time. Wait a few minutes and try again.",
     };
   }
-  if ((daily.count ?? 0) >= DAILY_LIMIT) {
+  if (dailyUsed >= limits.daily) {
     return {
       allowed: false,
-      message: `You've hit today's limit of ${DAILY_LIMIT} AI requests. It resets on a rolling 24-hour basis.`,
+      plan,
+      remaining: 0,
+      limit: limits.daily,
+      // No upsell here. There is nothing to buy yet, and inviting someone to
+      // upgrade to a plan that does not exist is worse than saying nothing.
+      message: `That's your ${limits.daily} AI requests for today. The allowance frees up gradually over the next 24 hours, and every tool that doesn't call the AI still works.`,
     };
   }
-  return { allowed: true };
+  return { allowed: true, plan, remaining, limit: limits.daily };
 }
 
 /** Records an attempt regardless of whether the model call itself later

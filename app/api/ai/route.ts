@@ -111,7 +111,9 @@ export async function POST(req: Request) {
         criteria: parsed.criteria ?? [],
       };
     }
-    return NextResponse.json({ result });
+    // remaining is counted before this call was recorded, so subtract it here
+    // rather than re-querying. The UI only warns near the end of the allowance.
+    return NextResponse.json({ result, remaining: Math.max(0, rateLimit.remaining - 1) });
   } catch (err) {
     const message = err instanceof AIError ? err.message : "Something went wrong. Try again.";
     return NextResponse.json({ error: message }, { status: 502 });
