@@ -29,7 +29,7 @@ export function ChipGroup({
               onPointerDown={() => playClick("soft")}
               onClick={() => onChange(o.value)}
               className={cn(
-                "rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors",
+                "rounded-md border px-3 py-1.5 text-xs font-semibold u-tap transition-[transform,background-color,border-color,color] duration-[420ms] ease-spring active:scale-[0.97] active:duration-[90ms] active:ease-out",
                 on
                   ? "border-accent bg-accent text-accent-on shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
                   : "border-border bg-surface-2 text-text-2 hover:border-border-2 hover:text-text",

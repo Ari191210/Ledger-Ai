@@ -37,8 +37,12 @@ export function buttonClasses({
     "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold",
     // the tactile press, done with CSS so this costs no JS: lift on hover,
     // sink and compress on press.
-    "transition-[transform,background-color,box-shadow,color] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]",
-    "hover:-translate-y-px active:translate-y-px active:scale-[0.97] active:duration-75",
+    // Press is fast and linear-ish so the compression feels immediate; the
+    // release rides a spring so the button settles back rather than snapping.
+    // Asymmetry is the point: the finger's action is instant, the object's
+    // recovery has mass.
+    "transition-[transform,background-color,box-shadow,color] duration-[420ms] ease-spring",
+    "hover:-translate-y-px active:translate-y-px active:scale-[0.97] active:duration-[90ms] active:ease-out",
     "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
     // no outline on pointer press, but keep a real ring for keyboard users
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",

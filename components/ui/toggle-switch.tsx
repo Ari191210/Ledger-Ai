@@ -35,7 +35,7 @@ export function ToggleSwitch({
       <span
         className={cn(
           "block size-5 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.4)]",
-          "transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "transition-[transform,background-color] duration-[420ms] ease-spring",
           "motion-reduce:transition-[background-color]",
           checked ? "translate-x-5 bg-accent" : "translate-x-0 bg-text-3",
         )}
