@@ -298,6 +298,18 @@ export function sceneInstruction(subject?: string): string {
   );
   if (names.length === 0) return "";
 
+  // The worked example is built from this subject's own first scene. A
+  // hardcoded one meant a chemistry prompt carried a projectile in it, which
+  // both wastes tokens and points at a scene the question cannot be about.
+  const first = SCENES[names[0]] as SceneSpec;
+  const example = {
+    name: names[0],
+    params: Object.fromEntries(
+      Object.entries(first.params).map(([k, v]) => [k, (v as ParamSpec).fallback]),
+    ),
+    note: `what the drawing shows for this question`,
+  };
+
   const list = names
     .map((n) => {
       const s = SCENES[n] as SceneSpec;
@@ -308,9 +320,17 @@ export function sceneInstruction(subject?: string): string {
     })
     .join("\n");
 
-  return `If, and only if, the question is about one of the situations below, add a "scene" so the student gets a diagram they can turn and scrub. Omit "scene" entirely for anything else, including any question these do not genuinely fit. Never invent a scene name or a parameter name.
+  // Wording matters more here than it looks. An earlier version said "if, and
+  // only if" and then repeated the omit case twice, and the model read the
+  // whole instruction as a warning: it answered a textbook projectile question,
+  // the most obvious match in the list, with no scene at all. State the include
+  // case as the expectation, state the omit case once, and show one example.
+  return `Before you answer, check this list of diagrams you can draw. If the question is about one of these situations, include a "scene" for it: the student gets a diagram they can turn and scrub alongside your answer, and these are the questions it helps most. If the question is not about any of them, leave "scene" out. Never invent a scene name or a parameter name, and never stretch a scene onto a question it does not fit.
 
 ${list}
 
-Scene shape: { "name": string, "params": { ... }, "note": string }. The note is one short sentence saying what the drawing shows for THIS question.`;
+Put "scene" first in the object, before "text". Shape: { "name": string, "params": { ... }, "note": string }, where the note is one short sentence saying what the drawing shows for THIS question.
+
+Example of the shape, using ${example.name}:
+{"scene":${JSON.stringify(example)},"text":"..."}`;
 }

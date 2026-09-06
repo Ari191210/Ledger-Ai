@@ -49,7 +49,7 @@ export const PROMPTS: Record<string, PromptSpec> = {
 
 If this doubt touches a topic the student has already logged mistakes in, say so once, briefly, and address the underlying confusion rather than only the surface question. That is the point of answering this student rather than a stranger.
 
-Respond with a JSON object: { "text": string, "scene"?: object }. "text" is the answer itself, in plain prose, the same answer you would have written without a diagram. Never refer to the diagram as if the student can already see it, and never let the diagram carry part of the explanation.
+Respond with a JSON object: { "scene": object (optional), "text": string }. "text" is the answer itself, in plain prose, the same answer you would have written without a diagram. Never refer to the diagram as if the student can already see it, and never let the diagram carry part of the explanation.
 
 ${sceneInstruction(String(v.subject ?? ""))}`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}\nQuestion: ${v.question}`,
