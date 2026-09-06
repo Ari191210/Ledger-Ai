@@ -1,0 +1,195 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { playClick } from "@/lib/sound";
+
+/**
+ * A detented rotary selector. The front-panel control, not a readout.
+ *
+ * The score ring's knob marks where a value already is; this one is the thing
+ * you grab to change it. Everything that makes a real knob feel like a knob is
+ * here on purpose: a knurled edge, because ridges are what say "grippable"; a
+ * printed scale on the panel rather than in a tooltip, the way a dial's numbers
+ * are engraved on the chassis; a detent click at each position; and a settle
+ * that overshoots slightly, because a sprung switch does.
+ *
+ * Turn it by dragging, clicking to advance, or with the arrow keys. It reports
+ * itself as a slider with a text value, so a screen reader hears "appearance,
+ * dark" rather than a rotation in degrees.
+ */
+
+/** Total sweep across all positions. A real selector does not spin freely. */
+const SWEEP = 132;
+
+export function Knob({
+  positions,
+  value,
+  onChange,
+  label,
+  size = 76,
+}: {
+  positions: readonly string[];
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+  size?: number;
+}) {
+  const index = Math.max(0, positions.indexOf(value));
+  const last = positions.length - 1;
+  const ref = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const angleFor = (i: number) => -SWEEP / 2 + (last === 0 ? SWEEP / 2 : (i / last) * SWEEP);
+
+  const select = useCallback(
+    (i: number) => {
+      const next = Math.min(last, Math.max(0, i));
+      if (positions[next] === value) return;
+      playClick("switch");
+      onChange(positions[next]);
+    },
+    [last, onChange, positions, value],
+  );
+
+  // Dragging maps the pointer's angle around the knob's centre onto the sweep,
+  // so the knob follows your hand rather than counting pixels of travel.
+  useEffect(() => {
+    if (!dragging) return;
+    const move = (e: PointerEvent) => {
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const deg =
+        (Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180) /
+          Math.PI +
+        90;
+      const clamped = Math.max(-SWEEP / 2, Math.min(SWEEP / 2, deg));
+      select(Math.round(((clamped + SWEEP / 2) / SWEEP) * last));
+    };
+    const up = () => setDragging(false);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+  }, [dragging, last, select]);
+
+  return (
+    // The printed scale sits outside the dial's own box, so the column needs
+    // room either side or the first label is clipped by the panel edge.
+    <div className="flex select-none flex-col items-center gap-2 px-9">
+      <div className="relative" style={{ width: size, height: size + 14 }}>
+        {/* the scale, printed on the panel around the dial */}
+        {positions.map((p, i) => {
+          const a = ((angleFor(i) - 90) * Math.PI) / 180;
+          const rad = size / 2 + 11;
+          return (
+            <span
+              key={p}
+              className={cn(
+                "u-mono absolute text-[9px] leading-none transition-colors duration-200",
+                i === index ? "text-text" : "text-text-3",
+              )}
+              style={{
+                left: size / 2 + rad * Math.cos(a),
+                top: size / 2 + rad * Math.sin(a),
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {p}
+            </span>
+          );
+        })}
+
+        {/* the glow ring beneath, the one accent on the panel */}
+        <span
+          aria-hidden
+          className="absolute rounded-full"
+          style={{
+            left: 3,
+            top: 5,
+            width: size - 6,
+            height: size - 6,
+            boxShadow: "0 3px 10px -2px var(--accent)",
+            opacity: 0.55,
+          }}
+        />
+
+        <div
+          ref={ref}
+          role="slider"
+          tabIndex={0}
+          aria-label={label}
+          aria-valuemin={0}
+          aria-valuemax={last}
+          aria-valuenow={index}
+          aria-valuetext={value}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onClick={() => select(index >= last ? 0 : index + 1)}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+              e.preventDefault();
+              select(index + 1);
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+              e.preventDefault();
+              select(index - 1);
+            } else if (e.key === "Home") {
+              e.preventDefault();
+              select(0);
+            } else if (e.key === "End") {
+              e.preventDefault();
+              select(last);
+            }
+          }}
+          className={cn(
+            "absolute left-0 top-0 cursor-grab rounded-full outline-none",
+            "transition-[rotate,box-shadow] duration-[260ms] ease-spring",
+            "focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]",
+            dragging && "cursor-grabbing",
+          )}
+          style={{
+            width: size,
+            height: size,
+            rotate: `${angleFor(index)}deg`,
+            // Knurling: alternating light and dark facets around the rim, which
+            // is what a machined grip actually looks like under a light.
+            background: `
+              repeating-conic-gradient(
+                from 0deg,
+                var(--surface-3) 0deg 3deg,
+                var(--surface-2) 3deg 6deg
+              )`,
+            boxShadow: dragging
+              ? "inset 0 2px 5px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.5)"
+              : "inset 0 1px 0 var(--edge), 0 3px 6px rgba(0,0,0,0.45)",
+          }}
+        >
+          {/* the cap: the smooth face the ridges surround */}
+          <span
+            aria-hidden
+            className="absolute rounded-full border border-border-2 bg-surface"
+            style={{ inset: size * 0.16 }}
+          />
+          {/* the pointer, the mark that tells you where it is set */}
+          <span
+            aria-hidden
+            className="absolute left-1/2 rounded-full bg-accent"
+            style={{
+              top: size * 0.1,
+              width: 2.5,
+              height: size * 0.17,
+              transform: "translateX(-50%)",
+            }}
+          />
+        </div>
+      </div>
+
+      <span className="u-label">{label}</span>
+    </div>
+  );
+}

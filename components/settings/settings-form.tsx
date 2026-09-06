@@ -7,6 +7,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
+import { Knob } from "@/components/ui/knob";
 import { PasswordForm } from "@/components/settings/password-form";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { GRADES, BOARDS, STREAMS, EXAMS, streamApplies } from "@/lib/onboarding";
@@ -250,21 +251,26 @@ export function SettingsForm(p: Props) {
 
       <Reveal delay={0.09}>
         <Section index="03" title="preferences" icon={SlidersHorizontal}>
-          <div className="divide-y divide-border">
-            <div className="flex items-center justify-between py-3 first:pt-0">
-              <div>
-                <span className="text-sm text-text">Appearance</span>
-                <p className="u-mono text-2xs text-text-3">{theme}</p>
-              </div>
-              <ToggleSwitch checked={theme === "light"} onChange={toggleTheme} label="Appearance" />
-            </div>
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <span className="text-sm text-text">Interface sounds</span>
-                <p className="u-mono text-2xs text-text-3">{sound ? "on" : "off"}</p>
-              </div>
-              <ToggleSwitch checked={sound} onChange={toggleSound} label="Interface sounds" />
-            </div>
+          {/* Two dials on one face, the way a small device puts its function
+              selectors side by side rather than stacking two identical
+              switches. They are the only two modes the product actually has,
+              and a knob says "this has settings you turn" in a way a row of
+              toggles never does. */}
+          <div className="flex flex-wrap items-start justify-center gap-4 py-3 sm:justify-start sm:gap-8">
+            <Knob
+              label="appearance"
+              positions={["dark", "light"]}
+              value={theme}
+              onChange={(v) => {
+                if (v !== theme) toggleTheme();
+              }}
+            />
+            <Knob
+              label="sounds"
+              positions={["off", "on"]}
+              value={sound ? "on" : "off"}
+              onChange={(v) => toggleSound(v === "on")}
+            />
           </div>
         </Section>
       </Reveal>
