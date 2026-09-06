@@ -13,7 +13,7 @@ import { BOARDS } from "@/lib/onboarding";
 export const metadata: Metadata = {
   title: "StudyLedger · know where you stand, know what to fix next",
   description:
-    "One honest score built from your real PYQs, syllabus coverage, mistakes, and consistency, plus 25 tools to act on it. Built for CBSE, ICSE, IB, IGCSE, State Board, and home school.",
+    "One honest score built from your real PYQs, syllabus coverage, mistakes, and consistency, plus 23 tools to act on it. Built for CBSE, ICSE, IB, IGCSE, State Board, and home school.",
 };
 
 const PILLARS = [
@@ -113,7 +113,7 @@ export default function LandingPage() {
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
           <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
-            25 tools, in six honest buckets.
+            23 tools, in five honest buckets.
           </h2>
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
             Every one reads from the same data your score does, so nothing you do in a tool

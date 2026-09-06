@@ -4,7 +4,7 @@
  * failure is invisible in a build and easy to ship. These tests make it loud.
  */
 
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CATEGORIES, TOOLS } from "./registry";
@@ -40,6 +40,20 @@ describe("tool registry", () => {
   it("leaves no category empty", () => {
     const empty = CATEGORIES.filter((c) => !TOOLS.some((t) => t.category === c.id)).map((c) => c.id);
     expect(empty).toEqual([]);
+  });
+
+  // The count is quoted in the page title, the OG image, the landing copy and
+  // the terms. Cutting a tool is easy; remembering all four is not, and a
+  // wrong number on the marketing surface is the kind of thing a reader
+  // notices before we do.
+  it("keeps the advertised tool count honest", () => {
+    const surfaces = ["app/layout.tsx", "app/opengraph-image.tsx", "app/page.tsx", "app/terms/page.tsx"];
+    const stale = surfaces.filter((f) => {
+      const src = readFileSync(join(process.cwd(), f), "utf8");
+      const counts = [...src.matchAll(/(\d+) tools/g)].map((m) => Number(m[1]));
+      return counts.some((n) => n !== TOOLS.length);
+    });
+    expect(stale).toEqual([]);
   });
 
   it("keeps slugs and icons unique so nothing shadows anything else", () => {

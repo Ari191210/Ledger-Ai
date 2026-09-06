@@ -9,20 +9,20 @@ export const metadata: Metadata = {
     template: "%s · StudyLedger",
   },
   description:
-    "One score for your prep. 25 tools that turn your study data into a plan. Planner, Mistake DNA, Exam Simulator, Peer Heatmap and more, built for Indian students.",
+    "One score for your prep. 23 tools that turn your study data into a plan. Planner, Mistake DNA, Exam Simulator, Peer Heatmap and more, built for Indian students.",
   openGraph: {
     type: "website",
     url: "https://studyledger.in",
     siteName: "StudyLedger",
     title: "StudyLedger · know exactly where you stand",
     description:
-      "One score for your prep. 25 tools that turn your study data into a plan, built for Indian students.",
+      "One score for your prep. 23 tools that turn your study data into a plan, built for Indian students.",
   },
   twitter: {
     card: "summary_large_image",
     title: "StudyLedger · know exactly where you stand",
     description:
-      "One score for your prep. 25 tools that turn your study data into a plan, built for Indian students.",
+      "One score for your prep. 23 tools that turn your study data into a plan, built for Indian students.",
   },
 };
 

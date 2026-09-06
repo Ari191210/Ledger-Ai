@@ -9,7 +9,7 @@
 // other 34 aren't deleted from history, see git commit a2f41c9, they
 // come back deliberately, one at a time, once these 25 are actually good.
 //
-// Cut again to 22 on 2026-09-06, this time on a stated bar rather than on
+// Cut again to 23 on 2026-09-06, this time on a stated bar rather than on
 // volume: a tool earns its place only if the student's own ledger changes
 // what it says. Tutor was a single turn pretending to be a conversation and
 // lost to the chatbot it imitated. Career Explorer read the same for a
