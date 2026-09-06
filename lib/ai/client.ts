@@ -6,12 +6,45 @@ const MODEL = "claude-sonnet-5";
 
 export class AIError extends Error {}
 
+/**
+ * Turns an Anthropic SDK failure into something true to tell a student.
+ *
+ * The distinction that matters is transient versus not. A spend limit, ours or
+ * the tier's, lasts until we raise it or the month turns, so telling someone to
+ * "try again in a moment" is false and invites the retry storm the rate limiter
+ * exists to prevent. See the spend-limit responses documented at
+ * platform.claude.com/docs/en/api/rate-limits: our own limit returns 400, the
+ * tier cap returns 429 with error_code enforced_spend_limit_reached.
+ */
+function describeFailure(err: unknown): string {
+  const status = (err as { status?: number })?.status;
+  const body = (err as { error?: { error?: { message?: string; details?: { error_code?: string } } } })
+    ?.error?.error;
+
+  const spendCapped =
+    body?.details?.error_code === "enforced_spend_limit_reached" ||
+    (status === 400 && /reached your specified.*usage limits/i.test(body?.message ?? ""));
+
+  if (spendCapped) {
+    return "StudyLedger's AI is paused right now. This is on our side, not anything you did, and retrying won't help. Every other tool still works.";
+  }
+  if (status === 429) {
+    return "The AI is busy right now. Wait a minute and try again.";
+  }
+  if (status === 401 || status === 403) {
+    return "StudyLedger's AI is misconfigured right now. This is on our side, not anything you did.";
+  }
+  return "The AI request failed. Try again in a moment.";
+}
+
 /** The model can emit a leading "thinking" block before the actual answer
  *, content[0] is not reliably the text block, so find it explicitly. */
 function firstText(message: Anthropic.Message): string {
   const block = message.content.find((b) => b.type === "text");
   return block?.type === "text" ? block.text : "";
 }
+
+export { describeFailure as __describeFailureForTest };
 
 /** One-shot call returning plain, dash-stripped prose. */
 export async function callAIText(args: {
@@ -33,7 +66,7 @@ export async function callAIText(args: {
     });
   } catch (err) {
     console.error("[ai] Anthropic call failed:", err);
-    throw new AIError("The AI request failed. Try again in a moment.");
+    throw new AIError(describeFailure(err));
   }
   const text = firstText(message);
   if (!text.trim()) throw new AIError("The AI returned an empty response.");
@@ -62,7 +95,7 @@ export async function callAIJson<T>(args: {
     });
   } catch (err) {
     console.error("[ai] Anthropic call failed:", err);
-    throw new AIError("The AI request failed. Try again in a moment.");
+    throw new AIError(describeFailure(err));
   }
   const raw = firstText(message).trim();
   const jsonText = raw.startsWith("```")
