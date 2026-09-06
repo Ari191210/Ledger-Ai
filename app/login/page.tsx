@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/password-input";
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -81,25 +82,21 @@ function LoginForm() {
             className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
           />
         </label>
-        <label className="block">
-          <div className="flex items-center justify-between">
-            <span className="u-label">password</span>
-            {mode === "signin" && (
+        <PasswordInput
+          label="password"
+          labelAction={
+            mode === "signin" ? (
               <a href="/auth/reset" className="u-mono text-2xs text-text-2 hover:text-text">
                 forgot?
               </a>
-            )}
-          </div>
-          <input
-            type="password"
-            required
-            minLength={8}
-            autoComplete={mode === "signin" ? "current-password" : "new-password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-          />
-        </label>
+            ) : null
+          }
+          required
+          minLength={8}
+          autoComplete={mode === "signin" ? "current-password" : "new-password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         {err && <p className="u-mono text-2xs text-negative">{err}</p>}
         {msg && <p className="u-mono text-2xs text-positive">{msg}</p>}

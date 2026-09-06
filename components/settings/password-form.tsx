@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
@@ -48,41 +49,29 @@ export function PasswordForm({ email }: { email: string }) {
 
   return (
     <form onSubmit={submit} className="space-y-3">
-      <label className="block">
-        <span className="u-label">current password</span>
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          value={current}
-          onChange={(e) => setCurrent(e.target.value)}
-          className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-        />
-      </label>
-      <label className="block">
-        <span className="u-label">new password</span>
-        <input
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          value={next}
-          onChange={(e) => setNext(e.target.value)}
-          className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-        />
-      </label>
-      <label className="block">
-        <span className="u-label">confirm new password</span>
-        <input
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-        />
-      </label>
+      <PasswordInput
+        label="current password"
+        required
+        autoComplete="current-password"
+        value={current}
+        onChange={(e) => setCurrent(e.target.value)}
+      />
+      <PasswordInput
+        label="new password"
+        required
+        minLength={8}
+        autoComplete="new-password"
+        value={next}
+        onChange={(e) => setNext(e.target.value)}
+      />
+      <PasswordInput
+        label="confirm new password"
+        required
+        minLength={8}
+        autoComplete="new-password"
+        value={confirm}
+        onChange={(e) => setConfirm(e.target.value)}
+      />
       {err && <p className="u-mono text-2xs text-negative">{err}</p>}
       {saved && <p className="u-mono text-2xs text-positive">password updated</p>}
       <Button type="submit" size="sm" variant="secondary" disabled={busy}>
