@@ -3,12 +3,24 @@ import { cn } from "@/lib/utils";
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
 
+// A physical key has a lit top edge, sits on a shadow, and when pressed the
+// light goes off the top and moves inside: the key is now below its own
+// surround. That is the whole trick, and it is three shadow values rather
+// than a graphic.
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary:
-    "bg-accent text-accent-on shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_2px_rgba(0,0,0,0.35)] hover:bg-accent-hover active:bg-accent-press active:shadow-none",
-  secondary:
-    "border border-border-2 bg-surface-2 text-text shadow-[inset_0_1px_0_var(--edge)] hover:bg-surface-3 active:shadow-none",
-  ghost: "text-text-2 hover:bg-surface-2 hover:text-text",
+  primary: [
+    "bg-accent text-accent-on",
+    "shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_1px_2px_rgba(0,0,0,0.35)]",
+    "hover:bg-accent-hover hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.38),0_2px_5px_rgba(0,0,0,0.4)]",
+    "active:bg-accent-press active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.28)]",
+  ].join(" "),
+  secondary: [
+    "border border-border-2 bg-surface-2 text-text",
+    "shadow-[inset_0_1px_0_var(--edge),0_1px_2px_rgba(0,0,0,0.25)]",
+    "hover:bg-surface-3 hover:shadow-[inset_0_1px_0_var(--edge),0_2px_5px_rgba(0,0,0,0.3)]",
+    "active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]",
+  ].join(" "),
+  ghost: "text-text-2 hover:bg-surface-2 hover:text-text active:bg-surface-3",
 };
 
 // Touch targets: md/lg clear the 44px minimum on small screens and tighten up
@@ -46,7 +58,7 @@ export function buttonClasses({
     // that never changes and the button snaps between states. It had been doing
     // exactly that: scale went 1 to 0.97 to 1 with no values in between.
     "transition-[translate,scale,background-color,box-shadow,color] duration-[420ms] ease-spring",
-    "hover:-translate-y-px active:translate-y-px active:scale-[0.97] active:duration-[90ms] active:ease-out",
+    "hover:-translate-y-px active:translate-y-[2px] active:scale-[0.965] active:duration-[90ms] active:ease-out",
     "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
     // no outline on pointer press, but keep a real ring for keyboard users
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",

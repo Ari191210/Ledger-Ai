@@ -287,7 +287,8 @@
   /* The score arc travels to its value. Under reduced motion it must arrive
      there without the journey, and an inline style needs !important to lose. */
   @media (prefers-reduced-motion: reduce) {
-    .ring-progress { transition: none !important; }
+    .ring-progress,
+    .ring-knob { transition: none !important; }
   }
 
   /* Section entrance for <Reveal>. The animation plays INTO the resting state,

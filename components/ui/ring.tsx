@@ -101,6 +101,44 @@ export function Ring({
             />
           );
         })}
+
+        {/* The dial-tip knob: a hollow ring marking the exact tip of the fill,
+            the way a needle marks a position on a physical dial. Proposed in
+            DESIGN.md on 2026-09-05 and not built at the time.
+
+            It rides the same 750ms easeOutCubic as the arc, on a rotation
+            rather than a recomputed position, so it cannot drift away from the
+            tip it is supposed to be marking. Giving it its own timing would
+            recreate the exact fault this ring was fixed for: two parts of one
+            instrument disagreeing about where the value is.
+
+            Hidden at zero. A needle resting on a dial is honest; a knob
+            floating at the twelve o'clock start with nothing behind it reads
+            like a value, and there is not one yet. */}
+        {/* Always rendered, hidden by opacity rather than by mounting. A freshly
+            mounted element has no previous value for a transition to travel
+            from, so gating this on the value made the knob appear already at its
+            destination while the arc was still on its way there. */}
+        <g
+          className="ring-knob"
+          style={{
+            transformOrigin: "center",
+            transformBox: "view-box",
+            transform: `rotate(${shownPct * 360}deg)`,
+            opacity: shownPct > 0.001 ? 1 : 0,
+            transition:
+              "transform 750ms cubic-bezier(0.33, 1, 0.68, 1), opacity 300ms ease-out",
+          }}
+        >
+          <circle
+            cx={size / 2 + r}
+            cy={size / 2}
+            r={stroke * 0.36}
+            fill="var(--bg)"
+            stroke={color}
+            strokeWidth={Math.max(1.5, stroke * 0.18)}
+          />
+        </g>
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center leading-none">
         {children}
