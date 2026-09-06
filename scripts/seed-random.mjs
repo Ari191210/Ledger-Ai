@@ -138,7 +138,7 @@ for (const subject of SUBJECTS) {
     syllabus.push({
       user_id: userId,
       subject,
-      topic: `${subject} unit ${i + 1} — ${topics[i % topics.length]}`,
+      topic: `${subject} unit ${i + 1}: ${topics[i % topics.length]}`,
       covered: Math.random() < coverageRatio,
       position: pos++,
     });
