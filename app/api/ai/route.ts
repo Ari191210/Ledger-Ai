@@ -7,6 +7,7 @@ import { callAIText, callAIJson, AIError } from "@/lib/ai/client";
 import { checkRateLimit, recordInvocation } from "@/lib/ai/rate-limit";
 import { summariseAdvice, resolveTopic, recordAdvice } from "@/lib/ai/advice";
 import type { AiResult } from "@/lib/ai/types";
+import { parseScene } from "@/lib/scenes/registry";
 
 export const maxDuration = 60;
 
@@ -91,6 +92,17 @@ export async function POST(req: Request) {
     if (spec.resultKind === "text") {
       const text = await callAIText({ system: fullSystem, userText, maxTokens: spec.maxTokens });
       result = { kind: "text", text };
+    } else if (spec.resultKind === "explain") {
+      // Prose plus an optional diagram. parseScene is the gate: an unknown
+      // scene name, a missing parameter or a hostile string all come back as
+      // null and the student simply gets the answer without a picture.
+      const parsed = await callAIJson<{ text?: string; scene?: unknown }>({
+        system: fullSystem,
+        userText,
+        maxTokens: spec.maxTokens,
+      });
+      const scene = parseScene(parsed.scene);
+      result = { kind: "text", text: parsed.text ?? "", ...(scene ? { scene } : {}) };
     } else if (spec.resultKind === "list") {
       const parsed = await callAIJson<{ items: { title: string; body: string }[] }>({
         system: fullSystem,

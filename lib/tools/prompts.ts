@@ -6,6 +6,7 @@
 // ship it, no bespoke page needed beyond a ~10-line wrapper.
 
 import { SUBJECTS } from "@/lib/subjects";
+import { sceneInstruction } from "@/lib/scenes/registry";
 
 export type FieldSpec =
   | { key: string; label: string; type: "text"; placeholder?: string; required?: boolean }
@@ -13,7 +14,7 @@ export type FieldSpec =
   | { key: string; label: string; type: "select"; options: string[]; default?: string }
   | { key: string; label: string; type: "number"; min: number; max: number; default: number };
 
-export type ResultKind = "text" | "list" | "qa" | "score";
+export type ResultKind = "text" | "list" | "qa" | "score" | "explain";
 
 export type ToolValues = Record<string, string | number>;
 
@@ -36,7 +37,7 @@ const JSON_SCORE = `Respond with a JSON object: { "overall": number, "max": numb
 export const PROMPTS: Record<string, PromptSpec> = {
   doubt: {
     slug: "doubt",
-    resultKind: "text",
+    resultKind: "explain",
     usesStudentData: true,
     fields: [
       SUBJECT_FIELD,
@@ -46,7 +47,11 @@ export const PROMPTS: Record<string, PromptSpec> = {
     buildPrompt: (v) => ({
       system: `You are a precise subject tutor answering one specific student doubt. Answer only what was asked, no unrelated background. Be direct and concrete.
 
-If this doubt touches a topic the student has already logged mistakes in, say so once, briefly, and address the underlying confusion rather than only the surface question. That is the point of answering this student rather than a stranger.`,
+If this doubt touches a topic the student has already logged mistakes in, say so once, briefly, and address the underlying confusion rather than only the surface question. That is the point of answering this student rather than a stranger.
+
+Respond with a JSON object: { "text": string, "scene"?: object }. "text" is the answer itself, in plain prose, the same answer you would have written without a diagram. Never refer to the diagram as if the student can already see it, and never let the diagram carry part of the explanation.
+
+${sceneInstruction()}`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}\nQuestion: ${v.question}`,
     }),
   },

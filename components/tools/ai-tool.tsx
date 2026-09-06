@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { playClick } from "@/lib/sound";
 import type { FieldSpec, ToolValues } from "@/lib/tools/prompts";
 import type { AiResult } from "@/lib/ai/types";
+import { Scene3D } from "@/components/tools/scene-3d";
 
 function defaultsFor(fields: FieldSpec[]): ToolValues {
   const v: ToolValues = {};
@@ -263,13 +264,19 @@ function ResultView({
 }) {
   if (result.kind === "text") {
     return (
-      <section className="u-card space-y-3 p-4">
-        {result.text.split(/\n{2,}/).map((para, i) => (
-          <p key={i} className="text-sm leading-relaxed text-text">
-            {para}
-          </p>
-        ))}
-      </section>
+      <div className="space-y-3">
+        <section className="u-card space-y-3 p-4">
+          {result.text.split(/\n{2,}/).map((para, i) => (
+            <p key={i} className="text-sm leading-relaxed text-text">
+              {para}
+            </p>
+          ))}
+        </section>
+        {/* The diagram sits under the answer, never in place of it. A student
+            who cannot see it, or who has motion turned off, has lost nothing
+            from the explanation itself. */}
+        {result.scene && <Scene3D scene={result.scene} />}
+      </div>
     );
   }
 
