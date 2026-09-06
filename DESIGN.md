@@ -204,11 +204,12 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   - Scroll drives the climb, and it is **front-loaded**: the number reaches 742
     inside about 450px, roughly a third of the pin, rather than being metered
     out over three screens. The climb is the hook, not a toll.
-  - **If no scroll arrives within 1.4s, the instrument powers itself on.** A
-    visitor who lands and does not scroll never sits in front of a dead device.
-    Scroll always wins once it starts, and the value never travels backwards,
-    because a gauge that falls to zero while you read it looks broken rather
-    than interactive.
+  - ~~If no scroll arrives within 1.4s, the instrument powers itself on.~~
+    **Reverted the same day (founder call).** The ticks lighting in sequence
+    around the ring read as the dial rotating on its own, which is distracting
+    on a page you have only just opened. Scroll owns the dial and nothing else
+    does: it sits at 0 until you scroll. The accepted cost is that a visitor who
+    never scrolls never sees the instrument lit.
   - The server-rendered markup is still the **lit** instrument, reset to zero in
     a layout effect before first paint. A slow phone paints a working device,
     and nothing flashes when hydration lands.

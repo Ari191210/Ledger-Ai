@@ -79,54 +79,22 @@ function useScrollProgress(ref: React.RefObject<HTMLDivElement | null>, enabled:
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
- * How lit the instrument is, 0..1.
+ * How lit the instrument is, 0..1. Scroll owns it, and nothing else: the dial
+ * sits at zero until the visitor scrolls, then climbs to the real number.
  *
- * Scroll drives it: the dial starts at zero and climbs to the real number as
- * you scroll, which is the point of the thing. The catch is that a visitor who
- * lands and does not scroll would be left staring at a dead device reading 0,
- * which is exactly what made this page feel lifeless. So if no scroll arrives
- * within a beat, it powers itself on. Scrolling always wins once it starts,
- * and the value never travels backwards, because an instrument that falls back
- * to zero while you read it looks broken rather than interactive.
+ * The one thing this still does is start lit. That is not a fallback animation,
+ * it is what the server sends, so the pre-hydration paint on a slow phone is a
+ * working instrument rather than a dead one. The moment JS takes over, scroll
+ * takes the dial, and the handover happens before paint so nothing flashes.
  */
-function usePowerOn(scrolled: number, enabled: boolean) {
-  // Starts lit so the server-rendered markup, which is what a slow phone paints
-  // first, is a working instrument rather than a dead one.
-  const [auto, setAuto] = useState(1);
-  const touched = useRef(false);
-
+function useScrubbed(scrolled: number, enabled: boolean) {
+  const [live, setLive] = useState(false);
   useIsoLayoutEffect(() => {
-    if (!enabled) return;
-    // Pre-paint, so nothing flashes between the lit markup and zero.
-    setAuto(0);
-
-    let raf = 0;
-    let timer = 0;
-    const onScroll = () => {
-      touched.current = true;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true, once: true });
-
-    timer = window.setTimeout(() => {
-      if (touched.current) return;
-      const start = performance.now();
-      const tick = (now: number) => {
-        const t = Math.min(1, (now - start) / 1100);
-        setAuto(1 - Math.pow(1 - t, 3));
-        if (t < 1 && !touched.current) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }, 1400);
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.clearTimeout(timer);
-      cancelAnimationFrame(raf);
-    };
+    if (enabled) setLive(true);
   }, [enabled]);
 
   if (!enabled) return 1;
-  return Math.max(auto, scrolled);
+  return live ? scrolled : 1;
 }
 
 export function HeroScroll() {
@@ -141,7 +109,7 @@ export function HeroScroll() {
 
   // Deliberately front-loaded. The climb is the hook, so it should be over
   // inside the first third of the pin, not metered out across three screens.
-  const power = usePowerOn(seg(p, 0.02, 0.34), animate);
+  const power = useScrubbed(seg(p, 0.02, 0.34), animate);
 
   const score = Math.round(power * SCORE);
   const lit = Math.round(power * Math.round((SCORE / MAX) * TICKS));
