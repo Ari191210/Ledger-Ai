@@ -31,6 +31,8 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [kind, setKind] = useState<DeadlineKind>("assignment");
   const [dueDate, setDueDate] = useState(today);
+  // only asked for exams: it powers the exam-hour mismatch signal in Patterns
+  const [startTime, setStartTime] = useState("");
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
@@ -38,7 +40,13 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
     if (!title.trim()) return;
     setErr(null);
     start(async () => {
-      const res = await addDeadlineAction({ title, subject, kind, due_date: dueDate });
+      const res = await addDeadlineAction({
+        title,
+        subject,
+        kind,
+        due_date: dueDate,
+        start_hour: kind === "exam" && startTime ? Number(startTime.slice(0, 2)) : null,
+      });
       if ("error" in res) {
         setErr(res.error);
         return;
@@ -88,6 +96,15 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
               onChange={(e) => setDueDate(e.target.value)}
               className="rounded-md border border-border-2 bg-surface-2 px-2.5 py-1.5 text-xs text-text outline-none focus:border-accent"
             />
+            {kind === "exam" && (
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                title="What time does it start? Powers the exam-hour check in Patterns."
+                className="rounded-md border border-border-2 bg-surface-2 px-2.5 py-1.5 text-xs text-text outline-none focus:border-accent"
+              />
+            )}
             <Button size="sm" onClick={add} disabled={pending || !title.trim()} className="ml-auto">
               <Plus size={13} /> add
             </Button>

@@ -169,7 +169,14 @@ export async function reviewMistake(
 export async function addPyqAttempt(
   supabase: SupabaseClient,
   userId: string,
-  input: { subject: string; topic?: string; total: number; correct: number },
+  input: {
+    subject: string;
+    topic?: string;
+    total: number;
+    correct: number;
+    /** what the student predicted before marking, for calibration */
+    predictedCorrect?: number | null;
+  },
 ) {
   return supabase.from("pyq_attempts").insert({
     user_id: userId,
@@ -177,6 +184,7 @@ export async function addPyqAttempt(
     topic: input.topic ?? null,
     total: input.total,
     correct: input.correct,
+    predicted_correct: input.predictedCorrect ?? null,
   });
 }
 

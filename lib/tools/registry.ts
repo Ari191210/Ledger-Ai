@@ -41,6 +41,7 @@ import {
   BarChart3,
   Megaphone,
   Grid3x3,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 
@@ -125,6 +126,8 @@ export const TOOLS: Tool[] = [
   // ── track (2, 1 signature) ────────────────────────────────────────
   { slug: "peer-heatmap", name: "Peer Heatmap", category: "track", kind: "stub", signature: true, icon: Grid3x3,
     blurb: "Anonymised view of what topics peers are struggling with." },
+  { slug: "patterns", name: "Patterns", category: "track", kind: "stub", signature: true, icon: Activity,
+    blurb: "Nine things only your own ledger can tell you, from mistake half life to whether you have ever practised at your exam's hour." },
   { slug: "coach", name: "Coach", category: "track", kind: "ai", icon: Megaphone,
     blurb: "A weekly briefing on what changed and what to do about it." },
 ];

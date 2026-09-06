@@ -43,6 +43,7 @@ export async function logPyqAction(input: {
   subject: string;
   total: number;
   correct: number;
+  predictedCorrect?: number | null;
 }): Promise<Result> {
   if (!input.subject.trim()) return { error: "Subject is required." };
   if (!Number.isFinite(input.total) || input.total <= 0) {
@@ -50,6 +51,12 @@ export async function logPyqAction(input: {
   }
   if (!Number.isFinite(input.correct) || input.correct < 0 || input.correct > input.total) {
     return { error: "Correct can't exceed the total." };
+  }
+  const predicted = input.predictedCorrect;
+  if (predicted !== null && predicted !== undefined) {
+    if (!Number.isFinite(predicted) || predicted < 0 || predicted > input.total) {
+      return { error: "Your guess can't be negative or exceed the total." };
+    }
   }
   const { supabase, id } = await currentUser();
   const { error } = await addPyqAttempt(supabase, id, input);

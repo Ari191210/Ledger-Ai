@@ -27,6 +27,7 @@ export function QuickLog({
   const [topic, setTopic] = useState("");
   const [total, setTotal] = useState("10");
   const [correct, setCorrect] = useState("7");
+  const [predicted, setPredicted] = useState("");
   const [minutes, setMinutes] = useState("30");
 
   function launch() {
@@ -39,6 +40,7 @@ export function QuickLog({
     setTopic("");
     setTotal("10");
     setCorrect("7");
+    setPredicted("");
     setMinutes("30");
   }
 
@@ -49,7 +51,12 @@ export function QuickLog({
         tab === "mistake"
           ? await logMistakeAction({ subject, topic })
           : tab === "pyq"
-            ? await logPyqAction({ subject, total: Number(total), correct: Number(correct) })
+            ? await logPyqAction({
+                subject,
+                total: Number(total),
+                correct: Number(correct),
+                predictedCorrect: predicted.trim() === "" ? null : Number(predicted),
+              })
             : await logFocusAction({ minutes: Number(minutes) });
 
       if ("error" in res) {
@@ -152,6 +159,20 @@ export function QuickLog({
                         min={0}
                         value={correct}
                         onChange={(e) => setCorrect(e.target.value)}
+                        className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                      />
+                    </label>
+                    {/* the prediction is what makes calibration possible: guess
+                        first, then mark, and the gap between the two is the
+                        thing worth knowing */}
+                    <label className="col-span-2 block">
+                      <span className="u-label">how many did you think you got? (optional)</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={predicted}
+                        onChange={(e) => setPredicted(e.target.value)}
+                        placeholder="guess before you mark it"
                         className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
                       />
                     </label>
