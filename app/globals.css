@@ -306,45 +306,4 @@
     to   { opacity: 1; transform: none; }
   }
 
-  /* ── hero instrument power-on ──────────────────────────────────────
-     The dial's resting state is fully lit, and these animations play
-     INTO that state rather than out of it. That ordering is the whole
-     point: the server-rendered markup is the live instrument, so a slow
-     phone's first paint shows a working device instead of a dead one,
-     and nothing jumps when hydration lands. Pure CSS, no JS, because
-     this page is the first thing a student loads on a bad connection. */
-  .hero-tick {
-    animation: hero-tick-on 0.5s ease-out both;
-  }
-  @keyframes hero-tick-on {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  .hero-meter-fill {
-    transform-origin: left center;
-    animation: hero-meter-fill 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  @keyframes hero-meter-fill {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
-  }
-
-  .hero-readout {
-    animation: hero-readout-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  @keyframes hero-readout-in {
-    from { opacity: 0; transform: scale(0.94); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  /* Someone who asked for less motion still gets the lit instrument,
-     because that is the resting state, not the reward for waiting. */
-  @media (prefers-reduced-motion: reduce) {
-    .hero-tick,
-    .hero-meter-fill,
-    .hero-readout {
-      animation: none;
-    }
-  }
 }

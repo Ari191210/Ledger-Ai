@@ -196,6 +196,27 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
     carries only the caption story, and the dial gained an "example ledger"
     chip per rule 5, since 742 / "Strong" are illustrative.
 
+- **2026-09-06** — Landing hero, part two: **the scroll-scrubbed climb is back**
+  (founder call, same day). The dial starts at 0 and counts to 742 as you
+  scroll, which was always the intent. The entry above was right that a dead
+  resting state is what made the page feel lifeless, and wrong to conclude the
+  scrub had to go. Both hold at once:
+  - Scroll drives the climb, and it is **front-loaded**: the number reaches 742
+    inside about 450px, roughly a third of the pin, rather than being metered
+    out over three screens. The climb is the hook, not a toll.
+  - **If no scroll arrives within 1.4s, the instrument powers itself on.** A
+    visitor who lands and does not scroll never sits in front of a dead device.
+    Scroll always wins once it starts, and the value never travels backwards,
+    because a gauge that falls to zero while you read it looks broken rather
+    than interactive.
+  - The server-rendered markup is still the **lit** instrument, reset to zero in
+    a layout effect before first paint. A slow phone paints a working device,
+    and nothing flashes when hydration lands.
+  - Ticks track the readout at **every point of the climb**, not just at rest,
+    so the dial never shows a fraction that disagrees with its own number.
+  - Kept from part one: CTA never gated on scroll, 200vh pin, "example ledger"
+    chip, meter opacity tracking pillar weight.
+
 ---
 
 *When a new UI pattern gets built and kept, add it to §4. When a real brand

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
 
@@ -74,6 +74,61 @@ function useScrollProgress(ref: React.RefObject<HTMLDivElement | null>, enabled:
   return p;
 }
 
+/** Layout effect on the client, plain effect on the server, so the pre-paint
+ *  reset below does not trip React's SSR warning. */
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/**
+ * How lit the instrument is, 0..1.
+ *
+ * Scroll drives it: the dial starts at zero and climbs to the real number as
+ * you scroll, which is the point of the thing. The catch is that a visitor who
+ * lands and does not scroll would be left staring at a dead device reading 0,
+ * which is exactly what made this page feel lifeless. So if no scroll arrives
+ * within a beat, it powers itself on. Scrolling always wins once it starts,
+ * and the value never travels backwards, because an instrument that falls back
+ * to zero while you read it looks broken rather than interactive.
+ */
+function usePowerOn(scrolled: number, enabled: boolean) {
+  // Starts lit so the server-rendered markup, which is what a slow phone paints
+  // first, is a working instrument rather than a dead one.
+  const [auto, setAuto] = useState(1);
+  const touched = useRef(false);
+
+  useIsoLayoutEffect(() => {
+    if (!enabled) return;
+    // Pre-paint, so nothing flashes between the lit markup and zero.
+    setAuto(0);
+
+    let raf = 0;
+    let timer = 0;
+    const onScroll = () => {
+      touched.current = true;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true, once: true });
+
+    timer = window.setTimeout(() => {
+      if (touched.current) return;
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / 1100);
+        setAuto(1 - Math.pow(1 - t, 3));
+        if (t < 1 && !touched.current) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, 1400);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(timer);
+      cancelAnimationFrame(raf);
+    };
+  }, [enabled]);
+
+  if (!enabled) return 1;
+  return Math.max(auto, scrolled);
+}
+
 export function HeroScroll() {
   const ref = useRef<HTMLDivElement>(null);
   // start assuming motion is fine; correct after mount so SSR stays stable
@@ -84,12 +139,13 @@ export function HeroScroll() {
 
   const p = useScrollProgress(ref, animate);
 
-  // The instrument is lit, always. It used to be scrubbed from zero by scroll,
-  // which meant the hero's resting state, and the server-rendered first paint,
-  // was a dead device reading 0 with every meter empty: the product at its most
-  // worthless, on the one screen meant to sell it. Scroll now moves the story
-  // (the captions) and nothing else that matters, so the page can be judged
-  // before a single scroll event fires.
+  // Deliberately front-loaded. The climb is the hook, so it should be over
+  // inside the first third of the pin, not metered out across three screens.
+  const power = usePowerOn(seg(p, 0.02, 0.34), animate);
+
+  const score = Math.round(power * SCORE);
+  const lit = Math.round(power * Math.round((SCORE / MAX) * TICKS));
+  const tierOpacity = seg(power, 0.82, 1);
   const dialRotate = animate ? -6 + seg(p, 0.1, 0.7) * 10 : 0;
   const stageScale = animate ? 1 - seg(p, 0.86, 1) * 0.03 : 1;
   const hintOpacity = animate ? 1 - seg(p, 0, 0.05) : 0;
@@ -112,33 +168,32 @@ export function HeroScroll() {
           style={{ transform: `rotate(${dialRotate}deg)` }}
           aria-hidden
         >
-          {Array.from({ length: TICKS }, (_, i) => {
-            // The dial reads 742/1000, so the lit arc has to be 742/1000 of the
-            // way round. A ring lit to a different fraction than the number
-            // beneath it is a lying instrument, which is the one thing this
-            // product cannot be, even in marketing.
-            const on = i < Math.round((SCORE / MAX) * TICKS);
-            return (
-              <line
-                key={i}
-                x1="130"
-                y1="24"
-                x2="130"
-                y2="46"
-                className={on ? "hero-tick" : undefined}
-                style={on ? { animationDelay: `${120 + i * 18}ms` } : undefined}
-                stroke={on ? "var(--accent)" : "var(--surface-3)"}
-                strokeWidth="4"
-                strokeLinecap="round"
-                transform={`rotate(${(i / TICKS) * 360} 130 130)`}
-              />
-            );
-          })}
+          {/* The lit arc tracks the readout beneath it at every point of the
+              climb, so the dial never shows a fraction that disagrees with its
+              own number. At rest that lands on 742/1000 of the way round. */}
+          {Array.from({ length: TICKS }, (_, i) => (
+            <line
+              key={i}
+              x1="130"
+              y1="24"
+              x2="130"
+              y2="46"
+              stroke={i < lit ? "var(--accent)" : "var(--surface-3)"}
+              strokeWidth="4"
+              strokeLinecap="round"
+              transform={`rotate(${(i / TICKS) * 360} 130 130)`}
+            />
+          ))}
         </svg>
-        <div className="hero-readout absolute inset-0 flex flex-col items-center justify-center">
-          <span className="u-stat-number text-6xl leading-none text-text sm:text-7xl">{SCORE}</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="u-stat-number text-6xl leading-none text-text sm:text-7xl">{score}</span>
           <span className="u-mono mt-1 text-2xs text-text-3">of {MAX}</span>
-          <span className="mt-2 text-sm font-semibold text-accent-strong">Strong</span>
+          <span
+            className="mt-2 text-sm font-semibold text-accent-strong"
+            style={{ opacity: tierOpacity }}
+          >
+            Strong
+          </span>
         </div>
       </div>
 
@@ -156,12 +211,13 @@ export function HeroScroll() {
               <span className="u-mono shrink-0 text-2xs text-text-3">{pillar.weight}%</span>
             </div>
             <div className="mt-1.5 h-1 overflow-hidden bg-surface-3">
+              {/* Each meter trails the dial slightly, so the panel fills in
+                  sequence rather than every bar moving as one block. */}
               <div
-                className="hero-meter-fill h-full bg-accent"
+                className="h-full bg-accent"
                 style={{
-                  width: `${pillar.pct}%`,
+                  width: `${seg(power, j * 0.06, 0.7 + j * 0.06) * pillar.pct}%`,
                   opacity: pillar.dim,
-                  animationDelay: `${420 + j * 90}ms`,
                 }}
               />
             </div>
