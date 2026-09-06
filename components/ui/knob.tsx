@@ -19,8 +19,14 @@ import { playClick } from "@/lib/sound";
  * dark" rather than a rotation in degrees.
  */
 
-/** Total sweep across all positions. A real selector does not spin freely. */
-const SWEEP = 132;
+/** Default sweep across all positions. A real selector does not spin freely. */
+const DEFAULT_SWEEP = 132;
+
+/**
+ * Past this many positions the printed scale stops being a scale and becomes a
+ * smear, so the panel shows the current value as a single readout instead.
+ */
+const MAX_PRINTED = 5;
 
 export function Knob({
   positions,
@@ -28,19 +34,27 @@ export function Knob({
   onChange,
   label,
   size = 76,
+  sweep = DEFAULT_SWEEP,
+  hint,
 }: {
   positions: readonly string[];
   value: string;
   onChange: (v: string) => void;
   label: string;
   size?: number;
+  /** Widen it when there are many positions, so one detent is still a turn. */
+  sweep?: number;
+  /** Replaces the label under a dial whose scale is too dense to print. */
+  hint?: string;
 }) {
+  const printScale = positions.length <= MAX_PRINTED;
+  const facet = size < 68 ? 5 : 3;
   const index = Math.max(0, positions.indexOf(value));
   const last = positions.length - 1;
   const ref = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
 
-  const angleFor = (i: number) => -SWEEP / 2 + (last === 0 ? SWEEP / 2 : (i / last) * SWEEP);
+  const angleFor = (i: number) => -sweep / 2 + (last === 0 ? sweep / 2 : (i / last) * sweep);
 
   const select = useCallback(
     (i: number) => {
@@ -64,8 +78,8 @@ export function Knob({
         (Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180) /
           Math.PI +
         90;
-      const clamped = Math.max(-SWEEP / 2, Math.min(SWEEP / 2, deg));
-      select(Math.round(((clamped + SWEEP / 2) / SWEEP) * last));
+      const clamped = Math.max(-sweep / 2, Math.min(sweep / 2, deg));
+      select(Math.round(((clamped + sweep / 2) / sweep) * last));
     };
     const up = () => setDragging(false);
     window.addEventListener("pointermove", move);
@@ -79,10 +93,34 @@ export function Knob({
   return (
     // The printed scale sits outside the dial's own box, so the column needs
     // room either side or the first label is clipped by the panel edge.
-    <div className="flex select-none flex-col items-center gap-2 px-9">
+    <div className={cn("flex select-none flex-col items-center gap-2", printScale ? "px-9" : "px-3")}>
       <div className="relative" style={{ width: size, height: size + 14 }}>
+        {/* A dense dial gets ticks instead of numbers: still a scale you can
+            read your position against, without 31 labels fighting for the same
+            ring of pixels. */}
+        {!printScale &&
+          positions.map((p, i) => {
+            const a = ((angleFor(i) - 90) * Math.PI) / 180;
+            const rad = size / 2 + 6;
+            return (
+              <span
+                key={p}
+                aria-hidden
+                className={cn(
+                  "absolute h-[3px] w-[3px] rounded-full transition-colors duration-200",
+                  i === index ? "bg-accent" : "bg-border-2",
+                )}
+                style={{
+                  left: size / 2 + rad * Math.cos(a),
+                  top: size / 2 + rad * Math.sin(a),
+                  transform: "translate(-50%, -50%)",
+                }}
+              />
+            );
+          })}
+
         {/* the scale, printed on the panel around the dial */}
-        {positions.map((p, i) => {
+        {printScale && positions.map((p, i) => {
           const a = ((angleFor(i) - 90) * Math.PI) / 180;
           const rad = size / 2 + 11;
           return (
@@ -157,12 +195,14 @@ export function Knob({
             height: size,
             rotate: `${angleFor(index)}deg`,
             // Knurling: alternating light and dark facets around the rim, which
-            // is what a machined grip actually looks like under a light.
+            // is what a machined grip actually looks like under a light. The
+            // facets widen on a small dial, where a 3deg ridge is thinner than
+            // a pixel at the rim and reads as noise rather than as grip.
             background: `
               repeating-conic-gradient(
                 from 0deg,
-                var(--surface-3) 0deg 3deg,
-                var(--surface-2) 3deg 6deg
+                var(--surface-3) 0deg ${facet}deg,
+                var(--surface-2) ${facet}deg ${facet * 2}deg
               )`,
             boxShadow: dragging
               ? "inset 0 2px 5px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.5)"
@@ -189,7 +229,7 @@ export function Knob({
         </div>
       </div>
 
-      <span className="u-label">{label}</span>
+      <span className="u-label">{hint ?? label}</span>
     </div>
   );
 }
