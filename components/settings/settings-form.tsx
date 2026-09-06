@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Check, User, ListTree, SlidersHorizontal, KeyRound, ShieldAlert } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
@@ -51,19 +51,21 @@ function Section({
 
 function Saved({ show }: { show: boolean }) {
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.span
-          initial={{ opacity: 0, scale: 0.8, x: -4 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ type: "spring", stiffness: 500, damping: 28 }}
-          className="u-mono inline-flex items-center gap-1 text-2xs text-positive"
-        >
-          <Check size={12} /> saved
-        </motion.span>
+    // Always mounted, revealed by opacity and a small rise. Mounting it only
+    // when shown needed an exit animation, and an exit animation needed a
+    // library. 0.94 rather than 0.8: nothing in the real world appears from
+    // nothing, and the house floor for an entrance scale is 0.9.
+    <span
+      aria-hidden={!show}
+      className={cn(
+        "u-mono inline-flex items-center gap-1 text-2xs text-positive",
+        "transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "motion-reduce:transition-opacity",
+        show ? "scale-100 opacity-100" : "pointer-events-none scale-[0.94] opacity-0",
       )}
-    </AnimatePresence>
+    >
+      <Check size={12} /> saved
+    </span>
   );
 }
 

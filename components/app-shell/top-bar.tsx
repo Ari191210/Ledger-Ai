@@ -33,6 +33,7 @@ export function TopBar({
         />
         <input
           type="search"
+          aria-label="Search your ledger"
           placeholder="Search"
           className="h-8 w-full rounded-md border border-border bg-surface pl-7 pr-2.5 text-sm text-text outline-none placeholder:text-text-3 focus:border-accent"
         />
@@ -61,7 +62,7 @@ export function TopBar({
           }}
           title={sound ? "Sound on" : "Sound off"}
           aria-label={sound ? "Mute UI sounds" : "Unmute UI sounds"}
-          className="grid size-8 place-items-center rounded-md text-text-3 hover:bg-surface-2 hover:text-text"
+          className="u-tap grid size-8 place-items-center rounded-md text-text-3 hover:bg-surface-2 hover:text-text"
         >
           {sound ? <Volume2 size={15} /> : <VolumeX size={15} />}
         </button>
@@ -74,7 +75,7 @@ export function TopBar({
             title="Sign out"
             aria-label="Sign out"
             onPointerDown={() => playClick("tap")}
-            className="grid size-8 place-items-center rounded-md text-text-3 hover:bg-surface-2 hover:text-text"
+            className="u-tap grid size-8 place-items-center rounded-md text-text-3 hover:bg-surface-2 hover:text-text"
           >
             <LogOut size={15} />
           </button>

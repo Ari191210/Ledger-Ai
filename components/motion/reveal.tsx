@@ -1,7 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-
+/**
+ * Section entrance. Pure CSS: the animation plays into the element's resting
+ * state, so the content is present and readable even if the animation never
+ * runs (a hidden tab, a headless render, an old browser). It used to be a
+ * framer-motion element, which is a large runtime for one fade and a 10px rise.
+ */
 export function Reveal({
   children,
   delay = 0,
@@ -11,15 +15,9 @@ export function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
   return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.36, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
-    >
+    <div className={className} style={{ animationDelay: `${delay}s` }} data-reveal>
       {children}
-    </motion.div>
+    </div>
   );
 }

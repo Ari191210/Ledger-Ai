@@ -26,7 +26,7 @@ export function SiteFooter() {
         {/* right, legal links */}
         <nav className="flex items-center gap-4 sm:justify-self-end">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="u-mono text-2xs text-text-2 hover:text-text">
+            <Link key={l.href} href={l.href} className="u-tap u-mono text-2xs text-text-2 hover:text-text">
               {l.label}
             </Link>
           ))}

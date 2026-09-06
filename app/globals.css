@@ -271,6 +271,52 @@
     .ring-progress { transition: none !important; }
   }
 
+  /* Section entrance for <Reveal>. The animation plays INTO the resting state,
+     so a section is present and readable even if it never runs. */
+  [data-reveal] {
+    animation: reveal-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes reveal-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { animation: none; }
+  }
+
+  /* Quick Log's entrance. Mounted only while open, so these play once and
+     leave the element at rest; unmounting is the exit. */
+  .modal-backdrop { animation: modal-fade 0.16s ease-out both; }
+  .modal-panel { animation: modal-rise 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes modal-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes modal-rise {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .modal-panel { animation: modal-fade 0.16s ease-out both; }
+  }
+
+  /* A 44px pointer target on a control that is drawn smaller.
+     The instrument density is the point of this interface: a 32px icon button
+     in the top bar should stay 32px. Thumbs do not care what it looks like,
+     so the target grows and the drawing does not. The pseudo element is part
+     of the control for hit testing, and being absolutely positioned it takes
+     no layout space, so nothing shifts. */
+  .u-tap { position: relative; }
+  .u-tap::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
   /* status dot, the little power LED */
   .u-led {
     width: 0.4rem;

@@ -1,7 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { playClick } from "@/lib/sound";
 
@@ -16,7 +15,6 @@ export function Segmented({
   onChange?: (v: string) => void;
   size?: "sm" | "md";
 }) {
-  const gid = useId();
   const [internal, setInternal] = useState(options[0]);
   const value = controlled ?? internal;
 
@@ -48,13 +46,11 @@ export function Segmented({
               on ? "text-accent-on" : "text-text-2 hover:text-text",
             )}
           >
-            {on && (
-              <motion.span
-                layoutId={`seg-${gid}`}
-                className="absolute inset-0 rounded-full bg-accent"
-                transition={{ type: "spring", stiffness: 480, damping: 34 }}
-              />
-            )}
+            {/* The pill was a framer-motion shared-element that slid between
+                options. It is a background now: this control is pressed
+                constantly, and the audit's own rule is that high-frequency
+                controls earn less motion, not more. */}
+            {on && <span className="absolute inset-0 rounded-full bg-accent" />}
             <span className="relative z-10">{o}</span>
           </button>
         );

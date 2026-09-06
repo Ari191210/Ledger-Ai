@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   LayoutGrid,
@@ -38,12 +37,11 @@ export function IconRail({ initial }: { initial: string }) {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <li key={href} className="relative">
+              {/* The active marker was a framer-motion shared element that slid
+                  between rail items. Navigation replaces the whole page, so the
+                  slide never had a chance to read as continuous anyway. */}
               {active && (
-                <motion.span
-                  layoutId="rail-active"
-                  className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-accent"
-                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
-                />
+                <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-accent" />
               )}
               <Link
                 href={href}
@@ -51,7 +49,7 @@ export function IconRail({ initial }: { initial: string }) {
                 aria-label={label}
                 aria-current={active ? "page" : undefined}
                 onPointerDown={() => playClick("nav")}
-                className={`group grid size-10 place-items-center rounded-lg transition-colors ${
+                className={`u-tap group grid size-10 place-items-center rounded-lg transition-colors ${
                   active
                     ? "bg-accent text-accent-on"
                     : "text-text-3 hover:bg-surface-2 hover:text-text"
@@ -68,7 +66,7 @@ export function IconRail({ initial }: { initial: string }) {
         href="/settings"
         aria-label="Your profile"
         onPointerDown={() => playClick("nav")}
-        className="mt-2 grid size-8 place-items-center rounded-full border border-border-2 bg-surface-2 text-xs font-bold text-text-2 transition-colors hover:text-text"
+        className="u-tap mt-2 grid size-8 place-items-center rounded-full border border-border-2 bg-surface-2 text-xs font-bold text-text-2 transition-colors hover:text-text"
       >
         {initial}
       </Link>

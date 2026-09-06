@@ -15,12 +15,14 @@ import {
 const SIGNATURE = TOOLS.filter((t) => t.signature);
 const FILTERS = ["all", ...CATEGORIES.map((c) => c.id)] as const;
 
-function SectionLabel({ index, children }: { index: string; children: string }) {
-  return (
-    <span className="u-label">
-      {index} <span className="mx-1 text-text-3/60">·</span> {children}
-    </span>
-  );
+/**
+ * No ordinal here, deliberately. The dashboard numbers its panels because it is
+ * an instrument face: the gauges sit in fixed positions and a student learns
+ * where to look. Tool categories are a set, not a sequence, so "00 - signature"
+ * was numbering for the look of numbering. Same label, no false ordinal.
+ */
+function SectionLabel({ children }: { children: string }) {
+  return <span className="u-label">{children}</span>;
 }
 
 export function ToolsGrid() {
@@ -40,7 +42,7 @@ export function ToolsGrid() {
 
       {filter === "all" && (
         <section className="mt-7">
-          <SectionLabel index="00">signature</SectionLabel>
+          <SectionLabel>signature</SectionLabel>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {SIGNATURE.map((t) => (
               <Link
@@ -65,12 +67,11 @@ export function ToolsGrid() {
       )}
 
       {cats.map((c) => {
-        const idx = CATEGORIES.findIndex((x) => x.id === c.id) + 1;
         return (
           <section key={c.id} className="mt-8">
             <div className="flex items-center gap-2">
               <c.icon size={13} className="text-text-3" />
-              <SectionLabel index={String(idx).padStart(2, "0")}>{c.label.toLowerCase()}</SectionLabel>
+              <SectionLabel>{c.label.toLowerCase()}</SectionLabel>
               <span className="u-mono hidden text-2xs text-text-3 sm:inline">· {c.blurb}</span>
             </div>
 

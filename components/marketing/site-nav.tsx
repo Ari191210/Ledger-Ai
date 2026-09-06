@@ -9,7 +9,7 @@ import { BrandMark } from "./brand-mark";
 export function SiteNav() {
   return (
     <nav className="flex items-center justify-between py-6">
-      <Link href="/" className="flex items-center gap-2.5">
+      <Link href="/" className="u-tap flex items-center gap-2.5">
         <BrandMark size={30} />
         <span className="u-brand text-lg text-text">StudyLedger</span>
       </Link>

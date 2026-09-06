@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { playClick } from "@/lib/sound";
@@ -36,37 +35,28 @@ export function ReviewQueue({ due }: { due: Mistake[] }) {
 
   return (
     <div className="space-y-2">
-      <AnimatePresence initial={false}>
-        {visible.map((m) => (
-          <motion.div
-            key={m.id}
-            layout
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: 40, transition: { duration: 0.15 } }}
-            className="u-card flex items-center gap-3 p-3.5"
+      {visible.map((m) => (
+        <div key={m.id} className="u-card flex items-center gap-3 p-3.5">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-text">{m.topic}</p>
+            <p className="u-label mt-0.5">
+              {m.subject}
+              {m.review_count > 0 && <span> · reviewed {m.review_count}x</span>}
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => review(m, false)}
+            aria-label="Forgot"
           >
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-text">{m.topic}</p>
-              <p className="u-label mt-0.5">
-                {m.subject}
-                {m.review_count > 0 && <span> · reviewed {m.review_count}x</span>}
-              </p>
-            </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => review(m, false)}
-              aria-label="Forgot"
-            >
-              <X size={14} />
-            </Button>
-            <Button size="sm" onClick={() => review(m, true)} aria-label="Remembered">
-              <Check size={14} />
-            </Button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            <X size={14} />
+          </Button>
+          <Button size="sm" onClick={() => review(m, true)} aria-label="Remembered">
+            <Check size={14} />
+          </Button>
+        </div>
+      ))}
     </div>
   );
 }

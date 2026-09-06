@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";
@@ -75,134 +74,132 @@ export function QuickLog({
         {children}
       </span>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
-            onClick={() => setOpen(false)}
+      {/* Mounted only while open, and the entrance is a CSS animation playing
+          into the resting state. There is no exit animation: unmounting is the
+          exit, and needing one is the whole reason this used to carry an
+          animation library. */}
+      {open && (
+        <div
+          className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Log activity"
+            onClick={(e) => e.stopPropagation()}
+            className="modal-panel u-card w-full max-w-sm p-4"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 12, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 460, damping: 34 }}
-              onClick={(e) => e.stopPropagation()}
-              className="u-card w-full max-w-sm p-4"
-            >
-              <div className="flex items-center justify-between">
-                <span className="u-label">log activity</span>
-                <button
-                  onClick={() => setOpen(false)}
-                  aria-label="Close"
-                  className="text-text-3 hover:text-text"
-                >
-                  <X size={14} />
-                </button>
-              </div>
+            <div className="flex items-center justify-between">
+              <span className="u-label">log activity</span>
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="text-text-3 hover:text-text"
+              >
+                <X size={14} />
+              </button>
+            </div>
 
-              <div className="mt-3">
-                <Segmented
-                  options={["mistake", "pyq", "focus"]}
-                  value={tab}
-                  onChange={(v) => setTab(v as Tab)}
-                  size="sm"
-                />
-              </div>
+            <div className="mt-3">
+              <Segmented
+                options={["mistake", "pyq", "focus"]}
+                value={tab}
+                onChange={(v) => setTab(v as Tab)}
+                size="sm"
+              />
+            </div>
 
-              <div className="mt-4 space-y-3">
-                {(tab === "mistake" || tab === "pyq") && (
+            <div className="mt-4 space-y-3">
+              {(tab === "mistake" || tab === "pyq") && (
+                <label className="block">
+                  <span className="u-label">subject</span>
+                  <select
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                  >
+                    {SUBJECTS.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
+              {tab === "mistake" && (
+                <label className="block">
+                  <span className="u-label">topic</span>
+                  <input
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    maxLength={120}
+                    placeholder="e.g. Rotational motion"
+                    className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                  />
+                </label>
+              )}
+
+              {tab === "pyq" && (
+                <div className="grid grid-cols-2 gap-3">
                   <label className="block">
-                    <span className="u-label">subject</span>
-                    <select
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-                    >
-                      {SUBJECTS.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-
-                {tab === "mistake" && (
-                  <label className="block">
-                    <span className="u-label">topic</span>
-                    <input
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      maxLength={120}
-                      placeholder="e.g. Rotational motion"
-                      className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-                    />
-                  </label>
-                )}
-
-                {tab === "pyq" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="block">
-                      <span className="u-label">questions</span>
-                      <input
-                        type="number"
-                        min={1}
-                        value={total}
-                        onChange={(e) => setTotal(e.target.value)}
-                        className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="u-label">correct</span>
-                      <input
-                        type="number"
-                        min={0}
-                        value={correct}
-                        onChange={(e) => setCorrect(e.target.value)}
-                        className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-                      />
-                    </label>
-                    {/* the prediction is what makes calibration possible: guess
-                        first, then mark, and the gap between the two is the
-                        thing worth knowing */}
-                    <label className="col-span-2 block">
-                      <span className="u-label">how many did you think you got? (optional)</span>
-                      <input
-                        type="number"
-                        min={0}
-                        value={predicted}
-                        onChange={(e) => setPredicted(e.target.value)}
-                        placeholder="guess before you mark it"
-                        className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-                      />
-                    </label>
-                  </div>
-                )}
-
-                {tab === "focus" && (
-                  <label className="block">
-                    <span className="u-label">minutes studied today</span>
+                    <span className="u-label">questions</span>
                     <input
                       type="number"
                       min={1}
-                      value={minutes}
-                      onChange={(e) => setMinutes(e.target.value)}
+                      value={total}
+                      onChange={(e) => setTotal(e.target.value)}
                       className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
                     />
                   </label>
-                )}
-              </div>
+                  <label className="block">
+                    <span className="u-label">correct</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={correct}
+                      onChange={(e) => setCorrect(e.target.value)}
+                      className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                    />
+                  </label>
+                  {/* the prediction is what makes calibration possible: guess
+                      first, then mark, and the gap between the two is the
+                      thing worth knowing */}
+                  <label className="col-span-2 block">
+                    <span className="u-label">how many did you think you got? (optional)</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={predicted}
+                      onChange={(e) => setPredicted(e.target.value)}
+                      placeholder="guess before you mark it"
+                      className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                    />
+                  </label>
+                </div>
+              )}
 
-              {err && <p className="mt-3 u-mono text-2xs text-negative">{err}</p>}
+              {tab === "focus" && (
+                <label className="block">
+                  <span className="u-label">minutes studied today</span>
+                  <input
+                    type="number"
+                    min={1}
+                    value={minutes}
+                    onChange={(e) => setMinutes(e.target.value)}
+                    className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                  />
+                </label>
+              )}
+            </div>
 
-              <Button className="mt-4 w-full" disabled={pending} onClick={submit}>
-                {pending ? "Saving…" : "Add"}
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {err && <p className="mt-3 u-mono text-2xs text-negative">{err}</p>}
+
+            <Button className="mt-4 w-full" disabled={pending} onClick={submit}>
+              {pending ? "Saving…" : "Add"}
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

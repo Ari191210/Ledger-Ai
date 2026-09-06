@@ -51,7 +51,7 @@ export function StudyDaysCalendar({
                   onPointerDown={() => playClick("soft")}
                   onClick={() => setSelected((s) => (s === d ? null : d))}
                   className={cn(
-                    "u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums transition-colors",
+                    "u-tap u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums transition-colors",
                     d === today
                       ? "bg-accent font-bold text-accent-on"
                       : studiedDays.has(d)
