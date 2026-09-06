@@ -13,7 +13,11 @@ export default function DoubtPage() {
         <span className="u-label">learn</span>
         <h1 className="mt-1 text-lg font-bold text-text">Doubt Solver</h1>
       </div>
-      <AiTool slug="doubt" fields={PROMPTS.doubt.fields} />
+      <AiTool
+        slug="doubt"
+        fields={PROMPTS.doubt.fields}
+        logMistake={{ subjectKey: "subject", topicKey: "topic" }}
+      />
     </div>
   );
 }

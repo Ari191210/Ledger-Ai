@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getPromptSpec, type ToolValues } from "@/lib/tools/prompts";
+import { buildLedgerContext } from "@/lib/ai/ledger-context";
 import { getStudentProfile, buildProfileContext } from "@/lib/ai/profile-context";
 import { callAIText, callAIJson, AIError } from "@/lib/ai/client";
 import { checkRateLimit, recordInvocation } from "@/lib/ai/rate-limit";
-import { getMistakes, getSyllabus } from "@/lib/study/queries";
 import type { AiResult } from "@/lib/ai/types";
 
 export const maxDuration = 60;
@@ -40,41 +40,6 @@ function missingRequired(spec: ReturnType<typeof getPromptSpec>, values: ToolVal
   return null;
 }
 
-async function buildCrunchDataContext(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-  subjectFilter: string,
-): Promise<string> {
-  const scope = subjectFilter && subjectFilter !== "All subjects" ? subjectFilter : null;
-  const [mistakes, syllabus] = await Promise.all([
-    getMistakes(supabase, userId, { onlyOpen: true }),
-    getSyllabus(supabase, userId),
-  ]);
-  const scopedMistakes = scope ? mistakes.filter((m) => m.subject === scope) : mistakes;
-  const scopedUncovered = (scope ? syllabus.filter((t) => t.subject === scope) : syllabus).filter(
-    (t) => !t.covered,
-  );
-
-  const counts = new Map<string, number>();
-  for (const m of scopedMistakes) {
-    const key = `${m.subject} · ${m.topic}`;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
-  }
-
-  const lines: string[] = [];
-  if (counts.size > 0) {
-    lines.push("Open mistakes (subject · topic, times logged):");
-    for (const [key, n] of [...counts.entries()].sort((a, b) => b[1] - a[1])) {
-      lines.push(`- ${key} (${n}x)`);
-    }
-  }
-  if (scopedUncovered.length > 0) {
-    lines.push("Uncovered syllabus topics (subject · topic):");
-    for (const t of scopedUncovered) lines.push(`- ${t.subject} · ${t.topic}`);
-  }
-  return lines.length > 0 ? lines.join("\n") : "No open mistakes or uncovered syllabus topics logged.";
-}
-
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const tool = typeof body?.tool === "string" ? body.tool : "";
@@ -99,7 +64,7 @@ export async function POST(req: Request) {
   const profileCtx = buildProfileContext(profile);
 
   const dataContext = spec.usesStudentData
-    ? await buildCrunchDataContext(supabase, user.id, String(values.subject ?? ""))
+    ? await buildLedgerContext(supabase, user.id, String(values.subject ?? ""))
     : undefined;
 
   const { system, user: userText } = spec.buildPrompt(values, dataContext);

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Sparkles, TimerIcon } from "lucide-react";
+import { ChevronDown, Sparkles, TimerIcon, Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { logMistakeAction } from "@/app/(app)/dashboard/actions";
 import { Segmented } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
 import { playClick } from "@/lib/sound";
@@ -24,17 +25,27 @@ export function AiTool({
   slug,
   fields,
   timerFieldKey,
+  logMistake,
 }: {
   slug: string;
   fields: FieldSpec[];
   /** field key (in minutes) that starts a countdown once a result lands, for timed tools. */
   timerFieldKey?: string;
+  /**
+   * Which fields carry the subject and topic, enabling "add to Fix Next" once
+   * an answer lands. Without this an AI tool is a dead end: you get an answer
+   * and the ledger never hears about the thing you were stuck on.
+   */
+  logMistake?: { subjectKey: string; topicKey: string };
 }) {
   const [values, setValues] = useState<ToolValues>(() => defaultsFor(fields));
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AiResult | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [logged, setLogged] = useState(false);
+  const [logError, setLogError] = useState<string | null>(null);
+  const [logging, startLogging] = useTransition();
 
   useEffect(() => {
     if (secondsLeft === null || secondsLeft <= 0) return;
@@ -51,6 +62,8 @@ export function AiTool({
     setError(null);
     setResult(null);
     setSecondsLeft(null);
+    setLogged(false);
+    setLogError(null);
     try {
       const res = await fetch("/api/ai", {
         method: "POST",
@@ -148,6 +161,42 @@ export function AiTool({
       )}
 
       {result && <ResultView result={result} />}
+
+      {result && logMistake && (
+        <section className="u-card flex flex-wrap items-center justify-between gap-3 p-4">
+          <div className="min-w-0">
+            <p className="text-sm text-text">Still shaky on this?</p>
+            <p className="u-mono mt-0.5 text-2xs text-text-3">
+              {logged
+                ? "added, it will come back in Fix Next and Spaced Review"
+                : "put it in your ledger so it comes back until you have it"}
+            </p>
+          </div>
+          <Button
+            variant={logged ? "secondary" : "primary"}
+            size="sm"
+            disabled={logged || logging}
+            onClick={() => {
+              const subject = String(values[logMistake.subjectKey] ?? "").trim();
+              const topic = String(values[logMistake.topicKey] ?? "").trim();
+              if (!topic) {
+                setLogError(`Fill in "${logMistake.topicKey}" first so this lands on a real topic.`);
+                return;
+              }
+              setLogError(null);
+              startLogging(async () => {
+                const res = await logMistakeAction({ subject, topic });
+                if (res && "error" in res) setLogError(res.error);
+                else setLogged(true);
+              });
+            }}
+          >
+            {logged ? <Check size={14} /> : <Plus size={14} />}
+            {logged ? "in Fix Next" : "Add to Fix Next"}
+          </Button>
+          {logError && <p className="u-mono w-full text-2xs text-negative">{logError}</p>}
+        </section>
+      )}
     </div>
   );
 }

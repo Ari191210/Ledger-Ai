@@ -37,13 +37,18 @@ export const PROMPTS: Record<string, PromptSpec> = {
   doubt: {
     slug: "doubt",
     resultKind: "text",
+    usesStudentData: true,
     fields: [
       SUBJECT_FIELD,
+      { key: "topic", label: "topic", type: "text", placeholder: "e.g. Mole concept", required: true },
       { key: "question", label: "your question", type: "textarea", required: true, rows: 4, placeholder: "Ask exactly what you're stuck on." },
     ],
-    buildPrompt: (v) => ({
-      system: "You are a precise subject tutor answering one specific student doubt. Answer only what was asked, no unrelated background. Be direct and concrete.",
-      user: `Subject: ${v.subject}\nQuestion: ${v.question}`,
+    buildPrompt: (v, data) => ({
+      system: `You are a precise subject tutor answering one specific student doubt. Answer only what was asked, no unrelated background. Be direct and concrete.
+
+If this doubt touches a topic the student has already logged mistakes in, say so once, briefly, and address the underlying confusion rather than only the surface question. That is the point of answering this student rather than a stranger.
+${data ?? ""}`,
+      user: `Subject: ${v.subject}\nTopic: ${v.topic}\nQuestion: ${v.question}`,
     }),
   },
 
