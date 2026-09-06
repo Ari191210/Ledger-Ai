@@ -33,7 +33,12 @@ export function ScoreCard({
   score: ScoreBreakdown;
   inputs: ScoreInputs;
 }) {
-  const [lever, setLever] = useState<Lever>("topics");
+  // Open on a lever that can actually be turned. Defaulting to topics meant a
+  // student with no syllabus listed, or with every topic already covered, found
+  // a dead control where the dial was supposed to be.
+  const [lever, setLever] = useState<Lever>(
+    () => LEVERS.find((l) => leverCap(l, inputs) > 0) ?? "topics",
+  );
   const [amount, setAmount] = useState(0);
   // Until the dial is touched the ring keeps its entrance timing, tuned to the
   // count-up beside it. After that it belongs to the hand turning it.
