@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { HourDial } from "@/components/dashboard/hour-dial";
 import { SyllabusCard } from "@/components/dashboard/syllabus-card";
-import { TIER_MARKS } from "@/lib/score/compute";
+import { ScoreCard } from "@/components/dashboard/score-card";
 import { ArrowUpRight, Plus, Megaphone, Sunrise, RotateCcw, Dna } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
-import { StatNumber } from "@/components/ui/stat-number";
-import { Ring } from "@/components/ui/ring";
 import { SoundButtonLink } from "@/components/ui/button-link-sound";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { FocusChart } from "@/components/dashboard/focus-chart";
@@ -64,6 +62,7 @@ export default async function DashboardPage() {
   const uid = user!.id;
   const {
     score,
+    scoreInputs,
     activity,
     focusHistory,
     studiedDays,
@@ -231,70 +230,7 @@ export default async function DashboardPage() {
         <div className="space-y-4">
           {/* ── ledger score ─────────────────────────────── */}
           <Reveal delay={0.04}>
-            <Link href="/score" className="u-card u-card--hover block p-5">
-              <div className="flex items-center justify-between">
-                <Label index="01">ledger score</Label>
-                <span className="u-led" />
-              </div>
-
-              <div className="mt-4 flex items-center gap-6">
-                <Ring
-                  value={score.total}
-                  max={score.max}
-                  size={132}
-                  stroke={11}
-                  color="var(--accent-strong)"
-                  marks={TIER_MARKS}
-                >
-                  <div>
-                    <StatNumber value={score.total} className="text-[2.1rem] leading-none" />
-                    <div className="u-mono text-2xs text-text-3">/{score.max}</div>
-                  </div>
-                </Ring>
-
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-text">{score.tier}</div>
-                  <div className="u-mono mt-0.5 text-2xs text-text-3">
-                    {score.nextTier
-                      ? `${score.nextTier.at - score.total} to ${score.nextTier.label.toLowerCase()}`
-                      : "top tier"}
-                  </div>
-
-                  {/* The bars are grey on purpose. Ledger paper spends its
-                      one strong colour twice: a rule fencing the money column,
-                      and the closing balance. Everything else is black on
-                      feint. Four lime bars beside a lime ring is five accents
-                      in one panel, which is both against the house rule and
-                      why nothing here had a foreground. The ring is the
-                      closing figure; these are the workings. */}
-                  <div className="mt-3 space-y-2">
-                    {score.pillars.map((p) => (
-                      <div key={p.key}>
-                        <div className="flex items-center justify-between">
-                          <span className="u-label">{p.label}</span>
-                          <span className="u-mono text-2xs text-text-2">
-                            {p.pts}<span className="text-text-3">/{p.max}</span>
-                          </span>
-                        </div>
-                        <div
-                          className="mt-1 h-1 bg-surface-3"
-                          role="progressbar"
-                          aria-label={`${p.label}, ${p.pts} of ${p.max} points`}
-                          aria-valuenow={p.pts}
-                          aria-valuemin={0}
-                          aria-valuemax={p.max}
-                        >
-                          <div
-                            className="h-full bg-text-3"
-                            style={{ width: `${(p.pts / p.max) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <ScoreCard score={score} inputs={scoreInputs} />
           </Reveal>
 
           {/* ── study activity ───────────────────────────── */}

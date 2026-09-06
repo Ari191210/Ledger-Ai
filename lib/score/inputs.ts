@@ -1,6 +1,6 @@
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { computeScore, type ScoreBreakdown } from "./compute";
+import { computeScore, type ScoreBreakdown, type ScoreInputs } from "./compute";
 import { buildScoreInputs } from "./build-inputs";
 import { isoDateIST, hourIST } from "@/lib/date";
 import {
@@ -42,6 +42,9 @@ export type DayDetail = {
 
 export type DashboardData = {
   score: ScoreBreakdown;
+  /** The rows the score was computed from, so the dashboard can re-run the
+   *  same formula on a counterfactual without a second trip to the database. */
+  scoreInputs: ScoreInputs;
   streakDays: number;
   activity: ActivityTile[];
   focusHistory: { day: string; minutes: number }[];
@@ -217,6 +220,7 @@ export const getDashboardData = cache(async function getDashboardData(
 
   return {
     score,
+    scoreInputs,
     streakDays,
     activity,
     focusHistory,

@@ -14,6 +14,11 @@ export function Ring({
    *  visible even when the needle rests at zero. A score with no printed
    *  scale invites the reader to invent one. */
   marks = [],
+  /** How long the arc takes to travel. The default matches StatNumber, which
+   *  is what the count-up inside the ring was tuned against. A ring being
+   *  driven by a control wants a far shorter one: 750ms of easing behind a
+   *  hand turning a dial reads as lag, not as weight. */
+  duration = 750,
   children,
 }: {
   value: number;
@@ -23,6 +28,7 @@ export function Ring({
   track?: string;
   color?: string;
   marks?: readonly number[];
+  duration?: number;
   children?: React.ReactNode;
 }) {
   const r = (size - stroke) / 2;
@@ -74,7 +80,9 @@ export function Ring({
           // has to sit on the identical curve or the two disagree in the middle
           // even while starting and finishing together. Measured: the repo's
           // standard curve left them 11.7 points apart mid-travel.
-          style={{ transition: "stroke-dashoffset 750ms cubic-bezier(0.33, 1, 0.68, 1)" }}
+          style={{
+            transition: `stroke-dashoffset ${duration}ms cubic-bezier(0.33, 1, 0.68, 1)`,
+          }}
         />
         {/* Drawn last, so they sit on top of the arc as well as the track.
             The whole point of a printed threshold is that it stays visible at
@@ -126,8 +134,7 @@ export function Ring({
             transformBox: "view-box",
             transform: `rotate(${shownPct * 360}deg)`,
             opacity: shownPct > 0.001 ? 1 : 0,
-            transition:
-              "transform 750ms cubic-bezier(0.33, 1, 0.68, 1), opacity 300ms ease-out",
+            transition: `transform ${duration}ms cubic-bezier(0.33, 1, 0.68, 1), opacity 300ms ease-out`,
           }}
         >
           <circle
