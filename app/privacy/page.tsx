@@ -46,6 +46,7 @@ export default function PrivacyPage() {
         <p>Content you submit to an AI tool (Doubt Solver, Notes, Essay Grader, and the other AI-backed tools):</p>
         <ul>
           <li>The text you type into that tool, sent to Anthropic (the maker of Claude, the model we use) to generate a response. Anthropic processes this to return the result to you; see their own privacy documentation for how they handle it on their end.</li>
+          <li>A short extract of the answer you were given, along with the tool, subject and topic it related to. We keep this so a later answer can check whether anything was logged against advice you were given before, instead of repeating advice that did not work for you. It is visible only to you, it is never used to train any model, and it is deleted with your account.</li>
         </ul>
       </LegalSection>
 

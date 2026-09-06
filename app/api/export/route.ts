@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 
 // Full, honest export of everything StudyLedger stores for this user, one
 // row set per table, unfiltered (not the score engine's derived views).
+//
+// The privacy page promises this is everything, so a new user-scoped table has
+// to be added here in the same change that creates it. This list had already
+// drifted behind focus_sessions and subscriptions before anyone noticed, which
+// is exactly how that promise quietly stops being true.
 const TABLES = [
   "activity_days",
   "mistakes",
@@ -12,6 +17,10 @@ const TABLES = [
   "habit_logs",
   "deadlines",
   "parental_consents",
+  "focus_sessions",
+  "subscriptions",
+  "ai_advice",
+  "ai_invocations",
 ] as const;
 
 export async function GET() {

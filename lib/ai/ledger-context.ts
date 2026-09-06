@@ -17,25 +17,39 @@ import { getMistakes, getSyllabus, getPyqAttempts } from "@/lib/study/queries";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { isoDateIST } from "@/lib/date";
 import { derivedPatterns } from "./patterns-context";
+import { followThrough, type AdviceRow } from "./recall";
 
 const ALL = "All subjects";
+
+export type LedgerContext = {
+  text: string;
+  /** The student's own topic vocabulary, so advice can be filed against a real
+   *  topic without a second query and without inventing one. */
+  knownTopics: string[];
+};
 
 export async function buildLedgerContext(
   supabase: SupabaseClient,
   userId: string,
   subjectFilter?: string,
-): Promise<string> {
+): Promise<LedgerContext> {
   const scope = subjectFilter && subjectFilter !== ALL ? subjectFilter : null;
 
   // Every mistake, not just the open ones. The same query either way, and the
   // derived patterns below need the full history: a topic that was fixed and
   // broke again is precisely the thing worth knowing, and it is invisible if
   // resolved rows are filtered out in the database.
-  const [allMistakes, syllabus, attempts, deadlines] = await Promise.all([
+  const [allMistakes, syllabus, attempts, deadlines, adviceRes] = await Promise.all([
     getMistakes(supabase, userId),
     getSyllabus(supabase, userId),
     getPyqAttempts(supabase, userId),
     getDeadlines(supabase, userId),
+    supabase
+      .from("ai_advice")
+      .select("tool, subject, topic, headline, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
   const mistakes = allMistakes.filter((m) => m.resolved_at === null);
 
@@ -116,16 +130,41 @@ export async function buildLedgerContext(
     for (const p of patterns) lines.push(`- ${p}`);
   }
 
-  if (lines.length === 0) {
-    return "This student has not logged any mistakes, syllabus topics, past papers or deadlines yet. Do not refer to their history, because there is none.";
+  // What came of the last round of advice. Only advice old enough to have been
+  // acted on counts, and the outcome is read off their logged rows rather than
+  // asked for, so this can say "nothing happened" without it being an accusation.
+  const recall = followThrough(
+    (adviceRes.error ? [] : ((adviceRes.data ?? []) as AdviceRow[])).filter(
+      (a) => !scope || a.subject === scope,
+    ),
+    allMistakes,
+    attempts,
+  );
+  if (recall.length > 0) {
+    lines.push("What happened after previous advice:");
+    for (const r of recall) lines.push(`- ${r}`);
   }
 
-  return [
+  const knownTopics = [
+    ...new Set([...syllabus.map((t) => t.topic), ...allMistakes.map((m) => m.topic)]),
+  ].filter(Boolean);
+
+  if (lines.length === 0) {
+    return {
+      text: "This student has not logged any mistakes, syllabus topics, past papers or deadlines yet. Do not refer to their history, because there is none.",
+      knownTopics,
+    };
+  }
+
+  const text = [
     "--- THIS STUDENT'S LOGGED DATA ---",
     ...lines,
     "",
     "Use this to ground your answer: connect to topics they already struggle with where it is genuinely relevant, and pitch difficulty at their measured accuracy. Where a pattern above explains something, let it change what you actually advise, not just what you say. A topic they re-break every few days needs a different explanation than the one that has already failed, not the same one repeated more slowly.",
     "Never quote these figures or patterns back at them as though reading a report, and never invent a figure that is not listed here. They can already see their own statistics on the Patterns page; your job is to act on them.",
+    "Where a previous piece of advice is listed above, you may refer to it, but only as it is written: do not claim to remember a conversation, and do not invent advice that is not listed. If nothing was logged against it, treat that as information about what to suggest next, not as something to reproach them for. Advice they ignored twice is advice that did not fit them, so suggest a different approach rather than repeating it.",
     "--- END LOGGED DATA ---",
   ].join("\n");
+
+  return { text, knownTopics };
 }

@@ -5,6 +5,7 @@ import { buildLedgerContext } from "@/lib/ai/ledger-context";
 import { getStudentProfile, buildProfileContext } from "@/lib/ai/profile-context";
 import { callAIText, callAIJson, AIError } from "@/lib/ai/client";
 import { checkRateLimit, recordInvocation } from "@/lib/ai/rate-limit";
+import { summariseAdvice, resolveTopic, recordAdvice } from "@/lib/ai/advice";
 import type { AiResult } from "@/lib/ai/types";
 
 export const maxDuration = 60;
@@ -63,9 +64,10 @@ export async function POST(req: Request) {
   const profile = await getStudentProfile(supabase, user.id);
   const profileCtx = buildProfileContext(profile);
 
-  const dataContext = spec.usesStudentData
+  const ledger = spec.usesStudentData
     ? await buildLedgerContext(supabase, user.id, String(values.subject ?? ""))
     : undefined;
+  const dataContext = ledger?.text;
 
   const { system, user: userText } = spec.buildPrompt(values, dataContext);
 
@@ -111,6 +113,24 @@ export async function POST(req: Request) {
         criteria: parsed.criteria ?? [],
       };
     }
+    // Record what was advised, on the success path only: advice that was never
+    // produced is not advice. Awaited rather than fired and forgotten, because
+    // work started after the response is returned is not reliably finished on
+    // serverless. One indexed insert is the honest price of the feature.
+    const headline = summariseAdvice(result);
+    if (headline && ledger) {
+      await recordAdvice(supabase, user.id, {
+        tool,
+        subject: values.subject ? String(values.subject) : null,
+        topic: resolveTopic(
+          typeof values.topic === "string" ? values.topic : null,
+          headline,
+          ledger.knownTopics,
+        ),
+        headline,
+      });
+    }
+
     // remaining is counted before this call was recorded, so subtract it here
     // rather than re-querying. The UI only warns near the end of the allowance.
     return NextResponse.json({ result, remaining: Math.max(0, rateLimit.remaining - 1) });
