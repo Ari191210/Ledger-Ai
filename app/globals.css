@@ -197,10 +197,19 @@
     text-wrap: balance;
   }
 
+  /* Movement goes. Colour, opacity and border feedback stay, because they are
+     how the interface says what is interactive and what just changed, and
+     taking them away makes it harder to read rather than calmer. Narrowing
+     transition-property is what removes movement: a transform transition is
+     simply left with nothing to animate. Forcing every duration to zero, which
+     is what this used to do, also silently outranked the per-component
+     reduced-motion handling in the components themselves. */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
+      transition-property: opacity, color, background-color, border-color, box-shadow, fill, stroke;
       animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
     }
   }
 }
@@ -254,6 +263,12 @@
   .u-card--hover:hover {
     border-color: var(--border-2);
     background: var(--surface-2);
+  }
+
+  /* The score arc travels to its value. Under reduced motion it must arrive
+     there without the journey, and an inline style needs !important to lose. */
+  @media (prefers-reduced-motion: reduce) {
+    .ring-progress { transition: none !important; }
   }
 
   /* status dot, the little power LED */

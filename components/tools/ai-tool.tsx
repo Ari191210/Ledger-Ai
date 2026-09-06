@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Sparkles, TimerIcon, Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logMistakeAction } from "@/app/(app)/dashboard/actions";
@@ -348,15 +347,17 @@ function QaResult({
                 className={cn("shrink-0 text-text-3 transition-transform", isOpen && "rotate-180")}
               />
             </button>
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  className="overflow-hidden"
-                >
+            {/* A grid row travelling 0fr to 1fr, not an animated height.
+                Height is a layout property, so the old version ran layout,
+                paint and composite on every frame of every answer a student
+                opened. This one composites, and the browser never needs to
+                measure the content to do it. */}
+            <div
+              aria-hidden={!isOpen}
+              className="grid transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+              style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+            >
+              <div className="overflow-hidden">
                   <div className="border-t border-border px-3.5 pb-3.5 pt-3">
                     <p className="text-sm font-semibold text-accent-strong">{item.answer}</p>
                     {item.explanation && (
@@ -379,9 +380,8 @@ function QaResult({
                       </button>
                     )}
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              </div>
+            </div>
           </div>
         );
       })}
