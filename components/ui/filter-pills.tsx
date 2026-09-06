@@ -25,7 +25,7 @@ export function FilterPills({
               onChange?.(o);
             }}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold u-tap transition-[transform,background-color,border-color,color] duration-[420ms] ease-spring active:scale-[0.97] active:duration-[90ms] active:ease-out",
+              "rounded-full px-3 py-1 text-xs font-semibold u-tap transition-[scale,background-color,border-color,color] duration-[420ms] ease-spring active:scale-[0.97] active:duration-[90ms] active:ease-out",
               on
                 ? "bg-accent text-accent-on"
                 : "bg-surface-2 text-text-2 hover:text-text",

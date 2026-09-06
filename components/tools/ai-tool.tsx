@@ -344,7 +344,10 @@ function QaResult({
               <span className="min-w-0 flex-1 text-sm text-text">{item.question}</span>
               <ChevronDown
                 size={14}
-                className={cn("shrink-0 text-text-3 transition-transform", isOpen && "rotate-180")}
+                className={cn(
+                  "shrink-0 text-text-3 transition-[rotate] duration-200 ease-out",
+                  isOpen && "rotate-180",
+                )}
               />
             </button>
             {/* A grid row travelling 0fr to 1fr, not an animated height.

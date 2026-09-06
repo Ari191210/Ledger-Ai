@@ -41,7 +41,11 @@ export function buttonClasses({
     // release rides a spring so the button settles back rather than snapping.
     // Asymmetry is the point: the finger's action is instant, the object's
     // recovery has mass.
-    "transition-[transform,background-color,box-shadow,color] duration-[420ms] ease-spring",
+    // translate and scale, NOT transform. Tailwind v4 writes the individual
+    // CSS properties, so a transition naming `transform` transitions something
+    // that never changes and the button snaps between states. It had been doing
+    // exactly that: scale went 1 to 0.97 to 1 with no values in between.
+    "transition-[translate,scale,background-color,box-shadow,color] duration-[420ms] ease-spring",
     "hover:-translate-y-px active:translate-y-px active:scale-[0.97] active:duration-[90ms] active:ease-out",
     "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
     // no outline on pointer press, but keep a real ring for keyboard users
