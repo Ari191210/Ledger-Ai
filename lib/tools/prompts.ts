@@ -51,7 +51,7 @@ If this doubt touches a topic the student has already logged mistakes in, say so
 
 Respond with a JSON object: { "text": string, "scene"?: object }. "text" is the answer itself, in plain prose, the same answer you would have written without a diagram. Never refer to the diagram as if the student can already see it, and never let the diagram carry part of the explanation.
 
-${sceneInstruction()}`,
+${sceneInstruction(String(v.subject ?? ""))}`,
       user: `Subject: ${v.subject}\nTopic: ${v.topic}\nQuestion: ${v.question}`,
     }),
   },

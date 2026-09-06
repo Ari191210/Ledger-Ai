@@ -40,9 +40,11 @@ type Camera = { yaw: number; pitch: number };
  *  live in one vertical plane, and a three-quarter view foreshortens the very
  *  thing they are about: a parabola seen down its own axis is a line. Those get
  *  a nearly head-on view with just enough turn to read as solid. Scenes that
- *  genuinely use the floor, an orbit or a circle, get the three-quarter view. */
-function startCamera(planar: boolean): Camera {
-  return planar ? { yaw: 0.22, pitch: 0.16 } : { yaw: 0.62, pitch: 0.42 };
+ *  genuinely use all three axes get the three-quarter view. Each scene declares
+ *  which it is: deriving it from the geometry misclassified a DNA helix, which
+ *  is long and thin, as flat. */
+function startCamera(view: "planar" | "spatial"): Camera {
+  return view === "planar" ? { yaw: 0.22, pitch: 0.16 } : { yaw: 0.62, pitch: 0.42 };
 }
 
 function project(p: Vec3, cam: Camera, scale: number, dist: number, centre: Vec3) {
@@ -89,12 +91,7 @@ export function Scene3D({ scene }: { scene: Scene }) {
   const spec = SCENES[scene.name];
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [cam, setCam] = useState<Camera>(() => {
-    const f = frameAt(scene, 0);
-    const pts = f.segments.flatMap((s) => s.points).concat([f.body]);
-    const b = bounds(pts);
-    return startCamera(b.hi[2] - b.lo[2] < b.span * 0.2);
-  });
+  const [cam, setCam] = useState<Camera>(() => startCamera(spec.view));
   const drag = useRef<{ x: number; y: number; cam: Camera } | null>(null);
   const svg = useRef<SVGSVGElement>(null);
 
@@ -111,8 +108,15 @@ export function Scene3D({ scene }: { scene: Scene }) {
   // at and does not swell or shrink while it is being turned. The perspective
   // divide is in here too: without it everything came out about a quarter
   // smaller than the frame it was fitted to.
-  const persp = FOCAL / dist;
-  const scale = (VIEW_H * 0.43) / Math.max(1e-6, radius * persp);
+  // Fit the near face of the bounding sphere, not its centre. Scaling by the
+  // depth at the centre understates how big the object gets: the side facing
+  // the camera sits closer than that, and the perspective divide magnifies it.
+  // A DNA helix, the longest scene here, overflowed the frame by exactly that
+  // margin. Solving u * FOCAL = target * (dist - u) for u puts the near face on
+  // the frame edge instead of the centre plane.
+  const target = VIEW_H * 0.46;
+  const near = (target * dist) / (FOCAL + target);
+  const scale = near / Math.max(1e-6, radius);
 
   // Playing advances the dial itself, so the control and the drawing can never
   // disagree about where in the motion this is.
@@ -157,7 +161,11 @@ export function Scene3D({ scene }: { scene: Scene }) {
     drag.current = null;
   }, []);
 
-  const to = (p: Vec3) => project(p, cam, scale, dist, centre);
+  // A scene with no motion of its own is turned by the dial instead, which is
+  // what you want from a shape you are trying to see every side of.
+  const spinning = spec.motion === "spin";
+  const view: Camera = spinning ? { yaw: cam.yaw + phase * Math.PI * 2, pitch: cam.pitch } : cam;
+  const to = (p: Vec3) => project(p, view, scale, dist, centre);
   const path = (pts: Vec3[]) =>
     pts.map((p, i) => {
       const s = to(p);
@@ -267,8 +275,11 @@ export function Scene3D({ scene }: { scene: Scene }) {
         <div className="flex flex-col gap-3 border-t border-border p-4 lg:border-l lg:border-t-0">
           <div className="space-y-2">
             {frame.readouts.map((r) => (
+              // "electron geometry" and "ideal bond angle" do not fit one line
+              // of a 210px panel, and a clipped label is worse than a wrapped
+              // one: the reader cannot tell what the number is measuring.
               <div key={r.label} className="flex items-baseline justify-between gap-2">
-                <span className="u-label truncate">{r.label}</span>
+                <span className="u-label">{r.label}</span>
                 <span className="u-mono shrink-0 text-2xs text-text">{r.value}</span>
               </div>
             ))}
@@ -278,7 +289,7 @@ export function Scene3D({ scene }: { scene: Scene }) {
             <div className="space-y-1">
               {Object.entries(spec.params).map(([key, ps]) => (
                 <div key={key} className="flex items-baseline justify-between gap-2">
-                  <span className="u-mono truncate text-2xs text-text-3">{ps.label}</span>
+                  <span className="u-mono text-2xs text-text-3">{ps.label}</span>
                   <span className="u-mono shrink-0 text-2xs text-text-2">
                     {scene.params[key]} {ps.unit}
                   </span>
@@ -289,8 +300,8 @@ export function Scene3D({ scene }: { scene: Scene }) {
 
           <div className="mt-auto flex items-center gap-3 border-t border-border pt-3">
             <Knob
-              label="scrub the motion"
-              hint={`${Math.round(phase * 100)}%`}
+              label={spinning ? "turn the model" : "scrub the motion"}
+              hint={spinning ? `${Math.round(phase * 360)} deg` : `${Math.round(phase * 100)}%`}
               positions={Array.from({ length: STEPS + 1 }, (_, i) => String(i))}
               value={String(Math.round(step))}
               onChange={(v) => {
@@ -320,7 +331,7 @@ export function Scene3D({ scene }: { scene: Scene }) {
                 type="button"
                 onClick={() => {
                   playClick("soft");
-                  setCam(startCamera(hi[2] - lo[2] < span * 0.2));
+                  setCam(startCamera(spec.view));
                 }}
                 className="u-tap u-mono inline-flex items-center gap-1.5 rounded-md border border-border-2 bg-surface-2 px-2 py-1 text-2xs text-text-2 transition-colors hover:text-text"
               >
