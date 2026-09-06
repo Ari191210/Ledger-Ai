@@ -167,6 +167,35 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
     dashed divider, fixed-width lanes) instead of a grid of bordered boxes
     — cleaner at a glance, easier to scan than 4 same-size tiles.
 
+- **2026-09-06** — Landing hero: the instrument is now lit at rest, and the
+  power-on animation plays *into* that state rather than out of it. It used
+  to be scrubbed from zero by scroll, so the resting state (and the
+  server-rendered first paint, which is what a slow phone shows and what LCP
+  is measured against) was a dead device reading `0` with every meter empty:
+  the product at its most worthless, on the one screen meant to sell it.
+  Three linked decisions came out of that pass:
+  - **Lime above the fold, deliberately.** The lit dial, the tier and the
+    four meters put more than one lime element in a single panel, which
+    reads against rule 1 in REFERENCE.md §5. Resolved the way the segmented
+    ring was: **one hue at descending opacities**, and here the opacity is
+    not decorative, it tracks each pillar's weight in the score (40% pyq at
+    full lime down to 15% consistency at 0.34). The whole dial-plus-meters
+    group counts as one instrument, not five accents.
+  - **The lit arc must match the number.** Ticks light to `SCORE / MAX` of
+    the way round, not to a scroll position. A ring lit to a different
+    fraction than the readout beneath it is a lying instrument, which is the
+    one thing this product cannot be, even in marketing.
+  - **Power-on is pure CSS**, no JS and no animation library, because the
+    landing page is the first thing a student loads on a bad connection, and
+    because a JS count-up from 0 would re-introduce the dead first paint.
+    `prefers-reduced-motion` gets the lit instrument with no animation, since
+    that is the resting state and not a reward for waiting.
+  - Also in this pass: the hero CTA is no longer gated on scroll (it faded in
+    at 80% of a three-screen pin, so the primary action needed ~2.5 screens
+    of scrolling to reach), the pin dropped from 300vh to 200vh now that it
+    carries only the caption story, and the dial gained an "example ledger"
+    chip per rule 5, since 742 / "Strong" are illustrative.
+
 ---
 
 *When a new UI pattern gets built and kept, add it to §4. When a real brand

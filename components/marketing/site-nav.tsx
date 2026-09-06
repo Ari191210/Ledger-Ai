@@ -17,7 +17,7 @@ export function SiteNav() {
         <ButtonLink href="/login" variant="ghost" size="md" className="whitespace-nowrap">
           Sign in
         </ButtonLink>
-        <ButtonLink href="/login" size="md">
+        <ButtonLink href="/login" size="md" className="whitespace-nowrap">
           Get started <ArrowRight size={15} />
         </ButtonLink>
       </div>
