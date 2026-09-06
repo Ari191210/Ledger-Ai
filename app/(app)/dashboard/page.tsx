@@ -3,7 +3,6 @@ import { ArrowUpRight, Plus, Megaphone, Sunrise, RotateCcw, Dna } from "lucide-r
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
 import { StatNumber } from "@/components/ui/stat-number";
-import { Segmented } from "@/components/ui/segmented";
 import { Ring } from "@/components/ui/ring";
 import { SoundButtonLink } from "@/components/ui/button-link-sound";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
@@ -258,7 +257,14 @@ export default async function DashboardPage() {
                             {p.pts}<span className="text-text-3">/{p.max}</span>
                           </span>
                         </div>
-                        <div className="mt-1 h-1 bg-surface-3">
+                        <div
+                          className="mt-1 h-1 bg-surface-3"
+                          role="progressbar"
+                          aria-label={`${p.label}, ${p.pts} of ${p.max} points`}
+                          aria-valuenow={p.pts}
+                          aria-valuemin={0}
+                          aria-valuemax={p.max}
+                        >
                           <div
                             className="h-full bg-accent"
                             style={{ width: `${(p.pts / p.max) * 100}%` }}
@@ -277,7 +283,12 @@ export default async function DashboardPage() {
             <section className="u-card p-4">
               <div className="flex items-center justify-between">
                 <Label index="02">study activity</Label>
-                <Segmented options={["7d", "30d", "term"]} size="sm" />
+                {/* A static label, not a control. This was a Segmented with no
+                    value and no handler: it moved its pill, announced the new
+                    tab as selected to a screen reader, and filtered nothing. A
+                    control that asserts a state change it did not make is worse
+                    than no control. The tiles below really are the last 7 days. */}
+                <span className="u-mono text-2xs text-text-3">last 7 days</span>
               </div>
               <div className="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-3">
                 {activity.map((a) => (
@@ -400,7 +411,6 @@ export default async function DashboardPage() {
         <section className="u-card p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Label index="08">fix next</Label>
-            <Segmented options={["all", "phy", "chem", "maths"]} size="sm" />
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {fixNext.length === 0 && (

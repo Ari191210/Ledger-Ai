@@ -134,6 +134,7 @@ export function QuickLog({
                     <input
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
+                      maxLength={120}
                       placeholder="e.g. Rotational motion"
                       className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
                     />

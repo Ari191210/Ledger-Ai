@@ -57,9 +57,14 @@ export async function POST(req: Request) {
   const missing = missingRequired(spec, values);
   if (missing) return NextResponse.json({ error: missing }, { status: 400 });
 
+  // Record BEFORE checking. Checking first and recording after leaves a window
+  // where twenty parallel requests all read a count of zero and all pass. This
+  // way every racer is counted, so all of them see the same high count and all
+  // but the ones within the limit are rejected. The cost is a row for a request
+  // that never ran, which is the right trade against an uncapped model call.
+  await recordInvocation(supabase, user.id, tool);
   const rateLimit = await checkRateLimit(supabase, user.id);
   if (!rateLimit.allowed) return NextResponse.json({ error: rateLimit.message }, { status: 429 });
-  await recordInvocation(supabase, user.id, tool);
 
   const profile = await getStudentProfile(supabase, user.id);
   const profileCtx = buildProfileContext(profile);
@@ -131,9 +136,9 @@ export async function POST(req: Request) {
       });
     }
 
-    // remaining is counted before this call was recorded, so subtract it here
-    // rather than re-querying. The UI only warns near the end of the allowance.
-    return NextResponse.json({ result, remaining: Math.max(0, rateLimit.remaining - 1) });
+    // remaining already accounts for this call, because the invocation is
+    // recorded before the count is taken.
+    return NextResponse.json({ result, remaining: rateLimit.remaining });
   } catch (err) {
     const message = err instanceof AIError ? err.message : "Something went wrong. Try again.";
     return NextResponse.json({ error: message }, { status: 502 });

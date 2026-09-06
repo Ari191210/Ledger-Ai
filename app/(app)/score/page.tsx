@@ -23,7 +23,7 @@ export default async function ScorePage() {
       <h1 className="mt-1 text-lg font-bold text-text">Ledger Score</h1>
 
       <section className="u-card mt-4 p-6">
-        <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
           <Ring value={score.total} max={score.max} size={188} stroke={14} color="var(--accent-strong)">
             <div>
               <StatNumber value={score.total} className="text-4xl leading-none" />
@@ -31,7 +31,7 @@ export default async function ScorePage() {
             </div>
           </Ring>
 
-          <div>
+          <div className="min-w-0 text-center sm:text-left">
             <div className="text-base font-semibold text-text">{score.tier}</div>
             <div className="u-mono mt-1 text-2xs text-text-3">
               {score.nextTier
@@ -56,7 +56,14 @@ export default async function ScorePage() {
                   <span className="text-text-3">/{p.max}</span>
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 bg-surface-3">
+              <div
+                className="mt-1.5 h-1.5 bg-surface-3"
+                role="progressbar"
+                aria-label={`${p.label}, ${p.pts} of ${p.max} points`}
+                aria-valuenow={p.pts}
+                aria-valuemin={0}
+                aria-valuemax={p.max}
+              >
                 <div className="h-full bg-accent" style={{ width: `${(p.pts / p.max) * 100}%` }} />
               </div>
               <p className="mt-1.5 text-xs text-text-2">{PILLAR_NOTE[p.key]}</p>

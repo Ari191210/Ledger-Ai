@@ -124,7 +124,8 @@ export async function getDueMistakes(
     .eq("user_id", userId)
     .is("resolved_at", null)
     .lte("next_review_at", new Date().toISOString())
-    .order("next_review_at");
+    .order("next_review_at")
+    .limit(2000);
   if (error) throw error;
   return data ?? [];
 }
@@ -203,7 +204,11 @@ export async function getPyqAttempts(
     since.setDate(since.getDate() - sinceDays);
     q = q.gte("taken_at", since.toISOString());
   }
-  const { data, error } = await q.order("taken_at", { ascending: false });
+  // Bounded for the same reason getMistakes is: PostgREST applies its own
+  // default cap otherwise and returns a short list with no error. Calibration
+  // and ghost mode difference the oldest attempts against the newest, so a
+  // silent truncation does not just lose rows, it inverts the finding.
+  const { data, error } = await q.order("taken_at", { ascending: false }).limit(2000);
   if (error) throw error;
   return data ?? [];
 }
@@ -217,7 +222,7 @@ export async function getSyllabus(
 ): Promise<SyllabusTopic[]> {
   let q = supabase.from("syllabus_topics").select("*").eq("user_id", userId);
   if (subject) q = q.eq("subject", subject);
-  const { data, error } = await q.order("subject").order("position");
+  const { data, error } = await q.order("subject").order("position").limit(2000);
   if (error) throw error;
   return data ?? [];
 }

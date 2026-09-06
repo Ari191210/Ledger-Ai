@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { boundedText, MAX_LABEL } from "@/lib/text";
 import { createClient } from "@/lib/supabase/server";
 import { logFocusAction } from "@/app/(app)/dashboard/actions";
 
@@ -31,10 +32,17 @@ export async function recordFocusSession(input: {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
 
+  // Bounded like every other student-typed label: focus_sessions.subject and
+  // .topic feed the signals that reach the AI prompt.
+  const subject = boundedText(input.subject, "Subject", 60, false);
+  if (!subject.ok) return { error: subject.error };
+  const topic = boundedText(input.topic, "Topic", MAX_LABEL, false);
+  if (!topic.ok) return { error: topic.error };
+
   const { error } = await supabase.from("focus_sessions").insert({
     user_id: user.id,
-    subject: input.subject ?? null,
-    topic: input.topic ?? null,
+    subject: subject.value || null,
+    topic: topic.value || null,
     minutes: Math.round(input.minutes),
     completed: input.completed,
   });

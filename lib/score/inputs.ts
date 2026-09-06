@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeScore, type ScoreBreakdown } from "./compute";
+import { buildScoreInputs } from "./build-inputs";
 import { isoDateIST } from "@/lib/date";
 import {
   getActivityRange,
@@ -69,23 +70,14 @@ export const getDashboardData = cache(async function getDashboardData(
   ]);
 
   // ── score ────────────────────────────────────────────────────────────
-  const pyqTotal = pyq30.reduce((s, a) => s + a.total, 0);
-  const pyqCorrect = pyq30.reduce((s, a) => s + a.correct, 0);
-  const syllabusTotal = syllabus.length;
-  const syllabusCovered = syllabus.filter((t) => t.covered).length;
-  const mistakesRecent7d = mistakesAll.filter(
-    (m) => new Date(m.created_at) >= daysAgo(6),
-  ).length;
-
-  const score = computeScore({
-    pyqTotal,
-    pyqCorrect,
-    syllabusTotal,
-    syllabusCovered,
-    mistakesEverLogged: mistakesAll.length,
-    mistakesRecent7d,
+  const scoreInputs = buildScoreInputs({
+    attempts: pyq30,
+    syllabus,
+    mistakes: mistakesAll,
     streakDays,
   });
+  const { pyqTotal, pyqCorrect, syllabusTotal, syllabusCovered } = scoreInputs;
+  const score = computeScore(scoreInputs);
 
   // ── weekly series (7 days, oldest -> newest) ────────────────────────
   const days7 = lastDays(7);
@@ -135,7 +127,7 @@ export const getDashboardData = cache(async function getDashboardData(
       key: "mistakes",
       label: "open mistakes",
       value: String(openMistakes.length),
-      sub: `${mistakesRecent7d} new this week`,
+      sub: `${scoreInputs.mistakesRecent7d} new this week`,
       data: mistakesSeries,
     },
     {

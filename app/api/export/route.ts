@@ -32,7 +32,11 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, grade, board, stream, target_exam, onboarded_at, created_at")
+    // Every column, not a list. An explicit list is how date_of_birth and
+    // guardian_email went missing after migration 0009 while the privacy page
+    // still promised a full export. The table list above learned this lesson;
+    // the column list had not.
+    .select("*")
     .eq("id", user.id)
     .maybeSingle();
 

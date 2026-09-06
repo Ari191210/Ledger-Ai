@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { boundedText } from "@/lib/text";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addDeadline, deleteDeadline, type DeadlineKind } from "@/lib/study/deadlines";
@@ -23,8 +24,12 @@ export async function addDeadlineAction(input: {
   due_date: string;
   start_hour?: number | null;
 }): Promise<Result> {
-  const title = input.title.trim();
-  if (!title) return { error: "Name the deadline." };
+  // Bounded: deadline titles reach the AI system prompt too.
+  const bounded = boundedText(input.title, "Deadline name");
+  if (!bounded.ok) return { error: bounded.error };
+  const title = bounded.value;
+  const subject = boundedText(input.subject, "Subject", 60, false);
+  if (!subject.ok) return { error: subject.error };
   if (!input.due_date) return { error: "Pick a date." };
 
   const startHour = input.start_hour;
@@ -37,7 +42,7 @@ export async function addDeadlineAction(input: {
   const { supabase, id } = await currentUser();
   const { error } = await addDeadline(supabase, id, {
     title,
-    subject: input.subject?.trim() || null,
+    subject: subject.value || null,
     kind: input.kind,
     due_date: input.due_date,
     start_hour: startHour ?? null,

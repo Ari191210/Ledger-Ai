@@ -9,6 +9,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getMistakes, getSyllabus, getPyqAttempts, getCurrentStreak } from "@/lib/study/queries";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { computeCircadianRows } from "@/lib/circadian";
+import { buildScoreInputs } from "@/lib/score/build-inputs";
 import { isoDateIST, hourIST } from "@/lib/date";
 import {
   mistakeHalfLife,
@@ -100,18 +101,10 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
     ? Math.round((today - new Date(`${lastDay}T00:00:00Z`).getTime()) / 86_400_000)
     : 0;
 
-  // The same inputs the dashboard scores with, rebuilt here so the
-  // counterfactual is run through the real engine rather than an approximation.
-  const weekAgo = Date.now() - 7 * 86_400_000;
-  const scoreInputs = {
-    pyqTotal: attempts.reduce((s, a) => s + a.total, 0),
-    pyqCorrect: attempts.reduce((s, a) => s + a.correct, 0),
-    syllabusTotal: syllabus.length,
-    syllabusCovered: syllabus.filter((t) => t.covered).length,
-    mistakesEverLogged: mistakes.length,
-    mistakesRecent7d: mistakes.filter((m) => new Date(m.created_at).getTime() >= weekAgo).length,
-    streakDays,
-  };
+  // The same inputs the dashboard scores with, built by the same function, so
+  // the counterfactual is differenced against the number the student can
+  // actually see. Rebuilding them here by hand is how they drifted apart.
+  const scoreInputs = buildScoreInputs({ attempts, syllabus, mistakes, streakDays });
 
   const signals: Omit<Signals, "empty"> = {
     examMismatch,

@@ -20,7 +20,8 @@ export async function getDeadlines(
     .from("deadlines")
     .select("id, title, subject, kind, due_date, start_hour")
     .eq("user_id", userId)
-    .order("due_date");
+    .order("due_date")
+    .limit(2000);
   if (error) throw error;
   return data ?? [];
 }

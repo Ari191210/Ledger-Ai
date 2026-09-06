@@ -25,7 +25,7 @@ export type AdviceRow = {
  * and it is the same call the signals library makes: say nothing rather than
  * something weak.
  */
-const MIN_AGE_DAYS = 7;
+export const RECALL_MIN_AGE_DAYS = 7;
 const MAX_LINES = 2;
 const DAY = 86_400_000;
 
@@ -43,7 +43,7 @@ export function followThrough(
   const seen = new Set<string>();
 
   const ripe = advice
-    .filter((a) => a.topic && daysBetween(now, new Date(a.created_at).getTime()) >= MIN_AGE_DAYS)
+    .filter((a) => a.topic && daysBetween(now, new Date(a.created_at).getTime()) >= RECALL_MIN_AGE_DAYS)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   for (const a of ripe) {

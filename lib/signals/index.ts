@@ -147,10 +147,19 @@ export function silentSyllabus(
  */
 export type Contagion = { a: string; b: string; times: number; withinDays: number };
 
+/** Most recent mistakes only. The pair scan below breaks out once entries fall
+ *  outside the window, which bounds it when mistakes are spread out and does
+ *  not when they are clustered: a bulk-logging session puts hundreds of rows
+ *  inside the same four days, and this runs on every AI request. Contagion is a
+ *  claim about current behaviour anyway, so the cap is more correct as well as
+ *  faster. */
+const CONTAGION_SCAN = 400;
+
 export function topicContagion(mistakes: Mistake[], windowDays = 4): Contagion[] {
-  const sorted = [...mistakes].sort(
-    (x, y) => new Date(x.created_at).getTime() - new Date(y.created_at).getTime(),
-  );
+  const sorted = [...mistakes]
+    .sort((x, y) => new Date(y.created_at).getTime() - new Date(x.created_at).getTime())
+    .slice(0, CONTAGION_SCAN)
+    .reverse();
   const pairs = new Map<string, { times: number; gapTotal: number }>();
 
   for (let i = 0; i < sorted.length; i++) {

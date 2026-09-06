@@ -26,15 +26,17 @@ export function Segmented({
         "inline-flex rounded-full border border-border bg-surface-2 p-0.5",
         size === "sm" ? "text-2xs" : "text-xs",
       )}
-      role="tablist"
+      // Not role="tablist". A tablist promises tabpanels, and no instance in
+      // this codebase has one: these switch content in place. A group of
+      // pressed/unpressed buttons is what this actually is.
+      role="group"
     >
       {options.map((o) => {
         const on = o === value;
         return (
           <button
             key={o}
-            role="tab"
-            aria-selected={on}
+            aria-pressed={on}
             onPointerDown={() => playClick("soft")}
             onClick={() => {
               setInternal(o);
