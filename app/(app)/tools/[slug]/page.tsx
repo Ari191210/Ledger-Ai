@@ -35,6 +35,8 @@ export default async function ToolPage({
         <p className="mx-auto mt-2 max-w-sm text-sm text-text-2">{tool.blurb}</p>
         <p className="u-mono mt-6 inline-block rounded-full border border-border bg-surface-2 px-3 py-1 text-2xs text-text-3">
           {tool.kind === "ai" ? "not wired yet" : "not built yet"}
+          {/* Unreachable today: every tool in the registry has its own page, so
+              this fallback only fires if one is added without one. */}
         </p>
       </div>
     </div>

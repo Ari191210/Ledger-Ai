@@ -28,13 +28,26 @@ describe("tool registry", () => {
     expect(orphans).toEqual([]);
   });
 
-  // The reverse direction only. Six AI tools (planner, focus, habits,
-  // deadlines, exam-planner, coach) build their prompts inside their own
-  // pages rather than from PROMPTS, so a missing spec is not a fault. A spec
-  // left behind for a tool nobody can reach is.
-  it("leaves no prompt behind for a tool that no longer exists", () => {
-    const stranded = Object.keys(PROMPTS).filter((slug) => !TOOLS.some((t) => t.slug === slug));
+  // Both directions, which is only possible now that `kind` is honest. This
+  // test was previously one-directional because six tools claimed kind "ai"
+  // while making no model call, and the comment excusing that was wrong: they
+  // did not build prompts of their own, they had no prompts at all.
+  it("gives every AI tool a prompt to run", () => {
+    const unwired = TOOLS.filter((t) => t.kind === "ai" && !PROMPTS[t.slug]).map((t) => t.slug);
+    expect(unwired).toEqual([]);
+  });
+
+  it("leaves no prompt behind for a tool that is not an AI tool", () => {
+    const stranded = Object.keys(PROMPTS).filter(
+      (slug) => !TOOLS.some((t) => t.slug === slug && t.kind === "ai"),
+    );
     expect(stranded).toEqual([]);
+  });
+
+  // A local tool that quietly starts calling the model is a cost surprise, and
+  // the registry is where anyone would look to find out that it does.
+  it("keeps the AI count where the registry says it is", () => {
+    expect(TOOLS.filter((t) => t.kind === "ai")).toHaveLength(Object.keys(PROMPTS).length);
   });
 
   it("leaves no category empty", () => {

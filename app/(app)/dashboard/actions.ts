@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { addMistake, addPyqAttempt } from "@/lib/study/queries";
 import type { MistakeSource } from "@/lib/study/types";
 import { isoDateIST } from "@/lib/date";
-import { boundedText, MAX_NOTE } from "@/lib/text";
+import { validateMistake, validatePyq, validateFocusMinutes } from "@/lib/study/validate";
 
 type Result = { ok: true } | { error: string };
 
@@ -30,21 +30,17 @@ export async function logMistakeAction(input: {
   note?: string;
   source?: MistakeSource;
 }): Promise<Result> {
-  // Bounded, because this string is interpolated into the AI system prompt.
-  // Unbounded text there is unbounded token cost, billed to us.
-  const subject = boundedText(input.subject, "Subject", 60);
-  if (!subject.ok) return { error: subject.error };
-  const topic = boundedText(input.topic, "Topic");
-  if (!topic.ok) return { error: topic.error };
-  const note = boundedText(input.note, "Note", MAX_NOTE, false);
-  if (!note.ok) return { error: note.error };
+  // The rules live in lib/study/validate.ts so they can be tested without a
+  // database or a session. They are bounded because these strings end up
+  // interpolated into the AI system prompt, where unbounded text is unbounded
+  // token cost billed to us.
+  const checked = validateMistake(input);
+  if (!checked.ok) return { error: checked.error };
 
   const { supabase, id } = await currentUser();
   const { error } = await addMistake(supabase, id, {
-    ...input,
-    subject: subject.value,
-    topic: topic.value,
-    note: note.value || undefined,
+    source: input.source,
+    ...checked.value,
   });
   if (error) return { error: error.message };
   refresh();
@@ -57,31 +53,20 @@ export async function logPyqAction(input: {
   correct: number;
   predictedCorrect?: number | null;
 }): Promise<Result> {
-  const pyqSubject = boundedText(input.subject, "Subject", 60);
-  if (!pyqSubject.ok) return { error: pyqSubject.error };
-  if (!Number.isFinite(input.total) || input.total <= 0) {
-    return { error: "Enter how many questions you attempted." };
-  }
-  if (!Number.isFinite(input.correct) || input.correct < 0 || input.correct > input.total) {
-    return { error: "Correct can't exceed the total." };
-  }
-  const predicted = input.predictedCorrect;
-  if (predicted !== null && predicted !== undefined) {
-    if (!Number.isFinite(predicted) || predicted < 0 || predicted > input.total) {
-      return { error: "Your guess can't be negative or exceed the total." };
-    }
-  }
+  const checked = validatePyq(input);
+  if (!checked.ok) return { error: checked.error };
+
   const { supabase, id } = await currentUser();
-  const { error } = await addPyqAttempt(supabase, id, { ...input, subject: pyqSubject.value });
+  const { error } = await addPyqAttempt(supabase, id, checked.value);
   if (error) return { error: error.message };
   refresh();
   return { ok: true };
 }
 
 export async function logFocusAction(input: { minutes: number }): Promise<Result> {
-  if (!Number.isFinite(input.minutes) || input.minutes <= 0) {
-    return { error: "Enter minutes greater than zero." };
-  }
+  const checked = validateFocusMinutes(input.minutes);
+  if (!checked.ok) return { error: checked.error };
+
   await currentUser();
   const supabase = await createClient();
 
@@ -92,7 +77,7 @@ export async function logFocusAction(input: { minutes: number }): Promise<Result
   // use, a focus timer ending in one tab while Quick Log submits in another.
   const { error } = await supabase.rpc("add_activity_minutes", {
     p_day: isoDateIST(),
-    p_minutes: Math.round(input.minutes),
+    p_minutes: checked.value,
   });
   if (error) return { error: error.message };
   refresh();

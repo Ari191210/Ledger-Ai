@@ -85,12 +85,12 @@ export function ToolsGrid() {
                   {t.signature && (
                     <span className="absolute right-2 top-2 text-2xs text-accent-strong">★</span>
                   )}
-                  {t.kind === "stub" && (
-                    <span
-                      className="absolute left-2 top-2 size-1.5 rounded-full bg-text-3"
-                      aria-label="coming soon"
-                    />
-                  )}
+                  {/* There was a "coming soon" dot here, keyed off kind
+                      "stub". Every tool that carried it was fully built and
+                      working, including three signature ones, so the grid was
+                      telling students that seven finished tools did not exist
+                      yet. Nothing in the registry is unbuilt; the dot is gone
+                      rather than re-pointed at something else. */}
                   <span
                     className={cn(
                       "grid size-9 place-items-center rounded-md bg-surface text-text-2 transition-colors",

@@ -17,8 +17,15 @@
 // which is the one tool whose success would undercut the product. All three
 // are recoverable from git history if any of those reasons stops holding.
 //
-// kind: "ai"  , calls the AI endpoint (lib/onboarding-aware prompt)
-//       "stub", local/UI only, no model call
+// kind: "ai"    , actually calls the model. Ten tools do, and every one of them
+//                 has an entry in lib/tools/prompts.ts. A registry test now
+//                 enforces that in both directions.
+//       "local"  , computed on our side from the student's own rows, no model
+//                 call. Not lesser: Planner, Coach, Exam Planner, Patterns and
+//                 Mistake DNA are local, and they are the tools a chatbot
+//                 cannot copy. This field used to read "stub", which was wrong
+//                 twice over: it implied unbuilt, when all 23 have real pages,
+//                 and six genuinely local tools were labelled "ai" on top.
 // signature: the flagship tools unique to StudyLedger, called out in nav /
 //            marketing. Everything else is still real, just not the hook.
 // icon: a distinct Lucide icon per tool.
@@ -66,26 +73,26 @@ export type Tool = {
   name: string;
   category: ToolCategory;
   blurb: string;
-  kind: "ai" | "stub";
+  kind: "ai" | "local";
   icon: LucideIcon;
   signature?: boolean;
 };
 
 export const TOOLS: Tool[] = [
   // ── plan (7, all signature) ─────────────────────────────────────────
-  { slug: "planner", name: "Planner", category: "plan", kind: "ai", signature: true, icon: CalendarDays,
+  { slug: "planner", name: "Planner", category: "plan", kind: "local", signature: true, icon: CalendarDays,
     blurb: "Daily and weekly study plan built from your syllabus and deadlines." },
-  { slug: "focus", name: "Focus", category: "plan", kind: "ai", signature: true, icon: Timer,
+  { slug: "focus", name: "Focus", category: "plan", kind: "local", signature: true, icon: Timer,
     blurb: "Pomodoro timer wired to your streak and Ledger Score." },
-  { slug: "habits", name: "Habits", category: "plan", kind: "ai", signature: true, icon: Repeat,
+  { slug: "habits", name: "Habits", category: "plan", kind: "local", signature: true, icon: Repeat,
     blurb: "Track the study habits that actually move your score." },
-  { slug: "deadlines", name: "Deadlines", category: "plan", kind: "ai", signature: true, icon: AlarmClock,
+  { slug: "deadlines", name: "Deadlines", category: "plan", kind: "local", signature: true, icon: AlarmClock,
     blurb: "Every submission, test, and exam date in one countdown list." },
-  { slug: "exam-planner", name: "Exam Planner", category: "plan", kind: "ai", signature: true, icon: Flag,
+  { slug: "exam-planner", name: "Exam Planner", category: "plan", kind: "local", signature: true, icon: Flag,
     blurb: "Reverse-planned prep schedule counting back from your target exam." },
-  { slug: "debt-meter", name: "Debt Meter", category: "plan", kind: "stub", signature: true, icon: Gauge,
+  { slug: "debt-meter", name: "Debt Meter", category: "plan", kind: "local", signature: true, icon: Gauge,
     blurb: "How far behind syllabus you are, in one honest number." },
-  { slug: "circadian", name: "Circadian", category: "plan", kind: "stub", signature: true, icon: Sunrise,
+  { slug: "circadian", name: "Circadian", category: "plan", kind: "local", signature: true, icon: Sunrise,
     blurb: "Recommends what to study when, based on your energy patterns." },
 
   // ── learn (4) ─────────────────────────────────────────────────────
@@ -93,7 +100,7 @@ export const TOOLS: Tool[] = [
     blurb: "Turn raw notes into structured, exam-ready summaries." },
   { slug: "doubt", name: "Doubt Solver", category: "learn", kind: "ai", icon: HelpCircle,
     blurb: "Ask a specific question, get a specific answer. No fluff." },
-  { slug: "syllabus", name: "Syllabus Tracker", category: "learn", kind: "stub", icon: ListTree,
+  { slug: "syllabus", name: "Syllabus Tracker", category: "learn", kind: "local", icon: ListTree,
     blurb: "Break your syllabus into topics and mark what's covered." },
   { slug: "formula", name: "Formula Sheet", category: "learn", kind: "ai", icon: Sigma,
     blurb: "Auto-built formula sheet for a subject or chapter." },
@@ -105,9 +112,9 @@ export const TOOLS: Tool[] = [
     blurb: "See what a full-marks answer to a question looks like." },
 
   // ── practise (7, 2 signature) ─────────────────────────────────────
-  { slug: "spaced-review", name: "Spaced Review", category: "practise", kind: "stub", signature: true, icon: RotateCcw,
+  { slug: "spaced-review", name: "Spaced Review", category: "practise", kind: "local", signature: true, icon: RotateCcw,
     blurb: "Spaced-repetition queue built from your actual mistakes." },
-  { slug: "mistake-dna", name: "Mistake DNA", category: "practise", kind: "stub", signature: true, icon: Dna,
+  { slug: "mistake-dna", name: "Mistake DNA", category: "practise", kind: "local", signature: true, icon: Dna,
     blurb: "Finds recurring mistake patterns across subjects." },
   { slug: "flashcards", name: "Flashcards", category: "practise", kind: "ai", icon: Layers,
     blurb: "Auto-generated flashcards from any topic or note." },
@@ -121,11 +128,11 @@ export const TOOLS: Tool[] = [
     blurb: "Last 48 hours before an exam: the highest-yield revision list." },
 
   // ── track (3, 2 signature) ────────────────────────────────────────
-  { slug: "peer-heatmap", name: "Peer Heatmap", category: "track", kind: "stub", signature: true, icon: Grid3x3,
+  { slug: "peer-heatmap", name: "Peer Heatmap", category: "track", kind: "local", signature: true, icon: Grid3x3,
     blurb: "Anonymised view of what topics peers are struggling with." },
-  { slug: "patterns", name: "Patterns", category: "track", kind: "stub", signature: true, icon: Activity,
+  { slug: "patterns", name: "Patterns", category: "track", kind: "local", signature: true, icon: Activity,
     blurb: "Nine things only your own ledger can tell you, from mistake half life to whether you have ever practised at your exam's hour." },
-  { slug: "coach", name: "Coach", category: "track", kind: "ai", icon: Megaphone,
+  { slug: "coach", name: "Coach", category: "track", kind: "local", icon: Megaphone,
     blurb: "A weekly briefing on what changed and what to do about it." },
 ];
 
