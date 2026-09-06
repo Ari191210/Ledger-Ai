@@ -57,8 +57,8 @@ export function buttonClasses({
     // CSS properties, so a transition naming `transform` transitions something
     // that never changes and the button snaps between states. It had been doing
     // exactly that: scale went 1 to 0.97 to 1 with no values in between.
-    "transition-[translate,scale,background-color,box-shadow,color] duration-[420ms] ease-spring",
-    "hover:-translate-y-px active:translate-y-[2px] active:scale-[0.965] active:duration-[90ms] active:ease-out",
+    "transition-[translate,scale,background-color,box-shadow,color] duration-[190ms] ease-spring",
+    "hover:-translate-y-px active:translate-y-[2px] active:scale-[0.965] active:duration-[70ms] active:ease-out",
     "motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
     // no outline on pointer press, but keep a real ring for keyboard users
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",

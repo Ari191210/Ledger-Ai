@@ -59,7 +59,7 @@ export function Segmented({
           aria-hidden
           className={cn(
             "absolute top-0.5 bottom-0.5 rounded-full bg-accent",
-            ready && "transition-[left,width] duration-[420ms] ease-spring motion-reduce:transition-none",
+            ready && "transition-[left,width] duration-[260ms] ease-spring motion-reduce:transition-none",
           )}
           style={{ left: pill.left, width: pill.width }}
         />
