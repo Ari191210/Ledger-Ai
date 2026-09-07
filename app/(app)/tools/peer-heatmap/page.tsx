@@ -12,7 +12,7 @@ export default async function PeerHeatmapPage() {
   const max = Math.max(1, ...stats.map((s) => s.student_count));
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="w-full">
       <Link href="/tools" className="u-mono inline-flex items-center gap-1.5 text-2xs text-text-3 hover:text-text">
         <ArrowLeft size={12} /> tools
       </Link>

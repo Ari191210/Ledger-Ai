@@ -32,7 +32,7 @@ export default async function DebtMeterPage() {
   const overallDebt = totalTopics > 0 ? Math.round(((totalTopics - totalCovered) / totalTopics) * 100) : 0;
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="w-full">
       <Link
         href="/tools"
         className="u-mono inline-flex items-center gap-1.5 text-2xs text-text-3 hover:text-text"

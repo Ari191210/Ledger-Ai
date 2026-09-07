@@ -105,7 +105,7 @@ export function AiTool({
     // 1440px page, so an answer pushed the form off the top of the screen and
     // most of the display showed nothing at all. The form stays put now, and
     // the answer has the room a worked solution actually needs.
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(360px,480px)_minmax(0,1fr)]">
       {/* min-w-0: a grid item is min-width:auto by default, so the horizontally
           scrolling subject picker inside would push the whole pane wider than
           the phone instead of scrolling within it. */}
@@ -265,9 +265,14 @@ function ResultView({
   if (result.kind === "text") {
     return (
       <div className="space-y-3">
+        {/* The card fills the page; the prose inside it does not. A line of
+            text 2000px wide is unreadable no matter how much room there is,
+            because the eye loses its place on the return sweep. The diagram
+            below takes all the width it is given, which is what width is
+            actually worth having here. */}
         <section className="u-card space-y-3 p-4">
           {result.text.split(/\n{2,}/).map((para, i) => (
-            <p key={i} className="text-sm leading-relaxed text-text">
+            <p key={i} className="max-w-[85ch] text-sm leading-relaxed text-text">
               {para}
             </p>
           ))}
