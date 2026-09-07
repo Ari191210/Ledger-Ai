@@ -23,20 +23,30 @@ const read = (p: string) => fs.readFileSync(path.join(root, p), "utf8");
 
 const privacy = read("app/privacy/page.tsx");
 
-/** Claims the page makes that a third-party processor would contradict. */
-const EXCLUSIVITY_CLAIMS = [
-  "The only\n          third party your data reaches is Anthropic",
-  "we run no third-party\n          analytics or tracking scripts",
-];
-
 describe("privacy page claims match the code", () => {
   it("still makes the claims this test is guarding", () => {
     // If the wording changes, this test must be re-read rather than silently
     // passing against text that no longer says what it used to.
     const normalised = privacy.replace(/\s+/g, " ");
-    expect(normalised).toContain("The only third party your data reaches is Anthropic");
+    // Narrowed from "your data" to "your study data" when Google sign-in was
+    // added: Google sees an identity, never a topic or a score.
+    expect(normalised).toContain("The only third party your study data reaches is Anthropic");
     expect(normalised).toContain("we run no third-party analytics or tracking scripts");
-    expect(EXCLUSIVITY_CLAIMS.length).toBe(2);
+  });
+
+  it("names Google whenever Google sign-in is switched on", () => {
+    // Same trap as Sentry, one environment variable away. Enabling the provider
+    // puts Google in the auth flow, and the page has to say so before it does.
+    const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH === "1";
+    const pageNamesGoogle = /google/i.test(privacy);
+    if (googleEnabled && !pageNamesGoogle) {
+      throw new Error(
+        "NEXT_PUBLIC_GOOGLE_AUTH is set, so Google sign-in is offered and " +
+          "Google confirms identities for this app, but app/privacy/page.tsx " +
+          "does not mention Google. Disclose it in 'Where your data lives'.",
+      );
+    }
+    expect(googleEnabled && !pageNamesGoogle).toBe(false);
   });
 
   it("names every third-party processor that actually receives data", () => {

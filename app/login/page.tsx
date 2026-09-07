@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { SplitLayout } from "@/components/auth/split-layout";
 import { safeNext } from "@/lib/safe-next";
+import { GoogleButton, GOOGLE_AUTH_ENABLED } from "@/components/auth/google-button";
 
 function LoginForm() {
   const router = useRouter();
@@ -75,7 +76,20 @@ function LoginForm() {
           : "Start tracking what to fix next."}
       </p>
 
-      <form onSubmit={submit} className="mt-6 space-y-3">
+      {GOOGLE_AUTH_ENABLED && (
+        <div className="mt-6">
+          <GoogleButton next={next} />
+          {/* A rule with a word in it, so the two routes read as alternatives
+              rather than as a form with something bolted above it. */}
+          <div className="mt-4 flex items-center gap-3">
+            <span className="h-px flex-1 bg-border" />
+            <span className="u-mono text-2xs text-text-3">or</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={submit} className={GOOGLE_AUTH_ENABLED ? "mt-4 space-y-3" : "mt-6 space-y-3"}>
         <label className="block">
           <span className="u-label">email</span>
           <input

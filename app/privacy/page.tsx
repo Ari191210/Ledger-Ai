@@ -54,9 +54,11 @@ export default function PrivacyPage() {
         <p>
           No analytics or advertising trackers run on studyledger.in. We
           don't sell, rent, or share your data with advertisers. The only
-          third party your data reaches is Anthropic, and only the specific
-          text you submit to an AI tool, only to generate that tool's
-          response.
+          third party your study data reaches is Anthropic, and only the
+          specific text you submit to an AI tool, only to generate that
+          tool's response. If you choose to sign in with Google, Google
+          confirms who you are and learns nothing about what you study; see
+          "Where your data lives" below.
         </p>
       </LegalSection>
 
@@ -75,6 +77,13 @@ export default function PrivacyPage() {
           Postgres and authentication). The application itself runs on
           Vercel. AI tool inputs are additionally processed by Anthropic as
           described above.
+        </p>
+        <p>
+          If you choose to sign in with Google, Google confirms your identity
+          and tells us your email address and name. Nothing else passes
+          between us: Google is not told what you study, and your study data
+          is never sent to Google. Signing in with an email address and a
+          password instead keeps Google out of it entirely.
         </p>
       </LegalSection>
 
