@@ -75,39 +75,51 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
         </p>
       )}
 
-      {habits.map((h) => (
-        <section key={h.id} className="u-card flex items-center gap-4 p-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <p className="truncate text-sm font-semibold text-text">{h.name}</p>
-              {h.streak > 0 && (
-                <span className="u-mono text-2xs text-accent-strong">{h.streak}d streak</span>
-              )}
+      {/* A habit card holds a name, seven dots and a switch. Stretched down a
+          full-width page each one was mostly empty, with the switch stranded a
+          screen away from the name it belongs to. Wrapping into columns keeps a
+          card the width its contents need and puts the whole week's habits in
+          one glance, which is the thing this tool is for. */}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {habits.map((h) => (
+          <section key={h.id} className="u-card flex items-center gap-4 p-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="truncate text-sm font-semibold text-text">{h.name}</p>
+                {h.streak > 0 && (
+                  <span className="u-mono shrink-0 text-2xs text-text-2">{h.streak}d streak</span>
+                )}
+              </div>
+              {/* The switch is this card's one accent, the same way the
+                  dashboard's habit rows spend theirs. Seven days of lime dots
+                  beside a lime switch and a lime streak put three accents in a
+                  panel, and four cards across a wide screen turned that into a
+                  wall of it. The week is the workings; today is the figure. */}
+              <div className="mt-2 flex gap-1.5">
+                {h.week.map((done, i) => (
+                  <span
+                    key={i}
+                    className="size-2 rounded-full"
+                    style={{ background: done ? "var(--text-3)" : "var(--surface-3)" }}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="mt-2 flex gap-1.5">
-              {h.week.map((done, i) => (
-                <span
-                  key={i}
-                  className="size-2 rounded-full"
-                  style={{ background: done ? "var(--accent)" : "var(--surface-3)" }}
-                />
-              ))}
-            </div>
-          </div>
-          <ToggleSwitch
-            checked={h.doneToday}
-            onChange={(v) => toggle(h.id, v)}
-            label={`${h.name}, today`}
-          />
-          <button
-            onClick={() => remove(h.id)}
-            aria-label={`Remove ${h.name}`}
-            className="text-text-3 hover:text-negative"
-          >
-            <X size={14} />
-          </button>
-        </section>
-      ))}
+            <ToggleSwitch
+              checked={h.doneToday}
+              onChange={(v) => toggle(h.id, v)}
+              label={`${h.name}, today`}
+            />
+            <button
+              onClick={() => remove(h.id)}
+              aria-label={`Remove ${h.name}`}
+              className="shrink-0 text-text-3 hover:text-negative"
+            >
+              <X size={14} />
+            </button>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
