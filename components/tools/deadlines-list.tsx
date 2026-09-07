@@ -119,6 +119,11 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
         </p>
       )}
 
+      {/* A deadline is a title, a kind and a countdown chip. Down a full-width
+          page each card was mostly empty and the countdown sat a screen away
+          from what it was counting down to. In columns the whole calendar is
+          one glance, which is the only question this tool answers. */}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       {deadlines.map((d) => {
         const c = countdown(d.due_date, today);
         return (
@@ -152,6 +157,7 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

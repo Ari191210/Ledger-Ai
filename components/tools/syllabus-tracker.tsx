@@ -73,6 +73,10 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
         </p>
       )}
 
+      {/* Fewer columns than the flat lists, because a subject card is as tall
+          as the subject has topics. items-start keeps each one its own height
+          rather than stretching the short ones to match the longest in the row. */}
+      <div className="grid items-start gap-3 lg:grid-cols-2 2xl:grid-cols-3">
       {grouped.map(([subj, rows]) => {
         const covered = rows.filter((t) => t.covered).length;
         return (
@@ -83,9 +87,13 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
                 {covered}/{rows.length}
               </span>
             </div>
+            {/* Grey, like the dashboard's syllabus punch card and the score
+                panel's pillar bars. The column of switches below is this card's
+                accent; a lime bar on top of it would be a second one, and three
+                subject cards across a wide screen would put six on screen. */}
             <div className="mt-2 h-1.5 bg-surface-3">
               <div
-                className="h-full bg-accent transition-[width]"
+                className="h-full bg-text-3 transition-[width]"
                 style={{ width: `${(covered / rows.length) * 100}%` }}
               />
             </div>
@@ -119,6 +127,7 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
           </section>
         );
       })}
+      </div>
     </div>
   );
 }
