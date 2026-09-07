@@ -217,10 +217,17 @@ export function AiTool({
                 return;
               }
               setLogError(null);
+              // Marked straight away and put back only if the write fails. The
+              // student has told us something true about themselves; making
+              // them watch a spinner to find out whether we believe it is the
+              // wrong shape for that.
+              setLogged(true);
               startLogging(async () => {
                 const res = await logMistakeAction({ subject, topic });
-                if (res && "error" in res) setLogError(res.error);
-                else setLogged(true);
+                if (res && "error" in res) {
+                  setLogged(false);
+                  setLogError(res.error);
+                }
               });
             }}
           >

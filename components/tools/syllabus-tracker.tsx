@@ -17,10 +17,20 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
   // Marking a topic covered is a local fact about one row. Waiting for the
   // write, the revalidate and a fresh render before the switch moved made it
   // feel broken, and a syllabus is ticked off many rows at a time.
-  const [shown, applyToggle] = useOptimistic(
+  const [shown, applyEdit] = useOptimistic(
     topics,
-    (state, { id, covered }: { id: string; covered: boolean }) =>
-      state.map((t) => (t.id === id ? { ...t, covered } : t)),
+    (
+      state,
+      edit:
+        | { type: "toggle"; id: string; covered: boolean }
+        | { type: "remove"; id: string }
+        | { type: "add"; row: SyllabusTopic },
+    ) => {
+      if (edit.type === "toggle")
+        return state.map((t) => (t.id === edit.id ? { ...t, covered: edit.covered } : t));
+      if (edit.type === "remove") return state.filter((t) => t.id !== edit.id);
+      return [...state, edit.row];
+    },
   );
 
   const grouped = useMemo(() => {
@@ -37,13 +47,18 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
     if (!topic.trim()) return;
     setErr(null);
     const list = grouped.find(([s]) => s === subject)?.[1] ?? [];
+    const draft = { subject, topic: topic.trim(), position: list.length };
+    setTopic("");
     start(async () => {
-      const res = await addTopicAction({ subject, topic, position: list.length });
+      applyEdit({
+        type: "add",
+        row: { id: `pending-${Date.now()}`, covered: false, ...draft } as SyllabusTopic,
+      });
+      const res = await addTopicAction(draft);
       if ("error" in res) {
         setErr(res.error);
-        return;
+        setTopic(draft.topic);
       }
-      setTopic("");
     });
   }
 
@@ -113,7 +128,7 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
                     checked={t.covered}
                     onChange={(v) =>
                       start(async () => {
-                        applyToggle({ id: t.id, covered: v });
+                        applyEdit({ type: "toggle", id: t.id, covered: v });
                         await toggleTopicAction(t.id, v);
                       })
                     }
@@ -125,7 +140,12 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
                     {t.topic}
                   </span>
                   <button
-                    onClick={() => start(async () => { await deleteTopicAction(t.id); })}
+                    onClick={() =>
+                      start(async () => {
+                        applyEdit({ type: "remove", id: t.id });
+                        await deleteTopicAction(t.id);
+                      })
+                    }
                     aria-label={`Remove ${t.topic}`}
                     className="shrink-0 text-text-3 hover:text-negative"
                   >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -36,28 +36,54 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
+  /**
+   * Removing a deadline is a decision the student has already made; there is
+   * nothing to confirm and nothing to wait for. Measured before this: 500ms
+   * between the press and the row leaving.
+   *
+   * Adding shows the row straight away under a temporary id. The server hands
+   * back the real one moments later and useOptimistic drops this copy when the
+   * write settles, so the row never appears twice.
+   */
+  const [shown, applyEdit] = useOptimistic(
+    deadlines,
+    (state, edit: { type: "add"; row: Deadline } | { type: "remove"; id: string }) =>
+      edit.type === "remove"
+        ? state.filter((d) => d.id !== edit.id)
+        : [...state, edit.row].sort((a, b) => a.due_date.localeCompare(b.due_date)),
+  );
+
   function add() {
     if (!title.trim()) return;
     setErr(null);
+    const draft = {
+      title: title.trim(),
+      subject,
+      kind,
+      due_date: dueDate,
+      start_hour: kind === "exam" && startTime ? Number(startTime.slice(0, 2)) : null,
+    };
+    // Cleared here rather than after the write, so the field is ready for the
+    // next one immediately.
+    setTitle("");
+    playClick("switch");
     start(async () => {
-      const res = await addDeadlineAction({
-        title,
-        subject,
-        kind,
-        due_date: dueDate,
-        start_hour: kind === "exam" && startTime ? Number(startTime.slice(0, 2)) : null,
+      applyEdit({
+        type: "add",
+        row: { id: `pending-${Date.now()}`, ...draft } as Deadline,
       });
+      const res = await addDeadlineAction(draft);
       if ("error" in res) {
         setErr(res.error);
-        return;
+        setTitle(draft.title);
       }
-      setTitle("");
-      playClick("switch");
     });
   }
 
   function remove(id: string) {
+    playClick("soft");
     start(async () => {
+      applyEdit({ type: "remove", id });
       await deleteDeadlineAction(id);
     });
   }
@@ -113,7 +139,7 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
         {err && <p className="mt-2 u-mono text-2xs text-negative">{err}</p>}
       </section>
 
-      {deadlines.length === 0 && (
+      {shown.length === 0 && (
         <p className="u-mono py-6 text-center text-2xs text-text-3">
           nothing on the calendar, add your first deadline above
         </p>
@@ -124,7 +150,7 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
           from what it was counting down to. In columns the whole calendar is
           one glance, which is the only question this tool answers. */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {deadlines.map((d) => {
+      {shown.map((d) => {
         const c = countdown(d.due_date, today);
         return (
           <div key={d.id} className="u-card flex items-center gap-3 p-3.5">

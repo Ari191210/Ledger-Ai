@@ -45,6 +45,14 @@ export function QuickLog({
 
   function submit() {
     setErr(null);
+    // Closed on the press, not on the reply. Logging is the thing a student
+    // does most and always in the middle of something else: holding the modal
+    // open until Postgres answers turns a two second capture into a wait. If
+    // the write does fail the modal comes back with the values still in it and
+    // the reason on screen, which is the only case where waiting was buying
+    // anything.
+    playClick("switch");
+    setOpen(false);
     start(async () => {
       const res =
         tab === "mistake"
@@ -60,10 +68,9 @@ export function QuickLog({
 
       if ("error" in res) {
         setErr(res.error);
+        setOpen(true);
         return;
       }
-      playClick("switch");
-      setOpen(false);
       reset();
     });
   }

@@ -33,14 +33,19 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
    * cannot see, and a number that guesses and then corrects itself is worse
    * than one that arrives a moment late.
    */
-  const [shown, applyToggle] = useOptimistic(
+  const [shown, applyEdit] = useOptimistic(
     habits,
-    (state, { id, done }: { id: string; done: boolean }) =>
-      state.map((h) =>
-        h.id === id
-          ? { ...h, doneToday: done, week: [...h.week.slice(0, -1), done] }
-          : h,
-      ),
+    (
+      state,
+      edit: { type: "toggle"; id: string; done: boolean } | { type: "remove"; id: string },
+    ) =>
+      edit.type === "remove"
+        ? state.filter((h) => h.id !== edit.id)
+        : state.map((h) =>
+            h.id === edit.id
+              ? { ...h, doneToday: edit.done, week: [...h.week.slice(0, -1), edit.done] }
+              : h,
+          ),
   );
 
   function add() {
@@ -60,13 +65,15 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
   function toggle(id: string, done: boolean) {
     playClick("switch");
     start(async () => {
-      applyToggle({ id, done });
+      applyEdit({ type: "toggle", id, done });
       await toggleHabitAction(id, today, done);
     });
   }
 
   function remove(id: string) {
+    playClick("soft");
     start(async () => {
+      applyEdit({ type: "remove", id });
       await archiveHabitAction(id);
     });
   }
