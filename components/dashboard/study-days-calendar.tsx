@@ -62,6 +62,14 @@ export function StudyDaysCalendar({
                   type="button"
                   onPointerDown={() => playClick("soft")}
                   onClick={() => setSelected(d)}
+                  aria-pressed={selected === d}
+                  // The visible design says all of this with colour: accent for
+                  // today, a filled chip for a day with study on it, a ring for
+                  // the selected one. A bare digit says none of it, and an
+                  // automated name check passes because "17" is a name.
+                  aria-label={`${d} ${monthLabel}${d === today ? ", today" : ""}, ${
+                    studiedDays.has(d) ? "studied" : "nothing logged"
+                  }`}
                   className={cn(
                     "u-tap u-mono grid size-7 place-items-center rounded-full text-2xs tabular-nums transition-colors",
                     d === today

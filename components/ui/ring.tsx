@@ -14,6 +14,10 @@ export function Ring({
    *  visible even when the needle rests at zero. A score with no printed
    *  scale invites the reader to invent one. */
   marks = [],
+  /** What a screen reader should hear. The svg is aria-hidden, and the readout
+   *  passed as children lives inside it, so without this the number the whole
+   *  product is built around was announced to nobody. */
+  label,
   /** How long the arc takes to travel. The default matches StatNumber, which
    *  is what the count-up inside the ring was tuned against. A ring being
    *  driven by a control wants a far shorter one: 750ms of easing behind a
@@ -28,6 +32,7 @@ export function Ring({
   track?: string;
   color?: string;
   marks?: readonly number[];
+  label?: string;
   duration?: number;
   children?: React.ReactNode;
 }) {
@@ -54,7 +59,11 @@ export function Ring({
   }, [pct]);
 
   return (
-    <div className="relative shrink-0" style={{ width: size, height: size }}>
+    <div
+      className="relative shrink-0"
+      style={{ width: size, height: size }}
+      {...(label ? { role: "img" as const, "aria-label": label } : {})}
+    >
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
         <circle
           cx={size / 2}

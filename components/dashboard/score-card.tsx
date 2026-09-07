@@ -94,6 +94,11 @@ export function ScoreCard({
           stroke={11}
           color="var(--accent-strong)"
           marks={TIER_MARKS}
+          label={
+            projecting
+              ? `Projected ledger score ${shown.total} out of ${shown.max}, ${shown.tier}, up ${gain}`
+              : `Ledger score ${shown.total} out of ${shown.max}, ${shown.tier}`
+          }
           duration={touched ? 190 : 750}
         >
           <div>
@@ -172,6 +177,11 @@ export function ScoreCard({
             <Knob
               label={`what if: ${lever}`}
               hint={n > 0 ? `+${n}` : "turn"}
+              valueText={
+                n > 0
+                  ? `${leverPhrase(lever, n)}, score ${shown.total}, up ${gain}`
+                  : `nothing added, score ${score.total}`
+              }
               positions={Array.from({ length: cap + 1 }, (_, i) => String(i))}
               value={String(n)}
               onChange={(v) => {

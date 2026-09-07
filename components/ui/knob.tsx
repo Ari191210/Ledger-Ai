@@ -36,6 +36,7 @@ export function Knob({
   size = 76,
   sweep = DEFAULT_SWEEP,
   hint,
+  valueText,
 }: {
   positions: readonly string[];
   value: string;
@@ -46,6 +47,13 @@ export function Knob({
   sweep?: number;
   /** Replaces the label under a dial whose scale is too dense to print. */
   hint?: string;
+  /**
+   * What a screen reader should hear instead of the raw position. The
+   * positions are indices, so without this the what-if dial announced
+   * "what if: topics, slider, 6" and the scene dial "slider, 37" out of 48.
+   * Six what, and what did it do to the score.
+   */
+  valueText?: string;
 }) {
   const printScale = positions.length <= MAX_PRINTED;
   const facet = size < 68 ? 5 : 3;
@@ -55,6 +63,11 @@ export function Knob({
   /** Where the pointer was last frame, so a crossing of the seam below the
    *  dial can be told apart from a genuine sweep to the other end. */
   const lastDeg = useRef(0);
+  /** Whether the pointer moved between down and up. A press and release over
+   *  the knob fires click after pointerup, and the click handler advances a
+   *  detent, so every drag that ended over the control overshot its target by
+   *  one: a wrong projected score, a wrong frame, a wrong day. */
+  const moved = useRef(false);
   const [dragging, setDragging] = useState(false);
 
   const angleFor = (i: number) => -sweep / 2 + (last === 0 ? sweep / 2 : (i / last) * sweep);
@@ -95,6 +108,7 @@ export function Knob({
       const prev = lastDeg.current;
       const unwrapped = deg - prev > 180 ? -sweep / 2 : prev - deg > 180 ? sweep / 2 : deg;
       const clamped = Math.max(-sweep / 2, Math.min(sweep / 2, unwrapped));
+      moved.current = true;
       lastDeg.current = clamped;
       select(Math.round(((clamped + sweep / 2) / sweep) * last));
     };
@@ -180,13 +194,21 @@ export function Knob({
           aria-valuemin={0}
           aria-valuemax={last}
           aria-valuenow={index}
-          aria-valuetext={value}
+          aria-valuetext={valueText ?? value}
           onPointerDown={(e) => {
             e.preventDefault();
             lastDeg.current = angleFor(index);
+            moved.current = false;
             setDragging(true);
           }}
-          onClick={() => select(index >= last ? 0 : index + 1)}
+          onClick={() => {
+            // A tap advances one position; a drag has already chosen its own.
+            if (moved.current) {
+              moved.current = false;
+              return;
+            }
+            select(index >= last ? 0 : index + 1);
+          }}
           onKeyDown={(e) => {
             if (e.key === "ArrowRight" || e.key === "ArrowUp") {
               e.preventDefault();

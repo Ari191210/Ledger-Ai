@@ -24,6 +24,10 @@ import { frameAt, type Vec3 } from "@/lib/scenes/frame";
  * button is the student's to press and the dial is theirs to turn.
  */
 
+/** Phases the framing is measured over, so the scale is fixed for the whole
+ *  dial rather than recomputed per frame. */
+const SAMPLE_PHASES = [0, 0.25, 0.5, 0.75, 1];
+
 /** Steps the dial divides the motion into. */
 const STEPS = 48;
 /** Seconds for one full cycle when playing. */
@@ -100,7 +104,16 @@ export function Scene3D({ scene }: { scene: Scene }) {
 
   // Framed from the full path rather than from where the body happens to be,
   // so the drawing does not jump around as the dial is turned.
-  const all = frame.segments.flatMap((s) => s.points).concat([frame.body]);
+  // Framed over the whole dial, not over this frame. Twelve of the thirteen
+  // scenes keep a constant size as the dial turns; the solid of revolution does
+  // not, because the swept surface grows as the sweep opens up. Refitting each
+  // frame made the camera pull back as the solid formed, so it appeared to
+  // shrink by a third while being drawn, which is precisely what the fitting
+  // comment below says it exists to prevent.
+  const all = SAMPLE_PHASES.flatMap((u) => {
+    const f = frameAt(scene, u);
+    return f.segments.flatMap((s) => s.points).concat([f.body]);
+  });
   const { centre, span, radius, lo, hi } = bounds(all);
   const dist = 1000;
   // Fit the scene's bounding sphere, not its widest axis. A sphere looks the
@@ -205,7 +218,9 @@ export function Scene3D({ scene }: { scene: Scene }) {
             viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
             className="block aspect-[660/420] w-full cursor-grab active:cursor-grabbing"
             role="img"
-            aria-label={`${spec.label}: ${spec.caption}`}
+            aria-label={`${spec.label}: ${spec.caption}. ${frame.readouts
+              .map((r) => `${r.label} ${r.value}`)
+              .join(", ")}`}
           >
             {gridLines.map((g, i) => (
               <path key={`g${i}`} d={path(g)} fill="none" stroke="var(--surface-3)" strokeWidth={1} />
@@ -302,6 +317,12 @@ export function Scene3D({ scene }: { scene: Scene }) {
             <Knob
               label={spinning ? "turn the model" : "scrub the motion"}
               hint={spinning ? `${Math.round(phase * 360)} deg` : `${Math.round(phase * 100)}%`}
+              valueText={
+                spinning
+                  ? `turned ${Math.round(phase * 360)} degrees`
+                  : `${Math.round(phase * 100)} percent through the motion, ` +
+                    frame.readouts.map((r) => `${r.label} ${r.value}`).join(", ")
+              }
               positions={Array.from({ length: STEPS + 1 }, (_, i) => String(i))}
               value={String(Math.round(step))}
               onChange={(v) => {
