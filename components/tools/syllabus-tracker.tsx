@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useOptimistic, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { Button } from "@/components/ui/button";
@@ -14,15 +14,24 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
+  // Marking a topic covered is a local fact about one row. Waiting for the
+  // write, the revalidate and a fresh render before the switch moved made it
+  // feel broken, and a syllabus is ticked off many rows at a time.
+  const [shown, applyToggle] = useOptimistic(
+    topics,
+    (state, { id, covered }: { id: string; covered: boolean }) =>
+      state.map((t) => (t.id === id ? { ...t, covered } : t)),
+  );
+
   const grouped = useMemo(() => {
     const m = new Map<string, SyllabusTopic[]>();
-    for (const t of topics) {
+    for (const t of shown) {
       const arr = m.get(t.subject) ?? [];
       arr.push(t);
       m.set(t.subject, arr);
     }
     return [...m.entries()].sort((a, b) => b[1].length - a[1].length);
-  }, [topics]);
+  }, [shown]);
 
   function add() {
     if (!topic.trim()) return;
@@ -104,6 +113,7 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
                     checked={t.covered}
                     onChange={(v) =>
                       start(async () => {
+                        applyToggle({ id: t.id, covered: v });
                         await toggleTopicAction(t.id, v);
                       })
                     }
