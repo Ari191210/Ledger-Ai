@@ -102,9 +102,12 @@ describe("honestHour", () => {
   });
 
   it("excludes sessions outside the window", () => {
+    // One inside the window is abandoned, so there is a real gap to report.
+    // With everything completed the signal is silent by design, and this test
+    // is about the window filter rather than about that rule.
     const rows = [
       session("Chem", 25, true, 1),
-      session("Chem", 25, true, 2),
+      session("Chem", 25, false, 2),
       session("Chem", 25, true, 3),
       session("Chem", 25, true, 40),
     ];
@@ -209,5 +212,42 @@ describe("ghostMode", () => {
   it("skips attempts with no topic recorded", () => {
     const untagged = { ...attempt("Moles", 5, 10, 2), topic: null };
     expect(ghostMode([untagged, untagged])).toEqual([]);
+  });
+});
+
+describe("honestHour, the sentence it renders", () => {
+  const session = (minutes: number, completed: boolean, daysAgo = 1) => ({
+    subject: "Physics",
+    topic: null,
+    minutes,
+    completed,
+    started_at: new Date(Date.now() - daysAgo * 86_400_000).toISOString(),
+  });
+
+  it("says nothing to a student who finishes what they start", () => {
+    // The rendered line is "your real study time is X, not Y". With nothing
+    // abandoned X and Y are the same number and it asserted a gap between a
+    // figure and itself.
+    const all = [session(50, true), session(25, true), session(45, true)];
+    expect(honestHour(all)).toBeNull();
+  });
+
+  it("speaks when there is a real gap, and reports both figures", () => {
+    const mixed = [session(50, true), session(25, false), session(45, true)];
+    const h = honestHour(mixed);
+    expect(h).not.toBeNull();
+    expect(h!.realMinutes).toBe(95);
+    expect(h!.claimedMinutes).toBe(120);
+    expect(h!.started).toBe(3);
+    expect(h!.finished).toBe(2);
+  });
+
+  it("stays quiet below three sessions, however lopsided", () => {
+    expect(honestHour([session(60, false), session(60, true)])).toBeNull();
+  });
+
+  it("ignores sessions outside the window", () => {
+    const old = [session(60, false, 30), session(60, true, 30), session(60, true, 30)];
+    expect(honestHour(old)).toBeNull();
   });
 });

@@ -39,8 +39,13 @@ export function buildExamPlan(
     ? Math.ceil(uncovered.length / coverageDays)
     : uncovered.length;
 
-  // "On track" if a sane daily pace (<=4 new topics/day) clears the backlog
-  // before revision has to start.
+  // "On track" needs a pace and a runway to sustain it over. With coverageDays
+  // at zero, topicsPerDay above is not a rate at all, it is the raw backlog, so
+  // a student with three topics left on the morning of the exam was told three
+  // a day was manageable. Anything uncovered and no days to cover it in is the
+  // definition of not on track.
+  const onTrack = coverageDays > 0 ? topicsPerDay <= 4 : uncovered.length === 0;
+
   return {
     daysLeft,
     coverageDays,
@@ -48,6 +53,6 @@ export function buildExamPlan(
     uncoveredCount: uncovered.length,
     totalTopics: scopedTopics.length,
     topicsPerDay,
-    onTrack: topicsPerDay <= 4,
+    onTrack,
   };
 }

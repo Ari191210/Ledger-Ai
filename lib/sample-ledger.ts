@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { computeScore, type ScoreBreakdown } from "@/lib/score/compute";
-import { isoDateIST, isoDaysAgoIST } from "@/lib/date";
+import { buildScoreInputs } from "@/lib/score/build-inputs";
+import { dayKeyIST, isoDateIST } from "@/lib/date";
 import { computeStreak } from "@/lib/study/streak";
 
 /**
@@ -8,7 +9,11 @@ import { computeStreak } from "@/lib/study/streak";
  * on /sample so the worked example is the product's real output rather than
  * numbers written into a marketing page.
  */
-const DEMO_USER_ID = "f6aa66ea-cf46-421e-8ead-81cb5cd14906";
+// Overridable so a fork or a preview deployment does not read the real demo
+// account. Falls back to it rather than failing closed, because an unset
+// variable should not take the public worked example off the marketing page.
+const DEMO_USER_ID =
+  process.env.SAMPLE_LEDGER_USER_ID ?? "f6aa66ea-cf46-421e-8ead-81cb5cd14906";
 
 export type SampleLedger = {
   score: ScoreBreakdown;
@@ -50,26 +55,27 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
     const syllabus = syllabusRes.data ?? [];
     const activity = activityRes.data ?? [];
 
-    const pyqTotal = pyqRows.reduce((s, a) => s + a.total, 0);
-    const pyqCorrect = pyqRows.reduce((s, a) => s + a.correct, 0);
-    const syllabusTotal = syllabus.length;
-    const syllabusCovered = syllabus.filter((t) => t.covered).length;
-
-    const weekAgo = isoDaysAgoIST(6);
-    const mistakesRecent7d = mistakes.filter((m) => m.created_at.slice(0, 10) >= weekAgo).length;
-    const mistakesOpen = mistakes.filter((m) => !m.resolved_at).length;
-
     const streakDays = computeStreak(new Set(activity.map((d) => d.day)));
 
-    const score = computeScore({
-      pyqTotal,
-      pyqCorrect,
-      syllabusTotal,
-      syllabusCovered,
-      mistakesEverLogged: mistakes.length,
-      mistakesRecent7d,
+    // Through the same assembler the product uses, not a second copy of the
+    // arithmetic. This page's whole claim is that the number is the product's
+    // real output, and it was computing all-time past-paper accuracy where the
+    // engine windows to 30 IST days, plus a seven day mistake window sliced off
+    // UTC. On a demo account with older rows the two disagreed by over a
+    // hundred points, on identical data, with the marketing page showing the
+    // flattering one. build-inputs exists to make exactly this impossible.
+    const inputs = buildScoreInputs({
+      attempts: pyqRows as Parameters<typeof buildScoreInputs>[0]["attempts"],
+      syllabus: syllabus as Parameters<typeof buildScoreInputs>[0]["syllabus"],
+      mistakes: mistakes as Parameters<typeof buildScoreInputs>[0]["mistakes"],
       streakDays,
     });
+
+    const { pyqTotal, pyqCorrect, syllabusTotal, syllabusCovered } = inputs;
+    const mistakesRecent7d = inputs.mistakesRecent7d;
+    const mistakesOpen = mistakes.filter((m) => !m.resolved_at).length;
+
+    const score = computeScore(inputs);
 
     // recurring topics, the same grouping Fix Next and Mistake DNA use
     const byTopic = new Map<string, { subject: string; topic: string; count: number }>();
@@ -89,7 +95,7 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
         subject: a.subject,
         correct: a.correct,
         total: a.total,
-        takenAt: a.taken_at.slice(0, 10),
+        takenAt: dayKeyIST(a.taken_at),
       })),
       pyqTotal,
       pyqCorrect,

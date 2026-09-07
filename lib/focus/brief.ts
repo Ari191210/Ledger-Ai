@@ -63,7 +63,13 @@ export async function getFocusBrief(
       .select("subject, topic, minutes, completed, started_at")
       .eq("user_id", userId)
       .order("started_at", { ascending: false })
-      .limit(30),
+      // 200, matching loadSignals on this same table. followThrough below
+      // reports completed-of-started over fourteen days, and a cap of 30 cut
+      // that window short for anyone doing more than two sessions a day. The
+      // cap drops the oldest first, so the sessions it hid were the ones most
+      // likely to have been abandoned: the error always flattered, on the one
+      // number in the product meant not to.
+      .limit(200),
   ]);
 
   const sessions = sessionsRes.data ?? [];

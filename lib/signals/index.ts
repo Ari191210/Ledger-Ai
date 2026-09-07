@@ -104,11 +104,21 @@ export function honestHour(sessions: FocusSessionRow[], sinceDays = 7): HonestHo
   const recent = sessions.filter((s) => new Date(s.started_at).getTime() >= cutoff);
   if (recent.length < 3) return null;
 
+  const realMinutes = recent.filter((s) => s.completed).reduce((t, s) => t + s.minutes, 0);
+  const claimedMinutes = recent.reduce((t, s) => t + s.minutes, 0);
+
+  // Nothing to say to a student who finishes what they start. The rendered
+  // sentence is "your real study time is X, not Y", and with no abandoned
+  // sessions X and Y are the same number: it asserted a gap between a figure
+  // and itself. This signal exists for the gap, so with no gap there is no
+  // signal.
+  if (realMinutes === claimedMinutes) return null;
+
   return {
     started: recent.length,
     finished: recent.filter((s) => s.completed).length,
-    realMinutes: recent.filter((s) => s.completed).reduce((t, s) => t + s.minutes, 0),
-    claimedMinutes: recent.reduce((t, s) => t + s.minutes, 0),
+    realMinutes,
+    claimedMinutes,
   };
 }
 
