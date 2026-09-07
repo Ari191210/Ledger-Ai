@@ -2,12 +2,12 @@
 // "best hours" widget, kept in one place so the two never drift.
 
 export const CIRCADIAN_WINDOWS = [
-  { id: "late", label: "late night", range: "12am–5am", from: 0, to: 5 },
-  { id: "early", label: "early morning", range: "5am–8am", from: 5, to: 8 },
-  { id: "morning", label: "morning", range: "8am–12pm", from: 8, to: 12 },
-  { id: "afternoon", label: "afternoon", range: "12pm–4pm", from: 12, to: 16 },
-  { id: "evening", label: "evening", range: "4pm–8pm", from: 16, to: 20 },
-  { id: "night", label: "night", range: "8pm–12am", from: 20, to: 24 },
+  { id: "late", label: "late night", range: "12am-5am", from: 0, to: 5 },
+  { id: "early", label: "early morning", range: "5am-8am", from: 5, to: 8 },
+  { id: "morning", label: "morning", range: "8am-12pm", from: 8, to: 12 },
+  { id: "afternoon", label: "afternoon", range: "12pm-4pm", from: 12, to: 16 },
+  { id: "evening", label: "evening", range: "4pm-8pm", from: 16, to: 20 },
+  { id: "night", label: "night", range: "8pm-12am", from: 20, to: 24 },
 ] as const;
 
 export type CircadianWindow = (typeof CIRCADIAN_WINDOWS)[number];

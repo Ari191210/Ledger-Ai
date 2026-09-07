@@ -193,7 +193,7 @@ export default async function PatternsPage() {
             <Signal
               icon={GitBranch}
               label="topic contagion"
-              headline={`When ${s.contagion[0].a} goes wrong, ${s.contagion[0].b} usually follows within ${s.contagion[0].withinDays} days.`}
+              headline={`When ${s.contagion[0].a} goes wrong, ${s.contagion[0].b} usually follows within ${s.contagion[0].withinDays} ${s.contagion[0].withinDays === 1 ? "day" : "days"}.`}
             >
               <div className="mt-3 divide-y divide-dashed divide-border">
                 {s.contagion.slice(0, 4).map((c) => (

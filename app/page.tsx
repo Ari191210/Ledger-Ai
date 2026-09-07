@@ -33,7 +33,7 @@ const TIERS = [
 
 const STEPS = [
   { k: "log", t: "Log what you already do", b: "Past-paper attempts, mistakes, study time, syllabus. A few taps, or the Quick Log from any page." },
-  { k: "score", t: "Get one honest number", b: "Four weighted pillars roll into a single 0–1000 score and a tier. No vanity metrics, no streak confetti." },
+  { k: "score", t: "Get one honest number", b: "Four weighted pillars roll into a single 0 to 1000 score and a tier. No vanity metrics, no streak confetti." },
   { k: "act", t: "Work the shortlist", b: "Fix Next, Spaced Review, Debt Meter and 22 more tools turn the score into a specific thing to do today." },
 ];
 
@@ -52,7 +52,7 @@ export default function LandingPage() {
             Four things that predict a real result.
           </h2>
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
-            Each is measured from data you log, weighted, and rolled into a 0–1000 score.
+            Each is measured from data you log, weighted, and rolled into a 0 to 1000 score.
             Change the inputs and the number moves the same day.
           </p>
         </ScrollReveal>

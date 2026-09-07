@@ -28,6 +28,7 @@ import {
 } from "./index";
 import { calibration, type CalibrationRow, type AttemptWithPrediction } from "./calibration";
 import { costOfBreakingStreak, examHourMismatch, type StreakCost, type ExamHourMismatch } from "./cost";
+import { streakEndingOn } from "@/lib/study/streak";
 
 export type Signals = {
   examMismatch: ExamHourMismatch | null;
@@ -57,13 +58,16 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
         .order("started_at", { ascending: false })
         .limit(200),
       getCurrentStreak(supabase, userId),
+      // Enough days to find the run that was going when the break happened,
+      // not just the last one. The counterfactual below cannot be honest
+      // without it.
       supabase
         .from("activity_days")
         .select("day")
         .eq("user_id", userId)
+        .gt("minutes", 0)
         .order("day", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
+        .limit(400),
     ]);
 
   const sessions = (sessionsRes.data ?? []) as FocusSessionRow[];
@@ -96,7 +100,11 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
   });
 
   // days since anything was logged, for the streak cost
-  const lastDay = lastDayRes.data?.day ?? null;
+  const loggedDays = new Set((lastDayRes.data ?? []).map((r: { day: string }) => r.day));
+  const lastDay = (lastDayRes.data ?? [])[0]?.day ?? null;
+  // The run that was going on the last day logged, which is what the missed
+  // days actually interrupted.
+  const previousStreak = lastDay ? streakEndingOn(loggedDays, lastDay) : 0;
   const daysSinceLastLog = lastDay
     ? Math.round((today - new Date(`${lastDay}T00:00:00Z`).getTime()) / 86_400_000)
     : 0;
@@ -114,7 +122,7 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
     honest: honestHour(sessions),
     silent: silentSyllabus(syllabus, mistakes, attempts),
     contagion: topicContagion(mistakes),
-    streakCost: costOfBreakingStreak(scoreInputs, daysSinceLastLog),
+    streakCost: costOfBreakingStreak(scoreInputs, daysSinceLastLog, previousStreak),
     ghosts: ghostMode(attempts),
   };
 

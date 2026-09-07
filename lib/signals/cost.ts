@@ -20,13 +20,24 @@ export type StreakCost = { points: number; currentStreak: number; wouldHaveBeen:
 export function costOfBreakingStreak(
   inputs: ScoreInputs,
   daysSinceLastLog: number,
+  /**
+   * The streak that was running on the last day actually logged. Required,
+   * because inputs.streakDays is necessarily zero here: computeStreak counts
+   * back from today and breaks at the first missing day, so anyone who has
+   * missed a day has a current streak of zero. Adding the gap onto that zero
+   * told a student returning after two months that they would be on a sixty
+   * day streak, built entirely out of days they did not log. That is a
+   * fabricated number presented as fact, which is the one thing this product
+   * is not allowed to do.
+   */
+  previousStreak: number,
 ): StreakCost | null {
   // Only meaningful once a day has actually been missed.
   if (daysSinceLastLog < 1) return null;
 
+  // The streak they were on, plus the days they would have added by keeping it.
+  const wouldHaveBeen = previousStreak + daysSinceLastLog;
   const actual = computeScore(inputs);
-  // What the streak would be had the missed days been logged.
-  const wouldHaveBeen = inputs.streakDays + daysSinceLastLog;
   const counterfactual = computeScore({ ...inputs, streakDays: wouldHaveBeen });
 
   const points = counterfactual.total - actual.total;

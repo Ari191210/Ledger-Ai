@@ -170,19 +170,28 @@ export function topicContagion(mistakes: Mistake[], windowDays = 4): Contagion[]
     .sort((x, y) => new Date(y.created_at).getTime() - new Date(x.created_at).getTime())
     .slice(0, CONTAGION_SCAN)
     .reverse();
-  const pairs = new Map<string, { times: number; gapTotal: number }>();
+  const pairs = new Map<string, { times: number; gapTotal: number; firstLeads: number }>();
 
   for (let i = 0; i < sorted.length; i++) {
     for (let j = i + 1; j < sorted.length; j++) {
       const gap = days(sorted[j].created_at, sorted[i].created_at);
       if (gap > windowDays) break;
+      // sorted is chronological, so i is always the earlier row: `one` led and
+      // `two` followed.
       const one = `${sorted[i].subject} · ${sorted[i].topic}`;
       const two = `${sorted[j].subject} · ${sorted[j].topic}`;
       if (one === two) continue;
-      const key = [one, two].sort().join("→");
-      const hit = pairs.get(key) ?? { times: 0, gapTotal: 0 };
+      // The pair is keyed alphabetically so both orderings group together, but
+      // the direction is the entire claim and must not be thrown away with the
+      // ordering. It was: the key was split back apart at render time, so the
+      // sentence named whichever topic sorted first as the one that leads, and
+      // was exactly backwards for about half of all real pairs.
+      const alphabetical = [one, two].sort();
+      const key = alphabetical.join("→");
+      const hit = pairs.get(key) ?? { times: 0, gapTotal: 0, firstLeads: 0 };
       hit.times += 1;
       hit.gapTotal += gap;
+      if (one === alphabetical[0]) hit.firstLeads += 1;
       pairs.set(key, hit);
     }
   }
@@ -190,8 +199,17 @@ export function topicContagion(mistakes: Mistake[], windowDays = 4): Contagion[]
   return [...pairs.entries()]
     .filter(([, v]) => v.times >= 2)
     .map(([key, v]) => {
-      const [a, b] = key.split("→");
-      return { a, b, times: v.times, withinDays: Math.max(1, Math.round(v.gapTotal / v.times)) };
+      const [first, second] = key.split("→");
+      // Report the direction actually observed more often. A pair that goes
+      // both ways equally has no direction to claim, and falling back to the
+      // alphabetical order at least keeps it stable.
+      const firstLeads = v.firstLeads * 2 >= v.times;
+      return {
+        a: firstLeads ? first : second,
+        b: firstLeads ? second : first,
+        times: v.times,
+        withinDays: Math.max(1, Math.round(v.gapTotal / v.times)),
+      };
     })
     .sort((x, y) => y.times - x.times);
 }
