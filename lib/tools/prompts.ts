@@ -39,6 +39,11 @@ export const PROMPTS: Record<string, PromptSpec> = {
     slug: "doubt",
     resultKind: "explain",
     usesStudentData: true,
+    // A doubt answer now carries a diagram as well as the prose, and the
+    // personalisation block asks for a thorough one. At the 2200 default the
+    // JSON was being cut off mid-answer, which loses the scene and the whole
+    // response with it: a truncated object does not parse.
+    maxTokens: 4000,
     fields: [
       SUBJECT_FIELD,
       { key: "topic", label: "topic", type: "text", placeholder: "e.g. Mole concept", required: true },

@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { stripDashes, stripDashesDeep } from "./strip-dashes";
+import { parseModelJson } from "./json";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL = "claude-sonnet-5";
@@ -74,9 +75,11 @@ export async function callAIText(args: {
 }
 
 /**
- * One-shot call expecting a JSON object matching the caller's shape (no
- * schema enforcement library here, deliberately: on a bad parse we surface
- * a clear error rather than silently repairing or guessing).
+ * One-shot call expecting a JSON object matching the caller's shape. No schema
+ * enforcement library, deliberately: the only repair attempted is re-encoding
+ * control characters the model left raw inside its strings, which is lossless.
+ * Anything genuinely malformed or truncated surfaces as a clear error rather
+ * than being guessed at.
  */
 export async function callAIJson<T>(args: {
   system: string;
@@ -101,12 +104,23 @@ export async function callAIJson<T>(args: {
   const jsonText = raw.startsWith("```")
     ? raw.replace(/^```[a-z]*\n?/i, "").replace(/```$/, "").trim()
     : raw;
-  try {
-    return stripDashesDeep(JSON.parse(jsonText)) as T;
-  } catch {
-    if (message.stop_reason === "max_tokens") {
-      throw new AIError("The response was cut off, try a smaller request (fewer questions, shorter input).");
-    }
-    throw new AIError("The AI's response wasn't valid, try again.");
+  // Real newlines inside the string literals are the one way this reliably
+  // comes back invalid, and the object is otherwise complete. parseModelJson
+  // re-encodes those and nothing else, so a genuinely broken or truncated
+  // response still fails below rather than being quietly patched up.
+  const parsed = parseModelJson<T>(jsonText);
+  if (parsed !== null) return stripDashesDeep(parsed) as T;
+
+  if (message.stop_reason === "max_tokens") {
+    throw new AIError("The response was cut off, try a smaller request (fewer questions, shorter input).");
   }
+  // The student gets a plain retry message either way, but a bad parse with no
+  // record of what was actually returned is unfixable: there is nothing left to
+  // look at afterwards. Logged server side only, and clipped, since the
+  // response can contain whatever the student typed.
+  console.error(
+    "[ai] unparseable JSON response:",
+    JSON.stringify({ stop_reason: message.stop_reason, head: jsonText.slice(0, 400) }),
+  );
+  throw new AIError("The AI's response wasn't valid, try again.");
 }
