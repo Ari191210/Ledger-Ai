@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, LogOut, Volume2, VolumeX, Flame, TrendingUp } from "lucide-react";
+import { Search, LogOut, Volume2, VolumeX } from "lucide-react";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function TopBar({
   email,
-  score,
-  streak,
+  stats,
 }: {
   email: string;
-  score: number;
-  streak: number;
+  /** The streak and score chips, streamed in so the shell never waits on them. */
+  stats?: React.ReactNode;
 }) {
   const [sound, setSound] = useState(true);
   useEffect(() => setSound(isSoundOn()), []);
@@ -41,14 +40,7 @@ export function TopBar({
 
       {/* persistent readouts, your ledger follows you */}
       <div className="ml-auto flex items-center gap-2">
-        <span className="u-mono hidden items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-2xs font-medium text-text-2 sm:flex">
-          <Flame size={12} className="text-accent-strong" />
-          {streak}d
-        </span>
-        <span className="u-mono hidden items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-2xs font-medium text-text sm:flex">
-          <TrendingUp size={12} className="text-accent-2-strong" />
-          {score}
-        </span>
+        {stats}
 
         <span className="mx-1 h-4 w-px bg-border" />
 
