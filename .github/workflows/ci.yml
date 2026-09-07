@@ -1,0 +1,59 @@
+name: ci
+
+# Every push and every pull request. The point of this file is that the gates
+# stop depending on somebody remembering to run them: a total feature outage
+# once sat in production for days behind 167 passing tests that nobody ran on
+# the commit that broke it.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# A newer push makes an older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        # The build needs the public Supabase values to prerender. These are
+        # publishable keys, safe in an environment that already serves them to
+        # every browser, and the build fails without them.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+  # Kept separate so a formatting opinion can never block a correctness gate.
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
