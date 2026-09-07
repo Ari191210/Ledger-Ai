@@ -45,7 +45,7 @@ export function DangerZone() {
             <p className="mt-1 text-xs text-text-2">
               Permanently deletes your account and every mistake, PYQ
               attempt, habit, deadline, and syllabus entry tied to it.
-              This can't be undone.
+              This can&apos;t be undone.
             </p>
 
             {!confirmOpen ? (

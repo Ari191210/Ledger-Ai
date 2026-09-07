@@ -9,7 +9,6 @@ import {
   CATEGORIES,
   TOOLS,
   toolsByCategory,
-  type ToolCategory,
 } from "@/lib/tools/registry";
 
 const SIGNATURE = TOOLS.filter((t) => t.signature);

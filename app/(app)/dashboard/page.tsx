@@ -134,11 +134,6 @@ export default async function DashboardPage() {
     ),
   }));
 
-  // ── circadian best window (all-time, matches the Circadian tool) ──
-  const { best: bestWindow } = computeCircadianRows(
-    pyqAll.map((a) => ({ correct: a.correct, total: a.total, hour: hourIST(a.taken_at) })),
-    mistakesAll.map((m) => hourIST(m.created_at)),
-  );
 
   // ── spaced review due count + mistake dna top pattern ──────────────
   const dueCount = mistakesAll.filter(

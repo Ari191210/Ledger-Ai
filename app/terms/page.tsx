@@ -27,8 +27,8 @@ export default function TermsPage() {
       <LegalSection title="Agreement">
         <p>
           By creating an account on StudyLedger (studyledger.in) you agree
-          to these terms. If you're under 18, a parent or guardian should
-          be aware you're using the product.
+          to these terms. If you&apos;re under 18, a parent or guardian should
+          be aware you&apos;re using the product.
         </p>
       </LegalSection>
 
@@ -38,7 +38,7 @@ export default function TermsPage() {
           your real activity (PYQ accuracy, syllabus coverage, mistake
           patterns, consistency), 23 tools for planning, learning,
           practising, and tracking your prep, some of them backed by an AI
-          model (Anthropic's Claude).
+          model (Anthropic&apos;s Claude).
         </p>
       </LegalSection>
 
@@ -48,25 +48,25 @@ export default function TermsPage() {
           others generate content using an AI model. AI output can be
           wrong, incomplete, or miscalibrated to your syllabus, especially
           for niche topics or recent syllabus changes. Treat it as a study
-          aid, verify anything before an exam depends on it, and don't
+          aid, verify anything before an exam depends on it, and don&apos;t
           treat it as a substitute for your teacher or textbook.
         </p>
       </LegalSection>
 
       <LegalSection title="Your account">
         <ul>
-          <li>You're responsible for the accuracy of the information you provide and for keeping your password secure.</li>
-          <li>One account per person. Don't share login credentials.</li>
+          <li>You&apos;re responsible for the accuracy of the information you provide and for keeping your password secure.</li>
+          <li>One account per person. Don&apos;t share login credentials.</li>
           <li>You can delete your account at any time from Settings, no need to ask us.</li>
         </ul>
       </LegalSection>
 
       <LegalSection title="Acceptable use">
-        <p>Don't:</p>
+        <p>Don&apos;t:</p>
         <ul>
           <li>Automate or script requests to the AI tools beyond normal interactive use, or otherwise try to abuse rate limits.</li>
-          <li>Use the product to generate content that's illegal, harassing, or intended to cheat during a live, proctored exam.</li>
-          <li>Attempt to access another user's account or data.</li>
+          <li>Use the product to generate content that&apos;s illegal, harassing, or intended to cheat during a live, proctored exam.</li>
+          <li>Attempt to access another user&apos;s account or data.</li>
           <li>Scrape, reverse engineer, or resell the product.</li>
         </ul>
         <p>
@@ -85,7 +85,7 @@ export default function TermsPage() {
 
       <LegalSection title="No warranty">
         <p>
-          StudyLedger is provided as-is. We don't guarantee a particular
+          StudyLedger is provided as-is. We don&apos;t guarantee a particular
           exam outcome, score improvement, or that the product is
           error-free or available without interruption.
         </p>
@@ -93,7 +93,7 @@ export default function TermsPage() {
 
       <LegalSection title="Limitation of liability">
         <p>
-          To the extent permitted by law, StudyLedger isn't liable for
+          To the extent permitted by law, StudyLedger isn&apos;t liable for
           indirect, incidental, or consequential damages arising from your
           use of the product, including exam results.
         </p>

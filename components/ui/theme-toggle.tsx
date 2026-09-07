@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
-import { playClick } from "@/lib/sound";
 import { flashTheme } from "@/lib/theme-flash";
 
 type Theme = "dark" | "light";

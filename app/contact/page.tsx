@@ -29,8 +29,8 @@ export default function ContactPage() {
           Support email: <a href="mailto:hello@studyledger.in">hello@studyledger.in</a>
         </p>
         <p>
-          For a data export or account deletion, you don't need to contact
-          anyone: both are available directly in Settings once you're
+          For a data export or account deletion, you don&apos;t need to contact
+          anyone: both are available directly in Settings once you&apos;re
           signed in.
         </p>
       </LegalSection>
@@ -39,7 +39,7 @@ export default function ContactPage() {
         <p>
           For anything covered in the <Link href="/privacy">Privacy Policy</Link> or{" "}
           <Link href="/terms">Terms of Service</Link>, including a grievance under
-          India's IT Rules 2021: Aryamman Ojha,{" "}
+          India&apos;s IT Rules 2021: Aryamman Ojha,{" "}
           <a href="mailto:hello@studyledger.in">hello@studyledger.in</a>, New Delhi, India.
         </p>
       </LegalSection>

@@ -44,11 +44,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: npm run build
 
-  # Kept separate so a formatting opinion can never block a correctness gate.
+  # Separate from the correctness gates so a style opinion cannot block them,
+  # but no longer allowed to fail: the config was broken and the linter had
+  # never once run, which is how seventy problems accumulated unseen.
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

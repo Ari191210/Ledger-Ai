@@ -114,7 +114,7 @@ export function Scene3D({ scene }: { scene: Scene }) {
     const f = frameAt(scene, u);
     return f.segments.flatMap((s) => s.points).concat([f.body]);
   });
-  const { centre, span, radius, lo, hi } = bounds(all);
+  const { centre, span, radius, lo } = bounds(all);
   const dist = 1000;
   // Fit the scene's bounding sphere, not its widest axis. A sphere looks the
   // same from every angle, so the drawing fills the frame at the angle it opens
@@ -151,14 +151,14 @@ export function Scene3D({ scene }: { scene: Scene }) {
     return () => cancelAnimationFrame(raf);
   }, [playing]);
 
-  // Dragging needs the newest camera without re-subscribing on every move.
-  const camRef = useRef(cam);
-  camRef.current = cam;
-
-  const onDown = useCallback((e: React.PointerEvent) => {
-    drag.current = { x: e.clientX, y: e.clientY, cam: { ...camRef.current } };
+  // The drag needs the camera as it is when the pointer goes down. Reading
+  // state directly in the handler gets that without writing to a ref during
+  // render, which is what React's rules forbid: a render can be thrown away and
+  // re-run, and a ref written on the discarded pass survives it.
+  const onDown = (e: React.PointerEvent) => {
+    drag.current = { x: e.clientX, y: e.clientY, cam: { ...cam } };
     (e.target as Element).setPointerCapture?.(e.pointerId);
-  }, []);
+  };
 
   const onMove = useCallback((e: React.PointerEvent) => {
     const d = drag.current;

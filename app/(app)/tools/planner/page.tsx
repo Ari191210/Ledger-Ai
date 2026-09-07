@@ -46,7 +46,7 @@ export default async function PlannerPage() {
       ) : (
         <div className="space-y-3">
           <section className="u-card p-4">
-            <span className="u-label">today's plan</span>
+            <span className="u-label">today&apos;s plan</span>
             <div className="mt-2 divide-y divide-border">
               {plan.map((b, i) => (
                 <div key={`${b.subject}-${b.topic}`} className="flex items-center gap-3 py-2.5">
@@ -64,7 +64,7 @@ export default async function PlannerPage() {
           </section>
 
           <section className="u-card p-4">
-            <span className="u-label">this week's allocation</span>
+            <span className="u-label">this week&apos;s allocation</span>
             <div className="mt-3 space-y-3">
               {priorities.map((p) => (
                 <div key={p.subject}>

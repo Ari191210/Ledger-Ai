@@ -53,20 +53,20 @@ export default function PrivacyPage() {
       <LegalSection title="What we don't collect">
         <p>
           No analytics or advertising trackers run on studyledger.in. We
-          don't sell, rent, or share your data with advertisers. The only
+          don&apos;t sell, rent, or share your data with advertisers. The only
           third party your study data reaches is Anthropic, and only the
           specific text you submit to an AI tool, only to generate that
-          tool's response. If you choose to sign in with Google, Google
+          tool&apos;s response. If you choose to sign in with Google, Google
           confirms who you are and learns nothing about what you study; see
-          "Where your data lives" below.
+          &quot;Where your data lives&quot; below.
         </p>
       </LegalSection>
 
       <LegalSection title="Cookies and local storage">
         <p>
-          A session cookie set by Supabase keeps you signed in; it's
-          required for the product to work and isn't used for tracking.
-          Your browser's local storage holds your theme (light/dark) and
+          A session cookie set by Supabase keeps you signed in; it&apos;s
+          required for the product to work and isn&apos;t used for tracking.
+          Your browser&apos;s local storage holds your theme (light/dark) and
           sound preference, on your device only, never sent to us.
         </p>
       </LegalSection>
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
           anyone: download a full export of everything StudyLedger stores
           about you as JSON, or permanently delete your account, which
           deletes your profile and every table of study data tied to it. We
-          don't retain a copy after deletion.
+          don&apos;t retain a copy after deletion.
         </p>
       </LegalSection>
 
@@ -134,14 +134,14 @@ export default function PrivacyPage() {
 
       <LegalSection title="Changes to this policy">
         <p>
-          If this changes, we'll update the date at the top of this page.
+          If this changes, we&apos;ll update the date at the top of this page.
           Material changes will be called out here.
         </p>
       </LegalSection>
 
       <LegalSection title="Contact and grievance officer">
         <p>
-          Questions about this policy, or a data request you'd rather send
+          Questions about this policy, or a data request you&apos;d rather send
           directly: <Link href="/contact">contact us</Link>.
         </p>
         <p>
@@ -149,7 +149,7 @@ export default function PrivacyPage() {
           <br />
           Based in: New Delhi, India
           <br />
-          Grievance officer (per India's IT Rules 2021): Aryamman Ojha, <a href="mailto:hello@studyledger.in">hello@studyledger.in</a>
+          Grievance officer (per India&apos;s IT Rules 2021): Aryamman Ojha, <a href="mailto:hello@studyledger.in">hello@studyledger.in</a>
           <br />
           Governing jurisdiction: India, courts of Delhi
         </p>

@@ -39,12 +39,17 @@ export function FocusTimer({
   const [targetIndex, setTargetIndex] = useState(brief.targets.length ? 0 : -1);
   const [, startLog] = useTransition();
 
+  // Mirrored into refs inside an effect rather than during render. Writing a
+  // ref while rendering is forbidden for a reason: React may discard a render
+  // and run it again, and the write from the discarded pass would survive.
   const phaseRef = useRef(phase);
   const cycleRef = useRef(cycle);
   const targetRef = useRef(targetIndex);
-  phaseRef.current = phase;
-  cycleRef.current = cycle;
-  targetRef.current = targetIndex;
+  useEffect(() => {
+    phaseRef.current = phase;
+    cycleRef.current = cycle;
+    targetRef.current = targetIndex;
+  }, [phase, cycle, targetIndex]);
 
   const target = targetIndex >= 0 ? brief.targets[targetIndex] : null;
 

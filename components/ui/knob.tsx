@@ -119,7 +119,7 @@ export function Knob({
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
     };
-  }, [dragging, last, select]);
+  }, [dragging, last, select, sweep]);
 
   return (
     // The printed scale sits outside the dial's own box, so the column needs
