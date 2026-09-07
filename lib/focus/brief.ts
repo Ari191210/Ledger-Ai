@@ -15,7 +15,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getMistakes, getSyllabus, getPyqAttempts } from "@/lib/study/queries";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { computeCircadianRows } from "@/lib/circadian";
-import { isoDateIST, hourIST } from "@/lib/date";
+import { isoDateIST, hourIST, dayKeyIST } from "@/lib/date";
 
 export type FocusTarget = {
   subject: string;
@@ -141,7 +141,10 @@ export async function getFocusBrief(
   const hourNow = hourIST(new Date());
 
   const completed14 = sessions.filter(
-    (s) => daysUntil(String(s.started_at).slice(0, 10)) >= -14,
+    // daysUntil expects an IST calendar day; slicing the stored UTC timestamp
+    // put sessions started before 05:30 IST on the day before, moving the
+    // fourteen day boundary by one.
+    (s) => daysUntil(dayKeyIST(String(s.started_at))) >= -14,
   );
 
   return {

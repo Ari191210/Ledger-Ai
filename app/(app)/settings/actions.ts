@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { validateOnboarding } from "@/lib/onboarding";
+import { validateStudyProfile } from "@/lib/onboarding";
 
 type Result = { ok: true } | { error: string };
 
@@ -23,7 +23,7 @@ export async function saveSyllabus(raw: {
   stream?: string | null;
   target_exam?: string;
 }): Promise<Result> {
-  const parsed = validateOnboarding(raw);
+  const parsed = validateStudyProfile(raw);
   if (!parsed.ok) return { error: parsed.error };
 
   const { supabase, id } = await currentUserId();

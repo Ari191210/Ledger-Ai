@@ -99,6 +99,15 @@ export async function checkRateLimit(
 /** Records an attempt regardless of whether the model call itself later
  * succeeds, a failed call still cost a function invocation, and counting
  * it discourages retry-storming past the limit. */
-export async function recordInvocation(supabase: SupabaseClient, userId: string, tool: string) {
-  await supabase.from("ai_invocations").insert({ user_id: userId, tool });
+export async function recordInvocation(
+  supabase: SupabaseClient,
+  userId: string,
+  tool: string,
+): Promise<{ recorded: boolean }> {
+  const { error } = await supabase.from("ai_invocations").insert({ user_id: userId, tool });
+  if (error) {
+    console.error("[ai] could not record invocation:", error.message);
+    return { recorded: false };
+  }
+  return { recorded: true };
 }

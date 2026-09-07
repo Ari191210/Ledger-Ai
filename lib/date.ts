@@ -19,6 +19,21 @@ export function isoDaysAgoIST(n: number): string {
   return isoDateIST(new Date(Date.now() - n * 86_400_000));
 }
 
+/**
+ * The IST calendar day a stored timestamp belongs to.
+ *
+ * Postgres hands back UTC, so `taken_at.slice(0, 10)` reads the UTC day and
+ * anything logged between midnight and 05:29 IST lands on the day before. That
+ * was being compared against keys built from isoDateIST, so a paper attempted
+ * at 1:30am appeared in the wrong day of the sparkline, the focus history, the
+ * Study Days calendar and the coach's week-on-week comparison, while the Ledger
+ * Score, which routes through build-inputs, put it on the right one. The two
+ * could disagree about which week the same attempt fell in.
+ */
+export function dayKeyIST(timestamp: string): string {
+  return isoDateIST(new Date(timestamp));
+}
+
 /** The Y/M/D (IST) "now" currently is. Month is 1-12. */
 export function todayPartsIST(): { year: number; month: number; day: number } {
   const parts = new Intl.DateTimeFormat("en-CA", {

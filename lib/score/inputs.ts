@@ -2,7 +2,7 @@ import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeScore, type ScoreBreakdown, type ScoreInputs } from "./compute";
 import { buildScoreInputs } from "./build-inputs";
-import { isoDateIST, hourIST } from "@/lib/date";
+import { isoDateIST, hourIST, dayKeyIST } from "@/lib/date";
 import {
   getActivityRange,
   getCurrentStreak,
@@ -98,7 +98,7 @@ export const getDashboardData = cache(async function getDashboardData(
 
   const pyqByDay = new Map<string, { total: number; correct: number }>();
   for (const a of pyq30) {
-    const d = a.taken_at.slice(0, 10);
+    const d = dayKeyIST(a.taken_at);
     const cur = pyqByDay.get(d) ?? { total: 0, correct: 0 };
     cur.total += a.total;
     cur.correct += a.correct;
@@ -113,7 +113,7 @@ export const getDashboardData = cache(async function getDashboardData(
 
   const mistakesByDay = new Map<string, number>();
   for (const m of mistakesAll) {
-    const d = m.created_at.slice(0, 10);
+    const d = dayKeyIST(m.created_at);
     mistakesByDay.set(d, (mistakesByDay.get(d) ?? 0) + 1);
   }
   const mistakesSeries = days7.map((d) => mistakesByDay.get(d) ?? 0);
@@ -171,13 +171,13 @@ export const getDashboardData = cache(async function getDashboardData(
     }
   }
   for (const m of mistakesAll) {
-    const d = m.created_at.slice(0, 10);
+    const d = dayKeyIST(m.created_at);
     if (d.startsWith(curMonthPrefix)) {
       detailFor(Number(d.slice(8, 10))).mistakes.push({ subject: m.subject, topic: m.topic });
     }
   }
   for (const a of pyq30) {
-    const d = a.taken_at.slice(0, 10);
+    const d = dayKeyIST(a.taken_at);
     if (d.startsWith(curMonthPrefix)) {
       detailFor(Number(d.slice(8, 10))).pyq.push({
         subject: a.subject,

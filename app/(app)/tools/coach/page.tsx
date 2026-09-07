@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowDown, ArrowUp, Minus, Megaphone } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getActivityRange, getPyqAttempts, getMistakes, getCurrentStreak } from "@/lib/study/queries";
-import { isoDateIST, isoDaysAgoIST } from "@/lib/date";
+import { isoDateIST, isoDaysAgoIST, dayKeyIST } from "@/lib/date";
 import { buildWeeklyBriefing, type WeekWindow } from "@/lib/coach";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
@@ -29,16 +29,16 @@ export default async function CoachPage() {
       .filter((a) => a.day >= fromDay && a.day <= toDay)
       .reduce((s, a) => s + a.minutes, 0);
     const pyq = pyq14.filter((p) => {
-      const d = p.taken_at.slice(0, 10);
+      const d = dayKeyIST(p.taken_at);
       return d >= fromDay && d <= toDay;
     });
     const mistakesLogged = mistakesAll.filter((m) => {
-      const d = m.created_at.slice(0, 10);
+      const d = dayKeyIST(m.created_at);
       return d >= fromDay && d <= toDay;
     }).length;
     const mistakesResolved = mistakesAll.filter((m) => {
       if (!m.resolved_at) return false;
-      const d = m.resolved_at.slice(0, 10);
+      const d = dayKeyIST(m.resolved_at);
       return d >= fromDay && d <= toDay;
     }).length;
     return {

@@ -63,7 +63,19 @@ export async function POST(req: Request) {
   // way every racer is counted, so all of them see the same high count and all
   // but the ones within the limit are rejected. The cost is a row for a request
   // that never ran, which is the right trade against an uncapped model call.
-  await recordInvocation(supabase, user.id, tool);
+  //
+  // The whole scheme rests on that insert having landed. If it fails while the
+  // counting queries below still succeed, this caller is never counted and the
+  // cap is short by one for every such failure. Refuse instead: it is the same
+  // fail-closed argument the limiter itself already makes, and an uncounted
+  // model call is exactly what the cap exists to prevent.
+  const recorded = await recordInvocation(supabase, user.id, tool);
+  if (!recorded.recorded) {
+    return NextResponse.json(
+      { error: "Couldn't start that request. Try again in a moment." },
+      { status: 503 },
+    );
+  }
   const rateLimit = await checkRateLimit(supabase, user.id);
   if (!rateLimit.allowed) return NextResponse.json({ error: rateLimit.message }, { status: 429 });
 

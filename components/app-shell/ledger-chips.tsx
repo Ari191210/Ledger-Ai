@@ -24,11 +24,11 @@ export function LedgerChipsFallback() {
     <>
       <span className={`${CHIP} text-text-3`} aria-hidden>
         <Flame size={12} className="text-text-3" />
-        <span className="tabular-nums">&ndash;&ndash;</span>
+        <span className="tabular-nums">··</span>
       </span>
       <span className={`${CHIP} text-text-3`} aria-hidden>
         <TrendingUp size={12} className="text-text-3" />
-        <span className="tabular-nums">&ndash;&ndash;&ndash;</span>
+        <span className="tabular-nums">···</span>
       </span>
     </>
   );

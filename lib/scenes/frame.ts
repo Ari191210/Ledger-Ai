@@ -368,12 +368,24 @@ export function frameAt(scene: Scene, phase: number): Frame {
       }
       if (run.length > 1) runs.push(run);
 
+      // The section is decided by the angle between the cutting plane and the
+      // cone's axis, not between the plane's normal and the axis. `tilt` is the
+      // latter, so the plane itself sits at 90 - tilt from the axis, and it is
+      // that which is compared against the half-angle: parabola when they are
+      // equal, ellipse when the plane is steeper than the generator, hyperbola
+      // when it is shallower.
+      //
+      // Comparing tilt against `half` directly is the same test only when the
+      // cone is 45 degrees, which is the fallback value, so it looked correct
+      // for every casual check. At any other cone it named the curve wrongly,
+      // including calling a visibly closed loop a hyperbola.
+      const planeToAxis = Math.PI / 2 - tilt;
       const curve =
         Math.abs(tilt) < 1e-6
           ? "circle"
-          : tilt < half - 1e-6
+          : planeToAxis > half + 1e-6
             ? "ellipse"
-            : tilt < half + 1e-6
+            : planeToAxis > half - 1e-6
               ? "parabola"
               : "hyperbola";
 

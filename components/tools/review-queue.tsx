@@ -9,13 +9,28 @@ import type { Mistake } from "@/lib/study/types";
 
 export function ReviewQueue({ due }: { due: Mistake[] }) {
   const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [err, setErr] = useState<string | null>(null);
   const [, start] = useTransition();
 
   function review(m: Mistake, remembered: boolean) {
     playClick(remembered ? "done" : "switch");
     setHidden((s) => new Set(s).add(m.id));
     start(async () => {
-      await reviewMistakeAction(m.id, m.review_count, remembered);
+      try {
+        const res = await reviewMistakeAction(m.id, m.review_count, remembered);
+        if (res && "error" in res) throw new Error(res.error);
+      } catch {
+        // The card was hidden on the press. If the write never landed, hiding
+        // it permanently is the worst outcome available: the queue is driven by
+        // next_review_at, so the topic stays due while the student believes
+        // they cleared it and will not see it again this session.
+        setHidden((s) => {
+          const next = new Set(s);
+          next.delete(m.id);
+          return next;
+        });
+        setErr("That didn't save. Check your connection and try again.");
+      }
     });
   }
 
@@ -37,7 +52,9 @@ export function ReviewQueue({ due }: { due: Mistake[] }) {
     // Columns rather than one long column: a review queue is worked through
     // card by card, and seeing how much is left in one glance is the difference
     // between starting it and putting it off.
-    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div className="space-y-2">
+      {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       {visible.map((m) => (
         <div key={m.id} className="u-card flex items-center gap-3 p-3.5">
           <div className="min-w-0 flex-1">
@@ -60,6 +77,7 @@ export function ReviewQueue({ due }: { due: Mistake[] }) {
           </Button>
         </div>
       ))}
+      </div>
     </div>
   );
 }

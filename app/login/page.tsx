@@ -7,11 +7,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { SplitLayout } from "@/components/auth/split-layout";
+import { safeNext } from "@/lib/safe-next";
 
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "/dashboard";
+  // Same guard as the auth callback: this value reaches router.push and is
+  // handed to Supabase as the post-confirmation destination.
+  const next = safeNext(params.get("next"), typeof window === "undefined" ? "https://studyledger.in" : window.location.origin);
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -40,7 +43,9 @@ function LoginForm() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${location.origin}/auth/callback?next=${next}` },
+        options: {
+          emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
       });
       if (error) {
         setErr(error.message);

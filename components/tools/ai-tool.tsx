@@ -367,6 +367,7 @@ function QaResult({
 }) {
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [missed, setMissed] = useState<Set<number>>(new Set());
+  const [logErr, setLogErr] = useState<string | null>(null);
   const [, startLogging] = useTransition();
 
   function markMissed(i: number) {
@@ -374,7 +375,20 @@ function QaResult({
     playClick("tap");
     setMissed((s) => new Set(s).add(i));
     startLogging(async () => {
-      await logMistakeAction({ subject: logTarget.subject, topic: logTarget.topic });
+      try {
+        const res = await logMistakeAction({ subject: logTarget.subject, topic: logTarget.topic });
+        if (res && "error" in res) throw new Error(res.error);
+      } catch {
+        // The same fault as the Add to Fix Next button above, in the same file:
+        // without this the question stays marked "logged to Fix Next" for a row
+        // that was never written, and the ledger is lying about its contents.
+        setMissed((s) => {
+          const next = new Set(s);
+          next.delete(i);
+          return next;
+        });
+        setLogErr("That didn't save. Check your connection and try again.");
+      }
     });
   }
 
@@ -389,6 +403,7 @@ function QaResult({
 
   return (
     <div className="space-y-2">
+      {logErr && <p className="u-mono text-2xs text-negative">{logErr}</p>}
       {items.map((item, i) => {
         const isOpen = open.has(i);
         return (

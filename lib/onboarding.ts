@@ -56,24 +56,35 @@ export type OnboardingInput = {
   date_of_birth: string;
 };
 
-export function validateOnboarding(raw: {
+/** The four fields a student can change later, without the date of birth. */
+export type StudyProfileInput = Omit<OnboardingInput, "date_of_birth">;
+
+/**
+ * Validate the study profile: grade, board, stream and target exam.
+ *
+ * Split out from validateOnboarding because Settings shares the validator but
+ * not the form. Onboarding collects a date of birth and Settings does not, and
+ * the shared validator demanded one unconditionally, so every save from
+ * Settings failed with "Enter a real date of birth." beside a form that has no
+ * such field. Nobody could change their grade, board, stream or exam after
+ * onboarding.
+ *
+ * The returned value carries only these four keys, so a Settings save cannot
+ * write over the date of birth column even by accident.
+ */
+export function validateStudyProfile(raw: {
   grade?: string;
   board?: string;
   stream?: string | null;
   target_exam?: string;
-  date_of_birth?: string;
-}): { ok: true; value: OnboardingInput } | { ok: false; error: string } {
+}): { ok: true; value: StudyProfileInput } | { ok: false; error: string } {
   const grade = raw.grade ?? "";
   const board = raw.board ?? "";
   const target_exam = raw.target_exam ?? "";
-  const date_of_birth = raw.date_of_birth ?? "";
   if (!VALUES.grade.includes(grade as never)) return { ok: false, error: "Pick a grade." };
   if (!VALUES.board.includes(board as never)) return { ok: false, error: "Pick a board." };
   if (!VALUES.target_exam.includes(target_exam as never))
     return { ok: false, error: "Pick a target." };
-
-  const dob = validateDob(date_of_birth);
-  if (!dob.ok) return { ok: false, error: dob.error };
 
   let stream: string | null = null;
   if (streamApplies(grade)) {
@@ -81,5 +92,23 @@ export function validateOnboarding(raw: {
     if (!VALUES.stream.includes(stream as never))
       return { ok: false, error: "Pick a stream." };
   }
-  return { ok: true, value: { grade, board, stream, target_exam, date_of_birth } };
+  return { ok: true, value: { grade, board, stream, target_exam } };
+}
+
+/** Onboarding: the study profile plus the date of birth it alone collects. */
+export function validateOnboarding(raw: {
+  grade?: string;
+  board?: string;
+  stream?: string | null;
+  target_exam?: string;
+  date_of_birth?: string;
+}): { ok: true; value: OnboardingInput } | { ok: false; error: string } {
+  const profile = validateStudyProfile(raw);
+  if (!profile.ok) return profile;
+
+  const date_of_birth = raw.date_of_birth ?? "";
+  const dob = validateDob(date_of_birth);
+  if (!dob.ok) return { ok: false, error: dob.error };
+
+  return { ok: true, value: { ...profile.value, date_of_birth } };
 }
