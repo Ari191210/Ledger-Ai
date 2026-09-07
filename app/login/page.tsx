@@ -92,7 +92,7 @@ function LoginForm() {
             ) : null
           }
           required
-          minLength={8}
+          minLength={10}
           autoComplete={mode === "signin" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}

@@ -17,7 +17,7 @@ export function PasswordForm({ email }: { email: string }) {
     e.preventDefault();
     setErr(null);
     setSaved(false);
-    if (next.length < 8) return setErr("New password must be at least 8 characters.");
+    if (next.length < 10) return setErr("New password must be at least 10 characters.");
     if (next !== confirm) return setErr("New passwords don't match.");
 
     setBusy(true);
@@ -59,7 +59,7 @@ export function PasswordForm({ email }: { email: string }) {
       <PasswordInput
         label="new password"
         required
-        minLength={8}
+        minLength={10}
         autoComplete="new-password"
         value={next}
         onChange={(e) => setNext(e.target.value)}
@@ -67,7 +67,7 @@ export function PasswordForm({ email }: { email: string }) {
       <PasswordInput
         label="confirm new password"
         required
-        minLength={8}
+        minLength={10}
         autoComplete="new-password"
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}

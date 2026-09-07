@@ -28,7 +28,15 @@ export default async function FocusToolPage() {
         <ArrowLeft size={12} /> tools
       </Link>
 
-      <div className="u-card u-grille mt-4 p-10">
+      {/* Every other tool page names itself. This one relied on the timer being
+          self-evident, which leaves anyone navigating by headings with no idea
+          what page they landed on. */}
+      <div className="mt-4 mb-3">
+        <span className="u-label">plan</span>
+        <h1 className="mt-1 text-lg font-bold text-text">Focus</h1>
+      </div>
+
+      <div className="u-card u-grille p-10">
         <FocusTimer minutesToday={minutesToday} brief={brief} />
       </div>
     </div>

@@ -71,6 +71,30 @@ if (action === "get-auth-config") {
     smtp_sender_name: body.smtp_sender_name,
     smtp_admin_email: body.smtp_admin_email,
   }, null, 2));
+} else if (action === "set-password-security") {
+  // Refuse passwords that appear in the HaveIBeenPwned corpus. The database
+  // linter flags this as off by default, and this product is used by school
+  // students who reuse passwords across everything.
+  const { status, body } = await mgmt(`/projects/${ref}/config/auth`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      // password_hibp_enabled is a paid-plan feature: the Management API
+      // answers 402 on the free tier, and sending it fails the whole PATCH,
+      // so the length floor is set on its own until the plan changes.
+      password_min_length: 10,
+    }),
+  });
+  console.log("status:", status);
+  console.log(
+    JSON.stringify(
+      {
+        password_hibp_enabled: body.password_hibp_enabled,
+        password_min_length: body.password_min_length,
+      },
+      null,
+      2,
+    ),
+  );
 } else if (action === "apply-migration") {
   // Runs a .sql file against the project. There is no migration runner here,
   // and hand-pasting into the SQL editor was the standing manual step; this

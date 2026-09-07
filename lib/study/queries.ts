@@ -135,12 +135,34 @@ export async function getDueMistakes(
  * auto-resolves once it's been remembered enough times in a row); forgotten
  * resets the interval to the start.
  */
+/**
+ * Advance a mistake through the review schedule.
+ *
+ * The count comes from the row, never from the caller. It used to be passed in
+ * from the browser and written back as `count + 1`, so anything that could post
+ * to the action could hand over a 4 and have a topic marked mastered on its
+ * first review, or send a nonsense value and quietly wreck its own schedule.
+ * RLS meant this could only ever damage the sender's own ledger, which is why
+ * it was not a breach, but spaced repetition is the whole product and its state
+ * cannot be client-supplied.
+ */
 export async function reviewMistake(
   supabase: SupabaseClient,
   id: string,
-  currentReviewCount: number,
+  _ignoredClientCount: number,
   remembered: boolean,
 ) {
+  const { data: row, error: readError } = await supabase
+    .from("mistakes")
+    .select("review_count")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError) return { error: readError, data: null };
+  // RLS hides other people's rows, so a miss here is either someone else's id
+  // or one that no longer exists. Either way there is nothing to advance.
+  if (!row) return { error: null, data: null };
+  const currentReviewCount = Number(row.review_count) || 0;
+
   if (!remembered) {
     return supabase
       .from("mistakes")
