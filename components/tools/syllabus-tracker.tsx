@@ -54,9 +54,14 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
         type: "add",
         row: { id: `pending-${Date.now()}`, covered: false, ...draft } as SyllabusTopic,
       });
-      const res = await addTopicAction(draft);
-      if ("error" in res) {
-        setErr(res.error);
+      try {
+        const res = await addTopicAction(draft);
+        if ("error" in res) {
+          setErr(res.error);
+          setTopic(draft.topic);
+        }
+      } catch {
+        setErr("That didn't save. Check your connection and try again.");
         setTopic(draft.topic);
       }
     });

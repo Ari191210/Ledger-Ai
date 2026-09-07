@@ -72,9 +72,17 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
         type: "add",
         row: { id: `pending-${Date.now()}`, ...draft } as Deadline,
       });
-      const res = await addDeadlineAction(draft);
-      if ("error" in res) {
-        setErr(res.error);
+      try {
+        const res = await addDeadlineAction(draft);
+        if ("error" in res) {
+          setErr(res.error);
+          setTitle(draft.title);
+        }
+      } catch {
+        // Offline, the action throws instead of returning an error. The
+        // optimistic row disappears on its own; the typed title has to be put
+        // back by hand or the student loses what they wrote.
+        setErr("That didn't save. Check your connection and try again.");
         setTitle(draft.title);
       }
     });

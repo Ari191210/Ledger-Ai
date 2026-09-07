@@ -52,13 +52,17 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
     if (!name.trim()) return;
     setErr(null);
     start(async () => {
-      const res = await addHabitAction(name);
-      if ("error" in res) {
-        setErr(res.error);
-        return;
+      try {
+        const res = await addHabitAction(name);
+        if ("error" in res) {
+          setErr(res.error);
+          return;
+        }
+        setName("");
+        playClick("switch");
+      } catch {
+        setErr("That didn't save. Check your connection and try again.");
       }
-      setName("");
-      playClick("switch");
     });
   }
 

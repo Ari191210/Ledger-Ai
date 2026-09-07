@@ -223,10 +223,18 @@ export function AiTool({
               // wrong shape for that.
               setLogged(true);
               startLogging(async () => {
-                const res = await logMistakeAction({ subject, topic });
-                if (res && "error" in res) {
+                try {
+                  const res = await logMistakeAction({ subject, topic });
+                  if (res && "error" in res) {
+                    setLogged(false);
+                    setLogError(res.error);
+                  }
+                } catch {
+                  // Without this the button keeps saying "in Fix Next" for a
+                  // row that was never written, which is the one thing a
+                  // ledger must never do.
                   setLogged(false);
-                  setLogError(res.error);
+                  setLogError("That didn't save. Check your connection and try again.");
                 }
               });
             }}

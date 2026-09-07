@@ -54,24 +54,34 @@ export function QuickLog({
     playClick("switch");
     setOpen(false);
     start(async () => {
-      const res =
-        tab === "mistake"
-          ? await logMistakeAction({ subject, topic })
-          : tab === "pyq"
-            ? await logPyqAction({
-                subject,
-                total: Number(total),
-                correct: Number(correct),
-                predictedCorrect: predicted.trim() === "" ? null : Number(predicted),
-              })
-            : await logFocusAction({ minutes: Number(minutes) });
+      try {
+        const res =
+          tab === "mistake"
+            ? await logMistakeAction({ subject, topic })
+            : tab === "pyq"
+              ? await logPyqAction({
+                  subject,
+                  total: Number(total),
+                  correct: Number(correct),
+                  predictedCorrect: predicted.trim() === "" ? null : Number(predicted),
+                })
+              : await logFocusAction({ minutes: Number(minutes) });
 
-      if ("error" in res) {
-        setErr(res.error);
+        if ("error" in res) {
+          setErr(res.error);
+          setOpen(true);
+          return;
+        }
+        reset();
+      } catch {
+        // A server action that cannot reach the server throws rather than
+        // returning an error, and with the modal already closed on the press
+        // that threw away what the student had typed without telling them.
+        // Closing early is only honest if every way it can fail brings the
+        // form back.
+        setErr("That didn't save. Check your connection and try again.");
         setOpen(true);
-        return;
       }
-      reset();
     });
   }
 
