@@ -272,10 +272,10 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   acts on were listened to directly.
   - The **what-if dial** announces the action and its consequence, not an index.
     A slider whose positions are 0 to N announces "6" without help, and six of
-    what is exactly the question a blind student cannot answer.  takes a
-     prop for this; anywhere it is omitted the raw value is the
+    what is exactly the question a blind student cannot answer. `Knob` takes a
+    `valueText` prop for this; anywhere it is omitted the raw value is the
     fallback, which is right for a two-position dial and wrong for a numeric one.
-  - The **score ring** announces its number and tier. The svg is 
+  - The **score ring** announces its number and tier. The svg is `aria-hidden`
     and the readout lives inside it, so without a label on the wrapper the
     figure the whole product is built around reached nobody.
   - **Calendar days** announce the date, whether it is today, and whether
