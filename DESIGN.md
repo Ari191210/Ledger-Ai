@@ -267,6 +267,27 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   colour-coded encoders matched to same-colour on-screen parameters. It is
   multi-accent by design and collides head-on with rule 1.
 
+- **2026-09-08** - Screen-reader verified, with NVDA on Windows, by the founder.
+  Not inferred from markup: the three controls that carry a number a student
+  acts on were listened to directly.
+  - The **what-if dial** announces the action and its consequence, not an index.
+    A slider whose positions are 0 to N announces "6" without help, and six of
+    what is exactly the question a blind student cannot answer.  takes a
+     prop for this; anywhere it is omitted the raw value is the
+    fallback, which is right for a two-position dial and wrong for a numeric one.
+  - The **score ring** announces its number and tier. The svg is 
+    and the readout lives inside it, so without a label on the wrapper the
+    figure the whole product is built around reached nobody.
+  - **Calendar days** announce the date, whether it is today, and whether
+    anything was studied. A bare digit passes an automated accessible-name check
+    and tells a screen-reader user nothing, which is why the crawl reported no
+    unnamed controls while the calendar was unusable.
+
+  The general rule this settles: an automated name check proves a name exists,
+  never that it means anything. Any control whose visible state is carried by
+  colour or position needs that state in its accessible name, and the only way
+  to know it reads properly is to listen to it.
+
 ---
 
 *When a new UI pattern gets built and kept, add it to §4. When a real brand
