@@ -79,22 +79,29 @@ describe("the cost of a missed day", () => {
   };
 
   it("never claims a streak the student did not have", () => {
-    // Sixty days missed, and before the break they were on a three day run.
+    // Last log sixty days ago, on a three day run. Fifty nine days have fully
+    // passed since; today is still open.
     const cost = costOfBreakingStreak(inputs, 60, 3);
     expect(cost).not.toBeNull();
     // The old code said 60. They logged nothing for sixty days.
-    expect(cost!.wouldHaveBeen).toBe(63);
+    expect(cost!.wouldHaveBeen).toBe(62);
     expect(cost!.currentStreak).toBe(0);
   });
 
   it("counts only the run that the break actually interrupted", () => {
     const cost = costOfBreakingStreak(inputs, 3, 0);
-    // No prior streak at all: the counterfactual is just the missed days.
-    expect(cost!.wouldHaveBeen).toBe(3);
+    // No prior streak: the counterfactual is just the two days that fully ended.
+    expect(cost!.wouldHaveBeen).toBe(2);
   });
 
   it("says nothing when no day has been missed", () => {
     expect(costOfBreakingStreak(inputs, 0, 5)).toBeNull();
+  });
+
+  it("says nothing when the last log was yesterday, because today is still open", () => {
+    // The streak has not broken, so there is no cost to report. Reporting one
+    // would tell a student at 8am that they had already lost points.
+    expect(costOfBreakingStreak(inputs, 1, 5)).toBeNull();
   });
 });
 

@@ -1,6 +1,7 @@
 import { Flame, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardData } from "@/lib/score/inputs";
+import { todayPartsIST } from "@/lib/date";
 
 /**
  * The streak and score chips in the top bar.
@@ -36,12 +37,21 @@ export function LedgerChipsFallback() {
 
 export async function LedgerChips({ userId }: { userId: string }) {
   const supabase = await createClient();
-  const { score, streakDays } = await getDashboardData(supabase, userId);
+  const { score, streakDays, studiedDays } = await getDashboardData(supabase, userId);
+  // Same source as the streak (activity_days with minutes), so this is exactly
+  // "today counts toward the run yet".
+  const loggedToday = studiedDays.has(todayPartsIST().day);
+  // A run still standing on yesterday: shown, not zeroed, but marked as waiting
+  // on today, so the chip tells the truth in both directions.
+  const atRisk = streakDays > 0 && !loggedToday;
+  const streakLabel = atRisk
+    ? `${streakDays} day streak, log today to keep it`
+    : `${streakDays} day streak`;
 
   return (
     <>
-      <span className={`${CHIP} text-text-2`}>
-        <Flame size={12} className="text-accent-strong" />
+      <span className={`${CHIP} ${atRisk ? "text-text-3" : "text-text-2"}`} title={streakLabel} aria-label={streakLabel}>
+        <Flame size={12} className={atRisk ? "text-text-3" : "text-accent-strong"} />
         {streakDays}d
       </span>
       <span className={`${CHIP} text-text`}>

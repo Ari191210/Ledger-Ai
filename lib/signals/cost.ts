@@ -22,21 +22,23 @@ export function costOfBreakingStreak(
   daysSinceLastLog: number,
   /**
    * The streak that was running on the last day actually logged. Required,
-   * because inputs.streakDays is necessarily zero here: computeStreak counts
-   * back from today and breaks at the first missing day, so anyone who has
-   * missed a day has a current streak of zero. Adding the gap onto that zero
-   * told a student returning after two months that they would be on a sixty
-   * day streak, built entirely out of days they did not log. That is a
-   * fabricated number presented as fact, which is the one thing this product
-   * is not allowed to do.
+   * because inputs.streakDays is necessarily zero here: once a whole day has
+   * passed with nothing logged, computeStreak has broken and reads zero.
+   * Adding the gap onto that zero told a student returning after two months
+   * that they would be on a sixty day streak, built entirely out of days they
+   * did not log. That is a fabricated number presented as fact, which is the
+   * one thing this product is not allowed to do.
    */
   previousStreak: number,
 ): StreakCost | null {
-  // Only meaningful once a day has actually been missed.
-  if (daysSinceLastLog < 1) return null;
+  // A streak survives until the day after the last log is over, so a last log
+  // yesterday has cost nothing yet: today is still open. Only a gap of two or
+  // more days means a whole day was actually missed.
+  if (daysSinceLastLog < 2) return null;
 
-  // The streak they were on, plus the days they would have added by keeping it.
-  const wouldHaveBeen = previousStreak + daysSinceLastLog;
+  // The run they were on, plus every day since that has fully ended. Today is
+  // still open, so it is not counted as a day they failed to add.
+  const wouldHaveBeen = previousStreak + daysSinceLastLog - 1;
   const actual = computeScore(inputs);
   const counterfactual = computeScore({ ...inputs, streakDays: wouldHaveBeen });
 
