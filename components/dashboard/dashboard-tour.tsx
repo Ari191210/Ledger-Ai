@@ -79,86 +79,56 @@ const STEPS: Step[] = [
   },
   {
     anchor: "score",
-    title: "Your Ledger Score",
+    title: "Am I ready? Your Ledger Score",
     body:
       "One number out of 1000, from four parts: past papers 40%, syllabus coverage 25%, mistakes 20%, consistency 15%. Turn the dial to see what would actually move it.",
   },
   {
-    anchor: "activity",
-    title: "The last seven days",
-    body:
-      "Minutes studied, past paper accuracy, and mistakes logged. The small charts show which way each one is going, which matters more than today's figure.",
-  },
-  {
-    anchor: "calendar",
-    title: "Study days",
-    body: "Every day you studied this month. Turn the dial or tap a day to see exactly what you did on it.",
-  },
-  {
-    anchor: "habits",
-    title: "Habits today",
-    body:
-      "The habits you are tracking and which are done today. Tick them off right here without opening the tool.",
-  },
-  {
     anchor: "deadlines",
-    title: "Deadlines",
+    title: "What is coming",
     body: "Your next three deadlines, with the real number of days left on each. Add one and it appears here.",
   },
   {
-    anchor: "focus",
-    title: "Focus history",
-    body:
-      "Every focus session from the last 30 days. A flat day is an honest record of a day off, not a broken chart.",
-  },
-  {
-    anchor: "coverage",
-    title: "Syllabus coverage",
-    body:
-      "How much of your syllabus you have covered, subject by subject. List your topics in Syllabus Tracker and this fills in.",
-  },
-  {
-    anchor: "fix-next",
-    title: "Fix next",
-    body:
-      "The topics costing you the most marks, worst first. When you do not know what to revise, start at the top of this list.",
-  },
-  {
-    anchor: "best-hours",
-    title: "Best hours",
-    body:
-      "The hours of the day you answer past paper questions most accurately. Save your hardest topics for then.",
-  },
-  {
     anchor: "spaced-review",
-    title: "Spaced review",
+    title: "What is due",
     body:
       "Mistakes due for another look today. Reviewing them on schedule is how they stop coming back.",
   },
   {
-    anchor: "mistake-dna",
-    title: "Mistake DNA",
-    body: "The mistake you make most often, so you see the pattern rather than one wrong answer.",
+    anchor: "fix-next",
+    title: "What to do next",
+    body:
+      "The topics costing you the most marks, worst first. When you do not know what to revise, start at the top of this list.",
   },
   {
-    anchor: "tape",
-    title: "Ledger tape",
-    body: "A receipt of everything you logged in the last two weeks, and what each entry did to your score.",
+    anchor: "evidence",
+    title: "The evidence behind the number",
+    body:
+      "Study days, focus history, syllabus coverage, your best hours and the ledger tape live on the Score page, under the number they explain.",
   },
 ];
 
-/** The last step. Anchored to the navigation, because that is where tools live. */
+/**
+ * The last step, and one action rather than a menu.
+ *
+ * It used to offer three tools, which put a decision in front of a student at
+ * the exact moment they should have been carried forward. Doubt Solver is the
+ * one tool that is useful on an empty account and also feeds the rest of the
+ * product: it answers a real question with no data, and the topic can be saved
+ * as a mistake, which is what fills Fix next, Spaced review and Mistake DNA on
+ * the next visit. Mistake DNA and Spaced Review open on empty states for a new
+ * account, and Focus and Flashcards leave nothing behind on the dashboard.
+ *
+ * Anchored to the navigation, because that is where every other tool lives.
+ */
 const FINAL: Step = {
   anchor: "nav",
-  title: "Now try one tool",
-  body: "This dashboard fills up from what you do. Pick one to start. Every other tool is under Tools.",
+  title: "Now ask your first doubt",
+  body:
+    "Paste a question you are stuck on and Doubt Solver will explain it. Save the topic as a mistake and it shows up in Fix next and Spaced review tomorrow. Every other tool is under Tools.",
 };
 
-const STARTERS = [
-  { href: "/tools/doubt", name: "Doubt Solver", line: "Paste a question you are stuck on" },
-  { href: "/tools/focus", name: "Focus", line: "Start a timed study session" },
-  { href: "/tools/flashcards", name: "Flashcards", line: "Turn a topic into a card set" },
-];
+const FIRST_TOOL = { href: "/tools/doubt", label: "open doubt solver" };
 
 type Box = { top: number; left: number; width: number; height: number };
 
@@ -374,7 +344,7 @@ export function DashboardTour({
   if (!running) return null;
 
   const step = steps[i];
-  const calloutH = onFinal ? 300 : step.form ? 330 : 200;
+  const calloutH = onFinal ? 250 : step.form ? 330 : 200;
 
   async function logFirstResult(e: React.FormEvent) {
     e.preventDefault();
@@ -492,32 +462,30 @@ export function DashboardTour({
         <p className="mt-1.5 text-sm text-text-2">{step.body}</p>
 
         {onFinal ? (
-          <div className="mt-3 space-y-1.5">
-            {STARTERS.map((t) => (
-              <button
-                key={t.href}
-                onClick={() => openTool(t.href)}
-                disabled={leaving}
-                className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-left",
-                  "transition-[translate,scale,border-color] duration-[190ms] ease-spring",
-                  "hover:border-text-3 active:translate-y-[2px] active:scale-[0.985] active:duration-[70ms] active:ease-out",
-                  "motion-reduce:transition-none motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
-                  "disabled:opacity-60",
-                )}
-              >
-                <span>
-                  <span className="block text-sm font-semibold text-text">{t.name}</span>
-                  <span className="u-mono block text-2xs text-text-3">{t.line}</span>
-                </span>
-                <span aria-hidden className="u-mono text-2xs text-text-3">open</span>
-              </button>
-            ))}
-            {i > 0 && (
-              <button onClick={back} className="u-mono pt-1 text-2xs text-text-3 hover:text-text">
-                back
-              </button>
-            )}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <button
+              onClick={back}
+              disabled={i === 0}
+              className={cn(
+                "u-mono text-2xs text-text-3 transition-colors hover:text-text",
+                i === 0 && "pointer-events-none opacity-0",
+              )}
+            >
+              back
+            </button>
+            <button
+              onClick={() => openTool(FIRST_TOOL.href)}
+              disabled={leaving}
+              className={cn(
+                "h-8 rounded-md bg-accent px-3 text-xs font-bold text-accent-on",
+                "transition-[translate,scale,background-color] duration-[190ms] ease-spring",
+                "hover:bg-accent-hover active:translate-y-[2px] active:scale-[0.965] active:duration-[70ms] active:ease-out",
+                "motion-reduce:transition-none motion-reduce:active:translate-y-0 motion-reduce:active:scale-100",
+                "disabled:opacity-60",
+              )}
+            >
+              {leaving ? "opening" : FIRST_TOOL.label}
+            </button>
           </div>
         ) : step.form && moved ? (
           <div className="mt-3">

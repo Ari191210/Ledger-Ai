@@ -1,56 +1,22 @@
 import Link from "next/link";
-import { HourDial } from "@/components/dashboard/hour-dial";
-import { SyllabusCard } from "@/components/dashboard/syllabus-card";
 import { ScoreCard } from "@/components/dashboard/score-card";
-import { ArrowUpRight, Plus, Megaphone, Sunrise, RotateCcw, Dna } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Plus, Megaphone, RotateCcw } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Reveal } from "@/components/motion/reveal";
 import { SoundButtonLink } from "@/components/ui/button-link-sound";
-import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
-import { FocusChart } from "@/components/dashboard/focus-chart";
 import { QuickLog } from "@/components/dashboard/quick-log";
 import { DashboardTour } from "@/components/dashboard/dashboard-tour";
-import { DashboardHabits } from "@/components/dashboard/dashboard-habits";
 import { getDashboardData } from "@/lib/score/inputs";
-import { getLedgerTape } from "@/lib/score/tape";
-import { todayPartsIST, daysInMonthIST, firstWeekdayIST, isoDateIST, isoDaysAgoIST, hourIST, dayKeyIST } from "@/lib/date";
+import { isoDateIST, isoDaysAgoIST, dayKeyIST } from "@/lib/date";
 import { getMistakes, getPyqAttempts, getActivityRange } from "@/lib/study/queries";
-import { getHabits, getHabitLogs } from "@/lib/study/habits";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { buildWeeklyBriefing, type WeekWindow } from "@/lib/coach";
-import { computeCircadianRows } from "@/lib/circadian";
 
 function Label({ index, children }: { index: string; children: string }) {
   return (
     <span className="u-label">
       {index} <span className="mx-1 text-text-3/60">·</span> {children}
     </span>
-  );
-}
-
-function Mini({ data }: { data: number[] }) {
-  const w = 120;
-  const h = 34;
-  const lo = Math.min(...data);
-  const hi = Math.max(...data);
-  const x = (i: number) => (i / (data.length - 1)) * w;
-  const y = (v: number) => 3 + (1 - (v - lo) / (hi - lo || 1)) * (h - 6);
-  const line = data
-    .map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`)
-    .join(" ");
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-8 w-full" aria-hidden>
-      <path
-        d={line}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="text-text-2"
-      />
-      <circle cx={x(data.length - 1)} cy={y(data[data.length - 1])} r={2.2} className="fill-accent-strong" />
-    </svg>
   );
 }
 
@@ -75,32 +41,14 @@ export default async function DashboardPage({
     supabase.from("profiles").select("tour_seen_at").eq("id", uid).maybeSingle(),
   ]);
   const showTour = tour === "1" || !tourProfile?.tour_seen_at;
-  const {
-    score,
-    scoreInputs,
-    activity,
-    focusHistory,
-    studiedDays,
-    dayDetails,
-    coveragePct,
-    syllabusLogged,
-    syllabusCard,
-    hourAccuracy,
-    fixNext,
-    streakDays,
-  } = await getDashboardData(supabase, uid);
-  const focusHistoryTotal = focusHistory.reduce((s, d) => s + d.minutes, 0);
-  const focusHistoryAvg = Math.round(focusHistoryTotal / focusHistory.length);
+  const { score, scoreInputs, fixNext, streakDays } = await getDashboardData(supabase, uid);
 
   const todayIso = isoDateIST();
 
-  const [tape, pyqAll, mistakesAll, activityRange, habits, habitLogsToday, deadlinesAll] = await Promise.all([
-    getLedgerTape(supabase, uid),
+  const [pyqAll, mistakesAll, activityRange, deadlinesAll] = await Promise.all([
     getPyqAttempts(supabase, uid),
     getMistakes(supabase, uid),
     getActivityRange(supabase, uid, isoDaysAgoIST(13), todayIso),
-    getHabits(supabase, uid),
-    getHabitLogs(supabase, uid, todayIso),
     getDeadlines(supabase, uid),
   ]);
 
@@ -137,10 +85,6 @@ export default async function DashboardPage({
       )
     : null;
 
-  // ── habits today ────────────────────────────────────────────────────
-  const doneTodaySet = new Set(habitLogsToday.map((l) => l.habit_id));
-  const dashboardHabits = habits.map((h) => ({ id: h.id, name: h.name, doneToday: doneTodaySet.has(h.id) }));
-
   // ── deadlines: soonest 3, real days-remaining ──────────────────────
   const upcomingDeadlines = deadlinesAll.slice(0, 3).map((d) => ({
     ...d,
@@ -150,30 +94,10 @@ export default async function DashboardPage({
   }));
 
 
-  // ── spaced review due count + mistake dna top pattern ──────────────
+  // ── spaced review due count ─────────────────────────────────────────
   const dueCount = mistakesAll.filter(
     (m) => !m.resolved_at && new Date(m.next_review_at) <= new Date(),
   ).length;
-
-  const byTopic = new Map<string, { subject: string; topic: string; count: number }>();
-  for (const m of mistakesAll) {
-    const key = `${m.subject}::${m.topic}`;
-    const cur = byTopic.get(key) ?? { subject: m.subject, topic: m.topic, count: 0 };
-    cur.count++;
-    byTopic.set(key, cur);
-  }
-  const topPattern = [...byTopic.values()].sort((a, b) => b.count - a.count)[0] ?? null;
-
-  const { year, month, day: today } = todayPartsIST();
-  const dim = daysInMonthIST(year, month);
-  const firstDow = firstWeekdayIST(year, month);
-  const calendarCells: (number | null)[] = [
-    ...Array<null>(firstDow).fill(null),
-    ...Array.from({ length: dim }, (_, i) => i + 1),
-  ];
-  const monthLabel = new Date(Date.UTC(year, month - 1, 1))
-    .toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" })
-    .toLowerCase();
 
   return (
     <div className="mx-auto max-w-[1240px] space-y-4">
@@ -250,141 +174,64 @@ export default async function DashboardPage({
       )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-4">
-          {/* ── ledger score ─────────────────────────────── */}
-          <Reveal delay={0.04}>
-            <ScoreCard score={score} inputs={scoreInputs} />
-          </Reveal>
+        {/* ── ledger score: am I ready ─────────────────── */}
+        <Reveal delay={0.04}>
+          <ScoreCard score={score} inputs={scoreInputs} />
+        </Reveal>
 
-          {/* ── study activity ───────────────────────────── */}
-          <Reveal delay={0.08}>
-            <section className="u-card p-4" data-tour="activity">
+        {/* ── right rail: what is coming, what is due ───── */}
+        <div className="flex flex-col gap-4">
+          <Reveal delay={0.06}>
+            <section className="u-card p-4" data-tour="deadlines">
               <div className="flex items-center justify-between">
-                <Label index="02">study activity</Label>
-                {/* A static label, not a control. This was a Segmented with no
-                    value and no handler: it moved its pill, announced the new
-                    tab as selected to a screen reader, and filtered nothing. A
-                    control that asserts a state change it did not make is worse
-                    than no control. The tiles below really are the last 7 days. */}
-                <span className="u-mono text-2xs text-text-3">last 7 days</span>
+                <Label index="02">deadlines</Label>
+                <SoundButtonLink href="/tools/deadlines" size="sm" className="h-7 px-2.5 text-2xs">
+                  <Plus size={12} /> add
+                </SoundButtonLink>
               </div>
-              <div className="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-3">
-                {activity.map((a) => (
-                  <div key={a.key}>
-                    <Mini data={a.data} />
-                    <div className="mt-2 u-stat-number text-[1.6rem]">{a.value}</div>
-                    <div className="u-label mt-0.5">{a.label}</div>
-                    <div className="mt-2 u-mono text-2xs text-text-3">{a.sub}</div>
+              <div className="mt-3 divide-y divide-dashed divide-border">
+                {upcomingDeadlines.length === 0 && (
+                  <p className="u-mono py-2 text-2xs text-text-3">nothing coming up, nice</p>
+                )}
+                {upcomingDeadlines.map((d) => (
+                  <div key={d.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <div className="grid size-9 shrink-0 place-items-center rounded-md border border-border-2 bg-surface-2">
+                      <div className="text-center leading-none">
+                        <div className="u-stat-number text-sm">{d.daysLeft}</div>
+                        <div className="u-mono text-[8px] text-text-3">d</div>
+                      </div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-text">{d.title}</p>
+                      <p className="u-label mt-0.5">{d.subject ?? d.kind}</p>
+                    </div>
+                    <span className="u-mono shrink-0 rounded-full border border-border-2 px-2 py-0.5 text-[10px] text-text-2">
+                      {d.kind}
+                    </span>
                   </div>
                 ))}
               </div>
             </section>
           </Reveal>
+
+          <Reveal delay={0.08}>
+            <Link href="/tools/spaced-review" data-tour="spaced-review" className="u-card u-card--hover block p-4">
+              <div className="flex items-center gap-2">
+                <RotateCcw size={13} className="text-text-3" />
+                <Label index="03">spaced review</Label>
+              </div>
+              <p className="mt-2 text-sm font-bold text-text">{dueCount} due</p>
+              <p className="u-mono mt-0.5 text-2xs text-text-3">review queue, oldest first</p>
+            </Link>
+          </Reveal>
         </div>
-
-        {/* ── study days (right rail) ────────────────────── */}
-        <Reveal delay={0.06}>
-          <StudyDaysCalendar
-            cells={calendarCells}
-            today={today}
-            monthLabel={monthLabel}
-            studiedDays={studiedDays}
-            dayDetails={dayDetails}
-          />
-        </Reveal>
       </div>
-
-      {/* ── habits today + deadlines ─────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Reveal delay={0.09}>
-          <section className="u-card p-4" data-tour="habits">
-            <div className="flex items-center justify-between">
-              <Label index="04">habits today</Label>
-              <span className="u-mono text-2xs text-text-3">
-                {dashboardHabits.filter((h) => h.doneToday).length} of {dashboardHabits.length}
-              </span>
-            </div>
-            <div className="mt-3">
-              {dashboardHabits.length === 0 ? (
-                <p className="u-mono py-2 text-2xs text-text-3">
-                  no habits yet.{" "}
-                  <Link href="/tools/habits" className="text-accent-strong hover:underline">
-                    add one
-                  </Link>
-                </p>
-              ) : (
-                <DashboardHabits habits={dashboardHabits} today={todayIso} />
-              )}
-            </div>
-          </section>
-        </Reveal>
-
-        <Reveal delay={0.1}>
-          <section className="u-card p-4" data-tour="deadlines">
-            <div className="flex items-center justify-between">
-              <Label index="05">deadlines</Label>
-              <SoundButtonLink href="/tools/deadlines" size="sm" className="h-7 px-2.5 text-2xs">
-                <Plus size={12} /> add
-              </SoundButtonLink>
-            </div>
-            <div className="mt-3 divide-y divide-dashed divide-border">
-              {upcomingDeadlines.length === 0 && (
-                <p className="u-mono py-2 text-2xs text-text-3">nothing coming up, nice</p>
-              )}
-              {upcomingDeadlines.map((d) => (
-                <div key={d.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                  <div className="grid size-9 shrink-0 place-items-center rounded-md border border-border-2 bg-surface-2">
-                    <div className="text-center leading-none">
-                      <div className="u-stat-number text-sm">{d.daysLeft}</div>
-                      <div className="u-mono text-[8px] text-text-3">d</div>
-                    </div>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-text">{d.title}</p>
-                    <p className="u-label mt-0.5">{d.subject ?? d.kind}</p>
-                  </div>
-                  <span className="u-mono shrink-0 rounded-full border border-border-2 px-2 py-0.5 text-[10px] text-text-2">
-                    {d.kind}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        </Reveal>
-      </div>
-
-      {/* ── focus history ────────────────────────────────── */}
-      <Reveal delay={0.1}>
-        <section className="u-card p-4" data-tour="focus">
-          <div className="flex items-center justify-between">
-            <Label index="06">focus history</Label>
-            <span className="u-mono text-2xs text-text-3">
-              {Math.round(focusHistoryTotal / 60)}h total · {focusHistoryAvg}m avg/day · 30d
-            </span>
-          </div>
-          <div className="mt-10">
-            <FocusChart data={focusHistory} />
-          </div>
-        </section>
-      </Reveal>
-
-      {/* ── coverage strip ──────────────────────────────── */}
-      <Reveal delay={0.11}>
-        <section className="u-card p-4" data-tour="coverage">
-          <Label index="07">syllabus coverage</Label>
-          {syllabusLogged ? (
-            <SyllabusCard card={syllabusCard} coveragePct={coveragePct} />
-          ) : (
-            <p className="u-mono mt-3 text-2xs text-text-3">no syllabus logged yet</p>
-          )}
-        </section>
-      </Reveal>
 
       {/* ── fix next ────────────────────────────────────── */}
       <Reveal delay={0.14}>
         <section className="u-card p-4" data-tour="fix-next">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Label index="08">fix next</Label>
+            <Label index="04">fix next</Label>
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {fixNext.length === 0 && (
@@ -418,83 +265,15 @@ export default async function DashboardPage({
         </section>
       </Reveal>
 
-      {/* ── insights strip: circadian / spaced review / mistake dna ─ */}
+      {/* The history that explains the score lives under the score. */}
       <Reveal delay={0.16}>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Link href="/tools/circadian" data-tour="best-hours" className="u-card u-card--hover p-4">
-            <div className="flex items-center gap-2">
-              <Sunrise size={13} className="text-text-3" />
-              <Label index="09">best hours</Label>
-            </div>
-            <HourDial hours={hourAccuracy} />
-          </Link>
-
-          <Link href="/tools/spaced-review" data-tour="spaced-review" className="u-card u-card--hover p-4">
-            <div className="flex items-center gap-2">
-              <RotateCcw size={13} className="text-text-3" />
-              <Label index="10">spaced review</Label>
-            </div>
-            <p className="mt-2 text-sm font-bold text-text">{dueCount} due</p>
-            <p className="u-mono mt-0.5 text-2xs text-text-3">review queue, oldest first</p>
-          </Link>
-
-          <Link href="/tools/mistake-dna" data-tour="mistake-dna" className="u-card u-card--hover p-4">
-            <div className="flex items-center gap-2">
-              <Dna size={13} className="text-text-3" />
-              <Label index="11">mistake dna</Label>
-            </div>
-            {topPattern ? (
-              <>
-                <p className="mt-2 truncate text-sm font-bold text-text">{topPattern.topic}</p>
-                <p className="u-mono mt-0.5 text-2xs text-text-3">
-                  {topPattern.subject} · {topPattern.count} logged
-                </p>
-              </>
-            ) : (
-              <p className="u-mono mt-2 text-2xs text-text-3">no mistakes logged yet</p>
-            )}
-          </Link>
-        </div>
-      </Reveal>
-
-      {/* ── ledger tape ───────────────────────────────────── */}
-      <Reveal delay={0.18}>
-        <section className="u-card relative overflow-hidden" data-tour="tape">
-          <div
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-2"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, var(--bg) 50%, transparent 50%), linear-gradient(45deg, var(--bg) 50%, transparent 50%)",
-              backgroundSize: "10px 10px",
-              backgroundRepeat: "repeat-x",
-              backgroundPosition: "top",
-            }}
-          />
-          <div className="p-4 pt-5">
-            <Label index="12">ledger tape</Label>
-            <div className="mt-3 divide-y divide-dashed divide-border">
-              {tape.length === 0 && (
-                <p className="u-mono py-3 text-2xs text-text-3">
-                  nothing logged in the last 14 days
-                </p>
-              )}
-              {tape.map((e) => (
-                <div key={e.id} className="u-mono flex items-center gap-3 py-2 text-2xs">
-                  <span className="w-12 shrink-0 text-text-3">
-                    {new Date(e.at).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                    })}
-                  </span>
-                  <span className="w-28 shrink-0 text-text-2">{e.label}</span>
-                  <span className="flex-1 truncate text-text-3">{e.meta}</span>
-                  {e.delta && <span className="shrink-0 text-accent-strong">{e.delta}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <Link
+          href="/score"
+          data-tour="evidence"
+          className="u-tap u-mono inline-flex items-center gap-1.5 text-2xs text-text-3 transition-colors hover:text-text"
+        >
+          study days, focus history, coverage and the ledger tape <ArrowRight size={12} />
+        </Link>
       </Reveal>
 
       {/* Mounted last so every anchor above it exists by the time the tour

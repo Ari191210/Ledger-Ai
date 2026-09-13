@@ -3,6 +3,9 @@ import { TIER_MARKS } from "@/lib/score/compute";
 import { StatNumber } from "@/components/ui/stat-number";
 import { Ring } from "@/components/ui/ring";
 import { getDashboardData } from "@/lib/score/inputs";
+import { getLedgerTape } from "@/lib/score/tape";
+import { getMistakes } from "@/lib/study/queries";
+import { ScoreEvidence } from "@/components/score/score-evidence";
 
 const PILLAR_NOTE: Record<string, string> = {
   pyq: "PYQ questions attempted and answered correctly, last 30 days.",
@@ -16,7 +19,22 @@ export default async function ScorePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { score, streakDays } = await getDashboardData(supabase, user!.id);
+  const uid = user!.id;
+  const [data, tape, mistakes] = await Promise.all([
+    getDashboardData(supabase, uid),
+    getLedgerTape(supabase, uid),
+    getMistakes(supabase, uid),
+  ]);
+  const { score, streakDays } = data;
+
+  const byTopic = new Map<string, { subject: string; topic: string; count: number }>();
+  for (const m of mistakes) {
+    const key = `${m.subject}::${m.topic}`;
+    const cur = byTopic.get(key) ?? { subject: m.subject, topic: m.topic, count: 0 };
+    cur.count++;
+    byTopic.set(key, cur);
+  }
+  const topPattern = [...byTopic.values()].sort((a, b) => b.count - a.count)[0] ?? null;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -83,6 +101,8 @@ export default async function ScorePage() {
       <p className="u-mono mt-4 text-2xs text-text-3">
         computed live from current data. History over time is not stored yet.
       </p>
+
+      <ScoreEvidence data={data} tape={tape} topPattern={topPattern} />
     </div>
   );
 }

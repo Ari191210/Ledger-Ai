@@ -13,12 +13,14 @@ function ordinal(d: number) {
 }
 
 export function StudyDaysCalendar({
+  index = "03",
   cells,
   today,
   monthLabel,
   studiedDays,
   dayDetails,
 }: {
+  index?: string;
   cells: (number | null)[];
   today: number;
   monthLabel: string;
@@ -37,7 +39,7 @@ export function StudyDaysCalendar({
     <section className="u-card u-grille relative flex h-full flex-col p-4" data-tour="calendar">
       <div className="flex items-center justify-between">
         <span className="u-label">
-          03 <span className="mx-1 text-text-3/60">·</span> study days
+          {index} <span className="mx-1 text-text-3/60">·</span> study days
         </span>
         <span className="u-mono text-2xs text-text-3">{monthLabel}</span>
       </div>
