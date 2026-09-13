@@ -499,7 +499,11 @@ export default async function DashboardPage({
 
       {/* Mounted last so every anchor above it exists by the time the tour
           measures them. Renders nothing at all unless it is running. */}
-      <DashboardTour autoStart={showTour} mandatory={!tourProfile?.tour_seen_at} />
+      <DashboardTour
+        autoStart={showTour}
+        mandatory={!tourProfile?.tour_seen_at}
+        firstResult={pyqAll.length === 0 ? { inputs: scoreInputs, before: score.total } : null}
+      />
     </div>
   );
 }
