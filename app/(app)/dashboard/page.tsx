@@ -6,6 +6,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { SoundButtonLink } from "@/components/ui/button-link-sound";
 import { QuickLog } from "@/components/dashboard/quick-log";
 import { DashboardTour } from "@/components/dashboard/dashboard-tour";
+import { tourMode } from "@/lib/tour-mode";
 import { getDashboardData } from "@/lib/score/inputs";
 import { isoDateIST, isoDaysAgoIST, dayKeyIST } from "@/lib/date";
 import { getMistakes, getPyqAttempts, getActivityRange } from "@/lib/study/queries";
@@ -40,7 +41,6 @@ export default async function DashboardPage({
     searchParams,
     supabase.from("profiles").select("tour_seen_at").eq("id", uid).maybeSingle(),
   ]);
-  const showTour = tour === "1" || !tourProfile?.tour_seen_at;
   const { score, scoreInputs, fixNext, streakDays } = await getDashboardData(supabase, uid);
 
   const todayIso = isoDateIST();
@@ -51,6 +51,12 @@ export default async function DashboardPage({
     getActivityRange(supabase, uid, isoDaysAgoIST(13), todayIso),
     getDeadlines(supabase, uid),
   ]);
+
+  const tourOpen = tourMode({
+    requested: tour === "1",
+    seen: !!tourProfile?.tour_seen_at,
+    hasLogged: pyqAll.length > 0 || mistakesAll.length > 0 || activityRange.length > 0,
+  });
 
   // ── coach: this week vs last, from a real 14-day activity window ──────
   function coachWindow(fromDay: string, toDay: string): WeekWindow {
@@ -279,8 +285,8 @@ export default async function DashboardPage({
       {/* Mounted last so every anchor above it exists by the time the tour
           measures them. Renders nothing at all unless it is running. */}
       <DashboardTour
-        autoStart={showTour}
-        mandatory={!tourProfile?.tour_seen_at}
+        autoStart={tourOpen.autoStart}
+        mandatory={tourOpen.mandatory}
         firstResult={pyqAll.length === 0 ? { inputs: scoreInputs, before: score.total } : null}
       />
     </div>
