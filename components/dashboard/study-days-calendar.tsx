@@ -34,7 +34,7 @@ export function StudyDaysCalendar({
   const days = Array.from({ length: today }, (_, i) => String(i + 1));
 
   return (
-    <section className="u-card u-grille relative flex h-full flex-col p-4">
+    <section className="u-card u-grille relative flex h-full flex-col p-4" data-tour="calendar">
       <div className="flex items-center justify-between">
         <span className="u-label">
           03 <span className="mx-1 text-text-3/60">·</span> study days

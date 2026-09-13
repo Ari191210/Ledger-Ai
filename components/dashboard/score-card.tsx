@@ -58,7 +58,7 @@ export function ScoreCard({
   }
 
   return (
-    <section className="u-card p-5">
+    <section className="u-card p-5" data-tour="score">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="u-label">

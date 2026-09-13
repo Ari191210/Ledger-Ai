@@ -40,7 +40,9 @@ export function TopBar({
 
       {/* persistent readouts, your ledger follows you */}
       <div className="ml-auto flex items-center gap-2">
-        {stats}
+        <div data-tour="chips" className="flex items-center gap-2">
+          {stats}
+        </div>
 
         <span className="mx-1 h-4 w-px bg-border" />
 

@@ -9,6 +9,7 @@ import { SoundButtonLink } from "@/components/ui/button-link-sound";
 import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { FocusChart } from "@/components/dashboard/focus-chart";
 import { QuickLog } from "@/components/dashboard/quick-log";
+import { DashboardTour } from "@/components/dashboard/dashboard-tour";
 import { DashboardHabits } from "@/components/dashboard/dashboard-habits";
 import { getDashboardData } from "@/lib/score/inputs";
 import { getLedgerTape } from "@/lib/score/tape";
@@ -53,13 +54,27 @@ function Mini({ data }: { data: number[] }) {
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tour?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const name = user?.email?.split("@")[0] ?? "there";
   const uid = user!.id;
+
+  // The walkthrough shows itself once, then never again unless asked for by
+  // name. tour_seen_at is a column rather than localStorage so a student who
+  // signs up on a phone and opens the dashboard on a laptop is not taught the
+  // same page twice.
+  const [{ tour }, { data: tourProfile }] = await Promise.all([
+    searchParams,
+    supabase.from("profiles").select("tour_seen_at").eq("id", uid).maybeSingle(),
+  ]);
+  const showTour = tour === "1" || !tourProfile?.tour_seen_at;
   const {
     score,
     scoreInputs,
@@ -176,8 +191,20 @@ export default async function DashboardPage() {
                 })
                 .toLowerCase()}
             </span>
+            {/* The way back into the walkthrough after it has been dismissed.
+                Without it, skipping the tour on the first visit means never
+                being able to see it again. */}
+            <Link
+              href="/dashboard?tour=1"
+              className="u-tap u-mono text-2xs text-text-3 transition-colors hover:text-text"
+            >
+              tour
+            </Link>
             <QuickLog defaultTab="focus">
-              <button className="u-mono flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-2xs font-bold text-accent-on hover:bg-accent-hover">
+              <button
+                data-tour="log"
+                className="u-mono flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-2xs font-bold text-accent-on hover:bg-accent-hover"
+              >
                 <Plus size={12} /> log
               </button>
             </QuickLog>
@@ -190,6 +217,7 @@ export default async function DashboardPage() {
         <Reveal delay={0.02}>
           <Link
             href="/tools/coach"
+            data-tour="coach"
             className="u-card u-card--hover flex flex-wrap items-center gap-4 p-4"
           >
             <div className="grid size-9 shrink-0 place-items-center rounded-md bg-accent-weak text-accent-strong">
@@ -230,7 +258,7 @@ export default async function DashboardPage() {
 
           {/* ── study activity ───────────────────────────── */}
           <Reveal delay={0.08}>
-            <section className="u-card p-4">
+            <section className="u-card p-4" data-tour="activity">
               <div className="flex items-center justify-between">
                 <Label index="02">study activity</Label>
                 {/* A static label, not a control. This was a Segmented with no
@@ -269,7 +297,7 @@ export default async function DashboardPage() {
       {/* ── habits today + deadlines ─────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Reveal delay={0.09}>
-          <section className="u-card p-4">
+          <section className="u-card p-4" data-tour="habits">
             <div className="flex items-center justify-between">
               <Label index="04">habits today</Label>
               <span className="u-mono text-2xs text-text-3">
@@ -292,7 +320,7 @@ export default async function DashboardPage() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <section className="u-card p-4">
+          <section className="u-card p-4" data-tour="deadlines">
             <div className="flex items-center justify-between">
               <Label index="05">deadlines</Label>
               <SoundButtonLink href="/tools/deadlines" size="sm" className="h-7 px-2.5 text-2xs">
@@ -327,7 +355,7 @@ export default async function DashboardPage() {
 
       {/* ── focus history ────────────────────────────────── */}
       <Reveal delay={0.1}>
-        <section className="u-card p-4">
+        <section className="u-card p-4" data-tour="focus">
           <div className="flex items-center justify-between">
             <Label index="06">focus history</Label>
             <span className="u-mono text-2xs text-text-3">
@@ -342,7 +370,7 @@ export default async function DashboardPage() {
 
       {/* ── coverage strip ──────────────────────────────── */}
       <Reveal delay={0.11}>
-        <section className="u-card p-4">
+        <section className="u-card p-4" data-tour="coverage">
           <Label index="07">syllabus coverage</Label>
           {syllabusLogged ? (
             <SyllabusCard card={syllabusCard} coveragePct={coveragePct} />
@@ -354,7 +382,7 @@ export default async function DashboardPage() {
 
       {/* ── fix next ────────────────────────────────────── */}
       <Reveal delay={0.14}>
-        <section className="u-card p-4">
+        <section className="u-card p-4" data-tour="fix-next">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Label index="08">fix next</Label>
           </div>
@@ -393,7 +421,7 @@ export default async function DashboardPage() {
       {/* ── insights strip: circadian / spaced review / mistake dna ─ */}
       <Reveal delay={0.16}>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Link href="/tools/circadian" className="u-card u-card--hover p-4">
+          <Link href="/tools/circadian" data-tour="best-hours" className="u-card u-card--hover p-4">
             <div className="flex items-center gap-2">
               <Sunrise size={13} className="text-text-3" />
               <Label index="09">best hours</Label>
@@ -401,7 +429,7 @@ export default async function DashboardPage() {
             <HourDial hours={hourAccuracy} />
           </Link>
 
-          <Link href="/tools/spaced-review" className="u-card u-card--hover p-4">
+          <Link href="/tools/spaced-review" data-tour="spaced-review" className="u-card u-card--hover p-4">
             <div className="flex items-center gap-2">
               <RotateCcw size={13} className="text-text-3" />
               <Label index="10">spaced review</Label>
@@ -410,7 +438,7 @@ export default async function DashboardPage() {
             <p className="u-mono mt-0.5 text-2xs text-text-3">review queue, oldest first</p>
           </Link>
 
-          <Link href="/tools/mistake-dna" className="u-card u-card--hover p-4">
+          <Link href="/tools/mistake-dna" data-tour="mistake-dna" className="u-card u-card--hover p-4">
             <div className="flex items-center gap-2">
               <Dna size={13} className="text-text-3" />
               <Label index="11">mistake dna</Label>
@@ -431,7 +459,7 @@ export default async function DashboardPage() {
 
       {/* ── ledger tape ───────────────────────────────────── */}
       <Reveal delay={0.18}>
-        <section className="u-card relative overflow-hidden">
+        <section className="u-card relative overflow-hidden" data-tour="tape">
           <div
             aria-hidden
             className="absolute inset-x-0 top-0 h-2"
@@ -468,6 +496,10 @@ export default async function DashboardPage() {
           </div>
         </section>
       </Reveal>
+
+      {/* Mounted last so every anchor above it exists by the time the tour
+          measures them. Renders nothing at all unless it is running. */}
+      <DashboardTour autoStart={showTour} mandatory={!tourProfile?.tour_seen_at} />
     </div>
   );
 }

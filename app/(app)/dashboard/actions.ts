@@ -24,6 +24,24 @@ function refresh() {
   revalidatePath("/score");
 }
 
+/**
+ * Record that the dashboard walkthrough has been completed or skipped.
+ *
+ * Deliberately returns nothing and swallows its error. The caller is a tour
+ * that has already closed on the student's press, and the only consequence of
+ * a failed write is being offered the tour again on the next visit, which is
+ * the harmless direction for this to fail in. Re-showing a walkthrough is a
+ * smaller wrong than blocking the dashboard behind a toast about it.
+ */
+export async function markTourSeenAction(): Promise<void> {
+  const { supabase, id } = await currentUser();
+  await supabase
+    .from("profiles")
+    .update({ tour_seen_at: new Date().toISOString() })
+    .eq("id", id);
+  revalidatePath("/dashboard");
+}
+
 export async function logMistakeAction(input: {
   subject: string;
   topic: string;

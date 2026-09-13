@@ -21,6 +21,7 @@ export function MobileTabBar() {
 
   return (
     <nav
+      data-tour="nav"
       className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
       aria-label="Primary"
     >
