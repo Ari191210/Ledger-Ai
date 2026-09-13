@@ -57,18 +57,51 @@ more blog posts.
 The Fourth Schedule to the DPDP Rules 2025 carries the exemptions:
 
 - **Part A, classes of fiduciary**: includes educational institutions,
-  healthcare providers, creches and child transport. **The live question is
-  whether a third-party edtech product counts as an "educational institution"
-  at all.** The natural reading is that it means schools, not apps used by
-  students independently. If so, this exemption does not help us.
+  healthcare providers, creches and child transport. Entry 3 reads, verbatim:
+
+  > **Class:** A Data Fiduciary who is an educational institution.
+  > **Conditions:** Processing is restricted to tracking and behavioural
+  > monitoring — (a) for the educational activities of such institution; or
+  > (b) in the interests of safety of children enrolled with such institution.
+
+  The Schedule defines the term itself, and more broadly than expected:
+  **"an institution of learning that imparts education, including vocational
+  education."** No requirement of recognition, affiliation or establishment
+  under law. So the live question is not whether we are a *recognised* school;
+  it is whether we are an "institution of learning", whether students are
+  "enrolled with" us, and whether the analytics serve "the educational
+  activities of such institution". A direct-to-consumer signup is weak on
+  "enrolled". A school-channel or co-branded deployment is a different
+  question, and an open one.
+
+  **The harder point, which cuts against us.** An exemption is only needed for
+  conduct that would otherwise be prohibited. MeitY wrote entry 3 using the
+  exact words "tracking and behavioural monitoring" for "educational
+  activities" — which suggests the drafter assumed that tracking a child's
+  learning *is* within s.9(3), or entry 3 would be surplusage. This is the
+  strongest textual argument against the reading we would prefer, and the
+  opinion should meet it directly.
 - **Part B, purposes**: narrow and purpose-bound (safety, real-time location,
   age verification, welfare delivery). Commentary is consistent that these do
   not cover analytics, profiling or monetisation.
 
-**Section 9(5)** is a second and more interesting route: the Central Government
-may, if satisfied a fiduciary processes children's data in a "verifiably safe"
-manner, notify a relaxed age threshold for that fiduciary. A product with no
-ads, no trackers and no data sharing is a better candidate for this than most.
+**Section 9(5)** is a second and more interesting route. Verbatim:
+
+> "The Central Government may, if satisfied that a Data Fiduciary has ensured
+> that its processing of personal data of children is done in a manner that is
+> verifiably safe, notify for such processing by such Data Fiduciary the age
+> above which that Data Fiduciary shall be exempt from the applicability of all
+> or any of the obligations under sub-sections (1) and (3) in respect of
+> processing by that Data Fiduciary as the notification may specify."
+
+Two things worth noting from the text itself. It is **fiduciary-specific**, not
+class-based: it speaks of "a Data Fiduciary" and "such Data Fiduciary"
+throughout, so nothing on the face of it requires an industry-wide notification.
+And there is **no minimum age floor** in the sub-section — no "not below 13" or
+similar. (Thirteen is the GDPR Article 8 figure; it is not in this Act, and at
+least one AI-generated analysis has asserted otherwise.) No notification under
+s.9(5) exists as of September 2026, so nothing can be built on it yet. A product
+with no ads, no trackers and no data sharing is a better candidate than most.
 Worth asking about; it is a route, not a formality.
 
 ## Where we already stand, factually
@@ -101,9 +134,17 @@ Groundwork only, deliberately (migration 0009):
 - Nothing blocks a signup and nothing is emailed. The privacy policy states
   plainly that this is groundwork and does not claim compliance.
 
-Rule 10 points at Aadhaar-linked DigiLocker tokens as the authoritative way to
-verify a parent's identity. That is a partner integration, and building it
-before the questions below are answered would risk building the wrong thing.
+Rule 10 is less restrictive than first assumed, having now been read rather
+than summarised. It requires "appropriate technical and organisational
+measures" and due diligence that the person identifying as the parent is an
+identifiable adult, by reference to **(a)** reliable identity and age details
+already held by us, or **(b)** identity and age details voluntarily provided by
+the individual or through a virtual token issued by an authorised entity. The
+illustrations say a parent *"may voluntarily"* use a Digital Locker service
+provider. DigiLocker is therefore one permitted route, expressly optional, and
+not a precondition. Recording the verification **method** per consent, which
+`parental_consents` already does, is the right shape for a rule that names
+several.
 
 ## Questions for a lawyer
 
@@ -122,6 +163,11 @@ before the questions below are answered would risk building the wrong thing.
 
 ## Deadline
 
-Substantive compliance under the DPDP Rules 2025 falls due in **mid-May 2027** (sources differ between the 13th and 14th).
+**13 May 2027.** Settled from Rule 1 rather than from commentary: Rules 3, 5 to
+16, 22 and 23 come into force eighteen months after publication in the Official
+Gazette, and publication was 13 November 2025 (G.S.R. 846(E)). Rules 10 and 12,
+which carry the children's obligations and the Fourth Schedule exemptions, are
+both in that group.
+
 There is time, but question 1 should be answered before pricing or any
 significant new analytics feature is built on top of the current design.

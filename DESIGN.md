@@ -73,15 +73,24 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
 
 ## 4. Components actually in use
 
-- **Button** (`components/ui/button.tsx`) — variants `primary` (lime fill,
-  `--accent-on` text, inset highlight), `secondary` (bordered, `--surface-2`),
-  `ghost` (text-only). Sizes sm/md/lg (h-8/9/11). Spring press
-  (`whileTap scale 0.955`, `whileHover y:-1`) plus a UI click sound on
-  pointerdown — motion and sound are part of the component, not optional.
+- **Motion has no library.** `package.json` carries no animation runtime;
+  every movement below is a CSS transition or keyframe using the two curves
+  in `app/globals.css` (`ease-out`, `ease-spring`), or a small
+  `requestAnimationFrame` loop where a number has to count. Do not introduce
+  framer-motion, GSAP or similar. Full motion spec: `docs/motion-brief.md`.
+- **Button** (`components/ui/button.tsx`, classes in `button-classes.ts`) —
+  variants `primary` (lime fill, `--accent-on` text, inset highlight),
+  `secondary` (bordered, `--surface-2`), `ghost` (text-only). Sizes sm/md/lg
+  (h-8/9/11). Hover lifts 1px; press drops 2px and scales to 0.965 in 70ms
+  `ease-out`; release rides back in 190ms `ease-spring`. Transitions name
+  `translate` and `scale`, never `transform`, because Tailwind v4 writes the
+  individual properties. A UI click sound plays on pointerdown — motion and
+  sound are part of the component, not optional.
 - **Segmented** (`components/ui/segmented.tsx`) — pill-shaped tab group,
-  `--surface-2` track, active tab gets a sliding lime pill
-  (`layoutId` shared-element spring) with `--accent-on` text. Options wrap
-  in `overflow-x-auto` on narrow layouts rather than stacking.
+  `--surface-2` track, active tab gets a sliding lime pill (`left`/`width`
+  transition, 260ms `ease-spring`, placed without animation on first paint)
+  with `--accent-on` text. Options wrap in `overflow-x-auto` on narrow
+  layouts rather than stacking.
 - **Ring** (`components/ui/ring.tsx`) — SVG circular progress. Track
   `--surface-3`, progress `--accent-strong`, `stroke-linecap: round`,
   rotated -90° so it starts at 12 o'clock. Center content passed as
@@ -94,7 +103,8 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   (`box-shadow: 0 0 6px -1px var(--accent)`), the "power on" indicator used
   in headers and the nav brand mark.
 - **Reveal** (`components/motion/reveal.tsx`) — stagger-in wrapper, used to
-  bring dashboard sections in with a slight delay cascade (0.04s steps).
+  bring dashboard sections in with a slight delay cascade (per-section
+  delays from 0.02s to 0.16s; 360ms `ease-out`, 10px rise, pure CSS).
 - **App shell** — `IconRail` (fixed 60px, desktop-only, `md:flex`),
   `TopBar` (48px, search + streak/score chips + theme/sound/signout),
   `MobileTabBar` (fixed bottom, mobile-only counterpart to the rail).
