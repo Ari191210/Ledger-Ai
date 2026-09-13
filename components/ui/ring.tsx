@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { px } from "@/lib/utils";
 
 export function Ring({
   value,
@@ -109,10 +110,10 @@ export function Ring({
           return (
             <line
               key={m}
-              x1={cx + inner * Math.cos(a)}
-              y1={cy + inner * Math.sin(a)}
-              x2={cx + outer * Math.cos(a)}
-              y2={cy + outer * Math.sin(a)}
+              x1={px(cx + inner * Math.cos(a))}
+              y1={px(cy + inner * Math.sin(a))}
+              x2={px(cx + outer * Math.cos(a))}
+              y2={px(cy + outer * Math.sin(a))}
               stroke="var(--bg)"
               strokeWidth="2"
             />

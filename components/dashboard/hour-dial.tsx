@@ -15,6 +15,8 @@
  * evidence" identically to "poor" is lying.
  */
 
+import { px } from "@/lib/utils";
+
 const SIZE = 150;
 const CENTRE = SIZE / 2;
 const BASE = 18;
@@ -58,10 +60,10 @@ export function HourDial({ hours }: { hours: (number | null)[] }) {
           return (
             <line
               key={h}
-              x1={CENTRE + BASE * Math.cos(angle)}
-              y1={CENTRE + BASE * Math.sin(angle)}
-              x2={CENTRE + (BASE + length) * Math.cos(angle)}
-              y2={CENTRE + (BASE + length) * Math.sin(angle)}
+              x1={px(CENTRE + BASE * Math.cos(angle))}
+              y1={px(CENTRE + BASE * Math.sin(angle))}
+              x2={px(CENTRE + (BASE + length) * Math.cos(angle))}
+              y2={px(CENTRE + (BASE + length) * Math.sin(angle))}
               stroke={
                 accuracy === null
                   ? "var(--surface-3)"
@@ -82,8 +84,8 @@ export function HourDial({ hours }: { hours: (number | null)[] }) {
           return (
             <text
               key={h}
-              x={CENTRE + (BASE + REACH + 9) * Math.cos(angle)}
-              y={CENTRE + (BASE + REACH + 9) * Math.sin(angle)}
+              x={px(CENTRE + (BASE + REACH + 9) * Math.cos(angle))}
+              y={px(CENTRE + (BASE + REACH + 9) * Math.sin(angle))}
               textAnchor="middle"
               dominantBaseline="central"
               className="u-mono"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, px } from "@/lib/utils";
 import { playClick } from "@/lib/sound";
 
 /**
@@ -142,8 +142,8 @@ export function Knob({
                   i === index ? "bg-accent" : "bg-border-2",
                 )}
                 style={{
-                  left: size / 2 + rad * Math.cos(a),
-                  top: size / 2 + rad * Math.sin(a),
+                  left: px(size / 2 + rad * Math.cos(a)),
+                  top: px(size / 2 + rad * Math.sin(a)),
                   transform: "translate(-50%, -50%)",
                 }}
               />
@@ -162,8 +162,8 @@ export function Knob({
                 i === index ? "text-text" : "text-text-3",
               )}
               style={{
-                left: size / 2 + rad * Math.cos(a),
-                top: size / 2 + rad * Math.sin(a),
+                left: px(size / 2 + rad * Math.cos(a)),
+                top: px(size / 2 + rad * Math.sin(a)),
                 transform: "translate(-50%, -50%)",
               }}
             >
