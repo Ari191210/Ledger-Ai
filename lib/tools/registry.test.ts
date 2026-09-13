@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { CATEGORIES, TOOLS } from "./registry";
+import { CATEGORIES, TOOLS, VISIBLE_TOOLS } from "./registry";
 import { PROMPTS } from "./prompts";
 
 const pageDirs = new Set(
@@ -64,7 +64,13 @@ describe("tool registry", () => {
     const stale = surfaces.filter((f) => {
       const src = readFileSync(join(process.cwd(), f), "utf8");
       const counts = [...src.matchAll(/(\d+) tools/g)].map((m) => Number(m[1]));
-      return counts.some((n) => n !== TOOLS.length);
+      // "Spaced Review, Debt Meter and 20 more tools" states a count too: the
+      // named tools plus the rest. Names that are not tools (Fix Next) add nothing.
+      const more = [...src.matchAll(/([A-Z][\w ,]*?) and (\d+) more tools/g)].map(
+        (m) =>
+          m[1].split(",").filter((n) => VISIBLE_TOOLS.some((t) => t.name === n.trim())).length + Number(m[2]),
+      );
+      return [...counts, ...more].some((n) => n !== VISIBLE_TOOLS.length);
     });
     expect(stale).toEqual([]);
   });

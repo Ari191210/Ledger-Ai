@@ -66,13 +66,13 @@ export default async function Image() {
             Know exactly where you stand.
           </div>
           <div style={{ fontSize: "30px", color: "#9d9c96", maxWidth: "820px", lineHeight: 1.4 }}>
-            One score for your prep. 23 tools that turn study data into a plan, built for Indian
+            One score for your prep. 22 tools that turn study data into a plan, built for Indian
             students.
           </div>
         </div>
 
         <div style={{ display: "flex", gap: "40px" }}>
-          {["planner", "mistake dna", "exam simulator", "peer heatmap"].map((label) => (
+          {["planner", "mistake dna", "exam simulator", "patterns"].map((label) => (
             <div
               key={label}
               style={{

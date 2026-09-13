@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 import { Segmented } from "@/components/ui/segmented";
 import {
   CATEGORIES,
-  TOOLS,
+  VISIBLE_TOOLS,
   toolsByCategory,
 } from "@/lib/tools/registry";
 
-const SIGNATURE = TOOLS.filter((t) => t.signature);
+const SIGNATURE = VISIBLE_TOOLS.filter((t) => t.signature);
 const FILTERS = ["all", ...CATEGORIES.map((c) => c.id)] as const;
 
 /**

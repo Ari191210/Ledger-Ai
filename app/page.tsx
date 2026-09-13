@@ -13,7 +13,7 @@ import { BOARDS } from "@/lib/onboarding";
 export const metadata: Metadata = {
   title: "StudyLedger · know where you stand, know what to fix next",
   description:
-    "One honest score built from your real PYQs, syllabus coverage, mistakes, and consistency, plus 23 tools to act on it. Built for CBSE, ICSE, IB, IGCSE, State Board, and home school.",
+    "One honest score built from your real PYQs, syllabus coverage, mistakes, and consistency, plus 22 tools to act on it. Built for CBSE, ICSE, IB, IGCSE, State Board, and home school.",
 };
 
 const PILLARS = [
@@ -34,7 +34,7 @@ const TIERS = [
 const STEPS = [
   { k: "log", t: "Log what you already do", b: "Past-paper attempts, mistakes, study time, syllabus. A few taps, or the Quick Log from any page." },
   { k: "score", t: "Get one honest number", b: "Four weighted pillars roll into a single 0 to 1000 score and a tier. No vanity metrics, no streak confetti." },
-  { k: "act", t: "Work the shortlist", b: "Fix Next, Spaced Review, Debt Meter and 22 more tools turn the score into a specific thing to do today." },
+  { k: "act", t: "Work the shortlist", b: "Fix Next, Spaced Review, Debt Meter and 20 more tools turn the score into a specific thing to do today." },
 ];
 
 export default function LandingPage() {
@@ -113,7 +113,7 @@ export default function LandingPage() {
       <section className="border-t border-border py-12 sm:py-14">
         <ScrollReveal>
           <h2 className="max-w-[22ch] text-2xl font-extrabold tracking-[-0.02em] text-text sm:text-3xl">
-            23 tools, in five honest buckets.
+            22 tools, in five honest buckets.
           </h2>
           <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-text-2">
             Every one reads from the same data your score does, so nothing you do in a tool

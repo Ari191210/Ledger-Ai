@@ -36,7 +36,7 @@ export default function TermsPage() {
         <p>
           A study-tracking and exam-prep product: a score computed from
           your real activity (PYQ accuracy, syllabus coverage, mistake
-          patterns, consistency), 23 tools for planning, learning,
+          patterns, consistency), 22 tools for planning, learning,
           practising, and tracking your prep, some of them backed by an AI
           model (Anthropic&apos;s Claude).
         </p>

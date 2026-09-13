@@ -76,6 +76,8 @@ export type Tool = {
   kind: "ai" | "local";
   icon: LucideIcon;
   signature?: boolean;
+  /** Off every list and count, but the route and code stay. One line brings it back. */
+  hidden?: boolean;
 };
 
 export const TOOLS: Tool[] = [
@@ -128,7 +130,13 @@ export const TOOLS: Tool[] = [
     blurb: "Last 48 hours before an exam: the highest-yield revision list." },
 
   // ── track (3, 2 signature) ────────────────────────────────────────
-  { slug: "peer-heatmap", name: "Peer Heatmap", category: "track", kind: "local", signature: true, icon: Grid3x3,
+  // Hidden 2026-09-14. Its topic_struggle_stats function was never applied to
+  // production, so every student who opened it read a note about a missing
+  // database migration, and with a floor of 3 students per topic it would show
+  // nothing even once applied: 2 students have logged a mistake so far. A
+  // signature tool that can only ever show an empty state is the opposite of
+  // the bar above. Apply 0007 and drop `hidden` once 3+ students share a topic.
+  { slug: "peer-heatmap", name: "Peer Heatmap", category: "track", kind: "local", signature: true, hidden: true, icon: Grid3x3,
     blurb: "Anonymised view of what topics peers are struggling with." },
   { slug: "patterns", name: "Patterns", category: "track", kind: "local", signature: true, icon: Activity,
     blurb: "Nine things only your own ledger can tell you, from mistake half life to whether you have ever practised at your exam's hour." },
@@ -136,8 +144,11 @@ export const TOOLS: Tool[] = [
     blurb: "A weekly briefing on what changed and what to do about it." },
 ];
 
+/** What students can see. TOOLS stays the full set so hiding never breaks a route. */
+export const VISIBLE_TOOLS: Tool[] = TOOLS.filter((t) => !t.hidden);
+
 export function toolsByCategory(category: ToolCategory): Tool[] {
-  return TOOLS.filter((t) => t.category === category);
+  return VISIBLE_TOOLS.filter((t) => t.category === category);
 }
 
 export function getTool(slug: string): Tool | undefined {

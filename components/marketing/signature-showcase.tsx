@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { TOOLS } from "@/lib/tools/registry";
+import { VISIBLE_TOOLS } from "@/lib/tools/registry";
 
-const SIGNATURE = TOOLS.filter((t) => t.signature);
+const SIGNATURE = VISIBLE_TOOLS.filter((t) => t.signature);
 
 export function SignatureShowcase() {
   return (
