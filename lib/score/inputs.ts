@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { accuracyLabel, pyqAccuracySeries } from "@/lib/score/pyq-series";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeScore, type ScoreBreakdown, type ScoreInputs } from "./compute";
 import { buildScoreInputs } from "./build-inputs";
@@ -96,20 +97,7 @@ export const getDashboardData = cache(async function getDashboardData(
   const focusSeries = days7.map((d) => minutesByDay.get(d) ?? 0);
   const focusMinutesWeek = focusSeries.reduce((s, m) => s + m, 0);
 
-  const pyqByDay = new Map<string, { total: number; correct: number }>();
-  for (const a of pyq30) {
-    const d = dayKeyIST(a.taken_at);
-    const cur = pyqByDay.get(d) ?? { total: 0, correct: 0 };
-    cur.total += a.total;
-    cur.correct += a.correct;
-    pyqByDay.set(d, cur);
-  }
-  let lastKnownAccuracy = 0;
-  const pyqSeries = days7.map((d) => {
-    const e = pyqByDay.get(d);
-    if (e && e.total > 0) lastKnownAccuracy = Math.round((e.correct / e.total) * 100);
-    return lastKnownAccuracy;
-  });
+  const pyqSeries = pyqAccuracySeries(days7, pyq30);
 
   const mistakesByDay = new Map<string, number>();
   for (const m of mistakesAll) {
@@ -119,7 +107,6 @@ export const getDashboardData = cache(async function getDashboardData(
   const mistakesSeries = days7.map((d) => mistakesByDay.get(d) ?? 0);
   const openMistakes = mistakesAll.filter((m) => !m.resolved_at);
 
-  const pyqAccuracyPct = pyqTotal > 0 ? Math.round((pyqCorrect / pyqTotal) * 100) : 0;
   const focusHours = Math.floor(focusMinutesWeek / 60);
   const focusMins = focusMinutesWeek % 60;
   const focusLabel =
@@ -129,7 +116,7 @@ export const getDashboardData = cache(async function getDashboardData(
     {
       key: "pyq",
       label: "pyq accuracy",
-      value: `${pyqAccuracyPct}%`,
+      value: accuracyLabel(pyqCorrect, pyqTotal),
       sub: `${pyqTotal} attempted · 30d`,
       data: pyqSeries,
     },
