@@ -44,8 +44,10 @@ export async function LedgerChips({ userId }: { userId: string }) {
   // A run still standing on yesterday: shown, not zeroed, but marked as waiting
   // on today, so the chip tells the truth in both directions.
   const atRisk = streakDays > 0 && !loggedToday;
+  // "Log today" was not true: a past paper or a mistake logged today does not
+  // count toward the run, only study time does (2026-09-14). Say what does.
   const streakLabel = atRisk
-    ? `${streakDays} day streak, log today to keep it`
+    ? `${streakDays} day streak, log study time today to keep it`
     : `${streakDays} day streak`;
 
   return (

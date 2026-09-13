@@ -11,7 +11,8 @@ const PILLAR_NOTE: Record<string, string> = {
   pyq: "PYQ questions attempted and answered correctly, last 30 days.",
   coverage: "Syllabus topics logged as covered, out of all topics logged.",
   mistakes: "Fewer new mistakes in the last 7 days scores higher. Zero mistakes ever logged scores zero, because that is no evidence yet, not a free pass.",
-  consistency: "Current study-day streak, out of a 14-day target.",
+  consistency:
+    "Days in a row with study time logged, out of a 14-day target. Past papers and mistakes on their own do not extend it.",
 };
 
 export default async function ScorePage() {
