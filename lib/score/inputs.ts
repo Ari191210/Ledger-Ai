@@ -32,7 +32,8 @@ export type ActivityTile = {
   label: string;
   value: string;
   sub: string;
-  data: number[];
+  /** Null where the day has no evidence (past-paper accuracy); 0 is a real zero. */
+  data: (number | null)[];
 };
 
 export type DayDetail = {

@@ -74,16 +74,17 @@ describe("getDashboardData", () => {
     expect(data.dayDetails[dayOfMonth]?.mistakes).toHaveLength(1);
   });
 
-  it("carries the last known accuracy forward across days with no attempts", async () => {
-    // A day with no papers is not a day you scored zero. Drawing it as zero
-    // would put a cliff in the sparkline that never happened.
+  it("leaves days with no attempts empty, never zero and never invented", async () => {
+    // A day with no papers is not a day you scored zero, and not a day you
+    // scored anything: carrying a value across it drew accuracy with no attempt
+    // behind it. It is null, and the chart skips it (2026-09-15).
     rows.pyq = [
       { subject: "Physics", total: 10, correct: 5, taken_at: atIST(isoDaysAgoIST(4), 10) },
     ];
     const data = await getDashboardData(supabase, "u1");
     const tile = data.activity.find((t) => /pyq/i.test(t.label))!;
-    expect(tile.data[tile.data.length - 1]).toBe(50);
-    expect(tile.data.every((v) => v >= 0 && v <= 100)).toBe(true);
+    expect(tile.data[tile.data.length - 5]).toBe(50);
+    expect(tile.data.filter((v) => v !== null)).toEqual([50]);
   });
 
   it("reports zero rather than NaN when nothing has been logged", async () => {
@@ -91,7 +92,8 @@ describe("getDashboardData", () => {
     expect(data.coveragePct).toBe(0);
     expect(data.syllabusLogged).toBe(false);
     for (const tile of data.activity) {
-      expect(tile.data.every(Number.isFinite), tile.label).toBe(true);
+      // null is "no evidence" (past-paper accuracy); anything else must be a real number.
+      expect(tile.data.every((v) => v === null || Number.isFinite(v)), tile.label).toBe(true);
     }
     expect(Number.isFinite(data.score.total)).toBe(true);
   });

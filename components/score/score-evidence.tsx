@@ -27,28 +27,34 @@ function Label({ index, children }: { index: string; children: string }) {
   );
 }
 
-function Mini({ data }: { data: number[] }) {
+// Null means no evidence that day: it is skipped, not drawn as zero, and the
+// line joins only real points. With no points at all nothing is drawn, because
+// a line beside "none yet" would be a line about data that does not exist.
+function Mini({ data }: { data: (number | null)[] }) {
   const w = 120;
   const h = 34;
-  const lo = Math.min(...data);
-  const hi = Math.max(...data);
+  const points = data.flatMap((v, i) => (v === null ? [] : [{ i, v }]));
+  if (points.length === 0) return <div className="h-8 w-full" aria-hidden />;
+  const lo = Math.min(...points.map((p) => p.v));
+  const hi = Math.max(...points.map((p) => p.v));
   const x = (i: number) => (i / (data.length - 1)) * w;
   const y = (v: number) => 3 + (1 - (v - lo) / (hi - lo || 1)) * (h - 6);
-  const line = data
-    .map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`)
-    .join(" ");
+  const line = points.map((p, k) => `${k ? "L" : "M"}${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(" ");
+  const end = points[points.length - 1];
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-8 w-full" aria-hidden>
-      <path
-        d={line}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="text-text-2"
-      />
-      <circle cx={x(data.length - 1)} cy={y(data[data.length - 1])} r={2.2} className="fill-accent-strong" />
+      {points.length > 1 && (
+        <path
+          d={line}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-text-2"
+        />
+      )}
+      <circle cx={x(end.i)} cy={y(end.v)} r={2.2} className="fill-accent-strong" />
     </svg>
   );
 }

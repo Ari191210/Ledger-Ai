@@ -3,23 +3,22 @@ import { dayKeyIST } from "@/lib/date";
 type Attempt = { taken_at: string; correct: number; total: number };
 
 /**
- * The 7-day accuracy line and its headline figure.
+ * The 7-day accuracy line: a value only where there is evidence for one.
  *
  * Before 2026-09-14 the line carried a running value that started at 0, so every
- * day before the first attempt in the week was drawn as 0% accuracy. A student at
- * 80% last week who scored 70% today saw a line climbing from 0 to 70: a
- * decline drawn as a rise. And a student who had never sat a paper read "0%",
- * which says every answer was wrong.
+ * day before the first attempt in the week was drawn as 0% accuracy: a student
+ * at 80% last week who scored 70% today saw a climb from 0 to 70. The first fix
+ * back-filled instead, which still drew a flat run of days at an accuracy the
+ * student had no attempt on. Now a day holds a value only if a paper was sat
+ * that day, and null otherwise; the chart joins real points and draws nothing
+ * where there are none.
  *
- * Now the line opens on the most recent accuracy from before the week (within
- * the 30 days the attempts cover), and if there is none it back-fills from the
- * first attempt, so a flat stretch means "no new evidence", never "scored zero".
- * With no attempts at all there is no figure to give, and the tile says so.
+ * One exception, the left edge: if the first day of the week has no attempt but
+ * an earlier one exists (within the 30 days loaded), its accuracy sits there as
+ * where the student stood coming into the week. Without it, 80% last week and
+ * 70% today would be a single dot, and the decline would vanish.
  */
-export function pyqAccuracySeries(
-  days7: string[],
-  attempts: Attempt[],
-): number[] {
+export function pyqAccuracySeries(days7: string[], attempts: Attempt[]): (number | null)[] {
   const byDay = new Map<string, { total: number; correct: number }>();
   for (const a of attempts) {
     const d = dayKeyIST(a.taken_at);
@@ -28,22 +27,18 @@ export function pyqAccuracySeries(
     cur.correct += a.correct;
     byDay.set(d, cur);
   }
+  const pct = (e?: { total: number; correct: number }) =>
+    e && e.total > 0 ? Math.round((e.correct / e.total) * 100) : null;
 
   let before: number | null = null;
   for (const d of [...byDay.keys()].sort()) {
     if (d >= days7[0]) break;
-    const e = byDay.get(d)!;
-    if (e.total > 0) before = Math.round((e.correct / e.total) * 100);
+    before = pct(byDay.get(d)) ?? before;
   }
 
-  let last: number | null = before;
-  const raw = days7.map((d) => {
-    const e = byDay.get(d);
-    if (e && e.total > 0) last = Math.round((e.correct / e.total) * 100);
-    return last;
-  });
-  const first = raw.find((v) => v !== null) ?? 0;
-  return raw.map((v) => v ?? first);
+  const series = days7.map((d) => pct(byDay.get(d)));
+  if (series[0] === null) series[0] = before;
+  return series;
 }
 
 /** The headline figure, from the same totals the score uses. No attempts means no figure, not 0%. */

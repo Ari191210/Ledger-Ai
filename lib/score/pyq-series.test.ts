@@ -11,22 +11,22 @@ describe("pyqAccuracySeries", () => {
       { taken_at: at("2026-09-02"), correct: 8, total: 10 },
       { taken_at: at("2026-09-14"), correct: 7, total: 10 },
     ]);
-    expect(series).toEqual([80, 80, 80, 80, 80, 80, 70]);
+    expect(series).toEqual([80, null, null, null, null, null, 70]);
   });
 
-  it("never draws a day before any attempt as zero accuracy", () => {
+  it("gives no value to a day with no attempt", () => {
     const series = pyqAccuracySeries(days7, [{ taken_at: at("2026-09-12"), correct: 6, total: 10 }]);
-    expect(series).toEqual([60, 60, 60, 60, 60, 60, 60]);
-    expect(Math.min(...series)).toBeGreaterThan(0);
+    expect(series).toEqual([null, null, null, null, 60, null, null]);
   });
 
-  it("does not claim 0% for a student who has never sat a paper", () => {
+  it("has nothing to draw for a student who has never sat a paper", () => {
+    expect(pyqAccuracySeries(days7, []).every((v) => v === null)).toBe(true);
     expect(accuracyLabel(0, 0)).toBe("none yet");
   });
 
   it("still reports a real 0% as 0%", () => {
     const series = pyqAccuracySeries(days7, [{ taken_at: at("2026-09-10"), correct: 0, total: 5 }]);
     expect(accuracyLabel(0, 5)).toBe("0%");
-    expect(series.every((v) => v === 0)).toBe(true);
+    expect(series).toEqual([null, null, 0, null, null, null, null]);
   });
 });
