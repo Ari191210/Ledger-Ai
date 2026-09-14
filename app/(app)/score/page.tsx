@@ -12,7 +12,7 @@ const PILLAR_NOTE: Record<string, string> = {
   coverage: "Syllabus topics logged as covered, out of all topics logged.",
   mistakes: "Fewer new mistakes in the last 7 days scores higher. Zero mistakes ever logged scores zero, because that is no evidence yet, not a free pass.",
   consistency:
-    "Days in a row with study time logged, out of a 14-day target. Past papers and mistakes on their own do not extend it.",
+    "Days in a row you studied, out of a 14-day target. A day counts with study time, a past paper, or two or more mistakes logged.",
 };
 
 export default async function ScorePage() {

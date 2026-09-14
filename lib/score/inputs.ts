@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { accuracyLabel, pyqAccuracySeries } from "@/lib/score/pyq-series";
+import { studyDaySet } from "@/lib/study/study-days";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeScore, type ScoreBreakdown, type ScoreInputs } from "./compute";
 import { buildScoreInputs } from "./build-inputs";
@@ -143,10 +144,12 @@ export const getDashboardData = cache(async function getDashboardData(
 
   // ── calendar (current month) ─────────────────────────────────────────
   const curMonthPrefix = to.slice(0, 7);
+  // The same rule the streak uses, so a day the calendar marks studied is a day
+  // that kept the run going.
   const studiedDays = new Set(
-    activity60
-      .filter((a) => a.day.startsWith(curMonthPrefix) && a.minutes > 0)
-      .map((a) => Number(a.day.slice(8, 10))),
+    [...studyDaySet({ activity: activity60, pyq: pyq30, mistakes: mistakesAll })]
+      .filter((d) => d.startsWith(curMonthPrefix))
+      .map((d) => Number(d.slice(8, 10))),
   );
 
   const dayDetails: Record<number, DayDetail> = {};

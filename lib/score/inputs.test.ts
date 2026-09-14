@@ -87,6 +87,23 @@ describe("getDashboardData", () => {
     expect(tile.data.filter((v) => v !== null)).toEqual([50]);
   });
 
+  it("marks a day studied on the calendar for a past paper with no study time", async () => {
+    // The calendar and the streak share one rule. Before 2026-09-15 a day with
+    // a paper but no timer was blank here and broke the run.
+    const today = isoDateIST();
+    rows.pyq = [{ subject: "Physics", total: 10, correct: 8, taken_at: atIST(today, 12) }];
+    rows.mistakes = [{ subject: "Physics", topic: "Optics", created_at: atIST(today, 12), resolved_at: null }];
+    const data = await getDashboardData(supabase, "u1");
+    expect(data.studiedDays.has(Number(today.slice(8, 10)))).toBe(true);
+  });
+
+  it("does not mark a day studied for a single mistake alone", async () => {
+    const today = isoDateIST();
+    rows.mistakes = [{ subject: "Physics", topic: "Optics", created_at: atIST(today, 12), resolved_at: null }];
+    const data = await getDashboardData(supabase, "u1");
+    expect(data.studiedDays.has(Number(today.slice(8, 10)))).toBe(false);
+  });
+
   it("reports zero rather than NaN when nothing has been logged", async () => {
     const data = await getDashboardData(supabase, "u1");
     expect(data.coveragePct).toBe(0);

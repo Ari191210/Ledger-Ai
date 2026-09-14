@@ -29,6 +29,7 @@ import {
 import { calibration, type CalibrationRow, type AttemptWithPrediction } from "./calibration";
 import { costOfBreakingStreak, examHourMismatch, type StreakCost, type ExamHourMismatch } from "./cost";
 import { streakEndingOn } from "@/lib/study/streak";
+import { loadStudyDays } from "@/lib/study/study-days";
 
 export type Signals = {
   examMismatch: ExamHourMismatch | null;
@@ -45,7 +46,7 @@ export type Signals = {
 };
 
 export async function loadSignals(supabase: SupabaseClient, userId: string): Promise<Signals> {
-  const [mistakes, syllabus, attempts, deadlines, sessionsRes, streakDays, lastDayRes] =
+  const [mistakes, syllabus, attempts, deadlines, sessionsRes, streakDays, loggedDays] =
     await Promise.all([
       getMistakes(supabase, userId),
       getSyllabus(supabase, userId),
@@ -58,16 +59,9 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
         .order("started_at", { ascending: false })
         .limit(200),
       getCurrentStreak(supabase, userId),
-      // Enough days to find the run that was going when the break happened,
-      // not just the last one. The counterfactual below cannot be honest
-      // without it.
-      supabase
-        .from("activity_days")
-        .select("day")
-        .eq("user_id", userId)
-        .gt("minutes", 0)
-        .order("day", { ascending: false })
-        .limit(400),
+      // Every study day on record, by the same rule the streak uses, so the
+      // run found here is the run the student actually saw.
+      loadStudyDays(supabase, userId),
     ]);
 
   const sessions = (sessionsRes.data ?? []) as FocusSessionRow[];
@@ -100,8 +94,7 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
   });
 
   // days since anything was logged, for the streak cost
-  const loggedDays = new Set((lastDayRes.data ?? []).map((r: { day: string }) => r.day));
-  const lastDay = (lastDayRes.data ?? [])[0]?.day ?? null;
+  const lastDay = [...loggedDays].sort().at(-1) ?? null;
   // The run that was going on the last day logged, which is what the missed
   // days actually interrupted.
   const previousStreak = lastDay ? streakEndingOn(loggedDays, lastDay) : 0;

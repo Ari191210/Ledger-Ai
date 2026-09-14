@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeStreak } from "./streak";
+import { loadStudyDays } from "./study-days";
 import type {
   ActivityDay,
   Mistake,
@@ -46,22 +47,12 @@ export async function getActivityRange(
   return data ?? [];
 }
 
-/** Consecutive days of activity ending today (0 if today has none). */
+/** Consecutive study days (see lib/study/study-days.ts for what counts). */
 export async function getCurrentStreak(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<number> {
-  const { data, error } = await supabase
-    .from("activity_days")
-    .select("day")
-    .eq("user_id", userId)
-    .gt("minutes", 0)
-    .order("day", { ascending: false })
-    .limit(400);
-  if (error) throw error;
-  if (!data?.length) return 0;
-
-  return computeStreak(new Set(data.map((d) => d.day)));
+  return computeStreak(await loadStudyDays(supabase, userId));
 }
 
 // ─── mistakes ────────────────────────────────────────────────────────────

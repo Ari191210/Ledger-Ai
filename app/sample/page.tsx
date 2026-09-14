@@ -195,7 +195,7 @@ export default async function SamplePage() {
         {led.streakDays === 0 && (
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-text-2">
             Consistency is sitting at <span className="u-mono text-text">0</span> because
-            this account let a whole day pass without logging a session
+            this account let a whole day pass without logging any study
             {led.lastLoggedDay ? ` (last one was ${fmtDay(led.lastLoggedDay)})` : ""}. The
             streak holds until the end of the day after the last log, then resets, and the
             score drops with it. That is the point: it measures what you did, not what you

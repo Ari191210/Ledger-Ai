@@ -38,16 +38,16 @@ export function LedgerChipsFallback() {
 export async function LedgerChips({ userId }: { userId: string }) {
   const supabase = await createClient();
   const { score, streakDays, studiedDays } = await getDashboardData(supabase, userId);
-  // Same source as the streak (activity_days with minutes), so this is exactly
+  // Same rule as the streak (lib/study/study-days.ts), so this is exactly
   // "today counts toward the run yet".
   const loggedToday = studiedDays.has(todayPartsIST().day);
   // A run still standing on yesterday: shown, not zeroed, but marked as waiting
   // on today, so the chip tells the truth in both directions.
   const atRisk = streakDays > 0 && !loggedToday;
-  // "Log today" was not true: a past paper or a mistake logged today does not
-  // count toward the run, only study time does (2026-09-14). Say what does.
+  // Names what keeps the run: study time, a past paper, or two mistakes
+  // (lib/study/study-days.ts). A bare "log today" overpromised one mistake.
   const streakLabel = atRisk
-    ? `${streakDays} day streak, log study time today to keep it`
+    ? `${streakDays} day streak, log study time or a past paper today to keep it`
     : `${streakDays} day streak`;
 
   return (

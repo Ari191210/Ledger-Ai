@@ -3,6 +3,7 @@ import { computeScore, type ScoreBreakdown } from "@/lib/score/compute";
 import { buildScoreInputs } from "@/lib/score/build-inputs";
 import { dayKeyIST, isoDateIST } from "@/lib/date";
 import { computeStreak } from "@/lib/study/streak";
+import { studyDaySet } from "@/lib/study/study-days";
 
 /**
  * The public demo account. Its rows are read with the service role and shown
@@ -55,7 +56,9 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
     const syllabus = syllabusRes.data ?? [];
     const activity = activityRes.data ?? [];
 
-    const streakDays = computeStreak(new Set(activity.map((d) => d.day)));
+    const streakDays = computeStreak(
+      studyDaySet({ activity, pyq: pyqRows, mistakes: mistakes as { created_at: string }[] }),
+    );
 
     // Through the same assembler the product uses, not a second copy of the
     // arithmetic. This page's whole claim is that the number is the product's
