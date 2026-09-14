@@ -100,6 +100,10 @@ export const getDashboardData = cache(async function getDashboardData(
   const focusMinutesWeek = focusSeries.reduce((s, m) => s + m, 0);
 
   const pyqSeries = pyqAccuracySeries(days7, pyq30);
+  // With papers on record but none this week, the line is one dot at the left
+  // edge (where the student stood coming in). Without a word it reads as a
+  // stray mark, so the tile says why it is alone.
+  const pyqThisWeek = pyq30.some((a) => dayKeyIST(a.taken_at) >= days7[0]);
 
   const mistakesByDay = new Map<string, number>();
   for (const m of mistakesAll) {
@@ -119,7 +123,7 @@ export const getDashboardData = cache(async function getDashboardData(
       key: "pyq",
       label: "pyq accuracy",
       value: accuracyLabel(pyqCorrect, pyqTotal),
-      sub: `${pyqTotal} attempted · 30d`,
+      sub: pyqTotal > 0 && !pyqThisWeek ? `${pyqTotal} attempted · 30d · none this week` : `${pyqTotal} attempted · 30d`,
       data: pyqSeries,
     },
     {

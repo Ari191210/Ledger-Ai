@@ -97,6 +97,16 @@ describe("getDashboardData", () => {
     expect(data.studiedDays.has(Number(today.slice(8, 10)))).toBe(true);
   });
 
+  it("says why the accuracy line is a lone dot when no paper was sat this week", async () => {
+    rows.pyq = [{ subject: "Physics", total: 10, correct: 8, taken_at: atIST(isoDaysAgoIST(12), 12) }];
+    let tile = (await getDashboardData(supabase, "u1")).activity.find((t) => t.key === "pyq")!;
+    expect(tile.sub).toContain("none this week");
+
+    rows.pyq = [{ subject: "Physics", total: 10, correct: 8, taken_at: atIST(isoDaysAgoIST(2), 12) }];
+    tile = (await getDashboardData(supabase, "u2")).activity.find((t) => t.key === "pyq")!;
+    expect(tile.sub).not.toContain("none this week");
+  });
+
   it("does not mark a day studied for a single mistake alone", async () => {
     const today = isoDateIST();
     rows.mistakes = [{ subject: "Physics", topic: "Optics", created_at: atIST(today, 12), resolved_at: null }];
