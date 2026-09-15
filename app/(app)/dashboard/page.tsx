@@ -41,7 +41,7 @@ export default async function DashboardPage({
     searchParams,
     supabase.from("profiles").select("tour_seen_at").eq("id", uid).maybeSingle(),
   ]);
-  const { score, scoreInputs, fixNext, streakDays } = await getDashboardData(supabase, uid);
+  const { score, scoreInputs, fixNext, streakDays, studiedDays } = await getDashboardData(supabase, uid);
 
   const todayIso = isoDateIST();
 
@@ -287,7 +287,11 @@ export default async function DashboardPage({
       <DashboardTour
         autoStart={tourOpen.autoStart}
         mandatory={tourOpen.mandatory}
-        firstResult={pyqAll.length === 0 ? { inputs: scoreInputs, before: score.total } : null}
+        firstResult={
+          pyqAll.length === 0
+            ? { inputs: scoreInputs, before: score.total, todayStudied: studiedDays.has(Number(todayIso.slice(8, 10))) }
+            : null
+        }
       />
     </div>
   );

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { playClick } from "@/lib/sound";
 import { SUBJECTS } from "@/lib/subjects";
-import { computeScore, type ScoreInputs } from "@/lib/score/compute";
+import type { ScoreInputs } from "@/lib/score/compute";
+import { scoreAfterPaperToday } from "@/lib/score/first-result";
 import { markTourSeenAction, logPyqAction } from "@/app/(app)/dashboard/actions";
 
 /**
@@ -168,7 +169,7 @@ export function DashboardTour({
   /** First run: the tour can only end by opening a tool. */
   mandatory?: boolean;
   /** Present only when this student has never logged a test: opens the tour on one. */
-  firstResult?: { inputs: ScoreInputs; before: number } | null;
+  firstResult?: { inputs: ScoreInputs; before: number; todayStudied: boolean } | null;
 }) {
   const router = useRouter();
   const [subject, setSubject] = useState(SUBJECTS[0]);
@@ -361,12 +362,9 @@ export function DashboardTour({
         return;
       }
       // The same formula the server just ran, on the same inputs plus this
-      // attempt, so the sentence names exactly the number the ring lands on.
-      const to = computeScore({
-        ...firstResult.inputs,
-        pyqTotal: firstResult.inputs.pyqTotal + t,
-        pyqCorrect: firstResult.inputs.pyqCorrect + c,
-      }).total;
+      // attempt and the study day it makes, so the sentence names exactly the
+      // number the ring lands on.
+      const to = scoreAfterPaperToday(firstResult.inputs, { total: t, correct: c }, firstResult.todayStudied);
       setMoved({ from: firstResult.before, to });
     } catch {
       // A thrown action is a failed write, not a saved one: keep the form and
