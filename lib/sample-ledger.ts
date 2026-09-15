@@ -51,14 +51,18 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
       db.from("mistake_reviews").select("mistake_id, remembered, reviewed_at").eq("user_id", uid),
     ]);
 
-    if (pyqRes.error || mistakeRes.error || syllabusRes.error || activityRes.error || reviewRes.error)
-      return null;
+    if (pyqRes.error || mistakeRes.error || syllabusRes.error || activityRes.error) return null;
 
     const pyqRows = pyqRes.data ?? [];
     const mistakes = mistakeRes.data ?? [];
     const syllabus = syllabusRes.data ?? [];
     const activity = activityRes.data ?? [];
-    const reviews = reviewRes.data ?? [];
+    // Reviews are the one query allowed to fail: this page is cached for an
+    // hour, and on 2026-09-16 it rendered "unavailable" for everyone in the
+    // window between deploying the mistakes pillar and applying migration 0018.
+    // A marketing page that goes blank over a missing optional table is worse
+    // than one pillar reading zero. The four queries above are the example.
+    const reviews = reviewRes.error ? [] : (reviewRes.data ?? []);
 
     const streakDays = computeStreak(
       studyDaySet({ activity, pyq: pyqRows, mistakes: mistakes as { created_at: string }[] }),
