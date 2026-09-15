@@ -9,6 +9,7 @@ const empty: ScoreInputs = {
   syllabusCovered: 0,
   mistakesEverLogged: 0,
   mistakesRecent7d: 0,
+  mistakeReviews30d: 0,
   streakDays: 0,
 };
 

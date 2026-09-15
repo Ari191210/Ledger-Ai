@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 const PILLARS = [
   { n: 40, label: "pyq accuracy", note: "Correct vs attempted on real past papers, last 30 days." },
   { n: 25, label: "syllabus coverage", note: "Topics you've actually marked covered, out of everything logged." },
-  { n: 20, label: "mistake velocity", note: "Fewer new mistakes in the last 7 days scores higher." },
+  { n: 20, label: "mistake work", note: "Reviews of your own logged mistakes, over the last 30 days." },
   { n: 15, label: "consistency", note: "Your current study streak, against a 14-day target." },
 ];
 

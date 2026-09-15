@@ -70,7 +70,7 @@ export default async function SamplePage() {
   const PILLAR_MATH: Record<string, string> = {
     pyq: `${led.pyqCorrect} correct of ${led.pyqTotal} attempted = ${pct(led.pyqCorrect, led.pyqTotal)}%, of 400`,
     coverage: `${led.syllabusCovered} topics covered of ${led.syllabusTotal} logged = ${pct(led.syllabusCovered, led.syllabusTotal)}%, of 250`,
-    mistakes: `${led.mistakesRecent7d} new mistakes in the last 7 days, against a 30 ceiling, of 200`,
+    mistakes: `${led.mistakeReviews30d} mistake reviews in the last 30 days, against a 20 target, of 200`,
     consistency: `${led.streakDays}-day streak against a 14-day target, of 150`,
   };
 

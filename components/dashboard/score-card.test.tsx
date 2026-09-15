@@ -22,6 +22,7 @@ const inputs: ScoreInputs = {
   syllabusCovered: 8,
   mistakesEverLogged: 12,
   mistakesRecent7d: 3,
+  mistakeReviews30d: 0,
   streakDays: 5,
 };
 const score = computeScore(inputs);

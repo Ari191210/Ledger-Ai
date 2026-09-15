@@ -16,6 +16,7 @@ const rows = {
   mistakes: [] as Record<string, unknown>[],
   pyq: [] as Record<string, unknown>[],
   syllabus: [] as Record<string, unknown>[],
+  reviews: [] as { mistake_id: string; remembered: boolean; reviewed_at: string }[],
   streak: 0,
 };
 
@@ -24,6 +25,7 @@ vi.mock("@/lib/study/queries", () => ({
   getCurrentStreak: async () => rows.streak,
   getMistakes: async () => rows.mistakes,
   getPyqAttempts: async () => rows.pyq,
+  getRecentReviews: async () => rows.reviews,
   getSyllabus: async () => rows.syllabus,
 }));
 vi.mock("@/lib/score/tape", () => ({ getLedgerTape: async () => [] }));
@@ -44,6 +46,7 @@ beforeEach(() => {
   rows.mistakes = [];
   rows.pyq = [];
   rows.syllabus = [];
+  rows.reviews = [];
   rows.streak = 0;
 });
 

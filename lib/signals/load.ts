@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getMistakes, getSyllabus, getPyqAttempts, getCurrentStreak } from "@/lib/study/queries";
+import { getMistakes, getSyllabus, getPyqAttempts, getCurrentStreak, getRecentReviews } from "@/lib/study/queries";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { computeCircadianRows } from "@/lib/circadian";
 import { buildScoreInputs } from "@/lib/score/build-inputs";
@@ -46,7 +46,7 @@ export type Signals = {
 };
 
 export async function loadSignals(supabase: SupabaseClient, userId: string): Promise<Signals> {
-  const [mistakes, syllabus, attempts, deadlines, sessionsRes, streakDays, loggedDays] =
+  const [mistakes, syllabus, attempts, deadlines, sessionsRes, streakDays, loggedDays, reviews] =
     await Promise.all([
       getMistakes(supabase, userId),
       getSyllabus(supabase, userId),
@@ -62,6 +62,7 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
       // Every study day on record, by the same rule the streak uses, so the
       // run found here is the run the student actually saw.
       loadStudyDays(supabase, userId),
+      getRecentReviews(supabase, userId),
     ]);
 
   const sessions = (sessionsRes.data ?? []) as FocusSessionRow[];
@@ -105,7 +106,7 @@ export async function loadSignals(supabase: SupabaseClient, userId: string): Pro
   // The same inputs the dashboard scores with, built by the same function, so
   // the counterfactual is differenced against the number the student can
   // actually see. Rebuilding them here by hand is how they drifted apart.
-  const scoreInputs = buildScoreInputs({ attempts, syllabus, mistakes, streakDays });
+  const scoreInputs = buildScoreInputs({ attempts, syllabus, mistakes, reviews, streakDays });
 
   const signals: Omit<Signals, "empty"> = {
     examMismatch,

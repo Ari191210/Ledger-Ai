@@ -4,6 +4,7 @@ import { loadStudyDays } from "./study-days";
 import type {
   ActivityDay,
   Mistake,
+  MistakeReview,
   MistakeSource,
   PyqAttempt,
   SyllabusTopic,
@@ -92,6 +93,37 @@ export async function getMistakes(
   return data ?? [];
 }
 
+/**
+ * Reviews in the last n days, for the mistakes pillar.
+ *
+ * user_id is not filtered here because RLS already scopes the table to the
+ * caller, the same way every other query in this file relies on it.
+ */
+export async function getRecentReviews(
+  supabase: SupabaseClient,
+  userId: string,
+  sinceDays = 30,
+): Promise<MistakeReview[]> {
+  const since = new Date(Date.now() - sinceDays * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from("mistake_reviews")
+    .select("mistake_id, remembered, reviewed_at")
+    .eq("user_id", userId)
+    .gte("reviewed_at", since)
+    .order("reviewed_at", { ascending: false })
+    .limit(2000);
+  // A missing table is the one error this swallows: the code ships on push and
+  // the migration is applied by hand, so between the two this table does not
+  // exist yet. No reviews then means a mistakes pillar of zero for that window,
+  // which is what the data says, rather than a dashboard that will not load.
+  // Every other error still throws.
+  if (error) {
+    if (error.code === "42P01" || error.code === "PGRST205") return [];
+    throw error;
+  }
+  return data ?? [];
+}
+
 export async function resolveMistake(supabase: SupabaseClient, id: string) {
   return supabase
     .from("mistakes")
@@ -153,6 +185,13 @@ export async function reviewMistake(
   // or one that no longer exists. Either way there is nothing to advance.
   if (!row) return { error: null, data: null };
   const currentReviewCount = Number(row.review_count) || 0;
+
+  // Recorded before the schedule moves, and not awaited for its result beyond
+  // this: the review happened whichever way the update below goes, and the
+  // mistakes pillar is built from these rows. user_id comes from the column
+  // default (auth.uid()), so the browser cannot name someone else.
+  const logged = await supabase.from("mistake_reviews").insert({ mistake_id: id, remembered });
+  if (logged.error) return { error: logged.error, data: null };
 
   if (!remembered) {
     return supabase

@@ -73,6 +73,7 @@ describe("the cost of a missed day", () => {
     syllabusCovered: 10,
     mistakesEverLogged: 5,
     mistakesRecent7d: 1,
+    mistakeReviews30d: 0,
     // Necessarily zero once a day has been missed: computeStreak counts back
     // from today and stops at the first gap.
     streakDays: 0,

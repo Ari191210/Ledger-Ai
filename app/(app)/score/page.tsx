@@ -10,7 +10,8 @@ import { ScoreEvidence } from "@/components/score/score-evidence";
 const PILLAR_NOTE: Record<string, string> = {
   pyq: "PYQ questions attempted and answered correctly, last 30 days.",
   coverage: "Syllabus topics logged as covered, out of all topics logged.",
-  mistakes: "Fewer new mistakes in the last 7 days scores higher. Zero mistakes ever logged scores zero, because that is no evidence yet, not a free pass.",
+  mistakes:
+    "The work you put into your mistakes: every review in Spaced Review counts, once per mistake per day, over 30 days. Logging a mistake never costs points.",
   consistency:
     "Days in a row you studied, out of a 14-day target. A day counts with study time, a past paper, or two or more mistakes logged.",
 };

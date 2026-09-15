@@ -25,6 +25,7 @@ export type SampleLedger = {
   mistakesTotal: number;
   mistakesOpen: number;
   mistakesRecent7d: number;
+  mistakeReviews30d: number;
   syllabusTotal: number;
   syllabusCovered: number;
   streakDays: number;
@@ -38,7 +39,7 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
     const db = createAdminClient();
     const uid = DEMO_USER_ID;
 
-    const [pyqRes, mistakeRes, syllabusRes, activityRes] = await Promise.all([
+    const [pyqRes, mistakeRes, syllabusRes, activityRes, reviewRes] = await Promise.all([
       db
         .from("pyq_attempts")
         .select("subject, total, correct, taken_at")
@@ -47,14 +48,17 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
       db.from("mistakes").select("subject, topic, created_at, resolved_at").eq("user_id", uid),
       db.from("syllabus_topics").select("covered").eq("user_id", uid),
       db.from("activity_days").select("day, minutes").eq("user_id", uid).gt("minutes", 0),
+      db.from("mistake_reviews").select("mistake_id, remembered, reviewed_at").eq("user_id", uid),
     ]);
 
-    if (pyqRes.error || mistakeRes.error || syllabusRes.error || activityRes.error) return null;
+    if (pyqRes.error || mistakeRes.error || syllabusRes.error || activityRes.error || reviewRes.error)
+      return null;
 
     const pyqRows = pyqRes.data ?? [];
     const mistakes = mistakeRes.data ?? [];
     const syllabus = syllabusRes.data ?? [];
     const activity = activityRes.data ?? [];
+    const reviews = reviewRes.data ?? [];
 
     const streakDays = computeStreak(
       studyDaySet({ activity, pyq: pyqRows, mistakes: mistakes as { created_at: string }[] }),
@@ -71,11 +75,13 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
       attempts: pyqRows as Parameters<typeof buildScoreInputs>[0]["attempts"],
       syllabus: syllabus as Parameters<typeof buildScoreInputs>[0]["syllabus"],
       mistakes: mistakes as Parameters<typeof buildScoreInputs>[0]["mistakes"],
+      reviews: reviews as Parameters<typeof buildScoreInputs>[0]["reviews"],
       streakDays,
     });
 
     const { pyqTotal, pyqCorrect, syllabusTotal, syllabusCovered } = inputs;
     const mistakesRecent7d = inputs.mistakesRecent7d;
+    const mistakeReviews30d = inputs.mistakeReviews30d;
     const mistakesOpen = mistakes.filter((m) => !m.resolved_at).length;
 
     const score = computeScore(inputs);
@@ -106,6 +112,7 @@ export async function getSampleLedger(): Promise<SampleLedger | null> {
       mistakesTotal: mistakes.length,
       mistakesOpen,
       mistakesRecent7d,
+      mistakeReviews30d,
       syllabusTotal,
       syllabusCovered,
       streakDays,

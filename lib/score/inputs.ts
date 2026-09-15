@@ -10,6 +10,7 @@ import {
   getCurrentStreak,
   getMistakes,
   getPyqAttempts,
+  getRecentReviews,
   getSyllabus,
 } from "@/lib/study/queries";
 
@@ -74,12 +75,13 @@ export const getDashboardData = cache(async function getDashboardData(
   const to = isoDate(new Date());
   const from60 = isoDate(daysAgo(59));
 
-  const [activity60, mistakesAll, pyq30, syllabus, streakDays] = await Promise.all([
+  const [activity60, mistakesAll, pyq30, syllabus, streakDays, reviews] = await Promise.all([
     getActivityRange(supabase, userId, from60, to),
     getMistakes(supabase, userId),
     getPyqAttempts(supabase, userId, 30),
     getSyllabus(supabase, userId),
     getCurrentStreak(supabase, userId),
+    getRecentReviews(supabase, userId),
   ]);
 
   // ── score ────────────────────────────────────────────────────────────
@@ -87,6 +89,7 @@ export const getDashboardData = cache(async function getDashboardData(
     attempts: pyq30,
     syllabus,
     mistakes: mistakesAll,
+    reviews,
     streakDays,
   });
   const { pyqTotal, pyqCorrect, syllabusTotal, syllabusCovered } = scoreInputs;

@@ -1,5 +1,5 @@
 // Pure scoring math, no Supabase, no I/O. Weights match the pre-rebuild
-// engine: PYQ accuracy 40% / syllabus coverage 25% / mistake velocity 20% /
+// engine: PYQ accuracy 40% / syllabus coverage 25% / mistake work 20% /
 // consistency 15%, total out of 1000.
 
 export type ScoreInputs = {
@@ -13,6 +13,8 @@ export type ScoreInputs = {
   mistakesEverLogged: number;
   /** Mistakes created in the last 7 days. */
   mistakesRecent7d: number;
+  /** Reviews of mistakes in the last 30 days, one per mistake per day: what the mistakes pillar scores. */
+  mistakeReviews30d: number;
   /** Current consecutive-day study streak. */
   streakDays: number;
 };
@@ -56,6 +58,9 @@ function tierFor(total: number) {
   return { tier: current.label, nextTier: next ? { label: next.label, at: next.at } : null };
 }
 
+/** Reviews in 30 days for the full 200. */
+export const REVIEWS_FOR_FULL = 20;
+
 export function computeScore(inputs: ScoreInputs): ScoreBreakdown {
   const pyqAccuracy = inputs.pyqTotal > 0 ? inputs.pyqCorrect / inputs.pyqTotal : 0;
   const pyqPts = Math.round(pyqAccuracy * 400);
@@ -64,12 +69,17 @@ export function computeScore(inputs: ScoreInputs): ScoreBreakdown {
     inputs.syllabusTotal > 0 ? inputs.syllabusCovered / inputs.syllabusTotal : 0;
   const coveragePts = Math.round(coverage * 250);
 
-  // no evidence yet -> 0, not a free pass. Otherwise fewer recent mistakes
-  // (relative to a 30-in-a-week ceiling) scores higher.
-  const mistakePts =
-    inputs.mistakesEverLogged === 0
-      ? 0
-      : Math.round(Math.max(0, 1 - inputs.mistakesRecent7d / 30) * 200);
+  // Scores working through mistakes, not avoiding them (2026-09-16, founder
+  // approved). It used to score fewer new mistakes in 7 days, gated on having
+  // logged any: one mistake ever logged jumped the pillar from 0 to 193, every
+  // honest log after that cost points, and a student who logged once and then
+  // stopped sat at 200 of 200 forever.
+  //
+  // Reviews rather than resolutions, because resolving takes five remembered
+  // reviews spaced out to about 55 days, and a new student would score nothing
+  // here for two months. A review counts once per mistake per day, so the
+  // ceiling is the work the schedule actually offers.
+  const mistakePts = Math.round(Math.min(1, inputs.mistakeReviews30d / REVIEWS_FOR_FULL) * 200);
 
   const consistencyPts = Math.round(Math.min(1, inputs.streakDays / 14) * 150);
 

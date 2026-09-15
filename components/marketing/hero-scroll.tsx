@@ -16,7 +16,7 @@ const MAX = 1000;
 const PILLARS = [
   { label: "pyq accuracy", weight: "40", pct: 78, dim: 1 },
   { label: "syllabus coverage", weight: "25", pct: 75, dim: 0.72 },
-  { label: "mistake velocity", weight: "20", pct: 76, dim: 0.5 },
+  { label: "mistake work", weight: "20", pct: 76, dim: 0.5 },
   { label: "consistency", weight: "15", pct: 66, dim: 0.34 },
 ];
 

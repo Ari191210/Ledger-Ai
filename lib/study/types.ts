@@ -9,6 +9,12 @@ export type ActivityDay = {
   minutes: number;
 };
 
+export type MistakeReview = {
+  mistake_id: string;
+  remembered: boolean;
+  reviewed_at: string;
+};
+
 export type Mistake = {
   id: string;
   subject: string;

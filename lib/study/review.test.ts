@@ -9,6 +9,7 @@ import { reviewMistake } from "./queries";
  */
 function fakeClient(storedCount: number | null) {
   const writes: Record<string, unknown>[] = [];
+  const reviews: Record<string, unknown>[] = [];
   const client = {
     from() {
       return {
@@ -28,10 +29,14 @@ function fakeClient(storedCount: number | null) {
           writes.push(patch);
           return { eq: async () => ({ error: null }) };
         },
+        async insert(row: Record<string, unknown>) {
+          reviews.push(row);
+          return { error: null };
+        },
       };
     },
   } as unknown as SupabaseClient;
-  return { client, writes };
+  return { client, writes, reviews };
 }
 
 describe("reviewMistake", () => {
@@ -91,5 +96,25 @@ describe("reviewMistake", () => {
     const { client, writes } = fakeClient(NaN);
     await reviewMistake(client, "m1", 0, true);
     expect(writes[0].review_count).toBe(1);
+  });
+});
+
+describe("reviewMistake, the review log", () => {
+  it("records a remembered review, because the mistakes pillar is built from these rows", async () => {
+    const { client, reviews } = fakeClient(0);
+    await reviewMistake(client, "m1", 0, true);
+    expect(reviews).toEqual([{ mistake_id: "m1", remembered: true }]);
+  });
+
+  it("records a forgotten review too: sitting with what you cannot do yet is the work", async () => {
+    const { client, reviews } = fakeClient(3);
+    await reviewMistake(client, "m1", 0, false);
+    expect(reviews).toEqual([{ mistake_id: "m1", remembered: false }]);
+  });
+
+  it("names no user: the column default does, so the browser cannot review as someone else", async () => {
+    const { client, reviews } = fakeClient(0);
+    await reviewMistake(client, "m1", 0, true);
+    expect(reviews[0]).not.toHaveProperty("user_id");
   });
 });
