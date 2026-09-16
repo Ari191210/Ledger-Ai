@@ -61,8 +61,31 @@ function tierFor(total: number) {
 /** Reviews in 30 days for the full 200. */
 export const REVIEWS_FOR_FULL = 20;
 
+/** The prior the PYQ pillar starts from: ten of twenty, an even 50%. */
+export const PYQ_PRIOR_CORRECT = 10;
+export const PYQ_PRIOR_TOTAL = 20;
+
 export function computeScore(inputs: ScoreInputs): ScoreBreakdown {
-  const pyqAccuracy = inputs.pyqTotal > 0 ? inputs.pyqCorrect / inputs.pyqTotal : 0;
+  // Accuracy is shrunk toward 50% by a twenty-question prior rather than taken
+  // raw (2026-09-16, founder approved). Raw accuracy had no sense of volume, so
+  // one question answered correctly was 100% and paid the full 400, which is
+  // 40% of the whole score for ten seconds of logging. The real damage was not
+  // the student gaming it, it was the honest one: a five-question quiz aced
+  // outscored three full papers at 70%, and the instrument said the better
+  // prepared student was worse.
+  //
+  // A prior fixes that without a cliff. One right answer reads 52%, ten of ten
+  // reads 67%, and a real body of work converges on the true rate: the number
+  // earns its confidence instead of asserting it.
+  //
+  // The guard matters as much as the formula. Applied to an empty ledger the
+  // prior alone would read 50% and hand 200 points to an account that has
+  // logged nothing, which would also make the tour's first paper LOWER the
+  // score it is meant to raise. No attempts means no evidence, which is zero.
+  const pyqAccuracy =
+    inputs.pyqTotal > 0
+      ? (inputs.pyqCorrect + PYQ_PRIOR_CORRECT) / (inputs.pyqTotal + PYQ_PRIOR_TOTAL)
+      : 0;
   const pyqPts = Math.round(pyqAccuracy * 400);
 
   const coverage =

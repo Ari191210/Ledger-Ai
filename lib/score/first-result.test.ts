@@ -17,7 +17,13 @@ describe("scoreAfterPaperToday", () => {
   it("matches what /score showed live for a new student logging 15 of 20", () => {
     // 2026-09-16, live: the tour said 300, /score read 311. The 11 is one study
     // day of consistency, round(1/14 * 150).
-    expect(scoreAfterPaperToday(empty, { total: 20, correct: 15 }, false)).toBe(311);
+    //
+    // 311 became 261 later the same day, when the PYQ pillar started shrinking
+    // accuracy toward 50% with a twenty-question prior. 15 of 20 is no longer
+    // read as 75% on its own, it is (15+10)/(20+20), so 250 rather than 300.
+    // The drop is the point: one paper is one paper, and the number now says
+    // so. This case is still the real one a new student sees in the tour.
+    expect(scoreAfterPaperToday(empty, { total: 20, correct: 15 }, false)).toBe(261);
   });
 
   it("does not add a streak day when today already counted", () => {

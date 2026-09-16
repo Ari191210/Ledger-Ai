@@ -7,7 +7,8 @@ import { getLedgerTape } from "@/lib/score/tape";
 import { ScoreEvidence } from "@/components/score/score-evidence";
 
 const PILLAR_NOTE: Record<string, string> = {
-  pyq: "PYQ questions attempted and answered correctly, last 30 days.",
+  pyq:
+    "PYQ questions attempted and answered correctly, last 30 days. Accuracy counts for more the more questions are behind it, so one lucky question does not read as a perfect record and a long run of real papers is worth what it should be.",
   coverage: "Syllabus topics logged as covered, out of all topics logged.",
   mistakes:
     "The work you put into your mistakes: every review in Spaced Review counts, once per mistake per day, over 30 days. Logging a mistake never costs points.",
