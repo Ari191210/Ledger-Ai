@@ -8,6 +8,7 @@ import { checkRateLimit, recordInvocation } from "@/lib/ai/rate-limit";
 import { summariseAdvice, resolveTopic, recordAdvice } from "@/lib/ai/advice";
 import type { AiResult } from "@/lib/ai/types";
 import { parseScene } from "@/lib/scenes/registry";
+import { fenceStudentText, stripFenceMarkers, FENCE_RULE } from "@/lib/ai/fence";
 
 export const maxDuration = 60;
 
@@ -26,7 +27,17 @@ function sanitiseValues(spec: ReturnType<typeof getPromptSpec>, raw: unknown): T
       const s = typeof v === "string" ? v : "";
       values[field.key] = field.options.includes(s) ? s : field.options[0];
     } else {
-      values[field.key] = typeof v === "string" ? v.slice(0, MAX_STRING_LEN).trim() : "";
+      // Fenced here rather than in each buildPrompt, because this is the one
+      // place every tool's input has to pass through. A prompt builder that
+      // forgets to fence is a silent hole; there is nothing to forget if the
+      // value is already fenced by the time it arrives.
+      //
+      // Only text and textarea. Selects are checked against their options and
+      // numbers are clamped, so both are already constrained, and both are
+      // read by system prompts and by logic ("exactly ${count} questions"),
+      // which markers around them would break.
+      const clean = typeof v === "string" ? v.slice(0, MAX_STRING_LEN).trim() : "";
+      values[field.key] = clean ? fenceStudentText(clean) : "";
     }
   }
   return values;
@@ -85,7 +96,12 @@ export async function POST(req: Request) {
   const ledger = spec.usesStudentData
     ? await buildLedgerContext(supabase, user.id, String(values.subject ?? ""))
     : undefined;
-  const dataContext = ledger?.text;
+  // The ledger is the quieter half of the same problem. Mistake topics and
+  // syllabus entries are free text the student typed, stored by an honest
+  // feature and pasted into the system message later, so a topic named "ignore
+  // all previous instructions" arrives with the authority of the prompt unless
+  // it is fenced like anything else they wrote.
+  const dataContext = ledger ? fenceStudentText(ledger.text) : undefined;
 
   const { system, user: userText } = spec.buildPrompt(values, dataContext);
 
@@ -95,7 +111,17 @@ export async function POST(req: Request) {
   // refers to it directly, so skip those rather than sending it twice.
   const alreadyInPrompt =
     !!dataContext && (system.includes(dataContext) || userText.includes(dataContext));
-  const fullSystem = [system, profileCtx, alreadyInPrompt ? "" : (dataContext ?? "")]
+  // FENCE_RULE goes last, after the tool's own instructions and after the data,
+  // so it is the final word on how to read everything above it. Profile context
+  // is grade, board, stream and target exam, all chosen from fixed lists at
+  // onboarding, so it needs no fence; the marker strip is there only so a value
+  // that somehow arrived by another route cannot forge one.
+  const fullSystem = [
+    system,
+    profileCtx ? stripFenceMarkers(profileCtx) : "",
+    alreadyInPrompt ? "" : (dataContext ?? ""),
+    FENCE_RULE,
+  ]
     .filter(Boolean)
     .join("\n");
 
