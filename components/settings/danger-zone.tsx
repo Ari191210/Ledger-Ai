@@ -4,17 +4,22 @@ import { useState, useTransition } from "react";
 import { Download, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteAccount } from "@/app/(app)/settings/actions";
+import { confirmsDeletion } from "@/lib/account/delete-confirmation";
 
-export function DangerZone() {
+export function DangerZone({ email }: { email: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
+  // The same string the server will check. Typing it is the whole point, so it
+  // is never prefilled and never pasted in for the student.
+  const typedMatches = confirmsDeletion(confirmText, email);
+
   function runDelete() {
     setErr(null);
     start(async () => {
-      const res = await deleteAccount();
+      const res = await deleteAccount(confirmText);
       // deleteAccount redirects to /login on success, it only returns here
       // on failure.
       if (res && "error" in res) setErr(res.error);
@@ -61,12 +66,15 @@ export function DangerZone() {
               <div className="mt-3 space-y-2">
                 <label className="block">
                   <span className="u-label">
-                    type <span className="text-text-2">delete</span> to confirm
+                    type <span className="text-text-2">{email}</span> to confirm
                   </span>
                   <input
                     value={confirmText}
                     onChange={(e) => setConfirmText(e.target.value)}
-                    placeholder="delete"
+                    type="email"
+                    autoComplete="off"
+                    spellCheck={false}
+                    aria-label={`type ${email} to confirm deleting this account`}
                     className="mt-1.5 w-full max-w-xs rounded-md border border-negative/40 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-negative"
                   />
                 </label>
@@ -74,7 +82,7 @@ export function DangerZone() {
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
-                    disabled={confirmText.trim().toLowerCase() !== "delete" || pending}
+                    disabled={!typedMatches || pending}
                     className="bg-negative text-white hover:opacity-90"
                     onClick={runDelete}
                   >

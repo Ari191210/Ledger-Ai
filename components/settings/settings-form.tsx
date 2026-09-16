@@ -290,7 +290,7 @@ export function SettingsForm(p: Props) {
 
       <Reveal delay={0.15}>
         <Section index="05" title="data & account" icon={ShieldAlert}>
-          <DangerZone />
+          <DangerZone email={p.email} />
         </Section>
       </Reveal>
     </div>
