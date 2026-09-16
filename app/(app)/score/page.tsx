@@ -4,7 +4,6 @@ import { StatNumber } from "@/components/ui/stat-number";
 import { Ring } from "@/components/ui/ring";
 import { getDashboardData } from "@/lib/score/inputs";
 import { getLedgerTape } from "@/lib/score/tape";
-import { getMistakes } from "@/lib/study/queries";
 import { ScoreEvidence } from "@/components/score/score-evidence";
 
 const PILLAR_NOTE: Record<string, string> = {
@@ -22,21 +21,8 @@ export default async function ScorePage() {
     data: { user },
   } = await supabase.auth.getUser();
   const uid = user!.id;
-  const [data, tape, mistakes] = await Promise.all([
-    getDashboardData(supabase, uid),
-    getLedgerTape(supabase, uid),
-    getMistakes(supabase, uid),
-  ]);
+  const [data, tape] = await Promise.all([getDashboardData(supabase, uid), getLedgerTape(supabase, uid)]);
   const { score, streakDays } = data;
-
-  const byTopic = new Map<string, { subject: string; topic: string; count: number }>();
-  for (const m of mistakes) {
-    const key = `${m.subject}::${m.topic}`;
-    const cur = byTopic.get(key) ?? { subject: m.subject, topic: m.topic, count: 0 };
-    cur.count++;
-    byTopic.set(key, cur);
-  }
-  const topPattern = [...byTopic.values()].sort((a, b) => b.count - a.count)[0] ?? null;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -104,7 +90,7 @@ export default async function ScorePage() {
         computed live from current data. History over time is not stored yet.
       </p>
 
-      <ScoreEvidence data={data} tape={tape} topPattern={topPattern} />
+      <ScoreEvidence data={data} tape={tape} />
     </div>
   );
 }

@@ -127,6 +127,26 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
 
 ## 5. Decision log
 
+- **2026-09-16** — The dashboard's evidence comes back, in two columns
+  (founder, on opening their own dashboard: "what the hell happened to the
+  dashboard where did all of the stats go", then "add domt make the dashboard
+  overcrowded as well"). The 2026-09-14 cut was right about the symptom and
+  wrong about the cause: the page was not too full, it was **twelve full-width
+  rows**, so the answer to "am I ready" sat above a scroll of history. Deleting
+  the history removed the record that makes the number believable. The fix is
+  density, not deletion:
+  - **Left column:** the score card, then study activity. **Right rail (320px):**
+    study days, deadlines, spaced review. One grid, two columns, four cards
+    where there were five rows.
+  - **Below it:** fix next, syllabus coverage, and a two-up of best hours and
+    mistake DNA. Nine numbered sections in six rows, 1678px at 1280px wide.
+  - **Nothing renders in two places.** Only the two long records, 30 days of
+    focus and the 14-day tape, stay on `/score`, because they are read weekly
+    and are the tallest things in the product. `/score` says so in a line, and
+    the dashboard's footer link names exactly those two.
+  - **Mistake DNA shows three patterns, not one.** Beside the hour dial a single
+    line left the card mostly empty, and one topic reads as a verdict when the
+    honest shape of the data is a short ranking.
 - **2026-09-16** — The two dashboard rotaries are now press keys (founder:
   "instead of a knob lets add a satisfying clicky button", then "think about a
   keyboard button like a satisfying button like the dial it should be

@@ -1,22 +1,17 @@
 import Link from "next/link";
-import { Sunrise, Dna } from "lucide-react";
-import { HourDial } from "@/components/dashboard/hour-dial";
-import { SyllabusCard } from "@/components/dashboard/syllabus-card";
-import { StudyDaysCalendar } from "@/components/dashboard/study-days-calendar";
 import { FocusChart } from "@/components/dashboard/focus-chart";
 import { Reveal } from "@/components/motion/reveal";
 import type { DashboardData } from "@/lib/score/inputs";
 import type { getLedgerTape } from "@/lib/score/tape";
-import { todayPartsIST, daysInMonthIST, firstWeekdayIST } from "@/lib/date";
 
 /**
- * The evidence behind the Ledger Score: the record of what was actually done.
+ * The long record behind the Ledger Score.
  *
- * These sections used to sit on the dashboard, which made it twelve cards long
- * and buried the two questions a student opens it to answer: am I ready, and
- * what do I do next. None of them answers either. They answer "why is my score
- * what it is", which is exactly the question the score page exists for, so they
- * live here now, under the number they explain.
+ * Only two things live here: thirty days of focus and fourteen days of entries.
+ * Both are read about once a week, and both are tall. Everything you check
+ * daily, the activity tiles, the study days grid, coverage, best hours and
+ * mistake DNA, is on the dashboard where the day starts. Nothing is in both
+ * places, so the two pages can never disagree about what happened.
  */
 
 function Label({ index, children }: { index: string; children: string }) {
@@ -27,104 +22,34 @@ function Label({ index, children }: { index: string; children: string }) {
   );
 }
 
-// Null means no evidence that day: it is skipped, not drawn as zero, and the
-// line joins only real points. With no points at all nothing is drawn, because
-// a line beside "none yet" would be a line about data that does not exist.
-function Mini({ data }: { data: (number | null)[] }) {
-  const w = 120;
-  const h = 34;
-  const points = data.flatMap((v, i) => (v === null ? [] : [{ i, v }]));
-  if (points.length === 0) return <div className="h-8 w-full" aria-hidden />;
-  const lo = Math.min(...points.map((p) => p.v));
-  const hi = Math.max(...points.map((p) => p.v));
-  const x = (i: number) => (i / (data.length - 1)) * w;
-  const y = (v: number) => 3 + (1 - (v - lo) / (hi - lo || 1)) * (h - 6);
-  const line = points.map((p, k) => `${k ? "L" : "M"}${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(" ");
-  const end = points[points.length - 1];
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-8 w-full" aria-hidden>
-      {points.length > 1 && (
-        <path
-          d={line}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-text-2"
-        />
-      )}
-      <circle cx={x(end.i)} cy={y(end.v)} r={2.2} className="fill-accent-strong" />
-    </svg>
-  );
-}
-
 export function ScoreEvidence({
   data,
   tape,
-  topPattern,
 }: {
   data: DashboardData;
   tape: Awaited<ReturnType<typeof getLedgerTape>>;
-  topPattern: { subject: string; topic: string; count: number } | null;
 }) {
-  const { activity, focusHistory, studiedDays, dayDetails, coveragePct, syllabusLogged, syllabusCard, hourAccuracy } =
-    data;
+  const { focusHistory } = data;
   const focusHistoryTotal = focusHistory.reduce((s, d) => s + d.minutes, 0);
   const focusHistoryAvg = Math.round(focusHistoryTotal / focusHistory.length);
-
-  const { year, month, day: today } = todayPartsIST();
-  const dim = daysInMonthIST(year, month);
-  const firstDow = firstWeekdayIST(year, month);
-  const calendarCells: (number | null)[] = [
-    ...Array<null>(firstDow).fill(null),
-    ...Array.from({ length: dim }, (_, i) => i + 1),
-  ];
-  const monthLabel = new Date(Date.UTC(year, month - 1, 1))
-    .toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" })
-    .toLowerCase();
 
   return (
     <div className="space-y-4">
       <div className="pt-4">
         <span className="u-label">the evidence</span>
-        <p className="mt-1 text-xs text-text-2">Everything the number above is built from.</p>
+        <p className="mt-1 text-xs text-text-2">
+          The long record. The day-to-day figures are on your{" "}
+          <Link href="/dashboard" className="text-accent-strong hover:underline">
+            dashboard
+          </Link>
+          .
+        </p>
       </div>
 
       <Reveal delay={0.04}>
         <section className="u-card p-4">
           <div className="flex items-center justify-between">
-            <Label index="01">study activity</Label>
-            <span className="u-mono text-2xs text-text-3">last 7 days</span>
-          </div>
-          <div className="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-3">
-            {activity.map((a) => (
-              <div key={a.key}>
-                <Mini data={a.data} />
-                <div className="mt-2 u-stat-number text-[1.6rem]">{a.value}</div>
-                <div className="u-label mt-0.5">{a.label}</div>
-                <div className="mt-2 u-mono text-2xs text-text-3">{a.sub}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </Reveal>
-
-      <Reveal delay={0.06}>
-        <StudyDaysCalendar
-          index="02"
-          cells={calendarCells}
-          today={today}
-          monthLabel={monthLabel}
-          studiedDays={studiedDays}
-          dayDetails={dayDetails}
-        />
-      </Reveal>
-
-      <Reveal delay={0.08}>
-        <section className="u-card p-4">
-          <div className="flex items-center justify-between">
-            <Label index="03">focus history</Label>
+            <Label index="01">focus history</Label>
             <span className="u-mono text-2xs text-text-3">
               {Math.round(focusHistoryTotal / 60)}h total · {focusHistoryAvg}m avg/day · 30d
             </span>
@@ -135,47 +60,7 @@ export function ScoreEvidence({
         </section>
       </Reveal>
 
-      <Reveal delay={0.1}>
-        <section className="u-card p-4">
-          <Label index="04">syllabus coverage</Label>
-          {syllabusLogged ? (
-            <SyllabusCard card={syllabusCard} coveragePct={coveragePct} />
-          ) : (
-            <p className="u-mono mt-3 text-2xs text-text-3">no syllabus logged yet</p>
-          )}
-        </section>
-      </Reveal>
-
-      <Reveal delay={0.12}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link href="/tools/circadian" className="u-card u-card--hover p-4">
-            <div className="flex items-center gap-2">
-              <Sunrise size={13} className="text-text-3" />
-              <Label index="05">best hours</Label>
-            </div>
-            <HourDial hours={hourAccuracy} />
-          </Link>
-
-          <Link href="/tools/mistake-dna" className="u-card u-card--hover p-4">
-            <div className="flex items-center gap-2">
-              <Dna size={13} className="text-text-3" />
-              <Label index="06">mistake dna</Label>
-            </div>
-            {topPattern ? (
-              <>
-                <p className="mt-2 truncate text-sm font-bold text-text">{topPattern.topic}</p>
-                <p className="u-mono mt-0.5 text-2xs text-text-3">
-                  {topPattern.subject} · {topPattern.count} logged
-                </p>
-              </>
-            ) : (
-              <p className="u-mono mt-2 text-2xs text-text-3">no mistakes logged yet</p>
-            )}
-          </Link>
-        </div>
-      </Reveal>
-
-      <Reveal delay={0.14}>
+      <Reveal delay={0.06}>
         <section className="u-card relative overflow-hidden">
           <div
             aria-hidden
@@ -189,7 +74,7 @@ export function ScoreEvidence({
             }}
           />
           <div className="p-4 pt-5">
-            <Label index="07">ledger tape</Label>
+            <Label index="02">ledger tape</Label>
             <div className="mt-3 divide-y divide-dashed divide-border">
               {tape.length === 0 && (
                 <p className="u-mono py-3 text-2xs text-text-3">nothing logged in the last 14 days</p>

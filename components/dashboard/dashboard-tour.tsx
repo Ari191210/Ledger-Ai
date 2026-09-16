@@ -105,7 +105,7 @@ const STEPS: Step[] = [
     anchor: "evidence",
     title: "The evidence behind the number",
     body:
-      "Study days, focus history, syllabus coverage, your best hours and the ledger tape live on the Score page, under the number they explain.",
+      "Everything above is the record your score is built from. Thirty days of focus and the ledger tape are one click away on the Score page.",
   },
 ];
 
