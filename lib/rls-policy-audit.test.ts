@@ -103,6 +103,12 @@ type Schema = {
   rlsEnabled: Map<string, boolean>;
   /** "table:policy name" -> final policy state */
   policies: Map<string, PolicyState>;
+  /** function name -> true, for functions declared SECURITY DEFINER */
+  securityDefiner: Set<string>;
+  /** function name -> the roles EXECUTE is currently granted to */
+  functionGrants: Map<string, string[]>;
+  /** direct privilege grants on tables, which RLS does not undo */
+  tableGrants: { table: string; roles: string[]; where: string }[];
 };
 
 /** Strips line comments and dollar-quoted function bodies, then splits on `;`.
@@ -145,6 +151,9 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
     ownerColumn: new Map(),
     rlsEnabled: new Map(),
     policies: new Map(),
+    securityDefiner: new Set(),
+    functionGrants: new Map(),
+    tableGrants: [],
   };
 
   for (const file of files) {
@@ -250,6 +259,51 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
         if (nextRoles !== undefined) {
           existing.roles = nextRoles.split(",").map((r) => r.trim().toLowerCase());
         }
+        continue;
+      }
+
+      // create [or replace] function public.x(...) ... [security definer]
+      //
+      // A SECURITY DEFINER function runs as its owner and therefore ignores RLS
+      // entirely. Three exist here, and they are the reason the claim "isolation
+      // rests on RLS" is not the whole truth: they are a second door. 0015
+      // records that one of them had EXECUTE left granted too widely once
+      // already, so this is a mistake the project has made before.
+      const createFunction = /^create (?:or replace )?function (?:public\.)?(\w+)\s*\(/i.exec(stmt);
+      if (createFunction) {
+        if (/\bsecurity definer\b/i.test(stmt)) schema.securityDefiner.add(createFunction[1]);
+        continue;
+      }
+
+      // grant <privs> on [function|table] x to <roles>
+      //
+      // A grant is not a policy, so nothing above would have looked at it, and
+      // a direct table grant is not undone by RLS being enabled.
+      if (/^grant\b/i.test(stmt)) {
+        const roles = /\bto ([a-z_, ]+)$/i.exec(stmt)?.[1];
+        if (!roles) throw new Error(`grant with no parsable TO clause in ${where}`);
+        const list = roles.split(",").map((r) => r.trim().toLowerCase());
+        const fn = /\bon function (?:public\.)?(\w+)/i.exec(stmt);
+        if (fn) {
+          schema.functionGrants.set(fn[1], list);
+          continue;
+        }
+        const tbl = /\bon (?:table )?(?:public\.)?(\w+)/i.exec(stmt);
+        if (tbl) {
+          schema.tableGrants.push({ table: tbl[1], roles: list, where });
+          continue;
+        }
+        throw new Error(`unparsed grant in ${where}`);
+      }
+      if (/^revoke\b/i.test(stmt)) {
+        const fn = /\bon function (?:public\.)?(\w+)/i.exec(stmt);
+        const roles = /\bfrom ([a-z_, ]+)$/i.exec(stmt)?.[1];
+        if (!fn || !roles) throw new Error(`unparsed revoke in ${where}`);
+        const revoked = new Set(roles.split(",").map((r) => r.trim().toLowerCase()));
+        schema.functionGrants.set(
+          fn[1],
+          (schema.functionGrants.get(fn[1]) ?? []).filter((r) => !revoked.has(r)),
+        );
         continue;
       }
 
@@ -410,6 +464,72 @@ describe("RLS policy audit of supabase/migrations", () => {
     }
 
     expect(permissive, permissive.join("\n")).toEqual([]);
+  });
+});
+
+/**
+ * Every SECURITY DEFINER function, and why it is allowed to bypass RLS.
+ *
+ * These run as the definer, so RLS does not apply to them. Each is a door that
+ * the policy audit above cannot see through, which is why each has to be named
+ * here with its justification and its intended audience.
+ */
+const SECURITY_DEFINER_REVIEWED: Readonly<Record<string, { why: string; grantedTo: string[] }>> = {
+  // Trigger on auth.users. Must be definer: the inserting session is the
+  // signup, which owns no row yet. Writes only the new user's own profile.
+  handle_new_user: { why: "signup trigger, writes the new user's own row", grantedTo: [] },
+  // Adds minutes to the caller's own activity row. Definer so it can upsert
+  // without a select-then-insert race; scoped to auth.uid() inside the body.
+  add_activity_minutes: { why: "upserts the caller's own activity row", grantedTo: ["authenticated"] },
+  // The one genuine cross-user read in the product. Returns aggregates only,
+  // never rows, and only for topics at least three students share, so no
+  // individual is identifiable. Peer Heatmap is currently hidden and this
+  // migration may not even be applied in production.
+  topic_struggle_stats: {
+    why: "cohort aggregates for Peer Heatmap, floor of 3 students, no rows returned",
+    grantedTo: ["authenticated"],
+  },
+};
+
+describe("the second door: SECURITY DEFINER functions and direct grants", () => {
+  it("has a reviewed justification for every SECURITY DEFINER function", () => {
+    // RLS does not apply inside these. A new one appearing without a line in
+    // SECURITY_DEFINER_REVIEWED is a cross-user read path nobody signed off.
+    const unreviewed = [...schema.securityDefiner].filter((f) => !(f in SECURITY_DEFINER_REVIEWED));
+    expect(
+      unreviewed,
+      `these functions run as their definer and so ignore RLS, with no review note: ${unreviewed.join(", ")}. ` +
+        `Add each to SECURITY_DEFINER_REVIEWED with why it is safe and who may execute it.`,
+    ).toEqual([]);
+  });
+
+  it("executes those functions only for the audience each was reviewed for", () => {
+    // 0015 exists because EXECUTE on one of these was left too wide once. This
+    // is that mistake turned into a failing test.
+    const wrong: string[] = [];
+    for (const [fn, review] of Object.entries(SECURITY_DEFINER_REVIEWED)) {
+      const actual = (schema.functionGrants.get(fn) ?? []).sort();
+      const expected = [...review.grantedTo].sort();
+      if (actual.join(",") !== expected.join(",")) {
+        wrong.push(`${fn}: granted to [${actual.join(", ")}], reviewed for [${expected.join(", ")}]`);
+      }
+      if (actual.includes("anon") || actual.includes("public")) {
+        wrong.push(`${fn} is executable by unauthenticated callers`);
+      }
+    }
+    expect(wrong, wrong.join("\n")).toEqual([]);
+  });
+
+  it("makes no direct privilege grant on a user-scoped table", () => {
+    // RLS filters rows for a role that has table privileges. It does not grant
+    // them and it does not take them away, so a stray `grant select on
+    // public.mistakes to anon` is a leak that every policy assertion above
+    // would still report as clean.
+    const granted = schema.tableGrants.filter((g) => schema.ownerColumn.has(g.table));
+    expect(
+      granted.map((g) => `${g.table} to [${g.roles.join(", ")}] in ${g.where}`),
+      `user data tables should be reached through PostgREST under RLS, not through a direct grant`,
+    ).toEqual([]);
   });
 });
 
