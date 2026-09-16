@@ -185,6 +185,24 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
         throw new Error(`unparsed row-level-security statement in ${where}`);
       }
 
+      // Owner columns are only ever read out of CREATE TABLE, so a table that
+      // acquires its link to auth.users later, by ALTER TABLE, would never
+      // enter userScopedTables and would escape every check below.
+      //
+      // The tripwire does NOT catch this. It compares the tables the parser
+      // found against a written list, and a table the parser never saw is
+      // absent from both sides, so the lists match and the suite stays green
+      // over a table with no RLS. Refusing to parse is the only safe answer:
+      // teach this parser the shape, or declare the reference in CREATE TABLE.
+      if (/^alter table\b/i.test(stmt) && /references\s+auth\.users/i.test(stmt)) {
+        throw new Error(
+          `${where}\nThis ALTER TABLE points a column at auth.users, which is how a table ` +
+            `becomes user-scoped. Owner detection only reads CREATE TABLE, so this table ` +
+            `would silently escape the RLS audit. Declare the reference in CREATE TABLE, ` +
+            `or extend parseMigrations to model this statement.`,
+        );
+      }
+
       // drop policy [if exists] "name" on public.x
       const dropPolicy = /^drop policy (?:if exists )?"([^"]+)" on (?:public\.)?(\w+)$/i.exec(stmt);
       if (dropPolicy) {
@@ -221,8 +239,17 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
         if (!existing) throw new Error(`alter policy on a policy never created, in ${where}`);
         const nextUsing = clause(stmt, "using");
         const nextCheck = clause(stmt, "with check");
+        // ALTER POLICY can also rewrite the role list, and missing that was a
+        // real hole: the audit below claims to catch a policy handed to anon,
+        // and until this line it only ever read the roles a policy was BORN
+        // with. `alter policy "x" on t to anon` left the original empty list in
+        // place and passed.
+        const nextRoles = /\bto ([a-z_, ]+?)(?=\s+(?:using|with check)\b|$)/i.exec(stmt)?.[1];
         if (nextUsing !== null) existing.using = nextUsing;
         if (nextCheck !== null) existing.check = nextCheck;
+        if (nextRoles !== undefined) {
+          existing.roles = nextRoles.split(",").map((r) => r.trim().toLowerCase());
+        }
         continue;
       }
 
