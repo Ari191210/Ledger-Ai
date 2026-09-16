@@ -82,7 +82,7 @@ const STEPS: Step[] = [
     anchor: "score",
     title: "Am I ready? Your Ledger Score",
     body:
-      "One number out of 1000, from four parts: past papers 40%, syllabus coverage 25%, mistakes 20%, consistency 15%. Turn the dial to see what would actually move it.",
+      "One number out of 1000, from four parts: past papers 40%, syllabus coverage 25%, mistakes 20%, consistency 15%. Press the keys under it to see what would actually move it.",
   },
   {
     anchor: "deadlines",

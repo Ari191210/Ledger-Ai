@@ -91,6 +91,20 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
   transition, 260ms `ease-spring`, placed without animation on first paint)
   with `--accent-on` text. Options wrap in `overflow-x-auto` on narrow
   layouts rather than stacking.
+- **Stepper** (`components/ui/stepper.tsx`) — a minus keycap, a mono readout, a
+  plus keycap. The keys are `buttonClasses({ variant: "secondary", size: "md",
+  shape: "key" })`: square, cut at `--r-sm` (6px, not the 9px button radius, because
+  a 9px corner on a 36px square reads as a lozenge), 44px on touch and 36px on a
+  pointer device from the `SIZES` idiom rather than `.u-tap`, whose 44px `::after`
+  would overlap between two keys either side of a readout. Grey, always: the panels
+  they sit in already spend their one lime on the ring or the today chip. The feel
+  is the three shadow values already in `button-classes.ts`, a lit `--edge` top edge
+  over a soft drop shadow at rest, and on press the light goes out on top and moves
+  inside while the key drops 2px and scales to 0.965 in 70ms `ease-out`, releasing
+  over 190ms `ease-spring`. `playClick("switch")` on the press; held, it repeats
+  after 400ms accelerating 160 to 60ms and ticks `soft` every fourth step. The
+  readout is `role="spinbutton"` and carries the action and its consequence in
+  `aria-valuetext`. It does not animate.
 - **Ring** (`components/ui/ring.tsx`) — SVG circular progress. Track
   `--surface-3`, progress `--accent-strong`, `stroke-linecap: round`,
   rotated -90° so it starts at 12 o'clock. Center content passed as
@@ -113,6 +127,41 @@ Radius: `6px` chips/small controls · `9px` inputs/buttons · `13px` cards
 
 ## 5. Decision log
 
+- **2026-09-16** — The two dashboard rotaries are now press keys (founder:
+  "instead of a knob lets add a satisfying clicky button", then "think about a
+  keyboard button like a satisfying button like the dial it should be
+  satisfying"). A knob is the right control for a continuum and the wrong one
+  for "how many more topics", which is a count: the what-if dial's positions
+  were always integers wearing a rotation. The rotary survives in the 3D scene
+  tools, where 49 positions genuinely are a sweep. Three things came out of it:
+  - **Nothing new was written for the feel.** `button-classes.ts` already
+    described a physical key in a comment, "a lit top edge, sits on a shadow,
+    and when pressed the light goes off the top and moves inside... three
+    shadow values rather than a graphic", and the `secondary` variant already
+    *was* that key. What changed is the shape: square at `--r-sm` instead of a
+    padded `--r-md` pill, through a new additive `shape: "key"` option. That
+    option exists because `cn` in `lib/utils.ts` is a plain join and not
+    tailwind-merge, so a radius cannot be overridden from a call site: passing
+    `rounded-sm` would emit both classes and leave the winner to stylesheet
+    order.
+  - **The keys are grey, and that is the point.** Rule 1 gives each panel one
+    lime; the score card spends it on the ring, the calendar on today's chip
+    and the selection ring. The knob had quietly been taking a second one, its
+    accent glow ring and lime pointer, so removing the rotary is what freed the
+    budget. Tactility is 2px of travel, the `--edge` light moving inside, and
+    the detent thunk. Braun's ET66 grey keypad, not a lit dial.
+  - **It announces itself as a spinbutton, not a slider.** A slider promises a
+    draggable continuum that no longer exists. The 2026-09-08 NVDA finding
+    carries over unchanged: the readout speaks the action and the consequence
+    ("cover 3 more topics, score 812, up 34"), never a raw index. The calendar
+    scrub, which had no value text at all, now reuses the day grid's own
+    phrasing, so the two controls that share a selection also agree in speech.
+  - **Hold to repeat** was a founder call, because the motion brief bans things
+    that keep changing on a timer. It runs only while a key is held: 400ms,
+    then 160 to 60ms over seven steps. One `switch` click on the press, then a
+    quieter `soft` tick every fourth step, because a click per step at the
+    floor would be sixteen a second, which is the noise a good instrument
+    refuses to show.
 - **2026-09-04** — Locked "screen-native Braun" as the identity: flat device
   panels, one lime accent per panel, dot-grid grille texture, mono
   instrument-readout numerals. Rejected an earlier light/warm/orange

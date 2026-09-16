@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { playClick } from "@/lib/sound";
-import { Knob } from "@/components/ui/knob";
+import { Stepper } from "@/components/ui/stepper";
 import type { DayDetail } from "@/lib/score/inputs";
 
 /** 1st, 2nd, 3rd, 4th, and the 11th to 13th that break the rule. */
@@ -27,13 +27,10 @@ export function StudyDaysCalendar({
   studiedDays: Set<number>;
   dayDetails: Record<number, DayDetail>;
 }) {
-  // The dial always points somewhere, so the card opens on today rather than on
+  // The readout always shows a day, so the card opens on today rather than on
   // an instruction to tap something.
   const [selected, setSelected] = useState<number>(today);
   const detail = dayDetails[selected];
-  // Only days that have happened. A dial that can be turned into next week
-  // would be a dial with nothing at the other end.
-  const days = Array.from({ length: today }, (_, i) => String(i + 1));
 
   return (
     <section className="u-card u-grille relative flex h-full flex-col p-4" data-tour="calendar">
@@ -90,20 +87,30 @@ export function StudyDaysCalendar({
         })}
       </div>
 
-      {/* The scrub dial. Twenty-eight small round targets is a fine way to jump
-          to a day you already have in mind, and a poor way to go looking. The
-          dial is for looking: one detent per day, so you can run the month past
-          the readout and watch the entries flick by. It is the same selection
-          the grid drives, so the two always agree. */}
-      <div className="mt-3 flex items-start gap-3 border-t border-border pt-3">
-        <Knob
+      {/* The scrub keys. Twenty-eight small round targets is a fine way to jump
+          to a day you already have in mind, and a poor way to go looking. These
+          are for looking: one press per day, and holding one runs the month
+          past the readout so you can watch the entries flick by. Home and End
+          are the 1st and today. It is the same selection the grid drives, so
+          the two always agree.
+
+          They stop at today, because a control that steps into next week would
+          have nothing at the other end. */}
+      <div className="mt-3 flex flex-wrap items-start gap-3 border-t border-border pt-3">
+        <Stepper
           label="study day"
-          hint={`${selected} ${monthLabel.split(" ")[0]}`}
-          positions={days}
-          value={String(selected)}
-          onChange={(v) => setSelected(Number(v))}
-          size={58}
-          sweep={300}
+          value={selected}
+          min={1}
+          max={today}
+          onChange={setSelected}
+          display={`${selected} ${monthLabel.split(" ")[0]}`}
+          // The grid's day buttons already announce the date and its state; the
+          // two controls share one selection, so they say the same thing.
+          valueText={`${selected} ${monthLabel}${selected === today ? ", today" : ""}, ${
+            studiedDays.has(selected) ? "studied" : "nothing logged"
+          }`}
+          incrementLabel="next day"
+          decrementLabel="previous day"
         />
         <div className="min-h-[4.75rem] flex-1">
           {!detail && (

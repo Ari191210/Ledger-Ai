@@ -52,6 +52,24 @@ export function project(inputs: ScoreInputs, lever: Lever, amount: number): Scor
   }
 }
 
+/**
+ * The single thing one press adds, for naming the stepper's keys.
+ *
+ * "one more topic" rather than "increase": an automated name check passes on
+ * either, and only one of them tells a student what the key does to their own
+ * score.
+ */
+export function leverUnit(lever: Lever): string {
+  switch (lever) {
+    case "topics":
+      return "topic";
+    case "streak":
+      return "day";
+    case "past papers":
+      return "question";
+  }
+}
+
 /** What the student would have to actually do, in their words not the model's. */
 export function leverPhrase(lever: Lever, amount: number): string {
   const n = Math.round(amount);

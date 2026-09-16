@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScoreCard } from "./score-card";
 import { computeScore, type ScoreInputs } from "@/lib/score/compute";
@@ -46,10 +46,10 @@ describe("ScoreCard", () => {
     expect(ring.getAttribute("aria-label")).toContain(score.tier);
   });
 
-  it("marks the panel projected the moment the dial leaves zero", async () => {
+  it("marks the panel projected the moment the count leaves zero", async () => {
     const user = userEvent.setup();
     render(<ScoreCard score={score} inputs={inputs} />);
-    const dial = screen.getByRole("slider", { name: /what if/i });
+    const dial = screen.getByRole("spinbutton", { name: /what if/i });
     dial.focus();
     await user.keyboard("{ArrowRight}");
 
@@ -63,7 +63,7 @@ describe("ScoreCard", () => {
   it("never shows a projected total below the real one", async () => {
     const user = userEvent.setup();
     render(<ScoreCard score={score} inputs={inputs} />);
-    const dial = screen.getByRole("slider", { name: /what if/i });
+    const dial = screen.getByRole("spinbutton", { name: /what if/i });
     dial.focus();
     for (let i = 0; i < 5; i++) await user.keyboard("{ArrowRight}");
 
@@ -72,10 +72,10 @@ describe("ScoreCard", () => {
     expect(projected).toBeGreaterThanOrEqual(score.total);
   });
 
-  it("says what turning the dial would take, not just a number", async () => {
+  it("says what the projection would take, not just a number", async () => {
     const user = userEvent.setup();
     render(<ScoreCard score={score} inputs={inputs} />);
-    const dial = screen.getByRole("slider", { name: /what if/i });
+    const dial = screen.getByRole("spinbutton", { name: /what if/i });
     dial.focus();
     await user.keyboard("{ArrowRight}{ArrowRight}");
 
@@ -89,22 +89,22 @@ describe("ScoreCard", () => {
   it("resets the amount when the lever changes", async () => {
     const user = userEvent.setup();
     render(<ScoreCard score={score} inputs={inputs} />);
-    const dial = screen.getByRole("slider", { name: /what if/i });
+    const dial = screen.getByRole("spinbutton", { name: /what if/i });
     dial.focus();
     await user.keyboard("{ArrowRight}{ArrowRight}");
     expect(dial.getAttribute("aria-valuenow")).toBe("2");
 
     await user.click(screen.getByRole("button", { name: "streak" }));
     // A "+2" carried across would answer a question the student stopped asking.
-    const after = screen.getByRole("slider", { name: /what if/i });
+    const after = screen.getByRole("spinbutton", { name: /what if/i });
     expect(after.getAttribute("aria-valuenow")).toBe("0");
     expect(screen.getByText("projected").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("colours only the pillar the dial actually moved", async () => {
+  it("colours only the pillar the keys actually moved", async () => {
     const user = userEvent.setup();
     render(<ScoreCard score={score} inputs={inputs} />);
-    const dial = screen.getByRole("slider", { name: /what if/i });
+    const dial = screen.getByRole("spinbutton", { name: /what if/i });
     dial.focus();
     await user.keyboard("{ArrowRight}{ArrowRight}");
 
@@ -114,5 +114,34 @@ describe("ScoreCard", () => {
     const lit = bars.filter((b) => b.querySelector(".bg-accent-strong") !== null);
     expect(lit.length).toBe(1);
     expect(lit[0].getAttribute("aria-label")).toMatch(/coverage/i);
+  });
+
+  it("moves the projection from the plus key, not only the arrow keys", () => {
+    render(<ScoreCard score={score} inputs={inputs} />);
+    // The keys are the control now; the arrows are the keyboard path through it.
+    fireEvent.pointerDown(screen.getByRole("button", { name: "one more topic" }));
+
+    expect(
+      screen.getByRole("spinbutton", { name: /what if/i }).getAttribute("aria-valuenow"),
+    ).toBe("1");
+    expect(screen.getByText("projected").getAttribute("aria-hidden")).not.toBe("true");
+  });
+
+  it("kills the plus key at the real ceiling", async () => {
+    const user = userEvent.setup();
+    render(<ScoreCard score={score} inputs={inputs} />);
+    const readout = screen.getByRole("spinbutton", { name: /what if/i });
+    readout.focus();
+    await user.keyboard("{End}");
+
+    // 20 topics listed, 8 covered: the cap is what is left, not a round number.
+    expect(readout.getAttribute("aria-valuenow")).toBe("12");
+    expect(
+      screen.getByRole("button", { name: "one more topic" }).hasAttribute("disabled"),
+    ).toBe(true);
+    // And the key that can still move is not dead.
+    expect(
+      screen.getByRole("button", { name: "one fewer topic" }).hasAttribute("disabled"),
+    ).toBe(false);
   });
 });

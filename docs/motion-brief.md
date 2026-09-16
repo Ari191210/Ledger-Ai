@@ -18,7 +18,12 @@ real. It never exists to decorate.
 2. **Triggered by the user, never by itself.** No loops, pulses, shimmer,
    idle or attract animations. The founder reverted a self-playing dial
    power-on the same day it shipped because it read as the dial moving on its
-   own. Scroll counts as a user action; a timer does not.
+   own. Scroll counts as a user action; a timer does not. A repeat that runs
+   only while a key is physically held is a user action rather than a timer: it
+   starts on pointerdown and ends on pointerup, pointercancel, the pointer
+   leaving the key, or blur. Sound decouples from steps at speed, one `switch`
+   click on the press and then a `soft` tick every fourth repeat, so a 60ms
+   cadence reads as a mechanism running and not as sixteen clicks a second.
 3. **Only the two house curves.**
    - `ease-out` = `cubic-bezier(0.22, 1, 0.36, 1)` for entrances, exits, presses
    - `ease-spring` = the sampled `linear()` spring in `globals.css` for things
@@ -48,7 +53,8 @@ real. It never exists to decorate.
 | Button, Google button, filter pills, chip group | hover lift 1px, press drop 2px + scale, spring release, click sound on pointerdown | press 70ms `ease-out` to 0.965 (pills 0.97); release 190ms `ease-spring` |
 | Segmented | lime pill slides to the active tab | `left`/`width` 260ms `ease-spring`, no animation on first paint |
 | Toggle switch | knob slides, track recolours | `translate` 260ms `ease-spring`; colours 200ms |
-| Knob (what-if dial, scrub dial) | rotates between detents | `rotate` 260ms `ease-spring`, 90ms while dragging |
+| Knob (3D scene dial) | rotates between detents | `rotate` 260ms `ease-spring`, 90ms while dragging |
+| Stepper (what-if keys, calendar scrub keys) | keycaps press and release; the readout swaps with no travel; a held key runs and speeds up | press 70ms `ease-out` to 0.965 plus a 2px drop, release 190ms `ease-spring`, both inherited from `buttonClasses`; readout has no transition; hold starts after 400ms then 160 to 60ms over seven steps |
 | Score ring | arc fills to value, dial-tip knob rides the arc tip | 750ms easeOutCubic |
 | StatNumber / CountUp | headline figures count up | 900ms rAF, easeOutCubic |
 | Score card pillar bars | width follows the what-if dial | 190ms `ease-spring` |

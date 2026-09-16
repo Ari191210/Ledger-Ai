@@ -2,6 +2,17 @@ import { cn } from "@/lib/utils";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
+/**
+ * "pill" is every button in the product: a padded rectangle at the input
+ * radius. "key" is a keycap: square, no horizontal padding, cut at the
+ * small-control radius, because a 9px corner on a 36px square reads as a
+ * lozenge and 6px reads as a key. Used by the Stepper.
+ *
+ * It is an option here rather than a className at the call site because `cn`
+ * is a plain join, not tailwind-merge: passing "rounded-sm px-0" would emit
+ * both classes and leave the winner to stylesheet order.
+ */
+export type ButtonShape = "pill" | "key";
 
 // A physical key has a lit top edge, sits on a shadow, and when pressed the
 // light goes off the top and moves inside: the key is now below its own
@@ -25,10 +36,26 @@ const VARIANTS: Record<ButtonVariant, string> = {
 
 // Touch targets: md/lg clear the 44px minimum on small screens and tighten up
 // on pointer devices where 44px is unnecessarily chunky.
-const SIZES: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-xs sm:h-8",
-  md: "h-11 px-4 text-sm sm:h-9",
-  lg: "h-12 px-6 text-sm sm:h-11",
+//
+// Height and padding are separate so a key can take the height and skip the
+// padding without emitting two conflicting px-* classes.
+const HEIGHTS: Record<ButtonSize, string> = {
+  sm: "h-9 text-xs sm:h-8",
+  md: "h-11 text-sm sm:h-9",
+  lg: "h-12 text-sm sm:h-11",
+};
+
+const PADS: Record<ButtonSize, string> = {
+  sm: "px-3",
+  md: "px-4",
+  lg: "px-6",
+};
+
+/** A key is as wide as it is tall. */
+const SQUARE: Record<ButtonSize, string> = {
+  sm: "w-9 sm:w-8",
+  md: "w-11 sm:w-9",
+  lg: "w-12 sm:w-11",
 };
 
 /**
@@ -39,14 +66,17 @@ const SIZES: Record<ButtonSize, string> = {
 export function buttonClasses({
   variant = "primary",
   size = "md",
+  shape = "pill",
   className,
 }: {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  shape?: ButtonShape;
   className?: string;
 }) {
   return cn(
-    "inline-flex select-none items-center justify-center gap-2 rounded-md font-semibold",
+    "inline-flex select-none items-center justify-center gap-2 font-semibold",
+    shape === "key" ? "rounded-sm" : "rounded-md",
     // the tactile press, done with CSS so this costs no JS: lift on hover,
     // sink and compress on press.
     // Press is fast and linear-ish so the compression feels immediate; the
@@ -64,7 +94,8 @@ export function buttonClasses({
     "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
     "disabled:pointer-events-none disabled:translate-y-0 disabled:border-transparent disabled:bg-surface-2 disabled:text-text-3 disabled:shadow-none",
     VARIANTS[variant],
-    SIZES[size],
+    HEIGHTS[size],
+    shape === "key" ? SQUARE[size] : PADS[size],
     className,
   );
 }
