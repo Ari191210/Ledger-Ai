@@ -13,7 +13,7 @@ import { MiniTrend } from "@/components/dashboard/mini-trend";
 import { tourMode } from "@/lib/tour-mode";
 import { getDashboardData } from "@/lib/score/inputs";
 import { isoDateIST, isoDaysAgoIST, dayKeyIST, todayPartsIST, daysInMonthIST, firstWeekdayIST } from "@/lib/date";
-import { getMistakes, getPyqAttempts, getActivityRange } from "@/lib/study/queries";
+import { getPyqAttempts, getActivityRange } from "@/lib/study/queries";
 import { getDeadlines } from "@/lib/study/deadlines";
 import { buildWeeklyBriefing, type WeekWindow } from "@/lib/coach";
 
@@ -57,13 +57,17 @@ export default async function DashboardPage({
     syllabusLogged,
     syllabusCard,
     hourAccuracy,
+    // already fetched all-time above, asking again here was a second identical
+    // round trip after the first had finished
+    mistakes: mistakesAll,
   } = await getDashboardData(supabase, uid);
 
   const todayIso = isoDateIST();
 
-  const [pyqAll, mistakesAll, activityRange, deadlinesAll] = await Promise.all([
+  // getPyqAttempts is not a repeat: the score above wants 30 days, the coach
+  // and the tour below want everything.
+  const [pyqAll, activityRange, deadlinesAll] = await Promise.all([
     getPyqAttempts(supabase, uid),
-    getMistakes(supabase, uid),
     getActivityRange(supabase, uid, isoDaysAgoIST(13), todayIso),
     getDeadlines(supabase, uid),
   ]);

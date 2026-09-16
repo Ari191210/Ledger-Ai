@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeStreak } from "./streak";
 import { loadStudyDays } from "./study-days";
@@ -116,9 +117,16 @@ export async function getRecentReviews(
   // the migration is applied by hand, so between the two this table does not
   // exist yet. No reviews then means a mistakes pillar of zero for that window,
   // which is what the data says, rather than a dashboard that will not load.
-  // Every other error still throws.
+  // It still goes to Sentry on the way out, because the fallback is otherwise
+  // permanent and silent: a deploy where the migration is never applied scores
+  // that pillar zero forever and nothing on the student's screen looks wrong,
+  // so this report is the only thing that would tell us. Loud to us, invisible
+  // to them. Every other error still throws.
   if (error) {
-    if (error.code === "42P01" || error.code === "PGRST205") return [];
+    if (error.code === "42P01" || error.code === "PGRST205") {
+      Sentry.captureException(error);
+      return [];
+    }
     throw error;
   }
   return data ?? [];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useLayoutEffect, useState, useTransition } from "react";
 import { Check, User, ListTree, SlidersHorizontal, KeyRound, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
@@ -22,6 +22,10 @@ type Props = {
   stream: string;
   targetExam: string;
 };
+
+/** Layout effect on the client, plain effect on the server, so the pre-paint
+ *  reads below do not trip React's SSR warning. */
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 function Section({
   index,
@@ -94,7 +98,14 @@ export function SettingsForm(p: Props) {
 
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [sound, setSound] = useState(true);
-  useEffect(() => {
+  // Both live outside React, on documentElement and in localStorage, so the
+  // server cannot render them and a lazy useState initialiser would either
+  // crash or mismatch. Before paint, because these two drive ToggleSwitch, and
+  // its knob slides over 260ms: correcting them after the first paint means a
+  // student on light mode or with sound muted watches two switches flip
+  // themselves on arrival, which is the one thing the motion brief forbids
+  // outright. The setState warning is knowingly kept in exchange.
+  useIsoLayoutEffect(() => {
     setTheme(
       document.documentElement.dataset.theme === "light" ? "light" : "dark",
     );

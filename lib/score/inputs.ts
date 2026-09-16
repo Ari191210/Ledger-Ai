@@ -2,6 +2,7 @@ import { cache } from "react";
 import { accuracyLabel, pyqAccuracySeries } from "@/lib/score/pyq-series";
 import { studyDaySet } from "@/lib/study/study-days";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Mistake } from "@/lib/study/types";
 import { computeScore, type ScoreBreakdown, type ScoreInputs } from "./compute";
 import { buildScoreInputs } from "./build-inputs";
 import { isoDateIST, hourIST, dayKeyIST } from "@/lib/date";
@@ -64,6 +65,10 @@ export type DashboardData = {
    *  at that hour. Null is not zero and must not be drawn as zero. */
   hourAccuracy: (number | null)[];
   fixNext: { subject: string; topic: string; count: number }[];
+  /** Every mistake, all time: the same rows the tiles and Fix Next are built
+   *  from. Handed back so the dashboard can do its own counting (due today,
+   *  coach windows, repeat patterns) without asking for them a second time. */
+  mistakes: Mistake[];
 };
 
 // cache() dedupes calls with the same arguments within one request, the
@@ -229,5 +234,6 @@ export const getDashboardData = cache(async function getDashboardData(
     syllabusCard,
     hourAccuracy,
     fixNext,
+    mistakes: mistakesAll,
   };
 });

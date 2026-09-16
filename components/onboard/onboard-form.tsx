@@ -12,12 +12,16 @@ import {
 } from "@/lib/onboarding";
 import { completeOnboarding } from "@/app/onboard/actions";
 import { MIN_AGE } from "@/lib/age";
+import { todayPartsIST } from "@/lib/date";
 
-// no future dates, and nobody younger than we accept
+// no future dates, and nobody younger than we accept. Built from the IST
+// calendar day, not a UTC one, so it turns over at the same moment validateDob
+// does: on a UTC cutoff the two disagree for the hours either side of midnight
+// IST and the field rejects a birthday the server would have accepted.
 const MAX_DOB = (() => {
-  const d = new Date();
-  d.setUTCFullYear(d.getUTCFullYear() - MIN_AGE);
-  return d.toISOString().slice(0, 10);
+  const { year, month, day } = todayPartsIST();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${year - MIN_AGE}-${pad(month)}-${pad(day)}`;
 })();
 
 export function OnboardForm() {

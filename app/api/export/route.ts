@@ -21,6 +21,9 @@ const TABLES = [
   "subscriptions",
   "ai_advice",
   "ai_invocations",
+  // Added 0018 and missed here until lib/rls-policy-audit.test.ts went looking.
+  // The list drifted a third time; the test is now what stops a fourth.
+  "mistake_reviews",
 ] as const;
 
 export async function GET() {

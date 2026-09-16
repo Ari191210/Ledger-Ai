@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Search, LogOut, Volume2, VolumeX } from "lucide-react";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+
+/** Layout effect on the client, plain effect on the server, so the pre-paint
+ *  read below does not trip React's SSR warning. */
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export function TopBar({
   email,
@@ -14,7 +18,12 @@ export function TopBar({
   stats?: React.ReactNode;
 }) {
   const [sound, setSound] = useState(true);
-  useEffect(() => setSound(isSoundOn()), []);
+  // The preference is in localStorage, which the server cannot see, so this
+  // cannot move into the useState initialiser without a hydration mismatch.
+  // Before paint rather than after: a student who muted the UI last visit
+  // should not watch the speaker icon cross itself out after the bar has
+  // already drawn. The setState warning is knowingly kept for that.
+  useIsoLayoutEffect(() => setSound(isSoundOn()), []);
 
   return (
     <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-bg/85 px-4 backdrop-blur lg:px-6">
