@@ -157,6 +157,25 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
   };
 
   for (const file of files) {
+    // Read before the bodies are thrown away, because this is the one thing
+    // inside them that matters. A SECURITY DEFINER function already ignores RLS;
+    // one that builds SQL at runtime can grant, revoke or disable anything, and
+    // the statement it runs exists only as a string that no parser can follow.
+    // Reviewing the allowlist tells you a function was safe when someone read
+    // it, and CREATE OR REPLACE can change the body afterwards without changing
+    // a single line this file otherwise looks at.
+    for (const fn of file.sql.matchAll(/create\s+(?:or replace\s+)?function[\s\S]*?\$\$([\s\S]*?)\$\$/gi)) {
+      const header = fn[0].slice(0, fn[0].indexOf("$$"));
+      if (/\bsecurity definer\b/i.test(header) && /\bexecute\b/i.test(fn[1])) {
+        throw new Error(
+          `${file.name}: a SECURITY DEFINER function runs dynamic SQL (EXECUTE) in its body.\n` +
+            `It bypasses RLS by definition and the statement it runs cannot be read here, so ` +
+            `nothing in this suite can tell you what it does. Write the statement out, or take ` +
+            `SECURITY DEFINER off.`,
+        );
+      }
+    }
+
     for (const stmt of statementsOf(file.sql)) {
       const where = `${file.name}: ${stmt.slice(0, 90)}`;
 
@@ -230,11 +249,30 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
             `this suite report the schema as clean.`,
         );
       }
-      if (/^alter role\b/i.test(stmt) || /\bbypassrls\b/i.test(stmt)) {
+      // Narrow on purpose. The first version of this refused every ALTER ROLE,
+      // which would have blocked `alter role authenticated set statement_timeout`,
+      // an ordinary piece of administration. A rule that stops honest work is a
+      // rule the next person in a hurry deletes, and then the real one goes with
+      // it. Only the attributes that hand out or sidestep privilege are refused.
+      if (/^alter role\b/i.test(stmt) && /\b(?:bypassrls|superuser|createrole|createdb|replication)\b/i.test(stmt)) {
         throw new Error(
-          `${where}\nThis changes role attributes. BYPASSRLS on a role every signed-in student ` +
-            `holds would disable every policy in this file at once, and nothing else here reads ` +
-            `role attributes.`,
+          `${where}\nThis changes privilege attributes on a role. BYPASSRLS on a role that every ` +
+            `signed-in student holds would switch off every policy in this file at once, and ` +
+            `nothing else here reads role attributes.`,
+        );
+      }
+
+      // alter default privileges ... grant ... to <role>
+      //
+      // Sets what future tables are born with. Nothing in this file looks at
+      // tables that do not exist yet, so a default that grants anon SELECT on
+      // everything created from then on is invisible here and permanent in the
+      // database.
+      if (/^alter default privileges\b/i.test(stmt)) {
+        throw new Error(
+          `${where}\nThis sets the privileges that FUTURE tables are created with, which no ` +
+            `assertion here can see because those tables do not exist yet. Grant on each table ` +
+            `deliberately instead.`,
         );
       }
 

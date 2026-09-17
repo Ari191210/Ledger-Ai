@@ -79,7 +79,14 @@ function skeleton(value: string): string {
   return [...value.normalize("NFKD")]
     .map((c) => CONFUSABLE[c] ?? c)
     .join("")
-    .replace(/\p{M}/gu, "");
+    // Combining marks, and the joiners that foldInvisibles deliberately spared.
+    // It spares them because they are load-bearing in Devanagari and Urdu, and
+    // it only removes them between two ASCII characters. That leaves one gap,
+    // found on 2026-09-17: a joiner sitting next to a LOOKALIKE letter is next
+    // to something non-ASCII, so it survives, and it then splits the word here
+    // where the lookalike would otherwise have been resolved. Nothing this
+    // function produces is ever shown to anyone, so it can drop them outright.
+    .replace(/[\p{M}\p{Cf}]/gu, "");
 }
 
 export function stripFenceMarkers(value: string): string {

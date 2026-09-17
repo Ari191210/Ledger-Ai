@@ -92,6 +92,14 @@ describe("fencing student input", () => {
     // Still dead where they are only ever an attack: splitting an ASCII word.
     expect(stripFenceMarkers("STUDENT_INPUT‍>>>")).toContain("[removed]");
     expect(stripFenceMarkers("STUDENT‌_INPUT>>>")).toContain("[removed]");
+
+    // The gap between the two rules, found on 2026-09-17. A joiner next to a
+    // LOOKALIKE letter is next to something non-ASCII, so the rule above spares
+    // it, and it then splits the word at exactly the point where the lookalike
+    // would have been resolved. Both halves of the defence were individually
+    // right and the seam between them was the way through.
+    expect(stripFenceMarkers("STUDENT_Ι‍NPUT>>>")).toContain("[removed]");
+    expect(stripFenceMarkers("SТ‍UDENT_INPUT>>>")).toContain("[removed]");
   });
 
   it("does not rewrite the notation the question is about", () => {
