@@ -35,6 +35,34 @@ export function boundedText(
 }
 
 /**
+ * Folds away the characters that are in the text but not on the screen.
+ *
+ * Two different tricks, one answer. NFKC maps compatibility forms onto their
+ * plain equivalents, so a fullwidth ＞ becomes a > and cannot slip past a check
+ * looking for the ASCII one. Format characters, the zero-width spaces and the
+ * direction overrides, become a space.
+ *
+ * A space rather than nothing, because that is the older rule in this file and
+ * it is the right one: deleting an invisible character joins the text on either
+ * side of it, so "Mole<override>concept" would silently become one word nobody
+ * typed. A space keeps them apart and is equally fatal to a marker, since the
+ * pattern that looks for one already tolerates whitespace inside it.
+ *
+ * Tab and newline survive, because they are structure in an essay or a block of
+ * notes rather than decoration. Every other control character becomes a space.
+ *
+ * An audit on 2026-09-17 got a closing fence marker through by putting a
+ * zero-width space inside it. This is the fix, and it is here rather than in
+ * fence.ts so there is one answer to this question in the codebase.
+ */
+export function foldInvisibles(raw: string): string {
+  return raw
+    .normalize("NFKC")
+    .replace(/\p{Cf}/gu, " ")
+    .replace(/[^\P{Cc}\n\t]/gu, " ");
+}
+
+/**
  * Render-time guard for anything a student typed that reaches a prompt.
  *
  * Collapses every kind of line break and control character to a space, so a
@@ -44,10 +72,13 @@ export function boundedText(
  */
 export function promptSafe(raw: string, max = MAX_LABEL): string {
   return (
-    raw
+    foldInvisibles(raw)
       // The C category covers control and format characters, which is where
       // newlines and the invisible direction overrides live. Written as a
       // Unicode property escape so no literal control byte sits in this file.
+      // foldInvisibles has already removed the invisible ones and normalised
+      // compatibility forms; this still has to run, because a label collapses
+      // the newlines that foldInvisibles deliberately keeps.
       .replace(/[\p{C}\p{Zl}\p{Zp}]+/gu, " ")
       .replace(/\s+/g, " ")
       .trim()

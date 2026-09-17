@@ -168,9 +168,18 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
         // Keying on that rather than on the name `user_id` is what keeps
         // profiles (id) and subscriptions (user_id primary key) in scope, and
         // what keeps habit_logs.habit_id -> public.habits out of it.
-        const owners = [...body.matchAll(/(\w+)\s+uuid[^,]*?references\s+auth\.users/gi)].map(
-          (m) => m[1],
-        );
+        // Two spellings, because SQL has two. The column can carry the
+        // reference inline, or the table can declare it at the bottom as a
+        // constraint. An audit on 2026-09-17 created a table the second way
+        // with RLS left off, and this suite passed: the table was never
+        // recognised as user data, so nothing here ever asked about it, and
+        // the tripwire matched because it was missing from both sides at once.
+        const owners = [
+          ...[...body.matchAll(/(\w+)\s+uuid[^,]*?references\s+auth\.users/gi)].map((m) => m[1]),
+          ...[...body.matchAll(/foreign key\s*\(\s*(\w+)\s*\)\s*references\s+auth\.users/gi)].map(
+            (m) => m[1],
+          ),
+        ].filter((c, i, all) => all.indexOf(c) === i);
         if (owners.length > 1) {
           throw new Error(
             `${createTable[1]} has more than one column referencing auth.users ` +
@@ -273,6 +282,22 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
       if (createFunction) {
         if (/\bsecurity definer\b/i.test(stmt)) schema.securityDefiner.add(createFunction[1]);
         continue;
+      }
+
+      // alter function public.x(...) ... [security definer | security invoker]
+      //
+      // A function does not have to be born a definer. ALTER FUNCTION can make
+      // an ordinary one run as its owner later, in a migration that mentions no
+      // policy and no table, which is exactly the shape this file used to read
+      // straight past. The audit reported clean on it.
+      const alterFunction = /^alter function (?:public\.)?(\w+)\s*\(/i.exec(stmt);
+      if (alterFunction) {
+        if (/\bsecurity definer\b/i.test(stmt)) schema.securityDefiner.add(alterFunction[1]);
+        if (/\bsecurity invoker\b/i.test(stmt)) schema.securityDefiner.delete(alterFunction[1]);
+        continue;
+      }
+      if (/^alter function\b/i.test(stmt)) {
+        throw new Error(`unparsed alter function in ${where}`);
       }
 
       // grant <privs> on [function|table] x to <roles>
