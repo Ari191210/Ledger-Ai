@@ -1,61 +1,55 @@
+import { describe, expect, it } from "vitest";
+import { describeFailure } from "./client";
+
 /**
- * These messages are only ever read when something has already failed, which
- * is exactly when nobody is watching. The one that matters is the spend cap:
- * saying "try again in a moment" about a limit that lasts until the month
- * turns is a lie, and it invites the retry storm the rate limiter prevents.
+ * What a student is told when the AI does not answer.
+ *
+ * On 2026-09-17 every AI tool in production was failing, and the message on
+ * screen was "The AI request failed. Try again in a moment." The account had no
+ * credit, so retrying could not work at any point that day. The wording matters
+ * more than it looks: a failed call is recorded before the model is called, so
+ * every retry a student makes on that advice spends one of their requests for
+ * the day and returns the same thing.
  */
 
-import { describe, expect, it } from "vitest";
-import { __describeFailureForTest as describeFailure } from "./client";
-
-const apiError = (status: number, body: Record<string, unknown>) => ({ status, error: { error: body } });
+/** The shape the Anthropic SDK throws, as far as this function reads it. */
+const apiError = (status: number, message: string, errorCode?: string) => ({
+  status,
+  error: { error: { message, ...(errorCode ? { details: { error_code: errorCode } } : {}) } },
+});
 
 describe("describeFailure", () => {
-  it("tells the truth about the tier spend cap instead of asking for a retry", () => {
+  it("does not tell a student to retry an unfunded account", () => {
+    // The live error, verbatim.
     const msg = describeFailure(
-      apiError(429, {
-        type: "rate_limit_error",
-        message: "your organization has crossed its monthly API usage threshold",
-        details: { error_code: "enforced_spend_limit_reached" },
-      }),
+      apiError(400, "Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."),
     );
-    expect(msg).toMatch(/won't help/);
-    expect(msg).not.toMatch(/try again in a moment/i);
+    expect(msg).toMatch(/paused/i);
+    // It may mention retrying, as long as it says not to. What it must never do
+    // is ask for one.
+    expect(msg).toMatch(/won't help/i);
+    expect(msg).not.toMatch(/try again/i);
   });
 
-  it("recognises a self-imposed spend limit, which arrives as a 400", () => {
-    const msg = describeFailure(
-      apiError(400, {
-        type: "invalid_request_error",
-        message: "You have reached your specified API usage limits.",
-      }),
-    );
-    expect(msg).toMatch(/won't help/);
+  it("still catches the two spend caps it always did", () => {
+    expect(describeFailure(apiError(429, "capped", "enforced_spend_limit_reached"))).toMatch(/paused/i);
+    expect(describeFailure(apiError(400, "You have reached your specified API usage limits"))).toMatch(/paused/i);
   });
 
-  it("recognises the workspace variant of the same message", () => {
-    const msg = describeFailure(
-      apiError(400, {
-        type: "invalid_request_error",
-        message: "You have reached your specified workspace API usage limits.",
-      }),
-    );
-    expect(msg).toMatch(/won't help/);
+  it("says wait, not paused, when the model is merely busy", () => {
+    // 429 without the spend code is real congestion, where retrying is the
+    // right advice and telling someone it is paused would be a lie.
+    const msg = describeFailure(apiError(429, "overloaded"));
+    expect(msg).toMatch(/wait a minute/i);
+    expect(msg).not.toMatch(/paused/i);
   });
 
-  it("still asks for a retry on an ordinary rate limit, which is transient", () => {
-    const msg = describeFailure(apiError(429, { type: "rate_limit_error", message: "rate limited" }));
-    expect(msg).toMatch(/try again/i);
-    expect(msg).not.toMatch(/won't help/);
+  it("names a misconfiguration as ours", () => {
+    expect(describeFailure(apiError(401, "invalid x-api-key"))).toMatch(/on our side/i);
+    expect(describeFailure(apiError(403, "forbidden"))).toMatch(/on our side/i);
   });
 
-  it("does not blame the student for a bad API key", () => {
-    expect(describeFailure(apiError(401, { type: "authentication_error" }))).toMatch(/on our side/);
-  });
-
-  it("falls back safely on a shape it has never seen", () => {
-    expect(describeFailure(new Error("socket hang up"))).toMatch(/try again in a moment/i);
-    expect(describeFailure(undefined)).toMatch(/try again in a moment/i);
-    expect(describeFailure(null)).toMatch(/try again in a moment/i);
+  it("falls back without pretending to know the cause", () => {
+    expect(describeFailure(new Error("socket hang up"))).toMatch(/try again/i);
   });
 });

@@ -17,14 +17,25 @@ export class AIError extends Error {}
  * platform.claude.com/docs/en/api/rate-limits: our own limit returns 400, the
  * tier cap returns 429 with error_code enforced_spend_limit_reached.
  */
-function describeFailure(err: unknown): string {
+export function describeFailure(err: unknown): string {
   const status = (err as { status?: number })?.status;
   const body = (err as { error?: { error?: { message?: string; details?: { error_code?: string } } } })
     ?.error?.error;
 
+  // Three ways to be out of money, and they do not look alike. Our own cap and
+  // the tier cap were handled from the start. An unfunded account is the third
+  // and was missed: it comes back as an ordinary 400 invalid_request_error
+  // saying the credit balance is too low, which matched nothing here and fell
+  // through to "try again in a moment".
+  //
+  // Found on 2026-09-17, live, with every AI tool in production returning it.
+  // Telling a student to retry something that cannot succeed is worse than
+  // saying nothing: they retry, it fails, and each attempt still costs them one
+  // of their daily requests because the invocation is recorded before the call.
   const spendCapped =
     body?.details?.error_code === "enforced_spend_limit_reached" ||
-    (status === 400 && /reached your specified.*usage limits/i.test(body?.message ?? ""));
+    (status === 400 &&
+      /reached your specified.*usage limits|credit balance is too low/i.test(body?.message ?? ""));
 
   if (spendCapped) {
     return "StudyLedger's AI is paused right now. This is on our side, not anything you did, and retrying won't help. Every other tool still works.";
