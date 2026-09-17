@@ -8,7 +8,7 @@ import { checkRateLimit, recordInvocation } from "@/lib/ai/rate-limit";
 import { summariseAdvice, resolveTopic, recordAdvice } from "@/lib/ai/advice";
 import type { AiResult } from "@/lib/ai/types";
 import { parseScene } from "@/lib/scenes/registry";
-import { fenceStudentText, stripFenceMarkers, FENCE_RULE } from "@/lib/ai/fence";
+import { fenceStudentText, assembleSystem } from "@/lib/ai/fence";
 
 export const maxDuration = 60;
 
@@ -111,19 +111,12 @@ export async function POST(req: Request) {
   // refers to it directly, so skip those rather than sending it twice.
   const alreadyInPrompt =
     !!dataContext && (system.includes(dataContext) || userText.includes(dataContext));
-  // FENCE_RULE goes last, after the tool's own instructions and after the data,
-  // so it is the final word on how to read everything above it. Profile context
-  // is grade, board, stream and target exam, all chosen from fixed lists at
-  // onboarding, so it needs no fence; the marker strip is there only so a value
-  // that somehow arrived by another route cannot forge one.
-  const fullSystem = [
-    system,
-    profileCtx ? stripFenceMarkers(profileCtx) : "",
-    alreadyInPrompt ? "" : (dataContext ?? ""),
-    FENCE_RULE,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const fullSystem = assembleSystem({
+    toolSystem: system,
+    profileContext: profileCtx,
+    dataContext,
+    dataAlreadyInPrompt: alreadyInPrompt,
+  });
 
   try {
     let result: AiResult;
