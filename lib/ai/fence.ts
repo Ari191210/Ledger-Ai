@@ -23,6 +23,13 @@ import { foldInvisibles } from "@/lib/text";
 const OPEN = "<<<STUDENT_INPUT";
 const CLOSE = "STUDENT_INPUT>>>";
 
+/** Built fresh on each use rather than kept as one object with the g flag,
+ *  whose lastIndex would make the same question give different answers on
+ *  consecutive calls. */
+const MARKER = String.raw`<{2,}\s*/?\s*STUDENT_INPUT|STUDENT_INPUT\s*>{2,}`;
+const hasMarker = (v: string) => new RegExp(MARKER, "iu").test(v);
+const removeMarkers = (v: string) => v.replace(new RegExp(MARKER, "giu"), "[removed]");
+
 /**
  * The obvious hole in fencing is a student who types the closing marker and
  * carries on writing as if they were the prompt. Anything resembling either
@@ -30,6 +37,51 @@ const CLOSE = "STUDENT_INPUT>>>";
  * the inside. Matching is loose on purpose: spacing and case vary, and a marker
  * that only half matches is still an attempt worth removing.
  */
+/**
+ * Letters from other alphabets that draw the same shape as the ASCII ones in
+ * STUDENT_INPUT. An audit on 2026-09-17 closed the fence with a Cyrillic Т and
+ * again with Greek and mathematical letterforms, none of which any amount of
+ * fullwidth folding would catch.
+ *
+ * This map is used ONLY to decide whether a marker is present. It is never used
+ * to rewrite text that turns out to be innocent, and that restraint is the
+ * whole design: Greek letters are not exotic here, they are the notation. A
+ * fold that mapped Ω to O or Δ to D on the way out would corrupt "Δv = aΔt" and
+ * "5 Ω", which is precisely the mistake made and reverted earlier the same day.
+ *
+ * Because it only ever decides, it can afford to be generous, and it leans
+ * toward the letters the marker actually contains: Δ and Д read as D, Υ and У as
+ * U, because STUDENT_INPUT has a D and two Us in it and no Y at all. Being
+ * wrong in that direction costs nothing. The only way a generous map does harm
+ * is by making innocent text spell the marker by accident, which is not a thing
+ * that happens.
+ */
+const CONFUSABLE: Record<string, string> = {
+  // Cyrillic
+  "Ѕ": "S", "Т": "T", "У": "U", "Е": "E", "Н": "N",
+  "І": "I", "Р": "P", "А": "A", "О": "O", "С": "C",
+  "М": "M", "К": "K", "В": "B", "Х": "X", "Д": "D",
+  // Greek
+  "Τ": "T", "Υ": "U", "Ε": "E", "Ν": "N", "Ι": "I",
+  "Π": "P", "Α": "A", "Ο": "O", "Μ": "M", "Κ": "K",
+  "Β": "B", "Χ": "X", "Η": "H", "Ρ": "P", "Δ": "D",
+};
+
+/**
+ * The same text reduced to the shapes it draws, for matching only.
+ *
+ * NFKD is safe here in a way it is not on the way out: mathematical
+ * alphanumerics and small capitals decompose to plain letters, combining marks
+ * are dropped, and nothing this produces is ever sent anywhere unless it turned
+ * out to contain a marker.
+ */
+function skeleton(value: string): string {
+  return [...value.normalize("NFKD")]
+    .map((c) => CONFUSABLE[c] ?? c)
+    .join("")
+    .replace(/\p{M}/gu, "");
+}
+
 export function stripFenceMarkers(value: string): string {
   // Fold first, strip second, and the order is the whole point. An audit on
   // 2026-09-17 closed the fence from inside with STUDENT_INPUT<zero width
@@ -38,10 +90,18 @@ export function stripFenceMarkers(value: string): string {
   // Matching harder would have been an arms race against every invisible
   // character in Unicode. Normalising the text so there is only one way to
   // write the marker is the version that ends.
-  return foldInvisibles(value).replace(
-    /<{2,}\s*\/?\s*STUDENT_INPUT|STUDENT_INPUT\s*>{2,}/giu,
-    "[removed]",
-  );
+  const folded = foldInvisibles(value);
+  if (hasMarker(folded)) return removeMarkers(folded);
+
+  // Nothing that spells the marker in ASCII. Try again on the shapes, and if
+  // THAT finds one, the reduced text is what gets sent: a student writing their
+  // question in Cyrillic letterforms that happen to spell our closing marker was
+  // not writing a question. Innocent text never reaches this line, so Greek and
+  // Devanagari and mathematical notation are returned exactly as typed.
+  const shapes = skeleton(folded);
+  if (hasMarker(shapes)) return removeMarkers(shapes);
+
+  return folded;
 }
 
 /** Wraps one piece of student-written text so the model can see where it ends. */

@@ -64,13 +64,24 @@ export function boundedText(
  * fence.ts so there is one answer to this question in the codebase.
  */
 export function foldInvisibles(raw: string): string {
-  return raw
-    // U+FF01 to U+FF5E are the fullwidth twins of ASCII ! to ~, a fixed 0xFEE0
-    // above their plain forms. U+3000 is the ideographic space.
-    .replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
-    .replace(/　/g, " ")
-    .replace(/\p{Cf}/gu, " ")
-    .replace(/[^\P{Cc}\n\t]/gu, " ");
+  return (
+    raw
+      // U+FF01 to U+FF5E are the fullwidth twins of ASCII ! to ~, a fixed 0xFEE0
+      // above their plain forms. U+3000 is the ideographic space.
+      .replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+      .replace(/　/g, " ")
+      // The zero width joiner and non-joiner are the exception to the rule
+      // below, and they are an exception with a reason. Everywhere else in the
+      // world they are invisible noise; inside Devanagari, Urdu, Bengali and
+      // Tamil they decide whether letters form a conjunct, so folding them to a
+      // space turns क्‍ष into क् ष and ا‍ردو into ا ردو. Hindi is a subject in
+      // this product. They are only ever an attack when they sit inside a run of
+      // ASCII, splitting a word we are looking for, and no Indic text does that,
+      // so that is the only place they are removed.
+      .replace(/(?<=[\x21-\x7e])[‌‍]+(?=[\x21-\x7e])/gu, "")
+      .replace(/(?![‌‍])\p{Cf}/gu, " ")
+      .replace(/[^\P{Cc}\n\t]/gu, " ")
+  );
 }
 
 /**

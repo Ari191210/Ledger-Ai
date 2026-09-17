@@ -160,6 +160,21 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
     for (const stmt of statementsOf(file.sql)) {
       const where = `${file.name}: ${stmt.slice(0, 90)}`;
 
+      // Checked before the plain CREATE TABLE below, and that order is the
+      // finding: `create table x (like public.mistakes including constraints)`
+      // matches the ordinary shape, parses to a body with no column carrying a
+      // reference, and leaves as an unremarkable table with no owner. The
+      // columns it inherited, including the one pointing at auth.users, are
+      // never seen.
+      if (/^create table\b/i.test(stmt) && /\b(?:like\s+(?:public\.)?\w+|inherits\s*\(|partition\s+(?:of|by)\b)/i.test(stmt)) {
+        throw new Error(
+          `${where}\nThis builds a table out of another one (LIKE, INHERITS or PARTITION). The ` +
+            `columns and constraints it inherits are invisible to owner detection here, so the ` +
+            `table would escape every assertion below while holding the same user data. Model the ` +
+            `shape deliberately or declare the table in full.`,
+        );
+      }
+
       // create table public.x (...)
       const createTable = /^create table (?:if not exists )?public\.(\w+) \(/i.exec(stmt);
       if (createTable) {
@@ -189,6 +204,38 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
         }
         if (owners.length === 1) schema.ownerColumn.set(createTable[1], owners[0]);
         continue;
+      }
+
+      // Shapes that make a table, or a role, without saying so in a way the
+      // reader above understands. Each of these was reported by an audit on
+      // 2026-09-17 as passing this suite while being genuinely unsafe:
+      //
+      //   create table x (like public.mistakes including constraints)
+      //   create table x () inherits (public.mistakes)
+      //   create table x partition of public.mistakes ...
+      //   alter role authenticated bypassrls
+      //   create [materialized] view x as select * from public.mistakes
+      //
+      // Every one of them acquires or sidesteps access to user data without a
+      // column definition, a policy or a grant anywhere in the statement, so
+      // nothing else in this file had a reason to look at it. They are refused
+      // rather than modelled: guessing which columns a LIKE copied, or which
+      // rows a view exposes, is how a parser starts quietly reporting a table
+      // as safe because it could not see it. Teach this file the shape when one
+      // is genuinely needed.
+      if (/^create (?:or replace )?(?:materialized )?view\b/i.test(stmt)) {
+        throw new Error(
+          `${where}\nA view over user data is reachable through PostgREST and is not governed by ` +
+            `the policies on the tables underneath it. Review it deliberately rather than letting ` +
+            `this suite report the schema as clean.`,
+        );
+      }
+      if (/^alter role\b/i.test(stmt) || /\bbypassrls\b/i.test(stmt)) {
+        throw new Error(
+          `${where}\nThis changes role attributes. BYPASSRLS on a role every signed-in student ` +
+            `holds would disable every policy in this file at once, and nothing else here reads ` +
+            `role attributes.`,
+        );
       }
 
       // alter table public.x enable|disable row level security
