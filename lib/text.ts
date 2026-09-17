@@ -37,10 +37,18 @@ export function boundedText(
 /**
  * Folds away the characters that are in the text but not on the screen.
  *
- * Two different tricks, one answer. NFKC maps compatibility forms onto their
- * plain equivalents, so a fullwidth ＞ becomes a > and cannot slip past a check
+ * Two different tricks, one answer. Fullwidth forms are folded onto the ASCII
+ * they imitate, so a fullwidth ＞ becomes a > and cannot slip past a check
  * looking for the ASCII one. Format characters, the zero-width spaces and the
  * direction overrides, become a space.
+ *
+ * This was NFKC for about an hour on 2026-09-17 and that was a bad bug, caught
+ * before anyone reported it but after it went live. NFKC also folds superscripts
+ * and subscripts, so a student asking about 5 × 10⁸ m/s sent 5 × 108 m/s, x³
+ * became x3, and 10⁻⁶ became 10−6. In a product where most questions are physics
+ * and chemistry, that quietly changes what was asked. The fold is now the
+ * fullwidth block and nothing else: it is the only range the attack used, and
+ * every superscript, subscript, fraction and unit sign survives untouched.
  *
  * A space rather than nothing, because that is the older rule in this file and
  * it is the right one: deleting an invisible character joins the text on either
@@ -57,7 +65,10 @@ export function boundedText(
  */
 export function foldInvisibles(raw: string): string {
   return raw
-    .normalize("NFKC")
+    // U+FF01 to U+FF5E are the fullwidth twins of ASCII ! to ~, a fixed 0xFEE0
+    // above their plain forms. U+3000 is the ideographic space.
+    .replace(/[！-～]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+    .replace(/　/g, " ")
     .replace(/\p{Cf}/gu, " ")
     .replace(/[^\P{Cc}\n\t]/gu, " ");
 }

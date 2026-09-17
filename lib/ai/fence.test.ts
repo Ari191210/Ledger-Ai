@@ -60,6 +60,17 @@ describe("fencing student input", () => {
     expect(stripFenceMarkers("﻿STUDENT_INPUT‌>>>")).toContain("[removed]");
   });
 
+  it("does not rewrite the notation the question is about", () => {
+    // The first fix for the two cases above used NFKC, which folds far more
+    // than fullwidth: it turned 5 × 10⁸ into 5 × 108 and x³ into x3. Most
+    // questions in this product are physics and chemistry, so that silently
+    // changed what was asked. Superscripts, subscripts, fractions and unit
+    // signs all have to survive a defence against invisible characters.
+    for (const real of ["5 × 10⁸ m/s", "x³ + y²", "10⁻⁶ m", "π r²", "H₂O", "½ mark", "Δv = aΔt"]) {
+      expect(stripFenceMarkers(real)).toBe(real);
+    }
+  });
+
   it("keeps the shape of an essay while it does that", () => {
     // The fence is applied to a ten-row textarea as well as a one-line topic.
     // Stripping invisible characters must not flatten paragraphs, or every
