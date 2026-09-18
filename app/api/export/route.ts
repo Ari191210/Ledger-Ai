@@ -33,7 +33,7 @@ export async function GET() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     // Every column, not a list. An explicit list is how date_of_birth and
     // guardian_email went missing after migration 0009 while the privacy page
@@ -46,6 +46,34 @@ export async function GET() {
   const tableResults = await Promise.all(
     TABLES.map((t) => supabase.from(t).select("*").eq("user_id", user.id)),
   );
+
+  // A read that failed used to become an empty array here, which is the one
+  // thing this file must never do. The privacy page calls this export
+  // everything StudyLedger stores about you, and a student who opens it after a
+  // failed query sees a table with no rows: indistinguishable from having
+  // logged nothing, permanent once they delete the account on the strength of
+  // it, and wrong in the direction that loses their record rather than
+  // duplicating it.
+  //
+  // The comment above about date_of_birth is the same lesson learned once
+  // already, about a column list rather than an error. An incomplete export
+  // presented as complete is worse than no export, so this refuses instead.
+  const failed = [
+    ...(profileError ? ["profiles"] : []),
+    ...TABLES.filter((_, i) => tableResults[i].error),
+  ];
+  if (failed.length > 0) {
+    console.error("[export] incomplete, refusing to send:", failed.join(", "));
+    return NextResponse.json(
+      {
+        error:
+          "We couldn't read all of your data just now, so we haven't sent a partial file. " +
+          "Nothing is wrong with your account. Try again in a minute.",
+        incomplete: failed,
+      },
+      { status: 503 },
+    );
+  }
 
   const data: Record<string, unknown> = {
     exported_at: new Date().toISOString(),

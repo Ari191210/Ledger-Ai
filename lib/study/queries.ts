@@ -117,14 +117,22 @@ export async function getRecentReviews(
   // the migration is applied by hand, so between the two this table does not
   // exist yet. No reviews then means a mistakes pillar of zero for that window,
   // which is what the data says, rather than a dashboard that will not load.
-  // It still goes to Sentry on the way out, because the fallback is otherwise
-  // permanent and silent: a deploy where the migration is never applied scores
-  // that pillar zero forever and nothing on the student's screen looks wrong,
-  // so this report is the only thing that would tell us. Loud to us, invisible
-  // to them. Every other error still throws.
+  // It is reported on the way out, because the fallback is otherwise permanent
+  // and silent: a deploy where the migration is never applied scores that pillar
+  // zero forever and nothing on the student's screen looks wrong.
+  //
+  // Be clear about what that report is worth today. NEXT_PUBLIC_SENTRY_DSN is
+  // not set in production, deliberately, because app/privacy/page.tsx promises
+  // that Anthropic is the only third party any study data reaches, and
+  // lib/privacy-claims.test.ts fails the build if a DSN appears before that page
+  // is amended. So captureException is inert in production and the console line
+  // below is the whole of the alerting: a Vercel log nobody is watching. Better
+  // than nothing, and much less than "we would be told". Every other error
+  // still throws.
   if (error) {
     if (error.code === "42P01" || error.code === "PGRST205") {
       Sentry.captureException(error);
+      console.error("[mistake_reviews] table missing, mistakes pillar will score 0:", error.code);
       return [];
     }
     throw error;

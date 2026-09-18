@@ -36,6 +36,26 @@ describe("describeFailure", () => {
     expect(describeFailure(apiError(400, "You have reached your specified API usage limits"))).toMatch(/paused/i);
   });
 
+  it("does not tell a student to retry a request that is wrong before it is sent", () => {
+    // A retired model is the one to expect: MODEL is a constant in client.ts, so
+    // every retry sends the same string, fails the same way, and spends one more
+    // of the student's daily requests. Same lie as the billing case, one status
+    // code along.
+    for (const status of [404, 400, 422]) {
+      const msg = describeFailure(apiError(status, "model: claude-sonnet-5 not found"));
+      expect(msg).toMatch(/won't help/i);
+      expect(msg).not.toMatch(/try again/i);
+    }
+  });
+
+  it("tells a student to shorten it, rather than apologising, when it was too long", () => {
+    // The one failure in this family they can act on. Reachable from the essay
+    // grader and the notes tool, which take the longest inputs, and where "this
+    // is on our side" would be both wrong and useless.
+    expect(describeFailure(apiError(413, "request too large"))).toMatch(/shorten/i);
+    expect(describeFailure(apiError(400, "prompt is too long: 250000 tokens"))).toMatch(/shorten/i);
+  });
+
   it("says wait, not paused, when the model is merely busy", () => {
     // 429 without the spend code is real congestion, where retrying is the
     // right advice and telling someone it is paused would be a lie.

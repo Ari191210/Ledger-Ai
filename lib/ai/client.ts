@@ -46,6 +46,20 @@ export function describeFailure(err: unknown): string {
   if (status === 401 || status === 403) {
     return "StudyLedger's AI is misconfigured right now. This is on our side, not anything you did.";
   }
+  // A retired or renamed model, and every other request that is wrong before it
+  // is sent. The model is a constant in this file, so the next attempt sends the
+  // same string and fails the same way, and each attempt spends one of the
+  // student's requests for the day because the invocation is recorded before the
+  // call. Same lie as the billing case, one status code along.
+  // Too long is the one failure in this family the student can actually act on,
+  // so it says what to do instead of apologising on our behalf. Reachable from
+  // the essay grader and the notes tool, which take the longest inputs.
+  if (status === 413 || /too long|exceed|maximum.*tokens/i.test(body?.message ?? "")) {
+    return "That was too long to send. Shorten it and try again.";
+  }
+  if (status === 404 || status === 400 || status === 422) {
+    return "StudyLedger's AI is misconfigured right now. This is on our side, not anything you did, and retrying won't help.";
+  }
   return "The AI request failed. Try again in a moment.";
 }
 
