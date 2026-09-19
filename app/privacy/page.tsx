@@ -56,7 +56,9 @@ export default function PrivacyPage() {
           don&apos;t sell, rent, or share your data with advertisers. The only
           third party your study data reaches is Anthropic, and only the
           specific text you submit to an AI tool, only to generate that
-          tool&apos;s response. If you choose to sign in with Google, Google
+          tool&apos;s response. Sentry, which tells us when something is
+          broken, receives crash reports and never your study data; see
+          &quot;Where your data lives&quot; below. If you choose to sign in with Google, Google
           confirms who you are and learns nothing about what you study; see
           &quot;Where your data lives&quot; below.
         </p>
@@ -77,6 +79,13 @@ export default function PrivacyPage() {
           Postgres and authentication). The application itself runs on
           Vercel. AI tool inputs are additionally processed by Anthropic as
           described above.
+        </p>
+        <p>
+          When something breaks, a crash report goes to Sentry, which is how we
+          find out that it broke instead of waiting to be told. A report says
+          what the error was and which page it happened on. It does not carry
+          your study data, your IP address, or any recording of your screen, and
+          we have turned off the parts of Sentry that would collect those.
         </p>
         <p>
           If you choose to sign in with Google, Google confirms your identity
@@ -109,7 +118,9 @@ export default function PrivacyPage() {
           Three things we do not do, to any user, and will not start doing to
           students: we run no advertising of any kind, we run no third-party
           analytics or tracking scripts, and we do not build behavioural
-          profiles for advertising or sell data to anyone. What StudyLedger
+          profiles for advertising or sell data to anyone. Sentry, named
+          above, is error monitoring and not analytics: it is told that
+          something failed, never what you were doing when it did. What StudyLedger
           records is the study activity you enter yourself, used to produce the
           score and suggestions that are the product you asked for, and shown
           only back to you.
