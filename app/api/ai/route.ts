@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getPromptSpec, type ToolValues } from "@/lib/tools/prompts";
@@ -183,6 +184,17 @@ export async function POST(req: Request) {
     // recorded before the count is taken.
     return NextResponse.json({ result, remaining: rateLimit.remaining });
   } catch (err) {
+    // This catch is why the outage on 2026-09-17 was found by a person pressing
+    // a button rather than by an alarm. Every AI failure is turned into JSON and
+    // returned, so nothing ever throws out of this route, so Next's
+    // onRequestError never fires, so Sentry never hears about it however well it
+    // is configured. The account had been out of credit long enough for every
+    // tool in the product to be dead, and nothing anywhere said so.
+    //
+    // Reported with the tool that failed, and without the student's input: the
+    // useful part is which tool and which provider error, and the question they
+    // asked is exactly what must not leave the building.
+    Sentry.captureException(err, { tags: { tool: spec.slug }, level: "error" });
     const message = err instanceof AIError ? err.message : "Something went wrong. Try again.";
     return NextResponse.json({ error: message }, { status: 502 });
   }

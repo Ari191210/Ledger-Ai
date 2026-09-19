@@ -76,6 +76,13 @@ describe("privacy page claims match the code", () => {
     expect(shared).toMatch(/sendDefaultPii:\s*false/);
     expect(shared).toMatch(/tracesSampleRate:\s*0/);
     expect(shared).not.toMatch(/replaysSessionSampleRate|replayIntegration|Replay\(/);
+    // The scrubbers are the other half of that promise: without them a crash
+    // report can carry a question, an essay or a topic name to a second
+    // processor the page says receives nothing. Behaviour is pinned in
+    // lib/sentry-scrub.test.ts; this only checks they are still wired in, since
+    // deleting one line here is all it takes to unwire them.
+    expect(shared).toMatch(/beforeBreadcrumb:\s*scrubBreadcrumb/);
+    expect(shared).toMatch(/beforeSend:\s*scrubEvent/);
   });
 
   it("keeps the two promises the page makes about deletion and export", () => {
