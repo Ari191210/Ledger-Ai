@@ -52,6 +52,8 @@ function ResetRequestForm() {
             <span className="u-label">email</span>
             <input
               type="email"
+              spellCheck={false}
+              autoCapitalize="none"
               required
               autoComplete="email"
               value={email}
@@ -60,7 +62,7 @@ function ResetRequestForm() {
             />
           </label>
 
-          {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+          {err && <p role="alert" className="u-mono text-2xs text-negative">{err}</p>}
 
           <Button type="submit" size="lg" disabled={busy} className="w-full">
             {busy ? "…" : "Send reset link"}

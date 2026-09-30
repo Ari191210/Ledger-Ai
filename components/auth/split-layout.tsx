@@ -55,7 +55,7 @@ export function SplitLayout({
       )}
     >
       <BrandPanel />
-      <main className="flex items-center justify-center px-6 py-12">
+      <main id="main" tabIndex={-1} className="flex items-center justify-center px-6 py-12">
         <div className={cn("w-full", form === "lg" ? "max-w-lg" : "max-w-sm")}>
           {children}
         </div>

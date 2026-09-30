@@ -13,7 +13,7 @@ export function LegalPage({
   children: React.ReactNode;
 }) {
   return (
-    <main className="mx-auto max-w-5xl px-6">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-6">
       <SiteNav />
       <article className="max-w-2xl py-8">
         <span className="u-label">{label}</span>

@@ -209,7 +209,7 @@ export function QuickLog({
               )}
             </div>
 
-            {err && <p className="mt-3 u-mono text-2xs text-negative">{err}</p>}
+            {err && <p role="alert" className="mt-3 u-mono text-2xs text-negative">{err}</p>}
 
             <Button className="mt-4 w-full" disabled={pending} onClick={submit}>
               {pending ? "Saving…" : "Add"}

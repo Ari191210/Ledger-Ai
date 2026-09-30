@@ -45,7 +45,7 @@ export default async function AppLayout({
             </Suspense>
           }
         />
-        <main className="flex-1 px-4 py-4 pb-20 lg:px-6 lg:py-5 md:pb-5">{children}</main>
+        <main id="main" tabIndex={-1} className="flex-1 px-4 py-4 pb-20 lg:px-6 lg:py-5 md:pb-5">{children}</main>
       </div>
       <MobileTabBar />
     </div>

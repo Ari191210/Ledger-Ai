@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { geist, jetbrainsMono } from "./fonts";
 import "./globals.css";
 
@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Browser chrome colour: the dark ground, since dark is the default theme.
+export const viewport: Viewport = { themeColor: "#0e0e0d" };
+
 // Runs before paint, sets the theme so there's no flash.
 const themeScript = `try{var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('sl-theme')||'dark';document.documentElement.dataset.theme=t;if(q)localStorage.setItem('sl-theme',t)}catch(e){document.documentElement.dataset.theme='dark'}`;
 
@@ -43,7 +46,13 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* First stop for a keyboard: jumps past the nav to the page itself. Hidden until focused. */}
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

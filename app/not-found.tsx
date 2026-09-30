@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main className="mx-auto max-w-5xl px-6">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-6">
       <SiteNav />
       <div className="flex min-h-[50vh] flex-col items-center justify-center py-16 text-center">
         <span className="u-label">404</span>

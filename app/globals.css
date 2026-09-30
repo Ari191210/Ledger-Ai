@@ -209,6 +209,34 @@
     border-radius: 2px;
   }
 
+  /* No double-tap zoom delay on anything you tap, and no grey flash over it:
+     every control here already answers a press with its own state. */
+  a, button, input, label, select, textarea, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 100;
+    padding: 8px 12px;
+    border: 1px solid var(--border-2);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus-visible {
+    transform: none;
+  }
+  main:focus {
+    outline: none;
+  }
+
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-weight: 700;

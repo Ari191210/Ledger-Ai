@@ -43,7 +43,7 @@ export default async function SamplePage() {
 
   if (!led) {
     return (
-      <main className="mx-auto max-w-5xl px-6">
+      <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-6">
         <SiteNav />
         <section className="py-20">
           <h1 className="text-3xl font-extrabold tracking-[-0.03em] text-text">
@@ -75,7 +75,7 @@ export default async function SamplePage() {
   };
 
   return (
-    <main className="mx-auto max-w-5xl px-6">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-6">
       <SiteNav />
 
       <section className="py-10 sm:py-14">

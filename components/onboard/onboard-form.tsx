@@ -98,7 +98,7 @@ export function OnboardForm() {
         </label>
       </div>
 
-      {err && <p className="mt-4 text-xs text-negative">{err}</p>}
+      {err && <p role="alert" className="mt-4 text-xs text-negative">{err}</p>}
 
       <Button
         onClick={submit}

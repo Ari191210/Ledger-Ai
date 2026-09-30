@@ -1,6 +1,7 @@
 "use client";
 
 import { PasswordInput } from "@/components/ui/password-input";
+import { BREACHED_MESSAGE, MIN_PASSWORD_LENGTH, isBreachedPassword, passwordProblem } from "@/lib/auth/password";
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,6 +42,13 @@ function LoginForm() {
       router.push(next);
       router.refresh();
     } else {
+      // new passwords only: the rules and the breach check never run on sign-in
+      const problem = passwordProblem(password, email) ?? ((await isBreachedPassword(password)) ? BREACHED_MESSAGE : null);
+      if (problem) {
+        setErr(problem);
+        setBusy(false);
+        return;
+      }
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -94,6 +102,8 @@ function LoginForm() {
           <span className="u-label">email</span>
           <input
             type="email"
+            spellCheck={false}
+            autoCapitalize="none"
             required
             autoComplete="email"
             value={email}
@@ -111,18 +121,32 @@ function LoginForm() {
             ) : null
           }
           required
-          minLength={10}
+          minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : undefined}
           autoComplete={mode === "signin" ? "current-password" : "new-password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+        {mode === "signup" && (
+          <p className="u-mono text-2xs text-text-3">
+            {MIN_PASSWORD_LENGTH}+ characters. We also check it against known data breaches; only a short, anonymous fragment of it leaves your browser.
+          </p>
+        )}
+        {err && <p role="alert" className="u-mono text-2xs text-negative">{err}</p>}
         {msg && <p className="u-mono text-2xs text-positive">{msg}</p>}
 
         <Button type="submit" size="lg" disabled={busy} className="w-full">
           {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
         </Button>
+        {/* Stated where the choice is made, not only in a footer link: creating the
+            account is the moment of agreement, so it says so right under the button. */}
+        {mode === "signup" && (
+          <p className="u-mono text-2xs leading-relaxed text-text-3">
+            By creating an account you agree to the{" "}
+            <Link href="/terms" className="underline hover:text-text">terms</Link> and the{" "}
+            <Link href="/privacy" className="underline hover:text-text">privacy policy</Link>.
+          </p>
+        )}
       </form>
 
       <button

@@ -53,7 +53,7 @@ export function ReviewQueue({ due }: { due: Mistake[] }) {
     // card by card, and seeing how much is left in one glance is the difference
     // between starting it and putting it off.
     <div className="space-y-2">
-      {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+      {err && <p role="alert" className="u-mono text-2xs text-negative">{err}</p>}
       <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       {visible.map((m) => (
         <div key={m.id} className="u-card flex items-center gap-3 p-3.5">

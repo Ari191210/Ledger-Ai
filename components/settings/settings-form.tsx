@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChipGroup } from "@/components/ui/chip-group";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
 import { PasswordForm } from "@/components/settings/password-form";
+import { TwoFactor } from "@/components/settings/two-factor";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { GRADES, BOARDS, STREAMS, EXAMS, streamApplies } from "@/lib/onboarding";
 import { isSoundOn, setSoundOn, playClick } from "@/lib/sound";
@@ -196,7 +197,7 @@ export function SettingsForm(p: Props) {
                   className="mt-1.5 w-full rounded-md border border-border-2 bg-surface-2 px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent"
                 />
               </label>
-              {nameErr && <p className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
+              {nameErr && <p role="alert" className="mt-2 u-mono text-2xs text-negative">{nameErr}</p>}
               <div className="mt-3 flex items-center gap-3">
                 <Button
                   size="sm"
@@ -245,7 +246,7 @@ export function SettingsForm(p: Props) {
               onChange={setExam}
             />
           </div>
-          {sylErr && <p className="mt-3 u-mono text-2xs text-negative">{sylErr}</p>}
+          {sylErr && <p role="alert" className="mt-3 u-mono text-2xs text-negative">{sylErr}</p>}
           <div className="mt-4 flex items-center gap-3">
             <Button
               size="sm"
@@ -285,6 +286,9 @@ export function SettingsForm(p: Props) {
       <Reveal delay={0.12}>
         <Section index="04" title="security" icon={KeyRound}>
           <PasswordForm email={p.email} />
+          <div className="mt-5 border-t border-border pt-5">
+            <TwoFactor />
+          </div>
         </Section>
       </Reveal>
 

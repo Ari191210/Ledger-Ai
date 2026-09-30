@@ -78,7 +78,7 @@ export function DangerZone({ email }: { email: string }) {
                     className="mt-1.5 w-full max-w-xs rounded-md border border-negative/40 bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-negative"
                   />
                 </label>
-                {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+                {err && <p role="alert" className="u-mono text-2xs text-negative">{err}</p>}
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"

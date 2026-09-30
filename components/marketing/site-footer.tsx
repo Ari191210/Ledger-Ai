@@ -4,6 +4,7 @@ import { BrandMark } from "./brand-mark";
 const LINKS = [
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
+  { href: "/cookies", label: "Cookies" },
   { href: "/contact", label: "Contact" },
 ];
 

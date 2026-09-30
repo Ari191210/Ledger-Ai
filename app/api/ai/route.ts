@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sessionOwesSecondFactor } from "@/lib/auth/mfa";
 import { getPromptSpec, type ToolValues } from "@/lib/tools/prompts";
 import { buildLedgerContext } from "@/lib/ai/ledger-context";
 import { getStudentProfile, buildProfileContext } from "@/lib/ai/profile-context";
@@ -65,6 +66,9 @@ export async function POST(req: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (await sessionOwesSecondFactor(supabase)) {
+    return NextResponse.json({ error: "Two-factor code required." }, { status: 401 });
+  }
 
   const values = sanitiseValues(spec, body?.values);
   const missing = missingRequired(spec, values);

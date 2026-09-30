@@ -89,7 +89,7 @@ export function GoogleButton({ next }: { next: string }) {
         <GoogleMark />
         {busy ? "Taking you to Google…" : "Continue with Google"}
       </button>
-      {err && <p className="mt-2 u-mono text-2xs text-negative">{err}</p>}
+      {err && <p role="alert" className="mt-2 u-mono text-2xs text-negative">{err}</p>}
     </div>
   );
 }

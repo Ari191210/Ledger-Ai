@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalPage label="legal" title="Terms of Service" updated="5 September 2026">
+    <LegalPage label="legal" title="Terms of Service" updated="1 October 2026">
       <LegalSection title="Agreement">
         <p>
           By creating an account on StudyLedger (studyledger.in) you agree
@@ -80,6 +80,15 @@ export default function TermsPage() {
           The study data you log (mistakes, PYQ attempts, syllabus,
           habits, deadlines) is yours. See the <Link href="/privacy">Privacy Policy</Link> for what we
           collect and how to export or delete it.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Price and refunds">
+        <p>
+          StudyLedger is free to use. We don&apos;t take payments and there are no
+          paid plans, so there is nothing to be charged for and nothing to refund.
+          If paid plans are ever introduced, their prices and a refund policy will
+          be published on this page before anyone is asked to pay.
         </p>
       </LegalSection>
 

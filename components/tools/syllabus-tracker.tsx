@@ -93,7 +93,7 @@ export function SyllabusTracker({ topics }: { topics: SyllabusTopic[] }) {
             <Plus size={13} /> add
           </Button>
         </div>
-        {err && <p className="mt-2 u-mono text-2xs text-negative">{err}</p>}
+        {err && <p role="alert" className="mt-2 u-mono text-2xs text-negative">{err}</p>}
       </section>
 
       {grouped.length === 0 && (

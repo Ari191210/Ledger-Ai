@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalPage label="legal" title="Privacy Policy" updated="6 September 2026">
+    <LegalPage label="legal" title="Privacy Policy" updated="1 October 2026">
       <LegalSection title="What this covers">
         <p>
           This describes what StudyLedger (studyledger.in) collects when you
@@ -69,7 +69,8 @@ export default function PrivacyPage() {
           A session cookie set by Supabase keeps you signed in; it&apos;s
           required for the product to work and isn&apos;t used for tracking.
           Your browser&apos;s local storage holds your theme (light/dark) and
-          sound preference, on your device only, never sent to us.
+          sound preference, on your device only, never sent to us. The full
+          list is in the <Link href="/cookies">Cookie Policy</Link>.
         </p>
       </LegalSection>
 
@@ -93,6 +94,13 @@ export default function PrivacyPage() {
           between us: Google is not told what you study, and your study data
           is never sent to Google. Signing in with an email address and a
           password instead keeps Google out of it entirely.
+        </p>
+        <p>
+          When you choose a new password, your browser checks it against
+          HaveIBeenPwned&apos;s list of passwords leaked in data breaches. Your
+          password never leaves your device: only the first five characters of
+          a one-way hash of it are sent, which matches hundreds of different
+          passwords, and the comparison happens in your browser.
         </p>
       </LegalSection>
 

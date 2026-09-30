@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateStudyProfile } from "@/lib/onboarding";
 import { confirmsDeletion } from "@/lib/account/delete-confirmation";
+import { sessionOwesSecondFactor } from "@/lib/auth/mfa";
 
 type Result = { ok: true } | { error: string };
 
@@ -71,6 +72,7 @@ export async function deleteAccount(confirmation: string): Promise<Result> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  if (await sessionOwesSecondFactor(supabase)) redirect("/auth/mfa?next=/settings");
 
   // The confirmation is checked here, not only in the form. Until 2026-09-16
   // the box asking you to type "delete" was the whole safeguard and this action

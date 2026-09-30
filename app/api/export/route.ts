@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sessionOwesSecondFactor } from "@/lib/auth/mfa";
 
 // Full, honest export of everything StudyLedger stores for this user, one
 // row set per table, unfiltered (not the score engine's derived views).
@@ -32,6 +33,9 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (await sessionOwesSecondFactor(supabase)) {
+    return NextResponse.json({ error: "Two-factor code required." }, { status: 401 });
+  }
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")

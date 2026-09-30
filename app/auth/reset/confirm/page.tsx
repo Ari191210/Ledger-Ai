@@ -1,6 +1,7 @@
 "use client";
 
 import { PasswordInput } from "@/components/ui/password-input";
+import { BREACHED_MESSAGE, MIN_PASSWORD_LENGTH, isBreachedPassword, passwordProblem } from "@/lib/auth/password";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -33,6 +34,12 @@ function ResetConfirmForm() {
       return;
     }
     setBusy(true);
+    const problem = passwordProblem(password) ?? ((await isBreachedPassword(password)) ? BREACHED_MESSAGE : null);
+    if (problem) {
+      setErr(problem);
+      setBusy(false);
+      return;
+    }
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
@@ -77,7 +84,7 @@ function ResetConfirmForm() {
           <PasswordInput
             label="new password"
             required
-            minLength={8}
+            minLength={MIN_PASSWORD_LENGTH}
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -85,13 +92,13 @@ function ResetConfirmForm() {
           <PasswordInput
             label="confirm password"
             required
-            minLength={8}
+            minLength={MIN_PASSWORD_LENGTH}
             autoComplete="new-password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
           />
 
-          {err && <p className="u-mono text-2xs text-negative">{err}</p>}
+          {err && <p role="alert" className="u-mono text-2xs text-negative">{err}</p>}
 
           <Button type="submit" size="lg" disabled={busy} className="w-full">
             {busy ? "…" : "Update password"}

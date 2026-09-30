@@ -591,6 +591,10 @@ const SECURITY_DEFINER_REVIEWED: Readonly<Record<string, { why: string; grantedT
   // Adds minutes to the caller's own activity row. Definer so it can upsert
   // without a select-then-insert race; scoped to auth.uid() inside the body.
   add_activity_minutes: { why: "upserts the caller's own activity row", grantedTo: ["authenticated"] },
+  // 0019. Definer only because auth.mfa_factors is not readable by the
+  // authenticated role. Reads the caller's own factors (auth.uid()) and
+  // returns a single boolean; exposes nothing about any other user.
+  session_meets_mfa: { why: "two-factor gate for RLS, reads only the caller's own factor status, returns a boolean", grantedTo: ["authenticated"] },
   // The one genuine cross-user read in the product. Returns aggregates only,
   // never rows, and only for topics at least three students share, so no
   // individual is identifiable. Peer Heatmap is currently hidden and this

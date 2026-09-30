@@ -1,7 +1,43 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+// Content-Security-Policy: the browser refuses any script, style, frame or
+// network call from a source not listed here, so an injected <script> or a
+// stray third-party tag has nowhere to load from or send data to.
+//
+// No nonces. A nonce CSP forces every page to render per request, which would
+// throw away static rendering across the marketing site; the hash of the one
+// inline script (the theme setter in app/layout.tsx) is not stable across Next's
+// own inline bootstrap scripts either. So 'unsafe-inline' stays for scripts,
+// the documented "without nonces" setup (node_modules/next/dist/docs/01-app/
+// 02-guides/content-security-policy.md). Everything else is locked to named
+// hosts. React already escapes every value it renders; this is the second wall.
+//
+// connect-src: Supabase (auth and data), the breached-password range lookup
+// (lib/auth/password.ts). Sentry is not listed because tunnelRoute below sends
+// it through our own origin. 'unsafe-eval' only in dev, for React's debugging.
+const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+  : "";
+const isDev = process.env.NODE_ENV !== "production";
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  // data: for the two-factor QR code Supabase returns as an SVG data URL
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  `connect-src 'self' ${supabaseOrigin} https://api.pwnedpasswords.com`.trim(),
+  "frame-src 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

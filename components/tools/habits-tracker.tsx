@@ -101,7 +101,7 @@ export function HabitsTracker({ habits, today }: { habits: HabitVM[]; today: str
             <Plus size={14} /> add
           </Button>
         </div>
-        {err && <p className="mt-2 u-mono text-2xs text-negative">{err}</p>}
+        {err && <p role="alert" className="mt-2 u-mono text-2xs text-negative">{err}</p>}
       </section>
 
       {shown.length === 0 && (

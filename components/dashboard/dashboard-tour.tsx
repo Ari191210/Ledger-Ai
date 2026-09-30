@@ -542,7 +542,7 @@ export function DashboardTour({
                 />
               </label>
             </div>
-            {formError && <p className="u-mono text-2xs text-negative">{formError}</p>}
+            {formError && <p role="alert" className="u-mono text-2xs text-negative">{formError}</p>}
             <div className="flex items-center justify-between gap-2 pt-1">
               <button
                 type="button"

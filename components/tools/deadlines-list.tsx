@@ -144,7 +144,7 @@ export function DeadlinesList({ deadlines, today }: { deadlines: Deadline[]; tod
             </Button>
           </div>
         </div>
-        {err && <p className="mt-2 u-mono text-2xs text-negative">{err}</p>}
+        {err && <p role="alert" className="mt-2 u-mono text-2xs text-negative">{err}</p>}
       </section>
 
       {shown.length === 0 && (

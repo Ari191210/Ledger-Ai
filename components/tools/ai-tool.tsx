@@ -161,7 +161,7 @@ export function AiTool({
         <Button onClick={run} disabled={pending} className="mt-4 w-full justify-center">
           <Sparkles size={14} /> {pending ? "thinking…" : "generate"}
         </Button>
-        {error && <p className="mt-2 u-mono text-2xs text-negative">{error}</p>}
+        {error && <p role="alert" className="mt-2 u-mono text-2xs text-negative">{error}</p>}
 
         {/* Only near the end. Counting down from the first request would make
             the allowance feel like the point, when most sessions never reach
@@ -242,7 +242,7 @@ export function AiTool({
             {logged ? <Check size={14} /> : <Plus size={14} />}
             {logged ? "in Fix Next" : "Add to Fix Next"}
           </Button>
-          {logError && <p className="u-mono w-full text-2xs text-negative">{logError}</p>}
+          {logError && <p role="alert" className="u-mono w-full text-2xs text-negative">{logError}</p>}
         </section>
       )}
 
@@ -404,7 +404,7 @@ function QaResult({
 
   return (
     <div className="space-y-2">
-      {logErr && <p className="u-mono text-2xs text-negative">{logErr}</p>}
+      {logErr && <p role="alert" className="u-mono text-2xs text-negative">{logErr}</p>}
       {items.map((item, i) => {
         const isOpen = open.has(i);
         return (
