@@ -55,12 +55,23 @@ function body(purpose: Purpose, code: string): { text: string; html: string } {
 /** Send the code with Resend (studyledger.in is a verified sending domain). */
 export async function sendCodeEmail(to: string, purpose: Purpose, code: string): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
-  if (!key) return false;
+  if (!key) {
+    console.error("[two-factor] RESEND_API_KEY is not set");
+    return false;
+  }
   const { text, html } = body(purpose, code);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: "StudyLedger <hello@studyledger.in>", to: [to], subject: SUBJECT[purpose], text, html }),
-  }).catch(() => null);
+  }).catch((e) => {
+    console.error("[two-factor] Resend unreachable:", e instanceof Error ? e.message : e);
+    return null;
+  });
+  if (res && !res.ok) {
+    // Resend's error body names the cause (bad key, unverified domain, quota)
+    // and carries no secret or recipient data.
+    console.error(`[two-factor] Resend refused (${res.status}):`, (await res.text().catch(() => "")).slice(0, 300));
+  }
   return !!res?.ok;
 }
