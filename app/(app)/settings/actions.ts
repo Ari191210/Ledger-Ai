@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateStudyProfile } from "@/lib/onboarding";
 import { confirmsDeletion } from "@/lib/account/delete-confirmation";
-import { sessionOwesSecondFactor } from "@/lib/auth/mfa";
+import { sessionOwesSecondFactor } from "@/lib/auth/two-factor-check";
 
 type Result = { ok: true } | { error: string };
 

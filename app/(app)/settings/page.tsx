@@ -21,6 +21,8 @@ export default async function SettingsPage() {
       board={profile?.board ?? ""}
       stream={profile?.stream ?? ""}
       targetExam={profile?.target_exam ?? ""}
+      twoFactor={user!.app_metadata?.two_factor === "email"}
+      passwordSignIn={!!user!.identities?.some((i) => i.provider === "email")}
     />
   );
 }

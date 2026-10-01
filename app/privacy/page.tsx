@@ -100,7 +100,14 @@ export default function PrivacyPage() {
           HaveIBeenPwned&apos;s list of passwords leaked in data breaches. Your
           password never leaves your device: only the first five characters of
           a one-way hash of it are sent, which matches hundreds of different
-          passwords, and the comparison happens in your browser.
+          passwords, and the comparison happens in your browser. Our server
+          repeats the same check the same way when the password is saved.
+        </p>
+        <p>
+          If you turn on two-factor sign-in, the codes are emailed to you
+          through Resend, which receives your email address and the message
+          itself and nothing else. We keep only a scrambled form of each code,
+          for ten minutes.
         </p>
       </LegalSection>
 

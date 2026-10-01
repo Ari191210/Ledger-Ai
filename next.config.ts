@@ -24,8 +24,7 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  // data: for the two-factor QR code Supabase returns as an SVG data URL
-  "img-src 'self' data: blob:",
+  "img-src 'self' blob:",
   "font-src 'self'",
   `connect-src 'self' ${supabaseOrigin} https://api.pwnedpasswords.com`.trim(),
   "frame-src 'none'",

@@ -179,6 +179,15 @@ function parseMigrations(files: { name: string; sql: string }[]): Schema {
     for (const stmt of statementsOf(file.sql)) {
       const where = `${file.name}: ${stmt.slice(0, 90)}`;
 
+      // Statements on the `private` schema (0021's two-factor codes and
+      // verified sessions). PostgREST does not serve that schema and no role
+      // but service_role holds privileges on its tables, so they are outside
+      // what this audit guards: the API cannot reach them at all. Recognised
+      // by name, not skipped by accident.
+      if (/^(?:alter table|create table(?: if not exists)?|create index[^(]* on|revoke [a-z, ]+ on table|grant [a-z, ]+ on table) private\.\w+/i.test(stmt)) {
+        continue;
+      }
+
       // Checked before the plain CREATE TABLE below, and that order is the
       // finding: `create table x (like public.mistakes including constraints)`
       // matches the ordinary shape, parses to a body with no column carrying a

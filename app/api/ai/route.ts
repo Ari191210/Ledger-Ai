@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { sessionOwesSecondFactor } from "@/lib/auth/mfa";
+import { sessionOwesSecondFactor } from "@/lib/auth/two-factor-check";
 import { getPromptSpec, type ToolValues } from "@/lib/tools/prompts";
 import { buildLedgerContext } from "@/lib/ai/ledger-context";
 import { getStudentProfile, buildProfileContext } from "@/lib/ai/profile-context";

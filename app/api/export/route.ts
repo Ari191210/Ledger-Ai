@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { sessionOwesSecondFactor } from "@/lib/auth/mfa";
+import { sessionOwesSecondFactor } from "@/lib/auth/two-factor-check";
 
 // Full, honest export of everything StudyLedger stores for this user, one
 // row set per table, unfiltered (not the score engine's derived views).
@@ -81,7 +81,13 @@ export async function GET() {
 
   const data: Record<string, unknown> = {
     exported_at: new Date().toISOString(),
-    account: { id: user.id, email: user.email, created_at: user.created_at },
+    account: {
+      id: user.id,
+      email: user.email,
+      created_at: user.created_at,
+      // Stored in auth app_metadata, not a table, so the list above can't find it.
+      two_factor: user.app_metadata?.two_factor ?? "off",
+    },
     profile: profile ?? null,
   };
   TABLES.forEach((t, i) => {

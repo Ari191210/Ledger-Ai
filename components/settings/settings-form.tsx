@@ -22,6 +22,8 @@ type Props = {
   board: string;
   stream: string;
   targetExam: string;
+  twoFactor: boolean;
+  passwordSignIn: boolean;
 };
 
 /** Layout effect on the client, plain effect on the server, so the pre-paint
@@ -287,7 +289,7 @@ export function SettingsForm(p: Props) {
         <Section index="04" title="security" icon={KeyRound}>
           <PasswordForm email={p.email} />
           <div className="mt-5 border-t border-border pt-5">
-            <TwoFactor />
+            <TwoFactor on={p.twoFactor} passwordSignIn={p.passwordSignIn} />
           </div>
         </Section>
       </Reveal>
