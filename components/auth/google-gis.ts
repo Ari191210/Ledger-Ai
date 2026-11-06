@@ -23,15 +23,18 @@ export const GOOGLE_CLIENT_ID =
 
 const OPT_IN_KEY = "sl-gis";
 
+// On for everyone since 2026-11-06, after a real Google sign-in on production
+// through ?gis=1. NEXT_PUBLIC_GOOGLE_GIS=0 turns it off site-wide;
+// /login?gis=0 turns it off for one browser (?gis=1 turns it back on).
 export function gisEnabled(): boolean {
-  if (process.env.NEXT_PUBLIC_GOOGLE_GIS === "1") return true;
+  if (process.env.NEXT_PUBLIC_GOOGLE_GIS === "0") return false;
   try {
     const p = new URLSearchParams(window.location.search).get("gis");
-    if (p === "1") window.localStorage.setItem(OPT_IN_KEY, "1");
-    if (p === "0") window.localStorage.removeItem(OPT_IN_KEY);
-    return window.localStorage.getItem(OPT_IN_KEY) === "1";
+    if (p === "0") window.localStorage.setItem(OPT_IN_KEY, "0");
+    if (p === "1") window.localStorage.removeItem(OPT_IN_KEY);
+    return window.localStorage.getItem(OPT_IN_KEY) !== "0";
   } catch {
-    return false;
+    return true;
   }
 }
 
