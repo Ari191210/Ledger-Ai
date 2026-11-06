@@ -20,14 +20,17 @@ const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
   : "";
 const isDev = process.env.NODE_ENV !== "production";
+// Google Identity Services (components/auth/google-gis.ts): its script, its
+// button's stylesheet and iframe, and its token endpoint, all under /gsi/.
+const gsi = "https://accounts.google.com/gsi/";
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob:",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} ${gsi}client`,
+  `style-src 'self' 'unsafe-inline' ${gsi}style`,
+  "img-src 'self' blob: https://lh3.googleusercontent.com",
   "font-src 'self'",
-  `connect-src 'self' ${supabaseOrigin} https://api.pwnedpasswords.com`.trim(),
-  "frame-src 'none'",
+  `connect-src 'self' ${supabaseOrigin} https://api.pwnedpasswords.com ${gsi}`.trim(),
+  `frame-src ${gsi}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

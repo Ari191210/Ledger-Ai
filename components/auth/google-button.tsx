@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { GOOGLE_CLIENT_ID, gisEnabled, loadGis, makeNonce } from "./google-gis";
 import { createClient } from "@/lib/supabase/client";
 import { playClick } from "@/lib/sound";
 import { cn } from "@/lib/utils";
@@ -49,6 +50,66 @@ function GoogleMark() {
 export function GoogleButton({ next }: { next: string }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  // Google's own button, on our origin (see google-gis.ts). Until it has
+  // rendered, and whenever it cannot, the redirect button below is shown.
+  const gisRef = useRef<HTMLDivElement>(null);
+  const [gisReady, setGisReady] = useState(false);
+  const nextRef = useRef(next);
+  useEffect(() => {
+    nextRef.current = next;
+  }, [next]);
+
+  useEffect(() => {
+    if (!gisEnabled()) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [id, nonce] = await Promise.all([loadGis(), makeNonce()]);
+        if (cancelled || !gisRef.current) return;
+        id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          nonce: nonce.hashed,
+          ux_mode: "popup",
+          itp_support: true,
+          use_fedcm_for_button: true,
+          callback: async ({ credential }) => {
+            if (!credential) return;
+            setBusy(true);
+            setErr(null);
+            const { error } = await createClient().auth.signInWithIdToken({
+              provider: "google",
+              token: credential,
+              nonce: nonce.raw,
+            });
+            if (error) {
+              setErr("Google sign-in didn't go through. Try again, or use your email and password.");
+              setBusy(false);
+              return;
+            }
+            // A full load, so the server sees the new session cookie and the
+            // proxy can ask for a second factor if this account has one.
+            window.location.assign(nextRef.current);
+          },
+        });
+        const width = Math.min(400, Math.max(200, Math.round(gisRef.current.parentElement?.getBoundingClientRect().width || 320)));
+        id.renderButton(gisRef.current, {
+          type: "standard",
+          theme: "filled_black",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          logo_alignment: "center",
+          width,
+        });
+        if (!cancelled) setGisReady(true);
+      } catch {
+        // Blocked, offline or slow: the redirect button stays, and works.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function go() {
     setBusy(true);
@@ -73,8 +134,14 @@ export function GoogleButton({ next }: { next: string }) {
 
   return (
     <div>
+      <div
+        ref={gisRef}
+        aria-busy={busy}
+        className={cn("flex min-h-[44px] w-full justify-center", !gisReady && "hidden")}
+      />
       <button
         type="button"
+        hidden={gisReady}
         onClick={go}
         disabled={busy}
         className={cn(
