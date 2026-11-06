@@ -137,6 +137,9 @@ export function GoogleButton({ next }: { next: string }) {
       <div
         ref={gisRef}
         aria-busy={busy}
+        // Google's iframe paints a white box behind its button when the page
+        // is in dark color-scheme; light here keeps the iframe transparent.
+        style={{ colorScheme: "light" }}
         className={cn("flex min-h-[44px] w-full justify-center", !gisReady && "hidden")}
       />
       <button
