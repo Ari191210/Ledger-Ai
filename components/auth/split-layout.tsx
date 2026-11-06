@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { VISIBLE_TOOLS } from "@/lib/tools/registry";
 
 function BrandPanel() {
   return (
@@ -26,7 +27,7 @@ function BrandPanel() {
         {[
           ["01", "the number"],
           ["06", "boards"],
-          ["25", "tools"],
+          [String(VISIBLE_TOOLS.length), "tools"],
         ].map(([n, label]) => (
           <div key={label}>
             <dt className="u-stat-number text-xl text-text">{n}</dt>
