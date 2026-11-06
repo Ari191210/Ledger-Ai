@@ -58,6 +58,9 @@ const nextConfig: NextConfig = {
       { source: "/tools/tutor", destination: "/tools/doubt", permanent: true },
       { source: "/tools/assignment", destination: "/tools/model-answer", permanent: true },
       { source: "/tools/career", destination: "/tools", permanent: true },
+      // People type /signup by habit; the form lives on /login.
+      { source: "/signup", destination: "/login?mode=signup", permanent: false },
+      { source: "/register", destination: "/login?mode=signup", permanent: false },
     ];
   },
 };

@@ -18,7 +18,9 @@ function LoginForm() {
   // handed to Supabase as the post-confirmation destination.
   const next = safeNext(params.get("next"), typeof window === "undefined" ? "https://studyledger.in" : window.location.origin);
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(
+    params.get("mode") === "signup" ? "signup" : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
